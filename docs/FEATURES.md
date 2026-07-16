@@ -6,14 +6,16 @@ canonical issue tracker until an implementation lands.
 ## Repository foundation
 
 * Public Forgejo-canonical repository under `coilyco-flight-deck`.
+* Personal-product positioning: Kai's opinionated context system is published
+  in the open rather than presented as a neutral enterprise framework.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
-* MIT licensing for reuse as a generic context-composition tool.
+* MIT licensing for the public source.
 
 ## Product status
 
-No compiler, KDL schema, bundle protocol, harness adapter, cache, or release
-artifact ships yet.
+No compiler, embedded person configuration, KDL schema, bundle protocol,
+harness adapter, cache, or release artifact ships yet.
 
 ## See also
 

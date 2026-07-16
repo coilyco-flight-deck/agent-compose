@@ -1,34 +1,49 @@
 # agent-compose
 
-Agent-compose is a profile-aware compiler for agent context. It is being split
-from [agentic-os](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os)
-so context selection and delivery can evolve as a reusable product without
-turning Ward into an information-architecture engine.
+Agent-compose is Kai's personal, profile-aware compiler for agent context. It
+is public source, but intentionally opinionated: the product includes her
+synthetic company, personality catalog, and composition defaults rather than
+presenting itself as a neutral enterprise framework.
 
 The intended product accepts explicit facts about the agent, role, model class,
 privacy scope, and target repositories. It resolves those facts against
-operator-owned policy, then emits an immutable context bundle for a host harness
-or a warded container to consume.
+embedded personal policy plus scoped overlays, then emits an immutable context
+bundle for a host harness or a warded container to consume.
 
 ## Ownership boundary
 
-Agent-compose owns composition mechanics:
+Agent-compose owns composition mechanics and its bundled public-safe person
+configuration:
 
 * profile and repo-capability resolution
+* the ten-seat company roster and organizational purpose
+* role-neutral personalities and curated role compatibility
 * native-skill and compiled-context delivery
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * bundle inspection, validation, and compatibility reporting
 
-It does not own the knowledge itself. Agentic-os owns public doctrine, skills,
-and capability policy. Private overlays remain outside this public repo. Ward
-supplies runtime facts and mounts an opaque bundle. Infrastructure installs and
-converges the resulting system.
+Agentic-os owns reusable doctrine, general skills, capability providers, and
+editorial validation. Private overlays remain outside this public repo. Ward
+owns executable authority and supplies runtime facts while mounting an opaque
+bundle. Personality and organizational framing never alter Ward permissions.
+Infrastructure installs and converges the resulting system.
+
+## Personal by design
+
+The initial person configuration is Kai's ten-role synthetic company and
+sixteen-personality catalog described in
+[agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
+and tracked for implementation in
+[agent-compose#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10).
+The engine may keep clean internal contracts, but v0.1 does not add abstraction
+solely to make this personal configuration look generic. Other users can fork
+or replace policy later without becoming the design center now.
 
 ## Status
 
-The repository is in architecture and bootstrap. No compiler, bundle protocol,
-or release artifact ships yet. The canonical Forgejo
+The repository is in architecture and bootstrap. No compiler, embedded person
+configuration, bundle protocol, or release artifact ships yet. The canonical Forgejo
 [issue tracker](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues)
 holds the v0.1 implementation plan.
 

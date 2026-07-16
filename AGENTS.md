@@ -2,10 +2,11 @@
 
 ## Scope
 
-Agent-compose is the generic engine that selects, compiles, and materializes
-agent context for host harnesses and warded containers. Keep this repository
-public-safe and independent of any one operator's doctrine, identity, machines,
-or deployment.
+Agent-compose is Kai's personal engine for selecting, compiling, and
+materializing agent context for host harnesses and warded containers. It is
+public source and may embed her public-safe company roster, personalities, and
+composition defaults. Keep private identity detail, machines, credentials, and
+deployment values out of the repo.
 
 ## Project shape
 
@@ -16,14 +17,17 @@ the code does not precede its public boundary.
 
 ## Repo boundaries
 
-* `agent-compose` owns the generic compiler, schema, resolver, cache, bundle
-  format, harness adapters, and diagnostics.
-* `agentic-os` owns public knowledge sources, skills, capability vocabulary,
-  provider policy, and editorial validators.
-* Private overlays and operator-specific policy do not enter this repo.
+* `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
+  harness adapters, diagnostics, and Kai's public-safe person configuration.
+* The person configuration owns organizational purpose, role-neutral
+  personalities, curated compatibility, and context-selection policy.
+* `agentic-os` owns reusable knowledge sources, general skills, capability
+  providers, and editorial validators.
+* Private overlays stay outside this public repo and may extend the embedded
+  person source without replacing its canonical public-safe content.
 * `ward` owns execution permissions, role authority, runtime-fact resolution,
-  and the generic read-only bundle mount. It must not interpret composition
-  policy.
+  and the generic read-only bundle mount. Shared role slugs do not transfer
+  permission ownership into agent-compose.
 * `infrastructure` owns installation, binary shadowing rollout, host paths, and
   fleet convergence.
 * Product repos own their identity declarations and any bespoke, foundational,
@@ -59,9 +63,10 @@ bundle.
 
 The input contract names resolved facts without importing Ward policy. The
 output contract is a versioned manifest plus a filesystem tree that consumers
-treat as opaque. AOS policy maps repo capabilities to content. Ward and native
-harness wrappers consume the output contract. Changes to either contract need
-compatibility tests against both consumers before release.
+treat as opaque. Agent-compose combines its embedded person policy with AOS
+capability providers and scoped overlays. Ward and native harness wrappers
+consume the output contract. Changes to either contract need compatibility
+tests against both consumers before release.
 
 ## Release
 
@@ -72,8 +77,10 @@ Do not infer release behavior from agentic-os or Ward.
 
 ## Agent rules
 
-Keep one issue per independently verifiable vertical slice. Do not copy AOS
-content into engine fixtures or teach the engine Kai-specific profile names.
+Keep one issue per independently verifiable vertical slice. Kai-specific,
+public-safe role and personality policy is first-class product content. Do not
+generalize it prematurely, copy reusable AOS skills into this repo, or allow
+personality to alter truthfulness, authority, safety, rollback, or completion.
 Generated bundles and rendered references stay uncommitted. Update
 [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant capability
 actually ships.
