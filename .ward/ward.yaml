@@ -1,0 +1,14 @@
+# Catalog schema: coilyco-flight-deck/agentic-os.
+catalog:
+  description: "agent-compose - profile-aware agent context composition and delivery."
+  dependsOn:
+    - forgejo.coilysiren.me/coilyco-flight-deck/agentic-os
+    - forgejo.coilysiren.me/coilyco-flight-deck/ward
+
+commands:
+  test:
+    run: pre-commit run --all-files
+    description: Run all repository validation.
+  pre-commit:
+    run: pre-commit run --all-files
+    description: Run the complete pre-commit suite explicitly.

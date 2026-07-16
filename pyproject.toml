@@ -1,0 +1,2 @@
+[tool.agentic-os.code-comments]
+excludes = [".pre-commit-config.yaml"]
