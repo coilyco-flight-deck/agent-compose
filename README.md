@@ -62,5 +62,6 @@ Agent-compose is available under the [MIT License](LICENSE).
 
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
+* [docs/architecture.md](docs/architecture.md) - proposed v0.1 composition boundary.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

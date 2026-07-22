@@ -1,2 +1,7 @@
+[tool.agentic-os.documentation-layout]
+# Contract fixtures deliberately model the nested Markdown and SKILL.md trees
+# that a bundle carries. They are test inputs, not repository documentation.
+excludes = ["testdata/contracts/**"]
+
 [tool.agentic-os.code-comments]
 excludes = [".pre-commit-config.yaml"]
