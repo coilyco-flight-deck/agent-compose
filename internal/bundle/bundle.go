@@ -23,6 +23,7 @@ type Manifest struct {
 	Format      string   `json:"format"`
 	Role        string   `json:"role"`
 	Personality string   `json:"personality"`
+	Color       string   `json:"color,omitempty"`
 	Density     string   `json:"density"`
 	Sources     []string `json:"sources"`
 	Delivery    Delivery `json:"delivery"`
@@ -149,6 +150,7 @@ func write(res *resolver.Resolution, root string) error {
 		Format:      "agent-compose.bundle",
 		Role:        res.Request.Role,
 		Personality: res.Request.Personality,
+		Color:       res.FavoriteColor,
 		Density:     res.Request.Density,
 		Sources:     res.SourceIDs,
 		Delivery:    delivery,

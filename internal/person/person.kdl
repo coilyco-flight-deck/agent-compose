@@ -36,7 +36,7 @@ person "kai" {
     role "sales" {
         purpose "Brings in the money."
     }
-    personality "curious" skill="personality-curious"
-    personality "grounded" skill="personality-grounded"
-    personality "meticulous" skill="personality-meticulous"
+    personality "curious" skill="personality-curious" color="#d98e48"
+    personality "grounded" skill="personality-grounded" color="#5fa87a"
+    personality "meticulous" skill="personality-meticulous" color="#7d9fd3"
 }

@@ -7,6 +7,7 @@
   "format": "agent-compose.bundle",
   "role": "engineer",
   "personality": "curious",
+  "color": "#d98e48",
   "density": "full",
   "sources": ["person:kai", "aos-public"],
   "delivery": {
@@ -29,7 +30,9 @@ checking can hash the tree itself.
 
 `sources` records which places content came from, by stable id, so the trace
 and a human reader can refer to them. Locators and absolute paths never
-appear.
+appear. `color` is the composed identity's favorite color when the selected
+personality declares one; [person-contract.md](person-contract.md) owns the
+legibility rules.
 
 ## See also
 

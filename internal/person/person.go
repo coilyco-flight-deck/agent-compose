@@ -8,6 +8,8 @@ import (
 	"fmt"
 
 	kdl "github.com/calico32/kdl-go"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
 //go:embed person.kdl
@@ -27,10 +29,17 @@ type Role struct {
 	Seats         []Seat
 }
 
+// Personality binds a name to the skill defining it and an optional
+// terminal-legible favorite color.
+type Personality struct {
+	Skill string
+	Color string
+}
+
 type Person struct {
 	Name          string
 	Roles         map[string]Role
-	Personalities map[string]string
+	Personalities map[string]Personality
 	Raw           []byte
 }
 
@@ -54,7 +63,7 @@ func parse(raw []byte) (*Person, error) {
 	p := &Person{
 		Name:          args[0].String(),
 		Roles:         map[string]Role{},
-		Personalities: map[string]string{},
+		Personalities: map[string]Personality{},
 		Raw:           raw,
 	}
 	for _, n := range root.Children().Nodes {
@@ -123,7 +132,14 @@ func parse(raw []byte) (*Person, error) {
 			if !skill.IsValid() {
 				return nil, fmt.Errorf("personality %q needs a skill property", name)
 			}
-			p.Personalities[name] = skill.String()
+			personality := Personality{Skill: skill.String()}
+			if c := n.Prop("color"); c.IsValid() {
+				personality.Color = c.String()
+				if err := color.Legible(personality.Color); err != nil {
+					return nil, fmt.Errorf("personality %q: %w", name, err)
+				}
+			}
+			p.Personalities[name] = personality
 		default:
 			return nil, fmt.Errorf("embedded person source: unknown node %q", n.Name())
 		}

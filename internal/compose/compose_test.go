@@ -53,6 +53,9 @@ func TestComposeAllFixtures(t *testing.T) {
 			if len(m.Sources) != 2 || m.Sources[0] != "person:kai" || m.Sources[1] != "aos-public" {
 				t.Fatalf("unexpected sources: %+v", m.Sources)
 			}
+			if m.Color == "" {
+				t.Fatalf("manifest must carry the personality's favorite color: %+v", m)
+			}
 			mustExist(t, result.Bundle.Dir, "content/instructions.md")
 			mustExist(t, result.Bundle.Dir, "trace.json")
 			skillPath := "content/skills/aos-public/personality-" + want.personality + "/SKILL.md"

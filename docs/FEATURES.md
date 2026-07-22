@@ -50,6 +50,10 @@ canonical issue tracker until an implementation lands.
   `compose --explain` appends the full tree to the one-screen summary.
 * Color only on a TTY with NO_COLOR unset; redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
+* Favorite colors: each personality declares a hex color gated at parse time
+  into the terminal-legible OKLab band; the composed favorite rides the
+  manifest and tints the describe header, and multi-component favorites
+  derive as the chroma-restored OKLab centroid.
 
 ## Product status
 

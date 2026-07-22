@@ -46,6 +46,24 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	if len(p.Personalities) != 3 {
 		t.Fatalf("expected 3 bound personalities, got %d", len(p.Personalities))
 	}
+	for name, binding := range p.Personalities {
+		if binding.Color == "" {
+			t.Fatalf("personality %q must carry a favorite color", name)
+		}
+	}
+}
+
+func TestParseRejectsIllegibleColor(t *testing.T) {
+	body := `person "kai" {
+    role "engineer" {
+        purpose "Build."
+        personality "curious"
+    }
+    personality "curious" skill="personality-curious" color="#111111"
+}`
+	if _, err := parse([]byte(body)); err == nil {
+		t.Fatal("an illegible color must fail the parse-time gate")
+	}
 }
 
 func TestParseSeatValidation(t *testing.T) {

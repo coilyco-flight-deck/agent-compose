@@ -26,6 +26,7 @@ func TestBundleRendersSections(t *testing.T) {
 	}
 	for _, want := range []string{
 		"engineer/curious",
+		"favorite #d98e48",
 		"\nprofile\n", "\nsources\n", "\nselection\n", "\ndelivery\n",
 		"role engineer", "person \"kai\" defines this role",
 		"personality curious", "compatible set: curious, grounded, meticulous",

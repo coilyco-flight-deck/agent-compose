@@ -40,12 +40,13 @@ type Selected struct {
 type Resolution struct {
 	Request      *schema.Request
 	Person       *person.Person
-	Instructions []Selected
-	Skill        Selected
-	SkillDir     string
-	CompiledBody string
-	Decisions    []Decision
-	SourceIDs    []string
+	Instructions  []Selected
+	Skill         Selected
+	SkillDir      string
+	CompiledBody  string
+	FavoriteColor string
+	Decisions     []Decision
+	SourceIDs     []string
 }
 
 func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, missing []schema.MissingSource) (*Resolution, error) {
@@ -54,11 +55,12 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		return nil, fmt.Errorf("role %q is not defined by person %q; defined roles: %s",
 			req.Role, p.Name, strings.Join(sortedKeys(p.Roles), ", "))
 	}
-	boundSkill, ok := p.Personalities[req.Personality]
+	binding, ok := p.Personalities[req.Personality]
 	if !ok {
 		return nil, fmt.Errorf("personality %q is not defined by person %q; defined personalities: %s",
 			req.Personality, p.Name, strings.Join(sortedKeys(p.Personalities), ", "))
 	}
+	boundSkill := binding.Skill
 	allowed := false
 	for _, name := range role.Personalities {
 		if name == req.Personality {
@@ -71,7 +73,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			req.Role, req.Personality, strings.Join(role.Personalities, ", "))
 	}
 
-	res := &Resolution{Request: req, Person: p, SourceIDs: []string{"person:" + p.Name}}
+	res := &Resolution{Request: req, Person: p, FavoriteColor: binding.Color, SourceIDs: []string{"person:" + p.Name}}
 	for _, src := range sources {
 		res.SourceIDs = append(res.SourceIDs, src.ID)
 	}

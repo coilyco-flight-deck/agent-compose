@@ -133,7 +133,7 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	}
 	printSummary(result)
 	if cmd.Bool("explain") {
-		rendered, err := describe.Bundle(result.Bundle.Dir, describe.Options{All: true, Color: colorEnabled()})
+		rendered, err := describe.Bundle(result.Bundle.Dir, describe.Options{All: true, Color: colorEnabled(), TrueColor: trueColorTerminal()})
 		if err != nil {
 			return err
 		}
@@ -147,7 +147,7 @@ func runDescribe(_ context.Context, cmd *cli.Command) error {
 	if dir == "" {
 		return fmt.Errorf("describe needs a bundle directory")
 	}
-	opts := describe.Options{All: cmd.Bool("all"), Color: colorEnabled()}
+	opts := describe.Options{All: cmd.Bool("all"), Color: colorEnabled(), TrueColor: trueColorTerminal()}
 	var rendered string
 	var err error
 	if why := cmd.String("why"); why != "" {
@@ -182,6 +182,11 @@ func colorEnabled() bool {
 	}
 	info, err := os.Stdout.Stat()
 	return err == nil && info.Mode()&os.ModeCharDevice != 0
+}
+
+func trueColorTerminal() bool {
+	ct := os.Getenv("COLORTERM")
+	return strings.Contains(ct, "truecolor") || strings.Contains(ct, "24bit")
 }
 
 func runLaunch(_ context.Context, cmd *cli.Command) error {

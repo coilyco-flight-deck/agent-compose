@@ -17,9 +17,9 @@ func testPerson() *person.Person {
 			"engineer": {Purpose: "Build.", Personalities: []string{"curious", "grounded"}},
 			"writer":   {Purpose: "Write.", Personalities: []string{"grounded"}},
 		},
-		Personalities: map[string]string{
-			"curious":  "personality-curious",
-			"grounded": "personality-grounded",
+		Personalities: map[string]person.Personality{
+			"curious":  {Skill: "personality-curious", Color: "#d98e48"},
+			"grounded": {Skill: "personality-grounded"},
 		},
 		Raw: []byte("person \"kai\"\n"),
 	}

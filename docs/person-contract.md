@@ -11,7 +11,7 @@ person "kai" {
         agent "claude" name="opal engineer" pronouns="she"
         agent "codex" name="terran engineer" pronouns="he"
     }
-    personality "curious" skill="personality-curious"
+    personality "curious" skill="personality-curious" color="#d98e48"
 }
 ```
 
@@ -21,6 +21,17 @@ The definition itself - however presence, attention, tempo, and voice end up
 being expressed - lives inside that skill, not in this contract. The format
 inside the skill (KDL, YAML, or a metadata block in SKILL.md) is deliberately
 undecided in v0.1.
+
+## Favorite colors
+
+A personality may declare one `color` as hex. Legibility is a parse-time
+gate, not a hope: the value must sit in the terminal-legible OKLab band
+(lightness 0.60-0.80, chroma at least 0.05) so it reads on dark and light
+terminals alike. A single-personality composition's favorite is that color,
+carried in the bundle manifest. An identity composed of several personalities
+derives its favorite as the OKLab centroid of the component colors with
+chroma restored to the components' minimum, clamped back into the band -
+the perceptual middle, never gray.
 
 ## Agent seats
 

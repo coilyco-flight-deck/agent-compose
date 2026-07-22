@@ -9,13 +9,15 @@ import (
 	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 )
 
 type Options struct {
-	All   bool
-	Color bool
+	All       bool
+	Color     bool
+	TrueColor bool
 }
 
 // collapseAt is the excluded-skill count where describe folds repeats into
@@ -28,9 +30,9 @@ func Bundle(dir string, opts Options) (string, error) {
 		return "", err
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "bundle %s · %s/%s · %s/%s\n",
+	fmt.Fprintf(&b, "bundle %s · %s/%s · %s/%s%s\n",
 		filepath.Base(dir), manifest.Role, manifest.Personality,
-		manifest.Delivery.Mode, manifest.Density)
+		manifest.Delivery.Mode, manifest.Density, favoriteSuffix(manifest, opts))
 
 	sections := []struct {
 		title string
@@ -210,7 +212,7 @@ func selectionHint(d resolver.Decision, manifest *bundle.Manifest) string {
 	}
 	skillID := strings.TrimPrefix(d.Subject, "skill:")
 	for personality, bound := range p.Personalities {
-		if bound != skillID {
+		if bound.Skill != skillID {
 			continue
 		}
 		if contains(p.Roles[manifest.Role].Personalities, personality) {
@@ -219,6 +221,18 @@ func selectionHint(d resolver.Decision, manifest *bundle.Manifest) string {
 		return fmt.Sprintf("personality %q binds it, but role %q does not pair with that personality", personality, manifest.Role)
 	}
 	return "no personality binds this skill"
+}
+
+// favoriteSuffix appends the composed favorite color: hex always, a tinted
+// swatch only where a terminal will render it.
+func favoriteSuffix(manifest *bundle.Manifest, opts Options) string {
+	if manifest.Color == "" {
+		return ""
+	}
+	if !opts.Color {
+		return " · favorite " + manifest.Color
+	}
+	return " · favorite " + manifest.Color + " " + color.ANSI(manifest.Color, "■", opts.TrueColor)
 }
 
 func symbol(outcome string, opts Options) string {
