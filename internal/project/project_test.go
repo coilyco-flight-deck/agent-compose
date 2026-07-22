@@ -30,8 +30,10 @@ func readTarget(t *testing.T, target, rel string) string {
 func TestProjectNativeLayouts(t *testing.T) {
 	bundleDir := composeFixture(t, "native-full.kdl")
 	cases := map[string]struct{ instructions, skillsDir string }{
-		"claude": {"CLAUDE.md", ".claude/skills"},
-		"codex":  {"AGENTS.md", ".agents/skills"},
+		"claude":   {"CLAUDE.md", ".claude/skills"},
+		"codex":    {"AGENTS.md", ".agents/skills"},
+		"goose":    {".goosehints", ".agents/skills"},
+		"opencode": {"AGENTS.md", ".agents/skills"},
 	}
 	for layout, want := range cases {
 		t.Run(layout, func(t *testing.T) {
@@ -56,16 +58,30 @@ func TestProjectNativeLayouts(t *testing.T) {
 
 func TestProjectCompiledLayouts(t *testing.T) {
 	bundleDir := composeFixture(t, "compiled-full.kdl")
-	target := t.TempDir()
-	if _, err := Project(bundleDir, "goose", target); err != nil {
-		t.Fatal(err)
+	cases := map[string]string{
+		"claude":   "CLAUDE.md",
+		"codex":    "AGENTS.md",
+		"goose":    ".goosehints",
+		"opencode": "AGENTS.md",
 	}
-	if !strings.Contains(readTarget(t, target, ".goosehints"), "# Grounded") {
-		t.Fatal("goose load point missing compiled prose")
+	for layout, instructions := range cases {
+		t.Run(layout, func(t *testing.T) {
+			target := t.TempDir()
+			result, err := Project(bundleDir, layout, target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(readTarget(t, target, instructions), "# Grounded") {
+				t.Fatalf("%s load point missing compiled prose", layout)
+			}
+			if len(result.Files) != 1 {
+				t.Fatalf("compiled projection must place one file, got %v", result.Files)
+			}
+		})
 	}
 
 	briefBundle := composeFixture(t, "compiled-brief.kdl")
-	target = t.TempDir()
+	target := t.TempDir()
 	if _, err := Project(briefBundle, "opencode", target); err != nil {
 		t.Fatal(err)
 	}
@@ -74,13 +90,16 @@ func TestProjectCompiledLayouts(t *testing.T) {
 	}
 }
 
-func TestProjectRejectsUnknownLayoutAndModeMismatch(t *testing.T) {
+func TestProjectRejectsUnknownLayoutAndUnsupportedMode(t *testing.T) {
 	native := composeFixture(t, "native-full.kdl")
 	if _, err := Project(native, "emacs", t.TempDir()); err == nil || !strings.Contains(err.Error(), "v0.1 layouts") {
 		t.Fatalf("expected unknown-layout diagnostic, got %v", err)
 	}
-	if _, err := Project(native, "goose", t.TempDir()); err == nil || !strings.Contains(err.Error(), "delivers native-skills") {
-		t.Fatalf("expected mode-mismatch diagnostic, got %v", err)
+
+	Registry["compiled-only"] = Layout{Compiled: &LoadPoints{Instructions: "CONTEXT.md"}}
+	defer delete(Registry, "compiled-only")
+	if _, err := Project(native, "compiled-only", t.TempDir()); err == nil || !strings.Contains(err.Error(), "does not support bundles") {
+		t.Fatalf("expected unsupported-mode diagnostic, got %v", err)
 	}
 }
 

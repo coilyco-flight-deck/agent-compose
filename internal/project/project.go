@@ -15,19 +15,37 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-type Layout struct {
-	Mode         string
+type LoadPoints struct {
 	Instructions string
 	SkillsDir    string
 }
 
+// Layout declares load points per delivery mode; a nil mode is unsupported
+// by that harness and fails with a diagnostic.
+type Layout struct {
+	Native   *LoadPoints
+	Compiled *LoadPoints
+}
+
 // Registry is the fixed v0.1 layout set. Layout names and load-point paths
-// live here and nowhere else.
+// live here and nowhere else; conventions are recorded in docs/projection.md.
 var Registry = map[string]Layout{
-	"claude":   {Mode: schema.DeliveryNativeSkills, Instructions: "CLAUDE.md", SkillsDir: ".claude/skills"},
-	"codex":    {Mode: schema.DeliveryNativeSkills, Instructions: "AGENTS.md", SkillsDir: ".agents/skills"},
-	"goose":    {Mode: schema.DeliveryCompiled, Instructions: ".goosehints"},
-	"opencode": {Mode: schema.DeliveryCompiled, Instructions: "AGENTS.md"},
+	"claude": {
+		Native:   &LoadPoints{Instructions: "CLAUDE.md", SkillsDir: ".claude/skills"},
+		Compiled: &LoadPoints{Instructions: "CLAUDE.md"},
+	},
+	"codex": {
+		Native:   &LoadPoints{Instructions: "AGENTS.md", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: "AGENTS.md"},
+	},
+	"goose": {
+		Native:   &LoadPoints{Instructions: ".goosehints", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: ".goosehints"},
+	},
+	"opencode": {
+		Native:   &LoadPoints{Instructions: "AGENTS.md", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: "AGENTS.md"},
+	},
 }
 
 const sidecarRel = ".agent-compose/projection.json"
@@ -52,12 +70,19 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	if manifest.Delivery.Mode != layout.Mode {
-		return nil, fmt.Errorf("layout %q needs a %s bundle, but this bundle delivers %s",
-			layoutName, layout.Mode, manifest.Delivery.Mode)
+	var points *LoadPoints
+	switch manifest.Delivery.Mode {
+	case schema.DeliveryNativeSkills:
+		points = layout.Native
+	case schema.DeliveryCompiled:
+		points = layout.Compiled
+	}
+	if points == nil {
+		return nil, fmt.Errorf("layout %q does not support bundles that deliver %s",
+			layoutName, manifest.Delivery.Mode)
 	}
 
-	plan, err := buildPlan(bundleDir, manifest, layout)
+	plan, err := buildPlan(bundleDir, manifest, *points)
 	if err != nil {
 		return nil, err
 	}
@@ -117,19 +142,19 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 }
 
 // buildPlan maps target-relative slash paths to absolute bundle sources.
-func buildPlan(bundleDir string, manifest *bundle.Manifest, layout Layout) (map[string]string, error) {
+func buildPlan(bundleDir string, manifest *bundle.Manifest, points LoadPoints) (map[string]string, error) {
 	plan := map[string]string{}
-	switch layout.Mode {
+	switch manifest.Delivery.Mode {
 	case schema.DeliveryCompiled:
 		if manifest.Delivery.CompiledContext == "" {
 			return nil, fmt.Errorf("bundle manifest names no compiled_context entry point")
 		}
-		plan[layout.Instructions] = filepath.Join(bundleDir, filepath.FromSlash(manifest.Delivery.CompiledContext))
+		plan[points.Instructions] = filepath.Join(bundleDir, filepath.FromSlash(manifest.Delivery.CompiledContext))
 	case schema.DeliveryNativeSkills:
 		if manifest.Delivery.Instructions == "" || manifest.Delivery.SkillsRoot == "" {
 			return nil, fmt.Errorf("bundle manifest names no native entry points")
 		}
-		plan[layout.Instructions] = filepath.Join(bundleDir, filepath.FromSlash(manifest.Delivery.Instructions))
+		plan[points.Instructions] = filepath.Join(bundleDir, filepath.FromSlash(manifest.Delivery.Instructions))
 		skillsRoot := filepath.Join(bundleDir, filepath.FromSlash(manifest.Delivery.SkillsRoot))
 		sourceDirs, err := os.ReadDir(skillsRoot)
 		if err != nil {
@@ -148,7 +173,7 @@ func buildPlan(bundleDir string, manifest *bundle.Manifest, layout Layout) (map[
 				if err != nil {
 					return err
 				}
-				plan[layout.SkillsDir+"/"+filepath.ToSlash(rel)] = p
+				plan[points.SkillsDir+"/"+filepath.ToSlash(rel)] = p
 				return nil
 			})
 			if err != nil {

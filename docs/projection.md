@@ -10,19 +10,27 @@ agent-compose project <bundle-dir> --layout <name> --target <dir>
 
 ## v0.1 layout registry
 
-* `claude` - native-skills: instructions to `CLAUDE.md`, each selected skill
-  tree to `.claude/skills/<skill-id>/`.
-* `codex` - native-skills: instructions to `AGENTS.md`, skills to
-  `.agents/skills/<skill-id>/`.
-* `goose` - compiled: the compiled context document to `.goosehints`.
-* `opencode` - compiled: the compiled context document to `AGENTS.md`.
+Every layout declares load points per delivery mode. Native-skills bundles
+place the instructions file plus each selected skill tree; compiled bundles
+place the single compiled context document at the instructions load point.
 
-A layout requires the matching bundle delivery mode and fails with a
-diagnostic otherwise. Layout names and load-point paths live only in this
-layer; they never appear in the resolver, the request, the manifest, or the
-bundle tree.
+* `claude` - instructions to `CLAUDE.md`, skills to `.claude/skills/<skill-id>/`.
+* `codex` - instructions to `AGENTS.md`, skills to `.agents/skills/<skill-id>/`.
+* `goose` - instructions to `.goosehints`, skills to `.agents/skills/<skill-id>/`.
+* `opencode` - instructions to `AGENTS.md`, skills to `.agents/skills/<skill-id>/`.
+
+A layout that lacks load points for a bundle's delivery mode fails with a
+diagnostic. Layout names and load-point paths live only in this layer; they
+never appear in the resolver, the request, the manifest, or the bundle tree.
 
 ## Upstream conventions (verified 2026-07)
+
+All four harnesses read Agent Skills (SKILL.md) natively, and
+`.agents/skills/` is the portable standard location: goose documents it as
+the recommended skills directory (its Skills platform extension is on by
+default), and opencode discovers project skills from `.opencode/skills/`,
+`.claude/skills/`, and `.agents/skills/`. Compiled delivery therefore exists
+for density, not for missing skill support.
 
 Goose loads every configured context file it finds and combines them; its
 default set is `["AGENTS.md", ".goosehints"]`. The goose layout deliberately
