@@ -5,12 +5,10 @@ canonical issue tracker until an implementation lands.
 
 ## Repository foundation
 
-* Public Forgejo-canonical repository under `coilyco-flight-deck`.
-* Personal-product positioning: Kai's opinionated context system is published
-  in the open rather than presented as a neutral enterprise framework.
+* Public Forgejo-canonical repository under `coilyco-flight-deck`, MIT
+  licensed, positioned as Kai's opinionated personal context system.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
-* MIT licensing for the public source.
 
 ## Composition engine (first slice)
 
@@ -50,10 +48,9 @@ canonical issue tracker until an implementation lands.
   `compose --explain` appends the full tree to the one-screen summary.
 * Color only on a TTY with NO_COLOR unset; redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
-* Favorite colors: each personality declares a hex color gated at parse time
-  into the terminal-legible OKLab band; the composed favorite rides the
-  manifest and tints the describe header, and multi-component favorites
-  derive as the chroma-restored OKLab centroid.
+* Favorite colors: personality hex colors gated at parse time into the
+  terminal-legible OKLab band; the composed favorite rides the manifest, and
+  multi-component favorites derive as the chroma-restored OKLab centroid.
 
 ## Roster artifact
 
