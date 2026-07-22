@@ -1,0 +1,214 @@
+package compose
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+)
+
+func fixture(t *testing.T, name string) string {
+	t.Helper()
+	return filepath.Join("..", "..", "testdata", "contracts", name)
+}
+
+func readManifest(t *testing.T, dir string) bundle.Manifest {
+	t.Helper()
+	raw, err := os.ReadFile(filepath.Join(dir, "manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m bundle.Manifest
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatal(err)
+	}
+	return m
+}
+
+func TestComposeAllFixtures(t *testing.T) {
+	cases := map[string]struct {
+		personality, mode, density string
+	}{
+		"native-full.kdl":    {"curious", "native-skills", "full"},
+		"native-brief.kdl":   {"meticulous", "native-skills", "brief"},
+		"compiled-full.kdl":  {"grounded", "compiled", "full"},
+		"compiled-brief.kdl": {"grounded", "compiled", "brief"},
+	}
+	for name, want := range cases {
+		t.Run(name, func(t *testing.T) {
+			out := t.TempDir()
+			result, err := Run(fixture(t, name), out)
+			if err != nil {
+				t.Fatal(err)
+			}
+			m := readManifest(t, result.Bundle.Dir)
+			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
+				m.Personality != want.personality || m.Density != want.density ||
+				m.Delivery.Mode != want.mode {
+				t.Fatalf("unexpected manifest: %+v", m)
+			}
+			if len(m.Sources) != 2 || m.Sources[0] != "person:kai" || m.Sources[1] != "aos-public" {
+				t.Fatalf("unexpected sources: %+v", m.Sources)
+			}
+			mustExist(t, result.Bundle.Dir, "content/instructions.md")
+			mustExist(t, result.Bundle.Dir, "trace.json")
+			skillPath := "content/skills/aos-public/personality-" + want.personality + "/SKILL.md"
+			mustExist(t, result.Bundle.Dir, skillPath)
+			if want.mode == "compiled" {
+				if m.Delivery.CompiledContext != "delivery/compiled.md" || m.Delivery.SkillsRoot != "" {
+					t.Fatalf("unexpected compiled delivery: %+v", m.Delivery)
+				}
+				mustExist(t, result.Bundle.Dir, "delivery/compiled.md")
+			} else {
+				if m.Delivery.SkillsRoot != "content/skills" || m.Delivery.CompiledContext != "" {
+					t.Fatalf("unexpected native delivery: %+v", m.Delivery)
+				}
+			}
+		})
+	}
+}
+
+func TestCompiledDensityChangesProse(t *testing.T) {
+	out := t.TempDir()
+	full, err := Run(fixture(t, "compiled-full.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	brief, err := Run(fixture(t, "compiled-brief.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fullBody, err := os.ReadFile(filepath.Join(full.Bundle.Dir, "delivery", "compiled.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	briefBody, err := os.ReadFile(filepath.Join(brief.Bundle.Dir, "delivery", "compiled.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(fullBody), "# Grounded") {
+		t.Fatalf("full compiled prose missing skill body:\n%s", fullBody)
+	}
+	if !strings.Contains(string(briefBody), "Grounded: calm") || strings.Contains(string(briefBody), "# Grounded") {
+		t.Fatalf("brief compiled prose should carry BRIEF.md only:\n%s", briefBody)
+	}
+	if full.Bundle.Key == brief.Bundle.Key {
+		t.Fatal("density change must change the bundle key")
+	}
+}
+
+func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
+	out := t.TempDir()
+	first, err := Run(fixture(t, "native-full.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Bundle.Reused {
+		t.Fatal("first run must materialize, not reuse")
+	}
+	manifest := filepath.Join(first.Bundle.Dir, "manifest.json")
+	before, err := os.Stat(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	second, err := Run(fixture(t, "native-full.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !second.Bundle.Reused || second.Bundle.Dir != first.Bundle.Dir || second.Bundle.Key != first.Bundle.Key {
+		t.Fatalf("expected cache reuse, got %+v then %+v", first.Bundle, second.Bundle)
+	}
+	after, err := os.Stat(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !before.ModTime().Equal(after.ModTime()) {
+		t.Fatal("reuse must not rewrite bundle files")
+	}
+}
+
+func TestDifferentProfilesGetDifferentBundles(t *testing.T) {
+	out := t.TempDir()
+	a, err := Run(fixture(t, "native-full.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := Run(fixture(t, "native-brief.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.Bundle.Key == b.Bundle.Key {
+		t.Fatal("different profiles must produce different bundle keys")
+	}
+}
+
+func TestFailedFinalizeLeavesNoPartialBundle(t *testing.T) {
+	out := t.TempDir()
+	probe, err := Run(fixture(t, "native-full.kdl"), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocker := filepath.Join(out, probe.Bundle.Key)
+	if err := os.WriteFile(blocker, []byte("occupied"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := Run(fixture(t, "native-full.kdl"), out); err == nil {
+		t.Fatal("expected finalize to fail when the target path is blocked")
+	}
+	entries, err := os.ReadDir(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), ".stage-") {
+			t.Fatalf("staging directory leaked: %s", e.Name())
+		}
+	}
+	raw, err := os.ReadFile(blocker)
+	if err != nil || string(raw) != "occupied" {
+		t.Fatalf("blocked target must be untouched, got %q / %v", raw, err)
+	}
+}
+
+func TestTraceRecordsDecisions(t *testing.T) {
+	out := t.TempDir()
+	result, err := Run(fixture(t, "native-full.kdl"), out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "trace.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var trace bundle.Trace
+	if err := json.Unmarshal(raw, &trace); err != nil {
+		t.Fatal(err)
+	}
+	if trace.Format != "agent-compose.trace" || len(trace.Decisions) == 0 {
+		t.Fatalf("unexpected trace: %+v", trace)
+	}
+	outcomes := map[string]bool{}
+	for _, d := range trace.Decisions {
+		if d.Reason == "" {
+			t.Fatalf("decision without a reason: %+v", d)
+		}
+		outcomes[d.Outcome] = true
+	}
+	for _, want := range []string{"selected", "excluded", "delivered"} {
+		if !outcomes[want] {
+			t.Fatalf("trace missing %q outcome: %+v", want, trace.Decisions)
+		}
+	}
+}
+
+func mustExist(t *testing.T, root, rel string) {
+	t.Helper()
+	if _, err := os.Stat(filepath.Join(root, rel)); err != nil {
+		t.Fatalf("expected %s in bundle: %v", rel, err)
+	}
+}

@@ -12,10 +12,23 @@ canonical issue tracker until an implementation lands.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
 * MIT licensing for the public source.
 
+## Composition engine (first slice)
+
+* Go CLI (`agent-compose compose`) turns a KDL request into an immutable
+  bundle without network access.
+* Embedded fixture-grade person source validating role-personality pairing;
+  the full roster is issue #10.
+* Resolver emits the decision trace while choosing, covering selected,
+  excluded, shadowed, and fallback outcomes.
+* Atomic, content-keyed materialization: identical inputs reuse the cached
+  bundle, failed finalization leaves no partial tree.
+* Native-skill and compiled-context delivery with density-aware compiled
+  prose, exercised by the four public fixtures.
+
 ## Product status
 
-No compiler, embedded person configuration, KDL schema, bundle protocol,
-harness adapter, cache, or release artifact ships yet.
+No complete personality roster, harness load-point adapters, Ward consumer,
+or release artifact ships yet.
 
 ## See also
 

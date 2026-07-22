@@ -42,17 +42,17 @@ or replace policy later without becoming the design center now.
 
 ## Status
 
-The repository is in architecture and bootstrap. No compiler, embedded person
-configuration, bundle protocol, or release artifact ships yet. The canonical Forgejo
-[issue tracker](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues)
-holds the v0.1 implementation plan.
+The first executable slice ships: a Go CLI composes a public fixture profile
+through the embedded person source into a deterministic, atomically written
+bundle with a decision trace. The full personality roster (#10), Ward
+consumption (#7), and the release pipeline remain open on the canonical Forgejo
+[issue tracker](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues).
 
 ## Development
 
-Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml). The
-current shell is documentation-only, so `ward exec test` runs the full
-pre-commit suite. Implementation work must add language-specific build and test
-verbs before invoking those tools.
+Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
+`ward exec test` runs the Go test suite and the full pre-commit sweep;
+`build`, `lint`, `install`, and `tidy` cover the remaining Go verbs.
 
 ## License
 

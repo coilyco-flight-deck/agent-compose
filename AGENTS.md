@@ -10,10 +10,10 @@ deployment values out of the repo.
 
 ## Project shape
 
-The repository is currently a documentation and tracker shell. The shipped
-inventory is [`docs/FEATURES.md`](docs/FEATURES.md). The first implementation
-must establish the package layout, KDL schema, and bundle contract together so
-the code does not precede its public boundary.
+The repository ships a Go engine under `cmd/agent-compose` and `internal/`,
+with contract fixtures in `testdata/contracts`. The shipped inventory is
+[`docs/FEATURES.md`](docs/FEATURES.md). The KDL schema, bundle format, and
+package layout land together so the code never precedes its public boundary.
 
 ## Repo boundaries
 
@@ -39,11 +39,12 @@ the code does not precede its public boundary.
 Route development through Ward using [`.ward/ward.yaml`](.ward/ward.yaml). The
 current command surface is:
 
-* `ward exec test` - run all repository validation.
-* `ward exec pre-commit` - explicit spelling of the same pre-commit sweep.
+* `ward exec test` - run all repository validation (Go tests plus hooks).
+* `ward exec build` / `lint` / `install` / `tidy` - the Go engine verbs.
+* `ward exec pre-commit` - explicit spelling of the hook sweep alone.
 
-Do not invoke a language tool directly. Add the implementation language and its
-build, test, lint, and install verbs to `.ward/ward.yaml` before using them.
+Do not invoke a language tool that has no verb here. Add new build, test,
+lint, and install verbs to `.ward/ward.yaml` before using them.
 
 ## Validation
 
