@@ -72,10 +72,12 @@ tests against both consumers before release.
 
 ## Release
 
-Canonical development and issues live on Forgejo. The project is pre-v0.1 and
-has no release pipeline yet. The release slice must define versioning, binary
-distribution, and protocol compatibility before publishing the first artifact.
-Do not infer release behavior from agentic-os or Ward.
+Canonical development and issues live on Forgejo. Versioning is semver git
+tags (`vX.Y.Z`); `ward exec release-build` cross-compiles version-stamped
+binaries (darwin-arm64, linux-amd64, linux-arm64) into `dist/`, and a Forgejo
+release on the tag distributes them. Protocol compatibility is deliberately
+thin per the v0.1 review: consumers check the manifest `format` marker and
+nothing else. Do not infer release behavior from agentic-os or Ward.
 
 ## Agent rules
 

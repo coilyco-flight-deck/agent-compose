@@ -24,3 +24,6 @@ commands:
   pre-commit:
     run: pre-commit run --all-files
     description: Run the complete pre-commit suite explicitly.
+  release-build:
+    run: sh scripts/release-build.sh
+    description: Cross-compile version-stamped release binaries into dist/.

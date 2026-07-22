@@ -21,11 +21,22 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
+// version is stamped by the release build via -ldflags; dev builds say dev.
+var version = "dev"
+
 func main() {
 	cmd := &cli.Command{
 		Name:  "agent-compose",
 		Usage: "compose personality context into an immutable bundle",
 		Commands: []*cli.Command{
+			{
+				Name:  "version",
+				Usage: "print the build version",
+				Action: func(_ context.Context, _ *cli.Command) error {
+					fmt.Println(version)
+					return nil
+				},
+			},
 			{
 				Name:      "compose",
 				Usage:     "compose a request KDL file into a bundle",

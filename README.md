@@ -48,6 +48,14 @@ bundle with a decision trace. The full personality roster (#10), Ward
 consumption (#7), and the release pipeline remain open on the canonical Forgejo
 [issue tracker](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues).
 
+## Install
+
+Release binaries (darwin-arm64, linux-amd64, linux-arm64) attach to tagged
+[Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases);
+download the one for your platform and put it on PATH. From source,
+`ward exec install` builds into GOBIN. `agent-compose version` reports the
+build you are running.
+
 ## Development
 
 Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
