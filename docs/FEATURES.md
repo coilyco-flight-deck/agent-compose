@@ -65,10 +65,15 @@ canonical issue tracker until an implementation lands.
   without bodies render as pending until #10 - and writes under the same
   sidecar ownership rules as projection.
 
+## Release
+
+* Semver git tags with a stamped `version` verb; `ward exec release-build`
+  cross-compiles darwin-arm64 and linux-amd64/arm64 into `dist/`.
+* v0.1.0 is published on Forgejo with all three binaries attached.
+
 ## Product status
 
-No complete personality roster, Ward consumer, or release artifact ships
-yet.
+No complete personality roster or Ward consumer ships yet.
 
 ## See also
 
