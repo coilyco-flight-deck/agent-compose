@@ -27,3 +27,6 @@ commands:
   release-build:
     run: sh scripts/release-build.sh
     description: Cross-compile version-stamped release binaries into dist/.
+  release-package:
+    run: sh scripts/render-packaging.sh
+    description: Render the brew formula and scoop manifest from dist/ binaries.

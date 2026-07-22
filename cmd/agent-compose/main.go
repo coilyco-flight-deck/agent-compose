@@ -4,10 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/urfave/cli/v3"
 
@@ -258,17 +256,6 @@ func runLaunch(_ context.Context, cmd *cli.Command) error {
 			state, result.Projected, cmd.String("target"))
 	}
 	return execReal(argv)
-}
-
-// execReal replaces this process with the target command; the sentinel in
-// the child environment is the wrapper-recursion guard.
-func execReal(argv []string) error {
-	path, err := exec.LookPath(argv[0])
-	if err != nil {
-		return fmt.Errorf("launch target: %w", err)
-	}
-	env := append(os.Environ(), launch.EnvSentinel+"=1")
-	return syscall.Exec(path, argv, env)
 }
 
 func runRoster(_ context.Context, cmd *cli.Command) error {
