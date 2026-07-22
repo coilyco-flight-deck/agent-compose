@@ -13,9 +13,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-// Render produces the artifact file set: the shared dispatch table, the
-// claude override with mechanical imports, and the personality bodies found
-// in the given sources. outDir only parameterizes the claude import paths.
+// Render produces the artifact file set; outDir only parameterizes the
+// absolute paths inside the claude override's mechanical imports.
 func Render(p *person.Person, sources []*schema.Source, outDir string) (map[string][]byte, error) {
 	files := map[string][]byte{}
 	bodies := personalityBodies(p, sources)
