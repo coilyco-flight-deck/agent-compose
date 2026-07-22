@@ -64,4 +64,5 @@ request. Ward runs without agent-compose and agent-compose runs without Ward.
 * [bundle-protocol.md](bundle-protocol.md) - immutable output contract.
 * [manifest-schema.md](manifest-schema.md) - stable manifest fields.
 * [decision-trace.md](decision-trace.md) - retained decision evidence.
+* [projection.md](projection.md) - the harness-aware load-point layer.
 * [contract-review.md](contract-review.md) - review decisions of record.

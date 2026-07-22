@@ -34,6 +34,7 @@ state - never lands under the bundle root.
 ## See also
 
 * [manifest-schema.md](manifest-schema.md) - manifest fields.
+* [projection.md](projection.md) - placing bundle content at harness load points.
 * [decision-trace.md](decision-trace.md) - the retained explanation data.
 * [architecture.md](architecture.md) - integration boundaries.
 * [contract-review.md](contract-review.md) - review decisions of record.

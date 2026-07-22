@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 )
 
@@ -29,6 +30,24 @@ func main() {
 					},
 				},
 				Action: runCompose,
+			},
+			{
+				Name:      "project",
+				Usage:     "place bundle content at a harness layout's load points",
+				ArgsUsage: "<bundle-dir>",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "layout",
+						Usage:    "load-point layout name",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:  "target",
+						Value: ".",
+						Usage: "directory receiving the load points",
+					},
+				},
+				Action: runProject,
 			},
 		},
 	}
@@ -56,6 +75,20 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	printSummary(result)
+	return nil
+}
+
+func runProject(_ context.Context, cmd *cli.Command) error {
+	bundleDir := cmd.Args().First()
+	if bundleDir == "" {
+		return fmt.Errorf("project needs a bundle directory")
+	}
+	result, err := project.Project(bundleDir, cmd.String("layout"), cmd.String("target"))
+	if err != nil {
+		return err
+	}
+	fmt.Printf("projected %d files into layout %s under %s\n",
+		len(result.Files), result.Layout, cmd.String("target"))
 	return nil
 }
 

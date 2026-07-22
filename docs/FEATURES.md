@@ -25,10 +25,17 @@ canonical issue tracker until an implementation lands.
 * Native-skill and compiled-context delivery with density-aware compiled
   prose, exercised by the four public fixtures.
 
+## Load-point projection
+
+* `agent-compose project` places bundle content at harness load points via
+  the fixed v0.1 layout registry (claude, codex, goose, opencode).
+* Sidecar-tracked ownership: projection never overwrites files it did not
+  create, and re-projection removes only its own stale files.
+
 ## Product status
 
-No complete personality roster, harness load-point adapters, Ward consumer,
-or release artifact ships yet.
+No complete personality roster, launch-time refresh, Ward consumer, or
+release artifact ships yet.
 
 ## See also
 

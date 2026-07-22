@@ -39,6 +39,23 @@ type Result struct {
 	Reused bool
 }
 
+// ReadManifest is the consumer entry point: bundles are opaque except for
+// manifest.json.
+func ReadManifest(dir string) (*Manifest, error) {
+	raw, err := os.ReadFile(filepath.Join(dir, "manifest.json"))
+	if err != nil {
+		return nil, fmt.Errorf("read bundle manifest: %w", err)
+	}
+	var m Manifest
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return nil, fmt.Errorf("parse bundle manifest: %w", err)
+	}
+	if m.Format != "agent-compose.bundle" {
+		return nil, fmt.Errorf("%s is not an agent-compose bundle (format %q)", dir, m.Format)
+	}
+	return &m, nil
+}
+
 // Materialize writes the resolved bundle beneath outDir, atomically and at
 // most once per input key. Identical inputs reuse the existing tree.
 func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
