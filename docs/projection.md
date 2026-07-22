@@ -22,6 +22,17 @@ diagnostic otherwise. Layout names and load-point paths live only in this
 layer; they never appear in the resolver, the request, the manifest, or the
 bundle tree.
 
+## Upstream conventions (verified 2026-07)
+
+Goose loads every configured context file it finds and combines them; its
+default set is `["AGENTS.md", ".goosehints"]`. The goose layout deliberately
+writes `.goosehints` so the projection composes beside a repo-owned AGENTS.md
+instead of competing for it. OpenCode reads AGENTS.md at the project root,
+falls back to CLAUDE.md only when AGENTS.md is absent, and can pull extra
+instruction files through the `instructions` list in opencode.json - a future
+layout variant could use that list when a hand-authored AGENTS.md already
+occupies the load point.
+
 ## Ownership and safety
 
 Projection records every file it writes in `.agent-compose/projection.json`
