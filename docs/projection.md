@@ -32,10 +32,13 @@ default), and opencode discovers project skills from `.opencode/skills/`,
 `.claude/skills/`, and `.agents/skills/`. Compiled delivery therefore exists
 for density, not for missing skill support.
 
-Claude Code is the exception on the portable directory: its documented
-discovery locations are `.claude/skills/` and `~/.claude/skills/` only -
+Claude Code is the exception on both portable conventions. Its documented
+skill locations are `.claude/skills/` and `~/.claude/skills/` only -
 third-party claims of an `.agents/skills/` alias are not corroborated by the
-official docs or changelog - so the claude layout keeps `.claude/skills/`.
+official docs or changelog - and it does not natively read AGENTS.md either;
+the documented workaround is a symlink or an `@AGENTS.md` import from
+CLAUDE.md. The claude layout therefore keeps `CLAUDE.md` and
+`.claude/skills/`.
 
 Goose loads every configured context file it finds and combines them; its
 default set is `["AGENTS.md", ".goosehints"]`. The goose layout deliberately
