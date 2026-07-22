@@ -75,6 +75,16 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	for _, src := range sources {
 		res.SourceIDs = append(res.SourceIDs, src.ID)
 	}
+	res.decide(Decision{
+		Subject: "role:" + req.Role, Kind: "profile", Source: "person:" + p.Name,
+		Outcome: OutcomeSelected,
+		Reason:  fmt.Sprintf("person %q defines this role: %s", p.Name, role.Purpose),
+	})
+	res.decide(Decision{
+		Subject: "personality:" + req.Personality, Kind: "profile", Source: "person:" + p.Name,
+		Outcome: OutcomeSelected,
+		Reason:  fmt.Sprintf("pairs with role %q; compatible set: %s", req.Role, strings.Join(role.Personalities, ", ")),
+	})
 	for _, m := range missing {
 		res.decide(Decision{
 			Subject: "source:" + m.ID, Kind: "source", Source: m.ID,

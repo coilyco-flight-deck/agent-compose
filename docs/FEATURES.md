@@ -41,6 +41,16 @@ canonical issue tracker until an implementation lands.
   projection; concurrent launches converge on one cache entry via the
   materializer's rename race and a per-target projection lock.
 
+## Inspection
+
+* `agent-compose describe` renders a bundle's decision tree in scannable
+  sections with collapse for large exclusion groups; `--why` follows one item
+  from consideration to outcome, including what would have selected it.
+* `agent-compose diff` reports semantic decision changes between two bundles;
+  `compose --explain` appends the full tree to the one-screen summary.
+* Color only on a TTY with NO_COLOR unset; redirected output stays plain and
+  deterministic, and trace.json is the machine-readable surface.
+
 ## Product status
 
 No complete personality roster, Ward consumer, or release artifact ships

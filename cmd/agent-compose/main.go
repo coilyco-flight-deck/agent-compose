@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
@@ -31,8 +32,34 @@ func main() {
 						Name:  "out",
 						Usage: "bundle output directory (defaults to the user cache)",
 					},
+					&cli.BoolFlag{
+						Name:  "explain",
+						Usage: "print the full decision tree after the summary",
+					},
 				},
 				Action: runCompose,
+			},
+			{
+				Name:      "describe",
+				Usage:     "render a bundle's stored decision tree",
+				ArgsUsage: "<bundle-dir>",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "why",
+						Usage: "follow one item (e.g. skill:personality-curious) to its outcome",
+					},
+					&cli.BoolFlag{
+						Name:  "all",
+						Usage: "expand collapsed exclusion groups",
+					},
+				},
+				Action: runDescribe,
+			},
+			{
+				Name:      "diff",
+				Usage:     "report semantic decision changes between two bundles",
+				ArgsUsage: "<left-bundle> <right-bundle>",
+				Action:    runDiff,
 			},
 			{
 				Name:      "project",
@@ -105,7 +132,56 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	printSummary(result)
+	if cmd.Bool("explain") {
+		rendered, err := describe.Bundle(result.Bundle.Dir, describe.Options{All: true, Color: colorEnabled()})
+		if err != nil {
+			return err
+		}
+		fmt.Print(rendered)
+	}
 	return nil
+}
+
+func runDescribe(_ context.Context, cmd *cli.Command) error {
+	dir := cmd.Args().First()
+	if dir == "" {
+		return fmt.Errorf("describe needs a bundle directory")
+	}
+	opts := describe.Options{All: cmd.Bool("all"), Color: colorEnabled()}
+	var rendered string
+	var err error
+	if why := cmd.String("why"); why != "" {
+		rendered, err = describe.Why(dir, why, opts)
+	} else {
+		rendered, err = describe.Bundle(dir, opts)
+	}
+	if err != nil {
+		return err
+	}
+	fmt.Print(rendered)
+	return nil
+}
+
+func runDiff(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 2 {
+		return fmt.Errorf("diff needs exactly two bundle directories")
+	}
+	rendered, err := describe.Diff(cmd.Args().Get(0), cmd.Args().Get(1))
+	if err != nil {
+		return err
+	}
+	fmt.Print(rendered)
+	return nil
+}
+
+// colorEnabled keeps redirected output plain and deterministic; color is a
+// TTY-only affordance and NO_COLOR always wins.
+func colorEnabled() bool {
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	info, err := os.Stdout.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 func runLaunch(_ context.Context, cmd *cli.Command) error {

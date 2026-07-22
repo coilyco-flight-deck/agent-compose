@@ -24,9 +24,13 @@ public bundle. A private overlay is referenced by its source id; its content
 never appears in a reason. Runtime noise - durations, cache hits, terminal
 styling - stays out of the trace.
 
-Describe and item-level why commands render this stored data without
-reopening source files. Human output and TTY styling are views over the trace
-and never enter model instructions.
+`agent-compose describe` renders the stored decisions in scannable sections,
+`describe --why <item>` follows one item to its outcome, and `diff` compares
+two bundles by decision subject rather than file bytes - all without
+reopening source files. `trace.json` itself is the machine-readable surface;
+there is no second explanation format. Human output and TTY styling are views
+over the trace and never enter model instructions; redirected output is plain
+and deterministic.
 
 ## See also
 

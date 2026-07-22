@@ -39,6 +39,23 @@ type Result struct {
 	Reused bool
 }
 
+// ReadTrace loads the retained decision evidence; it is also the stable
+// machine-readable explanation surface - there is no second format.
+func ReadTrace(dir string) (*Trace, error) {
+	raw, err := os.ReadFile(filepath.Join(dir, "trace.json"))
+	if err != nil {
+		return nil, fmt.Errorf("read bundle trace: %w", err)
+	}
+	var tr Trace
+	if err := json.Unmarshal(raw, &tr); err != nil {
+		return nil, fmt.Errorf("parse bundle trace: %w", err)
+	}
+	if tr.Format != "agent-compose.trace" {
+		return nil, fmt.Errorf("%s holds no agent-compose trace (format %q)", dir, tr.Format)
+	}
+	return &tr, nil
+}
+
 // ReadManifest is the consumer entry point: bundles are opaque except for
 // manifest.json.
 func ReadManifest(dir string) (*Manifest, error) {
