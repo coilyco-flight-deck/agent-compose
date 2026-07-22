@@ -24,8 +24,9 @@ var version = "dev"
 
 func main() {
 	cmd := &cli.Command{
-		Name:  "agent-compose",
-		Usage: "compose personality context into an immutable bundle",
+		Name:    "agent-compose",
+		Usage:   "compose personality context into an immutable bundle",
+		Version: version,
 		Commands: []*cli.Command{
 			{
 				Name:  "version",
