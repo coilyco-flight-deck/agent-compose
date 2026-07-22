@@ -39,6 +39,7 @@ type Personality struct {
 type Person struct {
 	Name          string
 	Roles         map[string]Role
+	RoleOrder     []string
 	Personalities map[string]Personality
 	Raw           []byte
 }
@@ -119,6 +120,7 @@ func parse(raw []byte) (*Person, error) {
 				}
 			}
 			p.Roles[name] = role
+			p.RoleOrder = append(p.RoleOrder, name)
 		case "personality":
 			pargs := n.Arguments()
 			if len(pargs) != 1 {

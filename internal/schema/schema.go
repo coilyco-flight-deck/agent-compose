@@ -156,6 +156,12 @@ func LoadSources(req *Request, requestPath string) ([]*Source, []MissingSource, 
 	return sources, missing, nil
 }
 
+// LoadSource reads one source declaration outside any compose request, for
+// verbs like roster that consume sources directly.
+func LoadSource(declPath string) (*Source, error) {
+	return parseSource(declPath)
+}
+
 func parseSource(declPath string) (*Source, error) {
 	raw, err := os.ReadFile(declPath)
 	if err != nil {

@@ -92,12 +92,35 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
+	files := map[string][]byte{}
+	for rel, srcAbs := range plan {
+		raw, err := os.ReadFile(srcAbs)
+		if err != nil {
+			return nil, err
+		}
+		files[rel] = raw
+	}
+	return applyOwned(targetDir, files, layoutName, bundleDir)
+}
+
+// ApplyOwned writes a file set under target with the projection ownership
+// rules: sidecar-tracked, never clobbering foreign files, replacing stale.
+func ApplyOwned(targetDir string, files map[string][]byte, label, origin string) (*Result, error) {
+	release, err := lockTarget(targetDir)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+	return applyOwned(targetDir, files, label, origin)
+}
+
+func applyOwned(targetDir string, files map[string][]byte, label, origin string) (*Result, error) {
 	previous := readSidecar(targetDir)
 	owned := map[string]bool{}
 	for _, rel := range previous.Files {
 		owned[rel] = true
 	}
-	for rel := range plan {
+	for rel := range files {
 		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
 		if _, err := os.Stat(abs); err == nil && !owned[rel] {
 			return nil, fmt.Errorf("refusing to overwrite %s: it exists and was not written by a previous projection", abs)
@@ -105,11 +128,7 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	}
 
 	var written []string
-	for rel, srcAbs := range plan {
-		raw, err := os.ReadFile(srcAbs)
-		if err != nil {
-			return nil, err
-		}
+	for rel, raw := range files {
 		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
 		if err := os.MkdirAll(filepath.Dir(abs), 0o755); err != nil {
 			return nil, err
@@ -122,7 +141,7 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	sort.Strings(written)
 
 	for _, rel := range previous.Files {
-		if _, still := plan[rel]; still {
+		if _, still := files[rel]; still {
 			continue
 		}
 		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
@@ -132,7 +151,7 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 		pruneEmptyDirs(filepath.Dir(abs), targetDir)
 	}
 
-	next := sidecar{Layout: layoutName, Bundle: bundleDir, Files: written}
+	next := sidecar{Layout: label, Bundle: origin, Files: written}
 	raw, err := json.MarshalIndent(next, "", "  ")
 	if err != nil {
 		return nil, err
@@ -144,7 +163,7 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	if err := os.WriteFile(sidecarAbs, append(raw, '\n'), 0o644); err != nil {
 		return nil, err
 	}
-	return &Result{Layout: layoutName, Files: written}, nil
+	return &Result{Layout: label, Files: written}, nil
 }
 
 // buildPlan maps target-relative slash paths to absolute bundle sources.

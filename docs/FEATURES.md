@@ -55,6 +55,16 @@ canonical issue tracker until an implementation lands.
   manifest and tints the describe header, and multi-component favorites
   derive as the chroma-restored OKLab centroid.
 
+## Roster artifact
+
+* `agent-compose roster --out <dir>` renders the seat dispatch table as a
+  v1-cascade source: every named seat's identity line, compatible
+  personalities with favorite colors, personality bodies from the given
+  sources, and a claude override with mechanical `@` imports.
+* Degrades gracefully - roles without personalities and personalities
+  without bodies render as pending until #10 - and writes under the same
+  sidecar ownership rules as projection.
+
 ## Product status
 
 No complete personality roster, Ward consumer, or release artifact ships

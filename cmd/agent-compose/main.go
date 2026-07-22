@@ -14,8 +14,11 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 func main() {
@@ -60,6 +63,19 @@ func main() {
 				Usage:     "report semantic decision changes between two bundles",
 				ArgsUsage: "<left-bundle> <right-bundle>",
 				Action:    runDiff,
+			},
+			{
+				Name:      "roster",
+				Usage:     "render the seat dispatch table as a v1-cascade source",
+				ArgsUsage: "[source.kdl...]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "out",
+						Usage:    "artifact directory (e.g. ~/.config/agent-compose/sources/personality)",
+						Required: true,
+					},
+				},
+				Action: runRoster,
 			},
 			{
 				Name:      "project",
@@ -237,6 +253,35 @@ func execReal(argv []string) error {
 	}
 	env := append(os.Environ(), launch.EnvSentinel+"=1")
 	return syscall.Exec(path, argv, env)
+}
+
+func runRoster(_ context.Context, cmd *cli.Command) error {
+	p, err := person.Load()
+	if err != nil {
+		return err
+	}
+	var sources []*schema.Source
+	for _, declPath := range cmd.Args().Slice() {
+		src, err := schema.LoadSource(declPath)
+		if err != nil {
+			return err
+		}
+		sources = append(sources, src)
+	}
+	outDir, err := filepath.Abs(cmd.String("out"))
+	if err != nil {
+		return err
+	}
+	files, err := roster.Render(p, sources, outDir)
+	if err != nil {
+		return err
+	}
+	result, err := project.ApplyOwned(outDir, files, "roster", "person:"+p.Name)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("roster artifact: %d files under %s\n", len(result.Files), outDir)
+	return nil
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {
