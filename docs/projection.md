@@ -60,6 +60,7 @@ itself is read-only input and is never modified.
 
 ## See also
 
+* [launch.md](launch.md) - the refresh-then-exec path that drives projection.
 * [bundle-protocol.md](bundle-protocol.md) - the tree projection consumes.
 * [manifest-schema.md](manifest-schema.md) - the entry points it reads.
 * [architecture.md](architecture.md) - why composition stays harness-blind.

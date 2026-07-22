@@ -32,10 +32,18 @@ canonical issue tracker until an implementation lands.
 * Sidecar-tracked ownership: projection never overwrites files it did not
   create, and re-projection removes only its own stale files.
 
+## Launch-time refresh
+
+* `agent-compose launch` refreshes (compose plus project) then execs the real
+  command, with an environment sentinel preventing wrapper recursion.
+* Refresh failure warns loudly and falls back to a validated last-known-good
+  projection; concurrent launches converge on one cache entry via the
+  materializer's rename race and a per-target projection lock.
+
 ## Product status
 
-No complete personality roster, launch-time refresh, Ward consumer, or
-release artifact ships yet.
+No complete personality roster, Ward consumer, or release artifact ships
+yet.
 
 ## See also
 

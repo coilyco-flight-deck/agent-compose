@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"syscall"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -66,6 +67,11 @@ func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
 	if !ok {
 		return nil, fmt.Errorf("unknown layout %q; v0.1 layouts: %s", layoutName, strings.Join(registryNames(), ", "))
 	}
+	release, err := lockTarget(targetDir)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
 	manifest, err := bundle.ReadManifest(bundleDir)
 	if err != nil {
 		return nil, err
@@ -182,6 +188,41 @@ func buildPlan(bundleDir string, manifest *bundle.Manifest, points LoadPoints) (
 		}
 	}
 	return plan, nil
+}
+
+// Validate reports whether the target holds a complete previous projection,
+// so a failed refresh can fall back to it as last-known-good.
+func Validate(targetDir string) error {
+	s := readSidecar(targetDir)
+	if len(s.Files) == 0 {
+		return fmt.Errorf("no projection recorded under %s", targetDir)
+	}
+	for _, rel := range s.Files {
+		if _, err := os.Stat(filepath.Join(targetDir, filepath.FromSlash(rel))); err != nil {
+			return fmt.Errorf("recorded projection is incomplete: %w", err)
+		}
+	}
+	return nil
+}
+
+// lockTarget serializes projections into one target across processes.
+func lockTarget(targetDir string) (func(), error) {
+	dir := filepath.Join(targetDir, ".agent-compose")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, err
+	}
+	f, err := os.OpenFile(filepath.Join(dir, "lock"), os.O_CREATE|os.O_RDWR, 0o644)
+	if err != nil {
+		return nil, err
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+		f.Close()
+		return nil, fmt.Errorf("lock projection target: %w", err)
+	}
+	return func() {
+		syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+		f.Close()
+	}, nil
 }
 
 func readSidecar(targetDir string) sidecar {
