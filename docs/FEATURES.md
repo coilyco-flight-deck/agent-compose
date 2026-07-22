@@ -16,8 +16,9 @@ canonical issue tracker until an implementation lands.
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
-* Embedded fixture-grade person source validating role-personality pairing;
-  the full roster is issue #10.
+* Embedded person source carrying the six active roles, the social and sales
+  stubs, and twelve named agent seats with pronouns; personalities beyond the
+  engineer set land with issue #10.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic, content-keyed materialization: identical inputs reuse the cached

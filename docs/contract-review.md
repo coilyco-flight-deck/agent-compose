@@ -34,6 +34,11 @@ issues consume this reviewed contract rather than the earlier proposal.
   human-readable reasons rather than a protocol-grade specification.
 * Byte-identical duplicate content deduplicates; non-identical collisions for
   one delivery slot still fail in v0.1 instead of adding an override grammar.
+* Agent identity entered the person contract as named seats - `agent` nodes
+  with `name` and `pronouns` nested under each role, adapting the shape ward's
+  roles.kdl comments sketched. Names are opaque strings to the engine; ward
+  keeps guardfiles, models, and reasoning effort, joined by the shared role
+  slug.
 
 ## Ward integration record
 
