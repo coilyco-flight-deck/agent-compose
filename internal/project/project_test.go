@@ -118,6 +118,43 @@ func TestProjectRefusesForeignFiles(t *testing.T) {
 	}
 }
 
+func TestHomeScopeProjection(t *testing.T) {
+	native := composeFixture(t, "native-full.kdl")
+	compiled := composeFixture(t, "compiled-full.kdl")
+	cases := map[string]struct{ instructions, skillsDir string }{
+		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
+		"codex":    {".codex/AGENTS.md", ".agents/skills"},
+		"goose":    {".config/goose/.goosehints", ".agents/skills"},
+		"opencode": {".config/opencode/AGENTS.md", ".agents/skills"},
+	}
+	for layout, want := range cases {
+		t.Run(layout, func(t *testing.T) {
+			home := t.TempDir()
+			if _, err := ProjectScoped(native, layout, home, ScopeHome); err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(readTarget(t, home, want.instructions), "Fixture foundation") {
+				t.Fatalf("home instructions load point %s missing content", want.instructions)
+			}
+			if !strings.Contains(readTarget(t, home, want.skillsDir+"/personality-curious/SKILL.md"), "# Curious") {
+				t.Fatal("home skills load point missing skill tree")
+			}
+
+			home = t.TempDir()
+			if _, err := ProjectScoped(compiled, layout, home, ScopeHome); err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(readTarget(t, home, want.instructions), "# Grounded") {
+				t.Fatal("home compiled load point missing prose")
+			}
+		})
+	}
+
+	if _, err := ProjectScoped(native, "claude", t.TempDir(), "galaxy"); err == nil || !strings.Contains(err.Error(), "unknown scope") {
+		t.Fatalf("expected unknown-scope diagnostic, got %v", err)
+	}
+}
+
 func TestReprojectionReplacesOwnFilesOnly(t *testing.T) {
 	target := t.TempDir()
 	curious := composeFixture(t, "native-full.kdl")

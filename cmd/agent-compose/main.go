@@ -103,6 +103,11 @@ func main() {
 						Value: ".",
 						Usage: "directory receiving the load points",
 					},
+					&cli.StringFlag{
+						Name:  "scope",
+						Value: project.ScopeRepo,
+						Usage: "load-point scope: repo (project files) or home (global files)",
+					},
 				},
 				Action: runProject,
 			},
@@ -300,12 +305,12 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 	if bundleDir == "" {
 		return fmt.Errorf("project needs a bundle directory")
 	}
-	result, err := project.Project(bundleDir, cmd.String("layout"), cmd.String("target"))
+	result, err := project.ProjectScoped(bundleDir, cmd.String("layout"), cmd.String("target"), cmd.String("scope"))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("projected %d files into layout %s under %s\n",
-		len(result.Files), result.Layout, cmd.String("target"))
+	fmt.Printf("projected %d files into layout %s (%s scope) under %s\n",
+		len(result.Files), result.Layout, cmd.String("scope"), cmd.String("target"))
 	return nil
 }
 

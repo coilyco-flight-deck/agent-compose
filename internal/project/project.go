@@ -28,6 +28,32 @@ type Layout struct {
 	Compiled *LoadPoints
 }
 
+const (
+	ScopeRepo = "repo"
+	ScopeHome = "home"
+)
+
+// HomeRegistry places content at $HOME-relative global load points, for
+// containers where v2 owns the whole home; sources in docs/projection.md.
+var HomeRegistry = map[string]Layout{
+	"claude": {
+		Native:   &LoadPoints{Instructions: ".claude/CLAUDE.md", SkillsDir: ".claude/skills"},
+		Compiled: &LoadPoints{Instructions: ".claude/CLAUDE.md"},
+	},
+	"codex": {
+		Native:   &LoadPoints{Instructions: ".codex/AGENTS.md", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: ".codex/AGENTS.md"},
+	},
+	"goose": {
+		Native:   &LoadPoints{Instructions: ".config/goose/.goosehints", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: ".config/goose/.goosehints"},
+	},
+	"opencode": {
+		Native:   &LoadPoints{Instructions: ".config/opencode/AGENTS.md", SkillsDir: ".agents/skills"},
+		Compiled: &LoadPoints{Instructions: ".config/opencode/AGENTS.md"},
+	},
+}
+
 // Registry is the fixed v0.1 layout set. Layout names and load-point paths
 // live here and nowhere else; conventions are recorded in docs/projection.md.
 var Registry = map[string]Layout{
@@ -63,7 +89,21 @@ type Result struct {
 }
 
 func Project(bundleDir, layoutName, targetDir string) (*Result, error) {
-	layout, ok := Registry[layoutName]
+	return ProjectScoped(bundleDir, layoutName, targetDir, ScopeRepo)
+}
+
+// ProjectScoped selects repo-relative or home-relative load points; home
+// scope treats targetDir as the home root.
+func ProjectScoped(bundleDir, layoutName, targetDir, scope string) (*Result, error) {
+	registry := Registry
+	switch scope {
+	case ScopeRepo:
+	case ScopeHome:
+		registry = HomeRegistry
+	default:
+		return nil, fmt.Errorf("unknown scope %q; scopes: %s, %s", scope, ScopeRepo, ScopeHome)
+	}
+	layout, ok := registry[layoutName]
 	if !ok {
 		return nil, fmt.Errorf("unknown layout %q; v0.1 layouts: %s", layoutName, strings.Join(registryNames(), ", "))
 	}

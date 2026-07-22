@@ -23,6 +23,18 @@ A layout that lacks load points for a bundle's delivery mode fails with a
 diagnostic. Layout names and load-point paths live only in this layer; they
 never appear in the resolver, the request, the manifest, or the bundle tree.
 
+## Home scope
+
+`project --scope home` treats the target as a home root and uses each
+harness's global load points, for containers where v2 owns the whole home:
+claude `.claude/CLAUDE.md` + `.claude/skills`, codex `.codex/AGENTS.md`,
+goose `.config/goose/.goosehints`, opencode `.config/opencode/AGENTS.md`,
+with `.agents/skills` as the portable global skills directory for all but
+claude. Verified 2026-07: goose documents the global hints path and the
+`~/.agents/skills` recommendation; opencode lists its global rules and skill
+locations; claude and codex global paths are corroborated by their official
+docs and this fleet's live v1 load-point symlinks.
+
 ## Upstream conventions (verified 2026-07)
 
 All four harnesses read Agent Skills (SKILL.md) natively, and
