@@ -65,4 +65,5 @@ request. Ward runs without agent-compose and agent-compose runs without Ward.
 * [manifest-schema.md](manifest-schema.md) - stable manifest fields.
 * [decision-trace.md](decision-trace.md) - retained decision evidence.
 * [projection.md](projection.md) - the harness-aware load-point layer.
+* [integration.md](integration.md) - the v1 cascade seam and delivery tiers.
 * [contract-review.md](contract-review.md) - review decisions of record.
