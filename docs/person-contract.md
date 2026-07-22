@@ -4,33 +4,30 @@ The binary embeds exactly one `person` source for v0.1. No provider interface
 or trait-slider abstraction sits in front of it:
 
 ```kdl
-person "kai" schema-version=1 {
-    invariant "personality-bounds" {
-        may "attention" "framing" "tempo" "voice" "tie-breaking"
-        never "truthfulness" "role-obligations" "permissions" "safety" "completion"
-    }
+person "kai" {
     role "engineer" {
         purpose "Build and land independently verifiable product changes."
-        allows-personality "curious" "grounded" "meticulous"
+        personality "curious" "grounded" "meticulous"
     }
-    personality "curious" {
-        presence "Inquisitiveness, exploration, and delight in discovery."
-        attention "Unanswered questions and useful adjacent evidence."
-        tempo "Explore broadly, then converge on evidence."
-        voice "Inviting, precise, and openly interested."
-    }
+    personality "curious" skill="personality-curious"
 }
 ```
 
-The person source owns organizational purpose, role-neutral personalities,
-curated compatibility, and the invariant that personality never changes
-validity or authority. Issue #10 owns the complete roster and prose.
+A role names its purpose and the personalities compatible with it. A
+personality entry binds the name to the skill that defines it. The definition
+itself - however presence, attention, tempo, and voice end up being expressed -
+lives inside that skill, not in this contract. The format inside the skill
+(KDL, YAML, or a metadata block in SKILL.md) is deliberately undecided in
+v0.1.
+
+The person source owns organizational purpose, role-neutral personalities, and
+curated role compatibility. Issue #10 owns the complete roster and prose.
 
 A private overlay may add scoped instructions or selection rules. It may not
-redefine canonical roles, personalities, compatibility, or invariants. AOS
-owns no copy of this person source.
+redefine canonical roles, personalities, or compatibility. AOS owns no copy of
+this person source.
 
 ## See also
 
-* [kdl-contracts.md](kdl-contracts.md) - request, repo, and AOS grammar.
+* [kdl-contracts.md](kdl-contracts.md) - request and source grammar.
 * [architecture.md](architecture.md) - policy ownership.

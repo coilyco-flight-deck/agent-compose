@@ -1,61 +1,39 @@
 # Bundle protocol
 
-Every successful composition produces one immutable, content-addressed tree.
-Consumers treat the tree as opaque and enter it only through `manifest.json`.
+Every successful composition produces one immutable tree. Consumers enter it
+through `manifest.json` and otherwise treat the tree as opaque.
 
 ## Tree contract
 
 The v0.1 tree contains:
 
-* `manifest.json` - protocol version, identity, provenance, files, and delivery.
-* `trace.json` - the deterministic decision trace.
+* `manifest.json` - what was composed and the delivery entry points.
+* `trace.json` - the plain-language decision trace.
 * `content/instructions.md` - canonical selected instructions.
-* `content/skills/<source-id>/<content-id>/...` - canonical selected skill trees.
-* `delivery/compiled.md` - present only when the adapter compiles selected skill
-  bodies into one context document.
-
-Native delivery points the manifest at `content/instructions.md` and
-`content/skills`. Compiled delivery points at `delivery/compiled.md` and exposes
-no skill-root entry point, but the bundle retains the canonical selected skill
-trees for inspection and semantic diffing. Harness load-point paths never
-appear inside the generic tree.
+* `content/skills/<source-id>/<skill>/...` - canonical selected skill trees.
+* `delivery/compiled.md` - present only when the adapter compiles selected
+  skill bodies into one context document. The canonical skill trees stay
+  beside it for inspection and diffing.
 
 Every path uses slash-separated relative form. Bundle trees contain regular
-files and directories only. Symlinks and paths that escape the root are invalid.
+files and directories only. Symlinks and paths that escape the root are
+invalid. Harness load-point paths never appear inside the generic tree.
 
-## Manifest
+## Immutability and atomicity
 
-The stable JSON fields, source provenance, file inventory, and delivery entry
-points are defined in [manifest-schema.md](manifest-schema.md).
+The materializer writes into a private staging directory beside the final
+location, verifies the tree is complete, then renames it into place
+atomically. A finished bundle is never rewritten in place - refresh produces
+a new tree and swaps it in. A failed refresh never partially replaces a
+known-good bundle; the previous bundle stays live until the replacement is
+complete.
 
-## Identity and atomicity
-
-The bundle id is SHA-256 over canonical JSON containing the protocol version,
-normalized request facts, ordered source records, delivery metadata, and the
-sorted `files` records. The identity record excludes `manifest.json` to avoid a
-self-reference. The manifest carries the resulting id.
-
-The identity excludes absolute paths, cache location, timestamps, duration,
-TTY state, and cache-hit status. The CLI may report those values as runtime
-telemetry, but the materializer never stores them under the bundle root.
-
-The materializer creates a private staging directory beside the final bundle,
-writes and verifies every file, then renames the completed directory atomically.
-The materializer never rewrites an existing bundle id. Concurrent writers that
-lose the rename race verify and reuse the winner, then discard their staging
-directory. A consumer rejects an unsupported version, digest mismatch, or
-missing declared entry point before agent launch.
-
-## Compatibility
-
-Consumers must match protocol name and v0.1 version exactly. Producers may add
-new files only when old consumers can ignore them through the manifest. Any
-field removal, meaning change, or entry-point change requires a new protocol
-version and compatibility fixtures in each consumer.
+Runtime telemetry - durations, cache location, cache-hit status, terminal
+state - never lands under the bundle root.
 
 ## See also
 
-* [decision-trace.md](decision-trace.md) - the retained explanation schema.
-* [manifest-schema.md](manifest-schema.md) - manifest fields and provenance.
+* [manifest-schema.md](manifest-schema.md) - manifest fields.
+* [decision-trace.md](decision-trace.md) - the retained explanation data.
 * [architecture.md](architecture.md) - integration boundaries.
-* [contract-review.md](contract-review.md) - consumer decisions under review.
+* [contract-review.md](contract-review.md) - review decisions of record.

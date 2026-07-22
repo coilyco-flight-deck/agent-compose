@@ -5,17 +5,17 @@ is public source, but intentionally opinionated: the product includes her
 synthetic company, personality catalog, and composition defaults rather than
 presenting itself as a neutral enterprise framework.
 
-The intended product accepts explicit facts about the agent, role, model class,
-privacy scope, and target repositories. It resolves those facts against
-embedded personal policy plus scoped overlays, then emits an immutable context
-bundle for a host harness or a warded container to consume.
+The intended product accepts a role, a personality, a context density, a
+delivery mode, and the locations of personality sources. It resolves those
+inputs against embedded personal policy plus scoped overlays, then emits an
+immutable context bundle for a host harness or a warded container to consume.
 
 ## Ownership boundary
 
 Agent-compose owns composition mechanics and its bundled public-safe person
 configuration:
 
-* profile and repo-capability resolution
+* role and personality resolution
 * the ten-seat company roster and organizational purpose
 * role-neutral personalities and curated role compatibility
 * native-skill and compiled-context delivery

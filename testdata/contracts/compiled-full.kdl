@@ -1,0 +1,7 @@
+compose {
+    role "engineer"
+    personality "grounded"
+    delivery "compiled"
+    density "full"
+    source "aos-public" declaration="source-public.kdl" required=#true
+}
