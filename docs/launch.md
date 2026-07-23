@@ -1,12 +1,16 @@
 # Launch-time refresh
 
-The launch verb freshens context, then hands the process to the real command:
+A `--` on the compose verb freshens context, then hands the process to the
+real command:
 
 ```
-agent-compose launch --request <kdl> --layout <name> --target <dir> -- <command> [args...]
+agent-compose compose <request.kdl> --layout <name> --target <dir> -- <command> [args...]
+agent-compose compose -- <command> [args...]
 ```
 
-Refresh is compose plus project. Both halves are already idempotent - the
+The first form refreshes a bundle and its projection before exec; the bare
+form converges the host (roster plus cascade) before exec. Refresh is
+compose plus project. Both halves are already idempotent - the
 bundle cache reuses identical inputs and projection replaces only its own
 files - so a warm launch is a no-op that validates and execs. The warm path
 runs in single-digit milliseconds on the reference host, well inside the
@@ -39,7 +43,7 @@ distinct cache keys, distinct target directories, and a per-target lock file
 ## Wrapper installation requirements
 
 Binary shadowing rollout belongs to the infrastructure repo. A wrapper that
-fronts a harness must exec `agent-compose launch` with its fixed request,
+fronts a harness must exec `agent-compose compose` with its fixed request,
 layout, and target, forward the original argv after `--`, and resolve the
 real harness binary through normal PATH lookup - the sentinel, not PATH
 surgery, is what prevents recursion. No rollout code lives here.

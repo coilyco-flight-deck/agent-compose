@@ -41,8 +41,8 @@ func main() {
 			},
 			{
 				Name:      "compose",
-				Usage:     "converge this host (no args) or compose a request into a bundle",
-				ArgsUsage: "[request.kdl]",
+				Usage:     "converge the host, compose a bundle, or refresh then exec after --",
+				ArgsUsage: "[request.kdl] [-- <command> [args...]]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "out",
@@ -51,6 +51,15 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "explain",
 						Usage: "print the full decision tree after the summary",
+					},
+					&cli.StringFlag{
+						Name:  "layout",
+						Usage: "load-point layout for the exec path (with a request)",
+					},
+					&cli.StringFlag{
+						Name:  "target",
+						Value: ".",
+						Usage: "directory receiving the load points on the exec path",
 					},
 				},
 				Action: runCompose,
@@ -130,33 +139,6 @@ func main() {
 				},
 				Action: runProject,
 			},
-			{
-				Name:      "launch",
-				Usage:     "refresh context, then exec the real command",
-				ArgsUsage: "-- <command> [args...]",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "request",
-						Usage:    "compose request KDL path",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:     "layout",
-						Usage:    "load-point layout name",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:  "target",
-						Value: ".",
-						Usage: "directory receiving the load points",
-					},
-					&cli.StringFlag{
-						Name:  "out",
-						Usage: "bundle output directory (defaults to ~/.agent-compose/bundles)",
-					},
-				},
-				Action: runLaunch,
-			},
 		},
 	}
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
@@ -166,7 +148,22 @@ func main() {
 }
 
 func runCompose(_ context.Context, cmd *cli.Command) error {
-	requestPath := cmd.Args().First()
+	command := argvAfterDash()
+	args := cmd.Args().Slice()
+	if len(command) > 0 && len(args) >= len(command) {
+		args = args[:len(args)-len(command)]
+	}
+	requestPath := ""
+	if len(args) > 0 {
+		requestPath = args[0]
+	}
+
+	if len(command) > 0 {
+		return refreshThenExec(cmd, requestPath, command)
+	}
+	if cmd.String("layout") != "" {
+		return fmt.Errorf("--layout drives the exec path; add `-- <command>` (or use the project verb)")
+	}
 	if requestPath == "" {
 		if code := converge.Run(cascade.DefaultPaths(), os.Stdout, os.Stderr); code != 0 {
 			return cli.Exit("", code)
@@ -228,29 +225,22 @@ func runDiff(_ context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-// colorEnabled keeps redirected output plain and deterministic; color is a
-// TTY-only affordance and NO_COLOR always wins.
-func colorEnabled() bool {
-	if os.Getenv("NO_COLOR") != "" {
-		return false
-	}
-	info, err := os.Stdout.Stat()
-	return err == nil && info.Mode()&os.ModeCharDevice != 0
-}
-
-func trueColorTerminal() bool {
-	ct := os.Getenv("COLORTERM")
-	return strings.Contains(ct, "truecolor") || strings.Contains(ct, "24bit")
-}
-
-func runLaunch(_ context.Context, cmd *cli.Command) error {
-	argv := cmd.Args().Slice()
-	if len(argv) == 0 {
-		return fmt.Errorf("launch needs a command after --")
-	}
+// refreshThenExec is the absorbed launch verb: refresh context, then hand
+// the process to the real command, sentinel-guarded against recursion.
+func refreshThenExec(cmd *cli.Command, requestPath string, command []string) error {
 	if os.Getenv(launch.EnvSentinel) != "" {
 		fmt.Fprintln(os.Stderr, "agent-compose: nested launch detected; skipping refresh")
-		return execReal(argv)
+		return execReal(command)
+	}
+	if requestPath == "" {
+		if code := converge.Run(cascade.DefaultPaths(), os.Stdout, os.Stderr); code != 0 {
+			return cli.Exit("", code)
+		}
+		return execReal(command)
+	}
+	layout := cmd.String("layout")
+	if layout == "" {
+		return fmt.Errorf("a request with `--` needs --layout to place its load points")
 	}
 	outDir := cmd.String("out")
 	if outDir == "" {
@@ -261,8 +251,8 @@ func runLaunch(_ context.Context, cmd *cli.Command) error {
 		outDir = filepath.Join(stateDir, "bundles")
 	}
 	result, err := launch.Refresh(launch.Options{
-		RequestPath: cmd.String("request"),
-		Layout:      cmd.String("layout"),
+		RequestPath: requestPath,
+		Layout:      layout,
 		TargetDir:   cmd.String("target"),
 		OutDir:      outDir,
 	})
@@ -279,7 +269,33 @@ func runLaunch(_ context.Context, cmd *cli.Command) error {
 		fmt.Fprintf(os.Stderr, "agent-compose: context refreshed (%s bundle, %d files) for %s\n",
 			state, result.Projected, cmd.String("target"))
 	}
-	return execReal(argv)
+	return execReal(command)
+}
+
+// argvAfterDash finds the raw command after the `--` terminator, independent
+// of how the flag parser folds those tokens into Args.
+func argvAfterDash() []string {
+	for i, arg := range os.Args {
+		if arg == "--" {
+			return os.Args[i+1:]
+		}
+	}
+	return nil
+}
+
+// colorEnabled keeps redirected output plain and deterministic; color is a
+// TTY-only affordance and NO_COLOR always wins.
+func colorEnabled() bool {
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	info, err := os.Stdout.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
+}
+
+func trueColorTerminal() bool {
+	ct := os.Getenv("COLORTERM")
+	return strings.Contains(ct, "truecolor") || strings.Contains(ct, "24bit")
 }
 
 func runCascade(_ context.Context, cmd *cli.Command) error {

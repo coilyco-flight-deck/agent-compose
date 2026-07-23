@@ -32,8 +32,8 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Launch-time refresh
 
-* `agent-compose launch` refreshes (compose plus project) then execs the real
-  command, with an environment sentinel preventing wrapper recursion.
+* `compose ... -- <command>` refreshes (bundle projection, or full host
+  convergence bare) then execs, sentinel-guarded against wrapper recursion.
 * Refresh failure warns loudly and falls back to a validated last-known-good
   projection; concurrent launches converge on one cache entry via the
   materializer's rename race and a per-target projection lock.
