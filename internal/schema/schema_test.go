@@ -186,7 +186,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"coding-shape-cli", "html-a11y"} {
+	for _, name := range []string{"coding-shape-cli", "design-system"} {
 		dir := filepath.Join(root, ".agents", "composed", name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
@@ -200,7 +200,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
         composed-skill coding-shape-cli
     }
     role designer {
-        composed-skill html-a11y
+        composed-skill design-system
     }
 }
 `), 0o644); err != nil {
@@ -244,7 +244,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		src.RoleSkills["engineer"][0].ID != "coding-shape-cli" ||
 		src.RoleSkills["engineer"][0].EntryPoint != "COMPOSED.md" ||
 		len(src.RoleSkills["designer"]) != 1 ||
-		src.RoleSkills["designer"][0].ID != "html-a11y" {
+		src.RoleSkills["designer"][0].ID != "design-system" {
 		t.Fatalf("unexpected composed role skills: %+v", src.RoleSkills)
 	}
 

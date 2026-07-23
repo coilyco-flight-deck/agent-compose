@@ -88,7 +88,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 		"personality-curious":  "# Curious\n",
 		"personality-grounded": "# Grounded\n",
 	})
-	for _, name := range []string{"coding-shape-cli", "html-a11y"} {
+	for _, name := range []string{"coding-shape-cli", "design-system"} {
 		dir := filepath.Join(src.Root, name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
@@ -102,7 +102,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
 		}},
 		"writer": {{
-			ID: "html-a11y", Path: "html-a11y", EntryPoint: "COMPOSED.md",
+			ID: "design-system", Path: "design-system", EntryPoint: "COMPOSED.md",
 		}},
 	}
 
@@ -117,7 +117,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 	}
 	var found bool
 	for _, skill := range res.Skills {
-		if skill.ID == "html-a11y" {
+		if skill.ID == "design-system" {
 			t.Fatal("an inactive role's composed skill entered the resolution")
 		}
 		if skill.ID == "coding-shape-cli" {
@@ -131,7 +131,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 		t.Fatalf("active role composed skill missing from %+v", res.Skills)
 	}
 	for _, decision := range res.Decisions {
-		if decision.Subject == "skill:html-a11y" {
+		if decision.Subject == "skill:design-system" {
 			t.Fatalf("inactive role skill leaked into the decision trace: %+v", decision)
 		}
 	}

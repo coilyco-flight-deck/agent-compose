@@ -124,7 +124,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	}
 	for name, body := range map[string]string{
 		"coding-shape-cli": "# CLI foundation\n",
-		"html-a11y":        "# HTML accessibility\n",
+		"design-system":    "# Design system\n",
 	} {
 		dir := filepath.Join(root, ".agents", "composed", name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -139,7 +139,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
         composed-skill "coding-shape-cli"
     }
     role "designer" {
-        composed-skill "html-a11y"
+        composed-skill "design-system"
     }
 }
 `), 0o644); err != nil {
@@ -188,7 +188,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	if _, err := os.Stat(composedSource); !os.IsNotExist(err) {
 		t.Fatalf("source-only COMPOSED.md leaked into the bundle: %v", err)
 	}
-	inactive := filepath.Join(result.Bundle.Dir, "content", "skills", "aos-public", "html-a11y")
+	inactive := filepath.Join(result.Bundle.Dir, "content", "skills", "aos-public", "design-system")
 	if _, err := os.Stat(inactive); !os.IsNotExist(err) {
 		t.Fatalf("inactive role skill leaked into the bundle: %v", err)
 	}
