@@ -38,6 +38,7 @@ class AgentCompose < Formula
 
   def install
     bin.install Dir["agent-compose-*"].first => "agent-compose"
+    bin.install_symlink "agent-compose" => "acompose"
   end
 
   test do
@@ -56,7 +57,10 @@ cat > dist/agent-compose.json <<EOF
         "64bit": {
             "url": "${BASE}/agent-compose-windows-amd64.exe",
             "hash": "${WINDOWS_AMD64}",
-            "bin": [["agent-compose-windows-amd64.exe", "agent-compose"]]
+            "bin": [
+                ["agent-compose-windows-amd64.exe", "agent-compose"],
+                ["agent-compose-windows-amd64.exe", "acompose", "compose"]
+            ]
         }
     }
 }

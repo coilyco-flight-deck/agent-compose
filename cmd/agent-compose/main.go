@@ -25,6 +25,19 @@ import (
 // version is stamped by the release build via -ldflags; dev builds say dev.
 var version = "dev"
 
+// dispatchArgs makes the acompose install name behave as the compose verb,
+// so the daily command is dash-free and stutter-free.
+func dispatchArgs(args []string) []string {
+	base := args[0]
+	if i := strings.LastIndexAny(base, `/\`); i >= 0 {
+		base = base[i+1:]
+	}
+	if strings.TrimSuffix(base, ".exe") != "acompose" {
+		return args
+	}
+	return append([]string{args[0], "compose"}, args[1:]...)
+}
+
 func main() {
 	cmd := &cli.Command{
 		Name:    "agent-compose",
@@ -141,7 +154,7 @@ func main() {
 			},
 		},
 	}
-	if err := cmd.Run(context.Background(), os.Args); err != nil {
+	if err := cmd.Run(context.Background(), dispatchArgs(os.Args)); err != nil {
 		fmt.Fprintf(os.Stderr, "agent-compose: %v\n", err)
 		os.Exit(1)
 	}

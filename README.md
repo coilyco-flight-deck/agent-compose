@@ -64,6 +64,9 @@ scoop bucket add coilyco https://forgejo.coilysiren.me/coilyco-flight-deck/scoop
 scoop install coilyco/agent-compose
 ```
 
+Both managers also install `acompose`, which is the compose verb directly:
+bare for host convergence, `acompose -- <command>` for refresh-then-exec.
+
 Release binaries (darwin-arm64, linux-amd64/arm64, windows-amd64) also attach
 to tagged
 [Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
