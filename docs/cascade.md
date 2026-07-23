@@ -1,6 +1,6 @@
 # Cascade
 
-`agent-compose cascade` is the absorbed v1 composer: it turns doctrine
+The cascade (bare `agent-compose compose`, or the hidden `cascade` verb for scripting) is the absorbed v1 composer: it turns doctrine
 sources into each harness's global context. Presence of
 `~/.agent-compose/agent-compose.yaml` activates it; without the file
 the verb is a documented no-op, so a host behaves exactly as if

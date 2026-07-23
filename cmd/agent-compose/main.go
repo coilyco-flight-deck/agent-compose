@@ -11,6 +11,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/converge"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
@@ -40,8 +41,8 @@ func main() {
 			},
 			{
 				Name:      "compose",
-				Usage:     "compose a request KDL file into a bundle",
-				ArgsUsage: "<request.kdl>",
+				Usage:     "converge this host (no args) or compose a request into a bundle",
+				ArgsUsage: "[request.kdl]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "out",
@@ -77,8 +78,9 @@ func main() {
 				Action:    runDiff,
 			},
 			{
-				Name:  "cascade",
-				Usage: "compose doctrine sources into harness global load points",
+				Name:   "cascade",
+				Hidden: true,
+				Usage:  "compose doctrine sources into harness global load points",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "dry-run",
@@ -93,6 +95,7 @@ func main() {
 			},
 			{
 				Name:      "roster",
+				Hidden:    true,
 				Usage:     "render the seat dispatch table as a v1-cascade source",
 				ArgsUsage: "[source.kdl...]",
 				Flags: []cli.Flag{
@@ -105,6 +108,7 @@ func main() {
 			},
 			{
 				Name:      "project",
+				Hidden:    true,
 				Usage:     "place bundle content at a harness layout's load points",
 				ArgsUsage: "<bundle-dir>",
 				Flags: []cli.Flag{
@@ -164,7 +168,10 @@ func main() {
 func runCompose(_ context.Context, cmd *cli.Command) error {
 	requestPath := cmd.Args().First()
 	if requestPath == "" {
-		return fmt.Errorf("compose needs a request KDL path")
+		if code := converge.Run(cascade.DefaultPaths(), os.Stdout, os.Stderr); code != 0 {
+			return cli.Exit("", code)
+		}
+		return nil
 	}
 	outDir := cmd.String("out")
 	if outDir == "" {
