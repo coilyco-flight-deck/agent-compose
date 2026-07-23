@@ -1,9 +1,11 @@
 # agent-compose
 
-Agent-compose is Kai's personal, profile-aware compiler for agent context. It
-is public source, but intentionally opinionated: the product includes her
-synthetic company, personality catalog, and composition defaults rather than
-presenting itself as a neutral enterprise framework.
+Agent-compose is the context substrate between AOS knowledge and Ward or native
+agent harnesses. It selects, compiles, and installs the context an agent starts
+with while keeping executable authority outside the bundle. The public product
+is intentionally opinionated: it also includes Kai's synthetic company,
+personality catalog, and composition defaults rather than presenting itself as
+a neutral enterprise framework.
 
 The intended product accepts a role, a personality, a context density, a
 delivery mode, and the locations of personality sources. It resolves those
@@ -12,7 +14,7 @@ immutable context bundle for a host harness or a warded container to consume.
 
 ## Ownership boundary
 
-Agent-compose owns composition mechanics and its bundled public-safe person
+Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
 * role and personality resolution
@@ -21,13 +23,15 @@ configuration:
 * native-skill and compiled-context delivery
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
+* host doctrine convergence and native skill installation
 * bundle inspection, validation, and compatibility reporting
 
-Agentic-os owns reusable doctrine, general skills, capability providers, and
-editorial validation. Private overlays remain outside this public repo. Ward
-owns executable authority and supplies runtime facts while mounting an opaque
-bundle. Personality and organizational framing never alter Ward permissions.
-Infrastructure installs and converges the resulting system.
+AOS owns reusable doctrine, general skills, capability providers, and editorial
+validation. Agent-compose turns those sources into the concrete context surface
+for each harness. Private overlays remain outside this public repo. Ward owns
+executable authority, supplies runtime facts, and mounts opaque bundles.
+Personality and organizational framing never alter Ward permissions.
+Infrastructure installs the resulting system across hosts.
 
 ## Personal by design
 
@@ -42,11 +46,17 @@ or replace policy later without becoming the design center now.
 
 ## Status
 
-The first executable slice ships: a Go CLI composes a public fixture profile
-through the embedded person source into a deterministic, atomically written
-bundle with a decision trace. The full personality roster (#10), Ward
-consumption (#7), and the release pipeline remain open on the canonical Forgejo
-[issue tracker](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues).
+Version 0.4.1 ships the Go composition engine, deterministic bundles, decision
+inspection, native harness projection, refresh-then-exec, the absorbed AOS
+cascade, host convergence, and package-manager distribution. Bare `acompose`
+converges the host. `acompose -- <command>` converges context before launching
+the command. A request path composes an isolated bundle instead.
+
+The full personality roster
+([#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10))
+and Ward container consumption
+([#17](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/17))
+remain open on the canonical Forgejo tracker.
 
 ## Install
 
@@ -87,6 +97,6 @@ Agent-compose is available under the [MIT License](LICENSE).
 
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
-* [docs/architecture.md](docs/architecture.md) - proposed v0.1 composition boundary.
+* [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

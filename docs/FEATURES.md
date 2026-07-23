@@ -4,12 +4,12 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
-* Public Forgejo-canonical repository under `coilyco-flight-deck`, MIT
-  licensed, positioned as Kai's opinionated personal context system.
+* Public, MIT-licensed AOS and Ward context substrate with Kai's opinionated
+  personal policy built in.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
 
-## Composition engine (first slice)
+## Composition engine
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
@@ -61,16 +61,16 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,
   and --dry-run/--check - byte-compatible with the Python outputs.
+* Bare `acompose` converges roster and cascade; `-- <command>` refreshes before exec.
 
 ## Release
 
-* Semver git tags with a stamped `version` verb; `ward exec release-build`
-  cross-compiles darwin-arm64 and linux-amd64/arm64 into `dist/`.
-* v0.1.0 is published on Forgejo with all three binaries attached.
+* Semver tags with a stamped `version` verb and cross-platform release builds.
+* v0.4.1 is published on Forgejo and distributed through Homebrew and Scoop.
 
 ## Product status
 
-No complete personality roster or Ward consumer ships yet.
+The complete personality roster and Ward container consumer remain open.
 
 ## See also
 

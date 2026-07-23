@@ -1,10 +1,15 @@
-# v0.1 architecture
+# Architecture
 
-Agent-compose is a personality engine. It resolves a role and personality
-against embedded personal policy plus admitted personality sources, then
-materializes the selected context as an immutable bundle for a harness to
-load. The product works alone. A launcher such as Ward may mount the same
-bundle beside its own independent authority surface.
+Agent-compose is the context substrate between AOS and Ward. AOS authors
+reusable doctrine, skills, and capability providers. Agent-compose selects,
+compiles, and installs that knowledge for a harness. Ward supplies runtime facts
+and executable authority without placing either inside the context bundle.
+
+Personality is the first opinionated policy domain built on that substrate.
+Agent-compose resolves a role and personality against embedded personal policy
+plus admitted sources, then materializes the selected context as an immutable
+bundle for a harness to load. Native harnesses can use the same substrate
+without Ward.
 
 ## Composition inputs
 
@@ -50,12 +55,15 @@ picked and why as each decision occurs.
 
 ## Integration obligations
 
-AOS publishes reusable personality skills and instructions under stable source
-ids and relative paths. AOS carries no copy of Kai's person source.
+AOS publishes reusable doctrine, skills, capability providers, and instructions
+under stable source ids and relative paths. AOS carries no copy of Kai's person
+source.
 
 Ward may build the compose request and mount the finished bundle read-only,
 treating the tree as opaque. Authority and credentials never enter the
-request. Ward runs without agent-compose and agent-compose runs without Ward.
+request. Agent-compose is Ward's context substrate, not its permission engine.
+Ward can run without composed context, and agent-compose can serve native
+harnesses without Ward.
 
 ## See also
 

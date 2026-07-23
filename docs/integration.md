@@ -1,14 +1,19 @@
 # Integration and delivery tiers
 
-The v1 Python composer (`generate-agent-compose` in agentic-os) has been
+Agent-compose is the shared context substrate for AOS sources, Ward, and native
+harnesses. AOS authors reusable knowledge. Agent-compose materializes the
+selected context surface. Ward supplies authority and consumes that surface
+without parsing AOS policy.
+
+The v1 Python composer (`generate-agent-compose` in AOS) has been
 absorbed: [`agent-compose cascade`](cascade.md) now composes
 `AGENTS.COMPOSE.md` doctrine sources into
 `~/.agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
 global load point at the result, applies scope and harness filtering with
 per-harness section overrides, and emits the mount-eligibility manifest ward
 reads - byte-compatible with the Python outputs. The Python generator
-remains in agentic-os only until fleet hosts converge on the binary;
-retirement steps (hook repointing, script removal) are agentic-os work.
+remains in AOS only until fleet hosts converge on the binary. Retirement steps
+(hook repointing and script removal) are AOS work.
 
 ## The seam rule
 
@@ -16,10 +21,10 @@ On a host, the cascade owns the harness global load points and everything
 else (roster, overlays) feeds it sources. In a container, projection owns
 the whole home and no cascade runs. No path is ever written by both.
 
-## Host tier: personality rides the v1 cascade
+## Host tier: context rides the native cascade
 
-V2 renders a roster artifact into `~/.agent-compose/sources/` - a
-directory v1 already walks as a source root - containing an
+Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
+directory the cascade walks as a source root, containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
 carries the seat dispatch table: "if you are codex running the engineer
 role: your name is terran engineer (he/him), your personality is grounded,
@@ -47,7 +52,9 @@ verifying each harness's global load-point path before the layouts land.
 The cascade is native as of v0.2.0. What remains is fleet cutover: hosts
 switch from the Python entry points to the binary, the agentic-os drift hook
 repoints at `agent-compose cascade --check`, and the Python generator
-retires - all agentic-os and infrastructure work, filed there. A host with
+retires. That work belongs to AOS and infrastructure and is tracked in
+[agentic-os#618](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/618).
+A host with
 hand-edited COMPOSED snapshots (this workstation) must reconcile edits back
 into sources before its first native cascade run, or they will be
 regenerated away.

@@ -2,11 +2,11 @@
 
 ## Scope
 
-Agent-compose is Kai's personal engine for selecting, compiling, and
-materializing agent context for host harnesses and warded containers. It is
-public source and may embed her public-safe company roster, personalities, and
-composition defaults. Keep private identity detail, machines, credentials, and
-deployment values out of the repo.
+Agent-compose is the context substrate between AOS knowledge and Ward or native
+harness consumers. It selects, compiles, and materializes agent context for
+hosts and warded containers. It is public source and embeds Kai's public-safe
+company roster, personalities, and composition defaults. Keep private identity
+detail, machines, credentials, and deployment values out of the repo.
 
 ## Project shape
 
