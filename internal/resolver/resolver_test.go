@@ -14,8 +14,16 @@ func testPerson() *person.Person {
 	return &person.Person{
 		Name: "kai",
 		Roles: map[string]person.Role{
-			"engineer": {Purpose: "Build.", Personalities: []string{"curious", "grounded"}},
-			"writer":   {Purpose: "Write.", Personalities: []string{"grounded"}},
+			"engineer": {
+				Purpose:       "Build.",
+				Briefing:      "You are an engineer.\n\nFinish the complete repository workflow.",
+				Personalities: []string{"curious", "grounded"},
+			},
+			"writer": {
+				Purpose:       "Write.",
+				Briefing:      "You are a writer.\n\nDeliver the finished text.",
+				Personalities: []string{"grounded"},
+			},
 		},
 		Personalities: map[string]person.Personality{
 			"curious":  {Skill: "personality-curious", Color: "#d98e48"},
@@ -72,14 +80,25 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	if res.FavoriteColor == "" {
 		t.Fatal("expected a melded favorite color")
 	}
-	var selected bool
+	if res.RoleBriefing != testPerson().Roles["engineer"].Briefing {
+		t.Fatalf("role briefing = %q", res.RoleBriefing)
+	}
+	var selected, briefingSelected bool
 	for _, d := range res.Decisions {
 		if d.Subject == "skill:fixture-review" && d.Outcome == OutcomeSelected {
 			selected = true
 		}
+		if d.Subject == "instruction:role-briefing" &&
+			d.Source == "person:kai" &&
+			d.Outcome == OutcomeSelected {
+			briefingSelected = true
+		}
 	}
 	if !selected {
 		t.Fatalf("expected fixture-review selected, decisions: %+v", res.Decisions)
+	}
+	if !briefingSelected {
+		t.Fatalf("expected role briefing selected, decisions: %+v", res.Decisions)
 	}
 }
 

@@ -35,6 +35,19 @@ A briefing may shape attention, operating loop, and completion posture. It
 does not grant permissions, select a model, choose a harness, or weaken an
 applicable safety boundary.
 
+## Bundle delivery
+
+Every role-specific bundle begins its canonical instruction document with the
+selected role's heading, purpose, and complete briefing. Native-skill delivery
+projects that document directly to the harness instruction load point.
+Compiled delivery keeps the same role section at the beginning of its combined
+context document.
+
+The bundle remains harness-blind. It carries the selected role charter but no
+harness identity, model choice, reasoning effort, or runtime authority. The
+projection layout decides whether the document lands at `AGENTS.md`,
+`CLAUDE.md`, or another harness-native instruction path.
+
 ## Roster delivery
 
 The roster renders each named-seat role in this order:

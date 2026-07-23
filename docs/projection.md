@@ -1,8 +1,8 @@
 # Load-point projection
 
-Composition is harness-blind. Projection is the one layer that knows harness
-vocabulary: it places a materialized bundle's content at the load points a
-harness actually reads, beneath a chosen target directory.
+Composition is harness-blind. Projection only places verified content at paths
+the harness reads. Canonical instructions already begin with the selected
+role's purpose and briefing.
 
 ```
 agent-compose project <bundle-dir> --layout <name> --scope repo|home --target <dir>

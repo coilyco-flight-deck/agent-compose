@@ -13,7 +13,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
 * Embedded source carries ten roles, required two-paragraph briefings, the
-  approved meld matrix, 16 catalog bindings, and twelve named seats.
+  approved meld matrix, 16 catalog bindings, and twelve named seats. Every
+  bundle prefixes instructions with the selected role's complete briefing.
 * AOS provider roots expose ordinary skills to every role and admit
   `.agents/composed/<name>/COMPOSED.md` only through `.agents/roles.kdl`.
   Materialization promotes admitted entry points to native `SKILL.md`.

@@ -186,15 +186,18 @@ func write(res *resolver.Resolution, root string) error {
 }
 
 func joinInstructions(res *resolver.Resolution) ([]byte, error) {
-	var out []byte
-	for i, sel := range res.Instructions {
+	out := []byte(fmt.Sprintf(
+		"# Role instructions\n\n## %s - %s\n\n%s\n",
+		res.Request.Role,
+		res.RolePurpose,
+		res.RoleBriefing,
+	))
+	for _, sel := range res.Instructions {
 		raw, err := os.ReadFile(sel.Path)
 		if err != nil {
 			return nil, err
 		}
-		if i > 0 {
-			out = append(out, '\n')
-		}
+		out = append(out, '\n')
 		out = append(out, raw...)
 	}
 	if len(out) > 0 && out[len(out)-1] != '\n' {

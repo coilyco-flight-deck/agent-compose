@@ -43,6 +43,8 @@ type Resolution struct {
 	Request        *schema.Request
 	Person         *person.Person
 	Personalities  []string
+	RolePurpose    string
+	RoleBriefing   string
 	Instructions   []Selected
 	Skills         []Selected
 	CompiledBodies []string
@@ -97,6 +99,8 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Request:       req,
 		Person:        p,
 		Personalities: append([]string(nil), role.Personalities...),
+		RolePurpose:   role.Purpose,
+		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
 		SourceIDs:     []string{"person:" + p.Name},
 	}
@@ -107,6 +111,11 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Subject: "role:" + req.Role, Kind: "profile", Source: "person:" + p.Name,
 		Outcome: OutcomeSelected,
 		Reason:  fmt.Sprintf("person %q defines this role: %s", p.Name, role.Purpose),
+	})
+	res.decide(Decision{
+		Subject: "instruction:role-briefing", Kind: "instruction", Source: "person:" + p.Name,
+		Outcome: OutcomeSelected,
+		Reason:  fmt.Sprintf("role %q activates its canonical operating charter", req.Role),
 	})
 	for _, name := range role.Personalities {
 		res.decide(Decision{

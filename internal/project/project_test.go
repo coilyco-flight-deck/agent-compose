@@ -51,6 +51,12 @@ func TestProjectNativeLayouts(t *testing.T) {
 			if !strings.Contains(readTarget(t, target, want.instructions), "Fixture foundation") {
 				t.Fatal("instructions load point missing foundation content")
 			}
+			if !strings.Contains(
+				readTarget(t, target, want.instructions),
+				"You are an engineer.",
+			) {
+				t.Fatal("instructions load point missing the selected role briefing")
+			}
 			for _, identity := range selectedFixtureSkills(t, "engineer") {
 				skill := readTarget(t, target, want.skillsDir+"/"+identity+"/SKILL.md")
 				if !strings.Contains(skill, skillHeading(identity)) {

@@ -72,7 +72,29 @@ func TestComposeAllFixtures(t *testing.T) {
 			if m.Color != wantColor {
 				t.Fatalf("manifest color = %q, want melded %q", m.Color, wantColor)
 			}
-			mustExist(t, result.Bundle.Dir, "content/instructions.md")
+			instructionsPath := filepath.Join(
+				result.Bundle.Dir,
+				"content",
+				"instructions.md",
+			)
+			instructions, err := os.ReadFile(instructionsPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			instructionText := string(instructions)
+			for _, selected := range []string{
+				"# Role instructions",
+				p.Roles["engineer"].Briefing,
+				"# Fixture foundation",
+			} {
+				if !strings.Contains(instructionText, selected) {
+					t.Fatalf("instructions missing %q:\n%s", selected, instructionText)
+				}
+			}
+			if strings.Index(instructionText, p.Roles["engineer"].Briefing) >=
+				strings.Index(instructionText, "# Fixture foundation") {
+				t.Fatalf("role briefing must precede provider instructions:\n%s", instructionText)
+			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
 			for _, personalityName := range wantPersonalities {
 				skillPath := "content/skills/aos-public/personality-" + personalityName + "/SKILL.md"
@@ -83,6 +105,13 @@ func TestComposeAllFixtures(t *testing.T) {
 					t.Fatalf("unexpected compiled delivery: %+v", m.Delivery)
 				}
 				mustExist(t, result.Bundle.Dir, "delivery/compiled.md")
+				compiled, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "delivery", "compiled.md"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !strings.Contains(string(compiled), p.Roles["engineer"].Briefing) {
+					t.Fatalf("compiled context omitted role briefing:\n%s", compiled)
+				}
 			} else {
 				if m.Delivery.SkillsRoot != "content/skills" || m.Delivery.CompiledContext != "" {
 					t.Fatalf("unexpected native delivery: %+v", m.Delivery)
