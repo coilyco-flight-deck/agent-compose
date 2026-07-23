@@ -19,7 +19,7 @@ Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
 * role-driven personality meld resolution
-* the ten-role company roster and organizational purpose
+* the ten-role company roster, concise purposes, and long-form role briefings
 * role-neutral personality catalog bindings and curated compatibility
 * ordinary and role-composed skill selection
 * native-skill and compiled-context delivery with source entry-point promotion

@@ -1,6 +1,9 @@
 package person
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestLoadEmbeddedRoster(t *testing.T) {
 	p, err := Load()
@@ -8,7 +11,11 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, roleName := range p.RoleOrder {
-		for _, name := range p.Roles[roleName].Personalities {
+		role := p.Roles[roleName]
+		if got := strings.Count(role.Briefing, "\n\n"); got != 1 {
+			t.Errorf("role %q briefing has %d paragraph breaks, want 1", roleName, got)
+		}
+		for _, name := range role.Personalities {
 			binding, ok := p.Personalities[name]
 			if !ok {
 				t.Fatalf("role %q personality %q has no catalog binding", roleName, name)
@@ -24,6 +31,11 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 	body := `person "fixture" {
     role "builder" {
         purpose "Build."
+        briefing """
+            You are a builder. Build the fixture from repository evidence.
+
+            Finish validation and hand back a complete result.
+            """
         personality "bright" "steady"
     }
     personality "bright" skill="personality-bright" color="#d98e48"
@@ -37,15 +49,73 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 	if len(got) != 2 || got[0] != "bright" || got[1] != "steady" {
 		t.Fatalf("role personalities = %q", got)
 	}
+	wantBriefing := "You are a builder. Build the fixture from repository evidence.\n\n" +
+		"Finish validation and hand back a complete result."
+	if got := p.Roles["builder"].Briefing; got != wantBriefing {
+		t.Fatalf("role briefing = %q, want %q", got, wantBriefing)
+	}
+}
+
+func TestParseRejectsInvalidRoleBriefing(t *testing.T) {
+	cases := map[string]struct {
+		body string
+		want string
+	}{
+		"missing": {
+			body: `person "fixture" {
+    role "builder" {
+        purpose "Build."
+        personality "bright" "steady"
+    }
+    personality "bright" skill="personality-bright" color="#d98e48"
+    personality "steady" skill="personality-steady" color="#5fa87a"
+}`,
+			want: "needs a briefing",
+		},
+		"empty": {
+			body: `person "fixture" {
+    role "builder" {
+        purpose "Build."
+        briefing "   "
+        personality "bright" "steady"
+    }
+    personality "bright" skill="personality-bright" color="#d98e48"
+    personality "steady" skill="personality-steady" color="#5fa87a"
+}`,
+			want: "briefing must not be empty",
+		},
+		"duplicate": {
+			body: `person "fixture" {
+    role "builder" {
+        purpose "Build."
+        briefing "First."
+        briefing "Second."
+        personality "bright" "steady"
+    }
+    personality "bright" skill="personality-bright" color="#d98e48"
+    personality "steady" skill="personality-steady" color="#5fa87a"
+}`,
+			want: "duplicate briefing",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(tc.body)); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("invalid role briefing error = %v, want %q", err, tc.want)
+			}
+		})
+	}
 }
 
 func TestParseRejectsIllegibleColor(t *testing.T) {
 	body := `person "fixture" {
     role "builder" {
         purpose "Build."
-        personality "bright"
+        briefing "Build independently."
+        personality "bright" "steady"
     }
     personality "bright" skill="personality-bright" color="#111111"
+    personality "steady" skill="personality-steady" color="#5fa87a"
 }`
 	if _, err := parse([]byte(body)); err == nil {
 		t.Fatal("an illegible color must fail the parse-time gate")
@@ -66,6 +136,7 @@ func TestParseSeatValidation(t *testing.T) {
 		"duplicate seat": `person "fixture" {
     role "builder" {
         purpose "Build."
+        briefing "Build independently."
         agent "claude" name="first builder"
         agent "claude" name="another"
     }
@@ -73,11 +144,13 @@ func TestParseSeatValidation(t *testing.T) {
 		"seat without name": `person "fixture" {
     role "builder" {
         purpose "Build."
+        briefing "Build independently."
         agent "claude"
     }
 }`,
 		"unknown role child": `person "fixture" {
     role "builder" {
+        briefing "Build independently."
         guardfile "fixture.kdl"
     }
 }`,
@@ -95,6 +168,7 @@ func TestParseRejectsRolePersonalityWithoutCatalogBinding(t *testing.T) {
 	body := `person "fixture" {
     role "builder" {
         purpose "Build."
+        briefing "Build independently."
         personality "bright" "steady"
     }
 }`
@@ -107,16 +181,19 @@ func TestParseRejectsRolePersonalityCardinalityAndDuplicates(t *testing.T) {
 	cases := map[string]string{
 		"one personality": `person "fixture" {
     role "builder" {
+        briefing "Build independently."
         personality "bright"
     }
 }`,
 		"four personalities": `person "fixture" {
     role "builder" {
+        briefing "Build independently."
         personality "one" "two" "three" "four"
     }
 }`,
 		"duplicate personality": `person "fixture" {
     role "builder" {
+        briefing "Build independently."
         personality "bright" "bright"
     }
 }`,

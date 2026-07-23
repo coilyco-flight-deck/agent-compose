@@ -20,6 +20,7 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 		Roles: map[string]person.Role{
 			"builder": {
 				Purpose:       "Build the fixture.",
+				Briefing:      "You are a builder. Build the fixture from repository evidence.\n\nFinish validation and return a complete result.",
 				Personalities: []string{"bright", "pending"},
 				Seats: []person.Seat{
 					{Harness: "claude", Name: "opal builder", Pronouns: "she"},
@@ -28,6 +29,7 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 			},
 			"seatless": {
 				Purpose:       "Remain seatless.",
+				Briefing:      "You are seatless.\n\nRemain outside the rendered dispatch table.",
 				Personalities: []string{"bright"},
 			},
 		},
@@ -67,11 +69,23 @@ func TestRenderDispatchTable(t *testing.T) {
 		"If you are codex running the builder role: your name is terran builder (pronouns: he).",
 		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
 		"## builder - Build the fixture.",
+		"You are a builder. Build the fixture from repository evidence.\n\nFinish validation and return a complete result.",
 		"Melded personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending (favorite color #7d9fd3), definition pending.",
 		"Melded favorite color: " + melded,
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)
+		}
+	}
+	ordered := []string{
+		"## builder - Build the fixture.",
+		"You are a builder.",
+		"If you are claude running the builder role",
+		"Melded personalities:",
+	}
+	for i := 1; i < len(ordered); i++ {
+		if strings.Index(table, ordered[i-1]) >= strings.Index(table, ordered[i]) {
+			t.Fatalf("roster content is out of order: %q must precede %q", ordered[i-1], ordered[i])
 		}
 	}
 	if strings.Contains(table, "## seatless ") {

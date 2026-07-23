@@ -32,19 +32,17 @@ Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
 directory the cascade walks as a source root, containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
 carries admitted provider instructions plus the seat dispatch table: "if you
-are codex running the engineer role, your name is terran engineer (he/him),
-your personalities are curious, grounded, and meticulous, their definitions
-live at these paths, and their melded favorite is this derived color." Each
-agent self-selects by facts it already knows and loads the linked definitions
-for that role before acting. Definitions on other roles stay inactive. No
-launcher cooperation, environment variable, or blessed entrypoint
-participates.
+are codex running the engineer role, this is your operating briefing, name,
+pronouns, personality meld, definition paths, and derived favorite color."
+Each agent self-selects by facts it already knows, adopts the briefing, and
+loads the linked definitions before acting. Other roles stay inactive. No
+launcher cooperation, environment variable, or blessed entrypoint participates.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
 start unconditionally, which is what makes personality-at-launch mechanical
 rather than hopeful. Two concurrent agents sharing a (harness, role) pair
-share a seat by design; containers are the disambiguator when that is wrong.
+share a seat by design. Containers disambiguate when that is wrong.
 
 ## Container tier: v2 owns the home
 
@@ -73,4 +71,5 @@ regenerated away.
 * [projection.md](projection.md) - the load-point layer both tiers drive.
 * [launch.md](launch.md) - refresh-then-exec and the recursion guard.
 * [person-contract.md](person-contract.md) - roles, seats, and colors.
+* [role-briefings.md](role-briefings.md) - role charter delivery.
 * [architecture.md](architecture.md) - composition inputs and ownership.

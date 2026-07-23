@@ -46,6 +46,8 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 			continue
 		}
 		fmt.Fprintf(&table, "\n## %s - %s\n\n", roleName, role.Purpose)
+		table.WriteString(role.Briefing)
+		table.WriteString("\n\n")
 		for _, seat := range role.Seats {
 			fmt.Fprintf(&table, "- If you are %s running the %s role: your name is %s",
 				seat.Harness, roleName, seat.Name)

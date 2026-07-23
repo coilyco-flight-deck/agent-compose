@@ -6,6 +6,7 @@ package person
 import (
 	_ "embed"
 	"fmt"
+	"strings"
 
 	kdl "github.com/calico32/kdl-go"
 
@@ -25,6 +26,7 @@ type Seat struct {
 
 type Role struct {
 	Purpose       string
+	Briefing      string
 	Personalities []string
 	Seats         []Seat
 }
@@ -79,6 +81,7 @@ func parse(raw []byte) (*Person, error) {
 				return nil, fmt.Errorf("person role %q declared twice", name)
 			}
 			role := Role{}
+			briefingSet := false
 			for _, c := range n.Children().Nodes {
 				switch c.Name() {
 				case "purpose":
@@ -90,6 +93,19 @@ func parse(raw []byte) (*Person, error) {
 						return nil, fmt.Errorf("role %q: purpose needs one argument", name)
 					}
 					role.Purpose = pargs[0].String()
+				case "briefing":
+					if briefingSet {
+						return nil, fmt.Errorf("role %q: duplicate briefing", name)
+					}
+					briefingSet = true
+					bargs := c.Arguments()
+					if len(bargs) != 1 {
+						return nil, fmt.Errorf("role %q: briefing needs one argument", name)
+					}
+					role.Briefing = strings.TrimSpace(bargs[0].String())
+					if role.Briefing == "" {
+						return nil, fmt.Errorf("role %q: briefing must not be empty", name)
+					}
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
@@ -118,6 +134,9 @@ func parse(raw []byte) (*Person, error) {
 				default:
 					return nil, fmt.Errorf("role %q: unknown node %q", name, c.Name())
 				}
+			}
+			if !briefingSet {
+				return nil, fmt.Errorf("role %q needs a briefing", name)
 			}
 			if len(role.Personalities) < 2 || len(role.Personalities) > 3 {
 				return nil, fmt.Errorf("role %q needs two or three personalities, got %d", name, len(role.Personalities))

@@ -1,6 +1,6 @@
 # agent-compose features
 
-Inventory of what ships today; planned behavior lives in the issue tracker.
+Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
@@ -12,15 +12,14 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
-* Embedded source carries ten roles, the approved meld matrix, 16 catalog
-  bindings, and twelve named seats. A role activates its full ordered
-  personality set; unavailable skill bodies stay pending in roster output.
+* Embedded source carries ten roles, required two-paragraph briefings, the
+  approved meld matrix, 16 catalog bindings, and twelve named seats.
 * AOS provider roots expose ordinary skills to every role and admit
   `.agents/composed/<name>/COMPOSED.md` only through `.agents/roles.kdl`.
   Materialization promotes admitted entry points to native `SKILL.md`.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
-* Atomic materialization verifies staged and reused bundles; failures leave no partial tree.
+* Atomic materialization verifies staged and reused bundles. Failures leave no partial tree.
 * Native-skill and compiled-context delivery with density-aware compiled
   prose, exercised by the four public fixtures.
 
@@ -40,13 +39,13 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 ## Inspection
 
 * `agent-compose describe` renders a bundle's decision tree in scannable
-  sections with collapse for large exclusion groups; `--why` follows one item
+  sections with collapse for large exclusion groups. `--why` follows one item
   from consideration to outcome, including what would have selected it.
-* `agent-compose diff` reports semantic changes; `verify` checks safe entry
+* `agent-compose diff` reports semantic changes. `verify` checks safe entry
   points, delivery data, trace integrity, and the complete selected identity
   set.
   `compose --explain` appends the full tree to the one-screen summary.
-* Color only on a TTY with NO_COLOR unset; redirected output stays plain and
+* Color only on a TTY with NO_COLOR unset. Redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
@@ -58,13 +57,13 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 ## Roster artifact and cascade
 
 * `agent-compose roster --out <dir>` renders provider instructions, seats,
-  melded personalities, colors, bodies, and a claude `@`-import override as
-  one cascade source. Missing bodies stay pending.
+  long-form role briefings, melded personalities, colors, bodies, and a
+  claude `@`-import override. See [role-briefings.md](role-briefings.md).
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,
   and --dry-run/--check - byte-compatible with the Python outputs.
-* Bare `acompose` converges roster and cascade; `-- <command>` refreshes before exec.
+* Bare `acompose` converges roster and cascade. `-- <command>` refreshes before exec.
 * Configured skill roots mount safely into native harness skill directories.
 
 ## Release
