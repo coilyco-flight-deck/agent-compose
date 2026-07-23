@@ -17,17 +17,17 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   engineer set land with issue #10.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
-* Atomic, content-keyed materialization: identical inputs reuse the cached
-  bundle, failed finalization leaves no partial tree.
+* Atomic, content-keyed materialization verifies staged and reused bundles;
+  failed finalization leaves no partial tree.
 * Native-skill and compiled-context delivery with density-aware compiled
   prose, exercised by the four public fixtures.
 
 ## Load-point projection
 
-* `agent-compose project` places bundle content at harness load points via
-  the fixed v0.1 layout registry (claude, codex, goose, opencode).
-* Sidecar-tracked ownership: projection never overwrites files it did not
-  create, and re-projection removes only its own stale files.
+* `agent-compose project` transactionally places verified bundles at repo or
+  container-home load points for claude, codex, goose, and opencode.
+* Sidecar ownership protects foreign files; a failed refresh restores the
+  prior owned files, modes, and metadata.
 
 ## Launch-time refresh
 
@@ -42,7 +42,8 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 * `agent-compose describe` renders a bundle's decision tree in scannable
   sections with collapse for large exclusion groups; `--why` follows one item
   from consideration to outcome, including what would have selected it.
-* `agent-compose diff` reports semantic decision changes between two bundles;
+* `agent-compose diff` reports semantic changes; `verify` checks safe entry
+  points, delivery data, trace integrity, and exactly one selected identity.
   `compose --explain` appends the full tree to the one-screen summary.
 * Color only on a TTY with NO_COLOR unset; redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
@@ -65,12 +66,11 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Release
 
-* Main pushes queue validated minor releases with cross-platform binaries,
-  checksums, Homebrew, and Scoop output. See [release.md](release.md).
+* Main pushes publish validated minor releases with binaries, checksums, Homebrew, and Scoop. See [release.md](release.md).
 
 ## Product status
 
-The complete personality roster and Ward container consumer remain open.
+The complete personality roster and Ward-side container invocation remain open.
 
 ## See also
 

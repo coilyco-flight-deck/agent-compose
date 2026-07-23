@@ -5,7 +5,7 @@ vocabulary: it places a materialized bundle's content at the load points a
 harness actually reads, beneath a chosen target directory.
 
 ```
-agent-compose project <bundle-dir> --layout <name> --target <dir>
+agent-compose project <bundle-dir> --layout <name> --scope repo|home --target <dir>
 ```
 
 ## v0.1 layout registry
@@ -63,12 +63,12 @@ occupies the load point.
 
 ## Ownership and safety
 
-Projection records every file it writes in `.agent-compose/projection.json`
-beneath the target. It refuses to overwrite any file it did not create, so a
-hand-authored CLAUDE.md or AGENTS.md is never clobbered. Re-projection
-replaces its own previous files, removes ones no longer projected, prunes the
-directories they emptied, and leaves foreign files untouched. The bundle
-itself is read-only input and is never modified.
+Projection verifies and reads the bundle before it locks or changes the
+target. `.agent-compose/projection.json` records every owned file. Projection
+refuses foreign files, replaces only its prior files, removes stale owned
+files, and leaves the immutable input bundle untouched. A write or cleanup
+failure restores the prior files, modes, and sidecar, so consumers retain the
+last known-good projection.
 
 ## See also
 

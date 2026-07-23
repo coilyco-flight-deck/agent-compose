@@ -28,6 +28,12 @@ a new tree and swaps it in. A failed refresh never partially replaces a
 known-good bundle; the previous bundle stays live until the replacement is
 complete.
 
+`agent-compose verify <bundle-dir>` exposes that same read-only consumer
+check. It rejects links and special files, unsafe or missing entry points,
+unknown delivery modes, invalid traces, and any bundle that does not contain
+exactly the identity selected by its trace. Cache hits pass verification again
+before reuse, so the presence of `manifest.json` alone never blesses a tree.
+
 Runtime telemetry - durations, cache location, cache-hit status, terminal
 state - never lands under the bundle root.
 

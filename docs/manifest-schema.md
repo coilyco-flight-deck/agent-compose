@@ -22,11 +22,12 @@ A compiled bundle replaces `skills_root` with `compiled_context` pointing at
 `delivery/compiled.md` while the canonical skill trees stay in the tree for
 inspection. Every named entry point must exist inside the bundle.
 
-That is the whole schema. There is no subject block, no digest list, and no
-schema-version ceremony - this is a personality engine, not a security
-boundary. `format` is a plain marker so a consumer knows what it is reading,
-not the anchor of a compatibility regime. A consumer that wants integrity
-checking can hash the tree itself.
+That is the whole schema. There is no subject block, digest list, or
+schema-version ceremony. `format` is a plain marker, not a trust or
+cryptographic boundary. The built-in verifier checks structural integrity:
+safe relative entry points, regular files and directories only, complete
+delivery data, and one trace-selected identity tree. A consumer that needs
+content authentication still hashes or signs the tree itself.
 
 `sources` records which places content came from, by stable id, so the trace
 and a human reader can refer to them. Locators and absolute paths never

@@ -106,15 +106,14 @@ func ProjectScoped(bundleDir, layoutName, targetDir, scope string) (*Result, err
 	if !ok {
 		return nil, fmt.Errorf("unknown layout %q; v0.1 layouts: %s", layoutName, strings.Join(registryNames(), ", "))
 	}
-	release, err := lockTarget(targetDir)
+	verification, err := bundle.Verify(bundleDir)
 	if err != nil {
 		return nil, err
 	}
-	defer release()
-	manifest, err := bundle.ReadManifest(bundleDir)
-	if err != nil {
+	if err := ensureSeparateTarget(bundleDir, targetDir); err != nil {
 		return nil, err
 	}
+	manifest := verification.Manifest
 	var points *LoadPoints
 	switch manifest.Delivery.Mode {
 	case schema.DeliveryNativeSkills:
@@ -139,6 +138,11 @@ func ProjectScoped(bundleDir, layoutName, targetDir, scope string) (*Result, err
 		}
 		files[rel] = raw
 	}
+	release, err := lockTarget(targetDir)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
 	return applyOwned(targetDir, files, layoutName, bundleDir)
 }
 
@@ -151,58 +155,6 @@ func ApplyOwned(targetDir string, files map[string][]byte, label, origin string)
 	}
 	defer release()
 	return applyOwned(targetDir, files, label, origin)
-}
-
-func applyOwned(targetDir string, files map[string][]byte, label, origin string) (*Result, error) {
-	previous := readSidecar(targetDir)
-	owned := map[string]bool{}
-	for _, rel := range previous.Files {
-		owned[rel] = true
-	}
-	for rel := range files {
-		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
-		if _, err := os.Stat(abs); err == nil && !owned[rel] {
-			return nil, fmt.Errorf("refusing to overwrite %s: it exists and was not written by a previous projection", abs)
-		}
-	}
-
-	var written []string
-	for rel, raw := range files {
-		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(abs), 0o755); err != nil {
-			return nil, err
-		}
-		if err := os.WriteFile(abs, raw, 0o644); err != nil {
-			return nil, err
-		}
-		written = append(written, rel)
-	}
-	sort.Strings(written)
-
-	for _, rel := range previous.Files {
-		if _, still := files[rel]; still {
-			continue
-		}
-		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
-		if err := os.Remove(abs); err != nil && !os.IsNotExist(err) {
-			return nil, fmt.Errorf("remove stale projection %s: %w", abs, err)
-		}
-		pruneEmptyDirs(filepath.Dir(abs), targetDir)
-	}
-
-	next := sidecar{Layout: label, Bundle: origin, Files: written}
-	raw, err := json.MarshalIndent(next, "", "  ")
-	if err != nil {
-		return nil, err
-	}
-	sidecarAbs := filepath.Join(targetDir, filepath.FromSlash(sidecarRel))
-	if err := os.MkdirAll(filepath.Dir(sidecarAbs), 0o755); err != nil {
-		return nil, err
-	}
-	if err := os.WriteFile(sidecarAbs, append(raw, '\n'), 0o644); err != nil {
-		return nil, err
-	}
-	return &Result{Layout: label, Files: written}, nil
 }
 
 // buildPlan maps target-relative slash paths to absolute bundle sources.
@@ -229,15 +181,15 @@ func buildPlan(bundleDir string, manifest *bundle.Manifest, points LoadPoints) (
 				continue
 			}
 			base := filepath.Join(skillsRoot, sourceDir.Name())
-			err := filepath.WalkDir(base, func(p string, d fs.DirEntry, err error) error {
-				if err != nil || d.IsDir() {
+			err := filepath.WalkDir(base, func(path string, entry fs.DirEntry, err error) error {
+				if err != nil || entry.IsDir() {
 					return err
 				}
-				rel, err := filepath.Rel(base, p)
+				rel, err := filepath.Rel(base, path)
 				if err != nil {
 					return err
 				}
-				plan[points.SkillsDir+"/"+filepath.ToSlash(rel)] = p
+				plan[points.SkillsDir+"/"+filepath.ToSlash(rel)] = path
 				return nil
 			})
 			if err != nil {

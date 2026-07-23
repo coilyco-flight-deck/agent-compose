@@ -77,6 +77,9 @@ func ReadManifest(dir string) (*Manifest, error) {
 // Materialize writes the resolved bundle beneath outDir, atomically and at
 // most once per input key. Identical inputs reuse the existing tree.
 func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
+	if !safeSegment(res.Skill.Source) || !safeSegment(res.Skill.ID) {
+		return nil, fmt.Errorf("selected identity path %q/%q is unsafe", res.Skill.Source, res.Skill.ID)
+	}
 	key, err := cacheKey(res)
 	if err != nil {
 		return nil, err
@@ -84,6 +87,9 @@ func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
 	short := key[:16]
 	target := filepath.Join(outDir, short)
 	if _, err := os.Stat(filepath.Join(target, "manifest.json")); err == nil {
+		if _, err := Verify(target); err != nil {
+			return nil, fmt.Errorf("cached bundle %s failed verification: %w", target, err)
+		}
 		return &Result{Dir: target, Key: short, Reused: true}, nil
 	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
@@ -97,9 +103,16 @@ func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
 		os.RemoveAll(staging)
 		return nil, err
 	}
+	if _, err := Verify(staging); err != nil {
+		os.RemoveAll(staging)
+		return nil, fmt.Errorf("verify staged bundle: %w", err)
+	}
 	if err := os.Rename(staging, target); err != nil {
 		os.RemoveAll(staging)
 		if _, statErr := os.Stat(filepath.Join(target, "manifest.json")); statErr == nil {
+			if _, verifyErr := Verify(target); verifyErr != nil {
+				return nil, fmt.Errorf("concurrent cached bundle %s failed verification: %w", target, verifyErr)
+			}
 			return &Result{Dir: target, Key: short, Reused: true}, nil
 		}
 		return nil, fmt.Errorf("finalize bundle: %w", err)
@@ -108,6 +121,9 @@ func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
 }
 
 func write(res *resolver.Resolution, root string) error {
+	if !safeSegment(res.Skill.Source) || !safeSegment(res.Skill.ID) {
+		return fmt.Errorf("selected identity path %q/%q is unsafe", res.Skill.Source, res.Skill.ID)
+	}
 	instructions, err := joinInstructions(res)
 	if err != nil {
 		return err

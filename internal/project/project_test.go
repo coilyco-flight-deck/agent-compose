@@ -1,6 +1,10 @@
 package project
 
 import (
+	"crypto/sha256"
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -121,6 +125,8 @@ func TestProjectRefusesForeignFiles(t *testing.T) {
 func TestHomeScopeProjection(t *testing.T) {
 	native := composeFixture(t, "native-full.kdl")
 	compiled := composeFixture(t, "compiled-full.kdl")
+	nativeBefore := treeFingerprint(t, native)
+	compiledBefore := treeFingerprint(t, compiled)
 	cases := map[string]struct{ instructions, skillsDir string }{
 		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
 		"codex":    {".codex/AGENTS.md", ".agents/skills"},
@@ -139,19 +145,36 @@ func TestHomeScopeProjection(t *testing.T) {
 			if !strings.Contains(readTarget(t, home, want.skillsDir+"/personality-curious/SKILL.md"), "# Curious") {
 				t.Fatal("home skills load point missing skill tree")
 			}
+			identities := projectedIdentities(t, home)
+			if len(identities) != 1 || identities[0] != "personality-curious" {
+				t.Fatalf("native home must hold exactly the selected identity, got %v", identities)
+			}
 
 			home = t.TempDir()
 			if _, err := ProjectScoped(compiled, layout, home, ScopeHome); err != nil {
 				t.Fatal(err)
 			}
-			if !strings.Contains(readTarget(t, home, want.instructions), "# Grounded") {
+			compiledContext := readTarget(t, home, want.instructions)
+			if !strings.Contains(compiledContext, "# Grounded") {
 				t.Fatal("home compiled load point missing prose")
+			}
+			if strings.Contains(compiledContext, "# Curious") || strings.Contains(compiledContext, "# Meticulous") {
+				t.Fatal("home compiled load point contains an unselected identity")
+			}
+			if identities := projectedIdentities(t, home); len(identities) != 0 {
+				t.Fatalf("compiled home unexpectedly mounted identity trees: %v", identities)
 			}
 		})
 	}
 
 	if _, err := ProjectScoped(native, "claude", t.TempDir(), "galaxy"); err == nil || !strings.Contains(err.Error(), "unknown scope") {
 		t.Fatalf("expected unknown-scope diagnostic, got %v", err)
+	}
+	if after := treeFingerprint(t, native); after != nativeBefore {
+		t.Fatal("home projection mutated the native input bundle")
+	}
+	if after := treeFingerprint(t, compiled); after != compiledBefore {
+		t.Fatal("home projection mutated the compiled input bundle")
 	}
 }
 
@@ -185,4 +208,151 @@ func TestReprojectionReplacesOwnFilesOnly(t *testing.T) {
 			t.Fatalf("sidecar still lists stale file %s", rel)
 		}
 	}
+}
+
+func TestProjectionRollsBackAfterWriteFailure(t *testing.T) {
+	target := t.TempDir()
+	initial := map[string][]byte{"one.txt": []byte("old\n")}
+	if _, err := ApplyOwned(target, initial, "fixture", "old-bundle"); err != nil {
+		t.Fatal(err)
+	}
+	sidecarPath := filepath.Join(target, filepath.FromSlash(sidecarRel))
+	sidecarBefore, err := os.ReadFile(sidecarPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	writeFile := func(path string, content []byte, mode fs.FileMode) error {
+		if filepath.Base(path) == "two.txt" {
+			return errors.New("injected write failure")
+		}
+		return os.WriteFile(path, content, mode)
+	}
+	next := map[string][]byte{
+		"one.txt": []byte("new\n"),
+		"two.txt": []byte("new\n"),
+	}
+	if _, err := applyOwnedWithWriter(target, next, "fixture", "new-bundle", writeFile); err == nil ||
+		!strings.Contains(err.Error(), "previous projection restored") {
+		t.Fatalf("expected restored projection failure, got %v", err)
+	}
+	if got := readTarget(t, target, "one.txt"); got != "old\n" {
+		t.Fatalf("owned file was not restored, got %q", got)
+	}
+	if _, err := os.Stat(filepath.Join(target, "two.txt")); !os.IsNotExist(err) {
+		t.Fatalf("partially written file survived rollback: %v", err)
+	}
+	sidecarAfter, err := os.ReadFile(sidecarPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(sidecarAfter) != string(sidecarBefore) {
+		t.Fatal("projection sidecar changed despite rollback")
+	}
+}
+
+func TestInvalidBundleDoesNotTouchProjectionTarget(t *testing.T) {
+	bundleDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(bundleDir, "manifest.json"), []byte("{bad"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	target := t.TempDir()
+	marker := filepath.Join(target, "keep.txt")
+	if err := os.WriteFile(marker, []byte("unchanged\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	before := treeFingerprint(t, target)
+	if _, err := ProjectScoped(bundleDir, "claude", target, ScopeHome); err == nil {
+		t.Fatal("invalid bundle unexpectedly projected")
+	}
+	if after := treeFingerprint(t, target); after != before {
+		t.Fatal("bundle verification failure changed the projection target")
+	}
+}
+
+func TestProjectionCannotTargetItsInputBundle(t *testing.T) {
+	bundleDir := composeFixture(t, "native-full.kdl")
+	before := treeFingerprint(t, bundleDir)
+	if _, err := ProjectScoped(bundleDir, "claude", bundleDir, ScopeHome); err == nil ||
+		!strings.Contains(err.Error(), "must not be the bundle") {
+		t.Fatalf("expected input-bundle target failure, got %v", err)
+	}
+	if after := treeFingerprint(t, bundleDir); after != before {
+		t.Fatal("rejected projection changed its input bundle")
+	}
+}
+
+func TestApplyOwnedRejectsUnsafeTargetPath(t *testing.T) {
+	target := t.TempDir()
+	if _, err := ApplyOwned(target, map[string][]byte{"../outside": []byte("bad")}, "fixture", "bundle"); err == nil ||
+		!strings.Contains(err.Error(), "safe relative path") {
+		t.Fatalf("expected unsafe target-path failure, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(filepath.Dir(target), "outside")); !os.IsNotExist(err) {
+		t.Fatalf("unsafe target path escaped projection root: %v", err)
+	}
+}
+
+func TestApplyOwnedRejectsSymlinkParent(t *testing.T) {
+	target := t.TempDir()
+	external := t.TempDir()
+	if err := os.Symlink(external, filepath.Join(target, "linked")); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if _, err := ApplyOwned(target, map[string][]byte{"linked/context.md": []byte("bad")}, "fixture", "bundle"); err == nil ||
+		!strings.Contains(err.Error(), "is a symlink") {
+		t.Fatalf("expected symlink-parent failure, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(external, "context.md")); !os.IsNotExist(err) {
+		t.Fatalf("projection escaped through symlink parent: %v", err)
+	}
+}
+
+func projectedIdentities(t *testing.T, root string) []string {
+	t.Helper()
+	var identities []string
+	err := filepath.WalkDir(root, func(_ string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() && strings.HasPrefix(entry.Name(), "personality-") {
+			identities = append(identities, entry.Name())
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return identities
+}
+
+func treeFingerprint(t *testing.T, root string) string {
+	t.Helper()
+	hash := sha256.New()
+	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(hash, "%s\x00%s\x00", filepath.ToSlash(rel), info.Mode())
+		if info.Mode().IsRegular() {
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			hash.Write(raw)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }

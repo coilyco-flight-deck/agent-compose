@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/converge"
@@ -100,6 +101,12 @@ func main() {
 				Action:    runDiff,
 			},
 			{
+				Name:      "verify",
+				Usage:     "verify that a bundle is complete and safe to consume",
+				ArgsUsage: "<bundle-dir>",
+				Action:    runVerify,
+			},
+			{
 				Name:   "cascade",
 				Hidden: true,
 				Usage:  "compose doctrine sources into harness global load points",
@@ -130,8 +137,7 @@ func main() {
 			},
 			{
 				Name:      "project",
-				Hidden:    true,
-				Usage:     "place bundle content at a harness layout's load points",
+				Usage:     "transactionally place a verified bundle at harness load points",
 				ArgsUsage: "<bundle-dir>",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -235,6 +241,21 @@ func runDiff(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	fmt.Print(rendered)
+	return nil
+}
+
+func runVerify(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		return fmt.Errorf("verify needs exactly one bundle directory")
+	}
+	verification, err := bundle.Verify(cmd.Args().First())
+	if err != nil {
+		return err
+	}
+	manifest := verification.Manifest
+	fmt.Printf("bundle verified: role=%s personality=%s delivery=%s identity=%s/%s files=%d\n",
+		manifest.Role, manifest.Personality, manifest.Delivery.Mode,
+		verification.IdentitySource, verification.IdentitySkill, verification.Files)
 	return nil
 }
 
@@ -366,10 +387,10 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {
-	bundleDir := cmd.Args().First()
-	if bundleDir == "" {
-		return fmt.Errorf("project needs a bundle directory")
+	if cmd.Args().Len() != 1 {
+		return fmt.Errorf("project needs exactly one bundle directory")
 	}
+	bundleDir := cmd.Args().First()
 	result, err := project.ProjectScoped(bundleDir, cmd.String("layout"), cmd.String("target"), cmd.String("scope"))
 	if err != nil {
 		return err

@@ -46,15 +46,15 @@ or replace policy later without becoming the design center now.
 
 ## Status
 
-Version 0.4.1 ships the Go composition engine, deterministic bundles, decision
-inspection, native harness projection, refresh-then-exec, the absorbed AOS
-cascade, host convergence, and package-manager distribution. Bare `acompose`
-converges the host. `acompose -- <command>` converges context before launching
-the command. A request path composes an isolated bundle instead.
+Current releases ship the Go composition engine, verified deterministic
+bundles, transactional repo and container-home projection, decision
+inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
+package-manager distribution. Bare `acompose` converges the host.
+`acompose -- <command>` converges context before launching the command.
 
 The full personality roster
 ([#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10))
-and Ward container consumption
+and Ward-side container invocation
 ([#17](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/17))
 remain open on the canonical Forgejo tracker.
 

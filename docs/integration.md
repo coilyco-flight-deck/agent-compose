@@ -45,12 +45,12 @@ share a seat by design; containers are the disambiguator when that is wrong.
 
 ## Container tier: v2 owns the home
 
-Ward mounts a bundle read-only and container start projects it into
-container-HOME load points - home-scope variants of the projection registry.
-The container carries exactly one member's identity; the rest of the roster
-is absent from the filesystem, which is the hard isolation the host tier
-deliberately does not promise. Issue #17 owns this slice, including
-verifying each harness's global load-point path before the layouts land.
+Agent-compose now supplies the stable provider half: `verify` checks a
+read-only bundle, then `project --scope home` transactionally fills the
+claude, codex, goose, or opencode global load points. Black-box fixtures prove
+that each native home contains exactly the selected identity, compiled homes
+contain only its prose, and neither path changes the input bundle. Ward still
+needs to mount and invoke this contract at container start under issue #17.
 
 ## Migration state
 

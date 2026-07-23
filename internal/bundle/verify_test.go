@@ -1,0 +1,195 @@
+package bundle_test
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+)
+
+func composeBundle(t *testing.T, name string) string {
+	t.Helper()
+	result, err := compose.Run(filepath.Join("..", "..", "testdata", "contracts", name), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return result.Bundle.Dir
+}
+
+func TestVerifyNativeAndCompiledBundles(t *testing.T) {
+	cases := []struct {
+		request  string
+		mode     string
+		identity string
+	}{
+		{"native-full.kdl", schema.DeliveryNativeSkills, "personality-curious"},
+		{"compiled-full.kdl", schema.DeliveryCompiled, "personality-grounded"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.mode, func(t *testing.T) {
+			verified, err := bundle.Verify(composeBundle(t, tc.request))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if verified.Manifest.Delivery.Mode != tc.mode {
+				t.Fatalf("delivery = %q, want %q", verified.Manifest.Delivery.Mode, tc.mode)
+			}
+			if verified.IdentitySource != "aos-public" || verified.IdentitySkill != tc.identity {
+				t.Fatalf("identity = %s/%s", verified.IdentitySource, verified.IdentitySkill)
+			}
+			if verified.Files == 0 {
+				t.Fatal("verified bundle reported no files")
+			}
+		})
+	}
+}
+
+func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
+	t.Run("unsafe manifest path", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		manifest, err := bundle.ReadManifest(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest.Delivery.Instructions = "../outside"
+		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "safe relative path") {
+			t.Fatalf("expected unsafe-path failure, got %v", err)
+		}
+	})
+
+	t.Run("missing entry point", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "compiled-full.kdl"))
+		if err := os.Remove(filepath.Join(dir, "delivery", "compiled.md")); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "compiled_context") {
+			t.Fatalf("expected missing-entry failure, got %v", err)
+		}
+	})
+
+	t.Run("extra identity", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		extra := filepath.Join(dir, "content", "skills", "aos-public", "personality-grounded")
+		if err := os.MkdirAll(extra, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(extra, "SKILL.md"), []byte("# Grounded\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "exactly selected identity") {
+			t.Fatalf("expected identity-cardinality failure, got %v", err)
+		}
+	})
+
+	t.Run("manifest trace mismatch", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		manifest, err := bundle.ReadManifest(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest.Personality = "grounded"
+		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "manifest profile") {
+			t.Fatalf("expected profile-trace failure, got %v", err)
+		}
+	})
+
+	t.Run("missing identity document", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		skillDoc := filepath.Join(dir, "content", "skills", "aos-public", "personality-curious", "SKILL.md")
+		if err := os.Remove(skillDoc); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "has no SKILL.md") {
+			t.Fatalf("expected missing-identity-document failure, got %v", err)
+		}
+	})
+
+	t.Run("symlink", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		link := filepath.Join(dir, "content", "linked")
+		if err := os.Symlink("instructions.md", link); err != nil {
+			t.Skipf("symlinks unavailable: %v", err)
+		}
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "symlink") {
+			t.Fatalf("expected symlink failure, got %v", err)
+		}
+	})
+}
+
+func TestMaterializeVerifiesCacheReuse(t *testing.T) {
+	out := t.TempDir()
+	request := filepath.Join("..", "..", "testdata", "contracts", "native-full.kdl")
+	first, err := compose.Run(request, out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	extra := filepath.Join(first.Bundle.Dir, "content", "skills", "aos-public", "personality-grounded")
+	if err := os.MkdirAll(extra, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := compose.Run(request, out); err == nil || !strings.Contains(err.Error(), "cached bundle") {
+		t.Fatalf("expected invalid-cache failure, got %v", err)
+	}
+}
+
+func TestMaterializeRejectsUnsafeIdentitySegments(t *testing.T) {
+	resolution := &resolver.Resolution{
+		Request: &schema.Request{
+			Role: "engineer", Personality: "curious",
+			Delivery: schema.DeliveryNativeSkills, Density: schema.DensityFull,
+		},
+		Person:   &person.Person{Raw: []byte("fixture")},
+		Skill:    resolver.Selected{Source: "aos-public", ID: "../outside"},
+		SkillDir: t.TempDir(),
+	}
+	if _, err := bundle.Materialize(resolution, t.TempDir()); err == nil || !strings.Contains(err.Error(), "unsafe") {
+		t.Fatalf("expected unsafe identity failure, got %v", err)
+	}
+}
+
+func copyBundle(t *testing.T, source string) string {
+	t.Helper()
+	target := t.TempDir()
+	err := filepath.WalkDir(source, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(source, path)
+		if err != nil {
+			return err
+		}
+		out := filepath.Join(target, rel)
+		if entry.IsDir() {
+			return os.MkdirAll(out, 0o755)
+		}
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(out, raw, 0o644)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return target
+}
+
+func writeJSON(t *testing.T, path string, value any) {
+	t.Helper()
+	raw, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, append(raw, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
