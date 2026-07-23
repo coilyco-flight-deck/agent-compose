@@ -50,10 +50,6 @@ func Verify(dir string) (*Verification, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(identities) != len(manifest.Personalities) {
-		return nil, fmt.Errorf("bundle trace selects %d identity skills for %d manifest personalities",
-			len(identities), len(manifest.Personalities))
-	}
 	for _, identity := range identities {
 		if !slices.Contains(manifest.Sources, identity.Source) {
 			return nil, fmt.Errorf("selected identity source %q is absent from manifest sources", identity.Source)
@@ -165,7 +161,7 @@ func selectedIdentities(trace *Trace) ([]Identity, error) {
 		identities = append(identities, Identity{Source: decision.Source, Skill: skill})
 	}
 	if len(identities) == 0 {
-		return nil, fmt.Errorf("bundle trace selects no identity skills")
+		return nil, fmt.Errorf("bundle trace selects no skills")
 	}
 	return identities, nil
 }

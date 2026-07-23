@@ -31,7 +31,7 @@ complete.
 `agent-compose verify <bundle-dir>` exposes that same read-only consumer
 check. It rejects links and special files, unsafe or missing entry points,
 unknown delivery modes, invalid traces, and any bundle whose identity trees do
-not exactly match every personality selected by its trace. Cache hits pass
+not exactly match every skill selected by its trace. Cache hits pass
 verification again before reuse, so the presence of `manifest.json` alone
 never blesses a tree.
 

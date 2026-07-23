@@ -6,10 +6,9 @@ compiles, and installs that knowledge for a harness. Ward supplies runtime facts
 and executable authority without placing either inside the context bundle.
 
 Personality is the first opinionated policy domain built on that substrate.
-Agent-compose resolves a role into its complete ordered personality set against
-embedded personal policy plus admitted sources, then materializes the combined
-context as an immutable bundle for a harness to load. Native harnesses can use
-the same substrate without Ward.
+Agent-compose resolves a role into its personality set, ordinary provider
+skills, and explicitly composed role skills, then materializes the combined
+context as an immutable bundle. Native harnesses can use it without Ward.
 
 ## Composition inputs
 
@@ -21,7 +20,7 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
   derives it from model class: a frontier model needs one sentence where a
   small local model needs the one-pager. No model name enters a request.
 * `delivery` - native skills or compiled context.
-* `source locators` - where files live. AOS's personality inventory is inferred
+* `source locators` - where files live. AOS's knowledge inventory is inferred
   from its provider root.
 
 Everything else about the agent stays outside the request. Model, harness,
@@ -34,13 +33,13 @@ source locator like any other directory.
 
 Agent-compose embeds one canonical public-safe person source. That source owns
 roles, personalities, and role-personality compatibility. External sources add
-personality content but cannot redefine those names. A private overlay may add
-scoped instructions and selection rules.
+knowledge but cannot redefine those names. A private overlay may add scoped
+instructions and selection rules.
 
-Personality definitions live inside skills. The person source binds each
-personality name to the skill that defines it, and the skill body carries the
-actual definition. Agent-compose discovers AOS's invariant and `personality-*`
-skills from its root. Overlays may use explicit source declarations.
+Personality definitions live inside skills. Agent-compose discovers AOS's
+invariant and ordinary `SKILL.md` trees from its root. `.agents/roles.kdl`
+admits role-specific `.agents/composed/*/COMPOSED.md` sources. Overlays may
+use explicit source declarations.
 
 The resolver evaluates admitted private overlays in request order, then AOS
 sources in request order. Byte-identical candidates for one delivery slot
@@ -50,15 +49,15 @@ v0.1 rather than adding an override grammar.
 ## Composition flow
 
 Agent-compose loads the embedded person source, validates the role, selects
-matching instructions and every skill bound by the role's personalities,
-derives their melded favorite color, chooses delivery, and materializes the
-bundle. It records what it picked and why as each decision occurs.
+matching instructions, ordinary skills, active personalities, and composed
+role skills, then chooses delivery and materializes the bundle. It records
+what it picked and why as each decision occurs.
 
 ## Integration obligations
 
-AOS publishes reusable doctrine, skills, capability providers, and instructions
-under stable source ids and relative paths. AOS carries no copy of Kai's person
-source.
+AOS publishes reusable doctrine, skills, capability providers, instructions,
+and composed-skill bindings under stable relative paths. AOS carries no copy
+of Kai's person source or Ward authority.
 
 Ward may build the compose request and mount the finished bundle read-only,
 treating the tree as opaque. Authority and credentials never enter the

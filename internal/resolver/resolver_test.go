@@ -53,7 +53,7 @@ func makeSource(t *testing.T, id string, skillBodies map[string]string) *schema.
 	return src
 }
 
-func TestResolveSelectsEveryRolePersonalitySkillAndExcludesOthers(t *testing.T) {
+func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	src := makeSource(t, "aos", map[string]string{
 		"personality-curious":  "# Curious\n",
 		"personality-grounded": "# Grounded\n",
@@ -63,22 +63,77 @@ func TestResolveSelectsEveryRolePersonalitySkillAndExcludesOthers(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(res.Skills) != 2 ||
+	if len(res.Skills) != 3 ||
 		res.Skills[0].ID != "personality-curious" ||
-		res.Skills[1].ID != "personality-grounded" {
-		t.Fatalf("expected both role personality skills in declared order, got %+v", res.Skills)
+		res.Skills[1].ID != "personality-grounded" ||
+		res.Skills[2].ID != "fixture-review" {
+		t.Fatalf("expected role personalities followed by ordinary skills, got %+v", res.Skills)
 	}
 	if res.FavoriteColor == "" {
 		t.Fatal("expected a melded favorite color")
 	}
-	var excluded bool
+	var selected bool
 	for _, d := range res.Decisions {
-		if d.Subject == "skill:fixture-review" && d.Outcome == OutcomeExcluded {
-			excluded = true
+		if d.Subject == "skill:fixture-review" && d.Outcome == OutcomeSelected {
+			selected = true
 		}
 	}
-	if !excluded {
-		t.Fatalf("expected fixture-review excluded, decisions: %+v", res.Decisions)
+	if !selected {
+		t.Fatalf("expected fixture-review selected, decisions: %+v", res.Decisions)
+	}
+}
+
+func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
+	src := makeSource(t, "aos", map[string]string{
+		"personality-curious":  "# Curious\n",
+		"personality-grounded": "# Grounded\n",
+	})
+	for _, name := range []string{"coding-shape-cli", "html-a11y"} {
+		dir := filepath.Join(src.Root, name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "COMPOSED.md"), []byte("# "+name+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	src.RoleSkills = map[string][]schema.ContentRef{
+		"engineer": {{
+			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
+		}},
+		"writer": {{
+			ID: "html-a11y", Path: "html-a11y", EntryPoint: "COMPOSED.md",
+		}},
+	}
+
+	res, err := Resolve(
+		testRequest(schema.DeliveryNativeSkills, schema.DensityFull),
+		testPerson(),
+		[]*schema.Source{src},
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var found bool
+	for _, skill := range res.Skills {
+		if skill.ID == "html-a11y" {
+			t.Fatal("an inactive role's composed skill entered the resolution")
+		}
+		if skill.ID == "coding-shape-cli" {
+			found = true
+			if skill.EntryPoint != "COMPOSED.md" {
+				t.Fatalf("composed entry point = %q", skill.EntryPoint)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("active role composed skill missing from %+v", res.Skills)
+	}
+	for _, decision := range res.Decisions {
+		if decision.Subject == "skill:html-a11y" {
+			t.Fatalf("inactive role skill leaked into the decision trace: %+v", decision)
+		}
 	}
 }
 

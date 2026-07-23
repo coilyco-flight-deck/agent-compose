@@ -51,10 +51,10 @@ share a seat by design; containers are the disambiguator when that is wrong.
 Agent-compose now supplies the stable provider half: `verify` checks a
 read-only bundle, then `project --scope home` transactionally fills the
 claude, codex, goose, or opencode global load points. Black-box fixtures prove
-that each native home contains every personality identity activated by the
-role, compiled homes contain all of their prose, and neither path changes the
-input bundle. Ward still needs to mount and invoke this contract at container
-start under issue #17.
+that each native home contains ordinary and role-composed skills plus every
+active personality, compiled homes contain all selected prose, and neither
+path changes the input bundle. Ward still needs to mount and invoke this
+contract at container start under issue #17.
 
 ## Migration state
 

@@ -16,6 +16,8 @@ const (
 	DensityFull          = "full"
 
 	providerSkillsPath    = ".agents/skills"
+	providerComposedPath  = ".agents/composed"
+	providerRolesPath     = ".agents/roles.kdl"
 	providerInvariantID   = "personality-invariant"
 	providerInvariantPath = ".agents/skills/personality-shared/INVARIANT.md"
 )
@@ -35,8 +37,9 @@ type SourceLocator struct {
 }
 
 type ContentRef struct {
-	ID   string
-	Path string
+	ID         string
+	Path       string
+	EntryPoint string
 }
 
 type Source struct {
@@ -45,6 +48,7 @@ type Source struct {
 	Declaration  []byte
 	Instructions []ContentRef
 	Skills       []ContentRef
+	RoleSkills   map[string][]ContentRef
 }
 
 // MissingSource records an optional source whose declaration was absent, so
@@ -185,7 +189,7 @@ func LoadSources(req *Request, requestPath string) ([]*Source, []MissingSource, 
 	return sources, missing, nil
 }
 
-// LoadSource reads one explicit declaration or infers an AOS personality
+// LoadSource reads one explicit declaration or infers an AOS knowledge
 // provider root for direct consumers such as roster.
 func LoadSource(sourcePath string) (*Source, error) {
 	info, err := os.Stat(sourcePath)
@@ -202,7 +206,7 @@ func LoadSource(sourcePath string) (*Source, error) {
 	return parseSource(sourcePath)
 }
 
-// inferProvider applies the AOS personality-provider filesystem convention.
+// inferProvider applies the AOS knowledge-provider filesystem convention.
 // ReadDir returns names in lexical order, keeping source decisions stable.
 func inferProvider(id, root string) (*Source, error) {
 	info, err := os.Stat(root)
@@ -233,9 +237,10 @@ func inferProvider(id, root string) (*Source, error) {
 			Path: providerInvariantPath,
 		}},
 	}
+	ordinary := map[string]bool{}
 	for _, entry := range entries {
 		name := entry.Name()
-		if !entry.IsDir() || !strings.HasPrefix(name, "personality-") || name == "personality-shared" {
+		if !entry.IsDir() || name == "personality-shared" {
 			continue
 		}
 		skillPath := filepath.Join(skillsRoot, name, "SKILL.md")
@@ -245,14 +250,143 @@ func inferProvider(id, root string) (*Source, error) {
 			return nil, fmt.Errorf("provider skill %s SKILL.md is not a regular file", name)
 		}
 		src.Skills = append(src.Skills, ContentRef{
-			ID:   name,
-			Path: filepath.ToSlash(filepath.Join(providerSkillsPath, name)),
+			ID:         name,
+			Path:       filepath.ToSlash(filepath.Join(providerSkillsPath, name)),
+			EntryPoint: "SKILL.md",
 		})
+		ordinary[name] = true
 	}
 	if len(src.Skills) == 0 {
-		return nil, fmt.Errorf("provider root %s has no personality-* skills under %s", root, providerSkillsPath)
+		return nil, fmt.Errorf("provider root %s has no skills under %s", root, providerSkillsPath)
 	}
+
+	composedRoot := filepath.Join(root, filepath.FromSlash(providerComposedPath))
+	if _, err := os.Stat(composedRoot); os.IsNotExist(err) {
+		rolesPath := filepath.Join(root, filepath.FromSlash(providerRolesPath))
+		if _, rolesErr := os.Stat(rolesPath); rolesErr == nil {
+			return nil, fmt.Errorf(
+				"provider role bindings %s exist without composed skills %s",
+				providerRolesPath,
+				providerComposedPath,
+			)
+		} else if !os.IsNotExist(rolesErr) {
+			return nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, rolesErr)
+		}
+		return src, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("provider composed skills %s: %w", providerComposedPath, err)
+	}
+	composed, err := inspectComposedSkills(composedRoot, ordinary)
+	if err != nil {
+		return nil, err
+	}
+	roleSkills, err := parseRoleSkills(
+		filepath.Join(root, filepath.FromSlash(providerRolesPath)),
+		composed,
+	)
+	if err != nil {
+		return nil, err
+	}
+	src.RoleSkills = roleSkills
 	return src, nil
+}
+
+func inspectComposedSkills(root string, ordinary map[string]bool) (map[string]string, error) {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return nil, fmt.Errorf("provider composed skills %s: %w", providerComposedPath, err)
+	}
+	composed := map[string]string{}
+	for _, entry := range entries {
+		name := entry.Name()
+		if strings.HasPrefix(name, ".") {
+			continue
+		}
+		if !entry.IsDir() {
+			return nil, fmt.Errorf("provider composed entry %s must be a directory", name)
+		}
+		if ordinary[name] {
+			return nil, fmt.Errorf("provider skill %q exists in both %s and %s",
+				name, providerSkillsPath, providerComposedPath)
+		}
+		skillRoot := filepath.Join(root, name)
+		if err := filepath.WalkDir(skillRoot, func(path string, item os.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			if item.Type()&os.ModeSymlink != 0 {
+				return fmt.Errorf("%s: symlinks are invalid inside a composed skill", path)
+			}
+			if !item.IsDir() && item.Name() == "SKILL.md" {
+				return fmt.Errorf("provider composed skill %q contains SKILL.md; source entry points must be COMPOSED.md", name)
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+		entryPoint := filepath.Join(skillRoot, "COMPOSED.md")
+		if info, err := os.Stat(entryPoint); err != nil {
+			return nil, fmt.Errorf("provider composed skill %q: %w", name, err)
+		} else if !info.Mode().IsRegular() {
+			return nil, fmt.Errorf("provider composed skill %q COMPOSED.md is not a regular file", name)
+		}
+		composed[name] = filepath.ToSlash(filepath.Join(providerComposedPath, name))
+	}
+	return composed, nil
+}
+
+func parseRoleSkills(path string, composed map[string]string) (map[string][]ContentRef, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+	}
+	doc, err := kdl.ParseString(string(raw))
+	if err != nil {
+		return nil, fmt.Errorf("parse provider role bindings %s: %w", providerRolesPath, err)
+	}
+	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "roles" {
+		return nil, fmt.Errorf("provider role bindings %s: expected exactly one top-level roles node", providerRolesPath)
+	}
+
+	refs := map[string][]ContentRef{}
+	seenRoles := map[string]bool{}
+	for _, roleNode := range doc.Nodes[0].Children().Nodes {
+		if roleNode.Name() != "role" {
+			return nil, fmt.Errorf("provider role bindings %s: unknown node %q", providerRolesPath, roleNode.Name())
+		}
+		role, err := oneStringArg(roleNode)
+		if err != nil {
+			return nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+		}
+		if seenRoles[role] {
+			return nil, fmt.Errorf("provider role bindings %s: duplicate role %q", providerRolesPath, role)
+		}
+		seenRoles[role] = true
+		seenSkills := map[string]bool{}
+		for _, skillNode := range roleNode.Children().Nodes {
+			if skillNode.Name() != "composed-skill" {
+				return nil, fmt.Errorf("provider role %q: unknown node %q", role, skillNode.Name())
+			}
+			skill, err := oneStringArg(skillNode)
+			if err != nil {
+				return nil, fmt.Errorf("provider role %q: %w", role, err)
+			}
+			if seenSkills[skill] {
+				return nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
+			}
+			seenSkills[skill] = true
+			skillPath, ok := composed[skill]
+			if !ok {
+				return nil, fmt.Errorf("provider role %q names missing composed skill %q", role, skill)
+			}
+			refs[role] = append(refs[role], ContentRef{
+				ID:         skill,
+				Path:       skillPath,
+				EntryPoint: "COMPOSED.md",
+			})
+		}
+	}
+	return refs, nil
 }
 
 func parseSource(declPath string) (*Source, error) {
@@ -292,6 +426,7 @@ func parseSource(declPath string) (*Source, error) {
 			if n.Name() == "instruction" {
 				src.Instructions = append(src.Instructions, ref)
 			} else {
+				ref.EntryPoint = "SKILL.md"
 				src.Skills = append(src.Skills, ref)
 			}
 		default:

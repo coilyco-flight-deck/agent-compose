@@ -51,7 +51,7 @@ func TestProjectNativeLayouts(t *testing.T) {
 			if !strings.Contains(readTarget(t, target, want.instructions), "Fixture foundation") {
 				t.Fatal("instructions load point missing foundation content")
 			}
-			for _, identity := range activePersonalitySkills(t, "engineer") {
+			for _, identity := range selectedFixtureSkills(t, "engineer") {
 				skill := readTarget(t, target, want.skillsDir+"/"+identity+"/SKILL.md")
 				if !strings.Contains(skill, skillHeading(identity)) {
 					t.Fatalf("skill load point %s has wrong content:\n%s", identity, skill)
@@ -80,7 +80,7 @@ func TestProjectCompiledLayouts(t *testing.T) {
 				t.Fatal(err)
 			}
 			compiled := readTarget(t, target, instructions)
-			for _, identity := range activePersonalitySkills(t, "engineer") {
+			for _, identity := range selectedFixtureSkills(t, "engineer") {
 				if !strings.Contains(compiled, skillHeading(identity)) {
 					t.Fatalf("%s load point missing compiled prose for %s", layout, identity)
 				}
@@ -134,7 +134,7 @@ func TestHomeScopeProjection(t *testing.T) {
 	compiled := composeFixture(t, "compiled-full.kdl")
 	nativeBefore := treeFingerprint(t, native)
 	compiledBefore := treeFingerprint(t, compiled)
-	expectedIdentities := activePersonalitySkills(t, "engineer")
+	expectedIdentities := selectedFixtureSkills(t, "engineer")
 	cases := map[string]struct{ instructions, skillsDir string }{
 		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
 		"codex":    {".codex/AGENTS.md", ".agents/skills"},
@@ -202,7 +202,7 @@ func TestReprojectionPreservesEquivalentPersonalitySetAndForeignFiles(t *testing
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, identity := range activePersonalitySkills(t, "engineer") {
+	for _, identity := range selectedFixtureSkills(t, "engineer") {
 		if _, err := os.Stat(filepath.Join(target, ".claude", "skills", identity)); err != nil {
 			t.Fatalf("active identity %s missing after re-projection: %v", identity, err)
 		}
@@ -210,10 +210,10 @@ func TestReprojectionPreservesEquivalentPersonalitySetAndForeignFiles(t *testing
 	if raw, _ := os.ReadFile(foreign); string(raw) != "keep me\n" {
 		t.Fatal("foreign file must survive re-projection")
 	}
-	for _, rel := range result.Files {
-		if strings.Contains(rel, "fixture-review") {
-			t.Fatalf("sidecar lists an excluded skill %s", rel)
-		}
+	if !slices.ContainsFunc(result.Files, func(rel string) bool {
+		return strings.Contains(rel, "fixture-review")
+	}) {
+		t.Fatalf("sidecar omitted the ordinary skill: %v", result.Files)
 	}
 }
 
@@ -318,12 +318,15 @@ func TestApplyOwnedRejectsSymlinkParent(t *testing.T) {
 func projectedIdentities(t *testing.T, root string) []string {
 	t.Helper()
 	var identities []string
-	err := filepath.WalkDir(root, func(_ string, entry os.DirEntry, err error) error {
+	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if entry.IsDir() && strings.HasPrefix(entry.Name(), "personality-") {
-			identities = append(identities, entry.Name())
+		if entry.IsDir() {
+			return nil
+		}
+		if entry.Name() == "SKILL.md" {
+			identities = append(identities, filepath.Base(filepath.Dir(path)))
 		}
 		return nil
 	})
@@ -333,7 +336,7 @@ func projectedIdentities(t *testing.T, root string) []string {
 	return identities
 }
 
-func activePersonalitySkills(t *testing.T, roleName string) []string {
+func selectedFixtureSkills(t *testing.T, roleName string) []string {
 	t.Helper()
 	p, err := person.Load()
 	if err != nil {
@@ -347,11 +350,15 @@ func activePersonalitySkills(t *testing.T, roleName string) []string {
 	for _, personalityName := range role.Personalities {
 		skills = append(skills, p.Personalities[personalityName].Skill)
 	}
+	skills = append(skills, "fixture-review")
 	slices.Sort(skills)
 	return skills
 }
 
 func skillHeading(skillID string) string {
+	if skillID == "fixture-review" {
+		return "# Fixture review"
+	}
 	name := strings.TrimPrefix(skillID, "personality-")
 	return "# " + strings.ToUpper(name[:1]) + name[1:]
 }

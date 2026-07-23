@@ -21,7 +21,8 @@ configuration:
 * role-driven personality meld resolution
 * the ten-role company roster and organizational purpose
 * role-neutral personality catalog bindings and curated compatibility
-* native-skill and compiled-context delivery
+* ordinary and role-composed skill selection
+* native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * host doctrine convergence and native skill installation
@@ -50,8 +51,9 @@ or replace policy later without becoming the design center now.
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. The repository also ships a local personality
-palette explorer. Bare `acompose` converges the host.
+package-manager distribution. Provider roots contribute ordinary skills for
+every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
+repository also ships a local personality palette explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
 Ward-side container invocation

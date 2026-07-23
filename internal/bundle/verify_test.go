@@ -40,13 +40,20 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.Delivery.Mode != tc.mode {
 				t.Fatalf("delivery = %q, want %q", verified.Manifest.Delivery.Mode, tc.mode)
 			}
-			if len(verified.Identities) != len(verified.Manifest.Personalities) {
+			if len(verified.Identities) != len(verified.Manifest.Personalities)+1 {
 				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
 			}
+			var foundOrdinary bool
 			for _, identity := range verified.Identities {
 				if identity.Source != "aos-public" {
 					t.Fatalf("identity source = %q, want aos-public", identity.Source)
 				}
+				if identity.Skill == "fixture-review" {
+					foundOrdinary = true
+				}
+			}
+			if !foundOrdinary {
+				t.Fatalf("ordinary skill missing from verified identities: %+v", verified.Identities)
 			}
 			if verified.Files == 0 {
 				t.Fatal("verified bundle reported no files")

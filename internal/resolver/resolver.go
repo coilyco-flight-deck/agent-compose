@@ -31,9 +31,10 @@ type Decision struct {
 }
 
 type Selected struct {
-	ID     string
-	Source string
-	Path   string
+	ID         string
+	Source     string
+	Path       string
+	EntryPoint string
 }
 
 // Resolution is the full composition plan: what was selected, how it is
@@ -59,10 +60,21 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	if len(role.Personalities) == 0 {
 		return nil, fmt.Errorf("role %q defines no personalities", req.Role)
 	}
+	for _, src := range sources {
+		for _, roleName := range sortedKeys(src.RoleSkills) {
+			if _, ok := p.Roles[roleName]; !ok {
+				return nil, fmt.Errorf("source %q binds composed skills to undefined role %q", src.ID, roleName)
+			}
+		}
+	}
 
 	activeBySkill := make(map[string]string, len(role.Personalities))
+	personalityBySkill := make(map[string]string, len(p.Personalities))
 	activeSkills := make([]string, 0, len(role.Personalities))
 	colors := make([]string, 0, len(role.Personalities))
+	for name, binding := range p.Personalities {
+		personalityBySkill[binding.Skill] = name
+	}
 	for _, name := range role.Personalities {
 		binding, ok := p.Personalities[name]
 		if !ok {
@@ -114,6 +126,34 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	instructionOwner := map[string]string{}
 	selectedBySkill := map[string]Selected{}
 	skillDigests := map[string]string{}
+	considerSkill := func(src *schema.Source, ref schema.ContentRef, reason string) error {
+		abs := filepath.Join(src.Root, ref.Path)
+		digest, err := treeDigest(abs)
+		if err != nil {
+			return fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)
+		}
+		if selected, found := selectedBySkill[ref.ID]; found {
+			if digest == skillDigests[ref.ID] && entryPoint(ref) == selected.EntryPoint {
+				res.decide(Decision{
+					Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
+					Outcome: OutcomeShadowed,
+					Reason:  fmt.Sprintf("identical to the copy already selected from %s", selected.Source),
+				})
+				return nil
+			}
+			return fmt.Errorf("skill %q from %s conflicts with a different copy from %s; v0.1 fails non-identical collisions",
+				ref.ID, src.ID, selected.Source)
+		}
+		selectedBySkill[ref.ID] = Selected{
+			ID: ref.ID, Source: src.ID, Path: abs, EntryPoint: entryPoint(ref),
+		}
+		skillDigests[ref.ID] = digest
+		res.decide(Decision{
+			Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
+			Outcome: OutcomeSelected, Reason: reason,
+		})
+		return nil
+	}
 	for _, src := range sources {
 		for _, ref := range src.Instructions {
 			abs := filepath.Join(src.Root, ref.Path)
@@ -142,9 +182,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			})
 		}
 		for _, ref := range src.Skills {
-			abs := filepath.Join(src.Root, ref.Path)
-			personalityName, active := activeBySkill[ref.ID]
-			if !active {
+			_, isPersonality := personalityBySkill[ref.ID]
+			activePersonality, active := activeBySkill[ref.ID]
+			if isPersonality && !active {
 				res.decide(Decision{
 					Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
 					Outcome: OutcomeExcluded,
@@ -153,32 +193,26 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 				})
 				continue
 			}
-			digest, err := treeDigest(abs)
-			if err != nil {
-				return nil, fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)
+			reason := "ordinary provider skills are discoverable for every role"
+			if isPersonality {
+				reason = fmt.Sprintf("active personality %q binds this skill", activePersonality)
 			}
-			if selected, found := selectedBySkill[ref.ID]; found {
-				if digest == skillDigests[ref.ID] {
-					res.decide(Decision{
-						Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
-						Outcome: OutcomeShadowed,
-						Reason:  fmt.Sprintf("identical to the copy already selected from %s", selected.Source),
-					})
-					continue
-				}
-				return nil, fmt.Errorf("skill %q from %s conflicts with a different copy from %s; v0.1 fails non-identical collisions",
-					ref.ID, src.ID, selected.Source)
+			if err := considerSkill(src, ref, reason); err != nil {
+				return nil, err
 			}
-			selectedBySkill[ref.ID] = Selected{ID: ref.ID, Source: src.ID, Path: abs}
-			skillDigests[ref.ID] = digest
-			res.decide(Decision{
-				Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
-				Outcome: OutcomeSelected,
-				Reason:  fmt.Sprintf("active personality %q binds this skill", personalityName),
-			})
+		}
+		for _, ref := range src.RoleSkills[req.Role] {
+			if err := considerSkill(
+				src,
+				ref,
+				fmt.Sprintf("role %q composes this skill", req.Role),
+			); err != nil {
+				return nil, err
+			}
 		}
 	}
 
+	added := map[string]bool{}
 	for _, name := range role.Personalities {
 		boundSkill := p.Personalities[name].Skill
 		selected, found := selectedBySkill[boundSkill]
@@ -186,6 +220,22 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			return nil, fmt.Errorf("personality %q binds skill %q, but no admitted source provides it", name, boundSkill)
 		}
 		res.Skills = append(res.Skills, selected)
+		added[boundSkill] = true
+	}
+	for _, src := range sources {
+		refs := append([]schema.ContentRef{}, src.Skills...)
+		refs = append(refs, src.RoleSkills[req.Role]...)
+		for _, ref := range refs {
+			if added[ref.ID] {
+				continue
+			}
+			selected, found := selectedBySkill[ref.ID]
+			if !found {
+				continue
+			}
+			res.Skills = append(res.Skills, selected)
+			added[ref.ID] = true
+		}
 	}
 
 	if err := res.planDelivery(); err != nil {
@@ -194,8 +244,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	return res, nil
 }
 
-// planDelivery chooses entry points and, for compiled delivery, which document
-// represents each active personality at the requested density.
+// planDelivery chooses entry points and the compiled body for each skill.
 func (r *Resolution) planDelivery() error {
 	r.decide(Decision{
 		Subject: "content/instructions.md", Kind: "delivery",
@@ -209,7 +258,7 @@ func (r *Resolution) planDelivery() error {
 		return nil
 	}
 	for _, skill := range r.Skills {
-		full := filepath.Join(skill.Path, "SKILL.md")
+		full := filepath.Join(skill.Path, skill.EntryPoint)
 		body := full
 		if r.Request.Density == schema.DensityBrief {
 			brief := filepath.Join(skill.Path, "BRIEF.md")
@@ -221,7 +270,7 @@ func (r *Resolution) planDelivery() error {
 				})
 			} else {
 				r.decide(Decision{
-					Subject: "skill:" + skill.ID + "/SKILL.md", Kind: "delivery", Source: skill.Source,
+					Subject: "skill:" + skill.ID + "/" + skill.EntryPoint, Kind: "delivery", Source: skill.Source,
 					Outcome: OutcomeFallback, Reason: "brief density requested but the skill provides no BRIEF.md",
 				})
 			}
@@ -233,9 +282,16 @@ func (r *Resolution) planDelivery() error {
 	}
 	r.decide(Decision{
 		Subject: "delivery/compiled.md", Kind: "delivery",
-		Outcome: OutcomeDelivered, Reason: "selected instructions and all active personality prose compiled into one context document",
+		Outcome: OutcomeDelivered, Reason: "selected instructions and skill prose compiled into one context document",
 	})
 	return nil
+}
+
+func entryPoint(ref schema.ContentRef) string {
+	if ref.EntryPoint != "" {
+		return ref.EntryPoint
+	}
+	return "SKILL.md"
 }
 
 func (r *Resolution) decide(d Decision) {

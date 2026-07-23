@@ -26,8 +26,8 @@ That is the whole schema. There is no subject block, digest list, or
 schema-version ceremony. `format` is a plain marker, not a trust or
 cryptographic boundary. The built-in verifier checks structural integrity:
 safe relative entry points, regular files and directories only, complete
-delivery data, and one trace-selected identity tree per personality. A consumer
-that needs content authentication still hashes or signs the tree itself.
+delivery data, and one identity tree per trace-selected skill. A consumer that
+needs content authentication still hashes or signs the tree itself.
 
 `sources` records which places content came from, by stable id, so the trace
 and a human reader can refer to them. Locators and absolute paths never

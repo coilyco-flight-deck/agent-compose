@@ -41,7 +41,7 @@ func TestBundleRendersSections(t *testing.T) {
 		"✓ skill personality-curious",
 		"✓ skill personality-grounded",
 		"✓ skill personality-meticulous",
-		"✗ skill fixture-review",
+		"✓ skill fixture-review",
 		"→ content/skills",
 		"machine-readable trace: trace.json",
 	} {
@@ -79,9 +79,9 @@ func TestWhyFollowsOneItem(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"outcome: excluded",
+		"outcome: selected",
 		"considered: declared by aos-public",
-		"no personality binds this skill",
+		"ordinary provider skills are discoverable for every role",
 	} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("why output missing %q:\n%s", want, out)

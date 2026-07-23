@@ -19,7 +19,8 @@ compose {
 ```
 
 The role activates its complete ordered personality set from the embedded
-person source. A request cannot narrow that set with a personality selector.
+person source, every ordinary provider skill, and its composed-skill allowlist.
+A request cannot narrow those sets with a selector.
 `delivery` is `native-skills` or `compiled`. `density` is `brief` or `full`
 and only changes how much personality prose the bundle carries. A caller
 usually derives it from model class. Nothing else about the agent - model,
@@ -32,9 +33,21 @@ content's identity.
 ## Personality sources
 
 The public AOS provider needs only its root. Agent-compose discovers the shared
-`personality-invariant` and every `personality-*` skill under the provider's
-`.agents/skills` directory in lexical order. The same root form works in a
-compose request, as a `roster` argument, and in host `roster_sources`.
+`personality-invariant` and every ordinary skill under `.agents/skills` in
+lexical order. It also reads `.agents/roles.kdl`:
+
+```kdl
+roles {
+    role "engineer" {
+        composed-skill "coding-shape-cli"
+    }
+}
+```
+
+Each binding admits `.agents/composed/<name>/COMPOSED.md` only for that role.
+Materialization renames the admitted entry point to `SKILL.md`. A `SKILL.md`
+anywhere under `.agents/composed` and ordinary/composed name collisions fail.
+The same root form works in requests, roster arguments, and `roster_sources`.
 
 An overlay or another provider can instead carry an explicit declaration:
 

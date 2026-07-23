@@ -115,6 +115,36 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	ordinary := filepath.Join(root, ".agents", "skills", "coding-go")
+	if err := os.MkdirAll(ordinary, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ordinary, "SKILL.md"), []byte("# Go\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range map[string]string{
+		"coding-shape-cli": "# CLI foundation\n",
+		"html-a11y":        "# HTML accessibility\n",
+	} {
+		dir := filepath.Join(root, ".agents", "composed", name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "COMPOSED.md"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role "engineer" {
+        composed-skill "coding-shape-cli"
+    }
+    role "designer" {
+        composed-skill "html-a11y"
+    }
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	request := filepath.Join(root, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
     role "engineer"
@@ -140,6 +170,27 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	}
 	if !strings.Contains(string(instructions), "# Invariant") {
 		t.Fatalf("inferred provider omitted its invariant:\n%s", instructions)
+	}
+	for _, rel := range []string{
+		"content/skills/aos-public/coding-go/SKILL.md",
+		"content/skills/aos-public/coding-shape-cli/SKILL.md",
+	} {
+		mustExist(t, result.Bundle.Dir, rel)
+	}
+	composedSource := filepath.Join(
+		result.Bundle.Dir,
+		"content",
+		"skills",
+		"aos-public",
+		"coding-shape-cli",
+		"COMPOSED.md",
+	)
+	if _, err := os.Stat(composedSource); !os.IsNotExist(err) {
+		t.Fatalf("source-only COMPOSED.md leaked into the bundle: %v", err)
+	}
+	inactive := filepath.Join(result.Bundle.Dir, "content", "skills", "aos-public", "html-a11y")
+	if _, err := os.Stat(inactive); !os.IsNotExist(err) {
+		t.Fatalf("inactive role skill leaked into the bundle: %v", err)
 	}
 }
 
@@ -278,7 +329,7 @@ func TestTraceRecordsDecisions(t *testing.T) {
 		}
 		outcomes[d.Outcome] = true
 	}
-	for _, want := range []string{"selected", "excluded", "delivered"} {
+	for _, want := range []string{"selected", "delivered"} {
 		if !outcomes[want] {
 			t.Fatalf("trace missing %q outcome: %+v", want, trace.Decisions)
 		}

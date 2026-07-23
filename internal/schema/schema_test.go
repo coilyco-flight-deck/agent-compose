@@ -186,6 +186,26 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	for _, name := range []string{"coding-shape-cli", "html-a11y"} {
+		dir := filepath.Join(root, ".agents", "composed", name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "COMPOSED.md"), []byte("# "+name+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role engineer {
+        composed-skill coding-shape-cli
+    }
+    role designer {
+        composed-skill html-a11y
+    }
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	request := filepath.Join(root, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
@@ -214,19 +234,115 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		src.Instructions[0].ID != "personality-invariant" {
 		t.Fatalf("unexpected inferred source: %+v", src)
 	}
-	if len(src.Skills) != 2 ||
-		src.Skills[0].ID != "personality-bright" ||
-		src.Skills[1].ID != "personality-calm" {
-		t.Fatalf("inferred skills must be filtered and sorted: %+v", src.Skills)
+	if len(src.Skills) != 3 ||
+		src.Skills[0].ID != "coding-go" ||
+		src.Skills[1].ID != "personality-bright" ||
+		src.Skills[2].ID != "personality-calm" {
+		t.Fatalf("inferred ordinary skills must be sorted: %+v", src.Skills)
+	}
+	if len(src.RoleSkills["engineer"]) != 1 ||
+		src.RoleSkills["engineer"][0].ID != "coding-shape-cli" ||
+		src.RoleSkills["engineer"][0].EntryPoint != "COMPOSED.md" ||
+		len(src.RoleSkills["designer"]) != 1 ||
+		src.RoleSkills["designer"][0].ID != "html-a11y" {
+		t.Fatalf("unexpected composed role skills: %+v", src.RoleSkills)
 	}
 
 	direct, err := LoadSource(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if direct.ID != filepath.Base(root) || len(direct.Skills) != len(src.Skills) {
+	if direct.ID != filepath.Base(root) ||
+		len(direct.Skills) != len(src.Skills) ||
+		len(direct.RoleSkills) != len(src.RoleSkills) {
 		t.Fatalf("direct provider load differs: %+v", direct)
 	}
+}
+
+func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
+	makeProvider := func(t *testing.T) string {
+		t.Helper()
+		root := t.TempDir()
+		shared := filepath.Join(root, ".agents", "skills", "personality-shared")
+		ordinary := filepath.Join(root, ".agents", "skills", "coding-go")
+		if err := os.MkdirAll(shared, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.MkdirAll(ordinary, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(ordinary, "SKILL.md"), []byte("# Go\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return root
+	}
+
+	t.Run("role bindings without composed root", func(t *testing.T) {
+		root := makeProvider(t)
+		if err := os.WriteFile(
+			filepath.Join(root, ".agents", "roles.kdl"),
+			[]byte("roles {}\n"),
+			0o644,
+		); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil ||
+			!strings.Contains(err.Error(), "exist without composed skills") {
+			t.Fatalf("orphan role bindings must fail closed, got %v", err)
+		}
+	})
+
+	t.Run("SKILL.md under composed", func(t *testing.T) {
+		root := makeProvider(t)
+		composed := filepath.Join(root, ".agents", "composed", "coding-shape-cli")
+		if err := os.MkdirAll(composed, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(composed, "COMPOSED.md"), []byte("# CLI\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(composed, "SKILL.md"), []byte("# Leaked\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "contains SKILL.md") {
+			t.Fatalf("composed SKILL.md needs an actionable failure, got %v", err)
+		}
+	})
+
+	t.Run("ordinary name collision", func(t *testing.T) {
+		root := makeProvider(t)
+		composed := filepath.Join(root, ".agents", "composed", "coding-go")
+		if err := os.MkdirAll(composed, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(composed, "COMPOSED.md"), []byte("# Go\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "exists in both") {
+			t.Fatalf("ordinary/composed collisions must fail closed, got %v", err)
+		}
+	})
+
+	t.Run("missing role binding target", func(t *testing.T) {
+		root := makeProvider(t)
+		if err := os.MkdirAll(filepath.Join(root, ".agents", "composed"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role "engineer" {
+        composed-skill "missing"
+    }
+}
+`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "missing composed skill") {
+			t.Fatalf("missing composed binding targets must fail closed, got %v", err)
+		}
+	})
 }
 
 func TestLoadInferredProviderRejectsMissingInvariant(t *testing.T) {

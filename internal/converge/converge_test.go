@@ -37,6 +37,9 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(skillRoot, "coding-go"), 0o755); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.WriteFile(filepath.Join(skillRoot, "coding-go", "SKILL.md"), []byte("# Go\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.MkdirAll(filepath.Join(skillRoot, "personality-curious"), 0o755); err != nil {
 		t.Fatal(err)
 	}

@@ -134,7 +134,7 @@ func write(res *resolver.Resolution, root string) error {
 
 	for _, skill := range res.Skills {
 		skillRoot := filepath.Join(root, "content", "skills", skill.Source, skill.ID)
-		if err := copyTree(skill.Path, skillRoot); err != nil {
+		if err := copyTree(skill.Path, skillRoot, selectedEntryPoint(skill)); err != nil {
 			return err
 		}
 	}
@@ -223,6 +223,7 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 		h.Write(raw)
 	}
 	for _, skill := range res.Skills {
+		fmt.Fprintf(h, "skill-entry\x00%s\x00%s\x00", skill.ID, selectedEntryPoint(skill))
 		err := filepath.WalkDir(skill.Path, func(p string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {
 				return err
@@ -249,17 +250,21 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 
 func validateSelectedSkills(skills []resolver.Selected) error {
 	if len(skills) == 0 {
-		return fmt.Errorf("composition selected no personality skills")
+		return fmt.Errorf("composition selected no skills")
 	}
 	for _, skill := range skills {
 		if !safeSegment(skill.Source) || !safeSegment(skill.ID) {
 			return fmt.Errorf("selected identity path %q/%q is unsafe", skill.Source, skill.ID)
 		}
+		entry := selectedEntryPoint(skill)
+		if entry != "SKILL.md" && entry != "COMPOSED.md" {
+			return fmt.Errorf("selected skill %q has unsupported entry point %q", skill.ID, entry)
+		}
 	}
 	return nil
 }
 
-func copyTree(src, dst string) error {
+func copyTree(src, dst, entryPoint string) error {
 	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -271,6 +276,9 @@ func copyTree(src, dst string) error {
 		if err != nil {
 			return err
 		}
+		if rel == entryPoint {
+			rel = "SKILL.md"
+		}
 		out := filepath.Join(dst, rel)
 		if d.IsDir() {
 			return os.MkdirAll(out, 0o755)
@@ -281,6 +289,13 @@ func copyTree(src, dst string) error {
 		}
 		return writeFile(out, raw)
 	})
+}
+
+func selectedEntryPoint(skill resolver.Selected) string {
+	if skill.EntryPoint != "" {
+		return skill.EntryPoint
+	}
+	return "SKILL.md"
 }
 
 func writeFile(path string, content []byte) error {

@@ -15,6 +15,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 * Embedded source carries ten roles, the approved meld matrix, 16 catalog
   bindings, and twelve named seats. A role activates its full ordered
   personality set; unavailable skill bodies stay pending in roster output.
+* AOS provider roots expose ordinary skills to every role and admit
+  `.agents/composed/<name>/COMPOSED.md` only through `.agents/roles.kdl`.
+  Materialization promotes admitted entry points to native `SKILL.md`.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic materialization verifies staged and reused bundles; failures leave no partial tree.
@@ -67,10 +70,6 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 ## Release
 
 * Main pushes publish binaries, checksums, Homebrew, and Scoop. See [release.md](release.md).
-
-## Product status
-
-Ward-side container invocation remains open.
 
 ## See also
 
