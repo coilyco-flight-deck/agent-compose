@@ -39,14 +39,14 @@ in SKILL.md) is deliberately undecided in v0.1.
 
 ## Favorite colors
 
-A personality may declare one `color` as hex. Legibility is a parse-time
-gate, not a hope: the value must sit in the terminal-legible OKLab band
-(lightness 0.60-0.80, chroma at least 0.05) so it reads on dark and light
-terminals alike. A single-personality composition's favorite is that color,
-carried in the bundle manifest. An identity composed of several personalities
-derives its favorite as the OKLab centroid of the component colors with
-chroma restored to the components' minimum, clamped back into the band -
-the perceptual middle, never gray.
+Every canonical personality declares one hex `color` in the embedded person
+source, which owns the exact palette. The parse-time gate requires OKLab
+lightness 0.60-0.80 and chroma of at least 0.05, keeping colors readable on dark
+and light terminals. A single-personality composition carries that favorite in
+the bundle manifest. An identity composed of several personalities derives its
+favorite as the OKLab centroid of the component colors, restores chroma to the
+components' minimum, and clamps it into the band - the perceptual middle, never
+gray.
 
 ## Agent seats
 
