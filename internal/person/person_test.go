@@ -3,8 +3,20 @@ package person
 import "testing"
 
 func TestLoadEmbeddedRoster(t *testing.T) {
-	if _, err := Load(); err != nil {
+	p, err := Load()
+	if err != nil {
 		t.Fatal(err)
+	}
+	for _, roleName := range p.RoleOrder {
+		for _, name := range p.Roles[roleName].Personalities {
+			binding, ok := p.Personalities[name]
+			if !ok {
+				t.Fatalf("role %q personality %q has no catalog binding", roleName, name)
+			}
+			if want := "personality-" + name; binding.Skill != want {
+				t.Errorf("personality %q skill = %q, want %q", name, binding.Skill, want)
+			}
+		}
 	}
 }
 
@@ -67,5 +79,17 @@ func TestParseSeatValidation(t *testing.T) {
 				t.Fatal("expected parse failure")
 			}
 		})
+	}
+}
+
+func TestParseRejectsRolePersonalityWithoutCatalogBinding(t *testing.T) {
+	body := `person "fixture" {
+    role "builder" {
+        purpose "Build."
+        personality "bright"
+    }
+}`
+	if _, err := parse([]byte(body)); err == nil {
+		t.Fatal("role personality without a catalog binding must fail")
 	}
 }

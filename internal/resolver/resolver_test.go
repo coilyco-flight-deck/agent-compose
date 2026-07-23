@@ -76,6 +76,37 @@ func TestResolveSelectsBoundSkillAndExcludesOthers(t *testing.T) {
 	}
 }
 
+func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	skillBodies := make(map[string]string, len(p.Personalities))
+	for _, binding := range p.Personalities {
+		skillBodies[binding.Skill] = "# Fixture\n"
+	}
+	src := makeSource(t, "aos", skillBodies)
+
+	for _, roleName := range p.RoleOrder {
+		for _, personalityName := range p.Roles[roleName].Personalities {
+			t.Run(roleName+"/"+personalityName, func(t *testing.T) {
+				res, err := Resolve(&schema.Request{
+					Role:        roleName,
+					Personality: personalityName,
+					Delivery:    schema.DeliveryNativeSkills,
+					Density:     schema.DensityFull,
+				}, p, []*schema.Source{src}, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if want := p.Personalities[personalityName].Skill; res.Skill.ID != want {
+					t.Fatalf("selected skill = %q, want %q", res.Skill.ID, want)
+				}
+			})
+		}
+	}
+}
+
 func TestResolveValidationFailures(t *testing.T) {
 	src := makeSource(t, "aos", map[string]string{"personality-curious": "# Curious\n"})
 	p := testPerson()

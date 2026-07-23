@@ -12,9 +12,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
-* Embedded person source carries ten roles and their approved three-personality
-  matrix. Six roles retain twelve named pronoun-bearing seats; outstanding
-  personality definitions remain visibly pending in roster output.
+* Embedded source carries ten roles, the approved matrix, 16 catalog bindings,
+  and twelve named pronoun-bearing seats. Unavailable external skill bodies
+  remain pending in roster output.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic, content-keyed materialization verifies staged and reused bundles;
@@ -54,9 +54,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 ## Roster artifact and cascade
 
 * `agent-compose roster --out <dir>` renders the seat dispatch table as a
-  cascade source: identity lines per seat, compatible personalities with
-  favorite colors, personality bodies, and a claude `@`-import override,
-  degrading to pending markers until #10 and writing under sidecar ownership.
+  cascade source: seat identities, compatible personalities with colors,
+  personality bodies, and a claude `@`-import override. Missing bound external
+  bodies get pending markers; output is sidecar-owned.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,
@@ -70,7 +70,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Product status
 
-The complete personality roster and Ward-side container invocation remain open.
+AOS skill bodies and Ward-side container invocation remain open.
 
 ## See also
 

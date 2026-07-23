@@ -29,11 +29,13 @@ agent seats. The embedded roster contains this approved compatibility matrix:
 * `social` - `quirky`, `playful`, `optimistic`
 * `customer-success` - `nurturing`, `diplomatic`, `optimistic`
 
-A personality entry binds the name to the skill that defines it.
-The definition itself - however presence, attention, tempo, and voice end up
-being expressed - lives inside that skill, not in this contract. The format
-inside the skill (KDL, YAML, or a metadata block in SKILL.md) is deliberately
-undecided in v0.1.
+A personality entry is a catalog binding from its canonical name to a stable
+AOS skill id (`personality-<name>`); every role reference needs one or the
+loader rejects it. Bindings are not supplied bodies: the definition itself -
+however presence, attention, tempo, and voice end up being expressed - lives
+in the externally admitted AOS skill. A bound body may remain pending in roster
+output until its source is supplied. Its format (KDL, YAML, or a metadata block
+in SKILL.md) is deliberately undecided in v0.1.
 
 ## Favorite colors
 
@@ -58,17 +60,15 @@ model the launcher assigns to a seat is naming taste, not schema.
 
 The embedded source carries all ten roles, including Designer for product
 shaping and Customer Success for onboarding, support, retention, customer
-research, and feeding recurring customer pain back into product work. Its six roles
-with approved harness names (engineer, director, qa, advisor, ops, pm) retain
-their twelve named seats. Designer, Customer Success, Social, and Sales have
-no seats here because no harness names are approved for them.
+research, and feeding recurring customer pain back into product work. Its six
+named roles (engineer, director, qa, advisor, ops, pm) retain twelve seats.
+Designer, Customer Success, Social, and Sales have no approved harness names.
 
 Seats are personality-neutral: an `agent` node declares only its harness,
 name, and optional pronouns. It neither selects nor defaults a personality; a
 compose request selects a role and a compatible personality explicitly. The
-global personality catalog may be completed independently, so a role's
-compatible personality can remain visibly pending in roster output until its
-definition lands.
+catalog binding is embedded policy, while its externally supplied skill body
+can remain visibly pending in roster output.
 
 A private overlay may add scoped instructions or selection rules. It may not
 redefine canonical roles, personalities, seats, or compatibility. AOS owns no

@@ -146,5 +146,12 @@ func parse(raw []byte) (*Person, error) {
 			return nil, fmt.Errorf("embedded person source: unknown node %q", n.Name())
 		}
 	}
+	for _, roleName := range p.RoleOrder {
+		for _, personalityName := range p.Roles[roleName].Personalities {
+			if _, ok := p.Personalities[personalityName]; !ok {
+				return nil, fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
+			}
+		}
+	}
 	return p, nil
 }
