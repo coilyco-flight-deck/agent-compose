@@ -149,9 +149,11 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
+	changed := 0
 	for _, target := range stale {
 		os.Remove(target)
 		fmt.Fprintf(stdout, "removed %s (obsolete generated output)\n", target)
+		changed++
 	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
@@ -168,6 +170,7 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 			return 1
 		}
 		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
+		changed++
 	}
 	if readOr(manifestPath, "\x00") != manifest {
 		if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
@@ -175,6 +178,7 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 			return 1
 		}
 		fmt.Fprintf(stdout, "wrote   %s (mount-eligibility manifest)\n", manifestPath)
+		changed++
 	}
 	for _, harness := range sortedKeys2(loadPoints) {
 		line, err := installSymlink(loadPoints[harness], p.outputs[harness])
@@ -184,8 +188,11 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 		}
 		if line != "" {
 			fmt.Fprintf(stdout, "%s  [%s]\n", line, harness)
+			changed++
 		}
 	}
+	fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d manifest=1 changed=%d\n",
+		len(byTarget), len(loadPoints), changed)
 	return 0
 }
 

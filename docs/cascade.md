@@ -6,6 +6,9 @@ sources into each harness's global context. Presence of
 the verb is a documented no-op, so a host behaves exactly as if
 agent-compose were not installed.
 
+Bare `acompose` always summarizes its roster, outputs, harness load points,
+eligibility manifest, and skill links. Detailed lines identify repaired drift.
+
 All state lives under `~/.agent-compose`: the config, COMPOSED outputs, the
 mount-eligibility manifest, `sources/` (including the roster artifact), and
 the bundle cache at `bundles/`. A legacy `~/.config/agent-compose` directory

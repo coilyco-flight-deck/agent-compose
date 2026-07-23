@@ -70,7 +70,13 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 
 	code, out, _ = run(t, paths)
 	if code != 0 || strings.Contains(out, "wrote") {
-		t.Fatalf("second converge must be silent on the cascade side: %s", out)
+		t.Fatalf("second converge must not rewrite current cascade state: %s", out)
+	}
+	if !strings.Contains(out, "cascade outputs=1 load-points=1 manifest=1 changed=0") {
+		t.Fatalf("second converge must summarize the full cascade check: %s", out)
+	}
+	if !strings.Contains(out, "skills  managed=1 load-points=1 verified=1 linked=0 removed=0 preserved=0") {
+		t.Fatalf("second converge must summarize the full skill check: %s", out)
 	}
 }
 

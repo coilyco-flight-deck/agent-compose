@@ -64,8 +64,9 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	if skills.Linked+skills.Removed+skills.Skipped > 0 {
-		fmt.Fprintf(stdout, "skills  linked=%d removed=%d preserved=%d\n", skills.Linked, skills.Removed, skills.Skipped)
+	if skills.LoadPoints > 0 {
+		fmt.Fprintf(stdout, "skills  managed=%d load-points=%d verified=%d linked=%d removed=%d preserved=%d\n",
+			skills.Managed, skills.LoadPoints, skills.Verified, skills.Linked, skills.Removed, skills.Skipped)
 	}
 
 	return 0

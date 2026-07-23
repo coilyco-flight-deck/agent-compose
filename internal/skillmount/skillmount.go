@@ -31,9 +31,12 @@ type eligibility struct {
 
 // Result summarizes one convergence without exposing host-specific paths.
 type Result struct {
-	Linked  int
-	Removed int
-	Skipped int
+	Linked     int
+	Removed    int
+	Skipped    int
+	Verified   int
+	Managed    int
+	LoadPoints int
 }
 
 func expand(path string) (string, error) {
@@ -195,7 +198,7 @@ func Apply(manifestPath string, loadPoints map[string]string, stateDir string) (
 		owned[linkKey(item.Destination, item.Name)] = item
 	}
 
-	result := Result{}
+	result := Result{Managed: len(desired), LoadPoints: len(loadPoints)}
 	for key, item := range owned {
 		next, wanted := desired[key]
 		if wanted && next.Target == item.Target {
@@ -222,6 +225,7 @@ func Apply(manifestPath string, loadPoints map[string]string, stateDir string) (
 		}
 		if ownedLinkMatches(item) {
 			current.Links = append(current.Links, item)
+			result.Verified++
 			continue
 		}
 		if _, err := os.Lstat(path); err == nil {
