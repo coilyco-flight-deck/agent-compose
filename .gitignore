@@ -1,3 +1,6 @@
 /bundles/
 /agent-compose
 /dist/
+/web/personality-palette/dist/
+/web/personality-palette/node_modules/
+/web/personality-palette/public/palette.json

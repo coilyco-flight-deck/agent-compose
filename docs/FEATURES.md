@@ -4,7 +4,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
-* Public, MIT-licensed AOS and Ward context substrate with personal policy.
+* Public, MIT-licensed AOS and Ward substrate with personal policy.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
 
@@ -17,8 +17,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   personality set; unavailable skill bodies stay pending in roster output.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
-* Atomic, content-keyed materialization verifies staged and reused bundles;
-  failed finalization leaves no partial tree.
+* Atomic materialization verifies staged and reused bundles; failures leave no partial tree.
 * Native-skill and compiled-context delivery with density-aware compiled
   prose, exercised by the four public fixtures.
 
@@ -26,16 +25,14 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 * `agent-compose project` transactionally places verified bundles at repo or
   container-home load points for claude, codex, goose, and opencode.
-* Sidecar ownership protects foreign files; a failed refresh restores the
-  prior owned files, modes, and metadata.
+* Sidecar ownership protects foreign files and restores prior owned state.
 
 ## Launch-time refresh
 
 * `compose ... -- <command>` refreshes (bundle projection, or full host
   convergence bare) then execs, sentinel-guarded against wrapper recursion.
-* Refresh failure warns loudly and falls back to a validated last-known-good
-  projection; concurrent launches converge on one cache entry via the
-  materializer's rename race and a per-target projection lock.
+* Refresh failure falls back to a validated last-known-good projection.
+  Concurrent launches share cache and projection locks.
 
 ## Inspection
 
@@ -48,8 +45,12 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   `compose --explain` appends the full tree to the one-screen summary.
 * Color only on a TTY with NO_COLOR unset; redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
-* Favorite colors pass a terminal-legible OKLab gate. Each role's manifest
-  carries the chroma-restored centroid of its active personality colors.
+* Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
+
+## Personality palette
+
+* Local Vite/TypeScript explorer shows component colors, role melds, filters,
+  previews, and copy controls. Ward derives its JSON from the embedded person source. See [personality-palette.md](personality-palette.md).
 
 ## Roster artifact and cascade
 
@@ -65,7 +66,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Release
 
-* Main pushes publish validated minor releases with binaries, checksums, Homebrew, and Scoop. See [release.md](release.md).
+* Main pushes publish binaries, checksums, Homebrew, and Scoop. See [release.md](release.md).
 
 ## Product status
 

@@ -50,7 +50,8 @@ or replace policy later without becoming the design center now.
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. Bare `acompose` converges the host.
+package-manager distribution. The repository also ships a local personality
+palette explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
 The AOS personality skill bodies and Ward-side container invocation
@@ -86,8 +87,13 @@ Every push to canonical `main` validates and publishes the next minor release.
 ## Development
 
 Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
-`ward exec test` runs the Go test suite and the full pre-commit sweep;
+`ward exec test` runs the Go and palette tests plus the full pre-commit sweep.
 `build`, `lint`, `install`, and `tidy` cover the remaining Go verbs.
+
+`ward exec palette-serve` generates browser data from the embedded person
+source and starts the local explorer. `palette-build`, `palette-test`, and
+`palette-tidy` cover its remaining development lifecycle. See
+[the personality palette walkthrough](docs/personality-palette.md).
 
 ## License
 
@@ -98,6 +104,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
+* [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

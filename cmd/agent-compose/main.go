@@ -16,6 +16,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
@@ -134,6 +135,19 @@ func main() {
 					},
 				},
 				Action: runRoster,
+			},
+			{
+				Name:   "palette-data",
+				Hidden: true,
+				Usage:  "render canonical personality and role colors for the local palette explorer",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "out",
+						Usage:    "write JSON to this path instead of stdout",
+						Required: false,
+					},
+				},
+				Action: runPaletteData,
 			},
 			{
 				Name:      "project",
@@ -388,6 +402,22 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 	}
 	fmt.Printf("roster artifact: %d files under %s\n", len(result.Files), outDir)
 	return nil
+}
+
+func runPaletteData(_ context.Context, cmd *cli.Command) error {
+	p, err := person.Load()
+	if err != nil {
+		return err
+	}
+	raw, err := palette.Marshal(p)
+	if err != nil {
+		return err
+	}
+	if out := cmd.String("out"); out != "" {
+		return palette.Write(out, raw)
+	}
+	_, err = os.Stdout.Write(raw)
+	return err
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {

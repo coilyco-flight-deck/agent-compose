@@ -8,7 +8,7 @@ catalog:
 commands:
   test:
     run: sh scripts/test.sh
-    description: Run all repository validation (Go tests, then the pre-commit suite).
+    description: Run Go and palette tests, then the pre-commit suite.
   build:
     run: go build ./...
     description: Compile every package.
@@ -27,6 +27,18 @@ commands:
   pre-commit:
     run: pre-commit run --all-files
     description: Run the complete pre-commit suite explicitly.
+  palette-build:
+    run: sh scripts/palette-web.sh build
+    description: Generate canonical palette data and build the local explorer.
+  palette-test:
+    run: sh scripts/palette-web.sh test
+    description: Type-check, build, and verify the local palette explorer.
+  palette-serve:
+    run: sh scripts/palette-web.sh dev
+    description: Generate canonical palette data and serve the local explorer.
+  palette-tidy:
+    run: npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund
+    description: Reconcile the local explorer package lock with package.json.
   release-build:
     run: sh scripts/release-build.sh
     description: Cross-compile version-stamped release binaries into dist/.
