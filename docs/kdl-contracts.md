@@ -40,11 +40,17 @@ lexical order. It also reads `.agents/roles.kdl`:
 roles {
     role "engineer" {
         composed-skill "coding-shape-cli"
+        intent "autonomous-coding" {
+            harness "openhands"
+        }
     }
 }
 ```
 
-Each binding admits `.agents/composed/<name>/COMPOSED.md` only for that role.
+Each `composed-skill` binding admits `.agents/composed/<name>/COMPOSED.md` only
+for that role. Each `intent` records one model-opaque default harness route for
+that role. Agent-compose validates and preserves those routes as composition
+policy. Ward does not parse them.
 Materialization renames the admitted entry point to `SKILL.md`. A `SKILL.md`
 anywhere under `.agents/composed` and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.

@@ -42,6 +42,11 @@ type ContentRef struct {
 	EntryPoint string
 }
 
+type IntentRoute struct {
+	Intent  string
+	Harness string
+}
+
 type Source struct {
 	ID           string
 	Root         string
@@ -49,6 +54,7 @@ type Source struct {
 	Instructions []ContentRef
 	Skills       []ContentRef
 	RoleSkills   map[string][]ContentRef
+	RoleIntents  map[string][]IntentRoute
 }
 
 // MissingSource records an optional source whose declaration was absent, so
@@ -280,7 +286,7 @@ func inferProvider(id, root string) (*Source, error) {
 	if err != nil {
 		return nil, err
 	}
-	roleSkills, err := parseRoleSkills(
+	roleSkills, roleIntents, err := parseRoleBindings(
 		filepath.Join(root, filepath.FromSlash(providerRolesPath)),
 		composed,
 	)
@@ -288,6 +294,7 @@ func inferProvider(id, root string) (*Source, error) {
 		return nil, err
 	}
 	src.RoleSkills = roleSkills
+	src.RoleIntents = roleIntents
 	return src, nil
 }
 
@@ -335,58 +342,94 @@ func inspectComposedSkills(root string, ordinary map[string]bool) (map[string]st
 	return composed, nil
 }
 
-func parseRoleSkills(path string, composed map[string]string) (map[string][]ContentRef, error) {
+func parseRoleBindings(path string, composed map[string]string) (map[string][]ContentRef, map[string][]IntentRoute, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+		return nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
 	}
 	doc, err := kdl.ParseString(string(raw))
 	if err != nil {
-		return nil, fmt.Errorf("parse provider role bindings %s: %w", providerRolesPath, err)
+		return nil, nil, fmt.Errorf("parse provider role bindings %s: %w", providerRolesPath, err)
 	}
 	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "roles" {
-		return nil, fmt.Errorf("provider role bindings %s: expected exactly one top-level roles node", providerRolesPath)
+		return nil, nil, fmt.Errorf("provider role bindings %s: expected exactly one top-level roles node", providerRolesPath)
 	}
 
 	refs := map[string][]ContentRef{}
+	routes := map[string][]IntentRoute{}
 	seenRoles := map[string]bool{}
 	for _, roleNode := range doc.Nodes[0].Children().Nodes {
 		if roleNode.Name() != "role" {
-			return nil, fmt.Errorf("provider role bindings %s: unknown node %q", providerRolesPath, roleNode.Name())
+			return nil, nil, fmt.Errorf("provider role bindings %s: unknown node %q", providerRolesPath, roleNode.Name())
 		}
 		role, err := oneStringArg(roleNode)
 		if err != nil {
-			return nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+			return nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
 		}
 		if seenRoles[role] {
-			return nil, fmt.Errorf("provider role bindings %s: duplicate role %q", providerRolesPath, role)
+			return nil, nil, fmt.Errorf("provider role bindings %s: duplicate role %q", providerRolesPath, role)
 		}
 		seenRoles[role] = true
 		seenSkills := map[string]bool{}
-		for _, skillNode := range roleNode.Children().Nodes {
-			if skillNode.Name() != "composed-skill" {
-				return nil, fmt.Errorf("provider role %q: unknown node %q", role, skillNode.Name())
+		seenIntents := map[string]bool{}
+		for _, child := range roleNode.Children().Nodes {
+			switch child.Name() {
+			case "composed-skill":
+				skill, err := oneStringArg(child)
+				if err != nil {
+					return nil, nil, fmt.Errorf("provider role %q: %w", role, err)
+				}
+				if seenSkills[skill] {
+					return nil, nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
+				}
+				seenSkills[skill] = true
+				skillPath, ok := composed[skill]
+				if !ok {
+					return nil, nil, fmt.Errorf("provider role %q names missing composed skill %q", role, skill)
+				}
+				refs[role] = append(refs[role], ContentRef{
+					ID:         skill,
+					Path:       skillPath,
+					EntryPoint: "COMPOSED.md",
+				})
+			case "intent":
+				route, err := parseIntentRoute(child)
+				if err != nil {
+					return nil, nil, fmt.Errorf("provider role %q: %w", role, err)
+				}
+				if seenIntents[route.Intent] {
+					return nil, nil, fmt.Errorf("provider role %q repeats intent %q", role, route.Intent)
+				}
+				seenIntents[route.Intent] = true
+				routes[role] = append(routes[role], route)
+			default:
+				return nil, nil, fmt.Errorf("provider role %q: unknown node %q", role, child.Name())
 			}
-			skill, err := oneStringArg(skillNode)
-			if err != nil {
-				return nil, fmt.Errorf("provider role %q: %w", role, err)
-			}
-			if seenSkills[skill] {
-				return nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
-			}
-			seenSkills[skill] = true
-			skillPath, ok := composed[skill]
-			if !ok {
-				return nil, fmt.Errorf("provider role %q names missing composed skill %q", role, skill)
-			}
-			refs[role] = append(refs[role], ContentRef{
-				ID:         skill,
-				Path:       skillPath,
-				EntryPoint: "COMPOSED.md",
-			})
 		}
 	}
-	return refs, nil
+	return refs, routes, nil
+}
+
+func parseIntentRoute(n *kdl.Node) (IntentRoute, error) {
+	intent, err := oneStringArg(n)
+	if err != nil {
+		return IntentRoute{}, err
+	}
+	if len(n.Properties()) != 0 {
+		return IntentRoute{}, fmt.Errorf("intent %q takes no properties", intent)
+	}
+	children := n.Children().Nodes
+	if len(children) != 1 || children[0].Name() != "harness" {
+		return IntentRoute{}, fmt.Errorf("intent %q expects exactly one harness child", intent)
+	}
+	harness, err := oneStringArg(children[0])
+	if err != nil {
+		return IntentRoute{}, fmt.Errorf("intent %q: %w", intent, err)
+	}
+	if len(children[0].Properties()) != 0 || len(children[0].Children().Nodes) != 0 {
+		return IntentRoute{}, fmt.Errorf("intent %q harness takes no properties or children", intent)
+	}
+	return IntentRoute{Intent: intent, Harness: harness}, nil
 }
 
 func parseSource(declPath string) (*Source, error) {

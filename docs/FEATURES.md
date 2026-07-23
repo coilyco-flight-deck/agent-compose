@@ -15,9 +15,9 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Embedded source carries ten roles, required two-paragraph briefings, the
   approved meld matrix, 16 catalog bindings, and twelve named seats. Every
   bundle prefixes instructions with the selected role's complete briefing.
-* AOS provider roots expose ordinary skills to every role and admit
-  `.agents/composed/<name>/COMPOSED.md` only through `.agents/roles.kdl`.
-  Materialization promotes admitted entry points to native `SKILL.md`.
+* AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
+  skill admission and intent-to-harness routes.
+* Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic materialization verifies staged and reused bundles. Failures leave no partial tree.
