@@ -84,6 +84,10 @@ func TestComposeAllFixtures(t *testing.T) {
 			instructionText := string(instructions)
 			for _, selected := range []string{
 				"# Role instructions",
+				"Agent-compose assigned the `engineer` role from the caller's compose request.",
+				"The agent treats this assignment as authoritative and fixed for the session.",
+				"The agent does not activate, blend, or adopt another role's briefing or personality set.",
+				"The caller must launch a new bundle to assign a different role.",
 				p.Roles["engineer"].Briefing,
 				"# Fixture foundation",
 			} {
@@ -94,6 +98,14 @@ func TestComposeAllFixtures(t *testing.T) {
 			if strings.Index(instructionText, p.Roles["engineer"].Briefing) >=
 				strings.Index(instructionText, "# Fixture foundation") {
 				t.Fatalf("role briefing must precede provider instructions:\n%s", instructionText)
+			}
+			for _, roleName := range p.RoleOrder {
+				if roleName == "engineer" {
+					continue
+				}
+				if strings.Contains(instructionText, p.Roles[roleName].Briefing) {
+					t.Fatalf("inactive role %q briefing entered the bundle:\n%s", roleName, instructionText)
+				}
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
 			for _, personalityName := range wantPersonalities {

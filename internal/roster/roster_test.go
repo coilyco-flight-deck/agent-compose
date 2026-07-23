@@ -64,6 +64,10 @@ func TestRenderDispatchTable(t *testing.T) {
 	for _, want := range []string{
 		"# Fixture foundation",
 		"The agent uses repository evidence and reports uncertainty explicitly.",
+		"If launch context assigns\n" +
+			"a role, the agent treats that assignment as authoritative.",
+		"an\nunassigned native agent uses the initial substantive request as a soft signal",
+		"The agent keeps that role for the whole session.\nLater task shape does not change it.",
 		"Each agent loads every linked definition on that role's Melded personalities",
 		"If you are claude running the builder role: your name is opal builder (pronouns: she).",
 		"If you are codex running the builder role: your name is terran builder (pronouns: he).",

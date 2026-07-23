@@ -35,8 +35,11 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 		table.WriteString("\n")
 	}
 	table.WriteString("# Agent seats\n\n")
-	table.WriteString("Each agent self-selects by harness and role: find your line and wear it\n")
-	table.WriteString("for the whole session.\n")
+	table.WriteString("Each agent resolves its role once at session start. If launch context assigns\n")
+	table.WriteString("a role, the agent treats that assignment as authoritative. Otherwise, an\n")
+	table.WriteString("unassigned native agent uses the initial substantive request as a soft signal\n")
+	table.WriteString("and selects the closest role. The agent keeps that role for the whole session.\n")
+	table.WriteString("Later task shape does not change it.\n")
 	table.WriteString("Each agent loads every linked definition on that role's Melded personalities\n")
 	table.WriteString("line before acting. Definitions on other roles stay inactive.\n")
 

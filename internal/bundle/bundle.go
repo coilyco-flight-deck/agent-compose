@@ -187,7 +187,14 @@ func write(res *resolver.Resolution, root string) error {
 
 func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 	out := []byte(fmt.Sprintf(
-		"# Role instructions\n\n## %s - %s\n\n%s\n",
+		"# Role instructions\n\n"+
+			"Agent-compose assigned the `%s` role from the caller's compose request. "+
+			"The agent treats this assignment as authoritative and fixed for the session. "+
+			"The agent does not change roles because a task resembles another role. "+
+			"The agent does not activate, blend, or adopt another role's briefing or personality set. "+
+			"The caller must launch a new bundle to assign a different role.\n\n"+
+			"## %s - %s\n\n%s\n",
+		res.Request.Role,
 		res.Request.Role,
 		res.RolePurpose,
 		res.RoleBriefing,
@@ -206,14 +213,20 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 	return out, nil
 }
 
-// cacheKey hashes every input that can change bundle bytes: the request,
-// the person source, the decisions, and every referenced content file.
+// cacheKey hashes resolved inputs plus the rendered instruction document, so
+// compiler-authored instruction changes invalidate prior cached bundles.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
 	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
 		res.Request.Role, res.Request.Delivery, res.Request.Density)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
+	renderedInstructions, err := joinInstructions(res)
+	if err != nil {
+		return "", err
+	}
+	fmt.Fprintf(h, "rendered-instructions\x00%d\x00", len(renderedInstructions))
+	h.Write(renderedInstructions)
 	for _, d := range res.Decisions {
 		fmt.Fprintf(h, "decision\x00%s\x00%s\x00%s\x00%s\x00", d.Subject, d.Source, d.Outcome, d.Reason)
 	}

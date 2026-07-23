@@ -152,6 +152,24 @@ func TestMaterializeVerifiesCacheReuse(t *testing.T) {
 	}
 }
 
+func TestMaterializeKeysRenderedInstructions(t *testing.T) {
+	out := t.TempDir()
+	request := filepath.Join("..", "..", "testdata", "contracts", "native-full.kdl")
+	first, err := compose.Run(request, out)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	first.Resolution.RoleBriefing += "\n\nThe agent follows the revised role contract."
+	second, err := bundle.Materialize(first.Resolution, out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.Key == first.Bundle.Key || second.Reused {
+		t.Fatalf("rendered instruction change reused stale bundle: %+v then %+v", first.Bundle, second)
+	}
+}
+
 func TestMaterializeRejectsUnsafeIdentitySegments(t *testing.T) {
 	resolution := &resolver.Resolution{
 		Request: &schema.Request{

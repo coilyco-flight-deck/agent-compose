@@ -34,9 +34,9 @@ directory the cascade walks as a source root, containing an
 carries admitted provider instructions plus the seat dispatch table: "if you
 are codex running the engineer role, this is your operating briefing, name,
 pronouns, personality meld, definition paths, and derived favorite color."
-Each agent self-selects by facts it already knows, adopts the briefing, and
-loads the linked definitions before acting. Other roles stay inactive. No
-launcher cooperation, environment variable, or blessed entrypoint participates.
+Under the [role-selection contract](role-selection.md), an explicit role stays
+fixed. An unassigned native agent selects from the initial request and loads
+that role's definitions.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
@@ -51,8 +51,9 @@ read-only bundle, then `project --scope home` transactionally fills the
 claude, codex, goose, or opencode global load points. Black-box fixtures prove
 that each native home contains ordinary and role-composed skills plus every
 active personality, compiled homes contain all selected prose, and neither
-path changes the input bundle. Ward still needs to mount and invoke this
-contract at container start under issue #17.
+path changes the input bundle. Projected instructions fix the caller-selected
+role under the [same contract](role-selection.md). Ward still needs to mount and
+invoke this contract at container start under issue #17.
 
 ## Migration state
 

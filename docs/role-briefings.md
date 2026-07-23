@@ -37,11 +37,11 @@ applicable safety boundary.
 
 ## Bundle delivery
 
-Every role-specific bundle begins its canonical instruction document with the
-selected role's heading, purpose, and complete briefing. Native-skill delivery
-projects that document directly to the harness instruction load point.
-Compiled delivery keeps the same role section at the beginning of its combined
-context document.
+Every role-specific bundle begins with the caller-selected role assignment,
+heading, purpose, and complete briefing. The
+[role-selection contract](role-selection.md) makes that assignment authoritative
+for the session. Native-skill delivery projects the document to the harness
+instruction load point. Compiled delivery keeps the same role section first.
 
 The bundle remains harness-blind. It carries the selected role charter but no
 harness identity, model choice, reasoning effort, or runtime authority. The
@@ -57,10 +57,10 @@ The roster renders each named-seat role in this order:
 * harness-specific names and pronouns
 * melded personalities, definitions, and favorite color
 
-The host cascade carries the complete named-seat roster into global harness
-context. Each agent self-selects using its harness and role, then adopts only
-that role's briefing. Canonical roles without named seats remain in the person
-model but do not render into the dispatch table.
+The host cascade carries the complete named-seat roster into global context. An
+unassigned native agent follows the [role-selection contract](role-selection.md)
+and adopts one briefing. Roles without named seats remain in the person model
+but do not render into the dispatch table.
 
 ## Ownership boundaries
 
@@ -76,4 +76,5 @@ authority policy.
 
 * [person-contract.md](person-contract.md) - complete embedded person schema.
 * [integration.md](integration.md) - host delivery and self-selection.
+* [role-selection.md](role-selection.md) - assignment precedence and locks.
 * [../internal/person/person.kdl](../internal/person/person.kdl) - canonical role text.
