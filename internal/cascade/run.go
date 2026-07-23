@@ -1,0 +1,300 @@
+package cascade
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+)
+
+// Paths carries the injectable filesystem anchors so tests never touch the
+// real home; DefaultPaths resolves the live locations.
+type Paths struct {
+	Config       string
+	Composed     string
+	ProjectsRoot string
+}
+
+func DefaultPaths() Paths {
+	home, _ := os.UserHomeDir()
+	projects := os.Getenv("PROJECTS_ROOT")
+	if projects == "" {
+		projects = filepath.Join(home, "projects")
+	}
+	configDir := filepath.Join(home, ".config", "agent-compose")
+	return Paths{
+		Config:       filepath.Join(configDir, "agent-compose.yaml"),
+		Composed:     filepath.Join(configDir, "COMPOSED.md"),
+		ProjectsRoot: projects,
+	}
+}
+
+type planned struct {
+	sources   []string
+	overrides map[string]string
+}
+
+func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[string]planned, plan, map[string]string, string, int) {
+	gathered, errs := GatherSources(cfg)
+	if strict && len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Fprintf(stderr, "agent-compose: %s\n", err)
+		}
+		return nil, plan{}, nil, "", 1
+	}
+	for _, err := range errs {
+		fmt.Fprintf(stderr, "agent-compose: warning: %s (skipped)\n", err)
+	}
+
+	filtering := cfg.Scopes != nil
+	var machineScopes []string
+	if filtering {
+		machineScopes = *cfg.Scopes
+	}
+	sources := SelectByScope(gathered, machineScopes, filtering)
+	excluded := len(gathered) - len(sources)
+	if len(sources) == 0 {
+		reason := "no sources resolved (check `sources` / `roots`)"
+		if filtering {
+			reason = fmt.Sprintf("no sources matched this machine's scopes %v", machineScopes)
+		}
+		fmt.Fprintf(stderr, "agent-compose: config present but %s; refusing to write an empty COMPOSED.md\n", reason)
+		return nil, plan{}, nil, "", 1
+	}
+
+	loadPoints := ResolveLoadPoints(cfg)
+	p := planOutputs(sources, loadPoints, paths.Composed)
+	if len(p.errors) > 0 {
+		for _, err := range p.errors {
+			fmt.Fprintf(stderr, "agent-compose: %s\n", err)
+		}
+		return nil, plan{}, nil, "", 1
+	}
+
+	byTarget := map[string]planned{}
+	for harness, target := range p.outputs {
+		byTarget[target] = planned{sources: p.slices[harness], overrides: p.overrides[harness]}
+	}
+	if len(loadPoints) == 0 {
+		byTarget[paths.Composed] = planned{sources: sources, overrides: map[string]string{}}
+	}
+	tail := ""
+	if excluded > 0 {
+		tail = fmt.Sprintf(" (%d excluded by scope)", excluded)
+	}
+	return byTarget, p, loadPoints, tail, 0
+}
+
+// Run composes and wires symlinks; absent config is a documented no-op.
+func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
+	if _, err := os.Stat(paths.Config); err != nil {
+		fmt.Fprintf(stdout, "agent-compose: no config at %s; nothing to do (opt-in)\n", paths.Config)
+		return 0
+	}
+	cfg, err := LoadConfig(paths.Config)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	byTarget, p, loadPoints, tail, code := buildPlan(cfg, paths, stderr, false)
+	if code != 0 {
+		return code
+	}
+	active := map[string]bool{}
+	for target := range byTarget {
+		active[target] = true
+	}
+	stale := staleGeneratedOutputs(paths.Composed, active)
+	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
+	manifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+
+	if dryRun {
+		for _, target := range sortedKeys(byTarget) {
+			entry := byTarget[target]
+			body, err := Compose(entry.sources, entry.overrides)
+			if err != nil {
+				fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+				return 1
+			}
+			if readOr(target, "\x00") != body {
+				fmt.Fprintf(stdout, "would write %s (%d source(s))%s\n", target, len(entry.sources), tail)
+			}
+		}
+		if readOr(manifestPath, "\x00") != manifest {
+			fmt.Fprintf(stdout, "would write %s (mount-eligibility manifest)\n", manifestPath)
+		}
+		for _, target := range stale {
+			fmt.Fprintf(stdout, "would remove %s (obsolete generated output)\n", target)
+		}
+		for _, harness := range sortedKeys2(loadPoints) {
+			if !symlinkUpToDate(loadPoints[harness], p.outputs[harness]) {
+				fmt.Fprintf(stdout, "would link  %s -> %s  [%s]\n", loadPoints[harness], p.outputs[harness], harness)
+			}
+		}
+		return 0
+	}
+
+	if err := os.MkdirAll(filepath.Dir(paths.Composed), 0o755); err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	for _, target := range stale {
+		os.Remove(target)
+		fmt.Fprintf(stdout, "removed %s (obsolete generated output)\n", target)
+	}
+	for _, target := range sortedKeys(byTarget) {
+		entry := byTarget[target]
+		body, err := Compose(entry.sources, entry.overrides)
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		if readOr(target, "\x00") == body {
+			continue
+		}
+		if err := os.WriteFile(target, []byte(body), 0o644); err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
+	}
+	if readOr(manifestPath, "\x00") != manifest {
+		if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "wrote   %s (mount-eligibility manifest)\n", manifestPath)
+	}
+	for _, harness := range sortedKeys2(loadPoints) {
+		line, err := installSymlink(loadPoints[harness], p.outputs[harness])
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		if line != "" {
+			fmt.Fprintf(stdout, "%s  [%s]\n", line, harness)
+		}
+	}
+	return 0
+}
+
+// Check verifies on-disk outputs match a fresh compose; drift prints a
+// unified diff and fails, mirroring the v1 pre-commit hook.
+func Check(paths Paths, stdout, stderr io.Writer) int {
+	if _, err := os.Stat(paths.Config); err != nil {
+		fmt.Fprintf(stdout, "agent-compose: no config at %s; nothing to check (opt-in)\n", paths.Config)
+		return 0
+	}
+	cfg, err := LoadConfig(paths.Config)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	byTarget, p, _, _, code := buildPlan(cfg, paths, stderr, true)
+	if code != 0 {
+		return code
+	}
+	active := map[string]bool{}
+	for target := range byTarget {
+		active[target] = true
+	}
+	drifted := false
+	for _, target := range staleGeneratedOutputs(paths.Composed, active) {
+		drifted = true
+		fmt.Fprintf(stderr, "agent-compose: drift - obsolete generated output remains at %s. Run `agent-compose cascade` to remove it.\n", target)
+	}
+	for _, target := range sortedKeys(byTarget) {
+		entry := byTarget[target]
+		expected, err := Compose(entry.sources, entry.overrides)
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		actual := readOr(target, "")
+		if actual == expected {
+			fmt.Fprintf(stdout, "agent-compose: %s in sync\n", target)
+			continue
+		}
+		drifted = true
+		fmt.Fprintf(stderr, "agent-compose: drift - %s is missing, stale, or hand-edited. Run `agent-compose cascade` to regenerate.\n", target)
+		writeDiff(stderr, actual, expected, target)
+	}
+	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
+	expectedManifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	if actual := readOr(manifestPath, ""); actual == expectedManifest {
+		fmt.Fprintf(stdout, "agent-compose: %s in sync\n", manifestPath)
+	} else {
+		drifted = true
+		fmt.Fprintf(stderr, "agent-compose: drift - %s (mount-eligibility manifest) is missing, stale, or hand-edited. Run `agent-compose cascade` to regenerate.\n", manifestPath)
+		writeDiff(stderr, actual, expectedManifest, manifestPath)
+	}
+	if drifted {
+		return 1
+	}
+	return 0
+}
+
+// writeDiff prints a bounded minus/plus diff of the first divergent region;
+// simpler than v1's difflib but the same job: make staleness legible.
+func writeDiff(w io.Writer, actual, expected, name string) {
+	fmt.Fprintf(w, "--- %s (on disk)\n+++ expected (fresh compose)\n", name)
+	actualLines := strings.Split(actual, "\n")
+	expectedLines := strings.Split(expected, "\n")
+	emitted := 0
+	for i := 0; emitted < 40 && (i < len(actualLines) || i < len(expectedLines)); i++ {
+		var a, e string
+		if i < len(actualLines) {
+			a = actualLines[i]
+		}
+		if i < len(expectedLines) {
+			e = expectedLines[i]
+		}
+		if a == e {
+			continue
+		}
+		if i < len(actualLines) {
+			fmt.Fprintf(w, "-%s\n", a)
+			emitted++
+		}
+		if i < len(expectedLines) && emitted < 40 {
+			fmt.Fprintf(w, "+%s\n", e)
+			emitted++
+		}
+	}
+}
+
+func readOr(path, fallback string) string {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return fallback
+	}
+	return string(raw)
+}
+
+func sortedKeys(m map[string]planned) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func sortedKeys2(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}

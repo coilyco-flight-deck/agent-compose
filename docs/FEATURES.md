@@ -1,7 +1,6 @@
 # agent-compose features
 
-Inventory of what this repository ships today. Planned behavior belongs in the
-canonical issue tracker until an implementation lands.
+Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
@@ -52,15 +51,16 @@ canonical issue tracker until an implementation lands.
   terminal-legible OKLab band; the composed favorite rides the manifest, and
   multi-component favorites derive as the chroma-restored OKLab centroid.
 
-## Roster artifact
+## Roster artifact and cascade
 
 * `agent-compose roster --out <dir>` renders the seat dispatch table as a
-  v1-cascade source: every named seat's identity line, compatible
-  personalities with favorite colors, personality bodies from the given
-  sources, and a claude override with mechanical `@` imports.
-* Degrades gracefully - roles without personalities and personalities
-  without bodies render as pending until #10 - and writes under the same
-  sidecar ownership rules as projection.
+  cascade source: identity lines per seat, compatible personalities with
+  favorite colors, personality bodies, and a claude `@`-import override,
+  degrading to pending markers until #10 and writing under sidecar ownership.
+* `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
+  per-harness COMPOSED files, load-point symlinks, scope and harness
+  filtering, section overrides, the mount-eligibility manifest ward reads,
+  and --dry-run/--check - byte-compatible with the Python outputs.
 
 ## Release
 

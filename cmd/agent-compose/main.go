@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
@@ -73,6 +74,21 @@ func main() {
 				Usage:     "report semantic decision changes between two bundles",
 				ArgsUsage: "<left-bundle> <right-bundle>",
 				Action:    runDiff,
+			},
+			{
+				Name:  "cascade",
+				Usage: "compose doctrine sources into harness global load points",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "dry-run",
+						Usage: "print the plan, change nothing",
+					},
+					&cli.BoolFlag{
+						Name:  "check",
+						Usage: "verify composed outputs are in sync; exit 1 on drift",
+					},
+				},
+				Action: runCascade,
 			},
 			{
 				Name:      "roster",
@@ -257,6 +273,23 @@ func runLaunch(_ context.Context, cmd *cli.Command) error {
 			state, result.Projected, cmd.String("target"))
 	}
 	return execReal(argv)
+}
+
+func runCascade(_ context.Context, cmd *cli.Command) error {
+	if cmd.Bool("dry-run") && cmd.Bool("check") {
+		return fmt.Errorf("--dry-run and --check are mutually exclusive")
+	}
+	paths := cascade.DefaultPaths()
+	var code int
+	if cmd.Bool("check") {
+		code = cascade.Check(paths, os.Stdout, os.Stderr)
+	} else {
+		code = cascade.Run(paths, cmd.Bool("dry-run"), os.Stdout, os.Stderr)
+	}
+	if code != 0 {
+		return cli.Exit("", code)
+	}
+	return nil
 }
 
 func runRoster(_ context.Context, cmd *cli.Command) error {
