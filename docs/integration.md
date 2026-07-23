@@ -31,12 +31,14 @@ owns the load points a host declares.
 Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
 directory the cascade walks as a source root, containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
-carries the seat dispatch table: "if you are codex running the engineer role,
-your name is terran engineer (he/him), your personalities are curious,
-grounded, and meticulous, their definitions live at these paths, and their
-melded favorite is this derived color." Each agent self-selects by facts it
-already knows. No launcher cooperation, environment variable, or blessed
-entrypoint participates.
+carries admitted provider instructions plus the seat dispatch table: "if you
+are codex running the engineer role, your name is terran engineer (he/him),
+your personalities are curious, grounded, and meticulous, their definitions
+live at these paths, and their melded favorite is this derived color." Each
+agent self-selects by facts it already knows and loads the linked definitions
+for that role before acting. Definitions on other roles stay inactive. No
+launcher cooperation, environment variable, or blessed entrypoint
+participates.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session

@@ -60,6 +60,9 @@ func TestRenderDispatchTable(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
+		"# Fixture foundation",
+		"The agent uses repository evidence and reports uncertainty explicitly.",
+		"Each agent loads every linked definition on that role's Melded personalities",
 		"If you are claude running the builder role: your name is opal builder (pronouns: she).",
 		"If you are codex running the builder role: your name is terran builder (pronouns: he).",
 		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
@@ -82,6 +85,22 @@ func TestRenderDispatchTable(t *testing.T) {
 
 	if !strings.Contains(string(files["personalities/bright.md"]), "# Curious") {
 		t.Fatal("personality body must carry the skill definition")
+	}
+}
+
+func TestRenderRejectsMissingInstruction(t *testing.T) {
+	p, _ := loadInputs(t)
+	sources := []*schema.Source{{
+		ID:   "broken",
+		Root: t.TempDir(),
+		Instructions: []schema.ContentRef{{
+			ID:   "personality-invariant",
+			Path: "missing.md",
+		}},
+	}}
+	if _, err := Render(p, sources, "/opt/artifact"); err == nil ||
+		!strings.Contains(err.Error(), `instruction "personality-invariant"`) {
+		t.Fatalf("missing provider instruction must fail clearly, got %v", err)
 	}
 }
 

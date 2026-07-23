@@ -20,14 +20,14 @@ configuration:
 
 * role-driven personality meld resolution
 * the ten-role company roster and organizational purpose
-* role-neutral personalities and curated role compatibility
+* role-neutral personality catalog bindings and curated compatibility
 * native-skill and compiled-context delivery
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * host doctrine convergence and native skill installation
 * bundle inspection, validation, and compatibility reporting
 
-AOS owns reusable doctrine, general skills, capability providers, and editorial
+AOS owns reusable doctrine, general skills, personality bodies, capability providers, and editorial
 validation. Agent-compose turns those sources into the concrete context surface
 for each harness. Private overlays remain outside this public repo. Ward owns
 executable authority, supplies runtime facts, and mounts opaque bundles.
@@ -54,9 +54,9 @@ package-manager distribution. The repository also ships a local personality
 palette explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
-The AOS personality skill bodies and Ward-side container invocation
+Ward-side container invocation
 ([#17](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/17))
-remain open on the canonical Forgejo tracker.
+remains open on the canonical Forgejo tracker.
 
 ## Install
 

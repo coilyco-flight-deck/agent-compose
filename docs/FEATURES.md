@@ -54,9 +54,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders the seat dispatch table as a
-  cascade source: seats, melded personalities, component and derived colors,
-  bodies, and a claude `@`-import override. Missing bodies stay pending.
+* `agent-compose roster --out <dir>` renders provider instructions, seats,
+  melded personalities, colors, bodies, and a claude `@`-import override as
+  one cascade source. Missing bodies stay pending.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,
@@ -70,7 +70,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Product status
 
-AOS skill bodies and Ward-side container invocation remain open.
+Ward-side container invocation remains open.
 
 ## See also
 

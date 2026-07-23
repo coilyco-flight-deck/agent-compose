@@ -19,10 +19,10 @@ package layout land together so the code never precedes its public boundary.
 
 * `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
   harness adapters, diagnostics, and Kai's public-safe person configuration.
-* The person configuration owns organizational purpose, role-neutral
-  personalities, curated compatibility, and context-selection policy.
-* `agentic-os` owns reusable knowledge sources, general skills, capability
-  providers, and editorial validators.
+* The person configuration owns organizational purpose, personality catalog
+  bindings, curated compatibility, and context-selection policy.
+* `agentic-os` owns reusable knowledge sources, general skills, personality
+  bodies, capability providers, and editorial validators.
 * Private overlays stay outside this public repo and may extend the embedded
   person source without replacing its canonical public-safe content.
 * `ward` owns execution permissions, role authority, runtime-fact resolution,
