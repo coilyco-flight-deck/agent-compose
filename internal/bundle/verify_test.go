@@ -25,12 +25,11 @@ func composeBundle(t *testing.T, name string) string {
 
 func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 	cases := []struct {
-		request  string
-		mode     string
-		identity string
+		request string
+		mode    string
 	}{
-		{"native-full.kdl", schema.DeliveryNativeSkills, "personality-curious"},
-		{"compiled-full.kdl", schema.DeliveryCompiled, "personality-grounded"},
+		{"native-full.kdl", schema.DeliveryNativeSkills},
+		{"compiled-full.kdl", schema.DeliveryCompiled},
 	}
 	for _, tc := range cases {
 		t.Run(tc.mode, func(t *testing.T) {
@@ -41,8 +40,13 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.Delivery.Mode != tc.mode {
 				t.Fatalf("delivery = %q, want %q", verified.Manifest.Delivery.Mode, tc.mode)
 			}
-			if verified.IdentitySource != "aos-public" || verified.IdentitySkill != tc.identity {
-				t.Fatalf("identity = %s/%s", verified.IdentitySource, verified.IdentitySkill)
+			if len(verified.Identities) != len(verified.Manifest.Personalities) {
+				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
+			}
+			for _, identity := range verified.Identities {
+				if identity.Source != "aos-public" {
+					t.Fatalf("identity source = %q, want aos-public", identity.Source)
+				}
 			}
 			if verified.Files == 0 {
 				t.Fatal("verified bundle reported no files")
@@ -77,14 +81,14 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 
 	t.Run("extra identity", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
-		extra := filepath.Join(dir, "content", "skills", "aos-public", "personality-grounded")
+		extra := filepath.Join(dir, "content", "skills", "aos-public", "personality-extra")
 		if err := os.MkdirAll(extra, 0o755); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(extra, "SKILL.md"), []byte("# Grounded\n"), 0o644); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "exactly selected identity") {
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "does not match selected identities") {
 			t.Fatalf("expected identity-cardinality failure, got %v", err)
 		}
 	})
@@ -95,7 +99,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		manifest.Personality = "grounded"
+		manifest.Personalities[0] = "other"
 		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
 		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "manifest profile") {
 			t.Fatalf("expected profile-trace failure, got %v", err)
@@ -132,7 +136,7 @@ func TestMaterializeVerifiesCacheReuse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	extra := filepath.Join(first.Bundle.Dir, "content", "skills", "aos-public", "personality-grounded")
+	extra := filepath.Join(first.Bundle.Dir, "content", "skills", "aos-public", "personality-extra")
 	if err := os.MkdirAll(extra, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -144,12 +148,13 @@ func TestMaterializeVerifiesCacheReuse(t *testing.T) {
 func TestMaterializeRejectsUnsafeIdentitySegments(t *testing.T) {
 	resolution := &resolver.Resolution{
 		Request: &schema.Request{
-			Role: "engineer", Personality: "curious",
+			Role:     "engineer",
 			Delivery: schema.DeliveryNativeSkills, Density: schema.DensityFull,
 		},
-		Person:   &person.Person{Raw: []byte("fixture")},
-		Skill:    resolver.Selected{Source: "aos-public", ID: "../outside"},
-		SkillDir: t.TempDir(),
+		Person: &person.Person{Raw: []byte("fixture")},
+		Skills: []resolver.Selected{{
+			Source: "aos-public", ID: "../outside", Path: t.TempDir(),
+		}},
 	}
 	if _, err := bundle.Materialize(resolution, t.TempDir()); err == nil || !strings.Contains(err.Error(), "unsafe") {
 		t.Fatalf("expected unsafe identity failure, got %v", err)

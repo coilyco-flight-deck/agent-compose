@@ -20,13 +20,13 @@ type Delivery struct {
 }
 
 type Manifest struct {
-	Format      string   `json:"format"`
-	Role        string   `json:"role"`
-	Personality string   `json:"personality"`
-	Color       string   `json:"color,omitempty"`
-	Density     string   `json:"density"`
-	Sources     []string `json:"sources"`
-	Delivery    Delivery `json:"delivery"`
+	Format        string   `json:"format"`
+	Role          string   `json:"role"`
+	Personalities []string `json:"personalities"`
+	Color         string   `json:"color"`
+	Density       string   `json:"density"`
+	Sources       []string `json:"sources"`
+	Delivery      Delivery `json:"delivery"`
 }
 
 type Trace struct {
@@ -77,8 +77,8 @@ func ReadManifest(dir string) (*Manifest, error) {
 // Materialize writes the resolved bundle beneath outDir, atomically and at
 // most once per input key. Identical inputs reuse the existing tree.
 func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
-	if !safeSegment(res.Skill.Source) || !safeSegment(res.Skill.ID) {
-		return nil, fmt.Errorf("selected identity path %q/%q is unsafe", res.Skill.Source, res.Skill.ID)
+	if err := validateSelectedSkills(res.Skills); err != nil {
+		return nil, err
 	}
 	key, err := cacheKey(res)
 	if err != nil {
@@ -121,8 +121,8 @@ func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
 }
 
 func write(res *resolver.Resolution, root string) error {
-	if !safeSegment(res.Skill.Source) || !safeSegment(res.Skill.ID) {
-		return fmt.Errorf("selected identity path %q/%q is unsafe", res.Skill.Source, res.Skill.ID)
+	if err := validateSelectedSkills(res.Skills); err != nil {
+		return err
 	}
 	instructions, err := joinInstructions(res)
 	if err != nil {
@@ -132,9 +132,11 @@ func write(res *resolver.Resolution, root string) error {
 		return err
 	}
 
-	skillRoot := filepath.Join(root, "content", "skills", res.Skill.Source, res.Skill.ID)
-	if err := copyTree(res.SkillDir, skillRoot); err != nil {
-		return err
+	for _, skill := range res.Skills {
+		skillRoot := filepath.Join(root, "content", "skills", skill.Source, skill.ID)
+		if err := copyTree(skill.Path, skillRoot); err != nil {
+			return err
+		}
 	}
 
 	delivery := Delivery{Mode: res.Request.Delivery, Instructions: "content/instructions.md"}
@@ -142,12 +144,18 @@ func write(res *resolver.Resolution, root string) error {
 	case schema.DeliveryNativeSkills:
 		delivery.SkillsRoot = "content/skills"
 	case schema.DeliveryCompiled:
-		body, err := os.ReadFile(res.CompiledBody)
-		if err != nil {
-			return err
+		compiled := append([]byte{}, instructions...)
+		for _, bodyPath := range res.CompiledBodies {
+			body, err := os.ReadFile(bodyPath)
+			if err != nil {
+				return err
+			}
+			if len(compiled) > 0 && compiled[len(compiled)-1] != '\n' {
+				compiled = append(compiled, '\n')
+			}
+			compiled = append(compiled, '\n')
+			compiled = append(compiled, body...)
 		}
-		compiled := append(append([]byte{}, instructions...), '\n')
-		compiled = append(compiled, body...)
 		if err := writeFile(filepath.Join(root, "delivery", "compiled.md"), compiled); err != nil {
 			return err
 		}
@@ -163,13 +171,13 @@ func write(res *resolver.Resolution, root string) error {
 	}
 
 	manifest, err := json.MarshalIndent(Manifest{
-		Format:      "agent-compose.bundle",
-		Role:        res.Request.Role,
-		Personality: res.Request.Personality,
-		Color:       res.FavoriteColor,
-		Density:     res.Request.Density,
-		Sources:     res.SourceIDs,
-		Delivery:    delivery,
+		Format:        "agent-compose.bundle",
+		Role:          res.Request.Role,
+		Personalities: res.Personalities,
+		Color:         res.FavoriteColor,
+		Density:       res.Request.Density,
+		Sources:       res.SourceIDs,
+		Delivery:      delivery,
 	}, "", "  ")
 	if err != nil {
 		return err
@@ -199,8 +207,8 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 // the person source, the decisions, and every referenced content file.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
-	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00%s\x00",
-		res.Request.Role, res.Request.Personality, res.Request.Delivery, res.Request.Density)
+	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
+		res.Request.Role, res.Request.Delivery, res.Request.Density)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
 	for _, d := range res.Decisions {
@@ -214,26 +222,41 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 		fmt.Fprintf(h, "instruction\x00%s\x00%s\x00%d\x00", sel.Source, sel.ID, len(raw))
 		h.Write(raw)
 	}
-	err := filepath.WalkDir(res.SkillDir, func(p string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return err
-		}
-		raw, err := os.ReadFile(p)
+	for _, skill := range res.Skills {
+		err := filepath.WalkDir(skill.Path, func(p string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			raw, err := os.ReadFile(p)
+			if err != nil {
+				return err
+			}
+			rel, err := filepath.Rel(skill.Path, p)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(h, "skill\x00%s\x00%s\x00%s\x00%d\x00",
+				skill.Source, skill.ID, filepath.ToSlash(rel), len(raw))
+			h.Write(raw)
+			return nil
+		})
 		if err != nil {
-			return err
+			return "", err
 		}
-		rel, err := filepath.Rel(res.SkillDir, p)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(h, "skill\x00%s\x00%d\x00", filepath.ToSlash(rel), len(raw))
-		h.Write(raw)
-		return nil
-	})
-	if err != nil {
-		return "", err
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func validateSelectedSkills(skills []resolver.Selected) error {
+	if len(skills) == 0 {
+		return fmt.Errorf("composition selected no personality skills")
+	}
+	for _, skill := range skills {
+		if !safeSegment(skill.Source) || !safeSegment(skill.ID) {
+			return fmt.Errorf("selected identity path %q/%q is unsafe", skill.Source, skill.ID)
+		}
+	}
+	return nil
 }
 
 func copyTree(src, dst string) error {

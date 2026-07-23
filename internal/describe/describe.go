@@ -31,7 +31,7 @@ func Bundle(dir string, opts Options) (string, error) {
 	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "bundle %s · %s/%s · %s/%s%s\n",
-		filepath.Base(dir), manifest.Role, manifest.Personality,
+		filepath.Base(dir), manifest.Role, strings.Join(manifest.Personalities, "+"),
 		manifest.Delivery.Mode, manifest.Density, favoriteSuffix(manifest, opts))
 
 	sections := []struct {
@@ -124,8 +124,8 @@ func Diff(leftDir, rightDir string) (string, error) {
 	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "%s/%s (%s/%s) → %s/%s (%s/%s)\n",
-		leftManifest.Role, leftManifest.Personality, leftManifest.Delivery.Mode, leftManifest.Density,
-		rightManifest.Role, rightManifest.Personality, rightManifest.Delivery.Mode, rightManifest.Density)
+		leftManifest.Role, strings.Join(leftManifest.Personalities, "+"), leftManifest.Delivery.Mode, leftManifest.Density,
+		rightManifest.Role, strings.Join(rightManifest.Personalities, "+"), rightManifest.Delivery.Mode, rightManifest.Density)
 
 	left, right := bySubject(leftTrace), bySubject(rightTrace)
 	var subjects []string
@@ -215,24 +215,21 @@ func selectionHint(d resolver.Decision, manifest *bundle.Manifest) string {
 		if bound.Skill != skillID {
 			continue
 		}
-		if contains(p.Roles[manifest.Role].Personalities, personality) {
-			return fmt.Sprintf("would select under: personality %q (compatible with role %q)", personality, manifest.Role)
-		}
-		return fmt.Sprintf("personality %q binds it, but role %q does not pair with that personality", personality, manifest.Role)
+		return fmt.Sprintf("personality %q binds it, but role %q does not activate that personality", personality, manifest.Role)
 	}
 	return "no personality binds this skill"
 }
 
-// favoriteSuffix appends the composed favorite color: hex always, a tinted
+// favoriteSuffix appends the role's melded favorite color: hex always, a tinted
 // swatch only where a terminal will render it.
 func favoriteSuffix(manifest *bundle.Manifest, opts Options) string {
 	if manifest.Color == "" {
 		return ""
 	}
 	if !opts.Color {
-		return " · favorite " + manifest.Color
+		return " · melded " + manifest.Color
 	}
-	return " · favorite " + manifest.Color + " " + color.ANSI(manifest.Color, "■", opts.TrueColor)
+	return " · melded " + manifest.Color + " " + color.ANSI(manifest.Color, "■", opts.TrueColor)
 }
 
 func symbol(outcome string, opts Options) string {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 )
 
@@ -19,20 +20,27 @@ func composeFixture(t *testing.T, name string) string {
 }
 
 func TestBundleRendersSections(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	personalitySet := strings.Join(p.Roles["engineer"].Personalities, "+")
 	dir := composeFixture(t, "native-full.kdl")
 	out, err := Bundle(dir, Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"engineer/curious",
-		"favorite #d98e48",
+		"engineer/" + personalitySet,
+		"melded #",
 		"\nprofile\n", "\nsources\n", "\nselection\n", "\ndelivery\n",
 		"role engineer", "person \"kai\" defines this role",
-		"personality curious", "compatible set: curious, grounded, meticulous",
+		"personality curious", "activates its full personality set",
 		"✓ person:kai",
 		"✓ aos-public",
 		"✓ skill personality-curious",
+		"✓ skill personality-grounded",
+		"✓ skill personality-meticulous",
 		"✗ skill fixture-review",
 		"→ content/skills",
 		"machine-readable trace: trace.json",
@@ -66,14 +74,14 @@ func TestCollapseFoldsLargeExclusionGroups(t *testing.T) {
 func TestWhyFollowsOneItem(t *testing.T) {
 	dir := composeFixture(t, "native-full.kdl")
 
-	out, err := Why(dir, "skill:personality-grounded", Options{})
+	out, err := Why(dir, "skill:fixture-review", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
 		"outcome: excluded",
 		"considered: declared by aos-public",
-		`would select under: personality "grounded" (compatible with role "engineer")`,
+		"no personality binds this skill",
 	} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("why output missing %q:\n%s", want, out)
@@ -94,17 +102,22 @@ func TestWhyFollowsOneItem(t *testing.T) {
 }
 
 func TestDiffReportsSemanticChanges(t *testing.T) {
-	full := composeFixture(t, "native-full.kdl")
-	brief := composeFixture(t, "native-brief.kdl")
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	identity := "engineer/" + strings.Join(p.Roles["engineer"].Personalities, "+")
+	full := composeFixture(t, "compiled-full.kdl")
+	brief := composeFixture(t, "compiled-brief.kdl")
 
 	out, err := Diff(full, brief)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"engineer/curious", "engineer/meticulous",
-		"~ skill personality-curious", "selected → excluded",
-		"~ skill personality-meticulous",
+		identity,
+		"+ skill personality-grounded/BRIEF.md",
+		"+ skill personality-curious/SKILL.md",
 		"decisions unchanged",
 	} {
 		if !strings.Contains(out, want) {

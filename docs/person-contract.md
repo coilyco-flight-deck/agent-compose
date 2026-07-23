@@ -15,8 +15,9 @@ person "kai" {
 }
 ```
 
-A role names its purpose, the personalities compatible with it, and its named
-agent seats. The embedded roster contains this approved compatibility matrix:
+A role names its purpose, the two or three personalities it wears together,
+and its named agent seats. The loader rejects any other cardinality or a
+repeated personality. The embedded roster contains this approved meld matrix:
 
 * `director` - `bold`, `grounded`, `diplomatic`
 * `advisor` - `reflective`, `curious`, `candid`
@@ -42,11 +43,10 @@ in SKILL.md) is deliberately undecided in v0.1.
 Every canonical personality declares one hex `color` in the embedded person
 source, which owns the exact palette. The parse-time gate requires OKLab
 lightness 0.60-0.80 and chroma of at least 0.05, keeping colors readable on dark
-and light terminals. A single-personality composition carries that favorite in
-the bundle manifest. An identity composed of several personalities derives its
-favorite as the OKLab centroid of the component colors, restores chroma to the
-components' minimum, and clamps it into the band - the perceptual middle, never
-gray.
+and light terminals. Every role composition derives its favorite from all
+active personalities as the OKLab centroid of the component colors, restores
+chroma to the components' minimum, and clamps it into the band - the perceptual
+middle, never gray.
 
 ## Agent seats
 
@@ -65,13 +65,13 @@ named roles (engineer, director, qa, advisor, ops, pm) retain twelve seats.
 Designer, Customer Success, Social, and Sales have no approved harness names.
 
 Seats are personality-neutral: an `agent` node declares only its harness,
-name, and optional pronouns. It neither selects nor defaults a personality; a
-compose request selects a role and a compatible personality explicitly. The
-catalog binding is embedded policy, while its externally supplied skill body
-can remain visibly pending in roster output.
+name, and optional pronouns. It neither selects nor defaults a personality. A
+compose request selects a role, and that role activates every personality in
+its ordered set. The catalog bindings are embedded policy, while externally
+supplied skill bodies can remain visibly pending in roster output.
 
 A private overlay may add scoped instructions or selection rules. It may not
-redefine canonical roles, personalities, seats, or compatibility. AOS owns no
+redefine canonical roles, personalities, seats, or role personality sets. AOS owns no
 copy of this person source.
 
 ## See also

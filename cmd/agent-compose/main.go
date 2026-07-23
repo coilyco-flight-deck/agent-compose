@@ -253,9 +253,13 @@ func runVerify(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	manifest := verification.Manifest
-	fmt.Printf("bundle verified: role=%s personality=%s delivery=%s identity=%s/%s files=%d\n",
-		manifest.Role, manifest.Personality, manifest.Delivery.Mode,
-		verification.IdentitySource, verification.IdentitySkill, verification.Files)
+	identities := make([]string, 0, len(verification.Identities))
+	for _, identity := range verification.Identities {
+		identities = append(identities, identity.Source+"/"+identity.Skill)
+	}
+	fmt.Printf("bundle verified: role=%s personalities=%s delivery=%s identities=%s files=%d\n",
+		manifest.Role, strings.Join(manifest.Personalities, ","), manifest.Delivery.Mode,
+		strings.Join(identities, ","), verification.Files)
 	return nil
 }
 
@@ -413,8 +417,9 @@ func printSummary(r *compose.Result) {
 	}
 	req := r.Resolution.Request
 	fmt.Printf("bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Printf("  role %s · personality %s · delivery %s · density %s\n",
-		req.Role, req.Personality, req.Delivery, req.Density)
+	fmt.Printf("  role %s · personalities %s · melded %s · delivery %s · density %s\n",
+		req.Role, strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
+		req.Delivery, req.Density)
 	fmt.Printf("  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
 	fmt.Printf("  decisions: %d selected · %d excluded · %d shadowed · %d fallback · %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],

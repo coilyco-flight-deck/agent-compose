@@ -7,10 +7,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
 func composeFixture(t *testing.T, name string) string {
@@ -49,12 +51,14 @@ func TestProjectNativeLayouts(t *testing.T) {
 			if !strings.Contains(readTarget(t, target, want.instructions), "Fixture foundation") {
 				t.Fatal("instructions load point missing foundation content")
 			}
-			skill := readTarget(t, target, want.skillsDir+"/personality-curious/SKILL.md")
-			if !strings.Contains(skill, "# Curious") {
-				t.Fatalf("skill load point wrong content:\n%s", skill)
+			for _, identity := range activePersonalitySkills(t, "engineer") {
+				skill := readTarget(t, target, want.skillsDir+"/"+identity+"/SKILL.md")
+				if !strings.Contains(skill, skillHeading(identity)) {
+					t.Fatalf("skill load point %s has wrong content:\n%s", identity, skill)
+				}
 			}
-			if len(result.Files) != 2 {
-				t.Fatalf("expected 2 projected files, got %v", result.Files)
+			if len(result.Files) < 2 {
+				t.Fatalf("expected instructions and personality files, got %v", result.Files)
 			}
 		})
 	}
@@ -75,8 +79,11 @@ func TestProjectCompiledLayouts(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !strings.Contains(readTarget(t, target, instructions), "# Grounded") {
-				t.Fatalf("%s load point missing compiled prose", layout)
+			compiled := readTarget(t, target, instructions)
+			for _, identity := range activePersonalitySkills(t, "engineer") {
+				if !strings.Contains(compiled, skillHeading(identity)) {
+					t.Fatalf("%s load point missing compiled prose for %s", layout, identity)
+				}
 			}
 			if len(result.Files) != 1 {
 				t.Fatalf("compiled projection must place one file, got %v", result.Files)
@@ -127,6 +134,7 @@ func TestHomeScopeProjection(t *testing.T) {
 	compiled := composeFixture(t, "compiled-full.kdl")
 	nativeBefore := treeFingerprint(t, native)
 	compiledBefore := treeFingerprint(t, compiled)
+	expectedIdentities := activePersonalitySkills(t, "engineer")
 	cases := map[string]struct{ instructions, skillsDir string }{
 		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
 		"codex":    {".codex/AGENTS.md", ".agents/skills"},
@@ -142,12 +150,13 @@ func TestHomeScopeProjection(t *testing.T) {
 			if !strings.Contains(readTarget(t, home, want.instructions), "Fixture foundation") {
 				t.Fatalf("home instructions load point %s missing content", want.instructions)
 			}
-			if !strings.Contains(readTarget(t, home, want.skillsDir+"/personality-curious/SKILL.md"), "# Curious") {
-				t.Fatal("home skills load point missing skill tree")
+			for _, identity := range expectedIdentities {
+				readTarget(t, home, want.skillsDir+"/"+identity+"/SKILL.md")
 			}
 			identities := projectedIdentities(t, home)
-			if len(identities) != 1 || identities[0] != "personality-curious" {
-				t.Fatalf("native home must hold exactly the selected identity, got %v", identities)
+			slices.Sort(identities)
+			if !slices.Equal(identities, expectedIdentities) {
+				t.Fatalf("native home identities = %v, want %v", identities, expectedIdentities)
 			}
 
 			home = t.TempDir()
@@ -155,11 +164,10 @@ func TestHomeScopeProjection(t *testing.T) {
 				t.Fatal(err)
 			}
 			compiledContext := readTarget(t, home, want.instructions)
-			if !strings.Contains(compiledContext, "# Grounded") {
-				t.Fatal("home compiled load point missing prose")
-			}
-			if strings.Contains(compiledContext, "# Curious") || strings.Contains(compiledContext, "# Meticulous") {
-				t.Fatal("home compiled load point contains an unselected identity")
+			for _, identity := range expectedIdentities {
+				if !strings.Contains(compiledContext, skillHeading(identity)) {
+					t.Fatalf("home compiled load point missing %s", identity)
+				}
 			}
 			if identities := projectedIdentities(t, home); len(identities) != 0 {
 				t.Fatalf("compiled home unexpectedly mounted identity trees: %v", identities)
@@ -178,10 +186,10 @@ func TestHomeScopeProjection(t *testing.T) {
 	}
 }
 
-func TestReprojectionReplacesOwnFilesOnly(t *testing.T) {
+func TestReprojectionPreservesEquivalentPersonalitySetAndForeignFiles(t *testing.T) {
 	target := t.TempDir()
-	curious := composeFixture(t, "native-full.kdl")
-	if _, err := Project(curious, "claude", target); err != nil {
+	full := composeFixture(t, "native-full.kdl")
+	if _, err := Project(full, "claude", target); err != nil {
 		t.Fatal(err)
 	}
 	foreign := filepath.Join(target, "notes.md")
@@ -189,23 +197,22 @@ func TestReprojectionReplacesOwnFilesOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	meticulous := composeFixture(t, "native-brief.kdl")
-	result, err := Project(meticulous, "claude", target)
+	brief := composeFixture(t, "native-brief.kdl")
+	result, err := Project(brief, "claude", target)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(readTarget(t, target, ".claude/skills/personality-meticulous/SKILL.md"), "# Meticulous") {
-		t.Fatal("new skill missing after re-projection")
-	}
-	if _, err := os.Stat(filepath.Join(target, ".claude", "skills", "personality-curious")); !os.IsNotExist(err) {
-		t.Fatal("stale skill must be removed on re-projection")
+	for _, identity := range activePersonalitySkills(t, "engineer") {
+		if _, err := os.Stat(filepath.Join(target, ".claude", "skills", identity)); err != nil {
+			t.Fatalf("active identity %s missing after re-projection: %v", identity, err)
+		}
 	}
 	if raw, _ := os.ReadFile(foreign); string(raw) != "keep me\n" {
 		t.Fatal("foreign file must survive re-projection")
 	}
 	for _, rel := range result.Files {
-		if strings.Contains(rel, "curious") {
-			t.Fatalf("sidecar still lists stale file %s", rel)
+		if strings.Contains(rel, "fixture-review") {
+			t.Fatalf("sidecar lists an excluded skill %s", rel)
 		}
 	}
 }
@@ -324,6 +331,29 @@ func projectedIdentities(t *testing.T, root string) []string {
 		t.Fatal(err)
 	}
 	return identities
+}
+
+func activePersonalitySkills(t *testing.T, roleName string) []string {
+	t.Helper()
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	role, ok := p.Roles[roleName]
+	if !ok {
+		t.Fatalf("fixture role %q is absent", roleName)
+	}
+	skills := make([]string, 0, len(role.Personalities))
+	for _, personalityName := range role.Personalities {
+		skills = append(skills, p.Personalities[personalityName].Skill)
+	}
+	slices.Sort(skills)
+	return skills
+}
+
+func skillHeading(skillID string) string {
+	name := strings.TrimPrefix(skillID, "personality-")
+	return "# " + strings.ToUpper(name[:1]) + name[1:]
 }
 
 func treeFingerprint(t *testing.T, root string) string {

@@ -29,8 +29,8 @@ type Role struct {
 	Seats         []Seat
 }
 
-// Personality binds a name to the skill defining it and an optional
-// terminal-legible favorite color.
+// Personality binds a name to the skill defining it and a terminal-legible
+// favorite color.
 type Personality struct {
 	Skill string
 	Color string
@@ -119,6 +119,16 @@ func parse(raw []byte) (*Person, error) {
 					return nil, fmt.Errorf("role %q: unknown node %q", name, c.Name())
 				}
 			}
+			if len(role.Personalities) < 2 || len(role.Personalities) > 3 {
+				return nil, fmt.Errorf("role %q needs two or three personalities, got %d", name, len(role.Personalities))
+			}
+			seenPersonalities := map[string]bool{}
+			for _, personalityName := range role.Personalities {
+				if seenPersonalities[personalityName] {
+					return nil, fmt.Errorf("role %q repeats personality %q", name, personalityName)
+				}
+				seenPersonalities[personalityName] = true
+			}
 			p.Roles[name] = role
 			p.RoleOrder = append(p.RoleOrder, name)
 		case "personality":
@@ -134,12 +144,13 @@ func parse(raw []byte) (*Person, error) {
 			if !skill.IsValid() {
 				return nil, fmt.Errorf("personality %q needs a skill property", name)
 			}
-			personality := Personality{Skill: skill.String()}
-			if c := n.Prop("color"); c.IsValid() {
-				personality.Color = c.String()
-				if err := color.Legible(personality.Color); err != nil {
-					return nil, fmt.Errorf("personality %q: %w", name, err)
-				}
+			favorite := n.Prop("color")
+			if !favorite.IsValid() {
+				return nil, fmt.Errorf("personality %q needs a color property", name)
+			}
+			personality := Personality{Skill: skill.String(), Color: favorite.String()}
+			if err := color.Legible(personality.Color); err != nil {
+				return nil, fmt.Errorf("personality %q: %w", name, err)
 			}
 			p.Personalities[name] = personality
 		default:

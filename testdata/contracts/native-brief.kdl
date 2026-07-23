@@ -1,6 +1,5 @@
 compose {
     role "engineer"
-    personality "meticulous"
     delivery "native-skills"
     density "brief"
     source "aos-public" declaration="source-public.kdl" required=#true

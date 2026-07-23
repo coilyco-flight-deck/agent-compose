@@ -6,18 +6,17 @@ compiles, and installs that knowledge for a harness. Ward supplies runtime facts
 and executable authority without placing either inside the context bundle.
 
 Personality is the first opinionated policy domain built on that substrate.
-Agent-compose resolves a role and personality against embedded personal policy
-plus admitted sources, then materializes the selected context as an immutable
-bundle for a harness to load. Native harnesses can use the same substrate
-without Ward.
+Agent-compose resolves a role into its complete ordered personality set against
+embedded personal policy plus admitted sources, then materializes the combined
+context as an immutable bundle for a harness to load. Native harnesses can use
+the same substrate without Ward.
 
 ## Composition inputs
 
 The caller supplies every input. Agent-compose infers nothing about the agent:
 
-* `role` - the caller names it and the person source validates it.
-* `personality` - the caller names it and the person source validates the
-  role pairing.
+* `role` - the caller names it, the person source validates it, and the role
+  activates every personality it declares.
 * `density` - how much personality prose the bundle carries. A caller usually
   derives it from model class: a frontier model needs one sentence where a
   small local model needs the one-pager. No model name enters a request.
@@ -48,10 +47,10 @@ v0.1 rather than adding an override grammar.
 
 ## Composition flow
 
-Agent-compose loads the embedded person source, validates the role and
-personality pairing, selects matching instructions and personality skills from
-each source, chooses delivery, and materializes the bundle. It records what it
-picked and why as each decision occurs.
+Agent-compose loads the embedded person source, validates the role, selects
+matching instructions and every skill bound by the role's personalities,
+derives their melded favorite color, chooses delivery, and materializes the
+bundle. It records what it picked and why as each decision occurs.
 
 ## Integration obligations
 

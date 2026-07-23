@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -38,15 +39,15 @@ type Selected struct {
 // Resolution is the full composition plan: what was selected, how it is
 // delivered, and the trace built while those choices were made.
 type Resolution struct {
-	Request       *schema.Request
-	Person        *person.Person
-	Instructions  []Selected
-	Skill         Selected
-	SkillDir      string
-	CompiledBody  string
-	FavoriteColor string
-	Decisions     []Decision
-	SourceIDs     []string
+	Request        *schema.Request
+	Person         *person.Person
+	Personalities  []string
+	Instructions   []Selected
+	Skills         []Selected
+	CompiledBodies []string
+	FavoriteColor  string
+	Decisions      []Decision
+	SourceIDs      []string
 }
 
 func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, missing []schema.MissingSource) (*Resolution, error) {
@@ -55,25 +56,38 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		return nil, fmt.Errorf("role %q is not defined by person %q; defined roles: %s",
 			req.Role, p.Name, strings.Join(sortedKeys(p.Roles), ", "))
 	}
-	binding, ok := p.Personalities[req.Personality]
-	if !ok {
-		return nil, fmt.Errorf("personality %q is not defined by person %q; defined personalities: %s",
-			req.Personality, p.Name, strings.Join(sortedKeys(p.Personalities), ", "))
-	}
-	boundSkill := binding.Skill
-	allowed := false
-	for _, name := range role.Personalities {
-		if name == req.Personality {
-			allowed = true
-			break
-		}
-	}
-	if !allowed {
-		return nil, fmt.Errorf("role %q does not pair with personality %q; compatible personalities: %s",
-			req.Role, req.Personality, strings.Join(role.Personalities, ", "))
+	if len(role.Personalities) == 0 {
+		return nil, fmt.Errorf("role %q defines no personalities", req.Role)
 	}
 
-	res := &Resolution{Request: req, Person: p, FavoriteColor: binding.Color, SourceIDs: []string{"person:" + p.Name}}
+	activeBySkill := make(map[string]string, len(role.Personalities))
+	activeSkills := make([]string, 0, len(role.Personalities))
+	colors := make([]string, 0, len(role.Personalities))
+	for _, name := range role.Personalities {
+		binding, ok := p.Personalities[name]
+		if !ok {
+			return nil, fmt.Errorf("role %q names personality %q without a catalog binding", req.Role, name)
+		}
+		if prior, duplicate := activeBySkill[binding.Skill]; duplicate {
+			return nil, fmt.Errorf("role %q personalities %q and %q bind the same skill %q",
+				req.Role, prior, name, binding.Skill)
+		}
+		activeBySkill[binding.Skill] = name
+		activeSkills = append(activeSkills, binding.Skill)
+		colors = append(colors, binding.Color)
+	}
+	favorite, err := color.Favorite(colors)
+	if err != nil {
+		return nil, fmt.Errorf("derive favorite color for role %q: %w", req.Role, err)
+	}
+
+	res := &Resolution{
+		Request:       req,
+		Person:        p,
+		Personalities: append([]string(nil), role.Personalities...),
+		FavoriteColor: favorite,
+		SourceIDs:     []string{"person:" + p.Name},
+	}
 	for _, src := range sources {
 		res.SourceIDs = append(res.SourceIDs, src.ID)
 	}
@@ -82,11 +96,13 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Outcome: OutcomeSelected,
 		Reason:  fmt.Sprintf("person %q defines this role: %s", p.Name, role.Purpose),
 	})
-	res.decide(Decision{
-		Subject: "personality:" + req.Personality, Kind: "profile", Source: "person:" + p.Name,
-		Outcome: OutcomeSelected,
-		Reason:  fmt.Sprintf("pairs with role %q; compatible set: %s", req.Role, strings.Join(role.Personalities, ", ")),
-	})
+	for _, name := range role.Personalities {
+		res.decide(Decision{
+			Subject: "personality:" + name, Kind: "profile", Source: "person:" + p.Name,
+			Outcome: OutcomeSelected,
+			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
+		})
+	}
 	for _, m := range missing {
 		res.decide(Decision{
 			Subject: "source:" + m.ID, Kind: "source", Source: m.ID,
@@ -96,8 +112,8 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 
 	instructionBytes := map[string][]byte{}
 	instructionOwner := map[string]string{}
-	skillFound := false
-	var skillDigest string
+	selectedBySkill := map[string]Selected{}
+	skillDigests := map[string]string{}
 	for _, src := range sources {
 		for _, ref := range src.Instructions {
 			abs := filepath.Join(src.Root, ref.Path)
@@ -127,11 +143,13 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		}
 		for _, ref := range src.Skills {
 			abs := filepath.Join(src.Root, ref.Path)
-			if ref.ID != boundSkill {
+			personalityName, active := activeBySkill[ref.ID]
+			if !active {
 				res.decide(Decision{
 					Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
 					Outcome: OutcomeExcluded,
-					Reason:  fmt.Sprintf("personality %q binds skill %q, not this one", req.Personality, boundSkill),
+					Reason: fmt.Sprintf("role %q activates personalities %s, which bind skills %s",
+						req.Role, strings.Join(role.Personalities, ", "), strings.Join(activeSkills, ", ")),
 				})
 				continue
 			}
@@ -139,35 +157,35 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			if err != nil {
 				return nil, fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)
 			}
-			if skillFound {
-				if digest == skillDigest {
+			if selected, found := selectedBySkill[ref.ID]; found {
+				if digest == skillDigests[ref.ID] {
 					res.decide(Decision{
 						Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
 						Outcome: OutcomeShadowed,
-						Reason:  fmt.Sprintf("identical to the copy already selected from %s", res.Skill.Source),
+						Reason:  fmt.Sprintf("identical to the copy already selected from %s", selected.Source),
 					})
 					continue
 				}
 				return nil, fmt.Errorf("skill %q from %s conflicts with a different copy from %s; v0.1 fails non-identical collisions",
-					ref.ID, src.ID, res.Skill.Source)
+					ref.ID, src.ID, selected.Source)
 			}
-			skillFound = true
-			skillDigest = digest
-			res.Skill = Selected{ID: ref.ID, Source: src.ID, Path: abs}
-			res.SkillDir = abs
+			selectedBySkill[ref.ID] = Selected{ID: ref.ID, Source: src.ID, Path: abs}
+			skillDigests[ref.ID] = digest
 			res.decide(Decision{
 				Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
 				Outcome: OutcomeSelected,
-				Reason:  fmt.Sprintf("personality %q binds this skill", req.Personality),
+				Reason:  fmt.Sprintf("active personality %q binds this skill", personalityName),
 			})
 		}
 	}
 
-	if !skillFound {
-		return nil, fmt.Errorf("personality %q binds skill %q, but no admitted source provides it", req.Personality, boundSkill)
-	}
-	if len(res.Instructions) == 0 && !skillFound {
-		return nil, fmt.Errorf("composition selected nothing; check the request sources")
+	for _, name := range role.Personalities {
+		boundSkill := p.Personalities[name].Skill
+		selected, found := selectedBySkill[boundSkill]
+		if !found {
+			return nil, fmt.Errorf("personality %q binds skill %q, but no admitted source provides it", name, boundSkill)
+		}
+		res.Skills = append(res.Skills, selected)
 	}
 
 	if err := res.planDelivery(); err != nil {
@@ -176,8 +194,8 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	return res, nil
 }
 
-// planDelivery chooses entry points and, for compiled delivery, which skill
-// document becomes the compiled prose at the requested density.
+// planDelivery chooses entry points and, for compiled delivery, which document
+// represents each active personality at the requested density.
 func (r *Resolution) planDelivery() error {
 	r.decide(Decision{
 		Subject: "content/instructions.md", Kind: "delivery",
@@ -190,30 +208,32 @@ func (r *Resolution) planDelivery() error {
 	if r.Request.Delivery != schema.DeliveryCompiled {
 		return nil
 	}
-	full := filepath.Join(r.SkillDir, "SKILL.md")
-	body := full
-	if r.Request.Density == schema.DensityBrief {
-		brief := filepath.Join(r.SkillDir, "BRIEF.md")
-		if _, err := os.Stat(brief); err == nil {
-			body = brief
-			r.decide(Decision{
-				Subject: "skill:" + r.Skill.ID + "/BRIEF.md", Kind: "delivery", Source: r.Skill.Source,
-				Outcome: OutcomeSelected, Reason: "brief density prefers BRIEF.md when the skill provides one",
-			})
-		} else {
-			r.decide(Decision{
-				Subject: "skill:" + r.Skill.ID + "/SKILL.md", Kind: "delivery", Source: r.Skill.Source,
-				Outcome: OutcomeFallback, Reason: "brief density requested but the skill provides no BRIEF.md",
-			})
+	for _, skill := range r.Skills {
+		full := filepath.Join(skill.Path, "SKILL.md")
+		body := full
+		if r.Request.Density == schema.DensityBrief {
+			brief := filepath.Join(skill.Path, "BRIEF.md")
+			if _, err := os.Stat(brief); err == nil {
+				body = brief
+				r.decide(Decision{
+					Subject: "skill:" + skill.ID + "/BRIEF.md", Kind: "delivery", Source: skill.Source,
+					Outcome: OutcomeSelected, Reason: "brief density prefers BRIEF.md when the skill provides one",
+				})
+			} else {
+				r.decide(Decision{
+					Subject: "skill:" + skill.ID + "/SKILL.md", Kind: "delivery", Source: skill.Source,
+					Outcome: OutcomeFallback, Reason: "brief density requested but the skill provides no BRIEF.md",
+				})
+			}
 		}
+		if _, err := os.Stat(body); err != nil {
+			return fmt.Errorf("skill %q: compiled delivery needs %s: %w", skill.ID, filepath.Base(body), err)
+		}
+		r.CompiledBodies = append(r.CompiledBodies, body)
 	}
-	if _, err := os.Stat(body); err != nil {
-		return fmt.Errorf("skill %q: compiled delivery needs %s: %w", r.Skill.ID, filepath.Base(body), err)
-	}
-	r.CompiledBody = body
 	r.decide(Decision{
 		Subject: "delivery/compiled.md", Kind: "delivery",
-		Outcome: OutcomeDelivered, Reason: "selected instructions and skill prose compiled into one context document",
+		Outcome: OutcomeDelivered, Reason: "selected instructions and all active personality prose compiled into one context document",
 	})
 	return nil
 }

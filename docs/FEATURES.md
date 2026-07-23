@@ -12,9 +12,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
-* Embedded source carries ten roles, the approved matrix, 16 catalog bindings,
-  and twelve named pronoun-bearing seats. Unavailable external skill bodies
-  remain pending in roster output.
+* Embedded source carries ten roles, the approved meld matrix, 16 catalog
+  bindings, and twelve named seats. A role activates its full ordered
+  personality set; unavailable skill bodies stay pending in roster output.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic, content-keyed materialization verifies staged and reused bundles;
@@ -43,20 +43,19 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   sections with collapse for large exclusion groups; `--why` follows one item
   from consideration to outcome, including what would have selected it.
 * `agent-compose diff` reports semantic changes; `verify` checks safe entry
-  points, delivery data, trace integrity, and exactly one selected identity.
+  points, delivery data, trace integrity, and the complete selected identity
+  set.
   `compose --explain` appends the full tree to the one-screen summary.
 * Color only on a TTY with NO_COLOR unset; redirected output stays plain and
   deterministic, and trace.json is the machine-readable surface.
-* Favorite colors: personality hex colors gated at parse time into the
-  terminal-legible OKLab band; the composed favorite rides the manifest, and
-  multi-component favorites derive as the chroma-restored OKLab centroid.
+* Favorite colors pass a terminal-legible OKLab gate. Each role's manifest
+  carries the chroma-restored centroid of its active personality colors.
 
 ## Roster artifact and cascade
 
 * `agent-compose roster --out <dir>` renders the seat dispatch table as a
-  cascade source: seat identities, compatible personalities with colors,
-  personality bodies, and a claude `@`-import override. Missing bound external
-  bodies get pending markers; output is sidecar-owned.
+  cascade source: seats, melded personalities, component and derived colors,
+  bodies, and a claude `@`-import override. Missing bodies stay pending.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,

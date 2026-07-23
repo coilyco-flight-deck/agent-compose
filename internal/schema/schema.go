@@ -17,11 +17,10 @@ const (
 )
 
 type Request struct {
-	Role        string
-	Personality string
-	Delivery    string
-	Density     string
-	Sources     []SourceLocator
+	Role     string
+	Delivery string
+	Density  string
+	Sources  []SourceLocator
 }
 
 type SourceLocator struct {
@@ -67,7 +66,7 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
-		case "role", "personality", "delivery", "density":
+		case "role", "delivery", "density":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -79,8 +78,6 @@ func ParseRequest(path string) (*Request, error) {
 			switch n.Name() {
 			case "role":
 				req.Role = v
-			case "personality":
-				req.Personality = v
 			case "delivery":
 				req.Delivery = v
 			case "density":
@@ -111,8 +108,7 @@ func ParseRequest(path string) (*Request, error) {
 	}
 
 	for _, field := range []struct{ name, value string }{
-		{"role", req.Role}, {"personality", req.Personality},
-		{"delivery", req.Delivery}, {"density", req.Density},
+		{"role", req.Role}, {"delivery", req.Delivery}, {"density", req.Density},
 	} {
 		if field.value == "" {
 			return nil, fmt.Errorf("request %s: missing %s", path, field.name)

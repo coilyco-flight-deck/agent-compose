@@ -26,8 +26,8 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
         purpose "Build."
         personality "bright" "steady"
     }
-    personality "bright" skill="personality-bright"
-    personality "steady" skill="personality-steady"
+    personality "bright" skill="personality-bright" color="#d98e48"
+    personality "steady" skill="personality-steady" color="#5fa87a"
 }`
 	p, err := parse([]byte(body))
 	if err != nil {
@@ -49,6 +49,15 @@ func TestParseRejectsIllegibleColor(t *testing.T) {
 }`
 	if _, err := parse([]byte(body)); err == nil {
 		t.Fatal("an illegible color must fail the parse-time gate")
+	}
+}
+
+func TestParseRejectsMissingColor(t *testing.T) {
+	body := `person "fixture" {
+    personality "bright" skill="personality-bright"
+}`
+	if _, err := parse([]byte(body)); err == nil {
+		t.Fatal("a personality without a color must fail the parse-time gate")
 	}
 }
 
@@ -86,10 +95,37 @@ func TestParseRejectsRolePersonalityWithoutCatalogBinding(t *testing.T) {
 	body := `person "fixture" {
     role "builder" {
         purpose "Build."
-        personality "bright"
+        personality "bright" "steady"
     }
 }`
 	if _, err := parse([]byte(body)); err == nil {
 		t.Fatal("role personality without a catalog binding must fail")
+	}
+}
+
+func TestParseRejectsRolePersonalityCardinalityAndDuplicates(t *testing.T) {
+	cases := map[string]string{
+		"one personality": `person "fixture" {
+    role "builder" {
+        personality "bright"
+    }
+}`,
+		"four personalities": `person "fixture" {
+    role "builder" {
+        personality "one" "two" "three" "four"
+    }
+}`,
+		"duplicate personality": `person "fixture" {
+    role "builder" {
+        personality "bright" "bright"
+    }
+}`,
+	}
+	for name, body := range cases {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(body)); err == nil {
+				t.Fatal("invalid role personality set must fail")
+			}
+		})
 	}
 }

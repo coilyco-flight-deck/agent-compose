@@ -6,21 +6,22 @@ selection.
 
 ## Compose request
 
-A request names a role, a personality, a delivery mode, a density, and the
-sources personality files come from:
+A request names a role, a delivery mode, a density, and the sources personality
+files come from:
 
 ```kdl
 compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     source "aos-public" declaration="source-public.kdl" required=#true
 }
 ```
 
+The role activates its complete ordered personality set from the embedded
+person source. A request cannot narrow that set with a personality selector.
 `delivery` is `native-skills` or `compiled`. `density` is `brief` or `full`
-and only changes how much personality prose the bundle carries; a caller
+and only changes how much personality prose the bundle carries. A caller
 usually derives it from model class. Nothing else about the agent - model,
 harness, reasoning effort, interactivity - appears in a request.
 

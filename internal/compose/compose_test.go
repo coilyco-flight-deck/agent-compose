@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
 func fixture(t *testing.T, name string) string {
@@ -29,13 +32,26 @@ func readManifest(t *testing.T, dir string) bundle.Manifest {
 }
 
 func TestComposeAllFixtures(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantPersonalities := p.Roles["engineer"].Personalities
+	var componentColors []string
+	for _, personalityName := range wantPersonalities {
+		componentColors = append(componentColors, p.Personalities[personalityName].Color)
+	}
+	wantColor, err := color.Favorite(componentColors)
+	if err != nil {
+		t.Fatal(err)
+	}
 	cases := map[string]struct {
-		personality, mode, density string
+		mode, density string
 	}{
-		"native-full.kdl":    {"curious", "native-skills", "full"},
-		"native-brief.kdl":   {"meticulous", "native-skills", "brief"},
-		"compiled-full.kdl":  {"grounded", "compiled", "full"},
-		"compiled-brief.kdl": {"grounded", "compiled", "brief"},
+		"native-full.kdl":    {"native-skills", "full"},
+		"native-brief.kdl":   {"native-skills", "brief"},
+		"compiled-full.kdl":  {"compiled", "full"},
+		"compiled-brief.kdl": {"compiled", "brief"},
 	}
 	for name, want := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -46,20 +62,22 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			m := readManifest(t, result.Bundle.Dir)
 			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
-				m.Personality != want.personality || m.Density != want.density ||
+				!slices.Equal(m.Personalities, wantPersonalities) || m.Density != want.density ||
 				m.Delivery.Mode != want.mode {
 				t.Fatalf("unexpected manifest: %+v", m)
 			}
 			if len(m.Sources) != 2 || m.Sources[0] != "person:kai" || m.Sources[1] != "aos-public" {
 				t.Fatalf("unexpected sources: %+v", m.Sources)
 			}
-			if m.Color == "" {
-				t.Fatalf("manifest must carry the personality's favorite color: %+v", m)
+			if m.Color != wantColor {
+				t.Fatalf("manifest color = %q, want melded %q", m.Color, wantColor)
 			}
 			mustExist(t, result.Bundle.Dir, "content/instructions.md")
 			mustExist(t, result.Bundle.Dir, "trace.json")
-			skillPath := "content/skills/aos-public/personality-" + want.personality + "/SKILL.md"
-			mustExist(t, result.Bundle.Dir, skillPath)
+			for _, personalityName := range wantPersonalities {
+				skillPath := "content/skills/aos-public/personality-" + personalityName + "/SKILL.md"
+				mustExist(t, result.Bundle.Dir, skillPath)
+			}
 			if want.mode == "compiled" {
 				if m.Delivery.CompiledContext != "delivery/compiled.md" || m.Delivery.SkillsRoot != "" {
 					t.Fatalf("unexpected compiled delivery: %+v", m.Delivery)
@@ -92,11 +110,18 @@ func TestCompiledDensityChangesProse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(fullBody), "# Grounded") {
-		t.Fatalf("full compiled prose missing skill body:\n%s", fullBody)
+	for _, heading := range []string{"# Curious", "# Grounded", "# Meticulous"} {
+		if !strings.Contains(string(fullBody), heading) {
+			t.Fatalf("full compiled prose missing %q:\n%s", heading, fullBody)
+		}
 	}
-	if !strings.Contains(string(briefBody), "Grounded: calm") || strings.Contains(string(briefBody), "# Grounded") {
-		t.Fatalf("brief compiled prose should carry BRIEF.md only:\n%s", briefBody)
+	for _, want := range []string{"# Curious", "Grounded: calm", "# Meticulous"} {
+		if !strings.Contains(string(briefBody), want) {
+			t.Fatalf("brief compiled prose missing %q:\n%s", want, briefBody)
+		}
+	}
+	if strings.Contains(string(briefBody), "# Grounded") {
+		t.Fatalf("brief compiled prose should use grounded BRIEF.md:\n%s", briefBody)
 	}
 	if full.Bundle.Key == brief.Bundle.Key {
 		t.Fatal("density change must change the bundle key")
@@ -134,7 +159,7 @@ func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 	}
 }
 
-func TestDifferentProfilesGetDifferentBundles(t *testing.T) {
+func TestDifferentDensitiesGetDifferentBundles(t *testing.T) {
 	out := t.TempDir()
 	a, err := Run(fixture(t, "native-full.kdl"), out)
 	if err != nil {
@@ -145,7 +170,7 @@ func TestDifferentProfilesGetDifferentBundles(t *testing.T) {
 		t.Fatal(err)
 	}
 	if a.Bundle.Key == b.Bundle.Key {
-		t.Fatal("different profiles must produce different bundle keys")
+		t.Fatal("different densities must produce different bundle keys")
 	}
 }
 

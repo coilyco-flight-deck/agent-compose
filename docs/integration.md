@@ -31,11 +31,12 @@ owns the load points a host declares.
 Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
 directory the cascade walks as a source root, containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
-carries the seat dispatch table: "if you are codex running the engineer
-role: your name is terran engineer (he/him), your personality is grounded,
-its definition lives at <path>, your favorite color is #5fa87a." Each agent
-self-selects by facts it already knows; no launcher cooperation, no
-environment variable, no blessed entrypoint.
+carries the seat dispatch table: "if you are codex running the engineer role,
+your name is terran engineer (he/him), your personalities are curious,
+grounded, and meticulous, their definitions live at these paths, and their
+melded favorite is this derived color." Each agent self-selects by facts it
+already knows. No launcher cooperation, environment variable, or blessed
+entrypoint participates.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
@@ -48,9 +49,10 @@ share a seat by design; containers are the disambiguator when that is wrong.
 Agent-compose now supplies the stable provider half: `verify` checks a
 read-only bundle, then `project --scope home` transactionally fills the
 claude, codex, goose, or opencode global load points. Black-box fixtures prove
-that each native home contains exactly the selected identity, compiled homes
-contain only its prose, and neither path changes the input bundle. Ward still
-needs to mount and invoke this contract at container start under issue #17.
+that each native home contains every personality identity activated by the
+role, compiled homes contain all of their prose, and neither path changes the
+input bundle. Ward still needs to mount and invoke this contract at container
+start under issue #17.
 
 ## Migration state
 

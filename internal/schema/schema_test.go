@@ -17,7 +17,7 @@ func TestParseRequestFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if req.Role != "engineer" || req.Personality != "curious" {
+	if req.Role != "engineer" {
 		t.Fatalf("unexpected identity: %+v", req)
 	}
 	if req.Delivery != DeliveryNativeSkills || req.Density != DensityFull {
@@ -41,7 +41,6 @@ func TestParseRequestFailsClosed(t *testing.T) {
 	cases := map[string]string{
 		"unknown node": `compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     privacy-scope "public"
@@ -49,30 +48,27 @@ func TestParseRequestFailsClosed(t *testing.T) {
 		"duplicate scalar": `compose {
     role "engineer"
     role "designer"
-    personality "curious"
     delivery "native-skills"
     density "full"
 }`,
 		"bad delivery": `compose {
     role "engineer"
-    personality "curious"
     delivery "carrier-pigeon"
     density "full"
 }`,
 		"bad density": `compose {
     role "engineer"
-    personality "curious"
     delivery "compiled"
     density "verbose"
 }`,
-		"missing personality": `compose {
+		"retired personality selector": `compose {
     role "engineer"
+    personality "curious"
     delivery "native-skills"
     density "full"
 }`,
 		"source without declaration": `compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     source "aos-public"
@@ -91,7 +87,6 @@ func TestParseRequestFailsClosed(t *testing.T) {
 func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 	required := writeRequest(t, `compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     source "ghost" declaration="ghost.kdl" required=#true
@@ -106,7 +101,6 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 
 	optional := writeRequest(t, `compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     source "ghost" declaration="ghost.kdl"
@@ -127,7 +121,6 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 func TestLoadSourcesRejectsEscapingPaths(t *testing.T) {
 	path := writeRequest(t, `compose {
     role "engineer"
-    personality "curious"
     delivery "native-skills"
     density "full"
     source "evil" declaration="../evil.kdl" required=#true

@@ -8,16 +8,21 @@ import (
 	"slices"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
+type Identity struct {
+	Source string
+	Skill  string
+}
+
 // Verification is the stable, read-only result of checking a bundle.
 type Verification struct {
-	Manifest       *Manifest
-	Files          int
-	IdentitySource string
-	IdentitySkill  string
+	Manifest   *Manifest
+	Files      int
+	Identities []Identity
 }
 
 // Verify checks the consumer contract, rejecting unsafe or incomplete trees
@@ -41,21 +46,26 @@ func Verify(dir string) (*Verification, error) {
 	if err := verifyTraceProfiles(trace, manifest); err != nil {
 		return nil, err
 	}
-	source, skill, err := selectedIdentity(trace)
+	identities, err := selectedIdentities(trace)
 	if err != nil {
 		return nil, err
 	}
-	if !slices.Contains(manifest.Sources, source) {
-		return nil, fmt.Errorf("selected identity source %q is absent from manifest sources", source)
+	if len(identities) != len(manifest.Personalities) {
+		return nil, fmt.Errorf("bundle trace selects %d identity skills for %d manifest personalities",
+			len(identities), len(manifest.Personalities))
 	}
-	if err := verifyIdentityTree(dir, source, skill); err != nil {
+	for _, identity := range identities {
+		if !slices.Contains(manifest.Sources, identity.Source) {
+			return nil, fmt.Errorf("selected identity source %q is absent from manifest sources", identity.Source)
+		}
+	}
+	if err := verifyIdentityTree(dir, identities); err != nil {
 		return nil, err
 	}
 	return &Verification{
-		Manifest:       manifest,
-		Files:          files,
-		IdentitySource: source,
-		IdentitySkill:  skill,
+		Manifest:   manifest,
+		Files:      files,
+		Identities: identities,
 	}, nil
 }
 
@@ -98,8 +108,21 @@ func verifyTree(dir string) (int, error) {
 }
 
 func verifyManifest(dir string, manifest *Manifest) error {
-	if manifest.Role == "" || manifest.Personality == "" || manifest.Density == "" {
-		return fmt.Errorf("bundle manifest must name role, personality, and density")
+	if manifest.Role == "" || len(manifest.Personalities) == 0 || manifest.Density == "" {
+		return fmt.Errorf("bundle manifest must name role, personalities, and density")
+	}
+	seenPersonalities := map[string]bool{}
+	for _, personality := range manifest.Personalities {
+		if !safeSegment(personality) {
+			return fmt.Errorf("bundle manifest contains unsafe personality %q", personality)
+		}
+		if seenPersonalities[personality] {
+			return fmt.Errorf("bundle manifest repeats personality %q", personality)
+		}
+		seenPersonalities[personality] = true
+	}
+	if err := color.Legible(manifest.Color); err != nil {
+		return fmt.Errorf("bundle manifest color: %w", err)
 	}
 	if len(manifest.Sources) == 0 {
 		return fmt.Errorf("bundle manifest names no sources")
@@ -128,28 +151,27 @@ func verifyManifest(dir string, manifest *Manifest) error {
 	}
 }
 
-func selectedIdentity(trace *Trace) (string, string, error) {
-	var selected []resolver.Decision
+func selectedIdentities(trace *Trace) ([]Identity, error) {
+	var identities []Identity
 	for _, decision := range trace.Decisions {
-		if decision.Kind == "skill" && decision.Outcome == resolver.OutcomeSelected {
-			selected = append(selected, decision)
+		if decision.Kind != "skill" || decision.Outcome != resolver.OutcomeSelected {
+			continue
 		}
+		skill, ok := strings.CutPrefix(decision.Subject, "skill:")
+		if !ok || !safeSegment(skill) || !safeSegment(decision.Source) {
+			return nil, fmt.Errorf("bundle trace selects an unsafe identity path %q from %q",
+				decision.Subject, decision.Source)
+		}
+		identities = append(identities, Identity{Source: decision.Source, Skill: skill})
 	}
-	if len(selected) != 1 {
-		return "", "", fmt.Errorf("bundle trace must select exactly one identity skill, found %d", len(selected))
+	if len(identities) == 0 {
+		return nil, fmt.Errorf("bundle trace selects no identity skills")
 	}
-	decision := selected[0]
-	skill, ok := strings.CutPrefix(decision.Subject, "skill:")
-	if !ok || !safeSegment(skill) || !safeSegment(decision.Source) {
-		return "", "", fmt.Errorf("bundle trace selects an unsafe identity path %q from %q",
-			decision.Subject, decision.Source)
-	}
-	return decision.Source, skill, nil
+	return identities, nil
 }
 
 func verifyTraceProfiles(trace *Trace, manifest *Manifest) error {
 	role := "role:" + manifest.Role
-	personality := "personality:" + manifest.Personality
 	found := map[string]bool{}
 	selected := 0
 	for _, decision := range trace.Decisions {
@@ -162,16 +184,21 @@ func verifyTraceProfiles(trace *Trace, manifest *Manifest) error {
 	if !found[role] {
 		return fmt.Errorf("bundle trace does not select manifest profile %q", role)
 	}
-	if !found[personality] {
-		return fmt.Errorf("bundle trace does not select manifest profile %q", personality)
+	for _, personality := range manifest.Personalities {
+		subject := "personality:" + personality
+		if !found[subject] {
+			return fmt.Errorf("bundle trace does not select manifest profile %q", subject)
+		}
 	}
-	if selected != 2 {
-		return fmt.Errorf("bundle trace selects %d profiles, expected role and personality only", selected)
+	expected := 1 + len(manifest.Personalities)
+	if selected != expected {
+		return fmt.Errorf("bundle trace selects %d profiles, expected role and %d personalities",
+			selected, len(manifest.Personalities))
 	}
 	return nil
 }
 
-func verifyIdentityTree(dir, source, skill string) error {
+func verifyIdentityTree(dir string, identities []Identity) error {
 	root := filepath.Join(dir, "content", "skills")
 	sources, err := os.ReadDir(root)
 	if err != nil {
@@ -194,17 +221,25 @@ func verifyIdentityTree(dir, source, skill string) error {
 			found = append(found, sourceEntry.Name()+"/"+skillEntry.Name())
 		}
 	}
-	expected := source + "/" + skill
-	if len(found) != 1 || found[0] != expected {
-		return fmt.Errorf("bundle must contain exactly selected identity %q, found %q", expected, found)
+	expected := make([]string, 0, len(identities))
+	for _, identity := range identities {
+		expected = append(expected, identity.Source+"/"+identity.Skill)
 	}
-	skillDoc := filepath.Join(root, source, skill, "SKILL.md")
-	info, err := os.Stat(skillDoc)
-	if err != nil {
-		return fmt.Errorf("selected identity %q has no SKILL.md: %w", expected, err)
+	slices.Sort(found)
+	slices.Sort(expected)
+	if !slices.Equal(found, expected) {
+		return fmt.Errorf("bundle identity tree %q does not match selected identities %q", found, expected)
 	}
-	if !info.Mode().IsRegular() {
-		return fmt.Errorf("selected identity %q SKILL.md is not a regular file", expected)
+	for _, identity := range identities {
+		name := identity.Source + "/" + identity.Skill
+		skillDoc := filepath.Join(root, identity.Source, identity.Skill, "SKILL.md")
+		info, err := os.Stat(skillDoc)
+		if err != nil {
+			return fmt.Errorf("selected identity %q has no SKILL.md: %w", name, err)
+		}
+		if !info.Mode().IsRegular() {
+			return fmt.Errorf("selected identity %q SKILL.md is not a regular file", name)
+		}
 	}
 	return nil
 }

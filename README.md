@@ -7,18 +7,19 @@ is intentionally opinionated: it also includes Kai's synthetic company,
 personality catalog, and composition defaults rather than presenting itself as
 a neutral enterprise framework.
 
-The intended product accepts a role, a personality, a context density, a
-delivery mode, and the locations of personality sources. It resolves those
-inputs against embedded personal policy plus scoped overlays, then emits an
-immutable context bundle for a host harness or a warded container to consume.
+The intended product accepts a role, a context density, a delivery mode, and
+the locations of personality sources. The role activates its complete ordered
+personality set. Agent-compose resolves every bound personality skill, derives
+their melded favorite color, and emits an immutable context bundle for a host
+harness or a warded container to consume.
 
 ## Ownership boundary
 
 Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
-* role and personality resolution
-* the ten-seat company roster and organizational purpose
+* role-driven personality meld resolution
+* the ten-role company roster and organizational purpose
 * role-neutral personalities and curated role compatibility
 * native-skill and compiled-context delivery
 * immutable bundle materialization and caching
@@ -52,9 +53,7 @@ inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
 package-manager distribution. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
-The full personality roster
-([#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10))
-and Ward-side container invocation
+The AOS personality skill bodies and Ward-side container invocation
 ([#17](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/17))
 remain open on the canonical Forgejo tracker.
 

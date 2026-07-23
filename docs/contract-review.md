@@ -19,6 +19,9 @@ issues consume this reviewed contract rather than the earlier proposal.
   one-pager for a small local model. No model name reaches agent-compose.
 * Delivery mode - native skills or compiled context - is load-bearing and
   stays.
+* A compose request selects a role, not one personality. The role activates
+  every personality in its ordered set, and their component colors derive one
+  melded favorite for the bundle.
 * Personality definitions live inside skills. The person contract binds
   personality names to skills and drops the presence, attention, tempo, and
   voice fields. The format inside the skill (KDL, YAML, or a metadata block in

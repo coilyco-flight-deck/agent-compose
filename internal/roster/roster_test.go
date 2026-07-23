@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -33,7 +34,7 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 		RoleOrder: []string{"builder", "seatless"},
 		Personalities: map[string]person.Personality{
 			"bright":  {Skill: "personality-curious", Color: "#c87945"},
-			"pending": {Skill: "personality-pending"},
+			"pending": {Skill: "personality-pending", Color: "#7d9fd3"},
 		},
 	}
 	src, err := schema.LoadSource(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
@@ -51,12 +52,20 @@ func TestRenderDispatchTable(t *testing.T) {
 	}
 
 	table := string(files["AGENTS.COMPOSE.md"])
+	melded, err := color.Favorite([]string{
+		p.Personalities["bright"].Color,
+		p.Personalities["pending"].Color,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, want := range []string{
 		"If you are claude running the builder role: your name is opal builder (pronouns: she).",
 		"If you are codex running the builder role: your name is terran builder (pronouns: he).",
 		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
 		"## builder - Build the fixture.",
-		"Compatible personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending, definition pending.",
+		"Melded personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending (favorite color #7d9fd3), definition pending.",
+		"Melded favorite color: " + melded,
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)

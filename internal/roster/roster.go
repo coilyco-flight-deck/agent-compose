@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -40,7 +41,11 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 			table.WriteString(".\n")
 		}
 		table.WriteString("\n")
-		table.WriteString(personalityLine(p, role, bodies))
+		line, err := personalityLine(p, role, bodies)
+		if err != nil {
+			return nil, fmt.Errorf("render role %q: %w", roleName, err)
+		}
+		table.WriteString(line)
 		table.WriteString("\n")
 	}
 	files["AGENTS.COMPOSE.md"] = []byte(table.String())
@@ -53,7 +58,7 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	}
 	if len(imports) > 0 {
 		override := "## Personality definitions\n\n" +
-			"Definitions load mechanically; read your role's line above to know\nwhich one is yours.\n\n" +
+			"Definitions load mechanically; read your role's line above to know\nwhich ones are yours.\n\n" +
 			strings.Join(imports, "\n") + "\n"
 		files["AGENTS.claude.md"] = []byte(override)
 	}
@@ -64,13 +69,15 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	return files, nil
 }
 
-func personalityLine(p *person.Person, role person.Role, bodies map[string][]byte) string {
+func personalityLine(p *person.Person, role person.Role, bodies map[string][]byte) (string, error) {
 	if len(role.Personalities) == 0 {
-		return "Compatible personalities: pending (#10).\n"
+		return "Melded personalities: pending (#10).\n", nil
 	}
 	var parts []string
+	var colors []string
 	for _, name := range role.Personalities {
 		binding := p.Personalities[name]
+		colors = append(colors, binding.Color)
 		entry := name
 		if binding.Color != "" {
 			entry += " (favorite color " + binding.Color + ")"
@@ -82,7 +89,12 @@ func personalityLine(p *person.Person, role person.Role, bodies map[string][]byt
 		}
 		parts = append(parts, entry)
 	}
-	return "Compatible personalities: " + strings.Join(parts, "; ") + ".\n"
+	favorite, err := color.Favorite(colors)
+	if err != nil {
+		return "", err
+	}
+	return "Melded personalities: " + strings.Join(parts, "; ") +
+		". Melded favorite color: " + favorite + ".\n", nil
 }
 
 // personalityBodies pulls each bound skill's SKILL.md from the first source
