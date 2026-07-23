@@ -7,8 +7,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
@@ -68,6 +70,33 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "skills  managed=%d load-points=%d verified=%d linked=%d removed=%d preserved=%d\n",
 			skills.Managed, skills.LoadPoints, skills.Verified, skills.Linked, skills.Removed, skills.Skipped)
 	}
+	if cfg.MCPInventory != "" {
+		inventory := configuredPath(cfg.MCPInventory, paths.Config, paths.Home)
+		result, err := nativemcp.Project(nativemcp.Options{
+			Inventory: inventory,
+			Home:      paths.Home,
+		})
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		state := "unchanged"
+		if result.Changed {
+			state = "changed"
+		}
+		fmt.Fprintf(stdout, "mcp     servers=%d state=%s\n", result.Servers, state)
+	}
 
 	return 0
+}
+
+func configuredPath(value, configPath, home string) string {
+	value = strings.TrimSpace(value)
+	if value == "~" || strings.HasPrefix(value, "~/") {
+		return filepath.Join(home, strings.TrimPrefix(strings.TrimPrefix(value, "~"), "/"))
+	}
+	if filepath.IsAbs(value) {
+		return value
+	}
+	return filepath.Join(filepath.Dir(configPath), value)
 }

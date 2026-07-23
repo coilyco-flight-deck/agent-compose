@@ -25,7 +25,7 @@ configuration:
 * native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
-* host doctrine convergence and native skill installation
+* host doctrine convergence, native skill installation, and native MCP projection
 * bundle inspection, validation, and compatibility reporting
 
 AOS owns reusable doctrine, general skills, personality bodies, capability providers, and editorial
@@ -51,7 +51,9 @@ or replace policy later without becoming the design center now.
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. Provider roots contribute ordinary skills for
+package-manager distribution. A configured mcporter inventory projects into
+both Claude Code and Codex native MCP registries during host convergence.
+Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
 repository also ships a local personality palette explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.

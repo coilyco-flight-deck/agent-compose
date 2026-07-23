@@ -17,6 +17,7 @@ type Paths struct {
 	Config       string
 	Composed     string
 	ProjectsRoot string
+	Home         string
 }
 
 func DefaultPaths() Paths {
@@ -33,6 +34,7 @@ func DefaultPaths() Paths {
 		Config:       filepath.Join(stateDir, "agent-compose.yaml"),
 		Composed:     filepath.Join(stateDir, "COMPOSED.md"),
 		ProjectsRoot: projects,
+		Home:         root,
 	}
 }
 

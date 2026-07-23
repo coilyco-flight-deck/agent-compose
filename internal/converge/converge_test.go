@@ -24,6 +24,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		Config:       filepath.Join(dir, "agent-compose.yaml"),
 		Composed:     filepath.Join(dir, "COMPOSED.md"),
 		ProjectsRoot: filepath.Join(dir, "projects"),
+		Home:         filepath.Join(dir, "home"),
 	}
 	doctrine := filepath.Join(dir, "doctrine", "AGENTS.COMPOSE.md")
 	if err := os.MkdirAll(filepath.Dir(doctrine), 0o755); err != nil {
@@ -52,9 +53,14 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(skillRoot, "personality-shared", "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	mcpInventory := filepath.Join(dir, "mcporter.json")
+	if err := os.WriteFile(mcpInventory, []byte(`{"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp"}}}`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
 		"roster_sources:\n  - " + providerRoot + "\n" +
 		"skill_load_points:\n  codex: " + filepath.Join(dir, "links", "skills") + "\n" +
+		"mcp_inventory: " + mcpInventory + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n  codex: null\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
 		t.Fatal(err)
@@ -82,6 +88,15 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != filepath.Join(skillRoot, "coding-go") {
 		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
 	}
+	for _, path := range []string{
+		filepath.Join(paths.Home, ".mcporter", "mcporter.json"),
+		filepath.Join(paths.Home, ".claude.json"),
+		filepath.Join(paths.Home, ".codex", "config.toml"),
+	} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("native MCP projection missing %s: %v", path, err)
+		}
+	}
 
 	code, out, _ = run(t, paths)
 	if code != 0 || strings.Contains(out, "wrote") {
@@ -89,6 +104,9 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	if !strings.Contains(out, "cascade outputs=1 load-points=1 manifest=1 changed=0") {
 		t.Fatalf("second converge must summarize the full cascade check: %s", out)
+	}
+	if !strings.Contains(out, "mcp     servers=1 state=unchanged") {
+		t.Fatalf("second converge must report stable native MCP projection: %s", out)
 	}
 	skillEntries, err := os.ReadDir(skillRoot)
 	if err != nil {
