@@ -66,7 +66,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   and --dry-run/--check - byte-compatible with the Python outputs.
 * Bare `acompose` converges roster and cascade. `-- <command>` refreshes before exec.
 * Configured skill roots mount safely into native harness skill directories.
-* [Native MCP projection](native-mcp.md).
+* [Native MCP + approval projection](native-mcp.md).
 
 ## Release
 

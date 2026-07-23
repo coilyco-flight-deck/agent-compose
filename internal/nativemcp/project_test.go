@@ -25,7 +25,7 @@ func TestProjectConvergesBothNativeRegistries(t *testing.T) {
 	write(t, inventoryPath, `{
   "imports": [],
   "mcpServers": {
-    "reader": {"baseUrl": "https://mcp.example.test/mcp", "headers": {"X-Test": "${HOME}/token"}},
+    "reader": {"baseUrl": "https://mcp.example.test/mcp", "headers": {"X-Test": "${HOME}/token"}, "x-codex": {"defaultToolsApprovalMode": "approve"}},
     "local": {"command": "${HOME}/bin/server", "args": ["--stdio"], "env": {"CACHE": "${HOME}/cache"}}
   }
 }
@@ -64,6 +64,9 @@ enabled = false
 	if got := servers["reader"].(map[string]any)["type"]; got != "http" {
 		t.Fatalf("Claude HTTP transport = %v, want http", got)
 	}
+	if _, ok := servers["reader"].(map[string]any)["x-codex"]; ok {
+		t.Fatalf("Claude projection contains Codex-only metadata: %v", servers["reader"])
+	}
 	if got := servers["local"].(map[string]any)["command"]; got != filepath.Join(home, "bin", "server") {
 		t.Fatalf("Claude home expansion = %v", got)
 	}
@@ -79,6 +82,7 @@ enabled = false
 		blockBegin,
 		`[mcp_servers."reader"]`,
 		`[mcp_servers."local"]`,
+		`default_tools_approval_mode = "approve"`,
 		filepath.Join(home, "bin", "server"),
 	} {
 		if !strings.Contains(codex, want) {
@@ -133,5 +137,16 @@ func TestProjectRejectsReverseImports(t *testing.T) {
 	_, err := Project(Options{Inventory: inventoryPath, Home: filepath.Join(dir, "home")})
 	if err == nil || !strings.Contains(err.Error(), "imports") {
 		t.Fatalf("missing imports=[] error = %v", err)
+	}
+}
+
+func TestProjectRejectsUnsupportedCodexApprovalMode(t *testing.T) {
+	dir := t.TempDir()
+	inventoryPath := filepath.Join(dir, "mcporter.json")
+	write(t, inventoryPath, `{"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp","x-codex":{"defaultToolsApprovalMode":"always"}}}}`+"\n")
+
+	_, err := Project(Options{Inventory: inventoryPath, Home: filepath.Join(dir, "home")})
+	if err == nil || !strings.Contains(err.Error(), `unsupported Codex approval mode "always"`) {
+		t.Fatalf("unsupported approval mode error = %v", err)
 	}
 }

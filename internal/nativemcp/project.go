@@ -46,6 +46,12 @@ type server struct {
 	URL     string            `json:"url"`
 	BaseURL string            `json:"baseUrl"`
 	Headers map[string]string `json:"headers"`
+	Codex   codexPolicy       `json:"x-codex"`
+}
+
+// codexPolicy carries projection metadata that mcporter and Claude ignore.
+type codexPolicy struct {
+	DefaultToolsApprovalMode string `json:"defaultToolsApprovalMode"`
 }
 
 type inventory struct {
@@ -136,8 +142,23 @@ func loadInventory(path string) (inventory, error) {
 		if cfg.endpoint() == "" && strings.TrimSpace(cfg.Command) == "" {
 			return inventory{}, fmt.Errorf("native MCP: server %q has neither URL nor command", name)
 		}
+		mode := strings.TrimSpace(cfg.Codex.DefaultToolsApprovalMode)
+		if !validCodexApprovalMode(mode) {
+			return inventory{}, fmt.Errorf("native MCP: server %q has unsupported Codex approval mode %q", name, mode)
+		}
+		cfg.Codex.DefaultToolsApprovalMode = mode
+		servers[name] = cfg
 	}
 	return inventory{raw: appendTrailingNewline(raw), servers: servers}, nil
+}
+
+func validCodexApprovalMode(mode string) bool {
+	switch mode {
+	case "", "auto", "prompt", "writes", "approve":
+		return true
+	default:
+		return false
+	}
 }
 
 func (s server) endpoint() string {
@@ -244,6 +265,9 @@ func codexBlock(servers map[string]server, home string) string {
 			if strings.TrimSpace(cfg.Cwd) != "" {
 				fmt.Fprintf(&out, "cwd = %s\n", strconv.Quote(expandHome(cfg.Cwd, home)))
 			}
+		}
+		if cfg.Codex.DefaultToolsApprovalMode != "" {
+			fmt.Fprintf(&out, "default_tools_approval_mode = %s\n", strconv.Quote(cfg.Codex.DefaultToolsApprovalMode))
 		}
 		out.WriteString("\n")
 	}

@@ -16,6 +16,12 @@ The inventory must set top-level `imports: []`. Mcporter otherwise imports the
 native harness registries back into its merged view, creating a reverse
 configuration loop that lets stale native-only servers reappear.
 
+An entry may set the Codex-only extension
+`x-codex.defaultToolsApprovalMode` to `auto`, `prompt`, `writes`, or `approve`.
+The projector validates the value and writes Codex's
+`default_tools_approval_mode`. Mcporter ignores the extension, and Claude does
+not receive it.
+
 ## Projection contract
 
 Bare `acompose` runs the projector after doctrine and native-skill convergence.
@@ -28,7 +34,8 @@ The projector:
 * replaces Claude Code's user-scope `mcpServers` map while preserving unrelated
   Claude state
 * replaces Codex's bracketed managed MCP block while preserving unrelated
-  settings and explicit built-in disables
+  settings, explicit built-in disables, and configured per-server approval
+  policy
 * reports drift without writing when `--check` is present
 
 The hard server-set projection is intentional. Removing an entry from the
