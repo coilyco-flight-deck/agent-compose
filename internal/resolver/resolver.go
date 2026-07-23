@@ -38,8 +38,8 @@ type Selected struct {
 // Resolution is the full composition plan: what was selected, how it is
 // delivered, and the trace built while those choices were made.
 type Resolution struct {
-	Request      *schema.Request
-	Person       *person.Person
+	Request       *schema.Request
+	Person        *person.Person
 	Instructions  []Selected
 	Skill         Selected
 	SkillDir      string

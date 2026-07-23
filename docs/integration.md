@@ -3,7 +3,7 @@
 The v1 Python composer (`generate-agent-compose` in agentic-os) has been
 absorbed: [`agent-compose cascade`](cascade.md) now composes
 `AGENTS.COMPOSE.md` doctrine sources into
-`~/.config/agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
+`~/.agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
 global load point at the result, applies scope and harness filtering with
 per-harness section overrides, and emits the mount-eligibility manifest ward
 reads - byte-compatible with the Python outputs. The Python generator
@@ -18,7 +18,7 @@ the whole home and no cascade runs. No path is ever written by both.
 
 ## Host tier: personality rides the v1 cascade
 
-V2 renders a roster artifact into `~/.config/agent-compose/sources/` - a
+V2 renders a roster artifact into `~/.agent-compose/sources/` - a
 directory v1 already walks as a source root - containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
 carries the seat dispatch table: "if you are codex running the engineer

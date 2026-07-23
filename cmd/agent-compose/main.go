@@ -12,6 +12,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
@@ -44,7 +45,7 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "out",
-						Usage: "bundle output directory (defaults to the user cache)",
+						Usage: "bundle output directory (defaults to ~/.agent-compose/bundles)",
 					},
 					&cli.BoolFlag{
 						Name:  "explain",
@@ -96,9 +97,8 @@ func main() {
 				ArgsUsage: "[source.kdl...]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:     "out",
-						Usage:    "artifact directory (e.g. ~/.config/agent-compose/sources/personality)",
-						Required: true,
+						Name:  "out",
+						Usage: "artifact directory (defaults to ~/.agent-compose/sources/personality)",
 					},
 				},
 				Action: runRoster,
@@ -148,7 +148,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "out",
-						Usage: "bundle output directory (defaults to the user cache)",
+						Usage: "bundle output directory (defaults to ~/.agent-compose/bundles)",
 					},
 				},
 				Action: runLaunch,
@@ -168,11 +168,11 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	}
 	outDir := cmd.String("out")
 	if outDir == "" {
-		cache, err := os.UserCacheDir()
+		stateDir, err := home.Dir()
 		if err != nil {
-			return fmt.Errorf("no --out given and no user cache dir: %w", err)
+			return fmt.Errorf("no --out given and no state dir: %w", err)
 		}
-		outDir = filepath.Join(cache, "agent-compose", "bundles")
+		outDir = filepath.Join(stateDir, "bundles")
 	}
 	result, err := compose.Run(requestPath, outDir)
 	if err != nil {
@@ -247,11 +247,11 @@ func runLaunch(_ context.Context, cmd *cli.Command) error {
 	}
 	outDir := cmd.String("out")
 	if outDir == "" {
-		cache, err := os.UserCacheDir()
+		stateDir, err := home.Dir()
 		if err != nil {
-			return fmt.Errorf("no --out given and no user cache dir: %w", err)
+			return fmt.Errorf("no --out given and no state dir: %w", err)
 		}
-		outDir = filepath.Join(cache, "agent-compose", "bundles")
+		outDir = filepath.Join(stateDir, "bundles")
 	}
 	result, err := launch.Refresh(launch.Options{
 		RequestPath: cmd.String("request"),
@@ -305,7 +305,15 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 		}
 		sources = append(sources, src)
 	}
-	outDir, err := filepath.Abs(cmd.String("out"))
+	outFlag := cmd.String("out")
+	if outFlag == "" {
+		stateDir, err := home.Dir()
+		if err != nil {
+			return fmt.Errorf("no --out given and no state dir: %w", err)
+		}
+		outFlag = filepath.Join(stateDir, "sources", "personality")
+	}
+	outDir, err := filepath.Abs(outFlag)
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,16 @@
 
 `agent-compose cascade` is the absorbed v1 composer: it turns doctrine
 sources into each harness's global context. Presence of
-`~/.config/agent-compose/agent-compose.yaml` activates it; without the file
+`~/.agent-compose/agent-compose.yaml` activates it; without the file
 the verb is a documented no-op, so a host behaves exactly as if
 agent-compose were not installed.
+
+All state lives under `~/.agent-compose`: the config, COMPOSED outputs, the
+mount-eligibility manifest, `sources/` (including the roster artifact), and
+the bundle cache at `bundles/`. A legacy `~/.config/agent-compose` directory
+migrates wholesale on first use, leaving a compatibility symlink behind so
+ward's manifest read and fleet config references keep resolving until the
+fleet cutover tracked in agentic-os#618.
 
 Explicit `sources` compose first in listed order, then each `roots` entry is
 walked for `AGENTS.COMPOSE.md` files, appended sorted. That filename is the

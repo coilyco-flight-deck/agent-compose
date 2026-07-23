@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 )
 
 // Paths carries the injectable filesystem anchors so tests never touch the
@@ -18,15 +20,18 @@ type Paths struct {
 }
 
 func DefaultPaths() Paths {
-	home, _ := os.UserHomeDir()
+	root, _ := os.UserHomeDir()
 	projects := os.Getenv("PROJECTS_ROOT")
 	if projects == "" {
-		projects = filepath.Join(home, "projects")
+		projects = filepath.Join(root, "projects")
 	}
-	configDir := filepath.Join(home, ".config", "agent-compose")
+	stateDir, err := home.Dir()
+	if err != nil {
+		stateDir = filepath.Join(root, ".agent-compose")
+	}
 	return Paths{
-		Config:       filepath.Join(configDir, "agent-compose.yaml"),
-		Composed:     filepath.Join(configDir, "COMPOSED.md"),
+		Config:       filepath.Join(stateDir, "agent-compose.yaml"),
+		Composed:     filepath.Join(stateDir, "COMPOSED.md"),
 		ProjectsRoot: projects,
 	}
 }
