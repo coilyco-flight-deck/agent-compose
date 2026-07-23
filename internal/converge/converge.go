@@ -55,7 +55,11 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
 
-	skills, err := skillmount.Apply(cfg.SkillRoots, cfg.SkillLoadPoints, filepath.Dir(paths.Config))
+	if code := cascade.Run(paths, false, stdout, stderr); code != 0 {
+		return code
+	}
+	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
+	skills, err := skillmount.Apply(manifestPath, cfg.SkillLoadPoints, filepath.Dir(paths.Config))
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
@@ -64,5 +68,5 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "skills  linked=%d removed=%d preserved=%d\n", skills.Linked, skills.Removed, skills.Skipped)
 	}
 
-	return cascade.Run(paths, false, stdout, stderr)
+	return 0
 }

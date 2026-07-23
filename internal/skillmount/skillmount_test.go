@@ -1,14 +1,15 @@
 package skillmount
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-func makeSkill(t *testing.T, root, name string) string {
+func makeSkill(t *testing.T, repo, name string) string {
 	t.Helper()
-	path := filepath.Join(root, name)
+	path := filepath.Join(repo, ".agents", "skills", name)
 	if err := os.MkdirAll(path, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -16,6 +17,17 @@ func makeSkill(t *testing.T, root, name string) string {
 		t.Fatal(err)
 	}
 	return path
+}
+
+func writeEligibility(t *testing.T, path string, defaults []string, harnesses map[string][]string) {
+	t.Helper()
+	raw, err := json.Marshal(eligibility{Defaults: defaults, Harnesses: harnesses})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestApplyOverlaysAndMultipleLoadPoints(t *testing.T) {
@@ -30,8 +42,10 @@ func TestApplyOverlaysAndMultipleLoadPoints(t *testing.T) {
 		"claude": filepath.Join(dir, "claude"),
 		"codex":  filepath.Join(dir, "codex"),
 	}
+	manifest := filepath.Join(dir, "mount-eligibility.json")
+	writeEligibility(t, manifest, []string{public, private}, map[string][]string{})
 
-	result, err := Apply([]string{public, private}, loadPoints, filepath.Join(dir, "state"))
+	result, err := Apply(manifest, loadPoints, filepath.Join(dir, "state"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +71,9 @@ func TestApplyRemovesStaleOwnedLinksAndPreservesForeignEntries(t *testing.T) {
 	destination := filepath.Join(dir, "skills")
 	state := filepath.Join(dir, "state")
 	points := map[string]string{"codex": destination}
-	if _, err := Apply([]string{root}, points, state); err != nil {
+	manifest := filepath.Join(dir, "mount-eligibility.json")
+	writeEligibility(t, manifest, []string{root}, map[string][]string{})
+	if _, err := Apply(manifest, points, state); err != nil {
 		t.Fatal(err)
 	}
 
@@ -68,7 +84,7 @@ func TestApplyRemovesStaleOwnedLinksAndPreservesForeignEntries(t *testing.T) {
 	if err := os.WriteFile(foreign, []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	result, err := Apply([]string{root}, points, state)
+	result, err := Apply(manifest, points, state)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +99,7 @@ func TestApplyRemovesStaleOwnedLinksAndPreservesForeignEntries(t *testing.T) {
 	}
 }
 
-func TestApplyDoesNotMutateWhenRootIsMissing(t *testing.T) {
+func TestApplyDoesNotMutateWhenManifestIsMissing(t *testing.T) {
 	dir := t.TempDir()
 	destination := filepath.Join(dir, "skills")
 	if err := os.MkdirAll(destination, 0o755); err != nil {
@@ -93,7 +109,7 @@ func TestApplyDoesNotMutateWhenRootIsMissing(t *testing.T) {
 	if err := os.WriteFile(foreign, []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	_, err := Apply([]string{filepath.Join(dir, "missing")}, map[string]string{"codex": destination}, filepath.Join(dir, "state"))
+	_, err := Apply(filepath.Join(dir, "missing.json"), map[string]string{"codex": destination}, filepath.Join(dir, "state"))
 	if err == nil {
 		t.Fatal("missing root must fail")
 	}

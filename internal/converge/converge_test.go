@@ -31,7 +31,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	skillRoot := filepath.Join(dir, "aos-skills")
+	skillRoot := filepath.Join(paths.ProjectsRoot, "coilyco-flight-deck", "agentic-os", ".agents", "skills")
 	if err := os.MkdirAll(filepath.Join(skillRoot, "coding-go"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,6 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
 		"roster_sources:\n  - " + fixture + "\n" +
-		"skill_roots:\n  - " + skillRoot + "\n" +
 		"skill_load_points:\n  codex: " + filepath.Join(dir, "links", "skills") + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n  codex: null\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {

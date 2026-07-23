@@ -34,7 +34,6 @@ type Config struct {
 	Roots           []string            `yaml:"roots"`
 	LoadPoints      map[string]RawValue `yaml:"load_points"`
 	RosterSources   []string            `yaml:"roster_sources"`
-	SkillRoots      []string            `yaml:"skill_roots"`
 	SkillLoadPoints map[string]string   `yaml:"skill_load_points"`
 }
 

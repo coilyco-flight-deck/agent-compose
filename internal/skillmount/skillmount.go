@@ -24,6 +24,11 @@ type sidecar struct {
 	Links []link `json:"links"`
 }
 
+type eligibility struct {
+	Defaults  []string            `json:"defaults"`
+	Harnesses map[string][]string `json:"harnesses"`
+}
+
 // Result summarizes one convergence without exposing host-specific paths.
 type Result struct {
 	Linked  int
@@ -46,39 +51,83 @@ func linkKey(destination, name string) string {
 	return filepath.Join(destination, name)
 }
 
-func discover(roots []string, loadPoints map[string]string) (map[string]string, []string, error) {
-	skills := map[string]string{}
-	for _, configured := range roots {
-		root, err := expand(configured)
-		if err != nil {
-			return nil, nil, err
-		}
-		entries, err := os.ReadDir(root)
-		if err != nil {
-			return nil, nil, fmt.Errorf("read skill root %s: %w", root, err)
-		}
-		for _, entry := range entries {
-			target := filepath.Join(root, entry.Name())
-			info, err := os.Stat(target)
-			if err != nil {
-				return nil, nil, fmt.Errorf("inspect skill %s: %w", target, err)
-			}
-			if info.IsDir() {
-				skills[entry.Name()] = target
-			}
+func orderedRepos(manifest eligibility, harness string) []string {
+	seen := map[string]bool{}
+	repos := make([]string, 0, len(manifest.Defaults)+len(manifest.Harnesses[harness]))
+	for _, repo := range manifest.Defaults {
+		repos = append(repos, repo)
+		seen[repo] = true
+	}
+	extra := append([]string(nil), manifest.Harnesses[harness]...)
+	sort.Strings(extra)
+	for _, repo := range extra {
+		if !seen[repo] {
+			repos = append(repos, repo)
+			seen[repo] = true
 		}
 	}
+	return repos
+}
 
-	destinations := make([]string, 0, len(loadPoints))
-	for harness, configured := range loadPoints {
-		destination, err := expand(configured)
-		if err != nil {
-			return nil, nil, fmt.Errorf("resolve %s skill load point: %w", harness, err)
-		}
-		destinations = append(destinations, destination)
+func discover(manifestPath string, loadPoints map[string]string) (map[string]link, error) {
+	raw, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, fmt.Errorf("read mount eligibility %s: %w", manifestPath, err)
 	}
-	sort.Strings(destinations)
-	return skills, destinations, nil
+	var manifest eligibility
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		return nil, fmt.Errorf("parse mount eligibility %s: %w", manifestPath, err)
+	}
+	desired := map[string]link{}
+	destinations := map[string]string{}
+	harnesses := make([]string, 0, len(loadPoints))
+	for harness := range loadPoints {
+		harnesses = append(harnesses, harness)
+	}
+	sort.Strings(harnesses)
+	for _, harness := range harnesses {
+		destination, err := expand(loadPoints[harness])
+		if err != nil {
+			return nil, fmt.Errorf("resolve %s skill load point: %w", harness, err)
+		}
+		if owner, exists := destinations[destination]; exists {
+			return nil, fmt.Errorf("skill load point %s is shared by %s and %s", destination, owner, harness)
+		}
+		destinations[destination] = harness
+		skills := map[string]string{}
+		for _, repo := range orderedRepos(manifest, harness) {
+			root := filepath.Join(repo, ".agents", "skills")
+			info, err := os.Stat(root)
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			if err != nil {
+				return nil, fmt.Errorf("inspect eligible skill root %s: %w", root, err)
+			}
+			if !info.IsDir() {
+				continue
+			}
+			entries, err := os.ReadDir(root)
+			if err != nil {
+				return nil, fmt.Errorf("read eligible skill root %s: %w", root, err)
+			}
+			for _, entry := range entries {
+				target := filepath.Join(root, entry.Name())
+				info, err := os.Stat(target)
+				if err != nil {
+					return nil, fmt.Errorf("inspect skill %s: %w", target, err)
+				}
+				if info.IsDir() {
+					skills[entry.Name()] = target
+				}
+			}
+		}
+		for name, target := range skills {
+			item := link{Destination: destination, Name: name, Target: target}
+			desired[linkKey(destination, name)] = item
+		}
+	}
+	return desired, nil
 }
 
 func readSidecar(path string) (sidecar, error) {
@@ -126,16 +175,13 @@ func writeSidecar(path string, state sidecar) error {
 	return os.Rename(tempPath, path)
 }
 
-// Apply converges every configured skill root into every configured load point.
-// Later roots win duplicate names. Unowned destination entries always win.
-func Apply(roots []string, loadPoints map[string]string, stateDir string) (Result, error) {
-	if len(roots) == 0 && len(loadPoints) == 0 {
+// Apply converges eligible repository skill roots into configured load points.
+// Later eligible repositories win duplicate names. Unowned entries always win.
+func Apply(manifestPath string, loadPoints map[string]string, stateDir string) (Result, error) {
+	if len(loadPoints) == 0 {
 		return Result{}, nil
 	}
-	if len(roots) == 0 || len(loadPoints) == 0 {
-		return Result{}, fmt.Errorf("skill_roots and skill_load_points must be configured together")
-	}
-	skills, destinations, err := discover(roots, loadPoints)
+	desired, err := discover(manifestPath, loadPoints)
 	if err != nil {
 		return Result{}, err
 	}
@@ -147,19 +193,6 @@ func Apply(roots []string, loadPoints map[string]string, stateDir string) (Resul
 	owned := map[string]link{}
 	for _, item := range previous.Links {
 		owned[linkKey(item.Destination, item.Name)] = item
-	}
-
-	desired := map[string]link{}
-	names := make([]string, 0, len(skills))
-	for name := range skills {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	for _, destination := range destinations {
-		for _, name := range names {
-			item := link{Destination: destination, Name: name, Target: skills[name]}
-			desired[linkKey(destination, name)] = item
-		}
 	}
 
 	result := Result{}
@@ -177,29 +210,31 @@ func Apply(roots []string, loadPoints map[string]string, stateDir string) (Resul
 	}
 
 	current := sidecar{}
-	for _, destination := range destinations {
-		if err := os.MkdirAll(destination, 0o755); err != nil {
-			return result, fmt.Errorf("create skill load point %s: %w", destination, err)
+	keys := make([]string, 0, len(desired))
+	for key := range desired {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, path := range keys {
+		item := desired[path]
+		if err := os.MkdirAll(item.Destination, 0o755); err != nil {
+			return result, fmt.Errorf("create skill load point %s: %w", item.Destination, err)
 		}
-		for _, name := range names {
-			item := desired[linkKey(destination, name)]
-			path := linkKey(destination, name)
-			if ownedLinkMatches(item) {
-				current.Links = append(current.Links, item)
-				continue
-			}
-			if _, err := os.Lstat(path); err == nil {
-				result.Skipped++
-				continue
-			} else if !errors.Is(err, os.ErrNotExist) {
-				return result, fmt.Errorf("inspect skill load point %s: %w", path, err)
-			}
-			if err := os.Symlink(item.Target, path); err != nil {
-				return result, fmt.Errorf("link skill %s: %w", path, err)
-			}
+		if ownedLinkMatches(item) {
 			current.Links = append(current.Links, item)
-			result.Linked++
+			continue
 		}
+		if _, err := os.Lstat(path); err == nil {
+			result.Skipped++
+			continue
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return result, fmt.Errorf("inspect skill load point %s: %w", path, err)
+		}
+		if err := os.Symlink(item.Target, path); err != nil {
+			return result, fmt.Errorf("link skill %s: %w", path, err)
+		}
+		current.Links = append(current.Links, item)
+		result.Linked++
 	}
 	if err := writeSidecar(sidecarPath, current); err != nil {
 		return result, fmt.Errorf("write skill mount ownership: %w", err)
