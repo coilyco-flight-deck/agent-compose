@@ -15,4 +15,9 @@ for target in darwin/arm64 linux/amd64 linux/arm64 windows/amd64; do
         -o "$out" ./cmd/agent-compose
     echo "$out"
 done
+(cd dist && sha256sum \
+    agent-compose-darwin-arm64 \
+    agent-compose-linux-amd64 \
+    agent-compose-linux-arm64 \
+    agent-compose-windows-amd64.exe > SHA256SUMS)
 echo "version: ${VERSION}"

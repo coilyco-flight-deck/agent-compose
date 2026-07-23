@@ -65,8 +65,8 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Release
 
-* Semver tags with a stamped `version` verb and cross-platform release builds.
-* v0.4.1 ships through Forgejo, Homebrew, and Scoop.
+* Main pushes queue validated minor releases with cross-platform binaries,
+  checksums, Homebrew, and Scoop output. See [release.md](release.md).
 
 ## Product status
 

@@ -82,6 +82,7 @@ to tagged
 [Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
 directly. From source, `ward exec install` builds into GOBIN.
 `agent-compose version` reports the build you are running.
+Every push to canonical `main` validates and publishes the next minor release.
 
 ## Development
 
@@ -98,5 +99,6 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
+* [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

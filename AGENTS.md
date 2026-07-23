@@ -72,12 +72,12 @@ tests against both consumers before release.
 
 ## Release
 
-Canonical development and issues live on Forgejo. Versioning is semver git
-tags (`vX.Y.Z`); `ward exec release-build` cross-compiles version-stamped
-binaries (darwin-arm64, linux-amd64, linux-arm64) into `dist/`, and a Forgejo
-release on the tag distributes them. Protocol compatibility is deliberately
-thin per the v0.1 review: consumers check the manifest `format` marker and
-nothing else. Do not infer release behavior from agentic-os or Ward.
+Canonical development, releases, and issues live on Forgejo. Every push to
+`main` queues the single-stage release workflow, validates the commit, bumps the
+minor version, and publishes version-stamped cross-platform binaries plus
+Homebrew and Scoop metadata. Manual dispatch may select patch or major instead.
+Protocol compatibility is deliberately thin: consumers check the manifest
+`format` marker and nothing else.
 
 ## Agent rules
 

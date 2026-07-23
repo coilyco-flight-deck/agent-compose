@@ -1,0 +1,141 @@
+# Forgejo-canonical single-stage release pipeline. Every main push validates,
+# bumps the minor version, publishes binaries, and refreshes install channels.
+# Runs queue without cancellation so closely spaced pushes release in order.
+
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing or explicit version tag for a retry."
+        required: false
+        default: ""
+      bump:
+        description: "Version bump when tag is empty."
+        required: false
+        default: "minor"
+        type: choice
+        options: [minor, patch, major]
+
+concurrency:
+  group: release-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: docker
+    timeout-minutes: 20
+    container:
+      image: forgejo.coilysiren.me/coilyco-flight-deck/agentic-os:release
+    outputs:
+      tag: ${{ steps.tag.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate the release commit
+        run: ward exec test
+
+      - id: tag
+        uses: coilyco-flight-deck/agentic-os/actions/tag-bump@main
+        with:
+          bump: ${{ github.event.inputs.bump || 'minor' }}
+          tag_name: ${{ github.event.inputs.tag || '' }}
+          create_tag: true
+          release_sha: ${{ github.sha }}
+
+      - name: Fetch the release tag into the build checkout
+        run: git fetch --tags --force
+
+      - name: Build binaries and package metadata
+        run: |
+          ward exec release-build
+          ward exec release-package
+
+      - id: create
+        uses: coilyco-flight-deck/agentic-os/actions/create-release@main
+        with:
+          tag: ${{ steps.tag.outputs.new_tag }}
+          name: agent-compose ${{ steps.tag.outputs.new_tag }}
+          body: ${{ steps.tag.outputs.changelog }}
+
+      - name: Attach release artifacts
+        env:
+          FORGEJO_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.create.outputs.release_id }}
+          FORGEJO_API: https://forgejo.coilysiren.me/api/v1/repos/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for asset in \
+            dist/agent-compose-darwin-arm64 \
+            dist/agent-compose-linux-amd64 \
+            dist/agent-compose-linux-arm64 \
+            dist/agent-compose-windows-amd64.exe \
+            dist/SHA256SUMS \
+            dist/agent-compose.rb \
+            dist/agent-compose.json
+          do
+            name=$(basename "$asset")
+            curl -fsSL -X POST \
+              -H "Authorization: token ${FORGEJO_TOKEN}" \
+              -F "attachment=@${asset}" \
+              "${FORGEJO_API}/releases/${RELEASE_ID}/assets?name=${name}"
+            echo "uploaded ${name}"
+          done
+
+      - name: Update the Homebrew tap
+        env:
+          TAP_WRITE_TOKEN: ${{ secrets.TAP_WRITE_TOKEN }}
+          TAG: ${{ steps.tag.outputs.new_tag }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TAP_WRITE_TOKEN:-}" ]; then
+            echo "::warning::TAP_WRITE_TOKEN is absent; skipping Homebrew update" >&2
+            exit 0
+          fi
+          git clone --depth 1 \
+            https://forgejo.coilysiren.me/coilyco-flight-deck/homebrew-tap.git tap
+          cp dist/agent-compose.rb tap/Formula/agent-compose.rb
+          cd tap
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "coilyco-ops"
+          git config user.email "coilyco-ops@coilysiren.me"
+          git add Formula/agent-compose.rb
+          git commit -m "chore(agent-compose): bump formula to ${TAG} [skip ci]"
+          git push \
+            "https://coilyco-ops:${TAP_WRITE_TOKEN}@forgejo.coilysiren.me/coilyco-flight-deck/homebrew-tap.git" \
+            HEAD:main
+
+      - name: Update the Scoop bucket
+        env:
+          SCOOP_WRITE_TOKEN: ${{ secrets.SCOOP_WRITE_TOKEN }}
+          TAG: ${{ steps.tag.outputs.new_tag }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SCOOP_WRITE_TOKEN:-}" ]; then
+            echo "::warning::SCOOP_WRITE_TOKEN is absent; skipping Scoop update" >&2
+            exit 0
+          fi
+          git clone --depth 1 \
+            https://forgejo.coilysiren.me/coilyco-flight-deck/scoop-bucket.git bucket
+          cp dist/agent-compose.json bucket/bucket/agent-compose.json
+          cd bucket
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "coilyco-ops"
+          git config user.email "coilyco-ops@coilysiren.me"
+          git add bucket/agent-compose.json
+          git commit -m "chore(agent-compose): bump manifest to ${TAG} [skip ci]"
+          git push \
+            "https://coilyco-ops:${SCOOP_WRITE_TOKEN}@forgejo.coilysiren.me/coilyco-flight-deck/scoop-bucket.git" \
+            HEAD:main
