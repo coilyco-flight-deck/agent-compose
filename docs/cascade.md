@@ -51,6 +51,26 @@ on change, so a converged host recomposes silently.
 Behavior was cross-checked against the Python composer on shared fixtures:
 outputs are byte-identical, including symlink-resolved link absolutization.
 
+## Native skill roots
+
+Bare compose can also link authored skill catalogs into harness-native skill
+directories:
+
+```yaml
+skill_roots:
+  - ~/projects/coilyco-flight-deck/agentic-os/.agents/skills
+  - ~/projects/coilyco-bridge/agentic-os-kai/.agents/skills
+skill_load_points:
+  codex: ~/.codex/skills
+```
+
+Roots compose in order, with later roots overriding duplicate names. Existing
+unowned entries at a load point always win. Agent-compose records its links in
+`~/.agent-compose/skill-mounts.json` and removes only stale links that still
+match that ownership record. Fleet pointer aggregation, conditional category
+gating, and per-repo capability pulls remain rollout policy outside this
+substrate operation.
+
 ## See also
 
 * [integration.md](integration.md) - how roster and cascade fit together.

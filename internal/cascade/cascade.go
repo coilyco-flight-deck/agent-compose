@@ -29,11 +29,13 @@ var defaultMountSet = []string{
 }
 
 type Config struct {
-	Scopes        *scopeList          `yaml:"scopes"`
-	Sources       []string            `yaml:"sources"`
-	Roots         []string            `yaml:"roots"`
-	LoadPoints    map[string]RawValue `yaml:"load_points"`
-	RosterSources []string            `yaml:"roster_sources"`
+	Scopes          *scopeList          `yaml:"scopes"`
+	Sources         []string            `yaml:"sources"`
+	Roots           []string            `yaml:"roots"`
+	LoadPoints      map[string]RawValue `yaml:"load_points"`
+	RosterSources   []string            `yaml:"roster_sources"`
+	SkillRoots      []string            `yaml:"skill_roots"`
+	SkillLoadPoints map[string]string   `yaml:"skill_load_points"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its

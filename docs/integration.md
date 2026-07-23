@@ -21,6 +21,11 @@ On a host, the cascade owns the harness global load points and everything
 else (roster, overlays) feeds it sources. In a container, projection owns
 the whole home and no cascade runs. No path is ever written by both.
 
+Host convergence may also mount configured AOS, AOSK, or Ward skill roots into
+harness-native skill directories. Agent-compose owns only the links recorded in
+its sidecar. Infrastructure still owns which local roots and load points a host
+declares.
+
 ## Host tier: context rides the native cascade
 
 Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a

@@ -15,6 +15,9 @@ commands:
   lint:
     run: go vet ./...
     description: Run Go static analysis.
+  fmt:
+    run: gofmt -w .
+    description: Format Go source files.
   install:
     run: go install ./cmd/agent-compose
     description: Install the agent-compose binary into GOBIN.

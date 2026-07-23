@@ -13,6 +13,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 // Run refreshes the roster artifact (bodies from roster_sources when
@@ -53,6 +54,15 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 		return 1
 	}
 	fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
+
+	skills, err := skillmount.Apply(cfg.SkillRoots, cfg.SkillLoadPoints, filepath.Dir(paths.Config))
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	if skills.Linked+skills.Removed+skills.Skipped > 0 {
+		fmt.Fprintf(stdout, "skills  linked=%d removed=%d preserved=%d\n", skills.Linked, skills.Removed, skills.Skipped)
+	}
 
 	return cascade.Run(paths, false, stdout, stderr)
 }

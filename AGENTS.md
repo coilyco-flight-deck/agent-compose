@@ -40,7 +40,7 @@ Route development through Ward using [`.ward/ward.yaml`](.ward/ward.yaml). The
 current command surface is:
 
 * `ward exec test` - run all repository validation (Go tests plus hooks).
-* `ward exec build` / `lint` / `install` / `tidy` - the Go engine verbs.
+* `ward exec build` / `fmt` / `lint` / `install` / `tidy` - Go engine verbs.
 * `ward exec pre-commit` - explicit spelling of the hook sweep alone.
 
 Do not invoke a language tool that has no verb here. Add new build, test,

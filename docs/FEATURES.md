@@ -4,8 +4,7 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
-* Public, MIT-licensed AOS and Ward context substrate with Kai's opinionated
-  personal policy built in.
+* Public, MIT-licensed AOS and Ward context substrate with personal policy.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
 
@@ -62,11 +61,12 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
   filtering, section overrides, the mount-eligibility manifest ward reads,
   and --dry-run/--check - byte-compatible with the Python outputs.
 * Bare `acompose` converges roster and cascade; `-- <command>` refreshes before exec.
+* Configured skill roots mount safely into native harness skill directories.
 
 ## Release
 
 * Semver tags with a stamped `version` verb and cross-platform release builds.
-* v0.4.1 is published on Forgejo and distributed through Homebrew and Scoop.
+* v0.4.1 ships through Forgejo, Homebrew, and Scoop.
 
 ## Product status
 

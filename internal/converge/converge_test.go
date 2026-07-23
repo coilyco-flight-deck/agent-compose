@@ -31,12 +31,18 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	skillRoot := filepath.Join(dir, "aos-skills")
+	if err := os.MkdirAll(filepath.Join(skillRoot, "coding-go"), 0o755); err != nil {
+		t.Fatal(err)
+	}
 	fixture, err := filepath.Abs(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
 		"roster_sources:\n  - " + fixture + "\n" +
+		"skill_roots:\n  - " + skillRoot + "\n" +
+		"skill_load_points:\n  codex: " + filepath.Join(dir, "links", "skills") + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n  codex: null\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
 		t.Fatal(err)
@@ -58,6 +64,9 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(dir, "sources", "personality", "personalities", "curious.md")); err != nil {
 		t.Fatal("personality bodies must land under sources/personality")
+	}
+	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != filepath.Join(skillRoot, "coding-go") {
+		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
 	}
 
 	code, out, _ = run(t, paths)
