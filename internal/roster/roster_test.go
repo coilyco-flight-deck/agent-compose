@@ -38,14 +38,16 @@ func TestRenderDispatchTable(t *testing.T) {
 		"If you are codex running the director role: your name is solar director (pronouns: he).",
 		"curious (favorite color #d98e48), defined in [curious](personalities/curious.md)",
 		"## director - Pair with the human on high level goals.",
-		"Compatible personalities: pending (#10).",
+		"Compatible personalities: bold, definition pending; grounded (favorite color #5fa87a), defined in [grounded](personalities/grounded.md); diplomatic, definition pending.",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)
 		}
 	}
-	if strings.Contains(table, "## social") || strings.Contains(table, "## sales") {
-		t.Fatal("seatless stub roles must not render sections")
+	for _, role := range []string{"designer", "social", "sales", "customer-success"} {
+		if strings.Contains(table, "## "+role+" ") {
+			t.Fatalf("seatless role %q must not render a section", role)
+		}
 	}
 
 	override := string(files["AGENTS.claude.md"])

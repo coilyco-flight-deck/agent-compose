@@ -16,7 +16,22 @@ person "kai" {
 ```
 
 A role names its purpose, the personalities compatible with it, and its named
-agent seats. A personality entry binds the name to the skill that defines it.
+agent seats. The embedded roster contains this approved compatibility matrix:
+
+| Role | Compatible personalities |
+| --- | --- |
+| `director` | `bold`, `grounded`, `diplomatic` |
+| `advisor` | `reflective`, `curious`, `candid` |
+| `pm` | `warm`, `meticulous`, `curious` |
+| `designer` | `imaginative`, `playful`, `warm` |
+| `engineer` | `curious`, `grounded`, `meticulous` |
+| `qa` | `meticulous`, `candid`, `playful` |
+| `ops` | `protective`, `grounded`, `reflective` |
+| `sales` | `charming`, `energetic`, `warm` |
+| `social` | `quirky`, `playful`, `optimistic` |
+| `customer-success` | `nurturing`, `diplomatic`, `optimistic` |
+
+A personality entry binds the name to the skill that defines it.
 The definition itself - however presence, attention, tempo, and voice end up
 being expressed - lives inside that skill, not in this contract. The format
 inside the skill (KDL, YAML, or a metadata block in SKILL.md) is deliberately
@@ -32,7 +47,6 @@ carried in the bundle manifest. An identity composed of several personalities
 derives its favorite as the OKLab centroid of the component colors with
 chroma restored to the components' minimum, clamped back into the band -
 the perceptual middle, never gray.
-
 ## Agent seats
 
 An `agent` node under a role is a named seat: the harness lineage is the key,
@@ -43,15 +57,23 @@ reasoning effort on its side, and nothing here grants authority. Names are
 opaque strings to the engine - that a name's flavor happens to track which
 model the launcher assigns to a seat is naming taste, not schema.
 
-The embedded source carries the six active roles (engineer, director, qa,
-advisor, ops, pm), their twelve named seats, and the social and sales stubs.
-A role may omit `personality` until the full catalog assigns its compatible
-set; issue #10 owns completing personalities and per-seat defaults.
+The embedded source carries all ten roles, including Designer for product
+shaping and Customer Success for onboarding, support, retention, customer
+research, and feeding recurring customer pain back into product work. Its six roles
+with approved harness names (engineer, director, qa, advisor, ops, pm) retain
+their twelve named seats. Designer, Customer Success, Social, and Sales have
+no seats here because no harness names are approved for them.
+
+Seats are personality-neutral: an `agent` node declares only its harness,
+name, and optional pronouns. It neither selects nor defaults a personality; a
+compose request selects a role and a compatible personality explicitly. The
+global personality catalog may be completed independently, so a role's
+compatible personality can remain visibly pending in roster output until its
+definition lands.
 
 A private overlay may add scoped instructions or selection rules. It may not
 redefine canonical roles, personalities, seats, or compatibility. AOS owns no
 copy of this person source.
-
 ## See also
 
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.

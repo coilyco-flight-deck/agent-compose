@@ -1,6 +1,6 @@
 // Package person embeds the canonical public-safe person source: the role
-// catalog and named agent seats adapted from ward's roles.kdl sketch. The
-// personality catalog beyond engineer lands with issue #10.
+// catalog and named agent seats adapted from ward's roles.kdl sketch.
+// Personality definitions may arrive independently of role compatibility.
 package person
 
 import (

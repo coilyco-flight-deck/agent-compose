@@ -12,9 +12,9 @@ Inventory of what ships today; planned behavior lives in the issue tracker.
 
 * Go CLI (`agent-compose compose`) turns a KDL request into an immutable
   bundle without network access.
-* Embedded person source carrying the six active roles, the social and sales
-  stubs, and twelve named agent seats with pronouns; personalities beyond the
-  engineer set land with issue #10.
+* Embedded person source carries ten roles and their approved three-personality
+  matrix. Six roles retain twelve named pronoun-bearing seats; outstanding
+  personality definitions remain visibly pending in roster output.
 * Resolver emits the decision trace while choosing, covering selected,
   excluded, shadowed, and fallback outcomes.
 * Atomic, content-keyed materialization verifies staged and reused bundles;

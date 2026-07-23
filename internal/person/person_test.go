@@ -1,14 +1,38 @@
 package person
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestLoadEmbeddedRoster(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(p.Roles) != 8 {
-		t.Fatalf("expected 8 roles, got %d", len(p.Roles))
+	wantPersonalities := map[string][]string{
+		"director":         {"bold", "grounded", "diplomatic"},
+		"advisor":          {"reflective", "curious", "candid"},
+		"pm":               {"warm", "meticulous", "curious"},
+		"designer":         {"imaginative", "playful", "warm"},
+		"engineer":         {"curious", "grounded", "meticulous"},
+		"qa":               {"meticulous", "candid", "playful"},
+		"ops":              {"protective", "grounded", "reflective"},
+		"sales":            {"charming", "energetic", "warm"},
+		"social":           {"quirky", "playful", "optimistic"},
+		"customer-success": {"nurturing", "diplomatic", "optimistic"},
+	}
+	if len(p.Roles) != len(wantPersonalities) {
+		t.Fatalf("expected %d roles, got %d", len(wantPersonalities), len(p.Roles))
+	}
+	for name, want := range wantPersonalities {
+		role, ok := p.Roles[name]
+		if !ok {
+			t.Fatalf("missing role %q", name)
+		}
+		if !reflect.DeepEqual(role.Personalities, want) {
+			t.Errorf("role %q personalities = %q, want %q", name, role.Personalities, want)
+		}
 	}
 	var seats int
 	for _, role := range p.Roles {
@@ -37,11 +61,17 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		}
 	}
 
-	for _, stub := range []string{"social", "sales"} {
+	for _, stub := range []string{"designer", "social", "sales", "customer-success"} {
 		role, ok := p.Roles[stub]
 		if !ok || role.Purpose == "" || len(role.Seats) != 0 {
-			t.Fatalf("stub role %q must exist with purpose and no seats: %+v", stub, role)
+			t.Fatalf("seatless role %q must exist with purpose and no seats: %+v", stub, role)
 		}
+	}
+	if got := p.Roles["designer"].Purpose; got != "Product shaping." {
+		t.Fatalf("designer purpose = %q", got)
+	}
+	if got := p.Roles["customer-success"].Purpose; got != "Onboarding, support, retention, customer research, and feeding recurring customer pain back into product work." {
+		t.Fatalf("customer-success purpose = %q", got)
 	}
 	if len(p.Personalities) != 3 {
 		t.Fatalf("expected 3 bound personalities, got %d", len(p.Personalities))
