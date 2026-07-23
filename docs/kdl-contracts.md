@@ -14,7 +14,7 @@ compose {
     role "engineer"
     delivery "native-skills"
     density "full"
-    source "aos-public" declaration="source-public.kdl" required=#true
+    source "aos-public" root="agentic-os" required=#true
 }
 ```
 
@@ -25,14 +25,18 @@ and only changes how much personality prose the bundle carries. A caller
 usually derives it from model class. Nothing else about the agent - model,
 harness, reasoning effort, interactivity - appears in a request.
 
-Sources are evaluated in request order. A declaration path is locator data
-that says where files live; it never becomes part of the composed content's
-identity.
+Sources are evaluated in request order. A `root` or `declaration` path is
+locator data that says where files live. It never becomes part of the composed
+content's identity.
 
-## Personality source declaration
+## Personality sources
 
-A source is a place personality files live - an AOS checkout, a private
-overlay directory, or coincidentally a repository:
+The public AOS provider needs only its root. Agent-compose discovers the shared
+`personality-invariant` and every `personality-*` skill under the provider's
+`.agents/skills` directory in lexical order. The same root form works in a
+compose request, as a `roster` argument, and in host `roster_sources`.
+
+An overlay or another provider can instead carry an explicit declaration:
 
 ```kdl
 source "aos-public" {
@@ -41,9 +45,12 @@ source "aos-public" {
 }
 ```
 
-Paths are relative to the declaration and must stay beneath the source root.
-Symlinks and escaping paths fail validation. A required missing source fails
-composition. An optional missing source is skipped with a note in the trace.
+The request admits that file with
+`source "aos-public" declaration="source-public.kdl"`. Paths inside the
+declaration are relative to the declaration and must stay beneath its source
+root. Request locator paths are relative to the request. Symlinks and escaping
+paths fail validation. A required missing source fails composition. An optional
+missing source is skipped with a note in the trace.
 
 ## See also
 

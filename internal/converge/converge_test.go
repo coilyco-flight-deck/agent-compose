@@ -2,6 +2,7 @@ package converge
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,16 +32,25 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	skillRoot := filepath.Join(paths.ProjectsRoot, "coilyco-flight-deck", "agentic-os", ".agents", "skills")
+	providerRoot := filepath.Join(paths.ProjectsRoot, "coilyco-flight-deck", "agentic-os")
+	skillRoot := filepath.Join(providerRoot, ".agents", "skills")
 	if err := os.MkdirAll(filepath.Join(skillRoot, "coding-go"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	fixture, err := filepath.Abs(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
-	if err != nil {
+	if err := os.MkdirAll(filepath.Join(skillRoot, "personality-curious"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(skillRoot, "personality-curious", "SKILL.md"), []byte("# Curious\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(skillRoot, "personality-shared"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(skillRoot, "personality-shared", "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
-		"roster_sources:\n  - " + fixture + "\n" +
+		"roster_sources:\n  - " + providerRoot + "\n" +
 		"skill_load_points:\n  codex: " + filepath.Join(dir, "links", "skills") + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n  codex: null\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
@@ -55,7 +65,9 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		t.Fatalf("converge must refresh roster then cascade: %s", out)
 	}
 	composed := readFile(t, paths.Composed)
-	if !strings.Contains(composed, "# Doctrine") || !strings.Contains(composed, "# Agent seats") {
+	if !strings.Contains(composed, "# Doctrine") ||
+		!strings.Contains(composed, "# Invariant") ||
+		!strings.Contains(composed, "# Agent seats") {
 		t.Fatalf("composed output must carry doctrine and the dispatch table:\n%s", composed)
 	}
 	if !strings.Contains(composed, "opal engineer") {
@@ -75,7 +87,16 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if !strings.Contains(out, "cascade outputs=1 load-points=1 manifest=1 changed=0") {
 		t.Fatalf("second converge must summarize the full cascade check: %s", out)
 	}
-	if !strings.Contains(out, "skills  managed=1 load-points=1 verified=1 linked=0 removed=0 preserved=0") {
+	skillEntries, err := os.ReadDir(skillRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantSkillSummary := fmt.Sprintf(
+		"skills  managed=%d load-points=1 verified=%d linked=0 removed=0 preserved=0",
+		len(skillEntries),
+		len(skillEntries),
+	)
+	if !strings.Contains(out, wantSkillSummary) {
 		t.Fatalf("second converge must summarize the full skill check: %s", out)
 	}
 }

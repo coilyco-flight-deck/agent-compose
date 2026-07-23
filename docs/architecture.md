@@ -21,7 +21,8 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
   derives it from model class: a frontier model needs one sentence where a
   small local model needs the one-pager. No model name enters a request.
 * `delivery` - native skills or compiled context.
-* `source locators` - where personality files live on disk.
+* `source locators` - where files live. AOS's personality inventory is inferred
+  from its provider root.
 
 Everything else about the agent stays outside the request. Model, harness,
 reasoning effort, interactivity, permissions, and task acceptance belong to
@@ -38,7 +39,8 @@ scoped instructions and selection rules.
 
 Personality definitions live inside skills. The person source binds each
 personality name to the skill that defines it, and the skill body carries the
-actual definition.
+actual definition. Agent-compose discovers AOS's invariant and `personality-*`
+skills from its root. Overlays may use explicit source declarations.
 
 The resolver evaluates admitted private overlays in request order, then AOS
 sources in request order. Byte-identical candidates for one delivery slot

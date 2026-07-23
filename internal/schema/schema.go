@@ -14,6 +14,10 @@ const (
 	DeliveryCompiled     = "compiled"
 	DensityBrief         = "brief"
 	DensityFull          = "full"
+
+	providerSkillsPath    = ".agents/skills"
+	providerInvariantID   = "personality-invariant"
+	providerInvariantPath = ".agents/skills/personality-shared/INVARIANT.md"
 )
 
 type Request struct {
@@ -26,6 +30,7 @@ type Request struct {
 type SourceLocator struct {
 	ID          string
 	Declaration string
+	Root        string
 	Required    bool
 }
 
@@ -89,10 +94,22 @@ func ParseRequest(path string) (*Request, error) {
 				return nil, fmt.Errorf("request %s: %w", path, err)
 			}
 			decl := n.Prop("declaration")
-			if !decl.IsValid() {
-				return nil, fmt.Errorf("request %s: source %q needs a declaration property", path, id)
+			root := n.Prop("root")
+			if decl.IsValid() == root.IsValid() {
+				return nil, fmt.Errorf("request %s: source %q needs exactly one of declaration or root", path, id)
 			}
-			loc := SourceLocator{ID: id, Declaration: decl.String()}
+			loc := SourceLocator{ID: id}
+			if decl.IsValid() {
+				loc.Declaration = decl.String()
+				if loc.Declaration == "" {
+					return nil, fmt.Errorf("request %s: source %q declaration cannot be empty", path, id)
+				}
+			} else {
+				loc.Root = root.String()
+				if loc.Root == "" {
+					return nil, fmt.Errorf("request %s: source %q root cannot be empty", path, id)
+				}
+			}
 			if p := n.Prop("required"); p.IsValid() {
 				loc.Required = p.Bool()
 			}
@@ -132,19 +149,35 @@ func LoadSources(req *Request, requestPath string) ([]*Source, []MissingSource, 
 	var sources []*Source
 	var missing []MissingSource
 	for _, loc := range req.Sources {
-		declPath := filepath.Join(baseDir, loc.Declaration)
-		if strings.Contains(loc.Declaration, "..") || filepath.IsAbs(loc.Declaration) {
-			return nil, nil, fmt.Errorf("source %q: declaration path %q must be relative and clean", loc.ID, loc.Declaration)
+		sourcePath := loc.Declaration
+		kind := "declaration"
+		if loc.Root != "" {
+			sourcePath = loc.Root
+			kind = "root"
 		}
-		src, err := parseSource(declPath)
+		if strings.Contains(sourcePath, "..") || filepath.IsAbs(sourcePath) {
+			return nil, nil, fmt.Errorf("source %q: %s path %q must be relative and clean", loc.ID, kind, sourcePath)
+		}
+		resolvedPath := filepath.Join(baseDir, sourcePath)
+		var src *Source
+		var err error
+		if loc.Root != "" {
+			src, err = inferProvider(loc.ID, resolvedPath)
+		} else {
+			src, err = parseSource(resolvedPath)
+		}
 		if err != nil {
-			if os.IsNotExist(err) && !loc.Required {
-				missing = append(missing, MissingSource{ID: loc.ID, Reason: fmt.Sprintf("optional source declaration %s is absent", loc.Declaration)})
+			_, rootErr := os.Stat(resolvedPath)
+			if os.IsNotExist(rootErr) && !loc.Required {
+				missing = append(missing, MissingSource{
+					ID:     loc.ID,
+					Reason: fmt.Sprintf("optional source %s %s is absent", kind, sourcePath),
+				})
 				continue
 			}
 			return nil, nil, fmt.Errorf("source %q: %w", loc.ID, err)
 		}
-		if src.ID != loc.ID {
+		if loc.Declaration != "" && src.ID != loc.ID {
 			return nil, nil, fmt.Errorf("source %q: declaration %s declares id %q", loc.ID, loc.Declaration, src.ID)
 		}
 		sources = append(sources, src)
@@ -152,10 +185,74 @@ func LoadSources(req *Request, requestPath string) ([]*Source, []MissingSource, 
 	return sources, missing, nil
 }
 
-// LoadSource reads one source declaration outside any compose request, for
-// verbs like roster that consume sources directly.
-func LoadSource(declPath string) (*Source, error) {
-	return parseSource(declPath)
+// LoadSource reads one explicit declaration or infers an AOS personality
+// provider root for direct consumers such as roster.
+func LoadSource(sourcePath string) (*Source, error) {
+	info, err := os.Stat(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+	if info.IsDir() {
+		root, err := filepath.Abs(sourcePath)
+		if err != nil {
+			return nil, err
+		}
+		return inferProvider(filepath.Base(root), root)
+	}
+	return parseSource(sourcePath)
+}
+
+// inferProvider applies the AOS personality-provider filesystem convention.
+// ReadDir returns names in lexical order, keeping source decisions stable.
+func inferProvider(id, root string) (*Source, error) {
+	info, err := os.Stat(root)
+	if err != nil {
+		return nil, err
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("provider root %s is not a directory", root)
+	}
+
+	invariant := filepath.Join(root, filepath.FromSlash(providerInvariantPath))
+	if info, err := os.Stat(invariant); err != nil {
+		return nil, fmt.Errorf("provider invariant %s: %w", providerInvariantPath, err)
+	} else if !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("provider invariant %s is not a regular file", providerInvariantPath)
+	}
+
+	skillsRoot := filepath.Join(root, filepath.FromSlash(providerSkillsPath))
+	entries, err := os.ReadDir(skillsRoot)
+	if err != nil {
+		return nil, fmt.Errorf("provider skills %s: %w", providerSkillsPath, err)
+	}
+	src := &Source{
+		ID:   id,
+		Root: root,
+		Instructions: []ContentRef{{
+			ID:   providerInvariantID,
+			Path: providerInvariantPath,
+		}},
+	}
+	for _, entry := range entries {
+		name := entry.Name()
+		if !entry.IsDir() || !strings.HasPrefix(name, "personality-") || name == "personality-shared" {
+			continue
+		}
+		skillPath := filepath.Join(skillsRoot, name, "SKILL.md")
+		if info, err := os.Stat(skillPath); err != nil {
+			return nil, fmt.Errorf("provider skill %s: %w", name, err)
+		} else if !info.Mode().IsRegular() {
+			return nil, fmt.Errorf("provider skill %s SKILL.md is not a regular file", name)
+		}
+		src.Skills = append(src.Skills, ContentRef{
+			ID:   name,
+			Path: filepath.ToSlash(filepath.Join(providerSkillsPath, name)),
+		})
+	}
+	if len(src.Skills) == 0 {
+		return nil, fmt.Errorf("provider root %s has no personality-* skills under %s", root, providerSkillsPath)
+	}
+	return src, nil
 }
 
 func parseSource(declPath string) (*Source, error) {

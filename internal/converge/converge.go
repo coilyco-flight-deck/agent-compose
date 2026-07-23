@@ -34,10 +34,10 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 		return 1
 	}
 	var sources []*schema.Source
-	for _, declPath := range cfg.RosterSources {
-		src, err := schema.LoadSource(declPath)
+	for _, sourcePath := range cfg.RosterSources {
+		src, err := schema.LoadSource(sourcePath)
 		if err != nil {
-			fmt.Fprintf(stderr, "agent-compose: warning: roster source %s: %v (skipped)\n", declPath, err)
+			fmt.Fprintf(stderr, "agent-compose: warning: roster source %s: %v (skipped)\n", sourcePath, err)
 			continue
 		}
 		sources = append(sources, src)

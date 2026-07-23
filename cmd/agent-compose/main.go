@@ -127,7 +127,7 @@ func main() {
 				Name:      "roster",
 				Hidden:    true,
 				Usage:     "render the seat dispatch table as a v1-cascade source",
-				ArgsUsage: "[source.kdl...]",
+				ArgsUsage: "[source-path...]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "out",
@@ -373,8 +373,8 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	var sources []*schema.Source
-	for _, declPath := range cmd.Args().Slice() {
-		src, err := schema.LoadSource(declPath)
+	for _, sourcePath := range cmd.Args().Slice() {
+		src, err := schema.LoadSource(sourcePath)
 		if err != nil {
 			return err
 		}

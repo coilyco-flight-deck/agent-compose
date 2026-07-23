@@ -92,6 +92,57 @@ func TestComposeAllFixtures(t *testing.T) {
 	}
 }
 
+func TestComposeInferredProviderRoot(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	shared := filepath.Join(root, ".agents", "skills", "personality-shared")
+	if err := os.MkdirAll(shared, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, personalityName := range p.Roles["engineer"].Personalities {
+		skillID := p.Personalities[personalityName].Skill
+		dir := filepath.Join(root, ".agents", "skills", skillID)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+personalityName+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	request := filepath.Join(root, "request.kdl")
+	if err := os.WriteFile(request, []byte(`compose {
+    role "engineer"
+    delivery "native-skills"
+    density "full"
+    source "aos-public" root="." required=#true
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := Run(request, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest := readManifest(t, result.Bundle.Dir)
+	if len(manifest.Personalities) != len(p.Roles["engineer"].Personalities) {
+		t.Fatalf("inferred provider selected the wrong personalities: %+v", manifest.Personalities)
+	}
+	instructions, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "content", "instructions.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(instructions), "# Invariant") {
+		t.Fatalf("inferred provider omitted its invariant:\n%s", instructions)
+	}
+}
+
 func TestCompiledDensityChangesProse(t *testing.T) {
 	out := t.TempDir()
 	full, err := Run(fixture(t, "compiled-full.kdl"), out)

@@ -73,6 +73,18 @@ func TestParseRequestFailsClosed(t *testing.T) {
     density "full"
     source "aos-public"
 }`,
+		"source with declaration and root": `compose {
+    role "engineer"
+    delivery "native-skills"
+    density "full"
+    source "aos-public" declaration="source.kdl" root="."
+}`,
+		"source with empty root": `compose {
+    role "engineer"
+    delivery "native-skills"
+    density "full"
+    source "aos-public" root=""
+}`,
 		"invalid kdl": `compose { role "engineer`,
 	}
 	for name, body := range cases {
@@ -153,5 +165,80 @@ func TestParseSourceFixture(t *testing.T) {
 	}
 	if len(src.Skills) != 4 {
 		t.Fatalf("expected four skills, got %+v", src.Skills)
+	}
+}
+
+func TestLoadInferredProviderRoot(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "public-provider")
+	for _, name := range []string{"personality-bright", "personality-calm", "coding-go"} {
+		dir := filepath.Join(root, ".agents", "skills", name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+name+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	shared := filepath.Join(root, ".agents", "skills", "personality-shared")
+	if err := os.MkdirAll(shared, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	request := filepath.Join(root, "request.kdl")
+	if err := os.WriteFile(request, []byte(`compose {
+    role "engineer"
+    delivery "native-skills"
+    density "full"
+    source "aos-public" root="." required=#true
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	req, err := ParseRequest(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sources, missing, err := LoadSources(req, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(missing) != 0 || len(sources) != 1 {
+		t.Fatalf("unexpected inferred load result: %+v / %+v", sources, missing)
+	}
+	src := sources[0]
+	if src.ID != "aos-public" ||
+		len(src.Instructions) != 1 ||
+		src.Instructions[0].ID != "personality-invariant" {
+		t.Fatalf("unexpected inferred source: %+v", src)
+	}
+	if len(src.Skills) != 2 ||
+		src.Skills[0].ID != "personality-bright" ||
+		src.Skills[1].ID != "personality-calm" {
+		t.Fatalf("inferred skills must be filtered and sorted: %+v", src.Skills)
+	}
+
+	direct, err := LoadSource(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if direct.ID != filepath.Base(root) || len(direct.Skills) != len(src.Skills) {
+		t.Fatalf("direct provider load differs: %+v", direct)
+	}
+}
+
+func TestLoadInferredProviderRejectsMissingInvariant(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "incomplete-provider")
+	skill := filepath.Join(root, ".agents", "skills", "personality-bright")
+	if err := os.MkdirAll(skill, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(skill, "SKILL.md"), []byte("# Bright\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "provider invariant") {
+		t.Fatalf("missing invariant needs an actionable error, got %v", err)
 	}
 }
