@@ -12,6 +12,10 @@ The workflow:
 * creates the Forgejo release and uploads binaries, checksums, and package files
 * updates the Homebrew tap and Scoop bucket when their write tokens are present
 
+The validation gate restores pre-commit environments by config hash before it
+runs. A cold cache keeps the AOS-standard 30-minute window, and a successful
+run saves the environments for the next queued release.
+
 There is no staging environment, production environment, promote branch, or
 draft-release tier. A manual dispatch can retry an explicit tag. Major releases
 remain a deliberate dispatch choice rather than a commit-message inference.

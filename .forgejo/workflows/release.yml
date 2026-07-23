@@ -30,7 +30,7 @@ permissions:
 jobs:
   release:
     runs-on: docker
-    timeout-minutes: 20
+    timeout-minutes: 30
     container:
       image: forgejo.coilysiren.me/coilyco-flight-deck/agentic-os:release
     outputs:
@@ -39,6 +39,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Cache pre-commit envs
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
 
       - name: Validate the release commit
         run: ward exec test
