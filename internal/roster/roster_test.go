@@ -14,9 +14,27 @@ import (
 
 func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 	t.Helper()
-	p, err := person.Load()
-	if err != nil {
-		t.Fatal(err)
+	p := &person.Person{
+		Name: "fixture",
+		Roles: map[string]person.Role{
+			"builder": {
+				Purpose:       "Build the fixture.",
+				Personalities: []string{"bright", "pending"},
+				Seats: []person.Seat{
+					{Harness: "claude", Name: "opal builder", Pronouns: "she"},
+					{Harness: "codex", Name: "terran builder", Pronouns: "he"},
+				},
+			},
+			"seatless": {
+				Purpose:       "Remain seatless.",
+				Personalities: []string{"bright"},
+			},
+		},
+		RoleOrder: []string{"builder", "seatless"},
+		Personalities: map[string]person.Personality{
+			"bright":  {Skill: "personality-curious", Color: "#c87945"},
+			"pending": {Skill: "personality-pending"},
+		},
 	}
 	src, err := schema.LoadSource(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
 	if err != nil {
@@ -34,28 +52,26 @@ func TestRenderDispatchTable(t *testing.T) {
 
 	table := string(files["AGENTS.COMPOSE.md"])
 	for _, want := range []string{
-		"If you are claude running the engineer role: your name is opal engineer (pronouns: she).",
-		"If you are codex running the director role: your name is solar director (pronouns: he).",
-		"curious (favorite color #d98e48), defined in [curious](personalities/curious.md)",
-		"## director - Pair with the human on high level goals.",
-		"Compatible personalities: bold, definition pending; grounded (favorite color #5fa87a), defined in [grounded](personalities/grounded.md); diplomatic, definition pending.",
+		"If you are claude running the builder role: your name is opal builder (pronouns: she).",
+		"If you are codex running the builder role: your name is terran builder (pronouns: he).",
+		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
+		"## builder - Build the fixture.",
+		"Compatible personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending, definition pending.",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)
 		}
 	}
-	for _, role := range []string{"designer", "social", "sales", "customer-success"} {
-		if strings.Contains(table, "## "+role+" ") {
-			t.Fatalf("seatless role %q must not render a section", role)
-		}
+	if strings.Contains(table, "## seatless ") {
+		t.Fatal("seatless role must not render a section")
 	}
 
 	override := string(files["AGENTS.claude.md"])
-	if !strings.Contains(override, "@/opt/artifact/personalities/curious.md") {
+	if !strings.Contains(override, "@/opt/artifact/personalities/bright.md") {
 		t.Fatalf("claude override missing mechanical import:\n%s", override)
 	}
 
-	if !strings.Contains(string(files["personalities/curious.md"]), "# Curious") {
+	if !strings.Contains(string(files["personalities/bright.md"]), "# Curious") {
 		t.Fatal("personality body must carry the skill definition")
 	}
 }
@@ -82,7 +98,7 @@ func TestRenderDegradesWithoutSources(t *testing.T) {
 		t.Fatal(err)
 	}
 	table := string(files["AGENTS.COMPOSE.md"])
-	if !strings.Contains(table, "curious (favorite color #d98e48), definition pending") {
+	if !strings.Contains(table, "bright (favorite color #c87945), definition pending") {
 		t.Fatalf("expected pending definitions without sources:\n%s", table)
 	}
 	if _, ok := files["AGENTS.claude.md"]; ok {
@@ -97,10 +113,10 @@ func TestApplyOwnedProtectsForeignFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.ApplyOwned(target, files, "roster", "person:kai"); err != nil {
+	if _, err := project.ApplyOwned(target, files, "roster", "person:fixture"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.ApplyOwned(target, files, "roster", "person:kai"); err != nil {
+	if _, err := project.ApplyOwned(target, files, "roster", "person:fixture"); err != nil {
 		t.Fatalf("re-apply over owned files must succeed: %v", err)
 	}
 
@@ -108,7 +124,7 @@ func TestApplyOwnedProtectsForeignFiles(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(foreign, "AGENTS.COMPOSE.md"), []byte("mine\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.ApplyOwned(foreign, files, "roster", "person:kai"); err == nil || !strings.Contains(err.Error(), "refusing to overwrite") {
+	if _, err := project.ApplyOwned(foreign, files, "roster", "person:fixture"); err == nil || !strings.Contains(err.Error(), "refusing to overwrite") {
 		t.Fatalf("expected ownership refusal, got %v", err)
 	}
 }

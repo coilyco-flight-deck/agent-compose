@@ -18,18 +18,16 @@ person "kai" {
 A role names its purpose, the personalities compatible with it, and its named
 agent seats. The embedded roster contains this approved compatibility matrix:
 
-| Role | Compatible personalities |
-| --- | --- |
-| `director` | `bold`, `grounded`, `diplomatic` |
-| `advisor` | `reflective`, `curious`, `candid` |
-| `pm` | `warm`, `meticulous`, `curious` |
-| `designer` | `imaginative`, `playful`, `warm` |
-| `engineer` | `curious`, `grounded`, `meticulous` |
-| `qa` | `meticulous`, `candid`, `playful` |
-| `ops` | `protective`, `grounded`, `reflective` |
-| `sales` | `charming`, `energetic`, `warm` |
-| `social` | `quirky`, `playful`, `optimistic` |
-| `customer-success` | `nurturing`, `diplomatic`, `optimistic` |
+* `director` - `bold`, `grounded`, `diplomatic`
+* `advisor` - `reflective`, `curious`, `candid`
+* `pm` - `warm`, `meticulous`, `curious`
+* `designer` - `imaginative`, `playful`, `warm`
+* `engineer` - `curious`, `grounded`, `meticulous`
+* `qa` - `meticulous`, `candid`, `playful`
+* `ops` - `protective`, `grounded`, `reflective`
+* `sales` - `charming`, `energetic`, `warm`
+* `social` - `quirky`, `playful`, `optimistic`
+* `customer-success` - `nurturing`, `diplomatic`, `optimistic`
 
 A personality entry binds the name to the skill that defines it.
 The definition itself - however presence, attention, tempo, and voice end up
@@ -47,6 +45,7 @@ carried in the bundle manifest. An identity composed of several personalities
 derives its favorite as the OKLab centroid of the component colors with
 chroma restored to the components' minimum, clamped back into the band -
 the perceptual middle, never gray.
+
 ## Agent seats
 
 An `agent` node under a role is a named seat: the harness lineage is the key,
@@ -74,6 +73,7 @@ definition lands.
 A private overlay may add scoped instructions or selection rules. It may not
 redefine canonical roles, personalities, seats, or compatibility. AOS owns no
 copy of this person source.
+
 ## See also
 
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.
