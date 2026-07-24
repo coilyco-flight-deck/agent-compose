@@ -7,7 +7,7 @@ repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 site_dir="$repo_dir/web/personality-palette"
 
 cd "$repo_dir"
-go run ./cmd/agent-compose palette-data --out "$site_dir/public/palette.json"
+go run ./cmd/agent-compose palette-data --out "web/personality-palette/public/palette.json"
 
 cd "$site_dir"
 npm ci --prefer-offline --ignore-scripts --no-audit --no-fund

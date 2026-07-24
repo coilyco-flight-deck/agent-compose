@@ -168,8 +168,8 @@ func TestParseSourceFixture(t *testing.T) {
 	if len(src.Instructions) != 1 || src.Instructions[0].ID != "foundation" {
 		t.Fatalf("unexpected instructions: %+v", src.Instructions)
 	}
-	if len(src.Skills) != 4 {
-		t.Fatalf("expected four skills, got %+v", src.Skills)
+	if len(src.Skills) != 1 || src.Skills[0].ID != "fixture-review" {
+		t.Fatalf("expected only the ordinary fixture skill, got %+v", src.Skills)
 	}
 }
 
@@ -379,8 +379,8 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 	})
 }
 
-func TestLoadInferredProviderRejectsMissingInvariant(t *testing.T) {
-	root := filepath.Join(t.TempDir(), "incomplete-provider")
+func TestLoadInferredProviderAllowsMissingInvariant(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "ordinary-provider")
 	skill := filepath.Join(root, ".agents", "skills", "personality-bright")
 	if err := os.MkdirAll(skill, 0o755); err != nil {
 		t.Fatal(err)
@@ -388,7 +388,11 @@ func TestLoadInferredProviderRejectsMissingInvariant(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(skill, "SKILL.md"), []byte("# Bright\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "provider invariant") {
-		t.Fatalf("missing invariant needs an actionable error, got %v", err)
+	src, err := LoadSource(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(src.Instructions) != 0 || len(src.Skills) != 1 {
+		t.Fatalf("provider without invariant loaded incorrectly: %+v", src)
 	}
 }

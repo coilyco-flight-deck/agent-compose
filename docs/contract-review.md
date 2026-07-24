@@ -9,7 +9,7 @@ issues consume this reviewed contract rather than the earlier proposal.
 * Agent-compose is a personality engine. It owns personality, source
   selection, and delivery. It is not a security boundary.
 * Repositories are not an agent-compose concept. A repo is at best a place
-  personality files happen to live, reached through a source locator like any
+  capability files happen to live, reached through a source locator like any
   other directory. Privacy scopes, target repositories, repo declarations, and
   per-repo capability resolution are removed from the contract.
 * Agent, model, harness, reasoning effort, and interactivity are the realm of
@@ -24,14 +24,13 @@ issues consume this reviewed contract rather than the earlier proposal.
 * A compose request selects a role, not one personality. The role activates
   every personality in its ordered set, and their component colors derive one
   melded favorite for the bundle.
-* Personality definitions live inside skills. The person contract binds
-  personality names to skills and drops the presence, attention, tempo, and
-  voice fields. The format inside the skill (KDL, YAML, or a metadata block in
-  SKILL.md) is deliberately undecided in v0.1.
-* The person contract drops its invariants section and renames
-  `allows-personality` to `personality`. The rule that personality never
-  alters truthfulness, authority, safety, rollback, or completion remains a
-  repo rule in AGENTS.md rather than schema surface.
+* Personality definitions live inside `SKILL.md` trees. The person contract
+  binds personality names to those skills and drops the presence, attention,
+  tempo, and voice fields from KDL. Agent-compose now embeds the complete skill
+  trees beside that binding.
+* The person KDL drops its invariants section and renames
+  `allows-personality` to `personality`. The invariant is embedded as shared
+  instruction prose instead of schema surface.
 * No schema-version fields and no digest ceremony. Immutability and atomic
   refresh remain because they are cheap and prevent partially replaced
   bundles, not because bundles are a trust artifact.
@@ -55,10 +54,10 @@ without Ward.
 
 ## AOS integration record
 
-AOS publishes reusable personality skills and instructions under stable
-source ids and relative paths. It does not publish Kai's person source,
-harness load points, Ward policy, or installation paths. Agent-compose
-resolves AOS declarations locally without fetching.
+AOS publishes reusable ordinary skills and instructions under stable source
+ids and relative paths. It does not publish Kai's person source, personality
+definitions, harness load points, Ward policy, or installation paths.
+Agent-compose resolves AOS declarations locally without fetching.
 
 ## Compatibility fixtures
 

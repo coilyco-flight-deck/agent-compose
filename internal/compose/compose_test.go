@@ -105,7 +105,7 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
 			for _, personalityName := range wantPersonalities {
-				skillPath := "content/skills/aos-public/personality-" + personalityName + "/SKILL.md"
+				skillPath := "content/skills/person%3Akai/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
 			}
 			if want == "compiled" {
@@ -135,23 +135,6 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		t.Fatal(err)
 	}
 	root := t.TempDir()
-	shared := filepath.Join(root, ".agents", "skills", "personality-shared")
-	if err := os.MkdirAll(shared, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	for _, personalityName := range p.Roles["engineer"].Personalities {
-		skillID := p.Personalities[personalityName].Skill
-		dir := filepath.Join(root, ".agents", "skills", skillID)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+personalityName+"\n"), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
 	ordinary := filepath.Join(root, ".agents", "skills", "coding-go")
 	if err := os.MkdirAll(ordinary, 0o755); err != nil {
 		t.Fatal(err)
@@ -204,10 +187,11 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(instructions), "# Invariant") {
-		t.Fatalf("inferred provider omitted its invariant:\n%s", instructions)
+	if !strings.Contains(string(instructions), "# Personality invariant") {
+		t.Fatalf("composition omitted the embedded personality invariant:\n%s", instructions)
 	}
 	for _, rel := range []string{
+		"content/skills/person%3Akai/personality-curious/SKILL.md",
 		"content/skills/aos-public/coding-go/SKILL.md",
 		"content/skills/aos-public/coding-shape-cli/SKILL.md",
 	} {

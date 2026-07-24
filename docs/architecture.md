@@ -17,26 +17,29 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
 * `role` - the caller names it, the person source validates it, and the role
   activates every personality it declares.
 * `delivery` - native skills or compiled context.
-* `source locators` - where files live. AOS's knowledge inventory is inferred
-  from its provider root.
+* `source locators` - where optional capability files live. AOS's knowledge
+  inventory is inferred from its provider root.
 
 Everything else about the agent stays outside the request. Model, harness,
 reasoning effort, interactivity, permissions, and task acceptance belong to
 the launcher and the consumer. A repository is not an agent-compose concept.
-A repo is only a place personality files sometimes live, reached through a
+A repo is only a place capability files sometimes live, reached through a
 source locator like any other directory.
 
 ## Policy ownership
 
 Agent-compose embeds one canonical public-safe person source. That source owns
-roles, personalities, and role-personality compatibility. External sources add
-knowledge but cannot redefine those names. A private overlay may add scoped
-instructions and selection rules.
+roles, personalities, role-personality compatibility, the personality
+invariant, and every canonical personality definition. External sources add
+knowledge but cannot redefine those names or bodies. A private overlay may add
+scoped instructions and selection rules.
 
-Personality definitions live inside skills. Agent-compose discovers AOS's
-invariant and ordinary `SKILL.md` trees from its root. `.agents/roles.kdl`
-admits role-specific `.agents/composed/*/COMPOSED.md` sources. Overlays may
-use explicit source declarations.
+Personality definitions live inside embedded skills. Agent-compose discovers
+ordinary `SKILL.md` trees from an AOS root. `.agents/roles.kdl` admits
+role-specific `.agents/composed/*/COMPOSED.md` sources. Overlays may use
+explicit source declarations. An optional legacy AOS invariant and personality
+copy remains readable during rolling upgrades. Byte-identical copies shadow
+behind `person:kai`.
 
 The resolver evaluates admitted private overlays in request order, then AOS
 sources in request order. Byte-identical candidates for one delivery slot
@@ -52,9 +55,10 @@ what it picked and why as each decision occurs.
 
 ## Integration obligations
 
-AOS publishes reusable doctrine, skills, capability providers, instructions,
-and composed-skill bindings under stable relative paths. AOS carries no copy
-of Kai's person source or Ward authority.
+AOS publishes reusable doctrine, ordinary skills, capability providers,
+instructions, and composed-skill bindings under stable relative paths. AOS
+carries no copy of Kai's person source, personality definitions, or Ward
+authority.
 
 Ward may build the compose request and mount the finished bundle read-only,
 treating the tree as opaque. Authority and credentials never enter the

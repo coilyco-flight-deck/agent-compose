@@ -1,7 +1,4 @@
 source "aos-public" {
     instruction "foundation" path="content/foundation.md"
     skill "fixture-review" path="skills/fixture-review"
-    skill "personality-curious" path="skills/personality-curious"
-    skill "personality-grounded" path="skills/personality-grounded"
-    skill "personality-meticulous" path="skills/personality-meticulous"
 }

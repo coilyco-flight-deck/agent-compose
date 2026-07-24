@@ -5,7 +5,6 @@ package roster
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -18,6 +17,12 @@ import (
 // Render produces the artifact file set; outDir only parameterizes the
 // absolute paths inside the claude override's mechanical imports.
 func Render(p *person.Person, sources []*schema.Source, outDir string) (map[string][]byte, error) {
+	personSource, err := person.Source(p)
+	if err != nil {
+		return nil, err
+	}
+	sources = append([]*schema.Source{personSource}, sources...)
+
 	files := map[string][]byte{}
 	bodies := personalityBodies(p, sources)
 	instructions, err := instructionBodies(sources)
@@ -95,7 +100,7 @@ func instructionBodies(sources []*schema.Source) ([][]byte, error) {
 	var bodies [][]byte
 	for _, src := range sources {
 		for _, instruction := range src.Instructions {
-			raw, err := os.ReadFile(filepath.Join(src.Root, instruction.Path))
+			raw, err := src.ReadFile(instruction.Path)
 			if err != nil {
 				return nil, fmt.Errorf("source %q instruction %q: %w", src.ID, instruction.ID, err)
 			}
@@ -150,7 +155,7 @@ func personalityBodies(p *person.Person, sources []*schema.Source) map[string][]
 				if skill.ID != binding.Skill {
 					continue
 				}
-				raw, err := os.ReadFile(filepath.Join(src.Root, skill.Path, "SKILL.md"))
+				raw, err := src.ReadFile(filepath.ToSlash(filepath.Join(skill.Path, "SKILL.md")))
 				if err == nil {
 					bodies[name] = raw
 				}

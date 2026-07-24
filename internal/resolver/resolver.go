@@ -4,8 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io/fs"
-	"os"
-	"path/filepath"
+	"path"
 	"sort"
 	"strings"
 
@@ -32,6 +31,7 @@ type Decision struct {
 type Selected struct {
 	ID         string
 	Source     string
+	Files      fs.FS
 	Path       string
 	EntryPoint string
 }
@@ -46,13 +46,19 @@ type Resolution struct {
 	RoleBriefing   string
 	Instructions   []Selected
 	Skills         []Selected
-	CompiledBodies []string
+	CompiledBodies []Selected
 	FavoriteColor  string
 	Decisions      []Decision
 	SourceIDs      []string
 }
 
 func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, missing []schema.MissingSource) (*Resolution, error) {
+	personSource, err := person.Source(p)
+	if err != nil {
+		return nil, err
+	}
+	sources = append([]*schema.Source{personSource}, sources...)
+
 	role, ok := p.Roles[req.Role]
 	if !ok {
 		return nil, fmt.Errorf("role %q is not defined by person %q; defined roles: %s",
@@ -101,7 +107,6 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
-		SourceIDs:     []string{"person:" + p.Name},
 	}
 	for _, src := range sources {
 		res.SourceIDs = append(res.SourceIDs, src.ID)
@@ -135,8 +140,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	selectedBySkill := map[string]Selected{}
 	skillDigests := map[string]string{}
 	considerSkill := func(src *schema.Source, ref schema.ContentRef, reason string) error {
-		abs := filepath.Join(src.Root, ref.Path)
-		digest, err := treeDigest(abs)
+		digest, err := treeDigest(src.FileSystem(), ref.Path)
 		if err != nil {
 			return fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)
 		}
@@ -153,7 +157,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 				ref.ID, src.ID, selected.Source)
 		}
 		selectedBySkill[ref.ID] = Selected{
-			ID: ref.ID, Source: src.ID, Path: abs, EntryPoint: entryPoint(ref),
+			ID: ref.ID, Source: src.ID, Files: src.FileSystem(), Path: ref.Path, EntryPoint: entryPoint(ref),
 		}
 		skillDigests[ref.ID] = digest
 		res.decide(Decision{
@@ -164,8 +168,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	}
 	for _, src := range sources {
 		for _, ref := range src.Instructions {
-			abs := filepath.Join(src.Root, ref.Path)
-			raw, err := os.ReadFile(abs)
+			raw, err := src.ReadFile(ref.Path)
 			if err != nil {
 				return nil, fmt.Errorf("source %q instruction %q: %w", src.ID, ref.ID, err)
 			}
@@ -183,7 +186,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			}
 			instructionBytes[ref.ID] = raw
 			instructionOwner[ref.ID] = src.ID
-			res.Instructions = append(res.Instructions, Selected{ID: ref.ID, Source: src.ID, Path: abs})
+			res.Instructions = append(res.Instructions, Selected{
+				ID: ref.ID, Source: src.ID, Files: src.FileSystem(), Path: ref.Path,
+			})
 			res.decide(Decision{
 				Subject: "instruction:" + ref.ID, Kind: "instruction", Source: src.ID,
 				Outcome: OutcomeSelected, Reason: "instructions from admitted sources are always selected",
@@ -266,11 +271,11 @@ func (r *Resolution) planDelivery() error {
 		return nil
 	}
 	for _, skill := range r.Skills {
-		body := filepath.Join(skill.Path, skill.EntryPoint)
-		if _, err := os.Stat(body); err != nil {
-			return fmt.Errorf("skill %q: compiled delivery needs %s: %w", skill.ID, filepath.Base(body), err)
+		body := path.Join(skill.Path, skill.EntryPoint)
+		if _, err := fs.Stat(skill.Files, body); err != nil {
+			return fmt.Errorf("skill %q: compiled delivery needs %s: %w", skill.ID, path.Base(body), err)
 		}
-		r.CompiledBodies = append(r.CompiledBodies, body)
+		r.CompiledBodies = append(r.CompiledBodies, skill)
 	}
 	r.decide(Decision{
 		Subject: "delivery/compiled.md", Kind: "delivery",
@@ -290,9 +295,9 @@ func (r *Resolution) decide(d Decision) {
 	r.Decisions = append(r.Decisions, d)
 }
 
-func treeDigest(root string) (string, error) {
+func treeDigest(files fs.FS, root string) (string, error) {
 	h := sha256.New()
-	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(files, root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -302,15 +307,15 @@ func treeDigest(root string) (string, error) {
 		if d.IsDir() {
 			return nil
 		}
-		rel, err := filepath.Rel(root, p)
+		rel := strings.TrimPrefix(p, strings.TrimSuffix(root, "/")+"/")
+		if rel == p {
+			return fmt.Errorf("%s is not beneath %s", p, root)
+		}
+		raw, err := fs.ReadFile(files, p)
 		if err != nil {
 			return err
 		}
-		raw, err := os.ReadFile(p)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(h, "%s\x00%d\x00", filepath.ToSlash(rel), len(raw))
+		fmt.Fprintf(h, "%s\x00%d\x00", rel, len(raw))
 		h.Write(raw)
 		return nil
 	})

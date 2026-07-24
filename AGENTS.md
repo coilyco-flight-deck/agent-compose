@@ -21,8 +21,10 @@ package layout land together so the code never precedes its public boundary.
   harness adapters, diagnostics, and Kai's public-safe person configuration.
 * The person configuration owns organizational purpose, personality catalog
   bindings, curated compatibility, and context-selection policy.
-* `agentic-os` owns reusable knowledge sources, general skills, personality
-  bodies, capability providers, and editorial validators.
+* `agent-compose` owns the personality invariant and canonical personality
+  definitions alongside the person configuration that binds them.
+* `agentic-os` owns reusable knowledge sources, general skills, capability
+  providers, and editorial validators.
 * Private overlays stay outside this public repo and may extend the embedded
   person source without replacing its canonical public-safe content.
 * `ward` owns execution permissions, role authority, runtime-fact resolution,
@@ -30,7 +32,7 @@ package layout land together so the code never precedes its public boundary.
   permission ownership into agent-compose.
 * `infrastructure` owns installation, binary shadowing rollout, host paths, and
   fleet convergence.
-* Product repos are not an agent-compose concept. A repo may host personality
+* Product repos are not an agent-compose concept. A repo may host capability
   files that a source locator references, and it owns any bespoke,
   foundational, or exceptional local skills.
 
@@ -84,7 +86,7 @@ Protocol compatibility is deliberately thin: consumers check the manifest
 
 Keep one issue per independently verifiable vertical slice. Kai-specific,
 public-safe role and personality policy is first-class product content. Do not
-generalize it prematurely, copy reusable AOS skills into this repo, or allow
+generalize it prematurely, copy ordinary AOS skills into this repo, or allow
 personality to alter truthfulness, authority, safety, rollback, or completion.
 Generated bundles and rendered references stay uncommitted. Update
 [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant capability

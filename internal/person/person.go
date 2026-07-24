@@ -1,20 +1,24 @@
 // Package person embeds the canonical public-safe person source: the role
-// catalog and named agent seats adapted from ward's roles.kdl sketch.
-// Personality definitions may arrive independently of role compatibility.
+// catalog, named agent seats, personality invariant, and complete personality
+// definitions.
 package person
 
 import (
-	_ "embed"
+	"bytes"
+	"embed"
 	"fmt"
+	"io/fs"
+	"sort"
 	"strings"
 
 	kdl "github.com/calico32/kdl-go"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl
-var embedded []byte
+//go:embed person.kdl definitions
+var embedded embed.FS
 
 // Seat is one named agent identity within a role. The harness is the join
 // key against the launcher's own catalog; the name is an opaque string here.
@@ -47,7 +51,121 @@ type Person struct {
 }
 
 func Load() (*Person, error) {
-	return parse(embedded)
+	raw, err := fs.ReadFile(embedded, "person.kdl")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded person source: %w", err)
+	}
+	return parse(raw)
+}
+
+// Source returns the canonical person:kai content provider. The role catalog,
+// invariant, and every bound personality definition ship in one binary.
+func Source(p *Person) (*schema.Source, error) {
+	files, err := fs.Sub(embedded, "definitions")
+	if err != nil {
+		return nil, fmt.Errorf("open embedded personality definitions: %w", err)
+	}
+	invariant, err := fs.ReadFile(files, "INVARIANT.md")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded personality invariant: %w", err)
+	}
+	if len(bytes.TrimSpace(invariant)) == 0 {
+		return nil, fmt.Errorf("embedded personality invariant is empty")
+	}
+
+	canonical, err := Load()
+	if err != nil {
+		return nil, err
+	}
+	expected := make(map[string]bool, len(canonical.Personalities))
+	canonicalSkills := make([]string, 0, len(canonical.Personalities))
+	for _, binding := range canonical.Personalities {
+		expected[binding.Skill] = true
+		canonicalSkills = append(canonicalSkills, binding.Skill)
+	}
+	sort.Strings(canonicalSkills)
+
+	selected := make(map[string]bool, len(p.Personalities))
+	for name, binding := range p.Personalities {
+		if binding.Skill == "" {
+			return nil, fmt.Errorf("personality %q has no skill binding", name)
+		}
+		if !expected[binding.Skill] {
+			return nil, fmt.Errorf("personality %q binds non-canonical skill %q", name, binding.Skill)
+		}
+		if selected[binding.Skill] {
+			return nil, fmt.Errorf("personality skill %q is bound more than once", binding.Skill)
+		}
+		selected[binding.Skill] = true
+	}
+
+	entries, err := fs.ReadDir(files, "skills")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded personality skills: %w", err)
+	}
+	if len(entries) != len(canonicalSkills) {
+		return nil, fmt.Errorf(
+			"embedded personality skills: catalog binds %d skills but definitions contain %d entries",
+			len(canonicalSkills),
+			len(entries),
+		)
+	}
+
+	src := &schema.Source{
+		ID:    "person:" + p.Name,
+		Files: files,
+		Instructions: []schema.ContentRef{{
+			ID:   "personality-invariant",
+			Path: "INVARIANT.md",
+		}},
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() || !expected[entry.Name()] {
+			return nil, fmt.Errorf("embedded personality skills: unexpected entry %q", entry.Name())
+		}
+	}
+	for _, skill := range canonicalSkills {
+		skillPath := "skills/" + skill
+		raw, err := fs.ReadFile(files, skillPath+"/SKILL.md")
+		if err != nil {
+			return nil, fmt.Errorf("read embedded skill %q: %w", skill, err)
+		}
+		if err := validateSkillDefinition(skill, raw); err != nil {
+			return nil, err
+		}
+		if !selected[skill] {
+			continue
+		}
+		src.Skills = append(src.Skills, schema.ContentRef{
+			ID:         skill,
+			Path:       skillPath,
+			EntryPoint: "SKILL.md",
+		})
+	}
+	return src, nil
+}
+
+func validateSkillDefinition(skill string, raw []byte) error {
+	text := string(raw)
+	if !strings.HasPrefix(text, "---\n") {
+		return fmt.Errorf("embedded skill %q: SKILL.md needs YAML frontmatter", skill)
+	}
+	end := strings.Index(text[4:], "\n---\n")
+	if end < 0 {
+		return fmt.Errorf("embedded skill %q: SKILL.md has unterminated frontmatter", skill)
+	}
+	end += 4
+	frontmatter := "\n" + text[4:end] + "\n"
+	if !strings.Contains(frontmatter, "\nname: "+skill+"\n") {
+		return fmt.Errorf("embedded skill %q: frontmatter name does not match", skill)
+	}
+	if !strings.Contains(frontmatter, "\ndescription: ") {
+		return fmt.Errorf("embedded skill %q: frontmatter needs a description", skill)
+	}
+	if strings.TrimSpace(text[end+5:]) == "" {
+		return fmt.Errorf("embedded skill %q: SKILL.md body is empty", skill)
+	}
+	return nil
 }
 
 func parse(raw []byte) (*Person, error) {

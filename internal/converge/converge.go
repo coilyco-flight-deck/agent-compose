@@ -18,8 +18,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
-// Run refreshes the roster artifact (bodies from roster_sources when
-// configured), then cascades. Absent config stays the documented no-op.
+// Run refreshes the roster from the embedded person plus configured overlays,
+// then cascades. Absent config stays the documented no-op.
 func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 	if _, err := os.Stat(paths.Config); err != nil {
 		return cascade.Run(paths, false, stdout, stderr)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -83,7 +84,7 @@ enabled = false
 		`[mcp_servers."reader"]`,
 		`[mcp_servers."local"]`,
 		`default_tools_approval_mode = "approve"`,
-		filepath.Join(home, "bin", "server"),
+		strconv.Quote(filepath.Join(home, "bin", "server")),
 	} {
 		if !strings.Contains(codex, want) {
 			t.Fatalf("Codex projection missing %q:\n%s", want, codex)

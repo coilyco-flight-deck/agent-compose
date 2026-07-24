@@ -41,18 +41,6 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(skillRoot, "coding-go", "SKILL.md"), []byte("# Go\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.MkdirAll(filepath.Join(skillRoot, "personality-curious"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(skillRoot, "personality-curious", "SKILL.md"), []byte("# Curious\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.MkdirAll(filepath.Join(skillRoot, "personality-shared"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(skillRoot, "personality-shared", "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
 	mcpInventory := filepath.Join(dir, "mcporter.json")
 	if err := os.WriteFile(mcpInventory, []byte(`{"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp"}}}`+"\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -75,7 +63,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	composed := readFile(t, paths.Composed)
 	if !strings.Contains(composed, "# Doctrine") ||
-		!strings.Contains(composed, "# Invariant") ||
+		!strings.Contains(composed, "# Personality invariant") ||
 		!strings.Contains(composed, "# Agent seats") {
 		t.Fatalf("composed output must carry doctrine and the dispatch table:\n%s", composed)
 	}
@@ -138,7 +126,7 @@ func TestConvergeWithoutConfigIsNoOp(t *testing.T) {
 	}
 }
 
-func TestConvergeDegradesOnBadRosterSource(t *testing.T) {
+func TestConvergeRetainsEmbeddedPersonalitiesOnBadRosterSource(t *testing.T) {
 	dir := t.TempDir()
 	paths := cascade.Paths{
 		Config:       filepath.Join(dir, "agent-compose.yaml"),
@@ -155,8 +143,10 @@ func TestConvergeDegradesOnBadRosterSource(t *testing.T) {
 	if code != 0 || !strings.Contains(errOut, "warning: roster source") {
 		t.Fatalf("bad roster source must warn and continue: %d %s", code, errOut)
 	}
-	if !strings.Contains(readFile(t, paths.Composed), "definition pending") {
-		t.Fatalf("table must degrade to pending bodies: %s", out)
+	composed := readFile(t, paths.Composed)
+	if strings.Contains(composed, "definition pending") ||
+		!strings.Contains(composed, "# Personality invariant") {
+		t.Fatalf("embedded personality definitions must survive a bad overlay: %s", out)
 	}
 }
 

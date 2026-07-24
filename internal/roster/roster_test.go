@@ -36,7 +36,7 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 		RoleOrder: []string{"builder", "seatless"},
 		Personalities: map[string]person.Personality{
 			"bright":  {Skill: "personality-curious", Color: "#c87945"},
-			"pending": {Skill: "personality-pending", Color: "#7d9fd3"},
+			"pending": {Skill: "personality-reflective", Color: "#7d9fd3"},
 		},
 	}
 	src, err := schema.LoadSource(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
@@ -62,6 +62,7 @@ func TestRenderDispatchTable(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
+		"# Personality invariant",
 		"# Fixture foundation",
 		"The agent uses repository evidence and reports uncertainty explicitly.",
 		"If launch context assigns\n" +
@@ -74,7 +75,7 @@ func TestRenderDispatchTable(t *testing.T) {
 		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
 		"## builder - Build the fixture.",
 		"You are a builder. Build the fixture from repository evidence.\n\nFinish validation and return a complete result.",
-		"Melded personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending (favorite color #7d9fd3), definition pending.",
+		"Melded personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending (favorite color #7d9fd3), defined in [pending](personalities/pending.md).",
 		"Melded favorite color: " + melded,
 	} {
 		if !strings.Contains(table, want) {
@@ -97,7 +98,8 @@ func TestRenderDispatchTable(t *testing.T) {
 	}
 
 	override := string(files["AGENTS.claude.md"])
-	if !strings.Contains(override, "@/opt/artifact/personalities/bright.md") {
+	wantImport := "@" + filepath.Join("/opt/artifact", "personalities", "bright.md")
+	if !strings.Contains(override, wantImport) {
 		t.Fatalf("claude override missing mechanical import:\n%s", override)
 	}
 
@@ -137,18 +139,19 @@ func TestRenderIsDeterministic(t *testing.T) {
 	}
 }
 
-func TestRenderDegradesWithoutSources(t *testing.T) {
+func TestRenderUsesEmbeddedDefinitionsWithoutSources(t *testing.T) {
 	p, _ := loadInputs(t)
 	files, err := Render(p, nil, "/opt/artifact")
 	if err != nil {
 		t.Fatal(err)
 	}
 	table := string(files["AGENTS.COMPOSE.md"])
-	if !strings.Contains(table, "bright (favorite color #c87945), definition pending") {
-		t.Fatalf("expected pending definitions without sources:\n%s", table)
+	if !strings.Contains(table, "bright (favorite color #c87945), defined in") ||
+		!strings.Contains(table, "pending (favorite color #7d9fd3), defined in") {
+		t.Fatalf("expected embedded definitions without sources:\n%s", table)
 	}
-	if _, ok := files["AGENTS.claude.md"]; ok {
-		t.Fatal("no bodies means no claude import override")
+	if _, ok := files["AGENTS.claude.md"]; !ok {
+		t.Fatal("embedded bodies must produce the claude import override")
 	}
 }
 

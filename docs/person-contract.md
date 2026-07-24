@@ -36,9 +36,12 @@ contains this approved meld matrix:
 * `customer-success` - `nurturing`, `diplomatic`, `optimistic`
 
 A personality entry is a catalog binding from its canonical name to a stable
-AOS skill id (`personality-<name>`). Every role reference needs one or the
-loader rejects it. Bindings are not supplied bodies. The definition lives in
-the externally admitted AOS skill and may remain pending in roster output.
+skill id (`personality-<name>`). Every role reference needs one or the loader
+rejects it. The same embedded `person:kai` source supplies one complete
+`SKILL.md` tree for every binding plus the personality invariant. A missing,
+empty, extra, or mismatched canonical definition fails source validation.
+Roster output therefore carries every canonical definition without an
+external provider.
 
 ## Favorite colors
 
@@ -65,8 +68,9 @@ activates its ordered personality set. Roster briefing delivery is documented
 in [role-briefings.md](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not
-redefine canonical roles, personalities, seats, or role personality sets. AOS owns no
-copy of this person source.
+redefine canonical roles, personalities, seats, definitions, or role
+personality sets. AOS owns no copy of this person source or its personality
+definitions.
 
 ## See also
 

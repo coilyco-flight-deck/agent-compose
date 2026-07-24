@@ -5,15 +5,12 @@ harnesses. AOS authors reusable knowledge. Agent-compose materializes the
 selected context surface. Ward supplies authority and consumes that surface
 without parsing AOS policy.
 
-The v1 Python composer (`generate-agent-compose` in AOS) has been
-absorbed: [`agent-compose cascade`](cascade.md) now composes
-`AGENTS.COMPOSE.md` doctrine sources into
+The v1 Python composer was absorbed into
+[`agent-compose cascade`](cascade.md), which composes doctrine sources into
 `~/.agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
 global load point at the result, applies scope and harness filtering with
 per-harness section overrides, and emits the mount-eligibility manifest ward
-reads - byte-compatible with the Python outputs. The Python generator
-remains in AOS only until fleet hosts converge on the binary. Retirement steps
-(hook repointing and script removal) are AOS work.
+reads.
 
 ## The seam rule
 
@@ -31,12 +28,14 @@ owns the load points a host declares.
 Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
 directory the cascade walks as a source root, containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
-carries admitted provider instructions plus the seat dispatch table: "if you
+carries the embedded personality invariant, admitted overlay instructions, and
+the seat dispatch table: "if you
 are codex running the engineer role, this is your operating briefing, name,
 pronouns, personality meld, definition paths, and derived favorite color."
 Under the [role-selection contract](role-selection.md), an explicit role stays
 fixed. An unassigned native agent selects from the initial request and loads
-that role's definitions.
+that role's definitions. No external roster source is required for canonical
+personality context.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
@@ -46,8 +45,7 @@ share a seat by design. Containers disambiguate when that is wrong.
 
 ## Container tier: v2 owns the home
 
-Agent-compose now supplies the stable provider half: `verify` checks a
-read-only bundle, then `project --scope home` transactionally fills the
+`verify` checks a read-only bundle, then `project --scope home` transactionally fills the
 claude, codex, goose, or opencode global load points. Black-box fixtures prove
 that each native home contains ordinary and role-composed skills plus every
 active personality, compiled homes contain all selected prose, and neither
@@ -57,15 +55,10 @@ invoke this contract at container start under issue #17.
 
 ## Migration state
 
-The cascade is native as of v0.2.0. What remains is fleet cutover: hosts
-switch from the Python entry points to the binary, the agentic-os drift hook
-repoints at `agent-compose cascade --check`, and the Python generator
-retires. That work belongs to AOS and infrastructure and is tracked in
+The cascade is native as of v0.2.0. Fleet cutover belongs to AOS and
+infrastructure and is tracked in
 [agentic-os#618](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/618).
-A host with
-hand-edited COMPOSED snapshots (this workstation) must reconcile edits back
-into sources before its first native cascade run, or they will be
-regenerated away.
+Hosts must reconcile hand-edited snapshots into sources before cutover.
 
 ## See also
 

@@ -1,6 +1,7 @@
 package person
 
 import (
+	"io/fs"
 	"strings"
 	"testing"
 )
@@ -12,8 +13,8 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		if got := strings.Count(role.Briefing, "\n\n"); got != 1 {
-			t.Errorf("role %q briefing has %d paragraph breaks, want 1", roleName, got)
+		if got := strings.Count(role.Briefing, "\n\n"); got != 2 {
+			t.Errorf("role %q briefing has %d paragraph breaks, want 2", roleName, got)
 		}
 		for _, name := range role.Personalities {
 			binding, ok := p.Personalities[name]
@@ -23,6 +24,31 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			if want := "personality-" + name; binding.Skill != want {
 				t.Errorf("personality %q skill = %q, want %q", name, binding.Skill, want)
 			}
+		}
+	}
+}
+
+func TestEmbeddedPersonSourceOwnsEveryPersonalityDefinition(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	src, err := Source(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if src.ID != "person:kai" {
+		t.Fatalf("source id = %q, want person:kai", src.ID)
+	}
+	if len(src.Instructions) != 1 || src.Instructions[0].ID != "personality-invariant" {
+		t.Fatalf("unexpected embedded instructions: %+v", src.Instructions)
+	}
+	if len(src.Skills) != len(p.Personalities) {
+		t.Fatalf("embedded skills = %d, catalog bindings = %d", len(src.Skills), len(p.Personalities))
+	}
+	for _, skill := range src.Skills {
+		if _, err := fs.Stat(src.FileSystem(), skill.Path+"/SKILL.md"); err != nil {
+			t.Fatalf("definition %q is not embedded: %v", skill.ID, err)
 		}
 	}
 }

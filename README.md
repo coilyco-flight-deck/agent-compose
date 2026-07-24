@@ -7,11 +7,11 @@ is intentionally opinionated: it also includes Kai's synthetic company,
 personality catalog, and composition defaults rather than presenting itself as
 a neutral enterprise framework.
 
-The intended product accepts a role, a delivery mode, and the locations of
-personality sources. The role activates its complete ordered personality set.
-Agent-compose resolves every bound personality skill, derives their melded
-favorite color, and emits an immutable context bundle for a host harness or a
-warded container to consume.
+The intended product accepts a role, a delivery mode, and optional capability
+sources. The role activates its complete ordered personality set.
+Agent-compose resolves every bound personality skill from its embedded person
+source, derives their melded favorite color, and emits an immutable context
+bundle for a host harness or a warded container to consume.
 
 ## Ownership boundary
 
@@ -20,7 +20,8 @@ configuration:
 
 * role-driven personality meld resolution
 * the ten-role company roster, concise purposes, and long-form role briefings
-* role-neutral personality catalog bindings and curated compatibility
+* role-neutral personality catalog bindings, definitions, invariant, and
+  curated compatibility
 * ordinary and role-composed skill selection
 * native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
@@ -28,9 +29,10 @@ configuration:
 * host doctrine convergence, native skill installation, and native MCP projection
 * bundle inspection, validation, and compatibility reporting
 
-AOS owns reusable doctrine, general skills, personality bodies, capability providers, and editorial
-validation. Agent-compose turns those sources into the concrete context surface
-for each harness. Private overlays remain outside this public repo. Ward owns
+AOS owns reusable doctrine, general skills, capability providers, and editorial
+validation. Agent-compose combines those sources with its embedded personality
+provider to build the concrete context surface for each harness. Private
+overlays remain outside this public repo. Ward owns
 executable authority, supplies runtime facts, and mounts opaque bundles.
 Personality and organizational framing never alter Ward permissions.
 Infrastructure installs the resulting system across hosts.
@@ -55,7 +57,10 @@ package-manager distribution. A configured mcporter inventory projects into
 both Claude Code and Codex native MCP registries during host convergence.
 Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
-repository also ships a local personality palette explorer. Bare `acompose` converges the host.
+embedded `person:kai` provider supplies the personality invariant and all 16
+canonical definitions, so host roster convergence needs no external
+personality source. The repository also ships a local personality palette
+explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
 Ward-side container invocation

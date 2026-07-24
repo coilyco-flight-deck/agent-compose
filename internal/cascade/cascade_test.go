@@ -246,10 +246,16 @@ func TestMountEligibilityManifest(t *testing.T) {
 		t.Fatal(errOut)
 	}
 	manifest := readFile(t, filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
-	if !strings.Contains(manifest, filepath.Join(e.projects, "org", "repo")) {
+	projects, err := filepath.EvalSymlinks(e.projects)
+	if err != nil {
+		t.Fatal(err)
+	}
+	inRepoPath := strings.ReplaceAll(filepath.Join(projects, "org", "repo"), `\`, `\\`)
+	if !strings.Contains(manifest, inRepoPath) {
 		t.Fatalf("in-repo source must make its repo mountable:\n%s", manifest)
 	}
-	if !strings.Contains(manifest, filepath.Join(e.projects, "coilyco-bridge", "lore")) {
+	defaultPath := strings.ReplaceAll(filepath.Join(projects, "coilyco-bridge", "lore"), `\`, `\\`)
+	if !strings.Contains(manifest, defaultPath) {
 		t.Fatalf("defaults must be unioned in:\n%s", manifest)
 	}
 	if strings.Contains(manifest, "elsewhere") {

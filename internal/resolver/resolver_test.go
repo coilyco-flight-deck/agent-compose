@@ -63,9 +63,7 @@ func makeSource(t *testing.T, id string, skillBodies map[string]string) *schema.
 
 func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-		"fixture-review":       "# Review\n",
+		"fixture-review": "# Review\n",
 	})
 	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{src}, nil)
 	if err != nil {
@@ -103,10 +101,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 }
 
 func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
-	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	})
+	src := makeSource(t, "aos", nil)
 	for _, name := range []string{"coding-shape-cli", "design-system"} {
 		dir := filepath.Join(src.Root, name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -161,18 +156,12 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	skillBodies := make(map[string]string, len(p.Personalities))
-	for _, binding := range p.Personalities {
-		skillBodies[binding.Skill] = "# Fixture\n"
-	}
-	src := makeSource(t, "aos", skillBodies)
-
 	for _, roleName := range p.RoleOrder {
 		t.Run(roleName, func(t *testing.T) {
 			res, err := Resolve(&schema.Request{
 				Role:     roleName,
 				Delivery: schema.DeliveryNativeSkills,
-			}, p, []*schema.Source{src}, nil)
+			}, p, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -190,10 +179,7 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 }
 
 func TestResolveValidationFailures(t *testing.T) {
-	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	})
+	src := makeSource(t, "aos", nil)
 	p := testPerson()
 
 	if _, err := Resolve(&schema.Request{Role: "pilot", Delivery: schema.DeliveryNativeSkills}, p, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "not defined") {
@@ -204,29 +190,32 @@ func TestResolveValidationFailures(t *testing.T) {
 	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), broken, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "without a catalog binding") {
 		t.Fatalf("expected missing catalog binding failure, got %v", err)
 	}
-	empty := &schema.Source{ID: "empty", Root: t.TempDir()}
-	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), p, []*schema.Source{empty}, nil); err == nil || !strings.Contains(err.Error(), "no admitted source provides it") {
-		t.Fatalf("expected missing bound skill failure, got %v", err)
+	missingDefinition := testPerson()
+	missingDefinition.Personalities["curious"] = person.Personality{
+		Skill: "personality-absent", Color: "#d98e48",
+	}
+	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), missingDefinition, nil, nil); err == nil ||
+		!strings.Contains(err.Error(), `binds non-canonical skill "personality-absent"`) {
+		t.Fatalf("expected missing embedded definition failure, got %v", err)
 	}
 }
 
 func TestResolveShadowsIdenticalAndFailsConflicts(t *testing.T) {
-	base := map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	}
-	a := makeSource(t, "overlay", base)
-	b := makeSource(t, "aos", base)
-	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{a, b}, nil)
+	legacy, err := person.Source(testPerson())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Skills[0].Source != "overlay" || res.Skills[1].Source != "overlay" {
-		t.Fatalf("expected the higher-precedence copies selected, got %+v", res.Skills)
+	legacy.ID = "aos"
+	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{legacy}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Skills[0].Source != "person:kai" || res.Skills[1].Source != "person:kai" {
+		t.Fatalf("expected embedded copies selected, got %+v", res.Skills)
 	}
 	var shadowed bool
 	for _, d := range res.Decisions {
-		if d.Outcome == OutcomeShadowed && d.Source == "aos" {
+		if d.Outcome == OutcomeShadowed && d.Source == legacy.ID {
 			shadowed = true
 		}
 	}
@@ -234,36 +223,28 @@ func TestResolveShadowsIdenticalAndFailsConflicts(t *testing.T) {
 		t.Fatalf("expected the aos copy shadowed, decisions: %+v", res.Decisions)
 	}
 
-	c := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Different\n",
-		"personality-grounded": "# Grounded\n",
+	conflict := makeSource(t, "aos", map[string]string{
+		"personality-curious": "# Different\n",
 	})
-	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{a, c}, nil); err == nil || !strings.Contains(err.Error(), "conflicts") {
+	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{conflict}, nil); err == nil || !strings.Contains(err.Error(), "conflicts") {
 		t.Fatalf("expected non-identical collision failure, got %v", err)
 	}
 }
 
 func TestCompiledDeliveryUsesCanonicalSkillBodies(t *testing.T) {
-	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	})
-	res, err := Resolve(testRequest(schema.DeliveryCompiled), testPerson(), []*schema.Source{src}, nil)
+	res, err := Resolve(testRequest(schema.DeliveryCompiled), testPerson(), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(res.CompiledBodies) != 2 ||
-		filepath.Base(res.CompiledBodies[0]) != "SKILL.md" ||
-		filepath.Base(res.CompiledBodies[1]) != "SKILL.md" {
+		res.CompiledBodies[0].EntryPoint != "SKILL.md" ||
+		res.CompiledBodies[1].EntryPoint != "SKILL.md" {
 		t.Fatalf("expected canonical SKILL.md for every personality, got %v", res.CompiledBodies)
 	}
 }
 
 func TestMissingOptionalSourceLandsInTrace(t *testing.T) {
-	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	})
+	src := makeSource(t, "aos", nil)
 	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{src},
 		[]schema.MissingSource{{ID: "overlay", Reason: "optional source declaration overlay.kdl is absent"}})
 	if err != nil {

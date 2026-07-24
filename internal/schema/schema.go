@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,11 +49,25 @@ type IntentRoute struct {
 type Source struct {
 	ID           string
 	Root         string
+	Files        fs.FS
 	Declaration  []byte
 	Instructions []ContentRef
 	Skills       []ContentRef
 	RoleSkills   map[string][]ContentRef
 	RoleIntents  map[string][]IntentRoute
+}
+
+// FileSystem returns embedded content for shipped sources and disk content for
+// declared or inferred providers.
+func (s *Source) FileSystem() fs.FS {
+	if s.Files != nil {
+		return s.Files
+	}
+	return os.DirFS(s.Root)
+}
+
+func (s *Source) ReadFile(name string) ([]byte, error) {
+	return fs.ReadFile(s.FileSystem(), filepath.ToSlash(name))
 }
 
 // MissingSource records an optional source whose declaration was absent, so
@@ -231,13 +246,6 @@ func inferProvider(id, root string) (*Source, error) {
 		return nil, fmt.Errorf("provider root %s is not a directory", root)
 	}
 
-	invariant := filepath.Join(root, filepath.FromSlash(providerInvariantPath))
-	if info, err := os.Stat(invariant); err != nil {
-		return nil, fmt.Errorf("provider invariant %s: %w", providerInvariantPath, err)
-	} else if !info.Mode().IsRegular() {
-		return nil, fmt.Errorf("provider invariant %s is not a regular file", providerInvariantPath)
-	}
-
 	skillsRoot := filepath.Join(root, filepath.FromSlash(providerSkillsPath))
 	entries, err := os.ReadDir(skillsRoot)
 	if err != nil {
@@ -246,10 +254,18 @@ func inferProvider(id, root string) (*Source, error) {
 	src := &Source{
 		ID:   id,
 		Root: root,
-		Instructions: []ContentRef{{
+	}
+	invariant := filepath.Join(root, filepath.FromSlash(providerInvariantPath))
+	if info, err := os.Stat(invariant); err == nil {
+		if !info.Mode().IsRegular() {
+			return nil, fmt.Errorf("provider invariant %s is not a regular file", providerInvariantPath)
+		}
+		src.Instructions = append(src.Instructions, ContentRef{
 			ID:   providerInvariantID,
 			Path: providerInvariantPath,
-		}},
+		})
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("provider invariant %s: %w", providerInvariantPath, err)
 	}
 	ordinary := map[string]bool{}
 	for _, entry := range entries {

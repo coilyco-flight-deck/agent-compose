@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -91,6 +93,11 @@ func Materialize(res *resolver.Resolution, outDir string) (*Result, error) {
 		}
 		return &Result{Dir: target, Key: short, Reused: true}, nil
 	}
+	if _, err := os.Stat(target); err == nil {
+		return nil, fmt.Errorf("bundle target %s exists without a manifest", target)
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("inspect bundle target %s: %w", target, err)
+	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return nil, err
 	}
@@ -132,8 +139,8 @@ func write(res *resolver.Resolution, root string) error {
 	}
 
 	for _, skill := range res.Skills {
-		skillRoot := filepath.Join(root, "content", "skills", skill.Source, skill.ID)
-		if err := copyTree(skill.Path, skillRoot, selectedEntryPoint(skill)); err != nil {
+		skillRoot := filepath.Join(root, "content", "skills", sourceSegment(skill.Source), skill.ID)
+		if err := copyTree(skill.Files, skill.Path, skillRoot, selectedEntryPoint(skill)); err != nil {
 			return err
 		}
 	}
@@ -144,8 +151,8 @@ func write(res *resolver.Resolution, root string) error {
 		delivery.SkillsRoot = "content/skills"
 	case schema.DeliveryCompiled:
 		compiled := append([]byte{}, instructions...)
-		for _, bodyPath := range res.CompiledBodies {
-			body, err := os.ReadFile(bodyPath)
+		for _, skill := range res.CompiledBodies {
+			body, err := fs.ReadFile(skill.Files, path.Join(skill.Path, selectedEntryPoint(skill)))
 			if err != nil {
 				return err
 			}
@@ -198,7 +205,7 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 		res.RoleBriefing,
 	))
 	for _, sel := range res.Instructions {
-		raw, err := os.ReadFile(sel.Path)
+		raw, err := fs.ReadFile(sel.Files, sel.Path)
 		if err != nil {
 			return nil, err
 		}
@@ -229,7 +236,7 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 		fmt.Fprintf(h, "decision\x00%s\x00%s\x00%s\x00%s\x00", d.Subject, d.Source, d.Outcome, d.Reason)
 	}
 	for _, sel := range res.Instructions {
-		raw, err := os.ReadFile(sel.Path)
+		raw, err := fs.ReadFile(sel.Files, sel.Path)
 		if err != nil {
 			return "", err
 		}
@@ -238,20 +245,20 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 	}
 	for _, skill := range res.Skills {
 		fmt.Fprintf(h, "skill-entry\x00%s\x00%s\x00", skill.ID, selectedEntryPoint(skill))
-		err := filepath.WalkDir(skill.Path, func(p string, d fs.DirEntry, err error) error {
+		err := fs.WalkDir(skill.Files, skill.Path, func(p string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {
 				return err
 			}
-			raw, err := os.ReadFile(p)
+			raw, err := fs.ReadFile(skill.Files, p)
 			if err != nil {
 				return err
 			}
-			rel, err := filepath.Rel(skill.Path, p)
-			if err != nil {
-				return err
+			rel := strings.TrimPrefix(p, strings.TrimSuffix(skill.Path, "/")+"/")
+			if rel == p {
+				return fmt.Errorf("%s is not beneath %s", p, skill.Path)
 			}
 			fmt.Fprintf(h, "skill\x00%s\x00%s\x00%s\x00%d\x00",
-				skill.Source, skill.ID, filepath.ToSlash(rel), len(raw))
+				skill.Source, skill.ID, rel, len(raw))
 			h.Write(raw)
 			return nil
 		})
@@ -267,7 +274,7 @@ func validateSelectedSkills(skills []resolver.Selected) error {
 		return fmt.Errorf("composition selected no skills")
 	}
 	for _, skill := range skills {
-		if !safeSegment(skill.Source) || !safeSegment(skill.ID) {
+		if !safeSourceID(skill.Source) || !safeSegment(skill.ID) {
 			return fmt.Errorf("selected identity path %q/%q is unsafe", skill.Source, skill.ID)
 		}
 		entry := selectedEntryPoint(skill)
@@ -278,17 +285,20 @@ func validateSelectedSkills(skills []resolver.Selected) error {
 	return nil
 }
 
-func copyTree(src, dst, entryPoint string) error {
-	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
+func copyTree(files fs.FS, src, dst, entryPoint string) error {
+	return fs.WalkDir(files, src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.Type()&fs.ModeSymlink != 0 {
 			return fmt.Errorf("%s: symlinks are invalid inside a bundle", p)
 		}
-		rel, err := filepath.Rel(src, p)
-		if err != nil {
-			return err
+		rel := "."
+		if p != src {
+			rel = strings.TrimPrefix(p, strings.TrimSuffix(src, "/")+"/")
+			if rel == p {
+				return fmt.Errorf("%s is not beneath %s", p, src)
+			}
 		}
 		if rel == entryPoint {
 			rel = "SKILL.md"
@@ -297,7 +307,7 @@ func copyTree(src, dst, entryPoint string) error {
 		if d.IsDir() {
 			return os.MkdirAll(out, 0o755)
 		}
-		raw, err := os.ReadFile(p)
+		raw, err := fs.ReadFile(files, p)
 		if err != nil {
 			return err
 		}

@@ -216,7 +216,7 @@ func claudeServer(cfg server, home string) map[string]any {
 		}
 		return out
 	}
-	out := map[string]any{"command": expandHome(cfg.Command, home)}
+	out := map[string]any{"command": expandHomePath(cfg.Command, home)}
 	if len(cfg.Args) > 0 {
 		out["args"] = expandSlice(cfg.Args, home)
 	}
@@ -224,7 +224,7 @@ func claudeServer(cfg server, home string) map[string]any {
 		out["env"] = expandMap(cfg.Env, home)
 	}
 	if strings.TrimSpace(cfg.Cwd) != "" {
-		out["cwd"] = expandHome(cfg.Cwd, home)
+		out["cwd"] = expandHomePath(cfg.Cwd, home)
 	}
 	return out
 }
@@ -255,7 +255,7 @@ func codexBlock(servers map[string]server, home string) string {
 				fmt.Fprintf(&out, "http_headers = %s\n", tomlMap(expandMap(cfg.Headers, home)))
 			}
 		} else {
-			fmt.Fprintf(&out, "command = %s\n", strconv.Quote(expandHome(cfg.Command, home)))
+			fmt.Fprintf(&out, "command = %s\n", strconv.Quote(expandHomePath(cfg.Command, home)))
 			if len(cfg.Args) > 0 {
 				fmt.Fprintf(&out, "args = %s\n", tomlSlice(expandSlice(cfg.Args, home)))
 			}
@@ -263,7 +263,7 @@ func codexBlock(servers map[string]server, home string) string {
 				fmt.Fprintf(&out, "env = %s\n", tomlMap(expandMap(cfg.Env, home)))
 			}
 			if strings.TrimSpace(cfg.Cwd) != "" {
-				fmt.Fprintf(&out, "cwd = %s\n", strconv.Quote(expandHome(cfg.Cwd, home)))
+				fmt.Fprintf(&out, "cwd = %s\n", strconv.Quote(expandHomePath(cfg.Cwd, home)))
 			}
 		}
 		if cfg.Codex.DefaultToolsApprovalMode != "" {
@@ -327,6 +327,14 @@ func tomlMap(values map[string]string) string {
 
 func expandHome(value, home string) string {
 	return strings.ReplaceAll(value, "${HOME}", home)
+}
+
+func expandHomePath(value, home string) string {
+	expanded := expandHome(value, home)
+	if strings.Contains(value, "${HOME}") {
+		return filepath.Clean(filepath.FromSlash(expanded))
+	}
+	return expanded
 }
 
 func expandSlice(values []string, home string) []string {

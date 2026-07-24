@@ -4,25 +4,25 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
-* Public, MIT-licensed AOS and Ward substrate with personal policy.
+* Public, MIT-licensed context substrate with personal policy.
 * Audience-specific README, agent instructions, and shipped-feature inventory.
 * Ward-gated repository validation backed by the agentic-os hook catalog.
 
 ## Composition engine
 
-* Go CLI (`agent-compose compose`) turns a KDL request into an immutable
-  bundle without network access.
-* Embedded source carries ten roles, required two-paragraph briefings, the
-  approved meld matrix, 16 catalog bindings, and twelve named seats. Every
-  bundle prefixes instructions with the selected role's complete briefing.
+* `agent-compose compose` turns a KDL request into an immutable offline bundle.
+* Embedded `person:kai` source carries ten roles, required three-paragraph
+  briefings, the approved meld matrix, 16 catalog bindings and definitions,
+  the personality invariant, and twelve named seats. Every bundle prefixes
+  instructions with the selected role's complete briefing.
 * AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
   skill admission and intent-to-harness routes.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
-* Resolver emits the decision trace while choosing, covering selected,
-  excluded, shadowed, and delivered outcomes.
-* Atomic materialization verifies staged and reused bundles. Failures leave no partial tree.
-* Native-skill and compiled-context delivery use the same canonical skill
-  bodies, exercised by two public fixtures.
+* Resolver traces selected, excluded, shadowed, and delivered outcomes.
+* Atomic materialization verifies staged and reused bundles.
+* Native-skill and compiled-context delivery use the same embedded canonical
+  personality bodies. Identical legacy provider copies shadow during rolling
+  upgrades and divergent copies fail closed.
 
 ## Load-point projection
 
@@ -32,34 +32,32 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Launch-time refresh
 
-* `compose ... -- <command>` refreshes (bundle projection, or full host
-  convergence bare) then execs, sentinel-guarded against wrapper recursion.
+* `compose ... -- <command>` refreshes then execs, guarded against recursion.
 * Refresh failure falls back to a validated last-known-good projection.
   Concurrent launches share cache and projection locks.
 
 ## Inspection
 
-* `agent-compose describe` renders a bundle's decision tree in scannable
-  sections with collapse for large exclusion groups. `--why` follows one item
-  from consideration to outcome, including what would have selected it.
+* `agent-compose describe` renders a collapsible decision tree. `--why`
+  follows one item from consideration to outcome.
 * `agent-compose diff` reports semantic changes. `verify` checks safe entry
   points, delivery data, trace integrity, and the complete selected identity
   set.
   `compose --explain` appends the full tree to the one-screen summary.
-* Color only on a TTY with NO_COLOR unset. Redirected output stays plain and
-  deterministic, and trace.json is the machine-readable surface.
+* TTY color honors NO_COLOR. Redirected output is plain and deterministic.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
 ## Personality palette
 
 * Local Vite/TypeScript explorer shows component colors, role melds, filters,
-  previews, and copy controls. Ward derives its JSON from the embedded person source. See [personality-palette.md](personality-palette.md).
+  previews, and copy controls. See [personality-palette.md](personality-palette.md).
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders provider instructions, seats,
-  long-form role briefings, melded personalities, colors, bodies, and a
-  claude `@`-import override. See [role-briefings.md](role-briefings.md).
+* `agent-compose roster --out <dir>` renders the embedded invariant and
+  definitions, overlay instructions, seats, long-form role briefings, melded
+  personalities, colors, bodies, and a claude `@`-import override. See
+  [role-briefings.md](role-briefings.md).
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,

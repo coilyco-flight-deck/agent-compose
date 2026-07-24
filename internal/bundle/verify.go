@@ -154,7 +154,7 @@ func selectedIdentities(trace *Trace) ([]Identity, error) {
 			continue
 		}
 		skill, ok := strings.CutPrefix(decision.Subject, "skill:")
-		if !ok || !safeSegment(skill) || !safeSegment(decision.Source) {
+		if !ok || !safeSegment(skill) || !safeSourceID(decision.Source) {
 			return nil, fmt.Errorf("bundle trace selects an unsafe identity path %q from %q",
 				decision.Subject, decision.Source)
 		}
@@ -219,7 +219,7 @@ func verifyIdentityTree(dir string, identities []Identity) error {
 	}
 	expected := make([]string, 0, len(identities))
 	for _, identity := range identities {
-		expected = append(expected, identity.Source+"/"+identity.Skill)
+		expected = append(expected, sourceSegment(identity.Source)+"/"+identity.Skill)
 	}
 	slices.Sort(found)
 	slices.Sort(expected)
@@ -228,7 +228,7 @@ func verifyIdentityTree(dir string, identities []Identity) error {
 	}
 	for _, identity := range identities {
 		name := identity.Source + "/" + identity.Skill
-		skillDoc := filepath.Join(root, identity.Source, identity.Skill, "SKILL.md")
+		skillDoc := filepath.Join(root, sourceSegment(identity.Source), identity.Skill, "SKILL.md")
 		info, err := os.Stat(skillDoc)
 		if err != nil {
 			return fmt.Errorf("selected identity %q has no SKILL.md: %w", name, err)
@@ -300,6 +300,38 @@ func safeSegment(value string) bool {
 		return false
 	}
 	return true
+}
+
+func safeSourceID(value string) bool {
+	if value == "" || value == "." || value == ".." || strings.ContainsAny(value, `/\`) {
+		return false
+	}
+	for _, character := range value {
+		if character < 32 {
+			return false
+		}
+	}
+	return true
+}
+
+// sourceSegment encodes logical source ids into portable filesystem segments.
+// The trace and manifest retain the original id, including namespace colons.
+func sourceSegment(value string) string {
+	var encoded strings.Builder
+	const hex = "0123456789ABCDEF"
+	for _, octet := range []byte(value) {
+		if octet >= 'a' && octet <= 'z' ||
+			octet >= 'A' && octet <= 'Z' ||
+			octet >= '0' && octet <= '9' ||
+			octet == '-' || octet == '_' || octet == '.' {
+			encoded.WriteByte(octet)
+			continue
+		}
+		encoded.WriteByte('%')
+		encoded.WriteByte(hex[octet>>4])
+		encoded.WriteByte(hex[octet&0x0f])
+	}
+	return encoded.String()
 }
 
 func safePortablePath(value string) bool {

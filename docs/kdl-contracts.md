@@ -6,8 +6,7 @@ selection.
 
 ## Compose request
 
-A request names a role, a delivery mode, and the sources personality files
-come from:
+A request names a role, a delivery mode, and any external capability sources:
 
 ```kdl
 compose {
@@ -17,25 +16,20 @@ compose {
 }
 ```
 
-The role activates its complete ordered personality set from the embedded
-person source, every ordinary provider skill, and its composed-skill allowlist.
-A request cannot narrow those sets with a selector.
-`delivery` is `native-skills` or `compiled`. Nothing else about the agent,
-including model, harness, reasoning effort, or interactivity, appears in a
-request.
+The role activates its embedded personality set, every ordinary provider
+skill, and its composed-skill allowlist. A selector cannot narrow those sets.
+`delivery` is `native-skills` or `compiled`. Model, harness, reasoning effort,
+and interactivity never appear in a request.
 
-Legacy `density "full"` is ignored for rolling upgrades. Other densities
-fail. New requests omit the node.
+Legacy `density "full"` is ignored. Other densities fail.
 
-Sources are evaluated in request order. A `root` or `declaration` path is
-locator data that says where files live. It never becomes part of the composed
-content's identity.
+Sources run in request order. `root` and `declaration` only locate files.
 
-## Personality sources
+## Capability sources
 
-The public AOS provider needs only its root. Agent-compose discovers the shared
-`personality-invariant` and every ordinary skill under `.agents/skills` in
-lexical order. It also reads `.agents/roles.kdl`:
+The public AOS provider needs only its root. Agent-compose discovers every
+ordinary skill under `.agents/skills` in lexical order. It also reads
+`.agents/roles.kdl`:
 
 ```kdl
 roles {
@@ -48,20 +42,20 @@ roles {
 }
 ```
 
-Each `composed-skill` binding admits `.agents/composed/<name>/COMPOSED.md` only
-for that role. Each `intent` records one model-opaque default harness route for
-that role. Agent-compose validates and preserves those routes as composition
-policy. Ward does not parse them.
-Materialization renames the admitted entry point to `SKILL.md`. A `SKILL.md`
-anywhere under `.agents/composed` and ordinary/composed name collisions fail.
+Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` for that
+role. Each `intent` records one model-opaque default harness route.
+Materialization renames the admitted entry point to `SKILL.md`. Nested
+`SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
+Roster sources are optional overlays. The embedded `person:kai` source always
+supplies the invariant and canonical personality bodies.
 
 An overlay or another provider can instead carry an explicit declaration:
 
 ```kdl
 source "aos-public" {
     instruction "foundation" path="content/foundation.md"
-    skill "personality-curious" path="skills/personality-curious"
+    skill "coding-go" path="skills/coding-go"
 }
 ```
 
@@ -71,6 +65,11 @@ declaration are relative to the declaration and must stay beneath its source
 root. Request locator paths are relative to the request. Symlinks and escaping
 paths fail validation. A required missing source fails composition. An optional
 missing source is skipped with a note in the trace.
+
+For rolling upgrades, inferred providers may still contain the former
+`personality-shared/INVARIANT.md` and `personality-*` trees. Identical copies
+shadow behind the embedded source. A different copy conflicts and stops
+composition.
 
 ## See also
 
