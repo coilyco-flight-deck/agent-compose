@@ -42,6 +42,7 @@ package layout land together so the code never precedes its public boundary.
 Route development through Ward using [`.ward/ward.yaml`](.ward/ward.yaml). The
 current command surface is:
 
+* `ward exec smoke` - build `acompose` and test isolated host convergence.
 * `ward exec test` - run all repository validation (Go tests plus hooks).
 * `ward exec build` / `fmt` / `lint` / `install` / `tidy` - Go engine verbs.
 * `ward exec pre-commit` - explicit spelling of the hook sweep alone.

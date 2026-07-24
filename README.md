@@ -100,6 +100,9 @@ Every push to canonical `main` validates and publishes the next minor release.
 
 Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
 `ward exec test` runs the Go and palette tests plus the full pre-commit sweep.
+`ward exec smoke` builds the real `acompose` entry point and converges an
+isolated temporary home twice, covering roster, cascade, skills, MCP projection,
+and idempotence without touching live host state or the network.
 `build`, `lint`, `install`, and `tidy` cover the remaining Go verbs.
 
 `ward exec palette-serve` generates browser data from the embedded person

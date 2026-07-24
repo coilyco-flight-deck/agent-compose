@@ -6,6 +6,9 @@ catalog:
     - forgejo.coilysiren.me/coilyco-flight-deck/ward
 
 commands:
+  smoke:
+    run: sh scripts/smoke.sh
+    description: Build acompose and verify isolated host convergence is idempotent.
   test:
     run: sh scripts/test.sh
     description: Run Go and palette tests, then the pre-commit suite.

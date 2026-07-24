@@ -63,7 +63,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,
   and --dry-run/--check - byte-compatible with the Python outputs.
-* Bare `acompose` converges roster and cascade. `-- <command>` refreshes before exec.
+* Bare `acompose` converges hosts. `-- <command>` refreshes then execs.
+  `ward exec smoke` proves isolated idempotence and `ward exec test` runs full validation.
 * Configured skill roots mount safely into native harness skill directories.
 * [Native MCP + approval projection](native-mcp.md).
 
