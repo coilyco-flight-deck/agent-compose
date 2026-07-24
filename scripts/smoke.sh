@@ -15,6 +15,25 @@ fail() {
   exit 1
 }
 
+verbose=false
+case "${1:-}" in
+  "")
+    ;;
+  --verbose)
+    verbose=true
+    ;;
+  *)
+    fail "usage: scripts/smoke.sh [--verbose]"
+    ;;
+esac
+
+show_transcript() {
+  if "$verbose"; then
+    printf 'smoke: %s transcript\n' "$1"
+    sed 's/^/  /' "$2"
+  fi
+}
+
 assert_file() {
   test -f "$1" || fail "missing file $1"
 }
@@ -37,10 +56,12 @@ case "$goos" in
     command -v cygpath >/dev/null 2>&1 || fail "cygpath is required by the Windows sh environment"
     native_root=$(cygpath -m "$smoke_root")
     binary="$smoke_root/bin/acompose.exe"
+    binary_exec="$native_root/bin/acompose.exe"
     ;;
   *)
     native_root=$(CDPATH= cd -- "$smoke_root" && pwd -P)
     binary="$smoke_root/bin/acompose"
+    binary_exec="$binary"
     ;;
 esac
 
@@ -87,11 +108,15 @@ load_points:
 EOF
 
 cd "$repo_root"
-go build -o "$binary" ./cmd/agent-compose
+if ! go build -o "$binary" ./cmd/agent-compose; then
+  fail "build failed"
+fi
+assert_file "$binary"
+printf 'smoke: build real acompose binary... ok\n'
 
 first_output="$smoke_root/first.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
-  PROJECTS_ROOT="$native_root/projects" "$binary" >"$first_output" 2>&1; then
+  PROJECTS_ROOT="$native_root/projects" "$binary_exec" >"$first_output" 2>&1; then
   cat "$first_output" >&2
   fail "first acompose convergence failed"
 fi
@@ -101,6 +126,8 @@ assert_contains "$first_output" "wrote"
 assert_contains "$first_output" "cascade outputs=1 load-points=1 manifest=1 changed="
 assert_contains "$first_output" "skills  managed=1 load-points=1"
 assert_contains "$first_output" "mcp     servers=1 state=changed"
+printf 'smoke: first isolated convergence... ok\n'
+show_transcript "first convergence" "$first_output"
 
 roster_table="$state_dir/sources/personality/AGENTS.COMPOSE.md"
 roster_override="$state_dir/sources/personality/AGENTS.claude.md"
@@ -125,6 +152,7 @@ assert_contains "$composed" "opal engineer"
 assert_contains "$mcporter" "\"reader\""
 assert_contains "$claude_mcp" "\"reader\""
 assert_contains "$codex_mcp" "[mcp_servers.\"reader\"]"
+printf 'smoke: roster, cascade, skill, MCP, and load-point artifacts... ok\n'
 
 snapshot_file "$roster_table" roster-table
 snapshot_file "$roster_override" roster-override
@@ -138,7 +166,7 @@ snapshot_file "$codex_mcp" codex-mcp
 
 second_output="$smoke_root/second.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
-  PROJECTS_ROOT="$native_root/projects" "$binary" >"$second_output" 2>&1; then
+  PROJECTS_ROOT="$native_root/projects" "$binary_exec" >"$second_output" 2>&1; then
   cat "$second_output" >&2
   fail "second acompose convergence failed"
 fi
@@ -150,6 +178,8 @@ fi
 assert_contains "$second_output" "cascade outputs=1 load-points=1 manifest=1 changed=0"
 assert_contains "$second_output" "skills  managed=1 load-points=1 verified=1 linked=0 removed=0 preserved=0"
 assert_contains "$second_output" "mcp     servers=1 state=unchanged"
+printf 'smoke: second isolated convergence reports unchanged state... ok\n'
+show_transcript "second convergence" "$second_output"
 
 assert_unchanged "$roster_table" roster-table
 assert_unchanged "$roster_override" roster-override
@@ -160,5 +190,6 @@ assert_unchanged "$skill_state" skill-state
 assert_unchanged "$mcporter" mcporter
 assert_unchanged "$claude_mcp" claude-mcp
 assert_unchanged "$codex_mcp" codex-mcp
+printf 'smoke: representative artifacts remain byte-stable... ok\n'
 
 printf 'smoke: acompose host convergence is healthy and idempotent\n'

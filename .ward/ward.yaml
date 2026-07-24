@@ -8,7 +8,10 @@ catalog:
 commands:
   smoke:
     run: sh scripts/smoke.sh
-    description: Build acompose and verify isolated host convergence is idempotent.
+    description: Build acompose and report isolated host convergence stages.
+  smoke-verbose:
+    run: sh scripts/smoke.sh --verbose
+    description: Run the smoke with captured acompose convergence transcripts.
   test:
     run: sh scripts/test.sh
     description: Run Go and palette tests, then the pre-commit suite.
