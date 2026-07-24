@@ -191,6 +191,10 @@ func write(res *resolver.Resolution, root string) error {
 }
 
 func joinInstructions(res *resolver.Resolution) ([]byte, error) {
+	metadata, err := res.Person.RenderRoleMetadata(res.Request.Role, res.FavoriteColor)
+	if err != nil {
+		return nil, err
+	}
 	out := []byte(fmt.Sprintf(
 		"# Role instructions\n\n"+
 			"Agent-compose assigned the `%s` role from the caller's compose request. "+
@@ -198,8 +202,10 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 			"The agent does not change roles because a task resembles another role. "+
 			"The agent does not activate, blend, or adopt another role's briefing or personality set. "+
 			"The caller must launch a new bundle to assign a different role.\n\n"+
+			"%s\n"+
 			"## %s - %s\n\n%s\n",
 		res.Request.Role,
+		metadata,
 		res.Request.Role,
 		res.RolePurpose,
 		res.RoleBriefing,

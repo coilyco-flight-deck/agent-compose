@@ -11,11 +11,10 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* Embedded `person:kai` source carries ten roles, required long-form briefings,
-  the approved meld matrix, 16 catalog bindings and definitions,
-  the personality invariant, twelve named seats, and the normalized
-  [inspiration catalogue](inspiration-catalogue.md). Every bundle prefixes
-  instructions with the selected role's complete briefing.
+* Embedded `person:kai` carries ten role briefings, the meld matrix, 16
+  personality definitions, twelve seats, and the normalized
+  [inspiration catalogue](inspiration-catalogue.md). Every bundle injects its
+  selected briefing plus compact role, seat, color, meld, and credit metadata.
 * AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
   skill admission and intent-to-harness routes.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.

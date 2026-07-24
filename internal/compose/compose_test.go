@@ -78,12 +78,17 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			instructionText := string(instructions)
+			wantMetadata, err := p.RenderRoleMetadata("engineer", wantColor)
+			if err != nil {
+				t.Fatal(err)
+			}
 			for _, selected := range []string{
 				"# Role instructions",
 				"Agent-compose assigned the `engineer` role from the caller's compose request.",
 				"The agent treats this assignment as authoritative and fixed for the session.",
 				"The agent does not activate, blend, or adopt another role's briefing or personality set.",
 				"The caller must launch a new bundle to assign a different role.",
+				wantMetadata,
 				p.Roles["engineer"].Briefing,
 				"# Fixture foundation",
 			} {
@@ -117,8 +122,9 @@ func TestComposeAllFixtures(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if !strings.Contains(string(compiled), p.Roles["engineer"].Briefing) {
-					t.Fatalf("compiled context omitted role briefing:\n%s", compiled)
+				if !strings.Contains(string(compiled), p.Roles["engineer"].Briefing) ||
+					!strings.Contains(string(compiled), wantMetadata) {
+					t.Fatalf("compiled context omitted role metadata or briefing:\n%s", compiled)
 				}
 			} else {
 				if m.Delivery.SkillsRoot != "content/skills" || m.Delivery.CompiledContext != "" {

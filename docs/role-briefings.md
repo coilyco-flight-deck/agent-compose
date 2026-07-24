@@ -52,15 +52,15 @@ projection layout decides whether the document lands at `AGENTS.md`,
 
 The roster renders each named-seat role in this order:
 
-* concise heading and purpose
-* long-form briefing
+* role identity, concise purpose, and long-form briefing
 * harness-specific names and pronouns
-* melded personalities, definitions, and favorite color
+* component personality names, skills, and individual colors
+* melded favorite color plus concise inspiration and appearance metadata
 
-The host cascade carries the complete named-seat roster into global context. An
-unassigned native agent follows the [role-selection contract](role-selection.md)
-and adopts one briefing. Roles without named seats remain in the person model
-but do not render into the dispatch table.
+The host cascade carries the complete named-seat roster into global context. A
+bundle places the selected role's compact metadata before its briefing. Long
+catalogue prose and citations stay in the documentation surface. Roles without
+named seats remain in the model but not in the dispatch table.
 
 ## Ownership boundaries
 

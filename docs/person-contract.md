@@ -46,13 +46,12 @@ The [inspiration catalogue](inspiration-catalogue.md) defines credited influence
 
 ## Favorite colors
 
-Every canonical personality declares one hex `color` in the embedded person
-source, which owns the exact palette. The parse-time gate requires OKLab
-lightness 0.60-0.80 and chroma of at least 0.05, keeping colors readable on dark
-and light terminals. Every role composition derives its favorite from all
-active personalities as the OKLab centroid of the component colors, restores
-chroma to the components' minimum, and clamps it into the band - the perceptual
-middle, never gray.
+Every canonical personality declares one hex `color` in the embedded source,
+which owns the exact palette. Bundles tell the agent every active personality's
+name, skill, and color plus the melded favorite. The parse gate requires OKLab
+lightness 0.60-0.80 and chroma of at least 0.05. Each role derives its favorite
+as the OKLab centroid of every component, restores chroma to their minimum, and
+clamps it into the legible band - the perceptual middle, never gray.
 
 ## Agent seats
 

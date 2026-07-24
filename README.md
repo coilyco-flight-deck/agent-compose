@@ -10,8 +10,8 @@ a neutral enterprise framework.
 The intended product accepts a role, a delivery mode, and optional capability
 sources. The role activates its complete ordered personality set.
 Agent-compose resolves every bound personality skill from its embedded person
-source, derives their melded favorite color, and emits an immutable context
-bundle for a host harness or a warded container to consume.
+source, tells the agent every component and melded favorite color, injects
+compact selected-role metadata, and emits an immutable context bundle.
 
 ## Ownership boundary
 

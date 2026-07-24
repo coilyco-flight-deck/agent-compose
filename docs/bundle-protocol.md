@@ -9,7 +9,7 @@ The v0.1 tree contains:
 
 * `manifest.json` - what was composed and the delivery entry points.
 * `trace.json` - the plain-language decision trace.
-* `content/instructions.md` - canonical selected instructions.
+* `content/instructions.md` - selected instructions and compact role metadata.
 * `content/skills/<source-id>/<skill>/...` - canonical selected skill trees.
 * `delivery/compiled.md` - present only when the adapter compiles selected
   skill bodies into one context document. The canonical skill trees stay
