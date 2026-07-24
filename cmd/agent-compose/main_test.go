@@ -2,7 +2,13 @@ package main
 
 import (
 	"reflect"
+	"strings"
 	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 func TestDispatchArgs(t *testing.T) {
@@ -30,5 +36,43 @@ func TestDispatchArgs(t *testing.T) {
 				t.Fatalf("got %v want %v", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
+	t.Parallel()
+	result := &compose.Result{
+		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
+		Resolution: &resolver.Resolution{
+			Request: &schema.Request{
+				Role:       "engineer",
+				ModelClass: schema.ModelClassFrontier,
+				Delivery:   "native-skills",
+			},
+			Personalities: []string{"curious", "grounded", "meticulous"},
+			FavoriteColor: "#90a66a",
+			SourceIDs:     []string{"person:kai", "aos-public"},
+			Decisions: []resolver.Decision{
+				{Outcome: resolver.OutcomeSelected},
+				{Outcome: resolver.OutcomeExcluded},
+				{Outcome: resolver.OutcomeShadowed},
+				{Outcome: resolver.OutcomeDelivered},
+			},
+		},
+	}
+
+	var output strings.Builder
+	printSummary(&output, result)
+	got := output.String()
+	for _, want := range []string{
+		"role engineer // model class frontier // personalities curious, grounded, meticulous // melded #90a66a // delivery native-skills",
+		"decisions: 1 selected // 1 excluded // 1 shadowed // 1 delivered",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("summary missing %q:\n%s", want, got)
+		}
+	}
+	if strings.Contains(got, "·") {
+		t.Fatalf("summary retained middle-dot separator:\n%s", got)
 	}
 }

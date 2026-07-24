@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -362,7 +363,7 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	printSummary(result)
+	printSummary(os.Stdout, result)
 	if cmd.Bool("explain") {
 		rendered, err := describe.Bundle(result.Bundle.Dir, describe.Options{All: true, Color: colorEnabled(), TrueColor: trueColorTerminal()})
 		if err != nil {
@@ -583,7 +584,7 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 
 // printSummary renders the bounded one-screen composition summary: identity
 // on one line, decision counts instead of per-item listings.
-func printSummary(r *compose.Result) {
+func printSummary(w io.Writer, r *compose.Result) {
 	state := "new"
 	if r.Bundle.Reused {
 		state = "reused"
@@ -593,15 +594,15 @@ func printSummary(r *compose.Result) {
 		counts[d.Outcome]++
 	}
 	req := r.Resolution.Request
-	fmt.Printf("bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Printf("  role %s · model class %s · personalities %s · melded %s · delivery %s\n",
+	fmt.Fprintf(w, "bundle %s (%s)\n", r.Bundle.Key, state)
+	fmt.Fprintf(w, "  role %s // model class %s // personalities %s // melded %s // delivery %s\n",
 		req.Role, req.ModelClass,
 		strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
 		req.Delivery)
-	fmt.Printf("  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
-	fmt.Printf("  decisions: %d selected · %d excluded · %d shadowed · %d delivered\n",
+	fmt.Fprintf(w, "  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
+	fmt.Fprintf(w, "  decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],
 		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
-	fmt.Printf("  path: %s\n", r.Bundle.Dir)
-	fmt.Printf("  trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
+	fmt.Fprintf(w, "  path: %s\n", r.Bundle.Dir)
+	fmt.Fprintf(w, "  trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
 }
