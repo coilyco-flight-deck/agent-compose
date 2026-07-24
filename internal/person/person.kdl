@@ -190,7 +190,7 @@ person "kai" {
         }
     }
     personality "meticulous" skill="personality-meticulous" color="#7d9fd3" motif="graph-paper" {
-        emblem { name "calipers"; emoji "📐"; glyph "⌗" }
+        emblem { name "drafting-triangle"; emoji "📐"; glyph "⌗" }
         form { silhouette "instrument"; geometry "measured-grid"; motion "ratcheting" }
         sound-mark { timbre "clock-chime"; contour "exact-step"; pulse "even-four" }
         inspiration "marian-croak" {
@@ -222,8 +222,8 @@ person "kai" {
         }
     }
     personality "playful" skill="personality-playful" color="#e882e1" motif="confetti" {
-        emblem { name "pinwheel"; emoji "🎡"; glyph "✦" }
-        form { silhouette "pinwheel"; geometry "bouncing-circles"; motion "skipping" }
+        emblem { name "ferris-wheel"; emoji "🎡"; glyph "✦" }
+        form { silhouette "carnival-wheel"; geometry "radial-spokes"; motion "spinning" }
         sound-mark { timbre "toy-piano"; contour "zigzag-rise"; pulse "syncopated-three" }
         inspiration "joy-buolamwini" {
             fit "Buolamwini embodies playfulness by using poetry, performance, masks, and visual experimentation alongside rigorous technical research."
