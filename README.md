@@ -23,6 +23,8 @@ configuration:
 * the eleven-role company roster, concise purposes, and long-form role briefings
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
+* complete selected-role terminal metadata, including identity primitives,
+  seats, inspiration records, appearances, and renderer expressions
 * credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
 * model-class-aware pruning controlled by each skill's own frontmatter

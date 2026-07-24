@@ -115,6 +115,84 @@ func TestRenderRoleMetadataRejectsIncompleteRelationships(t *testing.T) {
 	}
 }
 
+func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
+	t.Parallel()
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := p.RenderRoleTranscript("engineer", "#90a66a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := p.Roles["engineer"]
+	for _, want := range []string{
+		"role metadata",
+		"person: kai // provided by: person:kai",
+		"role: engineer",
+		"purpose: " + role.Purpose,
+		"personalities: curious // grounded // meticulous",
+		"melded color: #90a66a",
+		"role inspiration fit: " + role.Inspiration.Fit,
+		"briefing:",
+		"seats:",
+		"personality metadata",
+		"additional linked metadata",
+		"renderer expressions: " + strings.Join(ExpressionVocabulary(), " // "),
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("transcript missing %q:\n%s", want, got)
+		}
+	}
+	for _, seat := range role.Seats {
+		want := fmt.Sprintf("seat %s: %s // pronouns: %s", seat.Harness, seat.Name, seat.Pronouns)
+		if !strings.Contains(got, want) {
+			t.Errorf("transcript missing seat %q:\n%s", want, got)
+		}
+	}
+	for _, name := range role.Personalities {
+		binding := p.Personalities[name]
+		for _, want := range []string{
+			"personality: " + name,
+			"skill: " + binding.Skill,
+			"color: " + binding.Color,
+			"motif: " + binding.Motif,
+			"emblem: " + binding.Emblem.Name,
+			"form: silhouette " + binding.Form.Silhouette,
+			"sound mark: timbre " + binding.SoundMark.Timbre,
+			"inspiration fit: " + binding.Inspiration.Fit,
+		} {
+			if !strings.Contains(got, want) {
+				t.Errorf("transcript missing personality field %q:\n%s", want, got)
+			}
+		}
+	}
+	for _, id := range []string{"marian-croak", "helen-jackson", "mellody-hobson"} {
+		inspiration := p.Inspirations[id]
+		for _, want := range []string{
+			"linked inspiration: " + inspiration.Name + " (" + id + ")",
+			"achievement: " + inspiration.Achievement,
+			"impact mode: " + inspiration.ImpactMode,
+			"impact fit: " + inspiration.ImpactFit,
+			"profile citation: " + inspiration.ProfileCitation,
+			"appearance: " + inspiration.Appearance.Title + " (" + inspiration.Appearance.ID + ")",
+			"appearance citations: " + strings.Join(inspiration.Appearance.Citations, " // "),
+		} {
+			if !strings.Contains(got, want) {
+				t.Errorf("transcript missing inspiration field %q:\n%s", want, got)
+			}
+		}
+		if count := strings.Count(got, "linked inspiration: "+inspiration.Name+" ("+id+")"); count != 1 {
+			t.Errorf("linked inspiration %q rendered %d times:\n%s", id, count, got)
+		}
+	}
+	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {
+		if strings.HasPrefix(line, " ") {
+			t.Fatalf("transcript line is not flush-left: %q", line)
+		}
+	}
+}
+
 func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
 	p, err := Load()
 	if err != nil {

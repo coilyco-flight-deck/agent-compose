@@ -7,6 +7,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -41,6 +42,10 @@ func TestDispatchArgs(t *testing.T) {
 
 func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	t.Parallel()
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
 	result := &compose.Result{
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{
@@ -52,6 +57,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 			Personalities: []string{"curious", "grounded", "meticulous"},
 			FavoriteColor: "#90a66a",
 			SourceIDs:     []string{"person:kai", "aos-public"},
+			Person:        p,
 			Decisions: []resolver.Decision{
 				{Outcome: resolver.OutcomeSelected},
 				{Outcome: resolver.OutcomeExcluded},
@@ -62,10 +68,19 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 
 	var output strings.Builder
-	printSummary(&output, result)
+	if err := printSummary(&output, result); err != nil {
+		t.Fatal(err)
+	}
 	got := output.String()
 	for _, want := range []string{
-		"role engineer // model class frontier // personalities curious, grounded, meticulous // melded #90a66a // delivery native-skills",
+		"request: model class frontier // delivery native-skills",
+		"person: kai // provided by: person:kai",
+		"role: engineer",
+		"personalities: curious // grounded // meticulous",
+		"melded color: #90a66a",
+		"personality: curious",
+		"additional linked metadata",
+		"renderer expressions: available // listening // thinking",
 		"decisions: 1 selected // 1 excluded // 1 shadowed // 1 delivered",
 	} {
 		if !strings.Contains(got, want) {

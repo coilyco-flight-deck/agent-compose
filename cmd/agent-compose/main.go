@@ -363,7 +363,9 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	printSummary(os.Stdout, result)
+	if err := printSummary(os.Stdout, result); err != nil {
+		return err
+	}
 	if cmd.Bool("explain") {
 		rendered, err := describe.Bundle(result.Bundle.Dir, describe.Options{All: true, Color: colorEnabled(), TrueColor: trueColorTerminal()})
 		if err != nil {
@@ -580,9 +582,9 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-// printSummary renders the bounded one-screen composition summary: identity
-// on one line, decision counts instead of per-item listings.
-func printSummary(w io.Writer, r *compose.Result) {
+// printSummary renders the complete selected-role identity transcript followed
+// by bounded composition audit counts.
+func printSummary(w io.Writer, r *compose.Result) error {
 	state := "new"
 	if r.Bundle.Reused {
 		state = "reused"
@@ -593,14 +595,18 @@ func printSummary(w io.Writer, r *compose.Result) {
 	}
 	req := r.Resolution.Request
 	fmt.Fprintf(w, "bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Fprintf(w, "role %s // model class %s // personalities %s // melded %s // delivery %s\n",
-		req.Role, req.ModelClass,
-		strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
-		req.Delivery)
+	fmt.Fprintf(w, "request: model class %s // delivery %s\n\n", req.ModelClass, req.Delivery)
+	metadata, err := r.Resolution.Person.RenderRoleTranscript(req.Role, r.Resolution.FavoriteColor)
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(w, metadata)
+	fmt.Fprintln(w)
 	fmt.Fprintf(w, "sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
 	fmt.Fprintf(w, "decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],
 		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
 	fmt.Fprintf(w, "path: %s\n", r.Bundle.Dir)
 	fmt.Fprintf(w, "trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
+	return nil
 }

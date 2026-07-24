@@ -39,10 +39,10 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 * `agent-compose describe` renders a collapsible decision tree. `--why`
   follows one item from consideration to outcome.
-* `agent-compose diff` reports semantic changes. `verify` checks safe entry
-  points, delivery data, trace integrity, and the complete selected identity
-  set.
-  `compose --explain` appends the full tree to the one-screen summary.
+* `agent-compose diff` reports semantic changes. `verify` checks entry points,
+  delivery, trace integrity, and selected identities.
+* `compose` renders complete selected-role metadata. `--explain` appends its
+  decision tree.
 * [Behavior evaluation](evaluation.md) - fixed frontier/OSS matrix.
 * TTY color honors NO_COLOR. Redirected output stays plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.

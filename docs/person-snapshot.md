@@ -31,6 +31,11 @@ transactional roster projection as the human-readable files. A failed
 projection restores the prior owned artifact. A second convergence leaves
 identical bytes unchanged.
 
+The `compose` terminal transcript renders the complete selected-role slice from
+this same model. It includes the active role, personalities, seats, identity
+primitives, linked inspiration records, appearances, and expression
+vocabulary without maintaining a second metadata schema.
+
 The generated file remains outside repositories. Consumers can read it but do
 not edit it or treat it as a second policy source.
 
