@@ -60,7 +60,7 @@ An `agent` node is a named seat. The harness is its join key, while `name` and
 reasoning effort on its side. Nothing here grants authority.
 
 All ten roles keep Claude she/her and Codex he/him seats. Fourteen AOSH-selected
-public harness seats use grep-friendly `placeholder ...` names and `unspecified`
+public harness seats use grep-friendly `placeholder ...` names and they/them
 pronouns, for 34 canonical seats total.
 
 Seats are personality-neutral. A compose request selects a role, and that role
