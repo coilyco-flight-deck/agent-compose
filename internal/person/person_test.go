@@ -17,8 +17,8 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		if got := strings.Count(role.Briefing, "\n\n"); got < 1 {
 			t.Errorf("role %q briefing has no paragraph break", roleName)
 		}
-		if len(role.Seats) != 2 {
-			t.Errorf("role %q has %d seats, want claude and codex", roleName, len(role.Seats))
+		if len(role.Seats) < 2 {
+			t.Errorf("role %q has %d seats, want at least claude and codex", roleName, len(role.Seats))
 		}
 		seats := map[string]Seat{}
 		for _, seat := range role.Seats {

@@ -12,6 +12,7 @@ person "kai" {
         }
         agent "claude" name="opal engineer" pronouns="she"
         agent "codex" name="terran engineer" pronouns="he"
+        agent "openhands" name="placeholder openhands engineer" pronouns="unspecified"
     }
     role "director" {
         purpose "Pair with the human on high level goals."
@@ -26,6 +27,7 @@ person "kai" {
         }
         agent "claude" name="fabled director" pronouns="she"
         agent "codex" name="solar director" pronouns="he"
+        agent "plandex" name="placeholder plandex director" pronouns="unspecified"
     }
     role "qa" {
         purpose "Pair with engineers on polishing code."
@@ -40,6 +42,7 @@ person "kai" {
         }
         agent "claude" name="opal tester" pronouns="she"
         agent "codex" name="terran tester" pronouns="he"
+        agent "aider" name="placeholder aider tester" pronouns="unspecified"
     }
     role "advisor" {
         purpose "In depth research and analysis."
@@ -54,6 +57,7 @@ person "kai" {
         }
         agent "claude" name="fabled advisor" pronouns="she"
         agent "codex" name="solar advisor" pronouns="he"
+        agent "hermes" name="placeholder hermes advisor" pronouns="unspecified"
     }
     role "ops" {
         purpose "Investigate live systems and apply modifications and remediation."
@@ -68,6 +72,8 @@ person "kai" {
         }
         agent "claude" name="fabled SRE" pronouns="she"
         agent "codex" name="solar SRE" pronouns="he"
+        agent "holmesgpt" name="placeholder holmesgpt SRE" pronouns="unspecified"
+        agent "goose" name="placeholder goose SRE" pronouns="unspecified"
     }
     role "pm" {
         purpose "Strategic planning, autonomous triage, and project management."
@@ -82,6 +88,8 @@ person "kai" {
         }
         agent "claude" name="opal planner" pronouns="she"
         agent "codex" name="terran planner" pronouns="he"
+        agent "hermes" name="placeholder hermes planner" pronouns="unspecified"
+        agent "plane" name="placeholder plane planner" pronouns="unspecified"
     }
     role "designer" {
         purpose "Product shaping."
@@ -96,6 +104,7 @@ person "kai" {
         }
         agent "claude" name="opal product designer" pronouns="she"
         agent "codex" name="terran product designer" pronouns="he"
+        agent "penpot" name="placeholder penpot product designer" pronouns="unspecified"
     }
     role "social" {
         purpose "Social media leads and analysis."
@@ -110,6 +119,8 @@ person "kai" {
         }
         agent "claude" name="fabled social lead" pronouns="she"
         agent "codex" name="solar social lead" pronouns="he"
+        agent "mixpost" name="placeholder mixpost social lead" pronouns="unspecified"
+        agent "elizaos" name="placeholder elizaos social lead" pronouns="unspecified"
     }
     role "sales" {
         purpose "Brings in the money."
@@ -124,6 +135,8 @@ person "kai" {
         }
         agent "claude" name="fabled sales lead" pronouns="she"
         agent "codex" name="solar sales lead" pronouns="he"
+        agent "hermes" name="placeholder hermes sales lead" pronouns="unspecified"
+        agent "elizaos" name="placeholder elizaos sales lead" pronouns="unspecified"
     }
     role "customer-success" {
         purpose "Onboarding, support, retention, customer research, and feeding recurring customer pain back into product work."
@@ -138,6 +151,7 @@ person "kai" {
         }
         agent "claude" name="opal customer success lead" pronouns="she"
         agent "codex" name="terran customer success lead" pronouns="he"
+        agent "rasa" name="placeholder rasa customer success lead" pronouns="unspecified"
     }
     personality "curious" skill="personality-curious" color="#d98e48" {
         inspiration "helen-jackson" {
