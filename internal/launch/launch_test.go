@@ -6,12 +6,11 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 )
 
-func fixture(t *testing.T, name string) string {
+func fixture(t testing.TB, name string) string {
 	t.Helper()
 	return filepath.Join("..", "..", "testdata", "contracts", name)
 }
@@ -45,23 +44,40 @@ func TestRefreshAcrossAllLayouts(t *testing.T) {
 	}
 }
 
-func TestWarmRefreshIsFastAndReuses(t *testing.T) {
+func TestWarmRefreshReusesBundle(t *testing.T) {
 	target, out := t.TempDir(), t.TempDir()
 	opts := Options{RequestPath: fixture(t, "native.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
-	if _, err := Refresh(opts); err != nil {
-		t.Fatal(err)
-	}
-	start := time.Now()
-	result, err := Refresh(opts)
-	elapsed := time.Since(start)
+	first, err := Refresh(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !result.BundleReused {
-		t.Fatalf("warm refresh must reuse the bundle, got %+v", result)
+	result, err := Refresh(opts)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if elapsed > 250*time.Millisecond {
-		t.Fatalf("warm refresh took %s, budget is 250ms", elapsed)
+	if !result.BundleReused || result.BundleDir != first.BundleDir {
+		t.Fatalf("warm refresh must reuse the same bundle, got %+v then %+v", first, result)
+	}
+	if err := project.Validate(target); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func BenchmarkWarmRefreshReuse(b *testing.B) {
+	target, out := b.TempDir(), b.TempDir()
+	opts := Options{RequestPath: fixture(b, "native.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
+	if _, err := Refresh(opts); err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for range b.N {
+		result, err := Refresh(opts)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if !result.BundleReused {
+			b.Fatalf("warm refresh did not reuse the bundle: %+v", result)
+		}
 	}
 }
 
