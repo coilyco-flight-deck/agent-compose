@@ -74,6 +74,7 @@ definitions.
 
 ## See also
 
+* [person-snapshot.md](person-snapshot.md) - complete machine-readable export.
 * [role-briefings.md](role-briefings.md) - role charter and delivery contract.
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.
 * [architecture.md](architecture.md) - policy ownership.

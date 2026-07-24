@@ -54,10 +54,11 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders the embedded invariant and
-  definitions, overlay instructions, seats, long-form role briefings, melded
-  personalities, colors, bodies, and a claude `@`-import override. See
-  [role-briefings.md](role-briefings.md).
+* `agent-compose roster --out <dir>` renders the embedded invariant,
+  definitions, seats, role briefings, personality bodies, colors, and a claude
+  `@`-import override. See [role-briefings.md](role-briefings.md).
+* Bare convergence emits deterministic `person.json` for roles, seats,
+  personalities, colors, inspirations, and appearances. See [person-snapshot.md](person-snapshot.md).
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,

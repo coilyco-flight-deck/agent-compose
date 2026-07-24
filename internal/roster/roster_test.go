@@ -1,6 +1,7 @@
 package roster
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -105,6 +106,15 @@ func TestRenderDispatchTable(t *testing.T) {
 
 	if !strings.Contains(string(files["personalities/bright.md"]), "# Curious") {
 		t.Fatal("personality body must carry the skill definition")
+	}
+	var snapshot person.Snapshot
+	if err := json.Unmarshal(files["person.json"], &snapshot); err != nil {
+		t.Fatal(err)
+	}
+	if snapshot.Format != person.SnapshotFormat ||
+		!reflect.DeepEqual(snapshot.RoleOrder, p.RoleOrder) ||
+		len(snapshot.Roles) != len(p.Roles) {
+		t.Fatalf("roster omitted the complete person snapshot: %+v", snapshot)
 	}
 }
 

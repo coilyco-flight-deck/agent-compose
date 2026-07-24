@@ -73,6 +73,11 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, "sources", "personality", "personalities", "curious.md")); err != nil {
 		t.Fatal("personality bodies must land under sources/personality")
 	}
+	personSnapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
+	if !strings.Contains(personSnapshot, `"format": "agent-compose.person-snapshot.v1"`) ||
+		!strings.Contains(personSnapshot, `"briefing":`) {
+		t.Fatal("normal convergence must emit the complete versioned person snapshot")
+	}
 	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != filepath.Join(skillRoot, "coding-go") {
 		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
 	}

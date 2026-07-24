@@ -58,8 +58,8 @@ a media cache or a second knowledge-provider system.
 ## Consumption
 
 The in-memory person model exposes the catalogue to agent-compose renderers.
-The versioned complete-person artifact tracked in
-[#49](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/49)
-will become the machine-readable boundary for pickers, visual projections, and
-other consumers. Consumers should join on stable role, personality,
-inspiration, and appearance slugs rather than copying curated prose.
+Normal host convergence writes the complete versioned person snapshot at
+`~/.agent-compose/sources/personality/person.json`. It is the machine-readable
+boundary for pickers, visual projections, and other consumers. Consumers
+should join on stable role, personality, inspiration, and appearance slugs
+rather than copying curated prose.

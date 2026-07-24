@@ -132,6 +132,7 @@ show_transcript "first convergence" "$first_output"
 roster_table="$state_dir/sources/personality/AGENTS.COMPOSE.md"
 roster_override="$state_dir/sources/personality/AGENTS.claude.md"
 roster_body="$state_dir/sources/personality/personalities/curious.md"
+person_snapshot="$state_dir/sources/personality/person.json"
 composed="$state_dir/COMPOSED.md"
 manifest="$state_dir/mount-eligibility.json"
 skill_state="$state_dir/skill-mounts.json"
@@ -139,7 +140,7 @@ mcporter="$fixture_home/.mcporter/mcporter.json"
 claude_mcp="$fixture_home/.claude.json"
 codex_mcp="$fixture_home/.codex/config.toml"
 
-for path in "$roster_table" "$roster_override" "$roster_body" "$composed" \
+for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
   "$manifest" "$skill_state" "$mcporter" "$claude_mcp" "$codex_mcp" \
   "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md"; do
   assert_file "$path"
@@ -149,6 +150,8 @@ assert_contains "$composed" "# Smoke doctrine"
 assert_contains "$composed" "# Personality invariant"
 assert_contains "$composed" "# Agent seats"
 assert_contains "$composed" "opal engineer"
+assert_contains "$person_snapshot" '"format": "agent-compose.person-snapshot.v1"'
+assert_contains "$person_snapshot" '"briefing":'
 assert_contains "$mcporter" "\"reader\""
 assert_contains "$claude_mcp" "\"reader\""
 assert_contains "$codex_mcp" "[mcp_servers.\"reader\"]"
@@ -157,6 +160,7 @@ printf 'smoke: roster, cascade, skill, MCP, and load-point artifacts... ok\n'
 snapshot_file "$roster_table" roster-table
 snapshot_file "$roster_override" roster-override
 snapshot_file "$roster_body" roster-body
+snapshot_file "$person_snapshot" person-snapshot
 snapshot_file "$composed" composed
 snapshot_file "$manifest" manifest
 snapshot_file "$skill_state" skill-state
@@ -184,6 +188,7 @@ show_transcript "second convergence" "$second_output"
 assert_unchanged "$roster_table" roster-table
 assert_unchanged "$roster_override" roster-override
 assert_unchanged "$roster_body" roster-body
+assert_unchanged "$person_snapshot" person-snapshot
 assert_unchanged "$composed" composed
 assert_unchanged "$manifest" manifest
 assert_unchanged "$skill_state" skill-state

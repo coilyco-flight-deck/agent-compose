@@ -23,7 +23,11 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	}
 	sources = append([]*schema.Source{personSource}, sources...)
 
-	files := map[string][]byte{}
+	snapshot, err := person.MarshalSnapshot(p)
+	if err != nil {
+		return nil, err
+	}
+	files := map[string][]byte{"person.json": snapshot}
 	bodies := personalityBodies(p, sources)
 	instructions, err := instructionBodies(sources)
 	if err != nil {

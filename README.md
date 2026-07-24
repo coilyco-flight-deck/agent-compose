@@ -63,7 +63,9 @@ canonical definitions, so host roster convergence needs no external
 personality source. The same person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
-palette explorer. Bare `acompose` converges the host.
+palette explorer. Bare `acompose` converges the host and atomically refreshes
+the complete versioned person snapshot at
+`~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
 
 Ward-side container invocation

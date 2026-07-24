@@ -22,65 +22,65 @@ var embedded embed.FS
 // Seat is one named agent identity within a role. The harness joins the
 // launcher's own catalog, while the name remains opaque here.
 type Seat struct {
-	Harness  string
-	Name     string
-	Pronouns string
+	Harness  string `json:"harness"`
+	Name     string `json:"name"`
+	Pronouns string `json:"pronouns"`
 }
 
 // InspirationRef records why one role or personality cites a catalog entry.
 // Inspirations are acknowledgements and evidence, not identities to imitate.
 type InspirationRef struct {
-	ID  string
-	Fit string
+	ID  string `json:"id"`
+	Fit string `json:"fit"`
 }
 
 type Role struct {
-	Purpose       string
-	Briefing      string
-	Personalities []string
-	Seats         []Seat
-	Inspiration   InspirationRef
+	Purpose       string         `json:"purpose"`
+	Briefing      string         `json:"briefing"`
+	Personalities []string       `json:"personalities"`
+	Seats         []Seat         `json:"seats"`
+	Inspiration   InspirationRef `json:"inspiration"`
 }
 
 // Personality binds a name to the skill defining it and a terminal-legible
 // favorite color.
 type Personality struct {
-	Skill       string
-	Color       string
-	Inspiration InspirationRef
+	Skill       string         `json:"skill"`
+	Color       string         `json:"color"`
+	Inspiration InspirationRef `json:"inspiration"`
 }
 
 // Appearance is one substantive public speaking record selected as evidence
 // for an inspiration's assigned role, personality, or impact mode.
 type Appearance struct {
-	ID        string
-	Title     string
-	Event     string
-	Year      string
-	Format    string
-	Summary   string
-	Citations []string
+	ID        string   `json:"id"`
+	Title     string   `json:"title"`
+	Event     string   `json:"event"`
+	Year      string   `json:"year"`
+	Format    string   `json:"format"`
+	Summary   string   `json:"summary"`
+	Citations []string `json:"citations"`
 }
 
 // Inspiration is one credited human influence. Citation keys refer to public
 // evidence recorded on the catalogue's owning issue.
 type Inspiration struct {
-	Name            string
-	Achievement     string
-	ImpactMode      string
-	ImpactFit       string
-	ProfileCitation string
-	Appearance      Appearance
+	Name            string     `json:"name"`
+	Achievement     string     `json:"achievement"`
+	ImpactMode      string     `json:"impact_mode"`
+	ImpactFit       string     `json:"impact_fit"`
+	ProfileCitation string     `json:"profile_citation"`
+	Appearance      Appearance `json:"appearance"`
 }
 
 type Person struct {
-	Name             string
-	Roles            map[string]Role
-	RoleOrder        []string
-	Personalities    map[string]Personality
-	Inspirations     map[string]Inspiration
-	InspirationOrder []string
-	Raw              []byte
+	Name             string                 `json:"person"`
+	Roles            map[string]Role        `json:"roles"`
+	RoleOrder        []string               `json:"role_order"`
+	Personalities    map[string]Personality `json:"personalities"`
+	Inspirations     map[string]Inspiration `json:"inspirations"`
+	InspirationOrder []string               `json:"inspiration_order"`
+	Raw              []byte                 `json:"-"`
 }
 
 func Load() (*Person, error) {
