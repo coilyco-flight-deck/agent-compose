@@ -12,7 +12,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
 * Embedded `person:kai` carries ten role briefings, the meld matrix, 16
-  personality definitions, twelve seats, and the normalized
+  personality definitions, twenty seats, and the normalized
   [inspiration catalogue](inspiration-catalogue.md). Every bundle injects its
   selected briefing plus compact role, seat, color, meld, and credit metadata.
 * AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed

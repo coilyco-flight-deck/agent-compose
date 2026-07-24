@@ -1,8 +1,11 @@
 package person
 
 import (
+	"fmt"
 	"strings"
 	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
 func TestRenderRoleMetadataIncludesCompactSelectedFacts(t *testing.T) {
@@ -98,6 +101,35 @@ func TestRenderRoleMetadataRejectsIncompleteRelationships(t *testing.T) {
 	}
 	if _, err := p.RenderRoleMetadata("builder", "#90a66a"); err == nil {
 		t.Fatal("missing personality must fail")
+	}
+}
+
+func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		var colors []string
+		for _, name := range role.Personalities {
+			colors = append(colors, p.Personalities[name].Color)
+		}
+		favorite, err := color.Favorite(colors)
+		if err != nil {
+			t.Fatal(err)
+		}
+		metadata, err := p.RenderRoleMetadata(roleName, favorite)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, seat := range role.Seats {
+			want := fmt.Sprintf("`%s`: `%s` (pronouns: `%s`)",
+				seat.Harness, seat.Name, seat.Pronouns)
+			if !strings.Contains(metadata, want) {
+				t.Errorf("role %q metadata missing seat %q:\n%s", roleName, want, metadata)
+			}
+		}
 	}
 }
 

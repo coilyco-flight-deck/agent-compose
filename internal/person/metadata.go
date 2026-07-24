@@ -5,9 +5,8 @@ import (
 	"strings"
 )
 
-// RenderRoleMetadata returns the compact public-safe person facts that belong
-// in every bundle. Long-form catalogue prose and citation records stay in the
-// documentation surface rather than entering each agent's runtime context.
+// RenderRoleMetadata returns compact public-safe person facts for each bundle.
+// Long-form catalogue prose and citations remain in the documentation.
 func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error) {
 	role, ok := p.Roles[roleName]
 	if !ok {

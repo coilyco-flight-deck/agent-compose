@@ -11,10 +11,28 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	seatNames := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
 		if got := strings.Count(role.Briefing, "\n\n"); got < 1 {
 			t.Errorf("role %q briefing has no paragraph break", roleName)
+		}
+		if len(role.Seats) != 2 {
+			t.Errorf("role %q has %d seats, want claude and codex", roleName, len(role.Seats))
+		}
+		seats := map[string]Seat{}
+		for _, seat := range role.Seats {
+			seats[seat.Harness] = seat
+			if prior, exists := seatNames[seat.Name]; exists {
+				t.Errorf("roles %q and %q share seat name %q", prior, roleName, seat.Name)
+			}
+			seatNames[seat.Name] = roleName
+		}
+		for harness, pronouns := range map[string]string{"claude": "she", "codex": "he"} {
+			seat, exists := seats[harness]
+			if !exists || seat.Name == "" || seat.Pronouns != pronouns {
+				t.Errorf("role %q %s seat is incomplete: %+v", roleName, harness, seat)
+			}
 		}
 		if _, ok := p.Inspirations[role.Inspiration.ID]; !ok {
 			t.Errorf("role %q inspiration %q has no catalog entry", roleName, role.Inspiration.ID)

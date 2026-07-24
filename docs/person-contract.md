@@ -59,9 +59,8 @@ An `agent` node is a named seat. The harness is its join key, while `name` and
 `pronouns` are the identity it wears. Ward keeps guardfiles, models, and
 reasoning effort on its side. Nothing here grants authority.
 
-The six named roles (engineer, director, qa, advisor, ops, pm) retain twelve
-seats. Designer, Customer Success, Social, and Sales remain canonical but have
-no approved harness names.
+All ten roles carry one Claude and one Codex seat, for twenty canonical names.
+Claude seats use she/her pronouns and Codex seats use he/him pronouns.
 
 Seats are personality-neutral. A compose request selects a role, and that role
 activates its ordered personality set. Roster briefing delivery is documented

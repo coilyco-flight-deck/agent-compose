@@ -57,10 +57,9 @@ The roster renders each named-seat role in this order:
 * component personality names, skills, and individual colors
 * melded favorite color plus concise inspiration and appearance metadata
 
-The host cascade carries the complete named-seat roster into global context. A
-bundle places the selected role's compact metadata before its briefing. Long
-catalogue prose and citations stay in the documentation surface. Roles without
-named seats remain in the model but not in the dispatch table.
+The host cascade carries all ten named roles into global context. A bundle
+places the selected role's compact metadata before its briefing. Long catalogue
+prose and citations stay in the documentation surface.
 
 ## Ownership boundaries
 

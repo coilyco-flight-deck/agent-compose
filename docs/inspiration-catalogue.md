@@ -37,12 +37,12 @@ teaching a test to repeat its content.
 ## Identity boundary
 
 An inspiration is an acknowledgement, not an agent identity. Agent-compose
-does not name a seat after the credited person, ask a model to imitate her, or
-append biography and speaking notes to role instructions. Existing role
-briefings and personality definitions remain the only behavioral context.
+does not name a seat after the credited person or ask a model to imitate her.
+Bundles include only compact credit, impact-mode, and appearance metadata.
+Long biography, fit, summary, and citation records stay out of runtime prompts.
 
 The raw person source participates in bundle hashing, so policy changes remain
-traceable even though inspiration prose does not enter the prompt.
+traceable even though long inspiration prose does not enter the prompt.
 
 ## Provenance
 
