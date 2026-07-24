@@ -55,8 +55,8 @@ case "$goos" in
   windows)
     command -v cygpath >/dev/null 2>&1 || fail "cygpath is required by the Windows sh environment"
     native_root=$(cygpath -m "$smoke_root")
-    binary="$smoke_root/bin/acompose.exe"
-    binary_exec="$native_root/bin/acompose.exe"
+    binary="$native_root/bin/acompose.exe"
+    binary_exec="$binary"
     ;;
   *)
     native_root=$(CDPATH= cd -- "$smoke_root" && pwd -P)
