@@ -43,7 +43,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   points, delivery data, trace integrity, and the complete selected identity
   set.
   `compose --explain` appends the full tree to the one-screen summary.
-* TTY color honors NO_COLOR. Redirected output is plain and deterministic.
+* [Behavior evaluation](evaluation.md) - fixed frontier/OSS matrix.
+* TTY color honors NO_COLOR. Redirected output stays plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
 ## Identity surfaces

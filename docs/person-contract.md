@@ -18,8 +18,8 @@ person "kai" {
 A role names its concise purpose, required long-form briefing, the two or
 three personalities it wears together, and its named agent seats. `purpose`
 is the short label used in headings and summaries. `briefing` is the
-unconditional role charter described in
-[role-briefings.md](role-briefings.md). The loader also rejects any other
+unconditional role charter described in [role-briefings.md](role-briefings.md),
+with at least three substantial paragraphs. The loader also rejects any other
 personality cardinality or a repeated personality. The embedded roster
 contains this approved meld matrix:
 

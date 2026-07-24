@@ -14,8 +14,8 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	seatNames := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		if got := strings.Count(role.Briefing, "\n\n"); got < 1 {
-			t.Errorf("role %q briefing has no paragraph break", roleName)
+		if got := briefingParagraphCount(role.Briefing); got < 3 {
+			t.Errorf("role %q briefing has %d paragraphs, want at least three", roleName, got)
 		}
 		if len(role.Seats) < 2 {
 			t.Errorf("role %q has %d seats, want at least claude and codex", roleName, len(role.Seats))
@@ -96,6 +96,8 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
         briefing """
             You are a builder. Build the fixture from repository evidence.
 
+            Keep the work bounded and test the important paths.
+
             Finish validation and hand back a complete result.
             """
         personality "bright" "steady"
@@ -137,6 +139,7 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 		t.Fatalf("role personalities = %q", got)
 	}
 	wantBriefing := "You are a builder. Build the fixture from repository evidence.\n\n" +
+		"Keep the work bounded and test the important paths.\n\n" +
 		"Finish validation and hand back a complete result."
 	if got := p.Roles["builder"].Briefing; got != wantBriefing {
 		t.Fatalf("role briefing = %q, want %q", got, wantBriefing)
@@ -267,7 +270,7 @@ func inspirationFixture() string {
 	return `person "fixture" {
     role "builder" {
         purpose "Build."
-        briefing "Build independently."
+        briefing "Build independently.\n\nVerify the important paths.\n\nFinish the complete handoff."
         personality "bright" "steady"
         inspiration "fixture-builder" {
             fit "The fixture is a useful builder archetype."
@@ -340,6 +343,16 @@ func TestParseRejectsInvalidRoleBriefing(t *testing.T) {
     personality "steady" skill="personality-steady" color="#5fa87a"
 }`,
 			want: "duplicate briefing",
+		},
+		"fewer than three paragraphs": {
+			body: `person "fixture" {
+    role "builder" {
+        purpose "Build."
+        briefing "Inspect the work.\n\nFinish the work."
+        personality "bright" "steady"
+    }
+}`,
+			want: "briefing needs at least three paragraphs, got 2",
 		},
 	}
 	for name, tc := range cases {

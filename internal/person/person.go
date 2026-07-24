@@ -343,6 +343,9 @@ func parse(raw []byte) (*Person, error) {
 			if !briefingSet {
 				return nil, fmt.Errorf("role %q needs a briefing", name)
 			}
+			if paragraphs := briefingParagraphCount(role.Briefing); paragraphs < 3 {
+				return nil, fmt.Errorf("role %q: briefing needs at least three paragraphs, got %d", name, paragraphs)
+			}
 			if len(role.Personalities) < 2 || len(role.Personalities) > 3 {
 				return nil, fmt.Errorf("role %q needs two or three personalities, got %d", name, len(role.Personalities))
 			}
@@ -502,6 +505,17 @@ func parse(raw []byte) (*Person, error) {
 		}
 	}
 	return p, nil
+}
+
+func briefingParagraphCount(briefing string) int {
+	normalized := strings.ReplaceAll(briefing, "\r\n", "\n")
+	count := 0
+	for _, paragraph := range strings.Split(normalized, "\n\n") {
+		if strings.TrimSpace(paragraph) != "" {
+			count++
+		}
+	}
+	return count
 }
 
 func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[string]string, error) {

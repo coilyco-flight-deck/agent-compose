@@ -32,6 +32,7 @@ configuration:
 * host doctrine convergence, native skill installation, and native MCP projection
 * bundle inspection, validation, and compatibility reporting
 * compact text and JSON identity overlays with caller-supplied state
+* deterministic frontier and OSS behavior evaluation packs
 
 AOS owns reusable doctrine, general skills, capability providers, and editorial
 validation. Agent-compose combines those sources with its embedded personality
@@ -66,14 +67,14 @@ canonical definitions, so host roster convergence needs no external
 personality source. The same person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
-palette explorer and identity overlay. Bare `acompose` converges the host and atomically refreshes
-the complete versioned person snapshot at
+palette explorer, identity overlay, and four-case behavior evaluation pack.
+Bare `acompose` converges the host and atomically refreshes the complete
+versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
 
-Ward-side container invocation
-([#17](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/17))
-remains open on the canonical Forgejo tracker.
+Ward consumes verified bundles through a fixed read-only mount and projects
+them into the private container HOME before harness launch.
 
 ## Install
 
@@ -126,6 +127,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
+* [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.

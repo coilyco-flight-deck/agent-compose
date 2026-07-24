@@ -14,6 +14,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/converge"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
@@ -130,6 +131,28 @@ func main() {
 				Action:    runVerify,
 			},
 			{
+				Name:  "evaluation",
+				Usage: "emit the four-case frontier and OSS human-review matrix",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "role",
+						Value: "engineer",
+						Usage: "canonical role under evaluation",
+					},
+					&cli.StringFlag{
+						Name:  "seat",
+						Value: "codex",
+						Usage: "harness seat held constant across the comparison",
+					},
+					&cli.StringFlag{
+						Name:  "format",
+						Value: "markdown",
+						Usage: "output format: markdown or json",
+					},
+				},
+				Action: runEvaluation,
+			},
+			{
 				Name:  "overlay",
 				Usage: "project one member identity and caller-supplied expression",
 				Flags: []cli.Flag{
@@ -231,6 +254,27 @@ func main() {
 		fmt.Fprintf(os.Stderr, "agent-compose: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func runEvaluation(_ context.Context, cmd *cli.Command) error {
+	pack, err := evaluation.Build(cmd.String("role"), cmd.String("seat"))
+	if err != nil {
+		return err
+	}
+	var raw []byte
+	switch cmd.String("format") {
+	case "markdown":
+		raw = evaluation.Markdown(pack)
+	case "json":
+		raw, err = evaluation.Marshal(pack)
+	default:
+		return fmt.Errorf("evaluation --format must be markdown or json, got %q", cmd.String("format"))
+	}
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(raw)
+	return err
 }
 
 func runNativeMCP(_ context.Context, cmd *cli.Command) error {
