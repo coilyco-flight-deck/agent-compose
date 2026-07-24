@@ -23,7 +23,7 @@ role "engineer" {
 ```
 
 The loader trims outer whitespace while preserving internal paragraph breaks.
-It rejects a missing, empty, or duplicate briefing. All ten embedded roles
+It rejects a missing, empty, or duplicate briefing. All eleven embedded roles
 carry at least three substantial paragraphs.
 
 ## Authoring shape
@@ -60,7 +60,7 @@ The roster renders each named-seat role in this order:
 * component personality names, skills, and individual colors
 * melded favorite color plus concise inspiration and appearance metadata
 
-The host cascade carries all ten named roles into global context. A bundle
+The host cascade carries all eleven named roles into global context. A bundle
 places the selected role's compact metadata before its briefing. Long catalogue
 prose and citations stay in the documentation surface.
 

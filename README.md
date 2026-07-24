@@ -20,7 +20,7 @@ Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
 * role-driven personality meld resolution
-* the ten-role company roster, concise purposes, and long-form role briefings
+* the eleven-role company roster, concise purposes, and long-form role briefings
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
 * credited role and personality inspirations with sourced public appearances
@@ -44,7 +44,7 @@ Infrastructure installs the resulting system across hosts.
 
 ## Personal by design
 
-The initial person configuration is Kai's ten-role synthetic company and
+The initial person configuration is Kai's eleven-role synthetic company and
 sixteen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in

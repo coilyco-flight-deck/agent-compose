@@ -11,7 +11,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `person:kai` carries ten roles, 16 personalities, melds, and 34 seats.
+* `person:kai` carries 11 roles, 16 personalities, melds, and 37 seats.
   Fourteen seats are placeholders. Bundles inject role, seat, color, meld,
   [identity](identity-primitives.md), and [inspiration](inspiration-catalogue.md) metadata.
 * AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.

@@ -32,6 +32,7 @@ contains this approved meld matrix:
 * `ops` - `protective`, `grounded`, `reflective`
 * `sales` - `charming`, `energetic`, `warm`
 * `social` - `quirky`, `playful`, `optimistic`
+* `community` - `nurturing`, `diplomatic`, `playful`
 * `customer-success` - `nurturing`, `diplomatic`, `optimistic`
 
 A personality entry is a catalog binding from its canonical name to a stable
@@ -59,9 +60,8 @@ An `agent` node is a named seat. The harness is its join key, while `name` and
 `pronouns` are the identity it wears. Ward keeps guardfiles, models, and
 reasoning effort on its side. Nothing here grants authority.
 
-All ten roles keep Claude she/her and Codex he/him seats. Fourteen AOSH-selected
-public harness seats use grep-friendly `placeholder ...` names and they/them
-pronouns, for 34 canonical seats total.
+All eleven roles keep Claude she/her and Codex he/him seats. Fourteen AOSH-selected
+public seats use grep-friendly `placeholder ...` names and they/them pronouns. Discord adds one she/her community host, for 37 canonical seats total.
 
 Seats are personality-neutral. A compose request selects a role, and that role
 activates its ordered personality set. Roster briefing delivery is documented
