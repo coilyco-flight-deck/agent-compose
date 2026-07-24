@@ -8,7 +8,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
-func TestRenderRoleMetadataIncludesCompactSelectedFacts(t *testing.T) {
+func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 	p := &Person{
 		Name: "fixture",
 		Roles: map[string]Role{
@@ -60,6 +60,7 @@ func TestRenderRoleMetadataIncludesCompactSelectedFacts(t *testing.T) {
 	for _, want := range []string{
 		"## Active role metadata",
 		"* Person: `fixture`",
+		"* Provider: `person:fixture`",
 		"* Role: `builder`",
 		"* Purpose: Build the fixture.",
 		"`bright`: skill `personality-bright`, favorite color `#d98e48`",
@@ -70,9 +71,17 @@ func TestRenderRoleMetadataIncludesCompactSelectedFacts(t *testing.T) {
 		"* Melded favorite color: `#90a66a`",
 		"`alpha`: `bright builder` (pronouns: `she`)",
 		"`beta`: `steady builder` (pronouns: `he`)",
-		"Role `builder`: `Builder Credit` (`builder-credit`), impact mode `builder-impact`",
-		"Personality `bright`: `Bright Credit` (`bright-credit`), impact mode `bright-impact`",
-		"appearance `Bright Talk` (`fixture-talk`) at Fixture Conference (2026, keynote)",
+		"Role `builder`: `Builder Credit` (`builder-credit`)",
+		"* Fit: long role fit stays out",
+		"Personality `bright`: `Bright Credit` (`bright-credit`)",
+		"* Fit: long personality fit stays out",
+		"* Achievement: long achievement stays out",
+		"* Impact mode: `bright-impact`",
+		"* Impact fit: long impact fit stays out",
+		"* Profile citation: `profile-citation-stays-out`",
+		"* Appearance: `Bright Talk` (`fixture-talk`) at Fixture Conference (2026, keynote)",
+		"* Appearance citations: `appearance-citation-stays-out`",
+		"* Renderer expressions: `available`, `listening`, `thinking`",
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("metadata missing %q:\n%s", want, got)
@@ -80,13 +89,7 @@ func TestRenderRoleMetadataIncludesCompactSelectedFacts(t *testing.T) {
 	}
 	for _, excluded := range []string{
 		"personality-inactive",
-		"long role fit stays out",
-		"long personality fit stays out",
-		"long achievement stays out",
-		"long impact fit stays out",
 		"long appearance summary stays out",
-		"profile-citation-stays-out",
-		"appearance-citation-stays-out",
 	} {
 		if strings.Contains(got, excluded) {
 			t.Errorf("metadata contains excluded long-form field %q:\n%s", excluded, got)
@@ -137,7 +140,6 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		"briefing:",
 		"seats:",
 		"personality metadata",
-		"additional linked metadata",
 		"renderer expressions: " + strings.Join(ExpressionVocabulary(), " // "),
 	} {
 		if !strings.Contains(got, want) {
@@ -152,6 +154,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	}
 	for _, name := range role.Personalities {
 		binding := p.Personalities[name]
+		inspiration := p.Inspirations[binding.Inspiration.ID]
 		for _, want := range []string{
 			"personality: " + name,
 			"skill: " + binding.Skill,
@@ -161,29 +164,38 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 			"form: silhouette " + binding.Form.Silhouette,
 			"sound mark: timbre " + binding.SoundMark.Timbre,
 			"inspiration fit: " + binding.Inspiration.Fit,
+			"inspiration achievement: " + inspiration.Achievement,
+			"inspiration impact mode: " + inspiration.ImpactMode,
+			"inspiration impact fit: " + inspiration.ImpactFit,
+			"inspiration profile citation: " + inspiration.ProfileCitation,
+			"inspiration appearance: " + inspiration.Appearance.Title + " (" + inspiration.Appearance.ID + ")",
+			"inspiration appearance citations: " + strings.Join(inspiration.Appearance.Citations, " // "),
 		} {
 			if !strings.Contains(got, want) {
 				t.Errorf("transcript missing personality field %q:\n%s", want, got)
 			}
 		}
 	}
-	for _, id := range []string{"marian-croak", "helen-jackson", "mellody-hobson"} {
-		inspiration := p.Inspirations[id]
-		for _, want := range []string{
-			"linked inspiration: " + inspiration.Name + " (" + id + ")",
-			"achievement: " + inspiration.Achievement,
-			"impact mode: " + inspiration.ImpactMode,
-			"impact fit: " + inspiration.ImpactFit,
-			"profile citation: " + inspiration.ProfileCitation,
-			"appearance: " + inspiration.Appearance.Title + " (" + inspiration.Appearance.ID + ")",
-			"appearance citations: " + strings.Join(inspiration.Appearance.Citations, " // "),
-		} {
-			if !strings.Contains(got, want) {
-				t.Errorf("transcript missing inspiration field %q:\n%s", want, got)
-			}
+	roleInspiration := p.Inspirations[role.Inspiration.ID]
+	for _, want := range []string{
+		"role inspiration achievement: " + roleInspiration.Achievement,
+		"role inspiration impact mode: " + roleInspiration.ImpactMode,
+		"role inspiration impact fit: " + roleInspiration.ImpactFit,
+		"role inspiration profile citation: " + roleInspiration.ProfileCitation,
+		"role inspiration appearance: " + roleInspiration.Appearance.Title + " (" + roleInspiration.Appearance.ID + ")",
+		"role inspiration appearance citations: " + strings.Join(roleInspiration.Appearance.Citations, " // "),
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("transcript missing role inspiration field %q:\n%s", want, got)
 		}
-		if count := strings.Count(got, "linked inspiration: "+inspiration.Name+" ("+id+")"); count != 1 {
-			t.Errorf("linked inspiration %q rendered %d times:\n%s", id, count, got)
+	}
+	for _, excluded := range []string{
+		"additional linked metadata",
+		"appearance summary:",
+		roleInspiration.Appearance.Summary,
+	} {
+		if strings.Contains(got, excluded) {
+			t.Errorf("transcript retained excluded appearance section %q:\n%s", excluded, got)
 		}
 	}
 	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {

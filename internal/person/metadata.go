@@ -12,8 +12,8 @@ type RoleTranscriptOptions struct {
 	TrueColor bool
 }
 
-// RenderRoleMetadata returns compact public-safe person facts for each bundle.
-// Long-form catalogue prose and citations remain in the documentation.
+// RenderRoleMetadata returns complete selected identity facts for each bundle.
+// Appearance summaries remain in the person snapshot and documentation.
 func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error) {
 	role, ok := p.Roles[roleName]
 	if !ok {
@@ -28,8 +28,13 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	out.WriteString("Agent-compose selected these public-safe facts for the agent. ")
 	out.WriteString("Credits acknowledge influences and do not assign another identity.\n\n")
 	fmt.Fprintf(&out, "* Person: `%s`\n", p.Name)
+	fmt.Fprintf(&out, "* Provider: `person:%s`\n", p.Name)
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
+	out.WriteString("* Role inspiration:\n")
+	if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
+		return "", err
+	}
 	out.WriteString("* Component personalities:\n")
 	for _, name := range role.Personalities {
 		binding, exists := p.Personalities[name]
@@ -53,6 +58,9 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 			binding.SoundMark.Contour,
 			binding.SoundMark.Pulse,
 		)
+		if err := writeCredit(&out, "Personality `"+name+"`", binding.Inspiration, p.Inspirations); err != nil {
+			return "", err
+		}
 	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n", meldedColor)
 
@@ -65,17 +73,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 				seat.Harness, seat.Name, seat.Pronouns)
 		}
 	}
-
-	out.WriteString("* Inspiration credits:\n")
-	if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
-		return "", err
-	}
-	for _, name := range role.Personalities {
-		binding := p.Personalities[name]
-		if err := writeCredit(&out, "Personality `"+name+"`", binding.Inspiration, p.Inspirations); err != nil {
-			return "", err
-		}
-	}
+	fmt.Fprintf(&out, "* Renderer expressions: `%s`\n", strings.Join(ExpressionVocabulary(), "`, `"))
 	return out.String(), nil
 }
 
@@ -105,8 +103,7 @@ func (p *Person) RenderRoleTranscript(
 	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
 	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
-	fmt.Fprintf(&roleBlock, "role inspiration: %s (%s)\n", roleCredit.Name, role.Inspiration.ID)
-	fmt.Fprintf(&roleBlock, "role inspiration fit: %s\n", role.Inspiration.Fit)
+	writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
 	writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	roleBlock.WriteString("seats:\n")
 	for _, seat := range role.Seats {
@@ -116,7 +113,6 @@ func (p *Person) RenderRoleTranscript(
 
 	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)
-	linked := []InspirationRef{role.Inspiration}
 	for index, name := range role.Personalities {
 		binding, exists := p.Personalities[name]
 		if !exists {
@@ -140,31 +136,16 @@ func (p *Person) RenderRoleTranscript(
 			binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
 		fmt.Fprintf(&personalityBlock, "sound mark: timbre %s // contour %s // pulse %s\n",
 			binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
-		fmt.Fprintf(&personalityBlock, "inspiration: %s (%s)\n", credit.Name, binding.Inspiration.ID)
-		fmt.Fprintf(&personalityBlock, "inspiration fit: %s\n", binding.Inspiration.Fit)
+		writeTranscriptInspiration(&personalityBlock, "inspiration", binding.Inspiration, credit)
 		writeTranscriptSection(&out, binding.Color, personalityBlock.String(), opts)
-		linked = append(linked, binding.Inspiration)
 	}
 
-	out.WriteString("\nadditional linked metadata\n")
-	seen := map[string]bool{}
-	wrote := false
-	for _, ref := range linked {
-		if seen[ref.ID] {
-			continue
-		}
-		seen[ref.ID] = true
-		inspiration, exists := p.Inspirations[ref.ID]
-		if !exists {
-			return "", fmt.Errorf("render role transcript: inspiration %q is not defined", ref.ID)
-		}
-		if wrote {
-			out.WriteByte('\n')
-		}
-		writeTranscriptInspiration(&out, ref.ID, inspiration)
-		wrote = true
-	}
-	fmt.Fprintf(&out, "\nrenderer expressions: %s\n", strings.Join(ExpressionVocabulary(), " // "))
+	expressions := fmt.Sprintf(
+		"renderer expressions: %s\n",
+		strings.Join(ExpressionVocabulary(), " // "),
+	)
+	out.WriteByte('\n')
+	writeTranscriptSection(&out, meldedColor, expressions, opts)
 	return out.String(), nil
 }
 
@@ -180,17 +161,25 @@ func writeTranscriptSection(
 	out.WriteString(text)
 }
 
-func writeTranscriptInspiration(out *strings.Builder, id string, inspiration Inspiration) {
-	fmt.Fprintf(out, "linked inspiration: %s (%s)\n", inspiration.Name, id)
-	fmt.Fprintf(out, "achievement: %s\n", inspiration.Achievement)
-	fmt.Fprintf(out, "impact mode: %s\n", inspiration.ImpactMode)
-	fmt.Fprintf(out, "impact fit: %s\n", inspiration.ImpactFit)
-	fmt.Fprintf(out, "profile citation: %s\n", inspiration.ProfileCitation)
-	fmt.Fprintf(out, "appearance: %s (%s)\n", inspiration.Appearance.Title, inspiration.Appearance.ID)
-	fmt.Fprintf(out, "appearance event: %s // year: %s // format: %s\n",
+func writeTranscriptInspiration(
+	out *strings.Builder,
+	label string,
+	ref InspirationRef,
+	inspiration Inspiration,
+) {
+	fmt.Fprintf(out, "%s: %s (%s)\n", label, inspiration.Name, ref.ID)
+	fmt.Fprintf(out, "%s fit: %s\n", label, ref.Fit)
+	fmt.Fprintf(out, "%s achievement: %s\n", label, inspiration.Achievement)
+	fmt.Fprintf(out, "%s impact mode: %s\n", label, inspiration.ImpactMode)
+	fmt.Fprintf(out, "%s impact fit: %s\n", label, inspiration.ImpactFit)
+	fmt.Fprintf(out, "%s profile citation: %s\n", label, inspiration.ProfileCitation)
+	fmt.Fprintf(out, "%s appearance: %s (%s)\n",
+		label, inspiration.Appearance.Title, inspiration.Appearance.ID)
+	fmt.Fprintf(out, "%s appearance event: %s // year: %s // format: %s\n",
+		label,
 		inspiration.Appearance.Event, inspiration.Appearance.Year, inspiration.Appearance.Format)
-	writeTranscriptParagraphs(out, "appearance summary", inspiration.Appearance.Summary)
-	fmt.Fprintf(out, "appearance citations: %s\n", strings.Join(inspiration.Appearance.Citations, " // "))
+	fmt.Fprintf(out, "%s appearance citations: %s\n",
+		label, strings.Join(inspiration.Appearance.Citations, " // "))
 }
 
 func writeTranscriptParagraphs(out *strings.Builder, label, value string) {
@@ -223,17 +212,20 @@ func writeCredit(
 	if !ok {
 		return fmt.Errorf("render role metadata: inspiration %q is not defined", ref.ID)
 	}
-	fmt.Fprintf(out,
-		"  * %s: `%s` (`%s`), impact mode `%s`, appearance `%s` (`%s`) at %s (%s, %s)\n",
-		subject,
-		inspiration.Name,
-		ref.ID,
-		inspiration.ImpactMode,
+	fmt.Fprintf(out, "  * %s: `%s` (`%s`)\n", subject, inspiration.Name, ref.ID)
+	fmt.Fprintf(out, "    * Fit: %s\n", ref.Fit)
+	fmt.Fprintf(out, "    * Achievement: %s\n", inspiration.Achievement)
+	fmt.Fprintf(out, "    * Impact mode: `%s`\n", inspiration.ImpactMode)
+	fmt.Fprintf(out, "    * Impact fit: %s\n", inspiration.ImpactFit)
+	fmt.Fprintf(out, "    * Profile citation: `%s`\n", inspiration.ProfileCitation)
+	fmt.Fprintf(out, "    * Appearance: `%s` (`%s`) at %s (%s, %s)\n",
 		inspiration.Appearance.Title,
 		inspiration.Appearance.ID,
 		inspiration.Appearance.Event,
 		inspiration.Appearance.Year,
 		inspiration.Appearance.Format,
 	)
+	fmt.Fprintf(out, "    * Appearance citations: `%s`\n",
+		strings.Join(inspiration.Appearance.Citations, "`, `"))
 	return nil
 }

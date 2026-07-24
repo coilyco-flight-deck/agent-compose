@@ -99,6 +99,28 @@ func TestComposeAllFixtures(t *testing.T) {
 					t.Fatalf("instructions missing %q:\n%s", selected, instructionText)
 				}
 			}
+			identityRefs := []person.InspirationRef{p.Roles["engineer"].Inspiration}
+			for _, personalityName := range wantPersonalities {
+				identityRefs = append(identityRefs, p.Personalities[personalityName].Inspiration)
+			}
+			for _, ref := range identityRefs {
+				inspiration := p.Inspirations[ref.ID]
+				for _, selected := range []string{
+					ref.Fit,
+					inspiration.Achievement,
+					inspiration.ImpactFit,
+					inspiration.ProfileCitation,
+					strings.Join(inspiration.Appearance.Citations, "`, `"),
+				} {
+					if !strings.Contains(instructionText, selected) {
+						t.Fatalf("agent identity context missing %q:\n%s", selected, instructionText)
+					}
+				}
+				summary := strings.Join(strings.Fields(inspiration.Appearance.Summary), " ")
+				if strings.Contains(instructionText, summary) {
+					t.Fatalf("appearance summary entered agent context:\n%s", instructionText)
+				}
+			}
 			if strings.Index(instructionText, p.Roles["engineer"].Briefing) >=
 				strings.Index(instructionText, "# Fixture foundation") {
 				t.Fatalf("role briefing must precede provider instructions:\n%s", instructionText)

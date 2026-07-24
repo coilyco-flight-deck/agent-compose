@@ -31,10 +31,11 @@ transactional roster projection as the human-readable files. A failed
 projection restores the prior owned artifact. A second convergence leaves
 identical bytes unchanged.
 
-The `compose` terminal transcript renders the complete selected-role slice from
-this same model. It includes the active role, personalities, seats, identity
-primitives, linked inspiration records, appearances, and expression
-vocabulary without maintaining a second metadata schema.
+The `compose` terminal transcript and composed agent instructions render the
+selected-role slice from this same model. Each inspiration record stays with
+the role or personality relationship it describes. Both surfaces include
+identity primitives, fits, achievements, impacts, appearances, citations, and
+the expression vocabulary. Appearance-summary prose remains snapshot-only.
 
 The generated file remains outside repositories. Consumers can read it but do
 not edit it or treat it as a second policy source.
