@@ -34,8 +34,8 @@ identical bytes unchanged.
 The `compose` terminal transcript and composed agent instructions render the
 selected-role slice from this same model. Each inspiration record stays with
 the role or personality relationship it describes. Both surfaces include
-identity primitives, fits, achievements, impacts, appearances, citations, and
-the expression vocabulary. Appearance-summary prose remains snapshot-only.
+identity primitives, fits, achievements, impacts, profile citations, and the
+expression vocabulary. The appearance catalogue remains snapshot-only.
 
 The generated file remains outside repositories. Consumers can read it but do
 not edit it or treat it as a second policy source.

@@ -79,8 +79,6 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		"* Impact mode: `bright-impact`",
 		"* Impact fit: long impact fit stays out",
 		"* Profile citation: `profile-citation-stays-out`",
-		"* Appearance: `Bright Talk` (`fixture-talk`) at Fixture Conference (2026, keynote)",
-		"* Appearance citations: `appearance-citation-stays-out`",
 		"* Renderer expressions: `available`, `listening`, `thinking`",
 	} {
 		if !strings.Contains(got, want) {
@@ -89,10 +87,15 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 	}
 	for _, excluded := range []string{
 		"personality-inactive",
+		"Bright Talk",
+		"fixture-talk",
+		"Fixture Conference",
+		"keynote",
 		"long appearance summary stays out",
+		"appearance-citation-stays-out",
 	} {
 		if strings.Contains(got, excluded) {
-			t.Errorf("metadata contains excluded long-form field %q:\n%s", excluded, got)
+			t.Errorf("metadata contains excluded field %q:\n%s", excluded, got)
 		}
 	}
 }
@@ -168,8 +171,6 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 			"inspiration impact mode: " + inspiration.ImpactMode,
 			"inspiration impact fit: " + inspiration.ImpactFit,
 			"inspiration profile citation: " + inspiration.ProfileCitation,
-			"inspiration appearance: " + inspiration.Appearance.Title + " (" + inspiration.Appearance.ID + ")",
-			"inspiration appearance citations: " + strings.Join(inspiration.Appearance.Citations, " // "),
 		} {
 			if !strings.Contains(got, want) {
 				t.Errorf("transcript missing personality field %q:\n%s", want, got)
@@ -182,8 +183,6 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		"role inspiration impact mode: " + roleInspiration.ImpactMode,
 		"role inspiration impact fit: " + roleInspiration.ImpactFit,
 		"role inspiration profile citation: " + roleInspiration.ProfileCitation,
-		"role inspiration appearance: " + roleInspiration.Appearance.Title + " (" + roleInspiration.Appearance.ID + ")",
-		"role inspiration appearance citations: " + strings.Join(roleInspiration.Appearance.Citations, " // "),
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("transcript missing role inspiration field %q:\n%s", want, got)
@@ -191,11 +190,30 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	}
 	for _, excluded := range []string{
 		"additional linked metadata",
-		"appearance summary:",
-		roleInspiration.Appearance.Summary,
+		"inspiration appearance:",
+		"inspiration appearance event:",
+		"inspiration appearance citations:",
 	} {
 		if strings.Contains(got, excluded) {
-			t.Errorf("transcript retained excluded appearance section %q:\n%s", excluded, got)
+			t.Errorf("transcript retained excluded appearance key %q:\n%s", excluded, got)
+		}
+	}
+	identityRefs := []InspirationRef{role.Inspiration}
+	for _, name := range role.Personalities {
+		identityRefs = append(identityRefs, p.Personalities[name].Inspiration)
+	}
+	for _, ref := range identityRefs {
+		appearance := p.Inspirations[ref.ID].Appearance
+		for _, excluded := range []string{
+			appearance.Title,
+			appearance.ID,
+			appearance.Event,
+			strings.Join(strings.Fields(appearance.Summary), " "),
+			strings.Join(appearance.Citations, " // "),
+		} {
+			if strings.Contains(got, excluded) {
+				t.Errorf("transcript retained excluded appearance field %q:\n%s", excluded, got)
+			}
 		}
 	}
 	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {

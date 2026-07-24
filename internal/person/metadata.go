@@ -13,7 +13,7 @@ type RoleTranscriptOptions struct {
 }
 
 // RenderRoleMetadata returns complete selected identity facts for each bundle.
-// Appearance summaries remain in the person snapshot and documentation.
+// Appearance catalogue entries remain in the person snapshot and documentation.
 func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error) {
 	role, ok := p.Roles[roleName]
 	if !ok {
@@ -173,13 +173,6 @@ func writeTranscriptInspiration(
 	fmt.Fprintf(out, "%s impact mode: %s\n", label, inspiration.ImpactMode)
 	fmt.Fprintf(out, "%s impact fit: %s\n", label, inspiration.ImpactFit)
 	fmt.Fprintf(out, "%s profile citation: %s\n", label, inspiration.ProfileCitation)
-	fmt.Fprintf(out, "%s appearance: %s (%s)\n",
-		label, inspiration.Appearance.Title, inspiration.Appearance.ID)
-	fmt.Fprintf(out, "%s appearance event: %s // year: %s // format: %s\n",
-		label,
-		inspiration.Appearance.Event, inspiration.Appearance.Year, inspiration.Appearance.Format)
-	fmt.Fprintf(out, "%s appearance citations: %s\n",
-		label, strings.Join(inspiration.Appearance.Citations, " // "))
 }
 
 func writeTranscriptParagraphs(out *strings.Builder, label, value string) {
@@ -218,14 +211,5 @@ func writeCredit(
 	fmt.Fprintf(out, "    * Impact mode: `%s`\n", inspiration.ImpactMode)
 	fmt.Fprintf(out, "    * Impact fit: %s\n", inspiration.ImpactFit)
 	fmt.Fprintf(out, "    * Profile citation: `%s`\n", inspiration.ProfileCitation)
-	fmt.Fprintf(out, "    * Appearance: `%s` (`%s`) at %s (%s, %s)\n",
-		inspiration.Appearance.Title,
-		inspiration.Appearance.ID,
-		inspiration.Appearance.Event,
-		inspiration.Appearance.Year,
-		inspiration.Appearance.Format,
-	)
-	fmt.Fprintf(out, "    * Appearance citations: `%s`\n",
-		strings.Join(inspiration.Appearance.Citations, "`, `"))
 	return nil
 }

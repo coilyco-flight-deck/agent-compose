@@ -57,12 +57,12 @@ The roster renders each named-seat role in this order:
 
 * role identity, concise purpose, and long-form briefing
 * harness-specific names and pronouns
-* component personalities, colors, and aligned inspiration/appearance metadata
+* component personalities, colors, and aligned inspiration metadata
 * melded favorite color
 
 The host cascade carries all eleven named roles into global context. A bundle
-places selected identity fit, achievement, impact, appearance, and citation
-metadata before its briefing. Appearance summaries remain snapshot-only.
+places selected identity fit, achievement, impact, and citation metadata before
+its briefing. The appearance catalogue remains snapshot-only.
 
 ## Ownership boundaries
 

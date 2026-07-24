@@ -110,15 +110,27 @@ func TestComposeAllFixtures(t *testing.T) {
 					inspiration.Achievement,
 					inspiration.ImpactFit,
 					inspiration.ProfileCitation,
-					strings.Join(inspiration.Appearance.Citations, "`, `"),
 				} {
 					if !strings.Contains(instructionText, selected) {
 						t.Fatalf("agent identity context missing %q:\n%s", selected, instructionText)
 					}
 				}
-				summary := strings.Join(strings.Fields(inspiration.Appearance.Summary), " ")
-				if strings.Contains(instructionText, summary) {
-					t.Fatalf("appearance summary entered agent context:\n%s", instructionText)
+				for _, excluded := range []string{
+					inspiration.Appearance.Title,
+					inspiration.Appearance.ID,
+					inspiration.Appearance.Event,
+					strings.Join(strings.Fields(inspiration.Appearance.Summary), " "),
+					strings.Join(inspiration.Appearance.Citations, "`, `"),
+				} {
+					if strings.Contains(instructionText, excluded) {
+						t.Fatalf("appearance field %q entered agent context:\n%s",
+							excluded, instructionText)
+					}
+				}
+			}
+			for _, key := range []string{"* Appearance:", "* Appearance citations:"} {
+				if strings.Contains(instructionText, key) {
+					t.Fatalf("appearance key %q entered agent context:\n%s", key, instructionText)
 				}
 			}
 			if strings.Index(instructionText, p.Roles["engineer"].Briefing) >=
