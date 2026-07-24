@@ -64,6 +64,9 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 	if !reflect.DeepEqual(snapshot.Personalities, p.Personalities) {
 		t.Fatal("snapshot personality catalog drifted from the loaded person")
 	}
+	if !reflect.DeepEqual(snapshot.Expressions, ExpressionVocabulary()) {
+		t.Fatal("snapshot expression vocabulary drifted from the person contract")
+	}
 	if !reflect.DeepEqual(snapshot.InspirationOrder, p.InspirationOrder) ||
 		!reflect.DeepEqual(snapshot.Inspirations, p.Inspirations) {
 		t.Fatal("snapshot inspiration catalog drifted from the loaded person")

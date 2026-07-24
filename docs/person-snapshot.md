@@ -6,19 +6,23 @@ write `person.json` into the roster artifact directory. The default location is
 
 ## Contract
 
-The JSON format marker is `agent-compose.person-snapshot.v1`, with numeric
-schema version `1`. The artifact exports:
+The JSON format marker is `agent-compose.person-snapshot.v2`, with numeric
+schema version `2`. The artifact exports:
 
 * the person name, `person:kai` source provenance, and canonical role order
 * every role's purpose, verbatim long-form briefing, ordered personality meld,
   derived favorite color, inspiration relationship, and named seats
-* every personality's skill binding, canonical color, and inspiration
-  relationship
+* every personality's skill binding, color, emblem, motif, form language,
+  sound mark, and inspiration relationship
+* the fixed renderer expression vocabulary
 * the normalized inspiration and speaking-appearance catalogue
 
 Roles and personalities are keyed by their stable slugs. `role_order` is the
 canonical presentation order. Consumers should use the explicit order rather
 than relying on JSON object order.
+
+Schema v2 adds identity primitives and expressions. Consumers pinned to v1
+must upgrade before treating the format marker as compatible.
 
 ## Convergence
 

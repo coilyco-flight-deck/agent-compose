@@ -150,7 +150,7 @@ assert_contains "$composed" "# Smoke doctrine"
 assert_contains "$composed" "# Personality invariant"
 assert_contains "$composed" "# Agent seats"
 assert_contains "$composed" "opal engineer"
-assert_contains "$person_snapshot" '"format": "agent-compose.person-snapshot.v1"'
+assert_contains "$person_snapshot" '"format": "agent-compose.person-snapshot.v2"'
 assert_contains "$person_snapshot" '"briefing":'
 assert_contains "$mcporter" "\"reader\""
 assert_contains "$claude_mcp" "\"reader\""

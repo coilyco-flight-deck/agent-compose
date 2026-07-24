@@ -13,11 +13,15 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
-const schemaVersion = 1
+const schemaVersion = 2
 
 type Personality struct {
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	Name      string           `json:"name"`
+	Color     string           `json:"color"`
+	Motif     string           `json:"motif"`
+	Emblem    person.Emblem    `json:"emblem"`
+	Form      person.Form      `json:"form"`
+	SoundMark person.SoundMark `json:"sound_mark"`
 }
 
 type Role struct {
@@ -28,6 +32,7 @@ type Role struct {
 
 type Document struct {
 	Version       int           `json:"version"`
+	Expressions   []string      `json:"expressions"`
 	Personalities []Personality `json:"personalities"`
 	Roles         []Role        `json:"roles"`
 }
@@ -40,11 +45,19 @@ func Build(p *person.Person) (Document, error) {
 	}
 	sort.Strings(names)
 
-	doc := Document{Version: schemaVersion}
+	doc := Document{
+		Version:     schemaVersion,
+		Expressions: person.ExpressionVocabulary(),
+	}
 	for _, name := range names {
+		binding := p.Personalities[name]
 		doc.Personalities = append(doc.Personalities, Personality{
-			Name:  name,
-			Color: p.Personalities[name].Color,
+			Name:      name,
+			Color:     binding.Color,
+			Motif:     binding.Motif,
+			Emblem:    binding.Emblem,
+			Form:      binding.Form,
+			SoundMark: binding.SoundMark,
 		})
 	}
 

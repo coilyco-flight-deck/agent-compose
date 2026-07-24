@@ -3,6 +3,22 @@ import "./styles.css";
 type CanonicalPersonality = {
   name: string;
   color: string;
+  motif: string;
+  emblem: {
+    name: string;
+    emoji: string;
+    glyph: string;
+  };
+  form: {
+    silhouette: string;
+    geometry: string;
+    motion: string;
+  };
+  soundMark: {
+    timbre: string;
+    contour: string;
+    pulse: string;
+  };
 };
 
 type CanonicalRole = {
@@ -12,7 +28,8 @@ type CanonicalRole = {
 };
 
 type PaletteDocument = {
-  version: 1;
+  version: 2;
+  expressions: string[];
   personalities: CanonicalPersonality[];
   roles: CanonicalRole[];
 };
@@ -64,17 +81,45 @@ const state: {
 };
 
 const hexPattern = /^#[0-9a-f]{6}$/i;
+const semanticTokenPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function parsePalette(value: unknown): PaletteDocument {
-  if (!isRecord(value) || value.version !== 1) {
-    throw new Error("palette data needs schema version 1");
+function readString(
+  record: Record<string, unknown>,
+  key: string,
+  label: string,
+  semantic = true,
+): string {
+  const value = record[key];
+  if (
+    typeof value !== "string"
+    || value.length === 0
+    || (semantic && !semanticTokenPattern.test(value))
+  ) {
+    throw new Error(`${label} needs ${key}`);
   }
-  if (!Array.isArray(value.personalities) || !Array.isArray(value.roles)) {
-    throw new Error("palette data needs personality and role arrays");
+  return value;
+}
+
+function parsePalette(value: unknown): PaletteDocument {
+  if (!isRecord(value) || value.version !== 2) {
+    throw new Error("palette data needs schema version 2");
+  }
+  if (
+    !Array.isArray(value.expressions)
+    || !value.expressions.every(
+      (expression): expression is string => (
+        typeof expression === "string" && semanticTokenPattern.test(expression)
+      ),
+    )
+    || new Set(value.expressions).size !== value.expressions.length
+    || !Array.isArray(value.personalities)
+    || !Array.isArray(value.roles)
+  ) {
+    throw new Error("palette data needs unique expressions, personalities, and roles");
   }
 
   const personalities = value.personalities.map((entry, index): CanonicalPersonality => {
@@ -83,10 +128,33 @@ function parsePalette(value: unknown): PaletteDocument {
       || typeof entry.name !== "string"
       || typeof entry.color !== "string"
       || !hexPattern.test(entry.color)
+      || !isRecord(entry.emblem)
+      || !isRecord(entry.form)
+      || !isRecord(entry.sound_mark)
     ) {
       throw new Error(`palette personality ${index} is invalid`);
     }
-    return { name: entry.name, color: entry.color.toLowerCase() };
+    const label = `palette personality ${index}`;
+    return {
+      name: readString(entry, "name", label),
+      color: entry.color.toLowerCase(),
+      motif: readString(entry, "motif", label),
+      emblem: {
+        name: readString(entry.emblem, "name", `${label} emblem`),
+        emoji: readString(entry.emblem, "emoji", `${label} emblem`, false),
+        glyph: readString(entry.emblem, "glyph", `${label} emblem`, false),
+      },
+      form: {
+        silhouette: readString(entry.form, "silhouette", `${label} form`),
+        geometry: readString(entry.form, "geometry", `${label} form`),
+        motion: readString(entry.form, "motion", `${label} form`),
+      },
+      soundMark: {
+        timbre: readString(entry.sound_mark, "timbre", `${label} sound mark`),
+        contour: readString(entry.sound_mark, "contour", `${label} sound mark`),
+        pulse: readString(entry.sound_mark, "pulse", `${label} sound mark`),
+      },
+    };
   });
   const personalityNames = new Set(personalities.map(({ name }) => name));
   if (personalityNames.size !== personalities.length) {
@@ -116,7 +184,7 @@ function parsePalette(value: unknown): PaletteDocument {
     throw new Error("palette role names must be unique");
   }
 
-  return { version: 1, personalities, roles };
+  return { version: 2, expressions: [...value.expressions], personalities, roles };
 }
 
 function escapeHTML(value: string): string {
@@ -248,6 +316,11 @@ function renderCards(
       >
         <div class="swatch">
           <span class="swatch-no">${String(spectrum).padStart(2, "0")}</span>
+          <span
+            class="personality-emblem"
+            aria-label="${escapeHTML(personality.emblem.name)}"
+            title="${escapeHTML(personality.emblem.glyph)} · ${escapeHTML(personality.emblem.name)}"
+          >${escapeHTML(personality.emblem.emoji)}</span>
           <div class="contrast-pair" aria-label="Light and dark contrast sample">
             <span>Aa</span><span>Aa</span>
           </div>
@@ -256,6 +329,11 @@ function renderCards(
           <p class="color-name">${escapeHTML(details.colorName)}</p>
           <h3>${escapeHTML(personality.name)}</h3>
           <p class="association">${escapeHTML(details.association)}</p>
+          <dl class="identity-primitives">
+            <div><dt>motif</dt><dd>${escapeHTML(personality.motif)}</dd></div>
+            <div><dt>form</dt><dd>${escapeHTML(personality.form.silhouette)}</dd></div>
+            <div><dt>sound</dt><dd>${escapeHTML(personality.soundMark.timbre)}</dd></div>
+          </dl>
           <button
             type="button"
             class="hex"

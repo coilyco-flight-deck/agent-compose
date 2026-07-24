@@ -29,8 +29,23 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 		if !exists {
 			return "", fmt.Errorf("render role metadata: personality %q is not defined", name)
 		}
-		fmt.Fprintf(&out, "  * `%s`: skill `%s`, favorite color `%s`\n",
-			name, binding.Skill, binding.Color)
+		fmt.Fprintf(
+			&out,
+			"  * `%s`: skill `%s`, favorite color `%s`, emblem `%s` / `%s` / `%s`, motif `%s`, form `%s` / `%s` / `%s`, sound mark `%s` / `%s` / `%s`\n",
+			name,
+			binding.Skill,
+			binding.Color,
+			binding.Emblem.Name,
+			binding.Emblem.Emoji,
+			binding.Emblem.Glyph,
+			binding.Motif,
+			binding.Form.Silhouette,
+			binding.Form.Geometry,
+			binding.Form.Motion,
+			binding.SoundMark.Timbre,
+			binding.SoundMark.Contour,
+			binding.SoundMark.Pulse,
+		)
 	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n", meldedColor)
 

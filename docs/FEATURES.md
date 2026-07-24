@@ -11,10 +11,10 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* Embedded `person:kai` carries ten role briefings, 16 personality definitions,
-  the meld matrix, and 34 seats. Fourteen AOSH-selected public seats are
-  explicit placeholders. Every bundle injects compact role, seat, color, meld,
-  and [inspiration](inspiration-catalogue.md) metadata.
+* Embedded `person:kai` carries ten roles, 16 personalities, the meld matrix,
+  and 34 seats. Fourteen public seats are placeholders. Every bundle injects
+  compact role, seat, color, meld,
+  [identity](identity-primitives.md), and [inspiration](inspiration-catalogue.md) metadata.
 * AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
   admission. `low-context: optional` prunes optional skills.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
@@ -49,8 +49,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Personality palette
 
-* Local Vite/TypeScript explorer shows component colors, role melds, filters,
-  previews, and copy controls. See [personality-palette.md](personality-palette.md).
+* Local Vite/TypeScript explorer shows colors, role melds, identity primitives,
+  filters, previews, and copy controls. See [personality-palette.md](personality-palette.md).
 
 ## Roster artifact and cascade
 
@@ -58,7 +58,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   definitions, seats, role briefings, personality bodies, colors, and a claude
   `@`-import override. See [role-briefings.md](role-briefings.md).
 * Bare convergence emits deterministic `person.json` for roles, seats,
-  personalities, colors, inspirations, and appearances. See [person-snapshot.md](person-snapshot.md).
+  identities, inspirations, and appearances. See [person-snapshot.md](person-snapshot.md).
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness COMPOSED files, load-point symlinks, scope and harness
   filtering, section overrides, the mount-eligibility manifest ward reads,

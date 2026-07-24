@@ -103,12 +103,18 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             fit "The fixture is a useful builder archetype."
         }
     }
-    personality "bright" skill="personality-bright" color="#d98e48" {
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
+        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
+        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates brightness."
         }
     }
-    personality "steady" skill="personality-steady" color="#5fa87a" {
+    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" {
+        emblem { name "anchor"; emoji "⚓"; glyph "◆" }
+        form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+        sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates steadiness."
         }
@@ -135,6 +141,11 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 	if got := p.Roles["builder"].Briefing; got != wantBriefing {
 		t.Fatalf("role briefing = %q, want %q", got, wantBriefing)
 	}
+	if got := p.Personalities["bright"]; got.Motif != "sunbeam" ||
+		got.Emblem.Name != "lantern" || got.Form.Silhouette != "beacon" ||
+		got.SoundMark.Timbre != "bell" {
+		t.Fatalf("personality identity = %+v", got)
+	}
 }
 
 func TestParseRejectsBrokenInspirationRelationships(t *testing.T) {
@@ -156,12 +167,19 @@ func TestParseRejectsBrokenInspirationRelationships(t *testing.T) {
 		},
 		"personality missing inspiration": {
 			body: strings.Replace(valid, `
-    personality "bright" skill="personality-bright" color="#d98e48" {
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
+        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
+        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates brightness."
         }
     }`, `
-    personality "bright" skill="personality-bright" color="#d98e48"`, 1),
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
+        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
+        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
+    }`, 1),
 			want: `personality "bright" needs an inspiration`,
 		},
 		"appearance missing citation": {
@@ -205,6 +223,46 @@ func TestParseRejectsBrokenInspirationRelationships(t *testing.T) {
 	}
 }
 
+func TestParseRejectsIncompleteOrAmbiguousIdentity(t *testing.T) {
+	valid := inspirationFixture()
+	cases := map[string]struct {
+		body string
+		want string
+	}{
+		"missing motif": {
+			body: strings.Replace(valid, ` motif="sunbeam"`, "", 1),
+			want: `personality "bright" needs a semantic motif property`,
+		},
+		"incomplete emblem": {
+			body: strings.Replace(valid, `; glyph "✦"`, "", 1),
+			want: `personality bright emblem needs glyph`,
+		},
+		"invalid form token": {
+			body: strings.Replace(valid, `"open-rays"`, `"Open rays"`, 1),
+			want: `personality bright form geometry needs a lowercase semantic token`,
+		},
+		"duplicate emblem": {
+			body: strings.Replace(valid, `name "anchor"`, `name "lantern"`, 1),
+			want: `share identity value "lantern"`,
+		},
+		"duplicate emoji": {
+			body: strings.Replace(valid, `emoji "⚓"`, `emoji "🏮"`, 1),
+			want: `share identity value "🏮"`,
+		},
+		"duplicate motif": {
+			body: strings.Replace(valid, `motif="stone"`, `motif="sunbeam"`, 1),
+			want: `share identity value "sunbeam"`,
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(tc.body)); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("identity parse error = %v, want %q", err, tc.want)
+			}
+		})
+	}
+}
+
 func inspirationFixture() string {
 	return `person "fixture" {
     role "builder" {
@@ -215,12 +273,18 @@ func inspirationFixture() string {
             fit "The fixture is a useful builder archetype."
         }
     }
-    personality "bright" skill="personality-bright" color="#d98e48" {
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
+        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
+        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates brightness."
         }
     }
-    personality "steady" skill="personality-steady" color="#5fa87a" {
+    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" {
+        emblem { name "anchor"; emoji "⚓"; glyph "◆" }
+        form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+        sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates steadiness."
         }

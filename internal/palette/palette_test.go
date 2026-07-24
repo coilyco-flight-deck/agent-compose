@@ -22,6 +22,18 @@ func TestBuildProjectsCanonicalPersonSource(t *testing.T) {
 	if len(doc.Personalities) != len(p.Personalities) {
 		t.Fatalf("personalities = %d, want %d", len(doc.Personalities), len(p.Personalities))
 	}
+	if !reflect.DeepEqual(doc.Expressions, person.ExpressionVocabulary()) {
+		t.Fatal("palette expression vocabulary drifted from the person contract")
+	}
+	for _, got := range doc.Personalities {
+		want := p.Personalities[got.Name]
+		if got.Color != want.Color || got.Motif != want.Motif ||
+			!reflect.DeepEqual(got.Emblem, want.Emblem) ||
+			!reflect.DeepEqual(got.Form, want.Form) ||
+			!reflect.DeepEqual(got.SoundMark, want.SoundMark) {
+			t.Fatalf("palette personality %q drifted from the person contract", got.Name)
+		}
+	}
 	if len(doc.Roles) != len(p.RoleOrder) {
 		t.Fatalf("roles = %d, want %d", len(doc.Roles), len(p.RoleOrder))
 	}

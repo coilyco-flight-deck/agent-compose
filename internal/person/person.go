@@ -42,12 +42,56 @@ type Role struct {
 	Inspiration   InspirationRef `json:"inspiration"`
 }
 
-// Personality binds a name to the skill defining it and a terminal-legible
-// favorite color.
+// Emblem gives renderers equivalent plain-text, rich-text, and compact marks.
+type Emblem struct {
+	Name  string `json:"name"`
+	Emoji string `json:"emoji"`
+	Glyph string `json:"glyph"`
+}
+
+// Form is a renderer-neutral procedural shape language. Renderers decide how
+// to draw it while retaining the same silhouette, geometry, and motion cues.
+type Form struct {
+	Silhouette string `json:"silhouette"`
+	Geometry   string `json:"geometry"`
+	Motion     string `json:"motion"`
+}
+
+// SoundMark describes a short identity cue without prescribing audio files or
+// playback behavior.
+type SoundMark struct {
+	Timbre  string `json:"timbre"`
+	Contour string `json:"contour"`
+	Pulse   string `json:"pulse"`
+}
+
+// Personality binds the definition, visual and sensory identity primitives,
+// favorite color, and credited inspiration for one canonical personality.
 type Personality struct {
 	Skill       string         `json:"skill"`
 	Color       string         `json:"color"`
+	Motif       string         `json:"motif"`
+	Emblem      Emblem         `json:"emblem"`
+	Form        Form           `json:"form"`
+	SoundMark   SoundMark      `json:"sound_mark"`
 	Inspiration InspirationRef `json:"inspiration"`
+}
+
+var expressionVocabulary = [...]string{
+	"available",
+	"listening",
+	"thinking",
+	"acting",
+	"waiting-for-human",
+	"blocked",
+	"completed",
+	"failed",
+	"offline",
+}
+
+// ExpressionVocabulary returns the complete stable renderer state vocabulary.
+func ExpressionVocabulary() []string {
+	return append([]string(nil), expressionVocabulary[:]...)
 }
 
 // Appearance is one substantive public speaking record selected as evidence
@@ -335,18 +379,73 @@ func parse(raw []byte) (*Person, error) {
 			if err := color.Legible(personality.Color); err != nil {
 				return nil, fmt.Errorf("personality %q: %w", name, err)
 			}
+			motif := n.Prop("motif")
+			if !motif.IsValid() || !validSemanticToken(motif.String()) {
+				return nil, fmt.Errorf("personality %q needs a semantic motif property", name)
+			}
+			personality.Motif = motif.String()
 			for _, c := range n.Children().Nodes {
-				if c.Name() != "inspiration" {
+				switch c.Name() {
+				case "emblem":
+					if personality.Emblem.Name != "" {
+						return nil, fmt.Errorf("personality %q: duplicate emblem", name)
+					}
+					parts, err := parseSemanticParts(c, "personality "+name+" emblem", "name", "emoji", "glyph")
+					if err != nil {
+						return nil, err
+					}
+					personality.Emblem = Emblem{
+						Name: parts["name"], Emoji: parts["emoji"], Glyph: parts["glyph"],
+					}
+				case "form":
+					if personality.Form.Silhouette != "" {
+						return nil, fmt.Errorf("personality %q: duplicate form", name)
+					}
+					parts, err := parseSemanticParts(
+						c, "personality "+name+" form", "silhouette", "geometry", "motion",
+					)
+					if err != nil {
+						return nil, err
+					}
+					personality.Form = Form{
+						Silhouette: parts["silhouette"],
+						Geometry:   parts["geometry"],
+						Motion:     parts["motion"],
+					}
+				case "sound-mark":
+					if personality.SoundMark.Timbre != "" {
+						return nil, fmt.Errorf("personality %q: duplicate sound-mark", name)
+					}
+					parts, err := parseSemanticParts(
+						c, "personality "+name+" sound-mark", "timbre", "contour", "pulse",
+					)
+					if err != nil {
+						return nil, err
+					}
+					personality.SoundMark = SoundMark{
+						Timbre: parts["timbre"], Contour: parts["contour"], Pulse: parts["pulse"],
+					}
+				case "inspiration":
+					if personality.Inspiration.ID != "" {
+						return nil, fmt.Errorf("personality %q: duplicate inspiration", name)
+					}
+					ref, err := parseInspirationRef(c, "personality "+name)
+					if err != nil {
+						return nil, err
+					}
+					personality.Inspiration = ref
+				default:
 					return nil, fmt.Errorf("personality %q: unknown node %q", name, c.Name())
 				}
-				if personality.Inspiration.ID != "" {
-					return nil, fmt.Errorf("personality %q: duplicate inspiration", name)
-				}
-				ref, err := parseInspirationRef(c, "personality "+name)
-				if err != nil {
-					return nil, err
-				}
-				personality.Inspiration = ref
+			}
+			if personality.Emblem.Name == "" {
+				return nil, fmt.Errorf("personality %q needs an emblem", name)
+			}
+			if personality.Form.Silhouette == "" {
+				return nil, fmt.Errorf("personality %q needs a form", name)
+			}
+			if personality.SoundMark.Timbre == "" {
+				return nil, fmt.Errorf("personality %q needs a sound-mark", name)
 			}
 			if personality.Inspiration.ID == "" {
 				return nil, fmt.Errorf("personality %q needs an inspiration", name)
@@ -394,12 +493,83 @@ func parse(raw []byte) (*Person, error) {
 		}
 		referencedInspirations[ref] = true
 	}
+	if err := validateIdentityCatalog(p.Personalities); err != nil {
+		return nil, err
+	}
 	for _, id := range p.InspirationOrder {
 		if !referencedInspirations[id] {
 			return nil, fmt.Errorf("inspiration %q is not used by a role or personality", id)
 		}
 	}
 	return p, nil
+}
+
+func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[string]string, error) {
+	allowed := make(map[string]bool, len(expected))
+	for _, name := range expected {
+		allowed[name] = true
+	}
+	parts := make(map[string]string, len(expected))
+	for _, child := range n.Children().Nodes {
+		name := child.Name()
+		if !allowed[name] {
+			return nil, fmt.Errorf("%s: unknown node %q", owner, name)
+		}
+		if _, duplicate := parts[name]; duplicate {
+			return nil, fmt.Errorf("%s: duplicate %s", owner, name)
+		}
+		value, err := oneTextArgument(child, owner+" "+name)
+		if err != nil {
+			return nil, err
+		}
+		if name != "emoji" && name != "glyph" && !validSemanticToken(value) {
+			return nil, fmt.Errorf("%s %s needs a lowercase semantic token", owner, name)
+		}
+		parts[name] = value
+	}
+	for _, name := range expected {
+		if parts[name] == "" {
+			return nil, fmt.Errorf("%s needs %s", owner, name)
+		}
+	}
+	return parts, nil
+}
+
+func validSemanticToken(value string) bool {
+	if value == "" {
+		return false
+	}
+	for index, char := range value {
+		if char >= 'a' && char <= 'z' || char >= '0' && char <= '9' {
+			continue
+		}
+		if char == '-' && index > 0 && index < len(value)-1 {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+func validateIdentityCatalog(catalog map[string]Personality) error {
+	emblems := map[string]string{}
+	emojis := map[string]string{}
+	glyphs := map[string]string{}
+	motifs := map[string]string{}
+	for name, personality := range catalog {
+		for value, owners := range map[string]map[string]string{
+			personality.Emblem.Name:  emblems,
+			personality.Emblem.Emoji: emojis,
+			personality.Emblem.Glyph: glyphs,
+			personality.Motif:        motifs,
+		} {
+			if owner, duplicate := owners[value]; duplicate {
+				return fmt.Errorf("personalities %q and %q share identity value %q", owner, name, value)
+			}
+			owners[value] = name
+		}
+	}
+	return nil
 }
 
 func parseInspirationRef(n *kdl.Node, owner string) (InspirationRef, error) {

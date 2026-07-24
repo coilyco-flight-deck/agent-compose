@@ -74,7 +74,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		t.Fatal("personality bodies must land under sources/personality")
 	}
 	personSnapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
-	if !strings.Contains(personSnapshot, `"format": "agent-compose.person-snapshot.v1"`) ||
+	if !strings.Contains(personSnapshot, `"format": "agent-compose.person-snapshot.v2"`) ||
 		!strings.Contains(personSnapshot, `"briefing":`) {
 		t.Fatal("normal convergence must emit the complete versioned person snapshot")
 	}

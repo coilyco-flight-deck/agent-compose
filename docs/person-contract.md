@@ -11,7 +11,7 @@ person "kai" {
         agent "claude" name="opal engineer" pronouns="she"
         agent "codex" name="terran engineer" pronouns="he"
     }
-    personality "curious" skill="personality-curious" color="#d98e48"
+    personality "curious" skill="personality-curious" color="#d98e48" motif="map-paper"
 }
 ```
 
@@ -42,7 +42,7 @@ empty, extra, or mismatched canonical definition fails source validation.
 Roster output therefore carries every canonical definition without an
 external provider.
 
-The [inspiration catalogue](inspiration-catalogue.md) defines credited influences and provenance.
+The [identity primitives](identity-primitives.md) define renderer semantics. The [inspiration catalogue](inspiration-catalogue.md) defines credits.
 
 ## Favorite colors
 

@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	SnapshotFormat        = "agent-compose.person-snapshot.v1"
-	SnapshotSchemaVersion = 1
+	SnapshotFormat        = "agent-compose.person-snapshot.v2"
+	SnapshotSchemaVersion = 2
 )
 
 // Snapshot is the complete public person boundary emitted during convergence.
@@ -22,6 +22,7 @@ type Snapshot struct {
 	RoleOrder        []string                `json:"role_order"`
 	Roles            map[string]SnapshotRole `json:"roles"`
 	Personalities    map[string]Personality  `json:"personalities"`
+	Expressions      []string                `json:"expressions"`
 	InspirationOrder []string                `json:"inspiration_order"`
 	Inspirations     map[string]Inspiration  `json:"inspirations"`
 }
@@ -76,6 +77,7 @@ func BuildSnapshot(p *Person) (*Snapshot, error) {
 		RoleOrder:        append([]string(nil), p.RoleOrder...),
 		Roles:            roles,
 		Personalities:    p.Personalities,
+		Expressions:      ExpressionVocabulary(),
 		InspirationOrder: append([]string(nil), p.InspirationOrder...),
 		Inspirations:     p.Inspirations,
 	}, nil

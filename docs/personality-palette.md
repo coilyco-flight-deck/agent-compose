@@ -29,9 +29,9 @@ committed explorer.
 ## Data ownership
 
 The embedded KDL person source remains the only owner of personality colors,
-role membership, role order, and meld inputs. The hidden `palette-data` command
-projects that source into a versioned JSON document. The Go color package
-derives each role's meld before the browser sees it.
+identity primitives, role membership, role order, and meld inputs. The hidden
+`palette-data` command projects that source into versioned JSON. The Go color
+package derives each role's meld before the browser sees it.
 
 The TypeScript layer owns only visual presentation metadata such as friendly
 color names, short associations, and spectrum ordering. Startup validation
@@ -41,7 +41,7 @@ fails visibly if that presentation list drifts from the canonical catalog.
 
 The explorer provides:
 
-* the full sixteen-personality spectrum
+* the full sixteen-personality spectrum with emblem, motif, form, and sound
 * role filters with complete two- or three-personality sets
 * component colors and the derived role meld
 * day and night previews
