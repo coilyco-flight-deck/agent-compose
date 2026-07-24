@@ -22,6 +22,7 @@ configuration:
 * the ten-role company roster, concise purposes, and long-form role briefings
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
+* credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
 * native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
@@ -59,8 +60,10 @@ Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
 embedded `person:kai` provider supplies the personality invariant and all 16
 canonical definitions, so host roster convergence needs no external
-personality source. The repository also ships a local personality palette
-explorer. Bare `acompose` converges the host.
+personality source. The same person policy carries a normalized catalogue of
+credited inspirations and representative public appearances without adding
+biography to runtime prompts. The repository also ships a local personality
+palette explorer. Bare `acompose` converges the host.
 `acompose -- <command>` converges context before launching the command.
 
 Ward-side container invocation
@@ -113,6 +116,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
+* [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.

@@ -1,7 +1,6 @@
 # Embedded person contract
 
-The binary embeds exactly one `person` source for v0.1. No provider interface
-or trait-slider abstraction sits in front of it:
+The binary embeds one `person` source for v0.1, without a provider interface:
 
 ```kdl
 person "kai" {
@@ -42,6 +41,8 @@ rejects it. The same embedded `person:kai` source supplies one complete
 empty, extra, or mismatched canonical definition fails source validation.
 Roster output therefore carries every canonical definition without an
 external provider.
+
+The [inspiration catalogue](inspiration-catalogue.md) defines credited influences and provenance.
 
 ## Favorite colors
 

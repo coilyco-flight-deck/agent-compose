@@ -1,6 +1,5 @@
-// Package person embeds the canonical public-safe person source: the role
-// catalog, named agent seats, personality invariant, and complete personality
-// definitions.
+// Package person embeds the canonical public-safe roles, agent seats,
+// personality definitions, invariant, and credited inspirations.
 package person
 
 import (
@@ -20,12 +19,19 @@ import (
 //go:embed person.kdl definitions
 var embedded embed.FS
 
-// Seat is one named agent identity within a role. The harness is the join
-// key against the launcher's own catalog; the name is an opaque string here.
+// Seat is one named agent identity within a role. The harness joins the
+// launcher's own catalog, while the name remains opaque here.
 type Seat struct {
 	Harness  string
 	Name     string
 	Pronouns string
+}
+
+// InspirationRef records why one role or personality cites a catalog entry.
+// Inspirations are acknowledgements and evidence, not identities to imitate.
+type InspirationRef struct {
+	ID  string
+	Fit string
 }
 
 type Role struct {
@@ -33,21 +39,48 @@ type Role struct {
 	Briefing      string
 	Personalities []string
 	Seats         []Seat
+	Inspiration   InspirationRef
 }
 
 // Personality binds a name to the skill defining it and a terminal-legible
 // favorite color.
 type Personality struct {
-	Skill string
-	Color string
+	Skill       string
+	Color       string
+	Inspiration InspirationRef
+}
+
+// Appearance is one substantive public speaking record selected as evidence
+// for an inspiration's assigned role, personality, or impact mode.
+type Appearance struct {
+	ID        string
+	Title     string
+	Event     string
+	Year      string
+	Format    string
+	Summary   string
+	Citations []string
+}
+
+// Inspiration is one credited human influence. Citation keys refer to public
+// evidence recorded on the catalogue's owning issue.
+type Inspiration struct {
+	Name            string
+	Achievement     string
+	ImpactMode      string
+	ImpactFit       string
+	ProfileCitation string
+	Appearance      Appearance
 }
 
 type Person struct {
-	Name          string
-	Roles         map[string]Role
-	RoleOrder     []string
-	Personalities map[string]Personality
-	Raw           []byte
+	Name             string
+	Roles            map[string]Role
+	RoleOrder        []string
+	Personalities    map[string]Personality
+	Inspirations     map[string]Inspiration
+	InspirationOrder []string
+	Raw              []byte
 }
 
 func Load() (*Person, error) {
@@ -185,6 +218,7 @@ func parse(raw []byte) (*Person, error) {
 		Name:          args[0].String(),
 		Roles:         map[string]Role{},
 		Personalities: map[string]Personality{},
+		Inspirations:  map[string]Inspiration{},
 		Raw:           raw,
 	}
 	for _, n := range root.Children().Nodes {
@@ -249,6 +283,15 @@ func parse(raw []byte) (*Person, error) {
 						}
 					}
 					role.Seats = append(role.Seats, seat)
+				case "inspiration":
+					if role.Inspiration.ID != "" {
+						return nil, fmt.Errorf("role %q: duplicate inspiration", name)
+					}
+					ref, err := parseInspirationRef(c, "role "+name)
+					if err != nil {
+						return nil, err
+					}
+					role.Inspiration = ref
 				default:
 					return nil, fmt.Errorf("role %q: unknown node %q", name, c.Name())
 				}
@@ -258,6 +301,9 @@ func parse(raw []byte) (*Person, error) {
 			}
 			if len(role.Personalities) < 2 || len(role.Personalities) > 3 {
 				return nil, fmt.Errorf("role %q needs two or three personalities, got %d", name, len(role.Personalities))
+			}
+			if role.Inspiration.ID == "" {
+				return nil, fmt.Errorf("role %q needs an inspiration", name)
 			}
 			seenPersonalities := map[string]bool{}
 			for _, personalityName := range role.Personalities {
@@ -289,17 +335,227 @@ func parse(raw []byte) (*Person, error) {
 			if err := color.Legible(personality.Color); err != nil {
 				return nil, fmt.Errorf("personality %q: %w", name, err)
 			}
+			for _, c := range n.Children().Nodes {
+				if c.Name() != "inspiration" {
+					return nil, fmt.Errorf("personality %q: unknown node %q", name, c.Name())
+				}
+				if personality.Inspiration.ID != "" {
+					return nil, fmt.Errorf("personality %q: duplicate inspiration", name)
+				}
+				ref, err := parseInspirationRef(c, "personality "+name)
+				if err != nil {
+					return nil, err
+				}
+				personality.Inspiration = ref
+			}
+			if personality.Inspiration.ID == "" {
+				return nil, fmt.Errorf("personality %q needs an inspiration", name)
+			}
 			p.Personalities[name] = personality
+		case "inspiration":
+			id, inspiration, err := parseInspiration(n)
+			if err != nil {
+				return nil, err
+			}
+			if _, dup := p.Inspirations[id]; dup {
+				return nil, fmt.Errorf("inspiration %q declared twice", id)
+			}
+			p.Inspirations[id] = inspiration
+			p.InspirationOrder = append(p.InspirationOrder, id)
 		default:
 			return nil, fmt.Errorf("embedded person source: unknown node %q", n.Name())
 		}
 	}
+	inspirationNames := map[string]string{}
+	for _, id := range p.InspirationOrder {
+		nameKey := strings.ToLower(strings.TrimSpace(p.Inspirations[id].Name))
+		if existing, ok := inspirationNames[nameKey]; ok {
+			return nil, fmt.Errorf("inspirations %q and %q name the same person", existing, id)
+		}
+		inspirationNames[nameKey] = id
+	}
+	referencedInspirations := map[string]bool{}
 	for _, roleName := range p.RoleOrder {
+		ref := p.Roles[roleName].Inspiration.ID
+		if _, ok := p.Inspirations[ref]; !ok {
+			return nil, fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
+		}
+		referencedInspirations[ref] = true
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
 				return nil, fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
 			}
 		}
 	}
+	for name, personality := range p.Personalities {
+		ref := personality.Inspiration.ID
+		if _, ok := p.Inspirations[ref]; !ok {
+			return nil, fmt.Errorf("personality %q: inspiration %q has no catalog entry", name, ref)
+		}
+		referencedInspirations[ref] = true
+	}
+	for _, id := range p.InspirationOrder {
+		if !referencedInspirations[id] {
+			return nil, fmt.Errorf("inspiration %q is not used by a role or personality", id)
+		}
+	}
 	return p, nil
+}
+
+func parseInspirationRef(n *kdl.Node, owner string) (InspirationRef, error) {
+	args := n.Arguments()
+	if len(args) != 1 || strings.TrimSpace(args[0].String()) == "" {
+		return InspirationRef{}, fmt.Errorf("%s inspiration needs one catalog id", owner)
+	}
+	ref := InspirationRef{ID: strings.TrimSpace(args[0].String())}
+	for _, c := range n.Children().Nodes {
+		if c.Name() != "fit" {
+			return InspirationRef{}, fmt.Errorf("%s inspiration: unknown node %q", owner, c.Name())
+		}
+		if ref.Fit != "" {
+			return InspirationRef{}, fmt.Errorf("%s inspiration: duplicate fit", owner)
+		}
+		text, err := oneTextArgument(c, owner+" inspiration fit")
+		if err != nil {
+			return InspirationRef{}, err
+		}
+		ref.Fit = text
+	}
+	if ref.Fit == "" {
+		return InspirationRef{}, fmt.Errorf("%s inspiration needs a fit", owner)
+	}
+	return ref, nil
+}
+
+func parseInspiration(n *kdl.Node) (string, Inspiration, error) {
+	args := n.Arguments()
+	if len(args) != 1 || strings.TrimSpace(args[0].String()) == "" {
+		return "", Inspiration{}, fmt.Errorf("inspiration node needs one catalog id")
+	}
+	id := strings.TrimSpace(args[0].String())
+	name, err := requiredStringProp(n, "name", "inspiration "+id)
+	if err != nil {
+		return "", Inspiration{}, err
+	}
+	profile, err := requiredStringProp(n, "profile-citation", "inspiration "+id)
+	if err != nil {
+		return "", Inspiration{}, err
+	}
+	impactMode, err := requiredStringProp(n, "impact-mode", "inspiration "+id)
+	if err != nil {
+		return "", Inspiration{}, err
+	}
+	inspiration := Inspiration{
+		Name:            name,
+		ProfileCitation: profile,
+		ImpactMode:      impactMode,
+	}
+	for _, c := range n.Children().Nodes {
+		switch c.Name() {
+		case "achievement":
+			if inspiration.Achievement != "" {
+				return "", Inspiration{}, fmt.Errorf("inspiration %q: duplicate achievement", id)
+			}
+			inspiration.Achievement, err = oneTextArgument(c, "inspiration "+id+" achievement")
+		case "impact-fit":
+			if inspiration.ImpactFit != "" {
+				return "", Inspiration{}, fmt.Errorf("inspiration %q: duplicate impact-fit", id)
+			}
+			inspiration.ImpactFit, err = oneTextArgument(c, "inspiration "+id+" impact-fit")
+		case "appearance":
+			if inspiration.Appearance.ID != "" {
+				return "", Inspiration{}, fmt.Errorf("inspiration %q: duplicate appearance", id)
+			}
+			inspiration.Appearance, err = parseAppearance(c, id)
+		default:
+			return "", Inspiration{}, fmt.Errorf("inspiration %q: unknown node %q", id, c.Name())
+		}
+		if err != nil {
+			return "", Inspiration{}, err
+		}
+	}
+	if inspiration.Achievement == "" {
+		return "", Inspiration{}, fmt.Errorf("inspiration %q needs an achievement", id)
+	}
+	if inspiration.ImpactFit == "" {
+		return "", Inspiration{}, fmt.Errorf("inspiration %q needs an impact-fit", id)
+	}
+	if inspiration.Appearance.ID == "" {
+		return "", Inspiration{}, fmt.Errorf("inspiration %q needs an appearance", id)
+	}
+	return id, inspiration, nil
+}
+
+func parseAppearance(n *kdl.Node, inspirationID string) (Appearance, error) {
+	args := n.Arguments()
+	if len(args) != 1 || strings.TrimSpace(args[0].String()) == "" {
+		return Appearance{}, fmt.Errorf("inspiration %q appearance needs one id", inspirationID)
+	}
+	appearance := Appearance{ID: strings.TrimSpace(args[0].String())}
+	owner := "appearance " + appearance.ID
+	var err error
+	appearance.Title, err = requiredStringProp(n, "title", owner)
+	if err != nil {
+		return Appearance{}, err
+	}
+	appearance.Event, err = requiredStringProp(n, "event", owner)
+	if err != nil {
+		return Appearance{}, err
+	}
+	appearance.Year, err = requiredStringProp(n, "year", owner)
+	if err != nil {
+		return Appearance{}, err
+	}
+	appearance.Format, err = requiredStringProp(n, "format", owner)
+	if err != nil {
+		return Appearance{}, err
+	}
+	for _, c := range n.Children().Nodes {
+		switch c.Name() {
+		case "summary":
+			if appearance.Summary != "" {
+				return Appearance{}, fmt.Errorf("appearance %q: duplicate summary", appearance.ID)
+			}
+			appearance.Summary, err = oneTextArgument(c, "appearance "+appearance.ID+" summary")
+		case "citation":
+			citation, citationErr := oneTextArgument(c, "appearance "+appearance.ID+" citation")
+			if citationErr != nil {
+				return Appearance{}, citationErr
+			}
+			for _, existing := range appearance.Citations {
+				if existing == citation {
+					return Appearance{}, fmt.Errorf("appearance %q repeats citation %q", appearance.ID, citation)
+				}
+			}
+			appearance.Citations = append(appearance.Citations, citation)
+		default:
+			return Appearance{}, fmt.Errorf("appearance %q: unknown node %q", appearance.ID, c.Name())
+		}
+		if err != nil {
+			return Appearance{}, err
+		}
+	}
+	if appearance.Summary == "" {
+		return Appearance{}, fmt.Errorf("appearance %q needs a summary", appearance.ID)
+	}
+	if len(appearance.Citations) == 0 {
+		return Appearance{}, fmt.Errorf("appearance %q needs at least one citation", appearance.ID)
+	}
+	return appearance, nil
+}
+
+func requiredStringProp(n *kdl.Node, prop, owner string) (string, error) {
+	value := n.Prop(prop)
+	if !value.IsValid() || strings.TrimSpace(value.String()) == "" {
+		return "", fmt.Errorf("%s needs a %s property", owner, prop)
+	}
+	return strings.TrimSpace(value.String()), nil
+}
+
+func oneTextArgument(n *kdl.Node, owner string) (string, error) {
+	args := n.Arguments()
+	if len(args) != 1 || strings.TrimSpace(args[0].String()) == "" {
+		return "", fmt.Errorf("%s needs one non-empty argument", owner)
+	}
+	return strings.TrimSpace(args[0].String()), nil
 }

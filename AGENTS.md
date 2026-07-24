@@ -20,7 +20,8 @@ package layout land together so the code never precedes its public boundary.
 * `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
   harness adapters, diagnostics, and Kai's public-safe person configuration.
 * The person configuration owns organizational purpose, personality catalog
-  bindings, curated compatibility, and context-selection policy.
+  bindings, curated compatibility, credited inspirations, and
+  context-selection policy.
 * `agent-compose` owns the personality invariant and canonical personality
   definitions alongside the person configuration that binds them.
 * `agentic-os` owns reusable knowledge sources, general skills, capability
@@ -85,9 +86,10 @@ Protocol compatibility is deliberately thin: consumers check the manifest
 ## Agent rules
 
 Keep one issue per independently verifiable vertical slice. Kai-specific,
-public-safe role and personality policy is first-class product content. Do not
-generalize it prematurely, copy ordinary AOS skills into this repo, or allow
-personality to alter truthfulness, authority, safety, rollback, or completion.
+public-safe role, personality, and inspiration policy is first-class product
+content. Do not generalize it prematurely, copy ordinary AOS skills into this
+repo, or allow personality to alter truthfulness, authority, safety, rollback,
+or completion.
 Generated bundles and rendered references stay uncommitted. Update
 [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant capability
 actually ships.
