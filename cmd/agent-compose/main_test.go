@@ -68,7 +68,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 
 	var output strings.Builder
-	if err := printSummary(&output, result); err != nil {
+	if err := printSummary(&output, result, person.RoleTranscriptOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	got := output.String()
@@ -94,6 +94,16 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		if len(line) > 0 && line[0] == ' ' {
 			t.Fatalf("summary line is not flush-left: %q", line)
 		}
+	}
+
+	var colored strings.Builder
+	if err := printSummary(&colored, result, person.RoleTranscriptOptions{
+		Color: true, TrueColor: true,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(colored.String(), "\x1b[38;2;144;166;106mbundle") {
+		t.Fatalf("summary intro did not use melded truecolor:\n%q", colored.String())
 	}
 }
 

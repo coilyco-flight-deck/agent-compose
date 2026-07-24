@@ -12,6 +12,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/converge"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
@@ -363,7 +364,11 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	if err := printSummary(os.Stdout, result); err != nil {
+	summaryOpts := person.RoleTranscriptOptions{
+		Color:     colorEnabled(),
+		TrueColor: trueColorTerminal(),
+	}
+	if err := printSummary(os.Stdout, result, summaryOpts); err != nil {
 		return err
 	}
 	if cmd.Bool("explain") {
@@ -584,7 +589,11 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 
 // printSummary renders the complete selected-role identity transcript followed
 // by bounded composition audit counts.
-func printSummary(w io.Writer, r *compose.Result) error {
+func printSummary(
+	w io.Writer,
+	r *compose.Result,
+	opts person.RoleTranscriptOptions,
+) error {
 	state := "new"
 	if r.Bundle.Reused {
 		state = "reused"
@@ -594,9 +603,19 @@ func printSummary(w io.Writer, r *compose.Result) error {
 		counts[d.Outcome]++
 	}
 	req := r.Resolution.Request
-	fmt.Fprintf(w, "bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Fprintf(w, "request: model class %s // delivery %s\n\n", req.ModelClass, req.Delivery)
-	metadata, err := r.Resolution.Person.RenderRoleTranscript(req.Role, r.Resolution.FavoriteColor)
+	intro := fmt.Sprintf(
+		"bundle %s (%s)\nrequest: model class %s // delivery %s\n",
+		r.Bundle.Key, state, req.ModelClass, req.Delivery,
+	)
+	if opts.Color {
+		intro = color.ANSI(r.Resolution.FavoriteColor, intro, opts.TrueColor)
+	}
+	fmt.Fprintln(w, intro)
+	metadata, err := r.Resolution.Person.RenderRoleTranscript(
+		req.Role,
+		r.Resolution.FavoriteColor,
+		opts,
+	)
 	if err != nil {
 		return err
 	}

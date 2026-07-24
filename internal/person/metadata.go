@@ -3,7 +3,14 @@ package person
 import (
 	"fmt"
 	"strings"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
+
+type RoleTranscriptOptions struct {
+	Color     bool
+	TrueColor bool
+}
 
 // RenderRoleMetadata returns compact public-safe person facts for each bundle.
 // Long-form catalogue prose and citations remain in the documentation.
@@ -74,7 +81,10 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 
 // RenderRoleTranscript returns the complete selected slice of the person
 // snapshot as deterministic, flush-left terminal text.
-func (p *Person) RenderRoleTranscript(roleName, meldedColor string) (string, error) {
+func (p *Person) RenderRoleTranscript(
+	roleName, meldedColor string,
+	opts RoleTranscriptOptions,
+) (string, error) {
 	role, ok := p.Roles[roleName]
 	if !ok {
 		return "", fmt.Errorf("render role transcript: role %q is not defined", roleName)
@@ -88,21 +98,24 @@ func (p *Person) RenderRoleTranscript(roleName, meldedColor string) (string, err
 	}
 
 	var out strings.Builder
-	out.WriteString("role metadata\n")
-	fmt.Fprintf(&out, "person: %s // provided by: person:%s\n", p.Name, p.Name)
-	fmt.Fprintf(&out, "role: %s\n", roleName)
-	fmt.Fprintf(&out, "purpose: %s\n", role.Purpose)
-	fmt.Fprintf(&out, "personalities: %s\n", strings.Join(role.Personalities, " // "))
-	fmt.Fprintf(&out, "melded color: %s\n", meldedColor)
-	fmt.Fprintf(&out, "role inspiration: %s (%s)\n", roleCredit.Name, role.Inspiration.ID)
-	fmt.Fprintf(&out, "role inspiration fit: %s\n", role.Inspiration.Fit)
-	writeTranscriptParagraphs(&out, "briefing", role.Briefing)
-	out.WriteString("seats:\n")
+	var roleBlock strings.Builder
+	roleBlock.WriteString("role metadata\n")
+	fmt.Fprintf(&roleBlock, "person: %s // provided by: person:%s\n", p.Name, p.Name)
+	fmt.Fprintf(&roleBlock, "role: %s\n", roleName)
+	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
+	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
+	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
+	fmt.Fprintf(&roleBlock, "role inspiration: %s (%s)\n", roleCredit.Name, role.Inspiration.ID)
+	fmt.Fprintf(&roleBlock, "role inspiration fit: %s\n", role.Inspiration.Fit)
+	writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
+	roleBlock.WriteString("seats:\n")
 	for _, seat := range role.Seats {
-		fmt.Fprintf(&out, "seat %s: %s // pronouns: %s\n", seat.Harness, seat.Name, seat.Pronouns)
+		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Harness, seat.Name, seat.Pronouns)
 	}
+	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 
-	out.WriteString("\npersonality metadata\n")
+	out.WriteByte('\n')
+	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)
 	linked := []InspirationRef{role.Inspiration}
 	for index, name := range role.Personalities {
 		binding, exists := p.Personalities[name]
@@ -116,18 +129,20 @@ func (p *Person) RenderRoleTranscript(roleName, meldedColor string) (string, err
 		if index > 0 {
 			out.WriteByte('\n')
 		}
-		fmt.Fprintf(&out, "personality: %s\n", name)
-		fmt.Fprintf(&out, "skill: %s\n", binding.Skill)
-		fmt.Fprintf(&out, "color: %s\n", binding.Color)
-		fmt.Fprintf(&out, "motif: %s\n", binding.Motif)
-		fmt.Fprintf(&out, "emblem: %s // emoji: %s // glyph: %s\n",
+		var personalityBlock strings.Builder
+		fmt.Fprintf(&personalityBlock, "personality: %s\n", name)
+		fmt.Fprintf(&personalityBlock, "skill: %s\n", binding.Skill)
+		fmt.Fprintf(&personalityBlock, "color: %s\n", binding.Color)
+		fmt.Fprintf(&personalityBlock, "motif: %s\n", binding.Motif)
+		fmt.Fprintf(&personalityBlock, "emblem: %s // emoji: %s // glyph: %s\n",
 			binding.Emblem.Name, binding.Emblem.Emoji, binding.Emblem.Glyph)
-		fmt.Fprintf(&out, "form: silhouette %s // geometry %s // motion %s\n",
+		fmt.Fprintf(&personalityBlock, "form: silhouette %s // geometry %s // motion %s\n",
 			binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
-		fmt.Fprintf(&out, "sound mark: timbre %s // contour %s // pulse %s\n",
+		fmt.Fprintf(&personalityBlock, "sound mark: timbre %s // contour %s // pulse %s\n",
 			binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
-		fmt.Fprintf(&out, "inspiration: %s (%s)\n", credit.Name, binding.Inspiration.ID)
-		fmt.Fprintf(&out, "inspiration fit: %s\n", binding.Inspiration.Fit)
+		fmt.Fprintf(&personalityBlock, "inspiration: %s (%s)\n", credit.Name, binding.Inspiration.ID)
+		fmt.Fprintf(&personalityBlock, "inspiration fit: %s\n", binding.Inspiration.Fit)
+		writeTranscriptSection(&out, binding.Color, personalityBlock.String(), opts)
 		linked = append(linked, binding.Inspiration)
 	}
 
@@ -151,6 +166,18 @@ func (p *Person) RenderRoleTranscript(roleName, meldedColor string) (string, err
 	}
 	fmt.Fprintf(&out, "\nrenderer expressions: %s\n", strings.Join(ExpressionVocabulary(), " // "))
 	return out.String(), nil
+}
+
+func writeTranscriptSection(
+	out *strings.Builder,
+	hex, text string,
+	opts RoleTranscriptOptions,
+) {
+	if opts.Color {
+		out.WriteString(color.ANSI(hex, text, opts.TrueColor))
+		return
+	}
+	out.WriteString(text)
 }
 
 func writeTranscriptInspiration(out *strings.Builder, id string, inspiration Inspiration) {

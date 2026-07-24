@@ -121,7 +121,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := p.RenderRoleTranscript("engineer", "#90a66a")
+	got, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,6 +190,39 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		if strings.HasPrefix(line, " ") {
 			t.Fatalf("transcript line is not flush-left: %q", line)
 		}
+	}
+}
+
+func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
+	t.Parallel()
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	trueColor, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{
+		Color: true, TrueColor: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"\x1b[38;2;144;166;106mrole metadata",
+		"\x1b[38;2;217;142;72mpersonality: curious",
+		"\x1b[38;2;95;168;122mpersonality: grounded",
+		"\x1b[38;2;125;159;211mpersonality: meticulous",
+	} {
+		if !strings.Contains(trueColor, want) {
+			t.Errorf("truecolor transcript missing %q:\n%q", want, trueColor)
+		}
+	}
+	fallback, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{
+		Color: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(fallback, "\x1b[38;5;") {
+		t.Fatalf("fallback transcript omitted 256-color ANSI:\n%q", fallback)
 	}
 }
 
