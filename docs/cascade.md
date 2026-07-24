@@ -61,7 +61,7 @@ directories:
 
 ```yaml
 skill_load_points:
-  codex: ~/.codex/skills
+  codex: ~/.agents/skills
 ```
 
 Each harness uses the eligible repository paths already recorded in
