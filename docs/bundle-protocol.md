@@ -35,6 +35,10 @@ not exactly match every skill selected by its trace. Cache hits pass
 verification again before reuse, so the presence of `manifest.json` alone
 never blesses a tree.
 
+Successful verification prints only bounded skill and file counts. Selected
+identity details remain in `trace.json`, where `describe` can render them as a
+scannable audit instead of expanding them into the startup transcript.
+
 Runtime telemetry - durations, cache location, cache-hit status, terminal
 state - never lands under the bundle root.
 

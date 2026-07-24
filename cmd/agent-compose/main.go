@@ -414,15 +414,13 @@ func runVerify(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	manifest := verification.Manifest
-	identities := make([]string, 0, len(verification.Identities))
-	for _, identity := range verification.Identities {
-		identities = append(identities, identity.Source+"/"+identity.Skill)
-	}
-	fmt.Printf("bundle verified: role=%s personalities=%s delivery=%s identities=%s files=%d\n",
-		manifest.Role, strings.Join(manifest.Personalities, ","), manifest.Delivery.Mode,
-		strings.Join(identities, ","), verification.Files)
+	printVerification(os.Stdout, verification)
 	return nil
+}
+
+func printVerification(w io.Writer, verification *bundle.Verification) {
+	fmt.Fprintf(w, "bundle verified: %d skills // %d files\n",
+		len(verification.Identities), verification.Files)
 }
 
 // refreshThenExec is the absorbed launch verb: refresh context, then hand

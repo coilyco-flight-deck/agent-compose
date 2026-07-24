@@ -76,3 +76,20 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		t.Fatalf("summary retained middle-dot separator:\n%s", got)
 	}
 }
+
+func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
+	t.Parallel()
+	verification := &bundle.Verification{
+		Files: 128,
+		Identities: []bundle.Identity{
+			{Source: "person:kai", Skill: "personality-curious"},
+			{Source: "aos-public", Skill: "coding-go"},
+		},
+	}
+
+	var output strings.Builder
+	printVerification(&output, verification)
+	if got, want := output.String(), "bundle verified: 2 skills // 128 files\n"; got != want {
+		t.Fatalf("verification output = %q, want %q", got, want)
+	}
+}
