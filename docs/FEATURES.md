@@ -11,12 +11,11 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* Embedded `person:kai` carries ten roles, 16 personalities, the meld matrix,
-  and 34 seats. Fourteen public seats are placeholders. Every bundle injects
-  compact role, seat, color, meld,
+* `person:kai` carries ten roles, 16 personalities, melds, and 34 seats.
+  Fourteen seats are placeholders. Bundles inject role, seat, color, meld,
   [identity](identity-primitives.md), and [inspiration](inspiration-catalogue.md) metadata.
-* AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
-  admission. `low-context: optional` prunes optional skills.
+* AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.
+  `low-context: optional` prunes optional skills.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.
@@ -47,10 +46,10 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * TTY color honors NO_COLOR. Redirected output is plain and deterministic.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
-## Personality palette
+## Identity surfaces
 
-* Local Vite/TypeScript explorer shows colors, role melds, identity primitives,
-  filters, previews, and copy controls. See [personality-palette.md](personality-palette.md).
+* The local [palette](personality-palette.md) shows melds and identity primitives.
+  `agent-compose overlay` emits text or JSON for one selected member. See [overlay.md](overlay.md).
 
 ## Roster artifact and cascade
 

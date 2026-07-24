@@ -17,6 +17,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
@@ -129,6 +130,37 @@ func main() {
 				Action:    runVerify,
 			},
 			{
+				Name:  "overlay",
+				Usage: "project one member identity and caller-supplied expression",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "role",
+						Usage:    "canonical role",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "seat",
+						Usage:    "harness seat within the role",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:  "expression",
+						Value: "available",
+						Usage: "renderer expression supplied by the caller",
+					},
+					&cli.IntFlag{
+						Name:  "width",
+						Value: 40,
+						Usage: "maximum text width",
+					},
+					&cli.BoolFlag{
+						Name:  "json",
+						Usage: "emit the versioned renderer document",
+					},
+				},
+				Action: runOverlay,
+			},
+			{
 				Name:   "cascade",
 				Hidden: true,
 				Usage:  "compose doctrine sources into harness global load points",
@@ -218,6 +250,36 @@ func runNativeMCP(_ context.Context, cmd *cli.Command) error {
 	if cmd.Bool("check") && result.Changed {
 		return cli.Exit("native MCP projection drift", 1)
 	}
+	return nil
+}
+
+func runOverlay(_ context.Context, cmd *cli.Command) error {
+	p, err := person.Load()
+	if err != nil {
+		return err
+	}
+	doc, err := overlay.Build(
+		p,
+		cmd.String("role"),
+		cmd.String("seat"),
+		cmd.String("expression"),
+	)
+	if err != nil {
+		return err
+	}
+	if cmd.Bool("json") {
+		raw, err := overlay.Marshal(doc)
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(raw)
+		return err
+	}
+	rendered, err := overlay.RenderText(doc, cmd.Int("width"))
+	if err != nil {
+		return err
+	}
+	fmt.Print(rendered)
 	return nil
 }
 
