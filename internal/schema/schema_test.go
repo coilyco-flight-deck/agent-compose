@@ -13,15 +13,15 @@ func fixture(t *testing.T, name string) string {
 }
 
 func TestParseRequestFixture(t *testing.T) {
-	req, err := ParseRequest(fixture(t, "native-full.kdl"))
+	req, err := ParseRequest(fixture(t, "native.kdl"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if req.Role != "engineer" {
 		t.Fatalf("unexpected identity: %+v", req)
 	}
-	if req.Delivery != DeliveryNativeSkills || req.Density != DensityFull {
-		t.Fatalf("unexpected delivery/density: %+v", req)
+	if req.Delivery != DeliveryNativeSkills {
+		t.Fatalf("unexpected delivery: %+v", req)
 	}
 	if len(req.Sources) != 1 || req.Sources[0].ID != "aos-public" || !req.Sources[0].Required {
 		t.Fatalf("unexpected sources: %+v", req.Sources)
@@ -37,52 +37,60 @@ func writeRequest(t *testing.T, body string) string {
 	return path
 }
 
+func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
+	path := writeRequest(t, `compose {
+    role "engineer"
+    delivery "compiled"
+    density "full"
+}`)
+	req, err := ParseRequest(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req.Role != "engineer" || req.Delivery != DeliveryCompiled {
+		t.Fatalf("unexpected legacy request: %+v", req)
+	}
+}
+
 func TestParseRequestFailsClosed(t *testing.T) {
 	cases := map[string]string{
 		"unknown node": `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     privacy-scope "public"
 }`,
 		"duplicate scalar": `compose {
     role "engineer"
     role "designer"
     delivery "native-skills"
-    density "full"
 }`,
 		"bad delivery": `compose {
     role "engineer"
     delivery "carrier-pigeon"
-    density "full"
 }`,
-		"bad density": `compose {
+		"retired brief density": `compose {
     role "engineer"
     delivery "compiled"
-    density "verbose"
+    density "brief"
 }`,
 		"retired personality selector": `compose {
     role "engineer"
     personality "curious"
     delivery "native-skills"
-    density "full"
 }`,
 		"source without declaration": `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public"
 }`,
 		"source with declaration and root": `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public" declaration="source.kdl" root="."
 }`,
 		"source with empty root": `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public" root=""
 }`,
 		"invalid kdl": `compose { role "engineer`,
@@ -100,7 +108,6 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 	required := writeRequest(t, `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "ghost" declaration="ghost.kdl" required=#true
 }`)
 	req, err := ParseRequest(required)
@@ -114,7 +121,6 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 	optional := writeRequest(t, `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "ghost" declaration="ghost.kdl"
 }`)
 	req, err = ParseRequest(optional)
@@ -134,7 +140,6 @@ func TestLoadSourcesRejectsEscapingPaths(t *testing.T) {
 	path := writeRequest(t, `compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "evil" declaration="../evil.kdl" required=#true
 }`)
 	req, err := ParseRequest(path)
@@ -148,11 +153,11 @@ func TestLoadSourcesRejectsEscapingPaths(t *testing.T) {
 }
 
 func TestParseSourceFixture(t *testing.T) {
-	req, err := ParseRequest(fixture(t, "native-full.kdl"))
+	req, err := ParseRequest(fixture(t, "native.kdl"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	sources, missing, err := LoadSources(req, fixture(t, "native-full.kdl"))
+	sources, missing, err := LoadSources(req, fixture(t, "native.kdl"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +219,6 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(request, []byte(`compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public" root="." required=#true
 }
 `), 0o644); err != nil {

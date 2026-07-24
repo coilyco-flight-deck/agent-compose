@@ -28,8 +28,8 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 		request string
 		mode    string
 	}{
-		{"native-full.kdl", schema.DeliveryNativeSkills},
-		{"compiled-full.kdl", schema.DeliveryCompiled},
+		{"native.kdl", schema.DeliveryNativeSkills},
+		{"compiled.kdl", schema.DeliveryCompiled},
 	}
 	for _, tc := range cases {
 		t.Run(tc.mode, func(t *testing.T) {
@@ -64,7 +64,7 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 
 func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	t.Run("unsafe manifest path", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		manifest, err := bundle.ReadManifest(dir)
 		if err != nil {
 			t.Fatal(err)
@@ -77,7 +77,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	})
 
 	t.Run("missing entry point", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "compiled-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "compiled.kdl"))
 		if err := os.Remove(filepath.Join(dir, "delivery", "compiled.md")); err != nil {
 			t.Fatal(err)
 		}
@@ -87,7 +87,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	})
 
 	t.Run("extra identity", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		extra := filepath.Join(dir, "content", "skills", "aos-public", "personality-extra")
 		if err := os.MkdirAll(extra, 0o755); err != nil {
 			t.Fatal(err)
@@ -101,7 +101,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	})
 
 	t.Run("manifest trace mismatch", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		manifest, err := bundle.ReadManifest(dir)
 		if err != nil {
 			t.Fatal(err)
@@ -114,7 +114,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	})
 
 	t.Run("missing identity document", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		skillDoc := filepath.Join(dir, "content", "skills", "aos-public", "personality-curious", "SKILL.md")
 		if err := os.Remove(skillDoc); err != nil {
 			t.Fatal(err)
@@ -125,7 +125,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 	})
 
 	t.Run("symlink", func(t *testing.T) {
-		dir := copyBundle(t, composeBundle(t, "native-full.kdl"))
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		link := filepath.Join(dir, "content", "linked")
 		if err := os.Symlink("instructions.md", link); err != nil {
 			t.Skipf("symlinks unavailable: %v", err)
@@ -138,7 +138,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 
 func TestMaterializeVerifiesCacheReuse(t *testing.T) {
 	out := t.TempDir()
-	request := filepath.Join("..", "..", "testdata", "contracts", "native-full.kdl")
+	request := filepath.Join("..", "..", "testdata", "contracts", "native.kdl")
 	first, err := compose.Run(request, out)
 	if err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestMaterializeVerifiesCacheReuse(t *testing.T) {
 
 func TestMaterializeKeysRenderedInstructions(t *testing.T) {
 	out := t.TempDir()
-	request := filepath.Join("..", "..", "testdata", "contracts", "native-full.kdl")
+	request := filepath.Join("..", "..", "testdata", "contracts", "native.kdl")
 	first, err := compose.Run(request, out)
 	if err != nil {
 		t.Fatal(err)
@@ -174,7 +174,7 @@ func TestMaterializeRejectsUnsafeIdentitySegments(t *testing.T) {
 	resolution := &resolver.Resolution{
 		Request: &schema.Request{
 			Role:     "engineer",
-			Delivery: schema.DeliveryNativeSkills, Density: schema.DensityFull,
+			Delivery: schema.DeliveryNativeSkills,
 		},
 		Person: &person.Person{Raw: []byte("fixture")},
 		Skills: []resolver.Selected{{

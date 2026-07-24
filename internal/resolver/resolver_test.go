@@ -33,8 +33,8 @@ func testPerson() *person.Person {
 	}
 }
 
-func testRequest(delivery, density string) *schema.Request {
-	return &schema.Request{Role: "engineer", Delivery: delivery, Density: density}
+func testRequest(delivery string) *schema.Request {
+	return &schema.Request{Role: "engineer", Delivery: delivery}
 }
 
 // makeSource lays out a synthetic source on disk: one instruction plus the
@@ -67,7 +67,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 		"personality-grounded": "# Grounded\n",
 		"fixture-review":       "# Review\n",
 	})
-	res, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), testPerson(), []*schema.Source{src}, nil)
+	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{src}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 	}
 
 	res, err := Resolve(
-		testRequest(schema.DeliveryNativeSkills, schema.DensityFull),
+		testRequest(schema.DeliveryNativeSkills),
 		testPerson(),
 		[]*schema.Source{src},
 		nil,
@@ -172,7 +172,6 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 			res, err := Resolve(&schema.Request{
 				Role:     roleName,
 				Delivery: schema.DeliveryNativeSkills,
-				Density:  schema.DensityFull,
 			}, p, []*schema.Source{src}, nil)
 			if err != nil {
 				t.Fatal(err)
@@ -197,16 +196,16 @@ func TestResolveValidationFailures(t *testing.T) {
 	})
 	p := testPerson()
 
-	if _, err := Resolve(&schema.Request{Role: "pilot", Delivery: schema.DeliveryNativeSkills, Density: schema.DensityFull}, p, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "not defined") {
+	if _, err := Resolve(&schema.Request{Role: "pilot", Delivery: schema.DeliveryNativeSkills}, p, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "not defined") {
 		t.Fatalf("expected unknown role failure, got %v", err)
 	}
 	broken := testPerson()
 	broken.Roles["engineer"] = person.Role{Purpose: "Build.", Personalities: []string{"missing"}}
-	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), broken, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "without a catalog binding") {
+	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), broken, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "without a catalog binding") {
 		t.Fatalf("expected missing catalog binding failure, got %v", err)
 	}
 	empty := &schema.Source{ID: "empty", Root: t.TempDir()}
-	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), p, []*schema.Source{empty}, nil); err == nil || !strings.Contains(err.Error(), "no admitted source provides it") {
+	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), p, []*schema.Source{empty}, nil); err == nil || !strings.Contains(err.Error(), "no admitted source provides it") {
 		t.Fatalf("expected missing bound skill failure, got %v", err)
 	}
 }
@@ -218,7 +217,7 @@ func TestResolveShadowsIdenticalAndFailsConflicts(t *testing.T) {
 	}
 	a := makeSource(t, "overlay", base)
 	b := makeSource(t, "aos", base)
-	res, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), testPerson(), []*schema.Source{a, b}, nil)
+	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{a, b}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,57 +238,24 @@ func TestResolveShadowsIdenticalAndFailsConflicts(t *testing.T) {
 		"personality-curious":  "# Different\n",
 		"personality-grounded": "# Grounded\n",
 	})
-	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), testPerson(), []*schema.Source{a, c}, nil); err == nil || !strings.Contains(err.Error(), "conflicts") {
+	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{a, c}, nil); err == nil || !strings.Contains(err.Error(), "conflicts") {
 		t.Fatalf("expected non-identical collision failure, got %v", err)
 	}
 }
 
-func TestCompiledDensityBriefFallsBackWithoutBrief(t *testing.T) {
+func TestCompiledDeliveryUsesCanonicalSkillBodies(t *testing.T) {
 	src := makeSource(t, "aos", map[string]string{
 		"personality-curious":  "# Curious\n",
 		"personality-grounded": "# Grounded\n",
 	})
-	res, err := Resolve(testRequest(schema.DeliveryCompiled, schema.DensityBrief), testPerson(), []*schema.Source{src}, nil)
+	res, err := Resolve(testRequest(schema.DeliveryCompiled), testPerson(), []*schema.Source{src}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(res.CompiledBodies) != 2 ||
 		filepath.Base(res.CompiledBodies[0]) != "SKILL.md" ||
 		filepath.Base(res.CompiledBodies[1]) != "SKILL.md" {
-		t.Fatalf("expected every personality to fall back to SKILL.md, got %v", res.CompiledBodies)
-	}
-	var fallback bool
-	for _, d := range res.Decisions {
-		if d.Outcome == OutcomeFallback {
-			fallback = true
-		}
-	}
-	if !fallback {
-		t.Fatalf("expected a fallback decision, decisions: %+v", res.Decisions)
-	}
-}
-
-func TestCompiledDensityBriefPrefersBrief(t *testing.T) {
-	src := makeSource(t, "aos", map[string]string{
-		"personality-curious":  "# Curious\n",
-		"personality-grounded": "# Grounded\n",
-	})
-	curiousBrief := filepath.Join(src.Root, "personality-curious", "BRIEF.md")
-	if err := os.WriteFile(curiousBrief, []byte("Curious, briefly.\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	brief := filepath.Join(src.Root, "personality-grounded", "BRIEF.md")
-	if err := os.WriteFile(brief, []byte("Grounded, briefly.\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	res, err := Resolve(testRequest(schema.DeliveryCompiled, schema.DensityBrief), testPerson(), []*schema.Source{src}, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(res.CompiledBodies) != 2 ||
-		filepath.Base(res.CompiledBodies[0]) != "BRIEF.md" ||
-		filepath.Base(res.CompiledBodies[1]) != "BRIEF.md" {
-		t.Fatalf("expected BRIEF.md preferred for every personality, got %v", res.CompiledBodies)
+		t.Fatalf("expected canonical SKILL.md for every personality, got %v", res.CompiledBodies)
 	}
 }
 
@@ -298,7 +264,7 @@ func TestMissingOptionalSourceLandsInTrace(t *testing.T) {
 		"personality-curious":  "# Curious\n",
 		"personality-grounded": "# Grounded\n",
 	})
-	res, err := Resolve(testRequest(schema.DeliveryNativeSkills, schema.DensityFull), testPerson(), []*schema.Source{src},
+	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{src},
 		[]schema.MissingSource{{ID: "overlay", Reason: "optional source declaration overlay.kdl is absent"}})
 	if err != nil {
 		t.Fatal(err)

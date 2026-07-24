@@ -19,10 +19,10 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   skill admission and intent-to-harness routes.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver emits the decision trace while choosing, covering selected,
-  excluded, shadowed, and fallback outcomes.
+  excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles. Failures leave no partial tree.
-* Native-skill and compiled-context delivery with density-aware compiled
-  prose, exercised by the four public fixtures.
+* Native-skill and compiled-context delivery use the same canonical skill
+  bodies, exercised by two public fixtures.
 
 ## Load-point projection
 

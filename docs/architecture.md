@@ -16,17 +16,14 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
 
 * `role` - the caller names it, the person source validates it, and the role
   activates every personality it declares.
-* `density` - how much personality prose the bundle carries. A caller usually
-  derives it from model class: a frontier model needs one sentence where a
-  small local model needs the one-pager. No model name enters a request.
 * `delivery` - native skills or compiled context.
 * `source locators` - where files live. AOS's knowledge inventory is inferred
   from its provider root.
 
 Everything else about the agent stays outside the request. Model, harness,
 reasoning effort, interactivity, permissions, and task acceptance belong to
-the launcher and the consumer. A repository is not an agent-compose concept:
-a repo is only a place personality files sometimes live, reached through a
+the launcher and the consumer. A repository is not an agent-compose concept.
+A repo is only a place personality files sometimes live, reached through a
 source locator like any other directory.
 
 ## Policy ownership

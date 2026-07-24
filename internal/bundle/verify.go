@@ -104,8 +104,8 @@ func verifyTree(dir string) (int, error) {
 }
 
 func verifyManifest(dir string, manifest *Manifest) error {
-	if manifest.Role == "" || len(manifest.Personalities) == 0 || manifest.Density == "" {
-		return fmt.Errorf("bundle manifest must name role, personalities, and density")
+	if manifest.Role == "" || len(manifest.Personalities) == 0 {
+		return fmt.Errorf("bundle manifest must name role and personalities")
 	}
 	seenPersonalities := map[string]bool{}
 	for _, personality := range manifest.Personalities {

@@ -13,10 +13,12 @@ issues consume this reviewed contract rather than the earlier proposal.
   other directory. Privacy scopes, target repositories, repo declarations, and
   per-repo capability resolution are removed from the contract.
 * Agent, model, harness, reasoning effort, and interactivity are the realm of
-  AOS and Ward and never enter a compose request. The one surviving
-  harness-adjacent input is `density`, which a caller may derive from model
-  class to size the personality prose - one sentence for a frontier model, a
-  one-pager for a small local model. No model name reaches agent-compose.
+  AOS and Ward and never enter a compose request. The original review retained
+  a model-opaque density input, but
+  [issue #59](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/59)
+  removed it after the consumer audit found no production caller. Legacy
+  `density "full"` remains an ignored rolling-upgrade input. Brief density is
+  rejected.
 * Delivery mode - native skills or compiled context - is load-bearing and
   stays.
 * A compose request selects a role, not one personality. The role activates
@@ -60,14 +62,11 @@ resolves AOS declarations locally without fetching.
 
 ## Compatibility fixtures
 
-* `native-full.kdl` - native skills at full density.
-* `native-brief.kdl` - native skills at brief density.
-* `compiled-full.kdl` - compiled context at full density.
-* `compiled-brief.kdl` - compiled context at brief density.
+* `native.kdl` - selected instructions plus native skill trees.
+* `compiled.kdl` - selected instructions and skill bodies in one document.
 
-The four fixtures prove that delivery mode and context density vary
-independently without agent-compose knowing which harness or model sits
-behind them.
+The two fixtures prove that delivery mode varies without agent-compose knowing
+which harness or model sits behind it.
 
 ## See also
 

@@ -34,7 +34,7 @@ func readTarget(t *testing.T, target, rel string) string {
 }
 
 func TestProjectNativeLayouts(t *testing.T) {
-	bundleDir := composeFixture(t, "native-full.kdl")
+	bundleDir := composeFixture(t, "native.kdl")
 	cases := map[string]struct{ instructions, skillsDir string }{
 		"claude":   {"CLAUDE.md", ".claude/skills"},
 		"codex":    {"AGENTS.md", ".agents/skills"},
@@ -71,7 +71,7 @@ func TestProjectNativeLayouts(t *testing.T) {
 }
 
 func TestProjectCompiledLayouts(t *testing.T) {
-	bundleDir := composeFixture(t, "compiled-full.kdl")
+	bundleDir := composeFixture(t, "compiled.kdl")
 	cases := map[string]string{
 		"claude":   "CLAUDE.md",
 		"codex":    "AGENTS.md",
@@ -97,18 +97,10 @@ func TestProjectCompiledLayouts(t *testing.T) {
 		})
 	}
 
-	briefBundle := composeFixture(t, "compiled-brief.kdl")
-	target := t.TempDir()
-	if _, err := Project(briefBundle, "opencode", target); err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(readTarget(t, target, "AGENTS.md"), "Grounded: calm") {
-		t.Fatal("opencode load point missing brief compiled prose")
-	}
 }
 
 func TestProjectRejectsUnknownLayoutAndUnsupportedMode(t *testing.T) {
-	native := composeFixture(t, "native-full.kdl")
+	native := composeFixture(t, "native.kdl")
 	if _, err := Project(native, "emacs", t.TempDir()); err == nil || !strings.Contains(err.Error(), "v0.1 layouts") {
 		t.Fatalf("expected unknown-layout diagnostic, got %v", err)
 	}
@@ -121,7 +113,7 @@ func TestProjectRejectsUnknownLayoutAndUnsupportedMode(t *testing.T) {
 }
 
 func TestProjectRefusesForeignFiles(t *testing.T) {
-	bundleDir := composeFixture(t, "native-full.kdl")
+	bundleDir := composeFixture(t, "native.kdl")
 	target := t.TempDir()
 	handAuthored := filepath.Join(target, "CLAUDE.md")
 	if err := os.WriteFile(handAuthored, []byte("mine\n"), 0o644); err != nil {
@@ -136,8 +128,8 @@ func TestProjectRefusesForeignFiles(t *testing.T) {
 }
 
 func TestHomeScopeProjection(t *testing.T) {
-	native := composeFixture(t, "native-full.kdl")
-	compiled := composeFixture(t, "compiled-full.kdl")
+	native := composeFixture(t, "native.kdl")
+	compiled := composeFixture(t, "compiled.kdl")
 	nativeBefore := treeFingerprint(t, native)
 	compiledBefore := treeFingerprint(t, compiled)
 	expectedIdentities := selectedFixtureSkills(t, "engineer")
@@ -192,10 +184,10 @@ func TestHomeScopeProjection(t *testing.T) {
 	}
 }
 
-func TestReprojectionPreservesEquivalentPersonalitySetAndForeignFiles(t *testing.T) {
+func TestReprojectionChangesDeliveryAndPreservesForeignFiles(t *testing.T) {
 	target := t.TempDir()
-	full := composeFixture(t, "native-full.kdl")
-	if _, err := Project(full, "claude", target); err != nil {
+	native := composeFixture(t, "native.kdl")
+	if _, err := Project(native, "claude", target); err != nil {
 		t.Fatal(err)
 	}
 	foreign := filepath.Join(target, "notes.md")
@@ -203,23 +195,26 @@ func TestReprojectionPreservesEquivalentPersonalitySetAndForeignFiles(t *testing
 		t.Fatal(err)
 	}
 
-	brief := composeFixture(t, "native-brief.kdl")
-	result, err := Project(brief, "claude", target)
+	compiled := composeFixture(t, "compiled.kdl")
+	result, err := Project(compiled, "claude", target)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, identity := range selectedFixtureSkills(t, "engineer") {
-		if _, err := os.Stat(filepath.Join(target, ".claude", "skills", identity)); err != nil {
-			t.Fatalf("active identity %s missing after re-projection: %v", identity, err)
+		if _, err := os.Stat(filepath.Join(target, ".claude", "skills", identity)); !os.IsNotExist(err) {
+			t.Fatalf("stale native identity %s survived compiled re-projection: %v", identity, err)
 		}
+	}
+	if !strings.Contains(readTarget(t, target, "CLAUDE.md"), "# Curious") {
+		t.Fatal("compiled re-projection omitted canonical personality prose")
 	}
 	if raw, _ := os.ReadFile(foreign); string(raw) != "keep me\n" {
 		t.Fatal("foreign file must survive re-projection")
 	}
 	if !slices.ContainsFunc(result.Files, func(rel string) bool {
-		return strings.Contains(rel, "fixture-review")
+		return rel == "CLAUDE.md"
 	}) {
-		t.Fatalf("sidecar omitted the ordinary skill: %v", result.Files)
+		t.Fatalf("sidecar omitted the compiled load point: %v", result.Files)
 	}
 }
 
@@ -284,7 +279,7 @@ func TestInvalidBundleDoesNotTouchProjectionTarget(t *testing.T) {
 }
 
 func TestProjectionCannotTargetItsInputBundle(t *testing.T) {
-	bundleDir := composeFixture(t, "native-full.kdl")
+	bundleDir := composeFixture(t, "native.kdl")
 	before := treeFingerprint(t, bundleDir)
 	if _, err := ProjectScoped(bundleDir, "claude", bundleDir, ScopeHome); err == nil ||
 		!strings.Contains(err.Error(), "must not be the bundle") {

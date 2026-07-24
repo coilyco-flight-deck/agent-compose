@@ -8,7 +8,6 @@
   "role": "engineer",
   "personalities": ["curious", "grounded", "meticulous"],
   "color": "#90a66a",
-  "density": "full",
   "sources": ["person:kai", "aos-public"],
   "delivery": {
     "mode": "native-skills",

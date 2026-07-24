@@ -18,7 +18,6 @@ const (
 	OutcomeSelected  = "selected"
 	OutcomeExcluded  = "excluded"
 	OutcomeShadowed  = "shadowed"
-	OutcomeFallback  = "fallback"
 	OutcomeDelivered = "delivered"
 )
 
@@ -253,7 +252,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	return res, nil
 }
 
-// planDelivery chooses entry points and the compiled body for each skill.
+// planDelivery chooses the compiled body for each skill.
 func (r *Resolution) planDelivery() error {
 	r.decide(Decision{
 		Subject: "content/instructions.md", Kind: "delivery",
@@ -267,23 +266,7 @@ func (r *Resolution) planDelivery() error {
 		return nil
 	}
 	for _, skill := range r.Skills {
-		full := filepath.Join(skill.Path, skill.EntryPoint)
-		body := full
-		if r.Request.Density == schema.DensityBrief {
-			brief := filepath.Join(skill.Path, "BRIEF.md")
-			if _, err := os.Stat(brief); err == nil {
-				body = brief
-				r.decide(Decision{
-					Subject: "skill:" + skill.ID + "/BRIEF.md", Kind: "delivery", Source: skill.Source,
-					Outcome: OutcomeSelected, Reason: "brief density prefers BRIEF.md when the skill provides one",
-				})
-			} else {
-				r.decide(Decision{
-					Subject: "skill:" + skill.ID + "/" + skill.EntryPoint, Kind: "delivery", Source: skill.Source,
-					Outcome: OutcomeFallback, Reason: "brief density requested but the skill provides no BRIEF.md",
-				})
-			}
-		}
+		body := filepath.Join(skill.Path, skill.EntryPoint)
 		if _, err := os.Stat(body); err != nil {
 			return fmt.Errorf("skill %q: compiled delivery needs %s: %w", skill.ID, filepath.Base(body), err)
 		}

@@ -12,8 +12,6 @@ outcomes are:
 * `selected` - policy admitted the candidate.
 * `excluded` - policy considered and rejected the candidate.
 * `shadowed` - an identical higher-precedence copy already filled the slot.
-* `fallback` - the preferred candidate was unavailable and policy chose an
-  allowed alternative.
 * `delivered` - the adapter placed selected content at a bundle entry point.
 
 Invalid input fails composition with diagnostics from the in-progress trace,

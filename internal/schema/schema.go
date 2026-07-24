@@ -12,8 +12,7 @@ import (
 const (
 	DeliveryNativeSkills = "native-skills"
 	DeliveryCompiled     = "compiled"
-	DensityBrief         = "brief"
-	DensityFull          = "full"
+	legacyDensityFull    = "full"
 
 	providerSkillsPath    = ".agents/skills"
 	providerComposedPath  = ".agents/composed"
@@ -25,7 +24,6 @@ const (
 type Request struct {
 	Role     string
 	Delivery string
-	Density  string
 	Sources  []SourceLocator
 }
 
@@ -81,7 +79,7 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
-		case "role", "delivery", "density":
+		case "role", "delivery":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -95,8 +93,22 @@ func ParseRequest(path string) (*Request, error) {
 				req.Role = v
 			case "delivery":
 				req.Delivery = v
-			case "density":
-				req.Density = v
+			}
+		case "density":
+			if seen[n.Name()] {
+				return nil, fmt.Errorf("request %s: duplicate density node", path)
+			}
+			seen[n.Name()] = true
+			v, err := oneStringArg(n)
+			if err != nil {
+				return nil, fmt.Errorf("request %s: %w", path, err)
+			}
+			if v != legacyDensityFull {
+				return nil, fmt.Errorf(
+					"request %s: density is removed; delete the node (only legacy %q is accepted)",
+					path,
+					legacyDensityFull,
+				)
 			}
 		case "source":
 			id, err := oneStringArg(n)
@@ -135,7 +147,7 @@ func ParseRequest(path string) (*Request, error) {
 	}
 
 	for _, field := range []struct{ name, value string }{
-		{"role", req.Role}, {"delivery", req.Delivery}, {"density", req.Density},
+		{"role", req.Role}, {"delivery", req.Delivery},
 	} {
 		if field.value == "" {
 			return nil, fmt.Errorf("request %s: missing %s", path, field.name)
@@ -144,10 +156,6 @@ func ParseRequest(path string) (*Request, error) {
 	if req.Delivery != DeliveryNativeSkills && req.Delivery != DeliveryCompiled {
 		return nil, fmt.Errorf("request %s: delivery must be %q or %q, got %q",
 			path, DeliveryNativeSkills, DeliveryCompiled, req.Delivery)
-	}
-	if req.Density != DensityBrief && req.Density != DensityFull {
-		return nil, fmt.Errorf("request %s: density must be %q or %q, got %q",
-			path, DensityBrief, DensityFull, req.Density)
 	}
 	return req, nil
 }

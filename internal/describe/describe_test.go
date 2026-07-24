@@ -25,7 +25,7 @@ func TestBundleRendersSections(t *testing.T) {
 		t.Fatal(err)
 	}
 	personalitySet := strings.Join(p.Roles["engineer"].Personalities, "+")
-	dir := composeFixture(t, "native-full.kdl")
+	dir := composeFixture(t, "native.kdl")
 	out, err := Bundle(dir, Options{})
 	if err != nil {
 		t.Fatal(err)
@@ -72,7 +72,7 @@ func TestCollapseFoldsLargeExclusionGroups(t *testing.T) {
 }
 
 func TestWhyFollowsOneItem(t *testing.T) {
-	dir := composeFixture(t, "native-full.kdl")
+	dir := composeFixture(t, "native.kdl")
 
 	out, err := Why(dir, "skill:fixture-review", Options{})
 	if err != nil {
@@ -107,17 +107,18 @@ func TestDiffReportsSemanticChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	identity := "engineer/" + strings.Join(p.Roles["engineer"].Personalities, "+")
-	full := composeFixture(t, "compiled-full.kdl")
-	brief := composeFixture(t, "compiled-brief.kdl")
+	native := composeFixture(t, "native.kdl")
+	compiled := composeFixture(t, "compiled.kdl")
 
-	out, err := Diff(full, brief)
+	out, err := Diff(native, compiled)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
 		identity,
-		"+ skill personality-grounded/BRIEF.md",
-		"+ skill personality-curious/SKILL.md",
+		"native-skills",
+		"compiled",
+		"+ delivery/compiled.md",
 		"decisions unchanged",
 	} {
 		if !strings.Contains(out, want) {
@@ -125,7 +126,7 @@ func TestDiffReportsSemanticChanges(t *testing.T) {
 		}
 	}
 
-	same, err := Diff(full, full)
+	same, err := Diff(native, native)
 	if err != nil {
 		t.Fatal(err)
 	}

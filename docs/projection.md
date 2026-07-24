@@ -41,8 +41,8 @@ All four harnesses read Agent Skills (SKILL.md) natively, and
 `.agents/skills/` is the portable standard location: goose documents it as
 the recommended skills directory (its Skills platform extension is on by
 default), and opencode discovers project skills from `.opencode/skills/`,
-`.claude/skills/`, and `.agents/skills/`. Compiled delivery therefore exists
-for density, not for missing skill support.
+`.claude/skills/`, and `.agents/skills/`. Compiled delivery gives consumers
+one instruction document.
 
 Claude Code is the exception on both portable conventions. Its documented
 skill locations are `.claude/skills/` and `~/.claude/skills/` only -

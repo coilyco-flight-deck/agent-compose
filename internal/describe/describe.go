@@ -30,9 +30,9 @@ func Bundle(dir string, opts Options) (string, error) {
 		return "", err
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "bundle %s · %s/%s · %s/%s%s\n",
+	fmt.Fprintf(&b, "bundle %s · %s/%s · %s%s\n",
 		filepath.Base(dir), manifest.Role, strings.Join(manifest.Personalities, "+"),
-		manifest.Delivery.Mode, manifest.Density, favoriteSuffix(manifest, opts))
+		manifest.Delivery.Mode, favoriteSuffix(manifest, opts))
 
 	sections := []struct {
 		title string
@@ -123,9 +123,9 @@ func Diff(leftDir, rightDir string) (string, error) {
 		return "", err
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "%s/%s (%s/%s) → %s/%s (%s/%s)\n",
-		leftManifest.Role, strings.Join(leftManifest.Personalities, "+"), leftManifest.Delivery.Mode, leftManifest.Density,
-		rightManifest.Role, strings.Join(rightManifest.Personalities, "+"), rightManifest.Delivery.Mode, rightManifest.Density)
+	fmt.Fprintf(&b, "%s/%s (%s) → %s/%s (%s)\n",
+		leftManifest.Role, strings.Join(leftManifest.Personalities, "+"), leftManifest.Delivery.Mode,
+		rightManifest.Role, strings.Join(rightManifest.Personalities, "+"), rightManifest.Delivery.Mode)
 
 	left, right := bySubject(leftTrace), bySubject(rightTrace)
 	var subjects []string
@@ -237,7 +237,6 @@ func symbol(outcome string, opts Options) string {
 		resolver.OutcomeSelected:  {"✓", "\x1b[32m"},
 		resolver.OutcomeExcluded:  {"✗", "\x1b[31m"},
 		resolver.OutcomeShadowed:  {"~", "\x1b[33m"},
-		resolver.OutcomeFallback:  {"⚠", "\x1b[33m"},
 		resolver.OutcomeDelivered: {"→", "\x1b[36m"},
 	}
 	entry, ok := symbols[outcome]

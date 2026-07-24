@@ -45,13 +45,9 @@ func TestComposeAllFixtures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cases := map[string]struct {
-		mode, density string
-	}{
-		"native-full.kdl":    {"native-skills", "full"},
-		"native-brief.kdl":   {"native-skills", "brief"},
-		"compiled-full.kdl":  {"compiled", "full"},
-		"compiled-brief.kdl": {"compiled", "brief"},
+	cases := map[string]string{
+		"native.kdl":   "native-skills",
+		"compiled.kdl": "compiled",
 	}
 	for name, want := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -62,8 +58,8 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			m := readManifest(t, result.Bundle.Dir)
 			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
-				!slices.Equal(m.Personalities, wantPersonalities) || m.Density != want.density ||
-				m.Delivery.Mode != want.mode {
+				!slices.Equal(m.Personalities, wantPersonalities) ||
+				m.Delivery.Mode != want {
 				t.Fatalf("unexpected manifest: %+v", m)
 			}
 			if len(m.Sources) != 2 || m.Sources[0] != "person:kai" || m.Sources[1] != "aos-public" {
@@ -112,7 +108,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				skillPath := "content/skills/aos-public/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
 			}
-			if want.mode == "compiled" {
+			if want == "compiled" {
 				if m.Delivery.CompiledContext != "delivery/compiled.md" || m.Delivery.SkillsRoot != "" {
 					t.Fatalf("unexpected compiled delivery: %+v", m.Delivery)
 				}
@@ -190,7 +186,6 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(request, []byte(`compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public" root="." required=#true
 }
 `), 0o644); err != nil {
@@ -235,45 +230,26 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	}
 }
 
-func TestCompiledDensityChangesProse(t *testing.T) {
+func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	out := t.TempDir()
-	full, err := Run(fixture(t, "compiled-full.kdl"), out)
+	result, err := Run(fixture(t, "compiled.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}
-	brief, err := Run(fixture(t, "compiled-brief.kdl"), out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fullBody, err := os.ReadFile(filepath.Join(full.Bundle.Dir, "delivery", "compiled.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	briefBody, err := os.ReadFile(filepath.Join(brief.Bundle.Dir, "delivery", "compiled.md"))
+	body, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "delivery", "compiled.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, heading := range []string{"# Curious", "# Grounded", "# Meticulous"} {
-		if !strings.Contains(string(fullBody), heading) {
-			t.Fatalf("full compiled prose missing %q:\n%s", heading, fullBody)
+		if !strings.Contains(string(body), heading) {
+			t.Fatalf("compiled prose missing %q:\n%s", heading, body)
 		}
-	}
-	for _, want := range []string{"# Curious", "Grounded: calm", "# Meticulous"} {
-		if !strings.Contains(string(briefBody), want) {
-			t.Fatalf("brief compiled prose missing %q:\n%s", want, briefBody)
-		}
-	}
-	if strings.Contains(string(briefBody), "# Grounded") {
-		t.Fatalf("brief compiled prose should use grounded BRIEF.md:\n%s", briefBody)
-	}
-	if full.Bundle.Key == brief.Bundle.Key {
-		t.Fatal("density change must change the bundle key")
 	}
 }
 
 func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 	out := t.TempDir()
-	first, err := Run(fixture(t, "native-full.kdl"), out)
+	first, err := Run(fixture(t, "native.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -286,7 +262,7 @@ func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	second, err := Run(fixture(t, "native-full.kdl"), out)
+	second, err := Run(fixture(t, "native.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -302,24 +278,24 @@ func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 	}
 }
 
-func TestDifferentDensitiesGetDifferentBundles(t *testing.T) {
+func TestDifferentDeliveriesGetDifferentBundles(t *testing.T) {
 	out := t.TempDir()
-	a, err := Run(fixture(t, "native-full.kdl"), out)
+	a, err := Run(fixture(t, "native.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := Run(fixture(t, "native-brief.kdl"), out)
+	b, err := Run(fixture(t, "compiled.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if a.Bundle.Key == b.Bundle.Key {
-		t.Fatal("different densities must produce different bundle keys")
+		t.Fatal("different deliveries must produce different bundle keys")
 	}
 }
 
 func TestFailedFinalizeLeavesNoPartialBundle(t *testing.T) {
 	out := t.TempDir()
-	probe, err := Run(fixture(t, "native-full.kdl"), t.TempDir())
+	probe, err := Run(fixture(t, "native.kdl"), t.TempDir())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -328,7 +304,7 @@ func TestFailedFinalizeLeavesNoPartialBundle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := Run(fixture(t, "native-full.kdl"), out); err == nil {
+	if _, err := Run(fixture(t, "native.kdl"), out); err == nil {
 		t.Fatal("expected finalize to fail when the target path is blocked")
 	}
 	entries, err := os.ReadDir(out)
@@ -348,7 +324,7 @@ func TestFailedFinalizeLeavesNoPartialBundle(t *testing.T) {
 
 func TestTraceRecordsDecisions(t *testing.T) {
 	out := t.TempDir()
-	result, err := Run(fixture(t, "native-full.kdl"), out)
+	result, err := Run(fixture(t, "native.kdl"), out)
 	if err != nil {
 		t.Fatal(err)
 	}

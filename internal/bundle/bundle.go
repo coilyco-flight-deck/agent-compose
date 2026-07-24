@@ -24,7 +24,6 @@ type Manifest struct {
 	Role          string   `json:"role"`
 	Personalities []string `json:"personalities"`
 	Color         string   `json:"color"`
-	Density       string   `json:"density"`
 	Sources       []string `json:"sources"`
 	Delivery      Delivery `json:"delivery"`
 }
@@ -175,7 +174,6 @@ func write(res *resolver.Resolution, root string) error {
 		Role:          res.Request.Role,
 		Personalities: res.Personalities,
 		Color:         res.FavoriteColor,
-		Density:       res.Request.Density,
 		Sources:       res.SourceIDs,
 		Delivery:      delivery,
 	}, "", "  ")
@@ -217,8 +215,8 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 // compiler-authored instruction changes invalidate prior cached bundles.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
-	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
-		res.Request.Role, res.Request.Delivery, res.Request.Density)
+	fmt.Fprintf(h, "request\x00%s\x00%s\x00",
+		res.Request.Role, res.Request.Delivery)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
 	renderedInstructions, err := joinInstructions(res)

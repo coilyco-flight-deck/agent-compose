@@ -7,11 +7,11 @@ is intentionally opinionated: it also includes Kai's synthetic company,
 personality catalog, and composition defaults rather than presenting itself as
 a neutral enterprise framework.
 
-The intended product accepts a role, a context density, a delivery mode, and
-the locations of personality sources. The role activates its complete ordered
-personality set. Agent-compose resolves every bound personality skill, derives
-their melded favorite color, and emits an immutable context bundle for a host
-harness or a warded container to consume.
+The intended product accepts a role, a delivery mode, and the locations of
+personality sources. The role activates its complete ordered personality set.
+Agent-compose resolves every bound personality skill, derives their melded
+favorite color, and emits an immutable context bundle for a host harness or a
+warded container to consume.
 
 ## Ownership boundary
 

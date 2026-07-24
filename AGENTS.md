@@ -63,7 +63,7 @@ bundle.
 
 ## Cross-repo contracts
 
-The input contract names the requested role, density, delivery, and sources
+The input contract names the requested role, delivery, and sources
 without importing Ward policy. The role activates its complete ordered
 personality set. The output contract is a manifest plus a filesystem tree that
 consumers treat as opaque. Agent-compose combines its embedded person policy

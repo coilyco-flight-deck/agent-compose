@@ -18,10 +18,10 @@ func fixture(t *testing.T, name string) string {
 
 func TestRefreshAcrossAllLayouts(t *testing.T) {
 	cases := map[string]string{
-		"claude":   "native-full.kdl",
-		"codex":    "native-full.kdl",
-		"goose":    "compiled-full.kdl",
-		"opencode": "compiled-brief.kdl",
+		"claude":   "native.kdl",
+		"codex":    "native.kdl",
+		"goose":    "compiled.kdl",
+		"opencode": "compiled.kdl",
 	}
 	for layout, request := range cases {
 		t.Run(layout, func(t *testing.T) {
@@ -47,7 +47,7 @@ func TestRefreshAcrossAllLayouts(t *testing.T) {
 
 func TestWarmRefreshIsFastAndReuses(t *testing.T) {
 	target, out := t.TempDir(), t.TempDir()
-	opts := Options{RequestPath: fixture(t, "native-full.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
+	opts := Options{RequestPath: fixture(t, "native.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
 	if _, err := Refresh(opts); err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestWarmRefreshIsFastAndReuses(t *testing.T) {
 
 func TestRefreshFallsBackToLastKnownGood(t *testing.T) {
 	target, out := t.TempDir(), t.TempDir()
-	good := Options{RequestPath: fixture(t, "native-full.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
+	good := Options{RequestPath: fixture(t, "native.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
 	if _, err := Refresh(good); err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestRefreshFailsWithoutLastKnownGood(t *testing.T) {
 
 func TestConcurrentIdenticalLaunchesConverge(t *testing.T) {
 	target, out := t.TempDir(), t.TempDir()
-	opts := Options{RequestPath: fixture(t, "native-full.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
+	opts := Options{RequestPath: fixture(t, "native.kdl"), Layout: "claude", TargetDir: target, OutDir: out}
 	var wg sync.WaitGroup
 	errs := make(chan error, 8)
 	for range 8 {
@@ -142,8 +142,8 @@ func TestConcurrentDistinctRequestsStayIsolated(t *testing.T) {
 	var wg sync.WaitGroup
 	errs := make(chan error, 2)
 	launches := []Options{
-		{RequestPath: fixture(t, "native-full.kdl"), Layout: "claude", TargetDir: targetA, OutDir: out},
-		{RequestPath: fixture(t, "native-brief.kdl"), Layout: "claude", TargetDir: targetB, OutDir: out},
+		{RequestPath: fixture(t, "native.kdl"), Layout: "claude", TargetDir: targetA, OutDir: out},
+		{RequestPath: fixture(t, "compiled.kdl"), Layout: "claude", TargetDir: targetB, OutDir: out},
 	}
 	for _, opts := range launches {
 		wg.Add(1)
@@ -162,8 +162,11 @@ func TestConcurrentDistinctRequestsStayIsolated(t *testing.T) {
 	if !strings.Contains(readFile(t, targetA, ".claude/skills/personality-curious/SKILL.md"), "# Curious") {
 		t.Fatal("target A got the wrong personality")
 	}
-	if !strings.Contains(readFile(t, targetB, ".claude/skills/personality-meticulous/SKILL.md"), "# Meticulous") {
-		t.Fatal("target B got the wrong personality")
+	if !strings.Contains(readFile(t, targetB, "CLAUDE.md"), "# Meticulous") {
+		t.Fatal("target B got the wrong compiled personality")
+	}
+	if _, err := os.Stat(filepath.Join(targetB, ".claude", "skills", "personality-meticulous")); !os.IsNotExist(err) {
+		t.Fatalf("target B unexpectedly received native skills: %v", err)
 	}
 }
 

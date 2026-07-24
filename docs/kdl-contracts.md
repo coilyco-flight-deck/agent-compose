@@ -6,14 +6,13 @@ selection.
 
 ## Compose request
 
-A request names a role, a delivery mode, a density, and the sources personality
-files come from:
+A request names a role, a delivery mode, and the sources personality files
+come from:
 
 ```kdl
 compose {
     role "engineer"
     delivery "native-skills"
-    density "full"
     source "aos-public" root="agentic-os" required=#true
 }
 ```
@@ -21,10 +20,12 @@ compose {
 The role activates its complete ordered personality set from the embedded
 person source, every ordinary provider skill, and its composed-skill allowlist.
 A request cannot narrow those sets with a selector.
-`delivery` is `native-skills` or `compiled`. `density` is `brief` or `full`
-and only changes how much personality prose the bundle carries. A caller
-usually derives it from model class. Nothing else about the agent - model,
-harness, reasoning effort, interactivity - appears in a request.
+`delivery` is `native-skills` or `compiled`. Nothing else about the agent,
+including model, harness, reasoning effort, or interactivity, appears in a
+request.
+
+Legacy `density "full"` is ignored for rolling upgrades. Other densities
+fail. New requests omit the node.
 
 Sources are evaluated in request order. A `root` or `declaration` path is
 locator data that says where files live. It never becomes part of the composed

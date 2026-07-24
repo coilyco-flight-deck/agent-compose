@@ -488,14 +488,13 @@ func printSummary(r *compose.Result) {
 	}
 	req := r.Resolution.Request
 	fmt.Printf("bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Printf("  role %s · personalities %s · melded %s · delivery %s · density %s\n",
+	fmt.Printf("  role %s · personalities %s · melded %s · delivery %s\n",
 		req.Role, strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
-		req.Delivery, req.Density)
+		req.Delivery)
 	fmt.Printf("  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
-	fmt.Printf("  decisions: %d selected · %d excluded · %d shadowed · %d fallback · %d delivered\n",
+	fmt.Printf("  decisions: %d selected · %d excluded · %d shadowed · %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],
-		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeFallback],
-		counts[resolver.OutcomeDelivered])
+		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
 	fmt.Printf("  path: %s\n", r.Bundle.Dir)
 	fmt.Printf("  trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
 }
