@@ -593,14 +593,14 @@ func printSummary(w io.Writer, r *compose.Result) {
 	}
 	req := r.Resolution.Request
 	fmt.Fprintf(w, "bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Fprintf(w, "  role %s // model class %s // personalities %s // melded %s // delivery %s\n",
+	fmt.Fprintf(w, "role %s // model class %s // personalities %s // melded %s // delivery %s\n",
 		req.Role, req.ModelClass,
 		strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
 		req.Delivery)
-	fmt.Fprintf(w, "  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
-	fmt.Fprintf(w, "  decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
+	fmt.Fprintf(w, "sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
+	fmt.Fprintf(w, "decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],
 		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
-	fmt.Fprintf(w, "  path: %s\n", r.Bundle.Dir)
-	fmt.Fprintf(w, "  trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
+	fmt.Fprintf(w, "path: %s\n", r.Bundle.Dir)
+	fmt.Fprintf(w, "trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
 }

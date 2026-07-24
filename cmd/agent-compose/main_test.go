@@ -75,6 +75,11 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	if strings.Contains(got, "·") {
 		t.Fatalf("summary retained middle-dot separator:\n%s", got)
 	}
+	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {
+		if len(line) > 0 && line[0] == ' ' {
+			t.Fatalf("summary line is not flush-left: %q", line)
+		}
+	}
 }
 
 func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
