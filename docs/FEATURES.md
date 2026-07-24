@@ -16,7 +16,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   explicit placeholders. Every bundle injects compact role, seat, color, meld,
   and [inspiration](inspiration-catalogue.md) metadata.
 * AOS provider roots expose ordinary skills. `.agents/roles.kdl` owns composed
-  skill admission and intent-to-harness routes.
+  admission. `low-context: optional` prunes optional skills.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.

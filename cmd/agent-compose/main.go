@@ -488,8 +488,9 @@ func printSummary(r *compose.Result) {
 	}
 	req := r.Resolution.Request
 	fmt.Printf("bundle %s (%s)\n", r.Bundle.Key, state)
-	fmt.Printf("  role %s · personalities %s · melded %s · delivery %s\n",
-		req.Role, strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
+	fmt.Printf("  role %s · model class %s · personalities %s · melded %s · delivery %s\n",
+		req.Role, req.ModelClass,
+		strings.Join(r.Resolution.Personalities, ", "), r.Resolution.FavoriteColor,
 		req.Delivery)
 	fmt.Printf("  sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
 	fmt.Printf("  decisions: %d selected · %d excluded · %d shadowed · %d delivered\n",

@@ -13,6 +13,10 @@ import (
 const (
 	DeliveryNativeSkills = "native-skills"
 	DeliveryCompiled     = "compiled"
+	ModelClassFrontier   = "frontier"
+	ModelClassLowContext = "low-context"
+	LowContextRequired   = "required"
+	LowContextOptional   = "optional"
 	legacyDensityFull    = "full"
 
 	providerSkillsPath    = ".agents/skills"
@@ -23,9 +27,10 @@ const (
 )
 
 type Request struct {
-	Role     string
-	Delivery string
-	Sources  []SourceLocator
+	Role       string
+	Delivery   string
+	ModelClass string
+	Sources    []SourceLocator
 }
 
 type SourceLocator struct {
@@ -70,6 +75,51 @@ func (s *Source) ReadFile(name string) ([]byte, error) {
 	return fs.ReadFile(s.FileSystem(), filepath.ToSlash(name))
 }
 
+// LowContextPolicy reads the optional top-level skill frontmatter key. Skills
+// stay required by default so older providers fail open toward capability.
+func (s *Source) LowContextPolicy(ref ContentRef) (string, error) {
+	entryPoint := ref.EntryPoint
+	if entryPoint == "" {
+		entryPoint = "SKILL.md"
+	}
+	path := filepath.ToSlash(filepath.Join(ref.Path, entryPoint))
+	raw, err := s.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("read low-context policy from %s: %w", path, err)
+	}
+	lines := strings.Split(strings.ReplaceAll(string(raw), "\r\n", "\n"), "\n")
+	if len(lines) == 0 || lines[0] != "---" {
+		return LowContextRequired, nil
+	}
+	policy := LowContextRequired
+	seen := false
+	closed := false
+	for _, line := range lines[1:] {
+		if line == "---" {
+			closed = true
+			break
+		}
+		if !strings.HasPrefix(line, "low-context:") {
+			continue
+		}
+		if seen {
+			return "", fmt.Errorf("skill %q repeats low-context frontmatter", ref.ID)
+		}
+		seen = true
+		policy = strings.TrimSpace(strings.TrimPrefix(line, "low-context:"))
+		if policy != LowContextRequired && policy != LowContextOptional {
+			return "", fmt.Errorf(
+				"skill %q low-context must be %q or %q, got %q",
+				ref.ID, LowContextRequired, LowContextOptional, policy,
+			)
+		}
+	}
+	if !closed {
+		return "", fmt.Errorf("skill %q has unterminated YAML frontmatter", ref.ID)
+	}
+	return policy, nil
+}
+
 // MissingSource records an optional source whose declaration was absent, so
 // the resolver can note the exclusion in the trace.
 type MissingSource struct {
@@ -94,7 +144,7 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
-		case "role", "delivery":
+		case "role", "delivery", "model-class":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -108,6 +158,8 @@ func ParseRequest(path string) (*Request, error) {
 				req.Role = v
 			case "delivery":
 				req.Delivery = v
+			case "model-class":
+				req.ModelClass = v
 			}
 		case "density":
 			if seen[n.Name()] {
@@ -171,6 +223,13 @@ func ParseRequest(path string) (*Request, error) {
 	if req.Delivery != DeliveryNativeSkills && req.Delivery != DeliveryCompiled {
 		return nil, fmt.Errorf("request %s: delivery must be %q or %q, got %q",
 			path, DeliveryNativeSkills, DeliveryCompiled, req.Delivery)
+	}
+	if req.ModelClass == "" {
+		req.ModelClass = ModelClassFrontier
+	}
+	if req.ModelClass != ModelClassFrontier && req.ModelClass != ModelClassLowContext {
+		return nil, fmt.Errorf("request %s: model-class must be %q or %q, got %q",
+			path, ModelClassFrontier, ModelClassLowContext, req.ModelClass)
 	}
 	return req, nil
 }

@@ -11,6 +11,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 func fixture(t *testing.T, name string) string {
@@ -58,6 +60,7 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			m := readManifest(t, result.Bundle.Dir)
 			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
+				m.ModelClass != schema.ModelClassFrontier ||
 				!slices.Equal(m.Personalities, wantPersonalities) ||
 				m.Delivery.Mode != want {
 				t.Fatalf("unexpected manifest: %+v", m)
@@ -132,6 +135,44 @@ func TestComposeAllFixtures(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestComposeLowContextPrunesOnlyOptedOutSkills(t *testing.T) {
+	result, err := Run(fixture(t, "low-context.kdl"), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest := readManifest(t, result.Bundle.Dir)
+	if manifest.ModelClass != schema.ModelClassLowContext {
+		t.Fatalf("model class = %q", manifest.ModelClass)
+	}
+	ordinary := filepath.Join(
+		result.Bundle.Dir,
+		"content",
+		"skills",
+		"aos-public",
+		"fixture-review",
+	)
+	if _, err := os.Stat(ordinary); !os.IsNotExist(err) {
+		t.Fatalf("low-context optional skill entered the bundle: %v", err)
+	}
+	for _, personalityName := range manifest.Personalities {
+		mustExist(
+			t,
+			result.Bundle.Dir,
+			"content/skills/person%3Akai/personality-"+personalityName+"/SKILL.md",
+		)
+	}
+	var excluded bool
+	for _, decision := range result.Resolution.Decisions {
+		if decision.Subject == "skill:fixture-review" &&
+			decision.Outcome == resolver.OutcomeExcluded {
+			excluded = true
+		}
+	}
+	if !excluded {
+		t.Fatalf("low-context exclusion missing from trace: %+v", result.Resolution.Decisions)
 	}
 }
 

@@ -107,6 +107,10 @@ func verifyManifest(dir string, manifest *Manifest) error {
 	if manifest.Role == "" || len(manifest.Personalities) == 0 {
 		return fmt.Errorf("bundle manifest must name role and personalities")
 	}
+	if manifest.ModelClass != schema.ModelClassFrontier &&
+		manifest.ModelClass != schema.ModelClassLowContext {
+		return fmt.Errorf("bundle manifest has unknown model class %q", manifest.ModelClass)
+	}
 	seenPersonalities := map[string]bool{}
 	for _, personality := range manifest.Personalities {
 		if !safeSegment(personality) {

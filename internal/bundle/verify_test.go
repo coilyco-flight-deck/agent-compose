@@ -40,6 +40,9 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.Delivery.Mode != tc.mode {
 				t.Fatalf("delivery = %q, want %q", verified.Manifest.Delivery.Mode, tc.mode)
 			}
+			if verified.Manifest.ModelClass != schema.ModelClassFrontier {
+				t.Fatalf("model class = %q", verified.Manifest.ModelClass)
+			}
 			if len(verified.Identities) != len(verified.Manifest.Personalities)+1 {
 				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
 			}
@@ -65,6 +68,19 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 }
 
 func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
+	t.Run("unknown model class", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
+		manifest, err := bundle.ReadManifest(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest.ModelClass = "tiny"
+		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "model class") {
+			t.Fatalf("expected model-class failure, got %v", err)
+		}
+	})
+
 	t.Run("unsafe manifest path", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		manifest, err := bundle.ReadManifest(dir)

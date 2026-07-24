@@ -7,8 +7,9 @@ is intentionally opinionated: it also includes Kai's synthetic company,
 personality catalog, and composition defaults rather than presenting itself as
 a neutral enterprise framework.
 
-The intended product accepts a role, a delivery mode, and optional capability
-sources. The role activates its complete ordered personality set.
+The intended product accepts a role, a model class, a delivery mode, and
+optional capability sources. The role activates its complete ordered
+personality set.
 Agent-compose resolves every bound personality skill from its embedded person
 source, tells the agent every component and melded favorite color, injects
 compact selected-role metadata, and emits an immutable context bundle.
@@ -24,6 +25,7 @@ configuration:
   curated compatibility
 * credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
+* model-class-aware pruning controlled by each skill's own frontmatter
 * native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh

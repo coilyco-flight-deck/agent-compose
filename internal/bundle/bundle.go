@@ -24,6 +24,7 @@ type Delivery struct {
 type Manifest struct {
 	Format        string   `json:"format"`
 	Role          string   `json:"role"`
+	ModelClass    string   `json:"model_class"`
 	Personalities []string `json:"personalities"`
 	Color         string   `json:"color"`
 	Sources       []string `json:"sources"`
@@ -179,6 +180,7 @@ func write(res *resolver.Resolution, root string) error {
 	manifest, err := json.MarshalIndent(Manifest{
 		Format:        "agent-compose.bundle",
 		Role:          res.Request.Role,
+		ModelClass:    res.Request.ModelClass,
 		Personalities: res.Personalities,
 		Color:         res.FavoriteColor,
 		Sources:       res.SourceIDs,
@@ -228,8 +230,8 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 // compiler-authored instruction changes invalidate prior cached bundles.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
-	fmt.Fprintf(h, "request\x00%s\x00%s\x00",
-		res.Request.Role, res.Request.Delivery)
+	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
+		res.Request.Role, res.Request.Delivery, res.Request.ModelClass)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
 	renderedInstructions, err := joinInstructions(res)

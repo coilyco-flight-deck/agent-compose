@@ -23,8 +23,26 @@ func TestParseRequestFixture(t *testing.T) {
 	if req.Delivery != DeliveryNativeSkills {
 		t.Fatalf("unexpected delivery: %+v", req)
 	}
+	if req.ModelClass != ModelClassFrontier {
+		t.Fatalf("unexpected default model class: %+v", req)
+	}
 	if len(req.Sources) != 1 || req.Sources[0].ID != "aos-public" || !req.Sources[0].Required {
 		t.Fatalf("unexpected sources: %+v", req.Sources)
+	}
+}
+
+func TestParseRequestAcceptsLowContextModelClass(t *testing.T) {
+	path := writeRequest(t, `compose {
+    role "engineer"
+    delivery "compiled"
+    model-class "low-context"
+}`)
+	req, err := ParseRequest(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req.ModelClass != ModelClassLowContext {
+		t.Fatalf("model class = %q", req.ModelClass)
 	}
 }
 
@@ -67,6 +85,11 @@ func TestParseRequestFailsClosed(t *testing.T) {
 		"bad delivery": `compose {
     role "engineer"
     delivery "carrier-pigeon"
+}`,
+		"bad model class": `compose {
+    role "engineer"
+    delivery "native-skills"
+    model-class "tiny"
 }`,
 		"retired brief density": `compose {
     role "engineer"

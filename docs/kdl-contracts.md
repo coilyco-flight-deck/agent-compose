@@ -11,15 +11,16 @@ A request names a role, a delivery mode, and any external capability sources:
 ```kdl
 compose {
     role "engineer"
+    model-class "frontier"
     delivery "native-skills"
     source "aos-public" root="agentic-os" required=#true
 }
 ```
 
-The role activates its embedded personality set, every ordinary provider
-skill, and its composed-skill allowlist. A selector cannot narrow those sets.
-`delivery` is `native-skills` or `compiled`. Model, harness, reasoning effort,
-and interactivity never appear in a request.
+The role activates its embedded personality set, ordinary provider skills, and
+its composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
+`model-class` defaults to `frontier`. `low-context` excludes only skills whose
+top-level frontmatter explicitly says `low-context: optional`.
 
 Legacy `density "full"` is ignored. Other densities fail.
 

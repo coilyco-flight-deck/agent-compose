@@ -12,9 +12,8 @@ const (
 	SnapshotSchemaVersion = 1
 )
 
-// Snapshot is the complete public, machine-readable person boundary emitted
-// during host convergence. Authority and model-routing data deliberately stay
-// outside this contract.
+// Snapshot is the complete public person boundary emitted during convergence.
+// Authority and model-routing data stay outside this contract.
 type Snapshot struct {
 	Format           string                  `json:"format"`
 	SchemaVersion    int                     `json:"schema_version"`

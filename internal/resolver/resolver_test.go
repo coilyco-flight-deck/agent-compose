@@ -34,7 +34,9 @@ func testPerson() *person.Person {
 }
 
 func testRequest(delivery string) *schema.Request {
-	return &schema.Request{Role: "engineer", Delivery: delivery}
+	return &schema.Request{
+		Role: "engineer", Delivery: delivery, ModelClass: schema.ModelClassFrontier,
+	}
 }
 
 // makeSource lays out a synthetic source on disk: one instruction plus the
@@ -97,6 +99,68 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	}
 	if !briefingSelected {
 		t.Fatalf("expected role briefing selected, decisions: %+v", res.Decisions)
+	}
+}
+
+func TestResolveLetsSkillsOptOutOfLowContextModels(t *testing.T) {
+	src := makeSource(t, "aos", map[string]string{
+		"coding-python": `---
+name: coding-python
+description: Core Python guidance.
+low-context: required
+---
+
+# Python
+`,
+		"architecture": `---
+name: architecture
+description: High-end architecture guidance.
+low-context: optional
+---
+
+# Architecture
+`,
+	})
+	low := testRequest(schema.DeliveryNativeSkills)
+	low.ModelClass = schema.ModelClassLowContext
+	res, err := Resolve(low, testPerson(), []*schema.Source{src}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected := map[string]bool{}
+	for _, skill := range res.Skills {
+		selected[skill.ID] = true
+	}
+	if !selected["coding-python"] || selected["architecture"] {
+		t.Fatalf("low-context selection = %v", selected)
+	}
+	var excluded bool
+	for _, decision := range res.Decisions {
+		if decision.Subject == "skill:architecture" &&
+			decision.Outcome == OutcomeExcluded &&
+			strings.Contains(decision.Reason, "optional for low-context") {
+			excluded = true
+		}
+	}
+	if !excluded {
+		t.Fatalf("trace omitted low-context exclusion: %+v", res.Decisions)
+	}
+
+	frontier, err := Resolve(
+		testRequest(schema.DeliveryNativeSkills),
+		testPerson(),
+		[]*schema.Source{src},
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected = map[string]bool{}
+	for _, skill := range frontier.Skills {
+		selected[skill.ID] = true
+	}
+	if !selected["coding-python"] || !selected["architecture"] {
+		t.Fatalf("frontier selection = %v", selected)
 	}
 }
 
