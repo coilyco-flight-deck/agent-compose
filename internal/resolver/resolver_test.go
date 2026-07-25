@@ -164,6 +164,28 @@ low-context: optional
 	}
 }
 
+func TestResolveRejectsUnsupportedRoleModelClass(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	lowContext := &schema.Request{
+		Role:       "ceo",
+		Delivery:   schema.DeliveryNativeSkills,
+		ModelClass: schema.ModelClassLowContext,
+	}
+	if _, err := Resolve(lowContext, p, nil, nil); err == nil ||
+		err.Error() != `role "ceo" requires a frontier model` {
+		t.Fatalf("low-context CEO error = %v", err)
+	}
+
+	frontier := *lowContext
+	frontier.ModelClass = schema.ModelClassFrontier
+	if _, err := Resolve(&frontier, p, nil, nil); err != nil {
+		t.Fatalf("frontier CEO failed: %v", err)
+	}
+}
+
 func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 	src := makeSource(t, "aos", nil)
 	for _, name := range []string{"coding-shape-cli", "design-system"} {

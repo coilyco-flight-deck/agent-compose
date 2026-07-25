@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	SnapshotFormat        = "agent-compose.person-snapshot.v2"
-	SnapshotSchemaVersion = 2
+	SnapshotFormat        = "agent-compose.person-snapshot.v3"
+	SnapshotSchemaVersion = 3
 )
 
 // Snapshot is the complete public person boundary emitted during convergence.
-// Authority and model-routing data stay outside this contract.
+// Model selection, authority, and runtime routing stay outside this contract.
 type Snapshot struct {
 	Format           string                  `json:"format"`
 	SchemaVersion    int                     `json:"schema_version"`

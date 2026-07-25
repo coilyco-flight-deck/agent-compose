@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 func TestLoadEmbeddedRoster(t *testing.T) {
@@ -149,6 +151,7 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             Finish validation and hand back a complete result.
             """
         personality "bright" "steady"
+        model-class "frontier"
         inspiration "fixture-builder" {
             fit "The fixture is a useful builder archetype."
         }
@@ -191,6 +194,10 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 		"Finish validation and hand back a complete result."
 	if got := p.Roles["builder"].Briefing; got != wantBriefing {
 		t.Fatalf("role briefing = %q, want %q", got, wantBriefing)
+	}
+	modelClasses := p.Roles["builder"].SupportedModelClasses
+	if len(modelClasses) != 1 || modelClasses[0] != schema.ModelClassFrontier {
+		t.Fatalf("role model classes = %q", modelClasses)
 	}
 	if got := p.Personalities["bright"]; got.Motif != "sunbeam" ||
 		got.Emblem.Name != "lantern" || got.Form.Silhouette != "beacon" ||
@@ -407,6 +414,43 @@ func TestParseRejectsInvalidRoleBriefing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			if _, err := parse([]byte(tc.body)); err == nil || !strings.Contains(err.Error(), tc.want) {
 				t.Fatalf("invalid role briefing error = %v, want %q", err, tc.want)
+			}
+		})
+	}
+}
+
+func TestParseRejectsInvalidRoleModelClasses(t *testing.T) {
+	valid := inspirationFixture()
+	cases := map[string]struct {
+		body string
+		want string
+	}{
+		"empty": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-class", 1),
+			want: "model-class needs at least one argument",
+		},
+		"unsupported": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-class \"tiny\"", 1),
+			want: `unsupported model class "tiny"`,
+		},
+		"repeated": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-class \"frontier\" \"frontier\"", 1),
+			want: `repeats model class "frontier"`,
+		},
+		"duplicate node": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-class \"frontier\"\n        model-class \"low-context\"", 1),
+			want: "duplicate model-class",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(tc.body)); err == nil ||
+				!strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("model-class parse error = %v, want %q", err, tc.want)
 			}
 		})
 	}

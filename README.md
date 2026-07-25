@@ -28,6 +28,7 @@ configuration:
 * credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
 * model-class-aware pruning controlled by each skill's own frontmatter
+* fail-closed per-role model-class compatibility
 * native-skill and compiled-context delivery with source entry-point promotion
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh

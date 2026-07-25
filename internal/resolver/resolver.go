@@ -70,6 +70,17 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		return nil, fmt.Errorf("role %q is not defined by person %q; defined roles: %s",
 			req.Role, p.Name, strings.Join(sortedKeys(p.Roles), ", "))
 	}
+	if !role.SupportsModelClass(req.ModelClass) {
+		if len(role.SupportedModelClasses) == 1 &&
+			role.SupportedModelClasses[0] == schema.ModelClassFrontier {
+			return nil, fmt.Errorf("role %q requires a frontier model", req.Role)
+		}
+		return nil, fmt.Errorf(
+			"role %q does not support model class %q",
+			req.Role,
+			req.ModelClass,
+		)
+	}
 	if len(role.Personalities) == 0 {
 		return nil, fmt.Errorf("role %q defines no personalities", req.Role)
 	}

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
@@ -74,7 +75,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		t.Fatal("personality bodies must land under sources/personality")
 	}
 	personSnapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
-	if !strings.Contains(personSnapshot, `"format": "agent-compose.person-snapshot.v2"`) ||
+	if !strings.Contains(personSnapshot, fmt.Sprintf(`"format": %q`, person.SnapshotFormat)) ||
 		!strings.Contains(personSnapshot, `"briefing":`) {
 		t.Fatal("normal convergence must emit the complete versioned person snapshot")
 	}

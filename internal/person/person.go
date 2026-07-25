@@ -44,11 +44,26 @@ type InspirationRef struct {
 }
 
 type Role struct {
-	Purpose       string         `json:"purpose"`
-	Briefing      string         `json:"briefing"`
-	Personalities []string       `json:"personalities"`
-	Seats         []Seat         `json:"seats"`
-	Inspiration   InspirationRef `json:"inspiration"`
+	Purpose               string         `json:"purpose"`
+	Briefing              string         `json:"briefing"`
+	Personalities         []string       `json:"personalities"`
+	Seats                 []Seat         `json:"seats"`
+	Inspiration           InspirationRef `json:"inspiration"`
+	SupportedModelClasses []string       `json:"supported_model_classes,omitempty"`
+}
+
+// SupportsModelClass keeps an absent role restriction backward-compatible.
+// The compose request still owns the model-class fact that this policy checks.
+func (r Role) SupportsModelClass(modelClass string) bool {
+	if len(r.SupportedModelClasses) == 0 {
+		return true
+	}
+	for _, supported := range r.SupportedModelClasses {
+		if modelClass == supported {
+			return true
+		}
+	}
+	return false
 }
 
 // Emblem gives renderers equivalent plain-text, rich-text, and compact marks.
@@ -416,6 +431,38 @@ func parse(raw []byte) (*Person, error) {
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
+					}
+				case "model-class":
+					if len(role.SupportedModelClasses) != 0 {
+						return nil, fmt.Errorf("role %q: duplicate model-class", name)
+					}
+					args := c.Arguments()
+					if len(args) == 0 {
+						return nil, fmt.Errorf("role %q: model-class needs at least one argument", name)
+					}
+					seenModelClasses := map[string]bool{}
+					for _, arg := range args {
+						modelClass := arg.String()
+						if modelClass != schema.ModelClassFrontier &&
+							modelClass != schema.ModelClassLowContext {
+							return nil, fmt.Errorf(
+								"role %q: unsupported model class %q",
+								name,
+								modelClass,
+							)
+						}
+						if seenModelClasses[modelClass] {
+							return nil, fmt.Errorf(
+								"role %q repeats model class %q",
+								name,
+								modelClass,
+							)
+						}
+						seenModelClasses[modelClass] = true
+						role.SupportedModelClasses = append(
+							role.SupportedModelClasses,
+							modelClass,
+						)
 					}
 				case "agent":
 					aargs := c.Arguments()

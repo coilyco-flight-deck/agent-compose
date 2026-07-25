@@ -19,8 +19,8 @@ compose {
 
 The role activates its embedded personality set, ordinary provider skills, and
 its composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
-`model-class` defaults to `frontier`. `low-context` excludes only skills whose
-top-level frontmatter explicitly says `low-context: optional`.
+`model-class` defaults to `frontier`. `low-context` excludes only skills whose top-level
+frontmatter says `low-context: optional`. Embedded role policy may reject a class.
 
 Legacy `density "full"` is ignored. Other densities fail.
 

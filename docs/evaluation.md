@@ -65,8 +65,8 @@ and pass decisions from the current generated pack.
 A new accepted evaluation replaces that role and seat's latest file. Git
 history preserves prior baselines, while issue comments retain the review
 discussion that produced them. `MarshalResult` validates a scored record against
-its current generated pack before encoding deterministic YAML for the next
-baseline.
+its current generated pack before encoding deterministic YAML. CEO keeps its
+failed OSS cases as the evidence and re-enable gate for its frontier-only rule.
 
 Current accepted Codex coverage includes Engineer, Director, QA, Advisor,
 Ops, PM, Designer, Social, Sales, Customer Success, and CEO. Community has no

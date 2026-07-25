@@ -1,9 +1,8 @@
 # Architecture
 
 Agent-compose is the context substrate between AOS and Ward. AOS authors
-reusable doctrine, skills, and capability providers. Agent-compose selects,
-compiles, and installs that knowledge for a harness. Ward supplies runtime facts
-and executable authority without placing either inside the context bundle.
+reusable knowledge. Agent-compose selects and installs it for a harness. Ward
+supplies runtime facts and executable authority outside the context bundle.
 
 Personality is the first opinionated policy domain built on that substrate.
 Agent-compose resolves a role into its personality set, ordinary provider
@@ -16,15 +15,15 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
 
 * `role` - the caller names it, the person source validates it, and the role
   activates every personality it declares.
+* `model class` - the caller names it and embedded role compatibility may
+  reject it before bundle materialization.
 * `delivery` - native skills or compiled context.
 * `source locators` - where optional capability files live. AOS's knowledge
   inventory is inferred from its provider root.
 
-Everything else about the agent stays outside the request. Model, harness,
-reasoning effort, interactivity, permissions, and task acceptance belong to
-the launcher and the consumer. A repository is not an agent-compose concept.
-A repo is only a place capability files sometimes live, reached through a
-source locator like any other directory.
+Model identity, harness, reasoning effort, interactivity, permissions, and task
+acceptance stay with the launcher and consumer. Repositories only host
+capability files reached through source locators.
 
 ## Policy ownership
 

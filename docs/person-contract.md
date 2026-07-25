@@ -6,6 +6,7 @@ The binary embeds one ordered `person` source set for v0.1, without a provider i
 person "kai" {
     role "engineer" {
         purpose "Write code, merge code, stay focused on your goal."
+        model-class "frontier"
         briefing "..."
         personality "curious" "grounded" "meticulous"
         agent "claude" name="opal engineer" pronouns="she"
@@ -15,13 +16,10 @@ person "kai" {
 }
 ```
 
-A role names its concise purpose, required long-form briefing, the two or
-three personalities it wears together, and its named agent seats. `purpose`
-is the short label used in headings and summaries. `briefing` is the
-unconditional role charter described in [role-briefings.md](role-briefings.md),
-with at least three substantial paragraphs. The loader also rejects any other
-personality cardinality or a repeated personality. The embedded roster
-contains this approved meld matrix:
+A role names its purpose, briefing, two or three personalities, and seats. Its optional
+`model-class` list restricts composition, while omission supports both classes.
+The [role briefing](role-briefings.md) needs at least three paragraphs. The loader
+rejects invalid class names or personality sets. The embedded roster contains:
 
 * `director` - `bold`, `grounded`, `diplomatic`
 * `advisor` - `reflective`, `curious`, `candid`
@@ -35,6 +33,8 @@ contains this approved meld matrix:
 * `community` - `nurturing`, `diplomatic`, `playful`
 * `customer-success` - `nurturing`, `diplomatic`, `optimistic`
 * `ceo` - `bold`, `grounded`, `protective`
+
+CEO supports `frontier` only. Its Claude, Codex, and Hermes seats remain intact.
 
 A personality entry is a catalog binding from its canonical name to a stable
 skill id (`personality-<name>`). Every role reference needs one or the loader
