@@ -1,0 +1,8 @@
+personality "bold" skill="personality-bold" color="#e1514e" motif="hammered-iron" {
+    emblem { name "torch"; emoji "🔥"; glyph "▲" }
+    form { silhouette "spearhead"; geometry "hard-angles"; motion "striking" }
+    sound-mark { timbre "brass-stab"; contour "rising-leap"; pulse "single-accent" }
+    inspiration "arlan-hamilton" {
+        fit "Hamilton embodies boldness by entering venture capital without its customary credentials or access and building a fund from the ground up while experiencing homelessness."
+    }
+}

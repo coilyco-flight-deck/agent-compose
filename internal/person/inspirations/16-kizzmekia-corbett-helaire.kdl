@@ -1,0 +1,13 @@
+inspiration "kizzmekia-corbett-helaire" name="Kizzmekia Corbett-Helaire" profile-citation="kizzmekia-corbett-harvard" impact-mode="scientific-discovery" {
+    achievement "Her NIH team designed the vaccine concept incorporated into Moderna's mRNA-1273 COVID-19 vaccine and moved it into clinical trials only 66 days after the viral sequence was released."
+    impact-fit "Corbett-Helaire creates impact by producing foundational vaccine science and carrying that knowledge into public communication, mentorship, and community health."
+    appearance "vaccine-questions-ted" title="Your Vaccine Questions Deserve Real Answers" event="TED2026" year="2026" format="ted-talk" {
+        summary """
+            Corbett-Helaire begins from the gap between creating an effective vaccine and earning public trust in it. She treats public doubt as deserving engagement and argues for honest relationships between scientific institutions and communities.
+
+            The talk connects protective and scientific-discovery by presenting invention as unfinished until people can understand it, question it, and decide how it belongs in their lives.
+            """
+        citation "kizzmekia-corbett-ted-video"
+        citation "kizzmekia-corbett-ted"
+    }
+}

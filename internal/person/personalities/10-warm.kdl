@@ -1,0 +1,8 @@
+personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" {
+    emblem { name "hearth"; emoji "🕯️"; glyph "⌂" }
+    form { silhouette "hearth"; geometry "soft-ovals"; motion "glowing" }
+    sound-mark { timbre "felt-mallet"; contour "rising-embrace"; pulse "gentle-three" }
+    inspiration "kimberly-bryant" {
+        fit "Bryant embodies warmth by building an affirming environment where girls of color can encounter technology through belonging, encouragement, and community rather than isolation."
+    }
+}

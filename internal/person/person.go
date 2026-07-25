@@ -16,8 +16,17 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl definitions
+//go:embed person.kdl roles personalities inspirations definitions
 var embedded embed.FS
+
+var personSections = []struct {
+	directory string
+	node      string
+}{
+	{directory: "roles", node: "role"},
+	{directory: "personalities", node: "personality"},
+	{directory: "inspirations", node: "inspiration"},
+}
 
 // Seat is one named agent identity within a role. The harness joins the
 // launcher's own catalog, while the name remains opaque here.
@@ -128,11 +137,113 @@ type Person struct {
 }
 
 func Load() (*Person, error) {
-	raw, err := fs.ReadFile(embedded, "person.kdl")
+	raw, err := assemblePersonSource(embedded)
 	if err != nil {
-		return nil, fmt.Errorf("read embedded person source: %w", err)
+		return nil, err
 	}
 	return parse(raw)
+}
+
+func assemblePersonSource(source fs.FS) ([]byte, error) {
+	manifest, err := fs.ReadFile(source, "person.kdl")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded person manifest: %w", err)
+	}
+	manifest = bytes.TrimSpace(manifest)
+	doc, err := kdl.ParseString(string(manifest))
+	if err != nil {
+		return nil, fmt.Errorf("parse embedded person manifest: %w", err)
+	}
+	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "person" {
+		return nil, fmt.Errorf("embedded person manifest: expected exactly one person node")
+	}
+	root := doc.Nodes[0]
+	if len(root.Arguments()) != 1 {
+		return nil, fmt.Errorf("embedded person manifest: person node needs one name argument")
+	}
+	if len(root.Children().Nodes) != 0 {
+		return nil, fmt.Errorf("embedded person manifest: policy nodes belong in section files")
+	}
+
+	var assembled bytes.Buffer
+	assembled.Write(manifest)
+	assembled.WriteString(" {\n")
+	firstFragment := true
+	for _, section := range personSections {
+		entries, err := fs.ReadDir(source, section.directory)
+		if err != nil {
+			return nil, fmt.Errorf("read embedded person %s: %w", section.directory, err)
+		}
+		if len(entries) == 0 {
+			return nil, fmt.Errorf("embedded person %s: section is empty", section.directory)
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
+				return nil, fmt.Errorf(
+					"embedded person %s: unexpected entry %q",
+					section.directory,
+					entry.Name(),
+				)
+			}
+			path := section.directory + "/" + entry.Name()
+			fragment, err := fs.ReadFile(source, path)
+			if err != nil {
+				return nil, fmt.Errorf("read embedded person fragment %q: %w", path, err)
+			}
+			fragment = bytes.TrimSpace(fragment)
+			fragmentDoc, err := kdl.ParseString(string(fragment))
+			if err != nil {
+				return nil, fmt.Errorf("parse embedded person fragment %q: %w", path, err)
+			}
+			if len(fragmentDoc.Nodes) != 1 || fragmentDoc.Nodes[0].Name() != section.node {
+				return nil, fmt.Errorf(
+					"embedded person fragment %q: expected exactly one %s node",
+					path,
+					section.node,
+				)
+			}
+			args := fragmentDoc.Nodes[0].Arguments()
+			if len(args) != 1 {
+				return nil, fmt.Errorf(
+					"embedded person fragment %q: %s node needs one name argument",
+					path,
+					section.node,
+				)
+			}
+			if want, ok := personFragmentSlug(entry.Name()); !ok || args[0].String() != want {
+				return nil, fmt.Errorf(
+					"embedded person fragment %q: filename does not match %s %q",
+					path,
+					section.node,
+					args[0].String(),
+				)
+			}
+			if !firstFragment {
+				assembled.WriteByte('\n')
+			}
+			assembled.WriteString(indentPersonFragment(fragment))
+			assembled.WriteByte('\n')
+			firstFragment = false
+		}
+	}
+	assembled.WriteString("}\n")
+	return assembled.Bytes(), nil
+}
+
+func personFragmentSlug(name string) (string, bool) {
+	if len(name) < len("00-a.kdl") ||
+		name[0] < '0' || name[0] > '9' ||
+		name[1] < '0' || name[1] > '9' ||
+		name[2] != '-' ||
+		!strings.HasSuffix(name, ".kdl") {
+		return "", false
+	}
+	return strings.TrimSuffix(name[3:], ".kdl"), true
+}
+
+func indentPersonFragment(fragment []byte) string {
+	text := strings.ReplaceAll(string(fragment), "\r\n", "\n")
+	return "    " + strings.ReplaceAll(text, "\n", "\n    ")
 }
 
 // Source returns the canonical person:kai content provider. The role catalog,

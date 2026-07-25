@@ -1,0 +1,8 @@
+personality "imaginative" skill="personality-imaginative" color="#b682ed" motif="stained-glass" {
+    emblem { name "kaleidoscope"; emoji "🔮"; glyph "✧" }
+    form { silhouette "bloom"; geometry "radial-facets"; motion "unfolding" }
+    sound-mark { timbre "celesta"; contour "expanding-arc"; pulse "shimmering-three" }
+    inspiration "lisa-gelobter" {
+        fit "Gelobter embodies imagination because her early work on Shockwave helped envision a web that could support rich, interactive multimedia rather than remaining primarily static."
+    }
+}

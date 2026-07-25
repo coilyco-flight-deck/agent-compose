@@ -1,0 +1,8 @@
+personality "reflective" skill="personality-reflective" color="#787bd2" motif="still-water" {
+    emblem { name "mirror"; emoji "🪞"; glyph "◐" }
+    form { silhouette "pool"; geometry "concentric-rings"; motion "lingering" }
+    sound-mark { timbre "felt-piano"; contour "falling-return"; pulse "spaced-pair" }
+    inspiration "ava-duvernay" {
+        fit "DuVernay embodies reflection by using film to examine how history, law, race, and institutional power continue shaping present-day lives."
+    }
+}

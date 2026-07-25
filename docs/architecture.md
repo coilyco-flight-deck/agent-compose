@@ -28,12 +28,12 @@ source locator like any other directory.
 
 ## Policy ownership
 
-Agent-compose embeds one canonical public-safe person source. That source owns
-roles, personalities, role-personality compatibility, the personality
-invariant, every canonical personality definition, and the credited
-inspiration catalogue. External sources add knowledge but cannot redefine
-those names or bodies. A private overlay may add scoped instructions and
-selection rules.
+Agent-compose embeds one canonical public-safe person source set. Its small
+manifest and ordered per-node KDL files own roles, personalities,
+role-personality compatibility, the personality invariant, every canonical
+personality definition, and the credited inspiration catalogue. External
+sources add knowledge but cannot redefine those names or bodies. A private
+overlay may add scoped instructions and selection rules.
 
 Personality definitions live inside embedded skills. Agent-compose discovers
 ordinary `SKILL.md` trees from an AOS root. `.agents/roles.kdl` admits

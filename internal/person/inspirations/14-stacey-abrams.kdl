@@ -1,0 +1,13 @@
+inspiration "stacey-abrams" name="Stacey Abrams" profile-citation="stacey-abrams-official" impact-mode="governance-and-policy" {
+    achievement "She became the first Black woman nominated for governor by a major US political party while building multiple organizations devoted to voting rights and civic power."
+    impact-fit "Abrams creates impact by building political, legal, and organizing infrastructure designed to expand democratic participation and institutional accountability."
+    appearance "three-questions-ted" title="3 Questions to Ask Yourself About Everything You Do" event="TEDWomen" year="2018" format="ted-talk" {
+        summary """
+            Abrams reflects on pursuing an objective without achieving its immediate electoral result. She organizes the talk around what a person wants, why she wants it, and how she responds when she fails.
+
+            The presentation demonstrates diplomatic and governance-and-policy through a framework for sustained, disciplined action rather than cautious consensus.
+            """
+        citation "stacey-abrams-ted-ed"
+        citation "stacey-abrams-ted"
+    }
+}

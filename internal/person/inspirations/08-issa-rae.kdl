@@ -1,0 +1,13 @@
+inspiration "issa-rae" name="Issa Rae" profile-citation="issa-rae-biography" impact-mode="cultural-storytelling" {
+    achievement "She transformed Awkward Black Girl into the creative trajectory that produced HBO's Insecure and a broader Black-owned media company."
+    impact-fit "Rae creates impact by transforming culturally specific stories into widely resonant media while expanding opportunities for other Black creators."
+    appearance "stanford-commencement-2021" title="Commencement address" event="Stanford University Commencement" year="2021" format="commencement-address" {
+        summary """
+            Rae uses culturally specific humor to develop advice about recognizing personal value, acting with intention, finding one's people, and paying opportunity forward. She treats specificity as an asset rather than something that must be translated away for an elite audience.
+
+            The speech concentrates her social, quirky, and cultural-storytelling assignments by creating shared identity through humor and turning that language into structured guidance.
+            """
+        citation "issa-rae-stanford-address-2021"
+        citation "issa-rae-stanford-report-2021"
+    }
+}

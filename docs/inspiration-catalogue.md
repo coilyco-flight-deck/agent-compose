@@ -7,8 +7,8 @@ reading.
 
 ## What ships
 
-The canonical `internal/person/person.kdl` source contains three connected
-layers:
+The canonical `internal/person/` source set contains three connected layers.
+Each normalized entry is an ordered standalone KDL file:
 
 * Every role and personality owns one `inspiration` reference plus its own fit
   rationale.

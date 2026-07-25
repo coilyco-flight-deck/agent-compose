@@ -1,0 +1,12 @@
+inspiration "carla-harris" name="Carla Harris" profile-citation="carla-harris-official" impact-mode="strategic-influence" {
+    achievement "Over a 30-plus-year investment-banking career, she managed and executed billions of dollars in transactions, including the UPS initial public offering."
+    impact-fit "Harris creates impact by combining capital-markets expertise, executive counsel, and public leadership guidance to influence consequential institutional decisions."
+    appearance "sponsorship-tedwomen-2018" title="How to Find the Person Who Can Help You Get Ahead at Work" event="TEDWomen" year="2018" format="ted-talk" {
+        summary """
+            Harris explains that excellent performance alone does not reliably produce advancement and distinguishes mentorship from sponsorship. She turns opaque executive dynamics into a practical model for relationships with people who know the work and will advocate inside consequential meetings.
+
+            The talk illustrates charming and strategic-influence by delivering uncomfortable organizational truth with clarity, humor, memorable terminology, and a concrete course of action.
+            """
+        citation "carla-harris-tedwomen-2018"
+    }
+}

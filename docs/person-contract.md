@@ -1,6 +1,6 @@
 # Embedded person contract
 
-The binary embeds one `person` source for v0.1, without a provider interface:
+The binary embeds one ordered `person` source set for v0.1, without a provider interface:
 
 ```kdl
 person "kai" {

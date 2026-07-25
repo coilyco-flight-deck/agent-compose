@@ -1,0 +1,13 @@
+inspiration "marian-croak" name="Marian Croak" profile-citation="marian-croak-ni" impact-mode="infrastructure" {
+    achievement "Her foundational work advancing Voice over Internet Protocol helped make internet calling and modern audio and video conferencing practical."
+    impact-fit "Croak changed the world by creating foundational communications technology that became part of the dependable infrastructure beneath modern internet calling."
+    appearance "women-techmakers-2017" title="Women Techmakers Mountain View Summit keynote" event="Women Techmakers Mountain View Summit" year="2017" format="keynote" {
+        summary """
+            Croak traced her path from a child fascinated by repair workers to an engineer who built communications infrastructure. She joined autobiography with lessons about invention, product development, perseverance, and maintaining confidence while acknowledging hard realities.
+
+            The appearance complements her engineer, meticulous, and infrastructure assignments by connecting personal curiosity, disciplined engineering, and technologies that became part of ordinary life.
+            """
+        citation "marian-croak-ada-lovelace-day"
+        citation "marian-croak-duarte"
+    }
+}

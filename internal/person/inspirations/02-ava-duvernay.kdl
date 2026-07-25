@@ -1,0 +1,12 @@
+inspiration "ava-duvernay" name="Ava DuVernay" profile-citation="ava-duvernay-array" impact-mode="cultural-storytelling" {
+    achievement "She directed landmark works including Selma and the Academy Award-nominated documentary 13th while building ARRAY into an institution for narrative change."
+    impact-fit "DuVernay creates impact by using film and media institutions to reshape how large audiences understand history, race, justice, and power."
+    appearance "cornell-convocation-2018" title="Senior Convocation address" event="Cornell University Senior Convocation" year="2018" format="convocation-address" {
+        summary """
+            DuVernay asked graduates to define themselves deeply before careers, institutions, or other people did it for them. She used filmmaking language to make graduates responsible for interpreting and directing their own lives.
+
+            The address expresses her director and reflective pairings by establishing a theme, placing individual lives within historical structure, and giving the audience agency over what comes next.
+            """
+        citation "ava-duvernay-cornell-2018"
+    }
+}

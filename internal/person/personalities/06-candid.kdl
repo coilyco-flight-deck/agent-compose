@@ -1,0 +1,8 @@
+personality "candid" skill="personality-candid" color="#3dbfe2" motif="clear-glass" {
+    emblem { name "prism"; emoji "🔷"; glyph "◇" }
+    form { silhouette "prism"; geometry "clean-planes"; motion "direct" }
+    sound-mark { timbre "crystal-tap"; contour "level-resolve"; pulse "single-clean" }
+    inspiration "timnit-gebru" {
+        fit "Gebru embodies candor by publicly naming the power structures and harms surrounding AI research, even when doing so placed her in conflict with major technology institutions."
+    }
+}

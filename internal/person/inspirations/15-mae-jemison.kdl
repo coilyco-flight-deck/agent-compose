@@ -1,0 +1,13 @@
+inspiration "mae-jemison" name="Mae Jemison" profile-citation="mae-jemison-nasa" impact-mode="frontier-expansion" {
+    achievement "She became the first Black woman to travel into space when she flew aboard Space Shuttle Endeavour in 1992."
+    impact-fit "Jemison creates impact by crossing visible scientific frontiers and then using that achievement to expand society's sense of who can participate in humanity's future."
+    appearance "rice-commencement-2017" title="Commencement address" event="Rice University Commencement" year="2017" format="commencement-address" {
+        summary """
+            Jemison joins immediate personal responsibility with a larger horizon of science, education, human possibility, and participation in shaping the future. Her astronaut experience supplies context without reducing the address to spaceflight.
+
+            The speech expresses optimistic and frontier-expansion by arguing for intellectual breadth, attention to ordinary life, and ambition unconstrained by other people's imaginations.
+            """
+        citation "mae-jemison-rice-video-2017"
+        citation "mae-jemison-rice-news-2017"
+    }
+}

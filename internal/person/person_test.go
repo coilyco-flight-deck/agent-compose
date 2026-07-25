@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"strings"
 	"testing"
+	"testing/fstest"
 )
 
 func TestLoadEmbeddedRoster(t *testing.T) {
@@ -61,6 +62,53 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			len(inspiration.Appearance.Citations) == 0 {
 			t.Errorf("inspiration %q appearance is incomplete: %+v", id, inspiration.Appearance)
 		}
+	}
+}
+
+func TestAssemblePersonSourceSet(t *testing.T) {
+	source := fstest.MapFS{
+		"person.kdl": {
+			Data: []byte(`person "fixture"`),
+		},
+		"roles/01-builder.kdl": {
+			Data: []byte(`role "builder"`),
+		},
+		"personalities/01-bright.kdl": {
+			Data: []byte(`personality "bright"`),
+		},
+		"inspirations/01-fixture-builder.kdl": {
+			Data: []byte(`inspiration "fixture-builder"`),
+		},
+	}
+	raw, err := assemblePersonSource(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `person "fixture" {
+    role "builder"
+
+    personality "bright"
+
+    inspiration "fixture-builder"
+}
+`
+	if string(raw) != want {
+		t.Fatalf("assembled source:\n%s\nwant:\n%s", raw, want)
+	}
+}
+
+func TestAssemblePersonSourceRejectsMisfiledFragment(t *testing.T) {
+	source := fstest.MapFS{
+		"person.kdl": {
+			Data: []byte(`person "fixture"`),
+		},
+		"roles/01-builder.kdl": {
+			Data: []byte(`role "other"`),
+		},
+	}
+	_, err := assemblePersonSource(source)
+	if err == nil || !strings.Contains(err.Error(), "filename does not match role") {
+		t.Fatalf("misfiled fragment error = %v", err)
 	}
 }
 

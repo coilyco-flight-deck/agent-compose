@@ -1,0 +1,12 @@
+inspiration "arlan-hamilton" name="Arlan Hamilton" profile-citation="arlan-hamilton-backstage" impact-mode="capital-allocation" {
+    achievement "She built Backstage Capital from scratch and directed investment toward more than 170 companies led by underestimated founders."
+    impact-fit "Hamilton creates impact by redirecting venture capital toward founders whose potential conventional investors routinely overlook."
+    appearance "sxsw-featured-session-2019" title="Building Backstage Capital from the Ground Up" event="SXSW" year="2019" format="featured-session" {
+        summary """
+            Hamilton describes building Backstage Capital while experiencing homelessness and directing the firm toward founders overlooked by conventional venture capital. She frames distance from established institutions as an advantage for challenging assumptions insiders were reluctant to disturb.
+
+            The session supports her bold and capital-allocation assignments by turning an outsider's diagnosis of the system into a concrete investment thesis.
+            """
+        citation "arlan-hamilton-sxsw-2019"
+    }
+}

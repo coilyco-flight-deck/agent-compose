@@ -1,0 +1,13 @@
+inspiration "angie-jones" name="Angie Jones" profile-citation="angie-jones-official" impact-mode="education-and-mentorship" {
+    achievement "She became a Master Inventor with more than 25 patented software inventions while emerging as an influential test-automation educator."
+    impact-fit "Jones multiplies her impact by translating deep software-testing expertise into teaching, mentorship, and practical tools that strengthen other engineers."
+    appearance "testing-the-untestable" title="Testing the Untestable" event="Pacific Northwest Software Quality Conference" year="2019" format="keynote" {
+        summary """
+            Jones confronts the QA problem of evaluating behavior when a system resists clean, deterministic assertions. She presents technically serious material as an approachable engineering challenge rather than a narrow specialist concern.
+
+            The keynote brings QA, nurturing, and education-and-mentorship together by packaging expertise so another engineer can use it.
+            """
+        citation "angie-jones-pnsqc"
+        citation "angie-jones-official"
+    }
+}

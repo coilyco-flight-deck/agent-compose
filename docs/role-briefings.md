@@ -77,4 +77,4 @@ authority policy.
 ## See also
 
 * [role-selection.md](role-selection.md) - assignment precedence and locks.
-* [../internal/person/person.kdl](../internal/person/person.kdl) - canonical role text.
+* [../internal/person/roles](../internal/person/roles) - canonical role text.
