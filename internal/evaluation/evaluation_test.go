@@ -1,11 +1,11 @@
 package evaluation
 
 import (
-	"encoding/json"
 	"strings"
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"gopkg.in/yaml.v3"
 )
 
 func TestBuildEmitsFourCaseFrontierOSSMatrix(t *testing.T) {
@@ -104,25 +104,25 @@ func TestBuildRejectsUnknownRoleOrSeat(t *testing.T) {
 	}
 }
 
-func TestJSONAndMarkdownAreDeterministic(t *testing.T) {
+func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
 	}
-	first, err := Marshal(pack)
+	first, err := MarshalYAML(pack)
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := Marshal(pack)
+	second, err := MarshalYAML(pack)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(first) != string(second) {
-		t.Fatal("JSON evaluation pack is not deterministic")
+		t.Fatal("YAML evaluation pack is not deterministic")
 	}
 	var decoded Pack
-	if err := json.Unmarshal(first, &decoded); err != nil {
-		t.Fatalf("decode evaluation JSON: %v", err)
+	if err := yaml.Unmarshal(first, &decoded); err != nil {
+		t.Fatalf("decode evaluation YAML: %v", err)
 	}
 	markdown := string(Markdown(pack))
 	for _, want := range []string{

@@ -1,19 +1,29 @@
 package evaluation
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
 func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 	t.Parallel()
-	files, err := filepath.Glob(filepath.Join("..", "..", "evaluations", "latest", "*.json"))
+	root := filepath.Join("..", "..", "evaluations", "latest")
+	files, err := filepath.Glob(filepath.Join(root, "*.yaml"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(files) == 0 {
 		t.Fatal("evaluations/latest has no scored results")
+	}
+	legacy, err := filepath.Glob(filepath.Join(root, "*.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(legacy) != 0 {
+		t.Fatalf("evaluations/latest retains JSON results: %v", legacy)
 	}
 	for _, path := range files {
 		path := path
@@ -35,6 +45,37 @@ func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Cases[0].RawResponse = "first line\nsecond line"
+	first, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(first, second) {
+		t.Fatal("scored evaluation YAML is not deterministic")
+	}
+	if !strings.Contains(string(first), "raw_response: |-\n") {
+		t.Fatalf("multiline response did not use a YAML block scalar:\n%s", first)
+	}
+	decoded, err := DecodeResult(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ValidateResult(decoded, pack); err != nil {
+		t.Fatal(err)
 	}
 }
 

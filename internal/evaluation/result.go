@@ -2,56 +2,65 @@ package evaluation
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 const ResultFormat = "agent-compose.evaluation-result.v1"
 
 type ResultProvenance struct {
-	EvaluatedAt    string `json:"evaluated_at"`
-	SourceIssue    string `json:"source_issue"`
-	SourceRevision string `json:"source_revision"`
-	Reviewer       string `json:"reviewer"`
+	EvaluatedAt    string `yaml:"evaluated_at"`
+	SourceIssue    string `yaml:"source_issue"`
+	SourceRevision string `yaml:"source_revision"`
+	Reviewer       string `yaml:"reviewer"`
 }
 
 type CriterionScore struct {
-	Criterion string `json:"criterion"`
-	Score     int    `json:"score"`
-	Evidence  string `json:"evidence"`
+	Criterion string `yaml:"criterion"`
+	Score     int    `yaml:"score"`
+	Evidence  string `yaml:"evidence"`
 }
 
 type ScoredCase struct {
-	ID          string           `json:"id"`
-	Model       string           `json:"model"`
-	RawResponse string           `json:"raw_response"`
-	Scores      []CriterionScore `json:"scores"`
-	Total       int              `json:"total"`
-	Passed      bool             `json:"passed"`
+	ID          string           `yaml:"id"`
+	Model       string           `yaml:"model"`
+	RawResponse string           `yaml:"raw_response"`
+	Scores      []CriterionScore `yaml:"scores"`
+	Total       int              `yaml:"total"`
+	Passed      bool             `yaml:"passed"`
 }
 
 type ScoredResult struct {
-	Format     string           `json:"format"`
-	Role       string           `json:"role"`
-	Seat       string           `json:"seat"`
-	Provenance ResultProvenance `json:"provenance"`
-	Cases      []ScoredCase     `json:"cases"`
+	Format     string           `yaml:"format"`
+	Role       string           `yaml:"role"`
+	Seat       string           `yaml:"seat"`
+	Provenance ResultProvenance `yaml:"provenance"`
+	Cases      []ScoredCase     `yaml:"cases"`
 }
 
 func DecodeResult(raw []byte) (*ScoredResult, error) {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
+	decoder := yaml.NewDecoder(bytes.NewReader(raw))
+	decoder.KnownFields(true)
 	var result ScoredResult
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("decode scored evaluation: %w", err)
+		return nil, fmt.Errorf("decode scored evaluation YAML: %w", err)
 	}
-	if err := decoder.Decode(&struct{}{}); err != io.EOF {
-		return nil, fmt.Errorf("decode scored evaluation: trailing content")
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		return nil, fmt.Errorf("decode scored evaluation YAML: trailing content")
 	}
 	return &result, nil
+}
+
+func MarshalResult(result *ScoredResult, pack *Pack) ([]byte, error) {
+	if err := ValidateResult(result, pack); err != nil {
+		return nil, err
+	}
+	return marshalYAML(result)
 }
 
 func ValidateResult(result *ScoredResult, pack *Pack) error {

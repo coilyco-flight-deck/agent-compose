@@ -3,7 +3,7 @@
 package evaluation
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -11,61 +11,62 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"gopkg.in/yaml.v3"
 )
 
 const Format = "agent-compose.evaluation-pack.v1"
 
 type PersonalityContext struct {
-	Name       string `json:"name"`
-	Skill      string `json:"skill"`
-	Definition string `json:"definition"`
+	Name       string `yaml:"name"`
+	Skill      string `yaml:"skill"`
+	Definition string `yaml:"definition"`
 }
 
 type ScoreScale struct {
-	Strong  string `json:"2"`
-	Partial string `json:"1"`
-	Missing string `json:"0"`
+	Strong  string `yaml:"2"`
+	Partial string `yaml:"1"`
+	Missing string `yaml:"0"`
 }
 
 type Criterion struct {
-	ID       string     `json:"id"`
-	Question string     `json:"question"`
-	Scale    ScoreScale `json:"scale"`
-	HardFail bool       `json:"hard_fail,omitempty"`
+	ID       string     `yaml:"id"`
+	Question string     `yaml:"question"`
+	Scale    ScoreScale `yaml:"scale"`
+	HardFail bool       `yaml:"hard_fail,omitempty"`
 }
 
 type Case struct {
-	ID               string      `json:"id"`
-	ModelTier        string      `json:"model_tier"`
-	BundleModelClass string      `json:"bundle_model_class"`
-	Dimension        string      `json:"dimension"`
-	Prompt           string      `json:"prompt"`
-	ReviewerQuestion string      `json:"reviewer_question"`
-	Rubric           []Criterion `json:"rubric"`
+	ID               string      `yaml:"id"`
+	ModelTier        string      `yaml:"model_tier"`
+	BundleModelClass string      `yaml:"bundle_model_class"`
+	Dimension        string      `yaml:"dimension"`
+	Prompt           string      `yaml:"prompt"`
+	ReviewerQuestion string      `yaml:"reviewer_question"`
+	Rubric           []Criterion `yaml:"rubric"`
 }
 
 type ReviewRule struct {
-	ScoreRange               string         `json:"score_range"`
-	PassingTotal             int            `json:"passing_total"`
-	RejectZeroScores         bool           `json:"reject_zero_scores"`
-	RoleMinimumScores        map[string]int `json:"role_minimum_scores"`
-	PersonalityMinimumScores map[string]int `json:"personality_minimum_scores"`
-	HardFailRule             string         `json:"hard_fail_rule"`
-	RequiredEvidence         string         `json:"required_evidence"`
+	ScoreRange               string         `yaml:"score_range"`
+	PassingTotal             int            `yaml:"passing_total"`
+	RejectZeroScores         bool           `yaml:"reject_zero_scores"`
+	RoleMinimumScores        map[string]int `yaml:"role_minimum_scores"`
+	PersonalityMinimumScores map[string]int `yaml:"personality_minimum_scores"`
+	HardFailRule             string         `yaml:"hard_fail_rule"`
+	RequiredEvidence         string         `yaml:"required_evidence"`
 }
 
 type Pack struct {
-	Format              string               `json:"format"`
-	Role                string               `json:"role"`
-	Seat                person.Seat          `json:"seat"`
-	Purpose             string               `json:"purpose"`
-	Briefing            string               `json:"briefing"`
-	Personalities       []PersonalityContext `json:"personalities"`
-	MeldedFavoriteColor string               `json:"melded_favorite_color"`
-	Invariant           string               `json:"invariant"`
-	RunProtocol         []string             `json:"run_protocol"`
-	ReviewRule          ReviewRule           `json:"review_rule"`
-	Cases               []Case               `json:"cases"`
+	Format              string               `yaml:"format"`
+	Role                string               `yaml:"role"`
+	Seat                person.Seat          `yaml:"seat"`
+	Purpose             string               `yaml:"purpose"`
+	Briefing            string               `yaml:"briefing"`
+	Personalities       []PersonalityContext `yaml:"personalities"`
+	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
+	Invariant           string               `yaml:"invariant"`
+	RunProtocol         []string             `yaml:"run_protocol"`
+	ReviewRule          ReviewRule           `yaml:"review_rule"`
+	Cases               []Case               `yaml:"cases"`
 }
 
 func Build(roleName, harness string) (*Pack, error) {
@@ -159,12 +160,18 @@ func Build(roleName, harness string) (*Pack, error) {
 	}, nil
 }
 
-func Marshal(pack *Pack) ([]byte, error) {
-	raw, err := json.MarshalIndent(pack, "", "  ")
-	if err != nil {
+func MarshalYAML(pack *Pack) ([]byte, error) {
+	return marshalYAML(pack)
+}
+
+func marshalYAML(value any) ([]byte, error) {
+	var output bytes.Buffer
+	encoder := yaml.NewEncoder(&output)
+	encoder.SetIndent(2)
+	if err := encoder.Encode(value); err != nil {
 		return nil, err
 	}
-	return append(raw, '\n'), nil
+	return output.Bytes(), nil
 }
 
 func markdownBody(raw string) string {

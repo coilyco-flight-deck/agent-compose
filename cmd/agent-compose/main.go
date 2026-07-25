@@ -149,7 +149,7 @@ func main() {
 					&cli.StringFlag{
 						Name:  "format",
 						Value: "markdown",
-						Usage: "output format: markdown or json",
+						Usage: "output format: markdown or yaml",
 					},
 				},
 				Action: runEvaluation,
@@ -263,20 +263,23 @@ func runEvaluation(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	var raw []byte
-	switch cmd.String("format") {
-	case "markdown":
-		raw = evaluation.Markdown(pack)
-	case "json":
-		raw, err = evaluation.Marshal(pack)
-	default:
-		return fmt.Errorf("evaluation --format must be markdown or json, got %q", cmd.String("format"))
-	}
+	raw, err := evaluationOutput(pack, cmd.String("format"))
 	if err != nil {
 		return err
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
+	switch format {
+	case "markdown":
+		return evaluation.Markdown(pack), nil
+	case "yaml":
+		return evaluation.MarshalYAML(pack)
+	default:
+		return nil, fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
+	}
 }
 
 func runNativeMCP(_ context.Context, cmd *cli.Command) error {

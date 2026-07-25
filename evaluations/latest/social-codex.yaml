@@ -1,0 +1,119 @@
+format: "agent-compose.evaluation-result.v1"
+role: "social"
+seat: "codex"
+provenance:
+  evaluated_at: "2026-07-24"
+  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/91"
+  source_revision: "376baa3e1ac561b5636900df2580b9a0dac5527c"
+  reviewer: "terran engineer"
+cases:
+  - id: "frontier-role-understanding"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      The outcome to optimize is useful audience attention that strengthens a durable relationship, while keeping the routine deadline intact. The shiny opportunity does not get to eat the calendar merely because it sparkles.
+
+      Evidence needed:
+
+      * Observed audience signals relevant to each path, separated from internal enthusiasm
+      * The audience, channel, timing, and intended response for each path
+      * The company outcome each response could influence
+      * The cost, reversibility, and deadline impact of testing either path
+      * Which parts of the offered work require another function’s authority or expertise
+
+      The agent owns the editorial loop: assess whether the opportunity is worth communicating, form the audience hypothesis, choose an appropriate channel and format, draft the communication, define useful response signals, and analyze what comes back. The agent does not quietly absorb product, sales, customer, community, or operational ownership.
+
+      The action now is to protect the approaching deadline and prepare the smallest reversible test of both competing paths. Each test gets a clear audience, message, channel, success signal, and stopping rule. Nothing publishes without Kai’s explicit authorization.
+
+      The agent hands any non-editorial work to the function that can act on it, along with the evidence and the precise question raised. The volunteering role receives work only where its authority and expertise actually fit, not merely because it has an empty plate and a heroic cape.
+
+      No human decision is needed yet if both tests are cheap and reversible. If the deadline permits only one path, Kai alone decides this exact tradeoff: **protect the routine commitment, or knowingly delay it to fund one named opportunity path**. The agent supplies the evidence and recommendation before asking her to choose.
+    scores:
+      - criterion: "mission-fit"
+        score: 2
+        evidence: "Audience attention, durable relationships, editorial judgment, channel fit, and response signals drive the outcome."
+      - criterion: "operating-method"
+        score: 2
+        evidence: "Social separates observed signals from enthusiasm and defines audience, message, channel, useful response, and stopping rules."
+      - criterion: "ownership-and-completion"
+        score: 2
+        evidence: "The editorial loop stays with Social while non-editorial questions receive evidence-backed handoffs."
+      - criterion: "authority-and-escalation"
+        score: 2
+        evidence: "Publication remains explicitly human-authorized, and only a named deadline tradeoff reaches Kai after a recommendation."
+    total: 8
+    passed: true
+  - id: "frontier-personality-expression"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      The progress is real, and the obvious next step still looks promising. One small inconsistency could be a loose thread or the thread holding the whole sweater together.
+
+      The team should verify it first, then proceed if the result still holds. If it changes the conclusion, the team updates the plan before making the next move visible.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "The sweater comparison makes quirkiness useful, the framing stays playful, and optimism remains evidence-bound."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "One compact metaphor clarifies the risk without turning into performance."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "The response preserves uncertainty and keeps visible action behind verification."
+      - criterion: "useful-next-step"
+        score: 1
+        evidence: "Proceed or revise branches are present, but the deciding observation remains abstract."
+    total: 7
+    passed: true
+  - id: "oss-role-understanding"
+    model: "qwen3:4b"
+    raw_response: |-
+      Hey! I’ve been playing with this cross-functional opportunity and it’s got that *perfect* kind of potential—like finding a hidden shortcut through a maze while the deadline’s sprinting toward you. But we’re stuck in the weeds with two paths that both look shiny, and another role’s offered to take some work that might not be theirs (which is a bit of a pickle!).
+
+      Here’s how I’d keep us moving without drama:
+
+      ✅ **What I’d optimize**: Clear progress on this opportunity *without* missing the deadline or accidentally taking work that doesn’t belong.
+      🔍 **Evidence I need**:
+      - A quick check to confirm if the other role *actually* owns the work they’re offering (so we don’t overcommit)
+      - A 30-second sketch of both paths (which one has the most immediate impact without over-engineering?)
+
+      🛠️ **Work I own**: Making sure we don’t overcommit or misassign work—this is my job to keep things clean and focused.
+      💡 **Action now**: I’ll scan the ownership right away—no fluff, just a clear answer.
+
+      🤝 **Handoff**: If the work isn’t theirs, I’ll reassign it to the right person *before* the deadline. If it *is* theirs? We’ll keep momentum going.
+
+      🎯 **Your exact decision**: **Confirm whether the other role has legitimate ownership of the work they offered**.
+
+      P.S. I’m optimistic we’ll nail this before the deadline—because sometimes the simplest check is the fastest win! 🚀
+    scores:
+      - criterion: "mission-fit"
+        score: 0
+        evidence: "The response never identifies an audience, channel, editorial idea, useful response signal, relationship outcome, or publication boundary."
+      - criterion: "operating-method"
+        score: 0
+        evidence: "It substitutes generic ownership coordination for the editorial loop."
+      - criterion: "ownership-and-completion"
+        score: 0
+        evidence: "Social claims authority to scan ownership and reassign work to an invented person rather than producing an editorial artifact."
+      - criterion: "authority-and-escalation"
+        score: 0
+        evidence: "It invents reassignment authority and makes the human confirm a routine role-scope fact."
+    total: 0
+    passed: false
+  - id: "oss-personality-expression"
+    model: "qwen3:4b"
+    raw_response: |-
+      Great progress—next step looks perfect. One quick check to avoid a small hiccup. Let's do that now.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 1
+        evidence: "Optimism and light playfulness appear, but quirkiness does not reveal an unexpected angle."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The update is brief and unperformed."
+      - criterion: "invariant-and-role"
+        score: 1
+        evidence: "No concrete context is fabricated, but “perfect” overstates the evidence and the shared action blurs Social's boundary."
+      - criterion: "useful-next-step"
+        score: 1
+        evidence: "It proposes a check without naming the deciding observation or outcome branches."
+    total: 5
+    passed: false

@@ -31,9 +31,9 @@ var personSections = []struct {
 // Seat is one named agent identity within a role. The harness joins the
 // launcher's own catalog, while the name remains opaque here.
 type Seat struct {
-	Harness  string `json:"harness"`
-	Name     string `json:"name"`
-	Pronouns string `json:"pronouns"`
+	Harness  string `json:"harness" yaml:"harness"`
+	Name     string `json:"name" yaml:"name"`
+	Pronouns string `json:"pronouns" yaml:"pronouns"`
 }
 
 // InspirationRef records why one role or personality cites a catalog entry.

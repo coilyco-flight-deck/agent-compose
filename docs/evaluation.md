@@ -5,10 +5,10 @@ pack for a canonical role and harness seat:
 
 ```text
 agent-compose evaluation --role engineer --seat codex
-agent-compose evaluation --role ops --seat codex --format json
+agent-compose evaluation --role ops --seat codex --format yaml
 ```
 
-Markdown is the default for direct review. JSON uses the versioned
+Markdown is the default for direct review. YAML uses the versioned
 `agent-compose.evaluation-pack.v1` format for an external runner or result
 collector. Agent-compose emits context and prompts only. It never invokes a
 model, chooses credentials, or acquires execution authority.
@@ -56,7 +56,7 @@ ordering, and score contract are deterministic.
 
 ## Scored results
 
-[`evaluations/latest/`](../evaluations/latest/) keeps one versioned JSON record
+[`evaluations/latest/`](../evaluations/latest/) keeps one versioned YAML record
 per evaluated role and seat. Each record preserves model identity, raw
 responses, criterion scores and evidence, totals, verdicts, and issue
 provenance. Repository validation derives the expected cases, criteria, totals,
@@ -64,7 +64,9 @@ and pass decisions from the current generated pack.
 
 A new accepted evaluation replaces that role and seat's latest file. Git
 history preserves prior baselines, while issue comments retain the review
-discussion that produced them.
+discussion that produced them. `MarshalResult` validates a scored record against
+its current generated pack before encoding deterministic YAML for the next
+baseline.
 
 Current accepted Codex coverage includes Engineer, Director, QA, Advisor,
 Ops, PM, Designer, Social, Sales, and Customer Success. Community has no

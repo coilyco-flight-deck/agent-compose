@@ -7,10 +7,29 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
+
+func TestEvaluationOutputUsesYAML(t *testing.T) {
+	t.Parallel()
+	pack, err := evaluation.Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := evaluationOutput(pack, "yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(string(raw), "format: agent-compose.evaluation-pack.v1\n") {
+		t.Fatalf("evaluation output is not YAML:\n%s", raw)
+	}
+	if _, err := evaluationOutput(pack, "json"); err == nil {
+		t.Fatal("legacy JSON evaluation output remains accepted")
+	}
+}
 
 func TestDispatchArgs(t *testing.T) {
 	cases := map[string]struct{ in, want []string }{
