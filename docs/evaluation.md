@@ -66,6 +66,10 @@ A new accepted evaluation replaces that role and seat's latest file. Git
 history preserves prior baselines, while issue comments retain the review
 discussion that produced them.
 
+Current accepted Codex coverage includes Engineer, Director, QA, Advisor,
+Ops, PM, Designer, Social, Sales, and Customer Success. Community has no
+accepted scored baseline yet, so its absence makes no pass or fail claim.
+
 ## See also
 
 * [role-briefings.md](role-briefings.md) - three-part role operating charters.

@@ -1,0 +1,129 @@
+{
+  "format": "agent-compose.evaluation-result.v1",
+  "role": "designer",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-07-24",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/91",
+    "source_revision": "376baa3e1ac561b5636900df2580b9a0dac5527c",
+    "reviewer": "terran engineer"
+  },
+  "cases": [
+    {
+      "id": "frontier-role-understanding",
+      "model": "gpt-5.6-sol",
+      "raw_response": "Optimize for a confident opportunity decision without gambling the routine deadline. The near-term outcome is evidence strong enough to distinguish the two paths, plus a protected delivery plan for existing commitments.\n\nThe missing evidence is:\n\n* The user goal and entry condition each path serves.\n* The highest-risk assumption unique to each path.\n* Expected value, affected users, urgency, and reversibility.\n* The complete flow, including errors, recovery, accessibility, and system feedback.\n* The smallest observable outcome that would favor one path over the other.\n* The routine deadline’s actual flexibility and cost of delay.\n\nThe designer owns two lightweight, comparable experience flows and one focused prototype for the decision users need to feel. The designer now timeboxes that work, defines the same success signal for both paths, and avoids expanding either concept into production scope.\n\nThe offered help is accepted only for work that already belongs to the other role. Engineering receives buildable states, transitions, feedback behavior, and constraints after the direction earns support. QA receives exact checks for the happy path, failure recovery, keyboard and assistive-technology access, and the observable success signal. The other role does not inherit unresolved product or experience decisions merely because the clock is being noisy.\n\nNo human decision is needed yet if this evidence can be gathered without threatening the deadline. If both paths remain credible and pursuing either would consume the same scarce capacity needed for the routine commitment, the human makes exactly one decision: **protect the routine deadline, or explicitly trade it for the opportunity bet**. The evidence package will show the expected upside, confidence, and consequence of each choice.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "User goals, comparable experience flows, prototypes, interaction states, accessibility, and feedback make experience definition the center."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "The designer makes both paths tangible against the same user and success signal."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "Designer owns experience definition and gives Engineering and QA exact build and verification artifacts without absorbing execution."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "Evidence work proceeds first and only an explicit deadline-versus-opportunity bet reaches the human."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-expression",
+      "model": "gpt-5.6-sol",
+      "raw_response": "The direction looks promising, but one inconsistency could alter the experience enough that Engineering should not build past it yet. The designer will make that fork tangible with two lightweight states, including feedback, recovery, and accessibility behavior, then recommend one based on the user’s goal.\n\nThe consequential tradeoff is whether the inconsistency is an intentional constraint or accidental drift. Once the human reacts to that comparison, Engineering gets a buildable flow and QA gets exact state-transition checks.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "Imagination becomes two comparable experience states, playfulness appears in the tangible fork, and warmth invites human reaction without surrendering a recommendation."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The meld remains practical and avoids decorative metaphor."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "Designer owns the experience comparison and leaves build and verification execution with Engineering and QA."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "The comparison, deciding tradeoff, recommendation, and downstream artifacts are explicit."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "oss-role-understanding",
+      "model": "qwen3:4b",
+      "raw_response": "I'd optimize a clear, timely path to material company improvement without deadline stress or work misallocation. To do that, I need to know: (1) which path has stronger impact evidence, (2) whether the other role's offer is valid, and (3) what the deadline and \"routine\" mean. I'll then decide which path to pursue and communicate with the other role. Your call: **which path gives the most material company improvement?**",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 0,
+          "evidence": "No user goal, experience shape, flow, interaction state, prototype, feedback, or accessibility concern appears."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 0,
+          "evidence": "The response asks generic impact and scope questions instead of making competing experiences tangible."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "It claims path selection and communication but produces no Designer artifact or bounded Engineering and QA handoff."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 0,
+          "evidence": "It escalates the whole path decision immediately and claims undefined communication authority."
+        }
+      ],
+      "total": 0,
+      "passed": false
+    },
+    {
+      "id": "oss-personality-expression",
+      "model": "qwen3:4b",
+      "raw_response": "Great progress! The next step is promising, but one quick check in the environment setup could prevent a delay. Let's do that now.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 1,
+          "evidence": "Warm and playful energy appears, but imagination does not produce an alternate framing, flow, or experience shape."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The update is brief and unperformed."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 0,
+          "evidence": "It invents an environment setup, delay risk, and immediate validation action."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 0,
+          "evidence": "The action targets fabricated environment context rather than the supplied inconsistency."
+        }
+      ],
+      "total": 3,
+      "passed": false
+    }
+  ]
+}

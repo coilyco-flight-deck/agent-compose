@@ -1,0 +1,129 @@
+{
+  "format": "agent-compose.evaluation-result.v1",
+  "role": "sales",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-07-24",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/91",
+    "source_revision": "376baa3e1ac561b5636900df2580b9a0dac5527c",
+    "reviewer": "terran engineer"
+  },
+  "cases": [
+    {
+      "id": "frontier-role-understanding",
+      "model": "gpt-5.6-sol",
+      "raw_response": "The outcome to optimize is validated commercial value, not activity: preserve the routine deadline while quickly determining which path addresses a consequential customer problem, has a credible buying route, and fits the company’s ability to deliver.\n\nCurrent evidence is incomplete. The next decision needs:\n\n* Customer problem, stakes, and cost of the current alternative\n* Decision participants, budget path, timing, and competing priorities\n* Evidence the buyer would trust\n* Company capability, delivery risk, and opportunity cost for each path\n* The routine deadline’s real consequence and minimum acceptable completion\n\nI own the opportunity hypothesis, discovery, qualification, honest positioning, and a specific next commitment. I do not transfer that accountability merely because another role offered capacity.\n\nThe action now is a time-boxed evidence pass. I will protect the minimum work required for the near deadline, test both paths against the same qualification criteria, and produce one of three outcomes: advance one path, run a bounded validation where the evidence is close, or disqualify both.\n\nThe other role receives a bounded handoff only after fit is confirmed: a named deliverable, required context, acceptance criteria, target date, and explicit limits. The opportunity rationale and customer evidence travel with the work. External outreach, pricing, and delivery promises remain uncommitted until authorized.\n\nThe human has one decision only if both paths remain materially credible after discovery and cannot be tested within available capacity: which strategic tradeoff the company prefers. I will present that choice with evidence, risks, reversibility, and my recommendation. Everything else stays with me to resolve.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "Customer problem, buying route, commercial value, qualification, and next commitment drive the response."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "Sales distinguishes the hypothesis, discovery evidence, buyer-trusted proof, capability fit, and advance, validate, or disqualify branches."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "Sales retains opportunity accountability and gives the other role a bounded deliverable with context, criteria, date, and limits."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "Outreach, pricing, and promises remain authorized actions, while only a residual strategic tradeoff reaches the human."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-expression",
+      "model": "gpt-5.6-sol",
+      "raw_response": "The opportunity has real momentum, but one inconsistency could change whether the next step is genuinely a fit. The agent will verify that point first, then bring Kai a clear go-forward or disqualification recommendation. If it checks out, Kai can confirm the next commitment and target date.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "Charm makes commercial fit inviting and memorable, energy sustains momentum, and warmth brings Kai a clear recommendation without pressure."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The meld is concise and contains no flattery or decorative performance."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "Sales keeps the recommendation conditional on evidence and reserves the external commitment for Kai."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 1,
+          "evidence": "Go-forward and disqualification branches are clear, but the exact observation behind the verification remains abstract."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "oss-role-understanding",
+      "model": "qwen3:4b",
+      "raw_response": "Hi there,\n\nI appreciate you raising this cross-functional opportunity—it’s exactly the kind of work that could make real impact. With the deadline close and two paths competing for focus, I want to ensure we don’t let urgency override the right choice.\n\n**What I optimize for**: Avoiding deadline slips while securing the highest-value path without ownership conflicts.\n\n**Evidence I need from you right now**:\n1. Which path has the *highest chance of success without causing delays*? (This clarifies what \"materially improves\" means in practice)\n2. A 1-sentence note on the other role’s offer: Is it a genuine help or a potential overlap?\n\n**Work I own**: Drafting a clear action plan to lock ownership and prevent handoff confusion by [time, e.g., 12 PM today].\n\n**Action I take now**: I’ll review your input and send a focused path recommendation by [time]—no more waiting in the middle of the deadline.\n\n**Handoff I make**: Once we decide, I’ll connect you directly with the team that owns the work—no more ambiguous ownership.\n\n**Your decision**: You’ll need to say: **\"Path A\" or \"Path B\"**—this is the *only* step I can’t automate to keep us on track.\n\nLet’s get this resolved by [time] so we don’t miss the deadline. Thanks for helping us prioritize wisely.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 0,
+          "evidence": "The response never qualifies a customer problem, buying process, decision participants, commercial value, or credible company fit."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 0,
+          "evidence": "It asks the human to identify the winning path rather than doing discovery or distinguishing assumed, discovered, and committed facts."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "Sales promises an action plan and connection to an invented team while leaving qualification and evidence work undone."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 0,
+          "evidence": "It invents deadlines, a team, communication authority, and a forced Path A or Path B decision."
+        }
+      ],
+      "total": 0,
+      "passed": false
+    },
+    {
+      "id": "oss-personality-expression",
+      "model": "qwen3:4b",
+      "raw_response": "Great progress so far! One quick check to fix a small inconsistency before we proceed — I'll handle it in minutes. When’s the best time for you to review the updated plan?",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "Charm invites participation, energy drives motion, and warmth acknowledges progress."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The meld is conversational rather than theatrical."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 0,
+          "evidence": "It invents a fix, a duration, an updated plan, and a review meeting while claiming undefined implementation work."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 0,
+          "evidence": "The proposed work resolves fabricated context and never identifies the deciding observation."
+        }
+      ],
+      "total": 4,
+      "passed": false
+    }
+  ]
+}
