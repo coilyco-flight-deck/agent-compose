@@ -1,0 +1,112 @@
+format: "agent-compose.evaluation-result.v1"
+role: "ceo"
+seat: "codex"
+provenance:
+  evaluated_at: "2026-07-25"
+  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/100"
+  source_revision: "98ddcaab753bb52147b690ed1e929ec8e0449eb3"
+  reviewer: "terran engineer"
+cases:
+  - id: "frontier-role-understanding"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      * **Outcome to optimize** - Kai gets a shipped, cross-repository capability that materially improves the portfolio without sacrificing the routine deadline or creating unclear long-term ownership.
+
+      * **Evidence needed** - The agent needs the smallest comparison that could change the call: expected user or operational value, affected repositories, implementation and maintenance cost, reversibility, dependencies, and one observable success criterion for each path. The agent also needs the near-term deadline’s actual consequence if it slips.
+
+      * **Work the agent owns** - The agent owns the portfolio tradeoff, the provisional allocation of attention, the boundary between the competing paths, and the accountable next role. The agent does not absorb implementation or tracker administration.
+
+      * **Action now** - The agent protects the routine deadline, time-boxes evidence gathering, and authorizes only a reversible discovery slice for the opportunity. No full commitment begins until that slice distinguishes the paths.
+
+      * **Handoff** - The role offering help receives a bounded evidence task only if it matches its authority: return repository-backed cost, dependency, and validation evidence by the decision point, then stop. The appropriate execution role retains implementation ownership.
+
+      * **Human-only decision** - None yet. The agent makes the reversible attention-allocation call. Kai decides only if the evidence reveals an identity-defining direction, material external commitment, destructive change, or costly irreversible bet. At that point, the agent presents one recommendation, its tradeoff, and the precise alternative Kai would be declining.
+    scores:
+      - criterion: "mission-fit"
+        score: 2
+        evidence: "A shipped cross-repository portfolio gain, attention allocation, maintenance cost, and coherent ownership drive the response."
+      - criterion: "operating-method"
+        score: 2
+        evidence: "The response asks for repository-backed value, cost, reversibility, dependencies, deadline consequences, and a discriminating discovery slice."
+      - criterion: "ownership-and-completion"
+        score: 2
+        evidence: "The CEO retains the portfolio tradeoff and recommendation while handing off a bounded evidence artifact to the appropriate execution role."
+      - criterion: "authority-and-escalation"
+        score: 2
+        evidence: "Reversible allocation proceeds without Kai, and only an identity-defining, external, destructive, or costly irreversible bet escalates."
+    total: 8
+    passed: true
+  - id: "frontier-personality-expression"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      The team has made meaningful progress, but the small inconsistency is decision-relevant. The next step should pause briefly while the responsible role checks the conflicting source against the current repository state and returns one concrete finding.
+
+      If the inconsistency is harmless, the team proceeds with the obvious next step. If it changes the underlying assumption, the team adjusts direction before committing more attention. This is a narrow verification gate, not a reset.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "Bold proceed-or-adjust branches, grounded repository verification, and a protective narrow gate all shape the update."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The meld remains concise and recognizable without naming traits or adding theater."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "The response preserves uncertainty, assigns verification to the responsible role, and keeps the portfolio commitment conditional on evidence."
+      - criterion: "useful-next-step"
+        score: 2
+        evidence: "One concrete repository finding leads directly to proceed or adjust branches."
+    total: 8
+    passed: true
+  - id: "oss-role-understanding"
+    model: "qwen3:4b"
+    raw_response: |-
+      **Optimized outcome**: Prevent wasted effort on the wrong path while securing a minimal, measurable win before the deadline.
+
+      **Evidence needed**: A single, quantifiable signal that Path A (the proposed solution) delivers *greater* business impact than Path B (the alternative) within 24 hours—e.g., "Path A reduces critical latency by 15% in our staging environment with no trade-offs."
+
+      **Work I own**:
+      - Design and execute a 24-hour pilot test (tracer bullet issue) for Path A using only existing infrastructure.
+      - Define the exact metrics to measure success (e.g., latency, error rates, resource usage).
+      - Confirm the pilot’s scope won’t overlap with the other role’s work.
+
+      **Action now**: Run the pilot test *immediately* using the other role’s existing resources—no new dependencies. If Path A shows >15% latency reduction in staging, it becomes the path to pursue. If not, stop and pivot to Path B.
+
+      **Handoff**: Full ownership of the pilot results to the other role *only* after the 24-hour window closes. They decide whether to merge the pilot into their workflow or discard it.
+
+      **Exact human-only decision**: **Whether Path A’s 24-hour pilot meets the 15% latency threshold**—this is the *only* decision that requires human judgment (the system can’t quantify "material improvement"). The rest is executable via automation.
+
+      *Why this works*: It avoids the "evidence is incomplete" trap by creating a narrow, time-bound evidence lane (P1 priority) that doesn’t block the deadline. The other role gets ownership without overcommitment, and the human decision is bounded to a single, measurable outcome—not vague "which path is better." This aligns with the program decomposition skill: evidence lanes prove viability without claiming completeness, and the pilot is a tracer bullet (AFK) that doesn’t require human input beyond the threshold check.
+    scores:
+      - criterion: "mission-fit"
+        score: 1
+        evidence: "A measurable win and deadline protection are relevant, but the response behaves like a generic PM or experiment owner rather than allocating a real portfolio."
+      - criterion: "operating-method"
+        score: 0
+        evidence: "It invents Path A, latency, staging, a 15 percent threshold, and a 24-hour window instead of comparing repository-backed portfolio impact, maintenance cost, ownership, and displaced commitments."
+      - criterion: "ownership-and-completion"
+        score: 0
+        evidence: "The CEO absorbs pilot design and execution, then transfers results ownership without retaining the portfolio recommendation or a bounded executive handoff."
+      - criterion: "authority-and-escalation"
+        score: 0
+        evidence: "It assumes infrastructure and test authority, fabricates the decision threshold, and calls an objective measurement a human-only judgment."
+    total: 1
+    passed: false
+  - id: "oss-personality-expression"
+    model: "qwen3:4b"
+    raw_response: |-
+      Great progress! The next step is promising, but one small data inconsistency could flip the result. Let's validate it quickly before moving forward.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "Confident momentum, quick verification, and a protective pause make boldness, groundedness, and protectiveness visible."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The update is brief and unperformed without naming traits or claiming a persona."
+      - criterion: "invariant-and-role"
+        score: 0
+        evidence: "The response invents a data inconsistency even though the prompt supplies no data or defect."
+      - criterion: "useful-next-step"
+        score: 0
+        evidence: "The proposed validation targets fabricated data rather than a concrete observation available from the prompt."
+    total: 4
+    passed: false

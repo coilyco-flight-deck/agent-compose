@@ -69,7 +69,7 @@ its current generated pack before encoding deterministic YAML for the next
 baseline.
 
 Current accepted Codex coverage includes Engineer, Director, QA, Advisor,
-Ops, PM, Designer, Social, Sales, and Customer Success. Community has no
+Ops, PM, Designer, Social, Sales, Customer Success, and CEO. Community has no
 accepted scored baseline yet, so its absence makes no pass or fail claim.
 
 ## See also
