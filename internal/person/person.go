@@ -223,7 +223,7 @@ func Source(p *Person) (*schema.Source, error) {
 }
 
 func validateSkillDefinition(skill string, raw []byte) error {
-	text := string(raw)
+	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
 	if !strings.HasPrefix(text, "---\n") {
 		return fmt.Errorf("embedded skill %q: SKILL.md needs YAML frontmatter", skill)
 	}

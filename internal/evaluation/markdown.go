@@ -27,8 +27,14 @@ func Markdown(pack *Pack) []byte {
 	for i, step := range pack.RunProtocol {
 		fmt.Fprintf(&out, "%d. %s\n", i+1, step)
 	}
-	fmt.Fprintf(&out, "\nPass each case at %d/8 or higher. %s\n\n",
+	fmt.Fprintf(&out, "\nPass each case at %d/8 or higher. %s\n",
 		pack.ReviewRule.PassingTotal, pack.ReviewRule.HardFailRule)
+	fmt.Fprintf(&out, "Role minimums: mission-fit %d/2, authority-and-escalation %d/2. ",
+		pack.ReviewRule.RoleMinimumScores["mission-fit"],
+		pack.ReviewRule.RoleMinimumScores["authority-and-escalation"])
+	fmt.Fprintf(&out, "Personality minimums: behavioral-expression %d/2, invariant-and-role %d/2.\n\n",
+		pack.ReviewRule.PersonalityMinimumScores["behavioral-expression"],
+		pack.ReviewRule.PersonalityMinimumScores["invariant-and-role"])
 
 	out.WriteString("## Four-case matrix\n\n")
 	for _, evalCase := range pack.Cases {

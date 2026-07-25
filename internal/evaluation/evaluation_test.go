@@ -61,6 +61,40 @@ func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	}
 }
 
+func TestBuildReviewMinimumsReferenceCaseCriteria(t *testing.T) {
+	pack, err := Build("ops", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pack.ReviewRule.PassingTotal <= 0 || pack.ReviewRule.PassingTotal > 8 {
+		t.Fatalf("passing total is outside the rubric range: %+v", pack.ReviewRule)
+	}
+	if !pack.ReviewRule.RejectZeroScores {
+		t.Fatal("strict review must reject a missing criterion")
+	}
+	for _, evalCase := range pack.Cases {
+		minimums := pack.ReviewRule.RoleMinimumScores
+		if evalCase.Dimension == "personality-expression" {
+			minimums = pack.ReviewRule.PersonalityMinimumScores
+		}
+		if len(minimums) == 0 {
+			t.Fatalf("case %q has no dimension minimums", evalCase.ID)
+		}
+		criteria := make(map[string]bool, len(evalCase.Rubric))
+		for _, criterion := range evalCase.Rubric {
+			criteria[criterion.ID] = true
+		}
+		for criterion, minimum := range minimums {
+			if !criteria[criterion] {
+				t.Errorf("case %q minimum names unknown criterion %q", evalCase.ID, criterion)
+			}
+			if minimum < 0 || minimum > 2 {
+				t.Errorf("case %q minimum for %q is outside score range: %d", evalCase.ID, criterion, minimum)
+			}
+		}
+	}
+}
+
 func TestBuildRejectsUnknownRoleOrSeat(t *testing.T) {
 	if _, err := Build("missing", "codex"); err == nil || !strings.Contains(err.Error(), "is not defined") {
 		t.Fatalf("unknown role error = %v", err)

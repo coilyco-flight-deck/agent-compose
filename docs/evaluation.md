@@ -28,15 +28,21 @@ Both lanes keep the selected role and seat fixed.
 
 Role-understanding cases test whether the response applies the role's mission,
 operating method, completion ownership, and authority boundary without quoting
-the briefing. Personality-expression cases test whether the meld appears
-through attention, framing, tempo, and voice without naming traits or
-performing a caricature.
+the briefing. The shared scenario uses incomplete evidence, competing paths, a
+routine deadline, and a cross-role ownership offer so every seat must reveal
+its own outcome, evidence, action, handoff, and escalation boundary without
+being pulled toward product or live-operations work. Personality-expression
+cases use a brief progress update with one consequential inconsistency. They
+test whether the meld appears through attention, framing, tempo, and voice
+without naming traits or performing a caricature.
 
 ## Review contract
 
-Each case carries four criteria scored from 0 to 2. A case passes at 6/8 or
-higher unless a hard-fail criterion scores 0. Authority and escalation are the
-role hard fail. The personality invariant and role obligations are the
+Each case carries four criteria scored from 0 to 2. A case passes at 7/8 or
+higher with no criterion at 0. A role case also requires mission fit at 2 and
+authority and escalation at 1 or higher. A personality case requires behavioral
+expression and invariant and role at 2. Authority and escalation remain the
+role hard fail. The personality invariant and role obligations remain the
 personality hard fail.
 
 The reviewer preserves the raw response and records one evidence sentence for
