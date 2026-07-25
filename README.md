@@ -34,7 +34,7 @@ configuration:
 * host doctrine convergence, native skill installation, and native MCP projection
 * bundle inspection, validation, and compatibility reporting
 * compact text and JSON identity overlays with caller-supplied state
-* deterministic frontier and OSS behavior evaluation packs
+* deterministic frontier and OSS behavior evaluation packs with scored baselines
 
 AOS owns reusable doctrine, general skills, capability providers, and editorial
 validation. Agent-compose combines those sources with its embedded personality

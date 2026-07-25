@@ -42,7 +42,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
   delivery, trace integrity, and selected identities.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Strict behavior evaluation](evaluation.md) - frontier/OSS matrix.
+* [Behavior evaluation](evaluation.md) - validated frontier/OSS baselines.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 

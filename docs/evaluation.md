@@ -54,6 +54,18 @@ The command deliberately does not auto-score model prose. Role and personality
 quality are human judgments, while the matrix, context, prompts, rubric,
 ordering, and score contract are deterministic.
 
+## Scored results
+
+[`evaluations/latest/`](../evaluations/latest/) keeps one versioned JSON record
+per evaluated role and seat. Each record preserves model identity, raw
+responses, criterion scores and evidence, totals, verdicts, and issue
+provenance. Repository validation derives the expected cases, criteria, totals,
+and pass decisions from the current generated pack.
+
+A new accepted evaluation replaces that role and seat's latest file. Git
+history preserves prior baselines, while issue comments retain the review
+discussion that produced them.
+
 ## See also
 
 * [role-briefings.md](role-briefings.md) - three-part role operating charters.

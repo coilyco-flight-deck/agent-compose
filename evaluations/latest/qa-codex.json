@@ -1,0 +1,129 @@
+{
+  "format": "agent-compose.evaluation-result.v1",
+  "role": "qa",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-07-24",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/80",
+    "source_revision": "agent-compose#80",
+    "reviewer": "terran engineer"
+  },
+  "cases": [
+    {
+      "id": "frontier-role-understanding",
+      "model": "gpt-5.6-sol",
+      "raw_response": "Optimize for a decision that preserves the near-term deadline while cheaply testing which opportunity path deserves investment. Do not commit the company to either path on incomplete evidence.\n\nEvidence needed:\n\n* The measurable outcome each path is expected to improve\n* The smallest experiment that distinguishes them\n* Baseline data, success thresholds, cost, reversibility, and deadline impact\n* Ownership boundaries and dependencies for the offered work\n\nI own converting those claims into observable acceptance checks, testing failure and boundary cases, and issuing a pass, fail, or unverified verdict with reproducible evidence. I do not transfer verification merely because another role has spare capacity.\n\nNow, the team protects the routine deliverable’s critical path and runs the lowest-cost discriminating probe in parallel, provided it cannot endanger that deadline. The other role receives only the bounded work that fits its authority, with explicit inputs, outputs, and a stop condition. The experiment does not get to wear a fake mustache and sneak into production.\n\nThe only human decision is required if both experiments are similarly informative but compete for the same irreversible budget or deadline capacity: choose which company outcome takes priority. Otherwise, the evidence decides, and the team proceeds without escalating a reversible choice.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "Independent verification and an evidence-backed verdict drive the response."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It translates claims into acceptance checks, failure and boundary cases, baselines, thresholds, and a discriminating probe."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "QA retains verification and gives the other role only bounded work with explicit stop conditions."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "Reversible evidence decides, while only an irreversible budget or priority tradeoff reaches the human."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-expression",
+      "model": "gpt-5.6-sol",
+      "raw_response": "Progress is real, but the result is not ready for a pass. One inconsistency conflicts with the expected behavior and could invalidate the main success claim.\n\nThe engineer should reproduce that case in a focused test, confirm which behavior the requirement intends, then rerun the affected checks. If the test passes consistently, proceed. If it fails, treat it as a product defect rather than letting the otherwise-green suite wave it through.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response surfaces the consequential contradiction early, specifies a careful check, and adds restrained lightness."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The direct verdict and next move feel natural rather than performed."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "QA withholds a pass, distinguishes the defect branch, and gives implementation back to the engineer."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It names the focused reproduction, requirement check, rerun, and both result branches."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "oss-role-understanding",
+      "model": "qwen3:4b",
+      "raw_response": "The outcome I would optimize: a risk-free implementation of the opportunity. The evidence needed: (1) the specific acceptance criteria for the improvement, (2) proof that the other role has authority to take the work, (3) the current scope boundaries of this role. Immediate action: request these items via team channel. Handoff: upon receipt, I will analyze and recommend a path. The exact decision you must make: determine whether the work belongs to this role or the other role.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 0,
+          "evidence": "It optimizes implementation rather than independent verification and a defensible verdict."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "Acceptance criteria are relevant, but the response names no observable checks, risky paths, reproducible evidence, or verdict."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "It waits for others, claims only later analysis, and does not own QA follow-through."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 0,
+          "evidence": "It invents a team-channel request and escalates a routine ownership decision to the human."
+        }
+      ],
+      "total": 1,
+      "passed": false
+    },
+    {
+      "id": "oss-personality-expression",
+      "model": "qwen3:4b",
+      "raw_response": "Quick check: a tiny edge case might flip the result. Let's add a minimal validation now – it catches the flip without slowing progress.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response combines attention to a small consequential edge with a low-cost, lightly playful check."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "The update is brief and unperformed."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It preserves uncertainty and proposes validation without claiming a result."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 1,
+          "evidence": "Minimal validation is directionally concrete, but the deciding input or observation remains unspecified."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    }
+  ]
+}
