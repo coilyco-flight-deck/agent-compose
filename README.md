@@ -3,9 +3,9 @@
 Agent-compose is the context substrate between AOS knowledge and Ward or native
 agent harnesses. It selects, compiles, and installs the context an agent starts
 with while keeping executable authority outside the bundle. The public product
-is intentionally opinionated: it also includes Kai's synthetic company,
-personality catalog, and composition defaults rather than presenting itself as
-a neutral enterprise framework.
+is intentionally opinionated: it also includes Kai's public-safe operating
+roster, personality catalog, and composition defaults rather than presenting
+itself as a neutral enterprise framework.
 
 The intended product accepts a role, a model class, a delivery mode, and
 optional capability sources. The role activates its complete ordered
@@ -20,7 +20,7 @@ Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
 * role-driven personality meld resolution
-* the eleven-role company roster, concise purposes, and long-form role briefings
+* the twelve-role operating roster, concise purposes, and long-form role briefings
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
 * complete selected-role terminal metadata, including identity primitives,
@@ -46,7 +46,7 @@ Infrastructure installs the resulting system across hosts.
 
 ## Personal by design
 
-The initial person configuration is Kai's eleven-role synthetic company and
+The initial person configuration is Kai's twelve-role operating roster and
 sixteen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in
