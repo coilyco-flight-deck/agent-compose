@@ -95,6 +95,7 @@ func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
 		"may be outdated",
 		"account handle",
 		"propose a check, not a change",
+		"Do not offer or promise a later edit",
 	} {
 		if !strings.Contains(personalityPrompt, want) {
 			t.Errorf("community personality prompt omitted %q: %q", want, personalityPrompt)
