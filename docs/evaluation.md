@@ -28,13 +28,14 @@ Both lanes keep the selected role and seat fixed.
 
 Role-understanding cases test whether the response applies the role's mission,
 operating method, completion ownership, and authority boundary without quoting
-the briefing. The shared scenario uses incomplete evidence, competing paths, a
-routine deadline, and a cross-role ownership offer so every seat must reveal
-its own outcome, evidence, action, handoff, and escalation boundary without
-being pulled toward product or live-operations work. Personality-expression
-cases use a brief progress update with one consequential inconsistency. They
-test whether the meld appears through attention, framing, tempo, and voice
-without naming traits or performing a caricature.
+the briefing. Most roles use a shared scenario with incomplete evidence,
+competing paths, a routine deadline, and a cross-role ownership offer.
+
+Community instead uses Discord-native scenarios. Its role case separates approved orientation from a member guess and requests a public reply plus a text-only private plan.
+Its personality case recognizes a contribution while handling a possibly stale link. Together they expose usefulness, evidence discipline, and the no-action boundary.
+
+Personality-expression cases test whether the meld appears through attention,
+framing, tempo, and voice without naming traits or performing a caricature.
 
 ## Review contract
 
@@ -68,9 +69,8 @@ discussion that produced them. `MarshalResult` validates a scored record against
 its current generated pack before encoding deterministic YAML. CEO keeps its
 failed OSS cases as the evidence and re-enable gate for its frontier-only rule.
 
-Current accepted Codex coverage includes Engineer, Director, QA, Advisor,
-Ops, PM, Designer, Social, Sales, Customer Success, and CEO. Community has no
-accepted scored baseline yet, so its absence makes no pass or fail claim.
+Current accepted Codex coverage includes Engineer, Director, QA, Advisor, Ops,
+PM, Designer, Social, Sales, Customer Success, and CEO. Community has no accepted scored baseline yet, so its absence makes no pass or fail claim.
 
 ## See also
 

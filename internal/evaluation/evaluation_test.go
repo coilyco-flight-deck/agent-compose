@@ -61,6 +61,47 @@ func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	}
 }
 
+func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
+	pack, err := Build("community", "discord")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pack.Seat.Name != "siren community host" {
+		t.Fatalf("community seat = %+v", pack.Seat)
+	}
+	for _, evalCase := range pack.Cases {
+		if !strings.Contains(evalCase.Prompt, "public") {
+			t.Errorf("community case %q is not member-facing: %q", evalCase.ID, evalCase.Prompt)
+		}
+		if !strings.Contains(evalCase.Prompt, "Do not") {
+			t.Errorf("community case %q omits its evidence boundary: %q", evalCase.ID, evalCase.Prompt)
+		}
+	}
+	rolePrompt := pack.Cases[0].Prompt
+	for _, want := range []string{
+		"#welcome",
+		"private plan",
+		"text-only planning surface",
+		"member's guess as confirmation",
+		"no event schedule, resolving source, or staff contact",
+	} {
+		if !strings.Contains(rolePrompt, want) {
+			t.Errorf("community role prompt omitted %q: %q", want, rolePrompt)
+		}
+	}
+	personalityPrompt := pack.Cases[1].Prompt
+	for _, want := range []string{
+		"welcoming newcomers",
+		"may be outdated",
+		"account handle",
+		"propose a check, not a change",
+	} {
+		if !strings.Contains(personalityPrompt, want) {
+			t.Errorf("community personality prompt omitted %q: %q", want, personalityPrompt)
+		}
+	}
+}
+
 func TestBuildReviewMinimumsReferenceCaseCriteria(t *testing.T) {
 	pack, err := Build("ops", "codex")
 	if err != nil {
