@@ -283,7 +283,7 @@ type manifestPayload struct {
 	Harnesses    map[string][]string `json:"harnesses"`
 }
 
-// RenderManifest emits the deterministic mount-eligibility JSON ward reads:
+// RenderManifest emits deterministic mount-eligibility JSON for consumers:
 // per harness, its source-backed repos unioned with the default mount set.
 func RenderManifest(slices map[string][]string, projects string) (string, error) {
 	defaults := make([]string, 0, len(defaultMountSet))

@@ -44,7 +44,7 @@ not edit it or treat it as a second policy source.
 
 The artifact describes public identity, orientation, and compatibility only.
 It contains no model choice, reasoning effort, permission, credential,
-endpoint, routing decision, or runtime authority. Ward and deployment-specific
+endpoint, routing decision, or runtime authority. Launch consumers and deployment-specific
 systems keep those fields.
 
 ## See also

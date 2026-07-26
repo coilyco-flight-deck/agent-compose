@@ -60,7 +60,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md) for
   roles, seats, compatibility, identities, inspirations, and appearances.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
-  per-harness files, symlinks, filtering, overrides, Ward's mount manifest,
+  per-harness files, symlinks, filtering, overrides, a mount manifest,
   and dry-run/check behavior compatible with the Python outputs.
 * Bare `acompose` converges hosts. `-- <command>` refreshes then execs.
   `ward exec smoke` proves isolated idempotence and `ward exec test` runs full validation.

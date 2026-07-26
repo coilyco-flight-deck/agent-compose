@@ -1,16 +1,14 @@
 # Integration and delivery tiers
 
-Agent-compose is the shared context substrate for AOS sources, Ward, and native
-harnesses. AOS authors reusable knowledge. Agent-compose materializes the
-selected context surface. Ward supplies authority and consumes that surface
-without parsing AOS policy.
+Agent-compose is the shared context substrate for knowledge sources, native
+harnesses, and isolated launch consumers. It materializes the selected context
+surface while launchers keep authority outside that surface.
 
 The v1 Python composer was absorbed into
 [`agent-compose cascade`](cascade.md), which composes doctrine sources into
 `~/.agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
 global load point at the result, applies scope and harness filtering with
-per-harness section overrides, and emits the mount-eligibility manifest ward
-reads.
+per-harness section overrides, and emits a generic mount-eligibility manifest.
 
 ## The seam rule
 
@@ -45,13 +43,14 @@ share a seat by design. Containers disambiguate when that is wrong.
 
 ## Container tier: v2 owns the home
 
-`verify` checks a read-only bundle, then `project --scope home` transactionally fills the
-claude, codex, goose, or opencode global load points. Black-box fixtures prove
-that each native home contains ordinary and role-composed skills plus every
-active personality, compiled homes contain all selected prose, and neither
-path changes the input bundle. Projected instructions fix the caller-selected
-role under the [same contract](role-selection.md). Ward still needs to mount and
-invoke this contract at container start under issue #17.
+`verify` checks a read-only bundle, then `project --scope home`
+transactionally fills the claude, codex, goose, or opencode global load
+points. Black-box fixtures prove that each native home contains ordinary and
+role-composed skills plus every active personality, compiled homes contain all
+selected prose, and neither path changes the input bundle. Projected
+instructions fix the caller-selected role under the
+[same contract](role-selection.md). A composition adapter can use an empty
+private target under the [staged-home contract](staged-home.md).
 
 ## Migration state
 
@@ -63,6 +62,7 @@ Hosts must reconcile hand-edited snapshots into sources before cutover.
 ## See also
 
 * [projection.md](projection.md) - the load-point layer both tiers drive.
+* [staged-home.md](staged-home.md) - isolated adapter handoff.
 * [launch.md](launch.md) - refresh-then-exec and the recursion guard.
 * [person-contract.md](person-contract.md) - roles, seats, and colors.
 * [role-briefings.md](role-briefings.md) - role charter delivery.

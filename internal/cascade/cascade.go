@@ -1,6 +1,6 @@
 // Package cascade is the absorbed v1 composer: it composes AGENTS.COMPOSE.md
 // doctrine sources into COMPOSED files, wires harness load-point symlinks,
-// and emits the mount-eligibility manifest ward reads.
+// and emits the mount-eligibility manifest convergence consumers read.
 package cascade
 
 import (

@@ -12,8 +12,8 @@ issues consume this reviewed contract rather than the earlier proposal.
   capability files happen to live, reached through a source locator like any
   other directory. Privacy scopes, target repositories, repo declarations, and
   per-repo capability resolution are removed from the contract.
-* Agent, model, harness, reasoning effort, and interactivity are the realm of
-  AOS and Ward and never enter a compose request. The original review retained
+* Agent, model, harness, reasoning effort, and interactivity belong to the
+  caller and launcher and never enter a compose request. The original review retained
   a model-opaque density input, but
   [issue #59](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/59)
   removed it after the consumer audit found no production caller. Legacy
@@ -39,25 +39,23 @@ issues consume this reviewed contract rather than the earlier proposal.
 * Byte-identical duplicate content deduplicates; non-identical collisions for
   one delivery slot still fail in v0.1 instead of adding an override grammar.
 * Agent identity entered the person contract as named seats - `agent` nodes
-  with `name` and `pronouns` nested under each role, adapting the shape ward's
-  roles.kdl comments sketched. Names are opaque strings to the engine; ward
-  keeps guardfiles, models, and reasoning effort, joined by the shared role
-  slug.
+  with `name` and `pronouns` nested under each role. Names are opaque strings
+  to the engine. Launchers keep permissions, models, and reasoning effort,
+  joined only by the shared role slug.
 
-## Ward integration record
+## Consumer integration record
 
-Ward may build the compose request and mount the resulting bundle read-only,
-treating the tree as opaque. Authority claims, guardfiles, credentials,
-permissions, mutable harness state, and task acceptance stay entirely on
-Ward's side. Ward can run without agent-compose, and agent-compose can run
-without Ward.
+A consumer may build the compose request and adapt the resulting bundle or
+home projection while treating the source tree as immutable. Authority claims,
+credentials, permissions, mutable harness state, and task acceptance stay
+entirely with that consumer. Either product can run independently.
 
-## AOS integration record
+## Knowledge-provider integration record
 
-AOS publishes reusable ordinary skills and instructions under stable source
-ids and relative paths. It does not publish Kai's person source, personality
-definitions, harness load points, Ward policy, or installation paths.
-Agent-compose resolves AOS declarations locally without fetching.
+Knowledge providers publish reusable ordinary skills and instructions under
+stable source ids and relative paths. They do not publish Kai's person source,
+personality definitions, harness load points, launch policy, or installation
+paths. Agent-compose resolves local declarations without fetching.
 
 ## Compatibility fixtures
 

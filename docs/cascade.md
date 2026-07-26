@@ -13,8 +13,8 @@ All state lives under `~/.agent-compose`: the config, COMPOSED outputs, the
 mount-eligibility manifest, `sources/` (including the roster artifact), and
 the bundle cache at `bundles/`. A legacy `~/.config/agent-compose` directory
 migrates wholesale on first use, leaving a compatibility symlink behind so
-ward's manifest read and fleet config references keep resolving until the
-fleet cutover tracked in agentic-os#618.
+legacy manifest consumers and fleet config references keep resolving until
+the fleet cutover tracked in agentic-os#618.
 
 Explicit `sources` compose first in listed order, then each `roots` entry is
 walked for `AGENTS.COMPOSE.md` files, appended sorted. That filename is the
@@ -43,7 +43,7 @@ removed on convergence.
 Each configured load point (claude and codex by default, others via
 `load_points`, `null` to opt out) is symlinked at its harness's composed
 file, backing up any pre-existing regular file to `.bak`. The
-mount-eligibility manifest ward reads is emitted beside the composed output:
+mount-eligibility manifest is emitted beside the composed output:
 per harness, the repos backing its selected sources unioned with the default
 mount set, as deterministic JSON.
 

@@ -26,7 +26,7 @@ not receive it.
 
 Bare `acompose` runs the projector after doctrine and native-skill convergence.
 `agent-compose mcp --inventory <path>` exposes the same implementation to host
-configuration and warded startup.
+configuration and isolated startup.
 
 The projector:
 

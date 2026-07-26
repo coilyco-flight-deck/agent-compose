@@ -1,8 +1,8 @@
 # agent-compose
 
-Agent-compose is the context substrate between AOS knowledge and Ward or native
-agent harnesses. It selects, compiles, and installs the context an agent starts
-with while keeping executable authority outside the bundle. The public product
+Agent-compose is the context substrate between knowledge providers and native
+or isolated agent harnesses. It selects, compiles, and installs the context an
+agent starts with while keeping executable authority outside the bundle. The public product
 is intentionally opinionated: it also includes Kai's public-safe operating
 roster, personality catalog, and composition defaults rather than presenting
 itself as a neutral enterprise framework.
@@ -37,13 +37,13 @@ configuration:
 * compact text and JSON identity overlays with caller-supplied state
 * deterministic Markdown and YAML behavior evaluation packs with YAML scored baselines
 
-AOS owns reusable doctrine, general skills, capability providers, and editorial
-validation. Agent-compose combines those sources with its embedded personality
-provider to build the concrete context surface for each harness. Private
-overlays remain outside this public repo. Ward owns
-executable authority, supplies runtime facts, and mounts opaque bundles.
-Personality and organizational framing never alter Ward permissions.
-Infrastructure installs the resulting system across hosts.
+Knowledge providers own reusable doctrine, general skills, capability sources,
+and editorial validation. Agent-compose combines those sources with its
+embedded personality provider to build the concrete context surface for each
+harness. Private overlays remain outside this public repo. Launch consumers own
+executable authority, runtime facts, mounts, and lifecycle. Personality and
+organizational framing never alter consumer permissions. Infrastructure
+installs the resulting system across hosts.
 
 ## Personal by design
 
@@ -76,8 +76,9 @@ versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
 
-Ward consumes verified bundles through a fixed read-only mount and projects
-them into the private container HOME before harness launch.
+Composition adapters can project a verified bundle into an empty staged home,
+remove agent-compose's projection state, and wrap the remaining selected load
+points in their own schema. See [staged-home.md](docs/staged-home.md).
 
 ## Install
 
@@ -129,6 +130,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [AGENTS.md](AGENTS.md) - repo-specific operating rules.
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
+* [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.

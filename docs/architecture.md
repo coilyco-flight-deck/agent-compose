@@ -1,13 +1,14 @@
 # Architecture
 
-Agent-compose is the context substrate between AOS and Ward. AOS authors
-reusable knowledge. Agent-compose selects and installs it for a harness. Ward
-supplies runtime facts and executable authority outside the context bundle.
+Agent-compose sits between knowledge providers and context consumers. Providers
+author reusable knowledge. Agent-compose selects and installs it for a harness.
+Consumers supply runtime facts and executable authority outside the bundle.
 
 Personality is the first opinionated policy domain built on that substrate.
 Agent-compose resolves a role into its personality set, ordinary provider
 skills, and explicitly composed role skills, then materializes the combined
-context as an immutable bundle. Native harnesses can use it without Ward.
+context as an immutable bundle. Native harnesses can use it without an
+isolated launch consumer.
 
 ## Composition inputs
 
@@ -55,16 +56,15 @@ what it picked and why as each decision occurs.
 
 ## Integration obligations
 
-AOS publishes reusable doctrine, ordinary skills, capability providers,
-instructions, and composed-skill bindings under stable relative paths. AOS
-carries no copy of Kai's person source, personality definitions, or Ward
-authority.
+Knowledge providers publish reusable doctrine, ordinary skills, capability
+sources, instructions, and composed-skill bindings under stable relative
+paths. They carry no copy of Kai's person source or personality definitions.
 
-Ward may build the compose request and mount the finished bundle read-only,
-treating the tree as opaque. Authority and credentials never enter the
-request. Agent-compose is Ward's context substrate, not its permission engine.
-Ward can run without composed context, and agent-compose can serve native
-harnesses without Ward.
+A consumer may build the compose request and adapt a verified home projection,
+treating the source bundle as immutable. Authority and credentials never enter
+the request. Agent-compose is a context producer, not a permission engine.
+Consumers can run without composed context, and agent-compose can serve native
+harnesses without a composition adapter.
 
 ## See also
 
@@ -74,5 +74,6 @@ harnesses without Ward.
 * [manifest-schema.md](manifest-schema.md) - stable manifest fields.
 * [decision-trace.md](decision-trace.md) - retained decision evidence.
 * [projection.md](projection.md) - the harness-aware load-point layer.
+* [staged-home.md](staged-home.md) - launcher-neutral adapter boundary.
 * [integration.md](integration.md) - the v1 cascade seam and delivery tiers.
 * [contract-review.md](contract-review.md) - review decisions of record.

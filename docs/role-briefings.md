@@ -67,7 +67,7 @@ its briefing. The appearance catalogue remains snapshot-only.
 ## Ownership boundaries
 
 Agent-compose owns these public-safe role charters. AOS owns reusable ordinary
-and role-composed task doctrine. Ward owns execution permissions, guardfiles,
+and role-composed task doctrine. Launch consumers own execution permissions,
 models, reasoning effort, and runtime authority.
 
 Briefings therefore state stable role behavior and refer to the repository's

@@ -58,7 +58,8 @@ clamps it into the legible band - the perceptual middle, never gray.
 ## Agent seats
 
 An `agent` node is a named seat. The harness is its join key, while `name` and `pronouns` are the identity it wears.
-Ward keeps guardfiles, models, and reasoning effort on its side. Nothing here grants authority.
+Launch consumers keep permissions, models, and reasoning effort on their side.
+Nothing here grants authority.
 
 All twelve roles keep Claude she/her and Codex he/him seats. Fifteen AOSH-selected
 public seats use grep-friendly names and they/them pronouns. Discord adds one she/her community host, for 40 canonical seats total.
@@ -77,4 +78,3 @@ definitions.
 * [person-snapshot.md](person-snapshot.md) - complete machine-readable export.
 * [role-briefings.md](role-briefings.md) - role charter and delivery contract.
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.
-* [architecture.md](architecture.md) - policy ownership.

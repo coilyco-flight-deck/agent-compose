@@ -2,9 +2,9 @@
 
 ## Scope
 
-Agent-compose is the context substrate between AOS knowledge and Ward or native
-harness consumers. It selects, compiles, and materializes agent context for
-hosts and warded containers. It is public source and embeds Kai's public-safe
+Agent-compose is the context substrate between knowledge providers and native
+or isolated harness consumers. It selects, compiles, and materializes agent
+context for hosts and staged homes. It is public source and embeds Kai's public-safe
 company roster, personalities, and composition defaults. Keep private identity
 detail, machines, credentials, and deployment values out of the repo.
 
@@ -28,8 +28,8 @@ package layout land together so the code never precedes its public boundary.
   providers, and editorial validators.
 * Private overlays stay outside this public repo and may extend the embedded
   person source without replacing its canonical public-safe content.
-* `ward` owns execution permissions, role authority, runtime-fact resolution,
-  and the generic read-only bundle mount. Shared role slugs do not transfer
+* Launch consumers own execution permissions, role authority, runtime-fact
+  resolution, and their handoff schemas. Shared role slugs do not transfer
   permission ownership into agent-compose.
 * `infrastructure` owns installation, binary shadowing rollout, host paths, and
   fleet convergence.
@@ -68,12 +68,12 @@ bundle.
 ## Cross-repo contracts
 
 The input contract names the requested role, delivery, and sources
-without importing Ward policy. The role activates its complete ordered
+without importing launcher policy. The role activates its complete ordered
 personality set. The output contract is a manifest plus a filesystem tree that
 consumers treat as opaque. Agent-compose combines its embedded person policy
-with AOS capability providers and scoped overlays. Ward and native harness wrappers
-consume the output contract. Changes to either contract need compatibility
-tests against both consumers before release.
+with capability providers and scoped overlays. Native harness wrappers and
+staged-home adapters consume the output contract. Changes to either contract
+need compatibility tests against both paths before release.
 
 ## Release
 

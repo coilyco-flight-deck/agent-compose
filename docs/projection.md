@@ -70,9 +70,11 @@ files, and leaves the immutable input bundle untouched. A write or cleanup
 failure restores the prior files, modes, and sidecar, so consumers retain the
 last known-good projection.
 
+An adapter can project into an empty private home, remove `.agent-compose/`
+after the transaction, then validate and wrap the selected load points. See
+[staged-home.md](staged-home.md). Agent-compose does not emit that handoff
+manifest or receive its authority.
+
 ## See also
 
-* [launch.md](launch.md) - the refresh-then-exec path that drives projection.
 * [bundle-protocol.md](bundle-protocol.md) - the tree projection consumes.
-* [manifest-schema.md](manifest-schema.md) - the entry points it reads.
-* [architecture.md](architecture.md) - why composition stays harness-blind.

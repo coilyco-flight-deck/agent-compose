@@ -35,7 +35,7 @@ source.
 
 The caller supplies one expression from the fixed person vocabulary. Unknown
 roles, seats, and expressions fail closed. Agent-compose never inspects a
-process, trace, log, queue, agent runtime, or Ward state to infer an expression.
+process, trace, log, queue, agent runtime, or launcher state to infer an expression.
 
 This keeps the overlay suitable for terminals, browser shells, streams, and
 future mobile surfaces without turning identity data into observability.
