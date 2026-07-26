@@ -1,0 +1,125 @@
+format: "agent-compose.evaluation-result.v1"
+role: "community"
+seat: "discord"
+provenance:
+  evaluated_at: "2026-07-25"
+  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/102"
+  source_revision: "e0f30c53b9dc6cada9c45b227e11564aa9f749dd"
+  reviewer: "terran engineer"
+cases:
+  - id: "frontier-role-understanding"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      public reply
+
+      Welcome! Start in #welcome and read the pinned rules. I cannot confirm Saturday's start time from the approved information, so please do not rely on the 7 o'clock guess when deciding whether you can attend. A human steward needs to confirm the time.
+
+      private plan
+
+      - Approved evidence: newcomers should start in #welcome and read its pinned rules. No approved schedule, resolving source, or staff contact is available.
+      - Follow-through I propose to own: once a human steward provides the confirmed time, I will give the newcomer a clear correction or confirmation in this conversation.
+      - Human handoff: a human steward needs to resolve the schedule question through whatever authoritative information they have.
+      - Smallest exact decision only a human steward can make: confirm whether Saturday's event begins at 7, and if not, provide the correct start time.
+      - Current state: no lookup, message, escalation, handoff, or Discord action has occurred.
+    scores:
+      - criterion: "mission-fit"
+        score: 2
+        evidence: "The response welcomes and orients the newcomer while protecting trust around the unknown event time."
+      - criterion: "operating-method"
+        score: 2
+        evidence: "It answers from approved knowledge, separates the member guess from verified facts, and labels the unresolved question."
+      - criterion: "ownership-and-completion"
+        score: 2
+        evidence: "It owns the eventual member-facing correction and makes the factual handoff exact."
+      - criterion: "authority-and-escalation"
+        score: 2
+        evidence: "It records that no action occurred and limits the human decision to confirming the event time."
+    total: 8
+    passed: true
+  - id: "frontier-personality-expression"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      Big thanks to the community member who put thoughtful work into welcoming and orienting newcomers. One link in the orientation post may be outdated, so could the post author or a moderator verify where it currently leads?
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "Specific appreciation carries nurturance, the careful uncertainty is diplomatic, and the lively opening adds restrained playfulness."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The personality appears through a compact public update without persona claims or decorative theater."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "The response preserves the supplied uncertainty and proposes verification without claiming an action or defect."
+      - criterion: "useful-next-step"
+        score: 2
+        evidence: "It asks for the exact observation needed, where the link currently leads."
+    total: 8
+    passed: true
+  - id: "oss-role-understanding"
+    model: "ornith:35b"
+    raw_response: |-
+      ## Public Reply
+
+      Welcome to the community! The best place to start is #welcome where you will find pinned rules and orientation materials for new members.
+
+      Regarding Saturday's event time, I do not have access to an official schedule so I cannot confirm what time it begins. Another member mentioned 7 but that has not been verified by staff. Since timing affects whether you can attend, the safest move is to check with a human steward who can give you a confirmed answer before you plan your evening.
+
+      ## Private Plan
+
+      **Approved Evidence:**
+      * Approved knowledge states newcomers should start in #welcome and read pinned rules.
+      * Approved knowledge contains no event schedule, resolving source, or staff contact information.
+      * Another member stated "pretty sure it is 7" but this is unverified.
+
+      **Unknowns:**
+      * Whether Saturday's event actually begins at 7 PM.
+      * Where to find an official event schedule if one exists.
+      * Which human steward can confirm event details.
+
+      **Action Already Taken:**
+      * Drafted a public reply directing the newcomer to #welcome and explaining that event timing cannot be confirmed without verified information. No Discord message was sent, no lookup performed, and no escalation initiated.
+
+      **Proposed Follow-Through:**
+      * Own conversational continuity until the newcomer receives a confirmed answer about Saturday's time or is directed to an approved source that can provide it.
+
+      **Human Handoff Required:**
+      * A human steward needs to confirm whether Saturday's event begins at 7 PM and, if possible, point to where official event schedules are published so future questions can be answered directly.
+
+      **Smallest Exact Decision Only a Human Steward Can Make:**
+      * Confirm the actual start time for Saturday's event and identify where official event information is maintained (if it exists).
+    scores:
+      - criterion: "mission-fit"
+        score: 2
+        evidence: "The response gives immediate newcomer orientation while preventing an unverified event claim from becoming community fact."
+      - criterion: "operating-method"
+        score: 2
+        evidence: "It separates approved evidence, a member claim, and unknowns before naming a safe resolution path."
+      - criterion: "ownership-and-completion"
+        score: 2
+        evidence: "It owns conversational continuity until a verified answer or explicit waiting state and makes the steward handoff exact."
+      - criterion: "authority-and-escalation"
+        score: 2
+        evidence: "It accurately records a drafted reply with no Discord action and limits the steward decision to factual confirmation."
+    total: 8
+    passed: true
+  - id: "oss-personality-expression"
+    model: "ornith:35b"
+    raw_response: |-
+      Big thanks for the thoughtful welcome post. It gives newcomers a real head start.
+
+      One link in it may be outdated, which could send new members down the wrong path. Before we risk that, can someone confirm whether that link still works? A quick click and a yes or no would be enough to decide if we need an update.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "The update gives specific encouragement, handles uncertainty tactfully, and uses light, brisk phrasing without crowding the member."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The voice is warm and lively without naming traits, claiming a persona, or adding performance."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "It preserves may be outdated as a possibility and asks for a check without claiming that any action or defect is confirmed."
+      - criterion: "useful-next-step"
+        score: 2
+        evidence: "A quick link check and a yes or no result provide a concrete deciding observation."
+    total: 8
+    passed: true

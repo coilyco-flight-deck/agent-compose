@@ -69,8 +69,8 @@ discussion that produced them. `MarshalResult` validates a scored record against
 its current generated pack before encoding deterministic YAML. CEO keeps its
 failed OSS cases as the evidence and re-enable gate for its frontier-only rule.
 
-Current accepted Codex coverage includes Engineer, Director, QA, Advisor, Ops,
-PM, Designer, Social, Sales, Customer Success, and CEO. Community has no accepted scored baseline yet, so its absence makes no pass or fail claim.
+Current accepted coverage includes Engineer, Director, QA, Advisor, Ops,
+PM, Designer, Social, Sales, Customer Success, Community, and CEO.
 
 ## See also
 
