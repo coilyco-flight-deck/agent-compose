@@ -192,6 +192,9 @@ func (p *Person) LookupCue(cue string) ([]string, error) {
 }
 
 func (p *Person) personalityOrder() []string {
+	if len(p.PersonalityOrder) == len(p.Personalities) {
+		return append([]string(nil), p.PersonalityOrder...)
+	}
 	names := make([]string, 0, len(p.Personalities))
 	for name := range p.Personalities {
 		names = append(names, name)
@@ -245,6 +248,7 @@ type Person struct {
 	Roles                map[string]Role        `json:"roles"`
 	RoleOrder            []string               `json:"role_order"`
 	Personalities        map[string]Personality `json:"personalities"`
+	PersonalityOrder     []string               `json:"personality_order"`
 	Inspirations         map[string]Inspiration `json:"inspirations"`
 	InspirationOrder     []string               `json:"inspiration_order"`
 	Raw                  []byte                 `json:"-"`
@@ -405,6 +409,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 			}
 			p.Personalities[name] = binding
 			p.PersonalityLibraries[name] = id
+			p.PersonalityOrder = append(p.PersonalityOrder, name)
 		}
 		for name, inspiration := range library.Inspirations {
 			if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
@@ -1048,6 +1053,7 @@ func parse(raw []byte) (*Person, error) {
 				return nil, fmt.Errorf("personality %q needs an inspiration", name)
 			}
 			p.Personalities[name] = personality
+			p.PersonalityOrder = append(p.PersonalityOrder, name)
 		case "inspiration":
 			id, inspiration, err := parseInspiration(n)
 			if err != nil {

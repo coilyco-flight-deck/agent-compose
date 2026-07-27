@@ -78,7 +78,7 @@ func TestLookupCueUsesDeclaredAliasesAndPreservesAmbiguity(t *testing.T) {
 		want []string
 	}{
 		{cue: "calm", want: []string{"grounded"}},
-		{cue: " encouraging ", want: []string{"nurturing", "optimistic"}},
+		{cue: " encouraging ", want: []string{"optimistic", "nurturing"}},
 		{cue: "grounded", want: []string{"grounded"}},
 	} {
 		got, lookupErr := p.LookupCue(test.cue)

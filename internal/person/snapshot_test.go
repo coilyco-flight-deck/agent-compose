@@ -79,6 +79,7 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"Roles":                true,
 		"RoleOrder":            true,
 		"Personalities":        true,
+		"PersonalityOrder":     true,
 		"Inspirations":         true,
 		"InspirationOrder":     true,
 		"Raw":                  true,
