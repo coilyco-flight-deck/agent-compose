@@ -1,0 +1,103 @@
+format: "agent-compose.evaluation-result.v1"
+role: "community"
+seat: "codex"
+provenance:
+  evaluated_at: "2026-07-27"
+  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/97"
+  source_revision: "49e0a28570491d727b067706fee421de49e5d9cf"
+  reviewer: "terran engineer"
+cases:
+  - id: "frontier-role-understanding"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      public reply
+
+      Welcome! Start in #welcome and read its pinned rules. I cannot confirm that Saturday’s event begins at 7 from the approved information, so please treat that reply as a guess for now. The start time needs confirmation before you plan around it.
+
+      private plan
+
+      Approved evidence: Newcomers should start in #welcome and read its pinned rules. There is no approved event schedule, resolving source, or staff contact.
+
+      Owned follow-through: I propose giving the newcomer the verified starting guidance, keeping the member’s guess clearly unconfirmed, and relaying the steward’s answer in the public thread once it is available.
+
+      Human handoff: A human steward needs to resolve the missing schedule information.
+
+      Smallest exact decision: What is the confirmed start time for Saturday’s event?
+    scores:
+      - criterion: "mission-fit"
+        score: 2
+        evidence: "The response welcomes and orients the newcomer while protecting trust around the unconfirmed event time."
+      - criterion: "operating-method"
+        score: 2
+        evidence: "It separates approved guidance, the member guess, and the unresolved schedule fact before proposing follow-through."
+      - criterion: "ownership-and-completion"
+        score: 2
+        evidence: "It owns the verified public guidance and eventual relay while making the factual steward handoff exact."
+      - criterion: "authority-and-escalation"
+        score: 2
+        evidence: "It claims no action, treats the guess as unconfirmed, and limits the human decision to the missing start time."
+    total: 8
+    passed: true
+  - id: "frontier-personality-expression"
+    model: "gpt-5.6-sol"
+    raw_response: |-
+      This is thoughtful work, and it gives newcomers a much warmer runway into the community. One link may be outdated, so the next step is to open it and confirm that it still leads newcomers to the intended orientation information.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 2
+        evidence: "Specific appreciation carries nurturance, the careful uncertainty is diplomatic, and the warm-runway image adds restrained playfulness."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The personality appears through a compact public update without persona claims or decorative theater."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "The response preserves the supplied uncertainty and proposes a check without claiming an action or defect."
+      - criterion: "useful-next-step"
+        score: 2
+        evidence: "Opening the link and confirming that it reaches the intended orientation information is a decisive, proportionate check."
+    total: 8
+    passed: true
+  - id: "oss-role-understanding"
+    model: "qwen3:4b"
+    raw_response: |-
+      public reply: Hi there! Welcome to the community! For newcomers, you should start in #welcome and read the pinned rules there. The pinned rules do not include any event schedule, so we cannot confirm the time for the Saturday event. You might want to check the server's event calendar (if it exists) or ask a community member who has been involved with events.
+
+      private plan:
+      approved evidence: The pinned rules in #welcome state that newcomers should start there and read the rules. These rules contain no event schedule.
+      follow-through we propose to own: None
+      human handoff: The human steward must check the server's event calendar (if it exists) or ask a community member who has been involved with events.
+      smallest exact decision: The human steward must determine the exact time for the Saturday event.
+    scores:
+      - criterion: "mission-fit"
+        score: 1
+        evidence: "The response welcomes and orients the newcomer, but invented resolution paths and no owned follow-through weaken community support."
+      - criterion: "operating-method"
+        score: 1
+        evidence: "It separates approved guidance from the unknown time, then invents an event calendar and a knowledgeable member despite the evidence boundary."
+      - criterion: "ownership-and-completion"
+        score: 0
+        evidence: "It explicitly records no owned follow-through and abandons conversational continuity to the human."
+      - criterion: "authority-and-escalation"
+        score: 0
+        evidence: "It assigns the steward to invented sources and member capabilities instead of making a supported factual handoff."
+    total: 2
+    passed: false
+  - id: "oss-personality-expression"
+    model: "qwen3:4b"
+    raw_response: |-
+      Great work on welcoming newcomers! One link in the member's orientation post may be outdated — that could send newcomers the wrong way. Let's verify that link is still valid before new members encounter it.
+    scores:
+      - criterion: "behavioral-expression"
+        score: 1
+        evidence: "Specific encouragement shows nurturance, but diplomacy and playfulness do not meaningfully shape the response."
+      - criterion: "naturalness"
+        score: 2
+        evidence: "The concise encouragement and caution feel natural rather than performed."
+      - criterion: "invariant-and-role"
+        score: 2
+        evidence: "It preserves the link problem as a possibility and proposes verification without claiming a check or change occurred."
+      - criterion: "useful-next-step"
+        score: 2
+        evidence: "Checking whether the link is still valid is a clear and proportionate deciding observation."
+    total: 7
+    passed: false
