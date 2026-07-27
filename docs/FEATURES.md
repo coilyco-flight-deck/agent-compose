@@ -12,11 +12,9 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * `person:kai` carries a portfolio-native default with 12 roles, 16
   personalities, melds, and 40 seats. It grounds work in Kai's real projects
   while treating commercial paths as evidence-qualified possibilities.
-* [External person packages](person-packages.md) replace the default across
-  every person-dependent command.
-* [Profiles and local personality libraries](personality-libraries.md) compose
-  role-owned and personality-owned content with deterministic provenance,
-  cue lookup, and derived affinity projections.
+* [External person packages](person-packages.md) and
+  [local personality libraries](personality-libraries.md) replace the default
+  across every person-dependent command.
 * AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.
   `low-context: optional` prunes optional skills.
 * Role compatibility fails closed before materialization. CEO supports only
@@ -47,11 +45,6 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   delivery, trace integrity, and selected identities.
 * `compose` renders complete role metadata. `--explain` adds decisions.
 * [Evaluation](evaluation.md) - guarded person review packs and multi-model baselines.
-* Evaluation results use the v2 provenance format, binding a result to the
-  deterministic digest of its reviewed pack.
-* `agent-compose catalog` exposes stable personality, role, seat, and
-  expression projections. `bundle export` emits a verified deterministic
-  archive for downstream consumers.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
