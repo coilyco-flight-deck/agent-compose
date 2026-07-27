@@ -54,8 +54,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders the selected invariant,
-  definitions, seats, briefings, and colors. See [role briefings](role-briefings.md).
+* `agent-compose roster --out <dir>` renders definitions, seats, briefings,
+  colors, and confirmed [native personality swaps](native-personality-swaps.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md) for
   roles, seats, compatibility, identities, inspirations, and appearances.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into

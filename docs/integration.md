@@ -36,7 +36,9 @@ Host config may select one
 default before this artifact is rendered.
 Under the [role-selection contract](role-selection.md), an explicit role stays
 fixed. An unassigned native agent selects from the initial request and loads
-that role's definitions. The embedded default needs no external source.
+that role's default definitions. The host-only
+[personality swap policy](native-personality-swaps.md) may temporarily activate
+others after confirmation. The embedded default needs no external source.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session

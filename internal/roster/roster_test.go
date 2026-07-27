@@ -118,6 +118,32 @@ func TestRenderDispatchTable(t *testing.T) {
 	}
 }
 
+func TestRenderNativeInteractivePersonalitySwapPolicy(t *testing.T) {
+	p, sources := loadInputs(t)
+	files, err := Render(p, sources, "/opt/artifact")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	table := string(files["AGENTS.COMPOSE.md"])
+	for _, want := range []string{
+		"Only an unwarded native agent in a directly steered interactive session",
+		"The agent should propose a\ngoal-fit catalog personality or meld",
+		"warded, staged,\ncontainer, headless, unattended, long-burn, or async run",
+		"while an explicit\nslash goal is active",
+		"The agent's role,\nobligations, permissions, and authority remain fixed.",
+		"The agent names the candidate and reason, then asks a separate confirmation:",
+		"This task would benefit from the <X> persona because <reason>. Should the agent\nswap to it now?",
+		"The task request itself does not count as confirmation.",
+		"Task completion restores the role's default meld.",
+		"Each later\nswap needs a new proposal and confirmation.",
+	} {
+		if !strings.Contains(table, want) {
+			t.Fatalf("native interactive swap policy missing %q:\n%s", want, table)
+		}
+	}
+}
+
 func TestRenderRejectsMissingInstruction(t *testing.T) {
 	p, _ := loadInputs(t)
 	sources := []*schema.Source{{
