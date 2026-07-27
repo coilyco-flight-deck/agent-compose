@@ -3,7 +3,10 @@
 package describe
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -163,7 +166,69 @@ func Diff(leftDir, rightDir string) (string, error) {
 		fmt.Fprintln(&b, "  no semantic differences")
 	}
 	fmt.Fprintf(&b, "  %d decisions unchanged\n", unchanged)
+	leftContent, err := contentDigests(leftDir)
+	if err != nil {
+		return "", err
+	}
+	rightContent, err := contentDigests(rightDir)
+	if err != nil {
+		return "", err
+	}
+	contentPaths := append(keysString(leftContent), keysString(rightContent)...)
+	seenContent := map[string]bool{}
+	var contentChanged []string
+	for _, path := range contentPaths {
+		if seenContent[path] {
+			continue
+		}
+		seenContent[path] = true
+		if leftContent[path] != rightContent[path] {
+			contentChanged = append(contentChanged, path)
+		}
+	}
+	sort.Strings(contentChanged)
+	if len(contentChanged) > 0 {
+		fmt.Fprintln(&b, "  content changes:")
+		for _, path := range contentChanged {
+			fmt.Fprintf(&b, "  ~ %s\n", path)
+		}
+	}
 	return b.String(), nil
+}
+
+func contentDigests(root string) (map[string]string, error) {
+	digests := map[string]string{}
+	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		if rel == "manifest.json" || rel == "trace.json" {
+			return nil
+		}
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		digest := sha256.Sum256(raw)
+		digests[filepath.ToSlash(rel)] = fmt.Sprintf("sha256:%x", digest)
+		return nil
+	})
+	return digests, err
+}
+
+func keysString(values map[string]string) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 func load(dir string) (*bundle.Manifest, *bundle.Trace, error) {
