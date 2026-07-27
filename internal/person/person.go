@@ -458,7 +458,8 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 		p.PersonalityLibraries[name] = id
 		p.PersonalityOrder = append(p.PersonalityOrder, name)
 	}
-	for name, inspiration := range library.Inspirations {
+	for _, name := range library.InspirationOrder {
+		inspiration := library.Inspirations[name]
 		if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
 			return fmt.Errorf("inspiration %q conflicts between profile libraries", name)
 		}
