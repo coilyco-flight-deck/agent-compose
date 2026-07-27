@@ -235,6 +235,10 @@ func main() {
 						Name:  "person-source",
 						Usage: "external person-package root (defaults to embedded person:kai)",
 					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
+					},
 				},
 				Action: runOverlay,
 			},
@@ -268,6 +272,10 @@ func main() {
 						Name:  "person-source",
 						Usage: "external person-package root (defaults to embedded person:kai)",
 					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
+					},
 				},
 				Action: runRoster,
 			},
@@ -284,6 +292,10 @@ func main() {
 					&cli.StringFlag{
 						Name:  "person-source",
 						Usage: "external person-package root (defaults to embedded person:kai)",
+					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
 					},
 				},
 				Action: runPaletteData,
@@ -469,7 +481,7 @@ func runNativeMCP(_ context.Context, cmd *cli.Command) error {
 }
 
 func runOverlay(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
@@ -709,7 +721,7 @@ func runCascade(_ context.Context, cmd *cli.Command) error {
 }
 
 func runRoster(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
@@ -746,7 +758,7 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 }
 
 func runPaletteData(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
