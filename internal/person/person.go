@@ -21,7 +21,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl roles personalities inspirations definitions evaluations
+//go:embed person.kdl roles definitions evaluations libraries
 var embedded embed.FS
 
 var personSections = []struct {
@@ -29,6 +29,14 @@ var personSections = []struct {
 	node      string
 }{
 	{directory: "roles", node: "role"},
+	{directory: "personalities", node: "personality"},
+	{directory: "inspirations", node: "inspiration"},
+}
+
+var librarySections = []struct {
+	directory string
+	node      string
+}{
 	{directory: "personalities", node: "personality"},
 	{directory: "inspirations", node: "inspiration"},
 }
@@ -267,7 +275,18 @@ func Load() (*Person, error) {
 	if p.evaluations, err = loadEvaluationAssets(embedded); err != nil {
 		return nil, err
 	}
-	return p, validateRolePersonalities(p)
+	librarySource, err := fs.Sub(embedded, "libraries/kai-core")
+	if err != nil {
+		return nil, fmt.Errorf("open embedded personality library: %w", err)
+	}
+	library, id, err := loadLibrarySource(librarySource, "embedded kai-core library")
+	if err != nil {
+		return nil, err
+	}
+	if err := mergeLoadedLibrary(p, library, id, librarySource); err != nil {
+		return nil, err
+	}
+	return p, validateResolvedPerson(p)
 }
 
 // LoadDirectory reads one complete external person package using the default layout.
@@ -372,7 +391,7 @@ func discoverLibraries(root string) ([]string, error) {
 
 func mergeLibraries(p *Person, roots []string) (*Person, error) {
 	if len(roots) == 0 {
-		return p, validateRolePersonalities(p)
+		return p, validateResolvedPerson(p)
 	}
 	if p.Libraries == nil {
 		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
@@ -392,46 +411,76 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 		if err != nil {
 			return nil, err
 		}
-		if _, exists := p.Libraries[id]; exists {
-			return nil, fmt.Errorf("personality library %q is admitted more than once", id)
-		}
-		for name, binding := range library.Personalities {
-			if existing, exists := p.Personalities[name]; exists {
-				if !equalPersonality(existing, binding) {
-					return nil, fmt.Errorf("personality %q conflicts between profile libraries", name)
-				}
-				continue
-			}
-			for otherName, other := range p.Personalities {
-				if other.Skill == binding.Skill && otherName != name {
-					return nil, fmt.Errorf("personality skill %q conflicts between %q and %q", binding.Skill, otherName, name)
-				}
-			}
-			p.Personalities[name] = binding
-			p.PersonalityLibraries[name] = id
-			p.PersonalityOrder = append(p.PersonalityOrder, name)
-		}
-		for name, inspiration := range library.Inspirations {
-			if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
-				return nil, fmt.Errorf("inspiration %q conflicts between profile libraries", name)
-			}
-			p.Inspirations[name] = inspiration
-		}
-		if err := appendDefinitions(overlay, librarySource, library.Personalities); err != nil {
+		if err := mergeLoadedLibraryWithOverlay(p, overlay, library, id, librarySource); err != nil {
 			return nil, err
 		}
-		p.Libraries[id] = "admitted-local"
 	}
 	p.source = overlay
-	return p, validateRolePersonalities(p)
+	return p, validateResolvedPerson(p)
 }
 
-func validateRolePersonalities(p *Person) error {
+func mergeLoadedLibrary(p *Person, library *Person, id string, source fs.FS) error {
+	overlay, err := definitionOverlay(p.source, p.Personalities)
+	if err != nil {
+		return err
+	}
+	if err := mergeLoadedLibraryWithOverlay(p, overlay, library, id, source); err != nil {
+		return err
+	}
+	p.source = overlay
+	return nil
+}
+
+func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Person, id string, librarySource fs.FS) error {
+	if p.Libraries == nil {
+		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
+	}
+	if p.PersonalityLibraries == nil {
+		p.PersonalityLibraries = map[string]string{}
+	}
+	if _, exists := p.Libraries[id]; exists {
+		return fmt.Errorf("personality library %q is admitted more than once", id)
+	}
+	for _, name := range library.personalityOrder() {
+		binding := library.Personalities[name]
+		if existing, exists := p.Personalities[name]; exists {
+			if !equalPersonality(existing, binding) {
+				return fmt.Errorf("personality %q conflicts between profile libraries", name)
+			}
+			continue
+		}
+		for otherName, other := range p.Personalities {
+			if other.Skill == binding.Skill && otherName != name {
+				return fmt.Errorf("personality skill %q conflicts between %q and %q", binding.Skill, otherName, name)
+			}
+		}
+		p.Personalities[name] = binding
+		p.PersonalityLibraries[name] = id
+		p.PersonalityOrder = append(p.PersonalityOrder, name)
+	}
+	for name, inspiration := range library.Inspirations {
+		if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
+			return fmt.Errorf("inspiration %q conflicts between profile libraries", name)
+		}
+		p.Inspirations[name] = inspiration
+		p.InspirationOrder = append(p.InspirationOrder, name)
+	}
+	if err := appendDefinitions(overlay, librarySource, library.Personalities); err != nil {
+		return err
+	}
+	p.Libraries[id] = "admitted-local"
+	return nil
+}
+
+func validateResolvedPerson(p *Person) error {
 	for _, roleName := range p.RoleOrder {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
 				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
 			}
+		}
+		if _, ok := p.Inspirations[p.Roles[roleName].Inspiration.ID]; !ok {
+			return fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, p.Roles[roleName].Inspiration.ID)
 		}
 	}
 	return nil
@@ -450,24 +499,32 @@ func loadLibrary(root string) (*Person, string, fs.FS, error) {
 		return nil, "", nil, fmt.Errorf("personality library %s is not a directory", absolute)
 	}
 	source := os.DirFS(absolute)
+	library, id, err := loadLibrarySource(source, "personality library "+absolute)
+	if err != nil {
+		return nil, "", nil, err
+	}
+	return library, id, source, nil
+}
+
+func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 	raw, err := fs.ReadFile(source, "library.kdl")
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("read personality library manifest: %w", err)
+		return nil, "", fmt.Errorf("%s: read manifest: %w", label, err)
 	}
 	doc, err := kdl.ParseString(string(raw))
 	if err != nil || len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "library" || len(doc.Nodes[0].Arguments()) != 1 {
-		return nil, "", nil, fmt.Errorf("personality library %s needs one library name", absolute)
+		return nil, "", fmt.Errorf("%s: needs one library name", label)
 	}
 	id := doc.Nodes[0].Arguments()[0].String()
 	assembled, err := assembleLibrarySource(source, id)
 	if err != nil {
-		return nil, "", nil, err
+		return nil, "", err
 	}
 	library, err := parse(assembled)
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("parse personality library %q: %w", id, err)
+		return nil, "", fmt.Errorf("parse personality library %q: %w", id, err)
 	}
-	return library, id, source, nil
+	return library, id, nil
 }
 
 func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
@@ -514,7 +571,7 @@ func appendDefinitions(overlay fstest.MapFS, source fs.FS, personalities map[str
 		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
 		raw, err := fs.ReadFile(source, path)
 		if err != nil {
-			return fmt.Errorf("read personality definition %q: %w", binding.Skill, err)
+			return fmt.Errorf("personality skill %q: read definition: %w", binding.Skill, err)
 		}
 		if existing, ok := overlay[path]; ok && !bytes.Equal(existing.Data, raw) {
 			return fmt.Errorf("personality definition %q conflicts between local libraries", binding.Skill)
@@ -571,6 +628,9 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 	firstFragment := true
 	for _, section := range personSections {
 		entries, err := fs.ReadDir(source, section.directory)
+		if os.IsNotExist(err) && section.directory != "roles" {
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("%s: read person %s: %w", label, section.directory, err)
 		}
@@ -659,7 +719,18 @@ func Source(p *Person) (*schema.Source, error) {
 	source := p.source
 	strictDefinitions := true
 	if source == nil {
-		source = embedded
+		library, err := fs.Sub(embedded, "libraries/kai-core")
+		if err != nil {
+			return nil, fmt.Errorf("open embedded personality library: %w", err)
+		}
+		overlay, err := definitionOverlay(embedded, map[string]Personality{})
+		if err != nil {
+			return nil, err
+		}
+		if err := appendDefinitions(overlay, library, p.Personalities); err != nil {
+			return nil, err
+		}
+		source = overlay
 		strictDefinitions = false
 	}
 	files, err := fs.Sub(source, "definitions")
@@ -1079,10 +1150,12 @@ func parse(raw []byte) (*Person, error) {
 	referencedInspirations := map[string]bool{}
 	for _, roleName := range p.RoleOrder {
 		ref := p.Roles[roleName].Inspiration.ID
-		if _, ok := p.Inspirations[ref]; !ok {
-			return nil, fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
+		if len(p.Inspirations) != 0 {
+			if _, ok := p.Inspirations[ref]; !ok {
+				return nil, fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
+			}
+			referencedInspirations[ref] = true
 		}
-		referencedInspirations[ref] = true
 	}
 	for name, personality := range p.Personalities {
 		ref := personality.Inspiration.ID
