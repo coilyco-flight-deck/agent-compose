@@ -66,6 +66,17 @@ func DecodeResult(raw []byte) (*ScoredResult, error) {
 }
 
 func MarshalResult(result *ScoredResult, pack *Pack) ([]byte, error) {
+	if result == nil {
+		return nil, fmt.Errorf("scored evaluation is required")
+	}
+	if result.Format == "" {
+		result.Format = ResultFormatV2
+		digest, err := PackDigest(pack)
+		if err != nil {
+			return nil, err
+		}
+		result.Provenance.PackDigest = digest
+	}
 	if err := ValidateResult(result, pack); err != nil {
 		return nil, err
 	}
