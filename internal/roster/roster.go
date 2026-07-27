@@ -4,6 +4,7 @@ package roster
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -13,6 +14,9 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
+
+//go:embed definitions/NATIVE-SWAP.md
+var nativeSwapPolicy string
 
 // Render produces the artifact file set; outDir only parameterizes the
 // absolute paths inside the claude override's mechanical imports.
@@ -56,22 +60,7 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	table.WriteString("Each agent loads every linked definition on that role's Melded personalities\n")
 	table.WriteString("line before acting. Catalog definitions outside that default meld stay inactive\n")
 	table.WriteString("unless the native interactive policy below temporarily activates them.\n\n")
-	table.WriteString("### Native interactive personality swaps\n\n")
-	table.WriteString("Only an unwarded native agent in a directly steered interactive session may\n")
-	table.WriteString("temporarily change its active personality meld. The agent should propose a\n")
-	table.WriteString("goal-fit catalog personality or meld when the change would materially improve\n")
-	table.WriteString("the current task. The agent never uses this policy in a warded, staged,\n")
-	table.WriteString("container, headless, unattended, long-burn, or async run, while an explicit\n")
-	table.WriteString("slash goal is active, or when live interaction is uncertain. The agent's role,\n")
-	table.WriteString("obligations, permissions, and authority remain fixed.\n\n")
-	table.WriteString("The agent names the candidate and reason, then asks a separate confirmation:\n")
-	table.WriteString("\"This task would benefit from the <X> persona because <reason>. Should the agent\n")
-	table.WriteString("swap to it now?\" The task request itself does not count as confirmation. The\n")
-	table.WriteString("agent waits for an explicit yes, loads every newly active definition, announces\n")
-	table.WriteString("the temporary swap, and continues the same task. A decline keeps the current\n")
-	table.WriteString("meld and the agent continues the task. Confirmation covers only the current\n")
-	table.WriteString("interactive task. Task completion restores the role's default meld. Each later\n")
-	table.WriteString("swap needs a new proposal and confirmation.\n")
+	table.WriteString(nativeSwapPolicy)
 
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
