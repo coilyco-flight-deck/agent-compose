@@ -318,6 +318,7 @@ func main() {
 func personCatalogFlags(includeQuery bool) []cli.Flag {
 	flags := []cli.Flag{
 		&cli.StringFlag{Name: "person-source", Usage: "external person-package root (defaults to embedded person:kai)"},
+		&cli.StringSliceFlag{Name: "personality-library", Usage: "additional local personality-library root (repeatable)"},
 		&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"},
 	}
 	if includeQuery {
@@ -347,7 +348,7 @@ func writeCatalog(value any, asJSON bool, text string) error {
 }
 
 func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
@@ -371,7 +372,7 @@ func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
 }
 
 func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
@@ -383,7 +384,7 @@ func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
 }
 
 func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
-	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}
@@ -761,6 +762,14 @@ func loadSelectedPerson(source string) (*person.Person, bool, error) {
 }
 
 func loadSelectedPersonAt(source string, paths cascade.Paths) (*person.Person, bool, error) {
+	return loadSelectedPersonWithLibrariesAt(source, nil, paths)
+}
+
+func loadSelectedPersonWithLibraries(source string, libraries []string) (*person.Person, bool, error) {
+	return loadSelectedPersonWithLibrariesAt(source, libraries, cascade.DefaultPaths())
+}
+
+func loadSelectedPersonWithLibrariesAt(source string, libraries []string, paths cascade.Paths) (*person.Person, bool, error) {
 	if source == "" {
 		hostPerson, err := loadHostPersonOptions(paths)
 		if err != nil {
@@ -772,7 +781,7 @@ func loadSelectedPersonAt(source string, paths cascade.Paths) (*person.Person, b
 			return p, false, err
 		}
 	}
-	p, err := person.LoadDirectory(source)
+	p, err := person.LoadDirectoryWithLibraries(source, libraries...)
 	return p, true, err
 }
 

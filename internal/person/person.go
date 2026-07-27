@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"testing/fstest"
 	"unicode"
 
 	kdl "github.com/calico32/kdl-go"
@@ -236,6 +237,7 @@ type Person struct {
 	Inspirations     map[string]Inspiration `json:"inspirations"`
 	InspirationOrder []string               `json:"inspiration_order"`
 	Raw              []byte                 `json:"-"`
+	Libraries        map[string]string      `json:"-"`
 	source           fs.FS
 }
 
@@ -247,6 +249,12 @@ func Load() (*Person, error) {
 // LoadDirectory reads one complete external person package using the default layout.
 // An external package replaces the embedded package rather than extending it.
 func LoadDirectory(root string) (*Person, error) {
+	return LoadDirectoryWithLibraries(root)
+}
+
+// LoadDirectoryWithLibraries loads a compatible profile root, its lexical
+// package-local libraries, and explicitly admitted local library roots.
+func LoadDirectoryWithLibraries(root string, libraries ...string) (*Person, error) {
 	if strings.TrimSpace(root) == "" {
 		return nil, fmt.Errorf("external person source path is empty")
 	}
@@ -272,7 +280,177 @@ func LoadDirectory(root string) (*Person, error) {
 	}); err != nil {
 		return nil, fmt.Errorf("inspect external person source tree %s: %w", absolute, err)
 	}
-	return loadSource(os.DirFS(absolute), "external person source "+absolute)
+	p, err := loadSource(os.DirFS(absolute), "external person source "+absolute)
+	if err != nil {
+		return nil, err
+	}
+	local, err := discoverLibraries(absolute)
+	if err != nil {
+		return nil, err
+	}
+	return mergeLibraries(p, append(local, libraries...))
+}
+
+func discoverLibraries(root string) ([]string, error) {
+	dir := filepath.Join(root, "libraries")
+	entries, err := os.ReadDir(dir)
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("read profile libraries %s: %w", dir, err)
+	}
+	var paths []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			return nil, fmt.Errorf("profile libraries has non-directory entry %q", entry.Name())
+		}
+		paths = append(paths, filepath.Join(dir, entry.Name()))
+	}
+	sort.Strings(paths)
+	return paths, nil
+}
+
+func mergeLibraries(p *Person, roots []string) (*Person, error) {
+	if len(roots) == 0 {
+		return p, nil
+	}
+	if p.Libraries == nil {
+		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
+	}
+	overlay, err := definitionOverlay(p.source, p.Personalities)
+	if err != nil {
+		return nil, err
+	}
+	for _, root := range roots {
+		library, id, librarySource, err := loadLibrary(root)
+		if err != nil {
+			return nil, err
+		}
+		if _, exists := p.Libraries[id]; exists {
+			return nil, fmt.Errorf("personality library %q is admitted more than once", id)
+		}
+		for name, binding := range library.Personalities {
+			if existing, exists := p.Personalities[name]; exists {
+				if !equalPersonality(existing, binding) {
+					return nil, fmt.Errorf("personality %q conflicts between profile libraries", name)
+				}
+				continue
+			}
+			for otherName, other := range p.Personalities {
+				if other.Skill == binding.Skill && otherName != name {
+					return nil, fmt.Errorf("personality skill %q conflicts between %q and %q", binding.Skill, otherName, name)
+				}
+			}
+			p.Personalities[name] = binding
+		}
+		for name, inspiration := range library.Inspirations {
+			if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
+				return nil, fmt.Errorf("inspiration %q conflicts between profile libraries", name)
+			}
+			p.Inspirations[name] = inspiration
+		}
+		if err := appendDefinitions(overlay, librarySource, library.Personalities); err != nil {
+			return nil, err
+		}
+		p.Libraries[id] = "admitted-local"
+	}
+	p.source = overlay
+	return p, nil
+}
+
+func loadLibrary(root string) (*Person, string, fs.FS, error) {
+	absolute, err := filepath.Abs(root)
+	if err != nil {
+		return nil, "", nil, err
+	}
+	info, err := os.Stat(absolute)
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("inspect personality library %s: %w", absolute, err)
+	}
+	if !info.IsDir() {
+		return nil, "", nil, fmt.Errorf("personality library %s is not a directory", absolute)
+	}
+	source := os.DirFS(absolute)
+	raw, err := fs.ReadFile(source, "library.kdl")
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("read personality library manifest: %w", err)
+	}
+	doc, err := kdl.ParseString(string(raw))
+	if err != nil || len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "library" || len(doc.Nodes[0].Arguments()) != 1 {
+		return nil, "", nil, fmt.Errorf("personality library %s needs one library name", absolute)
+	}
+	id := doc.Nodes[0].Arguments()[0].String()
+	assembled, err := assembleLibrarySource(source, id)
+	if err != nil {
+		return nil, "", nil, err
+	}
+	library, err := parse(assembled)
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("parse personality library %q: %w", id, err)
+	}
+	return library, id, source, nil
+}
+
+func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
+	var out bytes.Buffer
+	fmt.Fprintf(&out, "person %q {\n", id)
+	for _, directory := range []string{"personalities", "inspirations"} {
+		entries, err := fs.ReadDir(source, directory)
+		if err != nil {
+			return nil, fmt.Errorf("read personality library %s: %w", directory, err)
+		}
+		if len(entries) == 0 {
+			return nil, fmt.Errorf("personality library %q has empty %s", id, directory)
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
+				return nil, fmt.Errorf("personality library %q has unexpected %s entry %q", id, directory, entry.Name())
+			}
+			raw, err := fs.ReadFile(source, directory+"/"+entry.Name())
+			if err != nil {
+				return nil, err
+			}
+			out.WriteString(indentPersonFragment(bytes.TrimSpace(raw)))
+			out.WriteByte('\n')
+		}
+	}
+	out.WriteString("}\n")
+	return out.Bytes(), nil
+}
+
+func equalPersonality(left, right Personality) bool {
+	return fmt.Sprintf("%#v", left) == fmt.Sprintf("%#v", right)
+}
+
+func definitionOverlay(base fs.FS, personalities map[string]Personality) (fstest.MapFS, error) {
+	overlay := fstest.MapFS{}
+	if err := appendDefinitions(overlay, base, personalities); err != nil {
+		return nil, err
+	}
+	return overlay, nil
+}
+
+func appendDefinitions(overlay fstest.MapFS, source fs.FS, personalities map[string]Personality) error {
+	for _, binding := range personalities {
+		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
+		raw, err := fs.ReadFile(source, path)
+		if err != nil {
+			return fmt.Errorf("read personality definition %q: %w", binding.Skill, err)
+		}
+		if existing, ok := overlay[path]; ok && !bytes.Equal(existing.Data, raw) {
+			return fmt.Errorf("personality definition %q conflicts between local libraries", binding.Skill)
+		}
+		overlay[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+	}
+	if _, exists := overlay["definitions/INVARIANT.md"]; !exists {
+		raw, err := fs.ReadFile(source, "definitions/INVARIANT.md")
+		if err != nil {
+			return fmt.Errorf("read profile invariant: %w", err)
+		}
+		overlay["definitions/INVARIANT.md"] = &fstest.MapFile{Data: raw, Mode: 0o644}
+	}
+	return nil
 }
 
 func loadSource(source fs.FS, label string) (*Person, error) {

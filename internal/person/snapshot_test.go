@@ -82,6 +82,7 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"Inspirations":     true,
 		"InspirationOrder": true,
 		"Raw":              true,
+		"Libraries":        true,
 		"source":           true,
 	}
 	model := reflect.TypeOf(Person{})
