@@ -21,7 +21,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl roles personalities inspirations definitions
+//go:embed person.kdl roles personalities inspirations definitions evaluations
 var embedded embed.FS
 
 var personSections = []struct {
@@ -258,6 +258,9 @@ type Person struct {
 func Load() (*Person, error) {
 	p, err := loadSource(embedded, "embedded person source")
 	if err != nil {
+		return nil, err
+	}
+	if p.evaluations, err = loadEvaluationAssets(embedded); err != nil {
 		return nil, err
 	}
 	return p, validateRolePersonalities(p)

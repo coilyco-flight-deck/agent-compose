@@ -11,7 +11,6 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"gopkg.in/yaml.v3"
 )
 
@@ -76,9 +75,16 @@ type Pack struct {
 }
 
 type profileMatrix struct {
-	RunProtocol []string   `yaml:"run_protocol"`
-	ReviewRule  ReviewRule `yaml:"review_rule"`
-	Cases       []Case     `yaml:"cases"`
+	RunProtocol         []string          `yaml:"run_protocol"`
+	ReviewRule          ReviewRule        `yaml:"review_rule"`
+	Cases               []Case            `yaml:"cases"`
+	RolePrompt          string            `yaml:"role_prompt"`
+	PersonalityPrompt   string            `yaml:"personality_prompt"`
+	PersonalityByRole   map[string]string `yaml:"personality_by_role"`
+	RoleRubric          []Criterion       `yaml:"role_rubric"`
+	PersonalityRubric   []Criterion       `yaml:"personality_rubric"`
+	RoleQuestion        string            `yaml:"role_question"`
+	PersonalityQuestion string            `yaml:"personality_question"`
 }
 
 func Build(roleName, harness string) (*Pack, error) {
@@ -86,16 +92,16 @@ func Build(roleName, harness string) (*Pack, error) {
 	if err != nil {
 		return nil, err
 	}
-	return build(p, roleName, harness, true)
+	return build(p, roleName, harness)
 }
 
 // BuildFor renders a generic evaluation pack from one loaded person package.
 // Custom packages never inherit a role-specific case from the embedded default.
 func BuildFor(p *person.Person, roleName, harness string) (*Pack, error) {
-	return build(p, roleName, harness, false)
+	return build(p, roleName, harness)
 }
 
-func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pack, error) {
+func build(p *person.Person, roleName, harness string) (*Pack, error) {
 	if p == nil {
 		return nil, fmt.Errorf("evaluation person is required")
 	}
@@ -168,14 +174,25 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		Invariant:           strings.TrimSpace(string(invariant)),
 		RunProtocol:         generic.RunProtocol,
 		ReviewRule:          generic.ReviewRule,
-		Cases:               evaluationCases(roleName, embeddedCases),
+		Cases:               generic.Cases,
+	}
+	pack.Cases, err = casesForProfile(generic, generic, roleName)
+	if err != nil {
+		return nil, fmt.Errorf("generic evaluation matrix: %w", err)
 	}
 	if raw, ok := p.EvaluationAsset(roleName); ok {
 		matrix, err := parseProfileMatrix(raw)
 		if err != nil {
 			return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
 		}
-		pack.RunProtocol, pack.ReviewRule, pack.Cases = matrix.RunProtocol, matrix.ReviewRule, matrix.Cases
+		if len(matrix.Cases) > 0 {
+			pack.Cases = matrix.Cases
+			return pack, nil
+		}
+		pack.Cases, err = casesForProfile(generic, matrix, roleName)
+		if err != nil {
+			return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
+		}
 	}
 	return pack, nil
 }
@@ -185,8 +202,10 @@ func parseGenericMatrix(raw []byte) (profileMatrix, error) {
 	if err := yaml.Unmarshal(raw, &matrix); err != nil {
 		return matrix, err
 	}
-	if len(matrix.RunProtocol) == 0 || matrix.ReviewRule.PassingTotal == 0 {
-		return matrix, fmt.Errorf("generic matrix needs run_protocol and review_rule")
+	if len(matrix.RunProtocol) == 0 || matrix.ReviewRule.PassingTotal == 0 ||
+		len(matrix.Cases) == 0 || len(matrix.RoleRubric) == 0 ||
+		len(matrix.PersonalityRubric) == 0 || matrix.RoleQuestion == "" || matrix.PersonalityQuestion == "" {
+		return matrix, fmt.Errorf("generic matrix is incomplete")
 	}
 	return matrix, nil
 }
@@ -198,18 +217,11 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 	if err := decoder.Decode(&matrix); err != nil {
 		return matrix, err
 	}
-	if len(matrix.RunProtocol) == 0 || len(matrix.Cases) == 0 || matrix.ReviewRule.PassingTotal == 0 {
-		return matrix, fmt.Errorf("matrix must include run_protocol, review_rule, and cases")
+	if len(matrix.Cases) > 0 {
+		return matrix, nil
 	}
-	seen := map[string]bool{}
-	for _, c := range matrix.Cases {
-		if c.ID == "" || c.ModelTier == "" || c.BundleModelClass == "" || c.Prompt == "" || len(c.Rubric) == 0 {
-			return matrix, fmt.Errorf("matrix case is incomplete")
-		}
-		if seen[c.ID] {
-			return matrix, fmt.Errorf("matrix repeats case %q", c.ID)
-		}
-		seen[c.ID] = true
+	if matrix.RolePrompt == "" || matrix.PersonalityPrompt == "" {
+		return matrix, fmt.Errorf("matrix must include role_prompt and personality_prompt")
 	}
 	return matrix, nil
 }
@@ -239,24 +251,28 @@ func markdownBody(raw string) string {
 	return strings.TrimSpace(normalized)
 }
 
-func evaluationCases(roleName string, embeddedCases bool) []Case {
-	rolePrompt := "A consequential opportunity is in scope, but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close, and another role has offered to take work that may or may not belong to it. Respond to the human with the outcome you would optimize, the evidence you need, the work you own, the action you take now, the handoff you make, and the exact decision, if any, that only the human can make. Use only supplied facts. Do not invent an organization, customer, offering, or commitment. Do not name or quote your role, personalities, or this evaluation."
-	personalityPrompt := "The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
-	if embeddedCases {
-		rolePrompt = embeddedRolePrompt(roleName)
+func casesForProfile(generic, profile profileMatrix, roleName string) ([]Case, error) {
+	personalityPrompt := profile.PersonalityPrompt
+	if override := profile.PersonalityByRole[roleName]; override != "" {
+		personalityPrompt = override
 	}
-	if embeddedCases && roleName == "community" {
-		personalityPrompt = "A regular member has done thoughtful work welcoming newcomers, and the obvious response is to celebrate it. One link in the member's orientation post may be outdated, which could send newcomers the wrong way. Write a brief public update and propose the next step. Use only these supplied facts. Preserve `may be outdated` as an unverified possibility and propose a check, not a change. End after proposing the check. Do not offer or promise a later edit. Do not invent a member name, account handle, document version, or replacement URL. Do not claim that you noticed, checked, changed, sent, pinned, or reformatted anything. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
+	cases := make([]Case, len(generic.Cases))
+	for i, template := range generic.Cases {
+		caseCopy := template
+		switch caseCopy.Dimension {
+		case "role-understanding":
+			caseCopy.Prompt, caseCopy.ReviewerQuestion, caseCopy.Rubric = profile.RolePrompt, generic.RoleQuestion, generic.RoleRubric
+		case "personality-expression":
+			caseCopy.Prompt, caseCopy.ReviewerQuestion, caseCopy.Rubric = personalityPrompt, generic.PersonalityQuestion, generic.PersonalityRubric
+		default:
+			return nil, fmt.Errorf("generic matrix has unknown dimension %q", caseCopy.Dimension)
+		}
+		cases[i] = caseCopy
 	}
-	return []Case{
-		newCase("frontier-role-understanding", "frontier", schema.ModelClassFrontier, "role-understanding", rolePrompt),
-		newCase("frontier-personality-expression", "frontier", schema.ModelClassFrontier, "personality-expression", personalityPrompt),
-		newCase("oss-role-understanding", "oss", schema.ModelClassLowContext, "role-understanding", rolePrompt),
-		newCase("oss-personality-expression", "oss", schema.ModelClassLowContext, "personality-expression", personalityPrompt),
-	}
+	return cases, nil
 }
 
-func embeddedRolePrompt(roleName string) string {
+func legacyEmbeddedRolePrompt(roleName string) string {
 	prompts := map[string]string{
 		"engineer":         "An issue in one of Kai's repositories describes a user-visible defect and the intended outcome, but one edge case is unresolved. Two implementation paths are plausible, a routine release cutoff is close, and the QA role offers to edit the implementation. Respond with the repository evidence you need, the smallest complete change you own, the risky path you will exercise, the handoff you make, and any exact decision only the human can make. No live mutation or deployment is authorized. Do not invent repository state, users, customers, or release evidence. Do not name or quote your role, personalities, or this evaluation.",
 		"director":         "Two real repositories in Kai's portfolio compete for the same near-term attention. One strengthens a widely used open-source workflow, while the other tests a promising game-tooling direction. Evidence about maintenance cost and audience impact is incomplete, and the PM role offers to choose the priority. Respond with the outcome you would optimize, the evidence that distinguishes the paths, the reversible call you own, the bounded outcomes you hand to roles, and any exact decision only the human can make. Contracting and SaaS are not established ventures in this scenario. Do not invent staff, customers, revenue, or commitments. Do not name or quote your role, personalities, or this evaluation.",
