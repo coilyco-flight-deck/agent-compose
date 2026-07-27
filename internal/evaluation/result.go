@@ -2,6 +2,8 @@ package evaluation
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -10,13 +12,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const ResultFormat = "agent-compose.evaluation-result.v1"
+const (
+	ResultFormatV1 = "agent-compose.evaluation-result.v1"
+	ResultFormatV2 = "agent-compose.evaluation-result.v2"
+	// ResultFormat remains the v1 fixture compatibility marker. New callers
+	// select ResultFormatV2 and include PackDigest.
+	ResultFormat = ResultFormatV1
+)
 
 type ResultProvenance struct {
 	EvaluatedAt    string `yaml:"evaluated_at"`
 	SourceIssue    string `yaml:"source_issue"`
 	SourceRevision string `yaml:"source_revision"`
 	Reviewer       string `yaml:"reviewer"`
+	PackDigest     string `yaml:"pack_digest,omitempty"`
 }
 
 type CriterionScore struct {
@@ -67,8 +76,8 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 	if result == nil || pack == nil {
 		return fmt.Errorf("scored evaluation and pack are required")
 	}
-	if result.Format != ResultFormat {
-		return fmt.Errorf("result format %q, want %q", result.Format, ResultFormat)
+	if result.Format != ResultFormatV1 && result.Format != ResultFormatV2 {
+		return fmt.Errorf("result format %q is unsupported", result.Format)
 	}
 	if result.Role != pack.Role || result.Seat != pack.Seat.Selector() {
 		return fmt.Errorf(
@@ -86,6 +95,15 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		strings.TrimSpace(result.Provenance.SourceRevision) == "" ||
 		strings.TrimSpace(result.Provenance.Reviewer) == "" {
 		return fmt.Errorf("result provenance is incomplete")
+	}
+	if result.Format == ResultFormatV2 {
+		digest, err := PackDigest(pack)
+		if err != nil {
+			return err
+		}
+		if result.Provenance.PackDigest != digest {
+			return fmt.Errorf("result pack digest %q does not match %q", result.Provenance.PackDigest, digest)
+		}
 	}
 	expected := make(map[string]Case, len(pack.Cases))
 	expectedByTier := make(map[string]map[string]bool)
@@ -137,6 +155,19 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		}
 	}
 	return nil
+}
+
+// PackDigest binds a v2 result to the complete rendered review contract.
+func PackDigest(pack *Pack) (string, error) {
+	if pack == nil {
+		return "", fmt.Errorf("evaluation pack is required")
+	}
+	raw, err := json.Marshal(pack)
+	if err != nil {
+		return "", fmt.Errorf("marshal evaluation pack for digest: %w", err)
+	}
+	digest := sha256.Sum256(raw)
+	return fmt.Sprintf("sha256:%x", digest), nil
 }
 
 func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule) error {

@@ -15,7 +15,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed definitions/NATIVE-SWAP.md
+//go:embed definitions/NATIVE-SWAP.txt
 var nativeSwapPolicy string
 
 // Render produces the artifact file set; outDir only parameterizes the
