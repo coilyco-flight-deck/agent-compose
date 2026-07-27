@@ -75,6 +75,10 @@ Bare `acompose` converges the host and atomically refreshes the complete
 versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
+`acompose --reapply` rewrites the generated compose outputs and recreates
+global load-point links even when they are current. `acompose --verbose`
+prints every composition source and load-point file as
+`source => destination`.
 
 Composition adapters can project a verified bundle into an empty staged home,
 remove agent-compose's projection state, and wrap the remaining selected load

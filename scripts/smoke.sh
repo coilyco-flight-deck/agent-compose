@@ -197,4 +197,20 @@ assert_unchanged "$claude_mcp" claude-mcp
 assert_unchanged "$codex_mcp" codex-mcp
 printf 'smoke: representative artifacts remain byte-stable... ok\n'
 
+third_output="$smoke_root/third.txt"
+if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
+  PROJECTS_ROOT="$native_root/projects" "$binary_exec" \
+  --reapply --verbose >"$third_output" 2>&1; then
+  cat "$third_output" >&2
+  fail "verbose reapply convergence failed"
+fi
+
+assert_contains "$third_output" "layout  $native_root/fixtures/AGENTS.COMPOSE.md => "
+assert_contains "$third_output" " => $native_root/load-points/CLAUDE.md"
+assert_contains "$third_output" "wrote"
+assert_contains "$third_output" "cascade outputs=1 load-points=1 manifest=1 changed=3"
+assert_contains "$third_output" "mcp     servers=1 state=unchanged"
+printf 'smoke: verbose reapply traces and recreates the compose layout... ok\n'
+show_transcript "verbose reapply" "$third_output"
+
 printf 'smoke: acompose host convergence is healthy and idempotent\n'

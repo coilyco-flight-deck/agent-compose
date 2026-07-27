@@ -62,8 +62,9 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness files, symlinks, filtering, overrides, a mount manifest,
   and dry-run/check behavior compatible with the Python outputs.
-* Bare `acompose` converges hosts. `-- <command>` refreshes then execs.
-  `ward exec smoke` proves isolated idempotence and `ward exec test` runs full validation.
+* Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
+  traces `source => destination`, and `-- <command>` refreshes then execs.
+  Ward smoke proves idempotence and its test verb runs full validation.
 * Configured skill roots mount safely into native harness skill directories.
 * [Native MCP + approval projection](native-mcp.md).
 

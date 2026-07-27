@@ -20,6 +20,13 @@ type Paths struct {
 	Home         string
 }
 
+// RunOptions controls preview, forced application, and layout reporting.
+type RunOptions struct {
+	DryRun  bool
+	Reapply bool
+	Verbose bool
+}
+
 func DefaultPaths() Paths {
 	root, _ := os.UserHomeDir()
 	projects := os.Getenv("PROJECTS_ROOT")
@@ -95,7 +102,7 @@ func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[str
 }
 
 // Run composes and wires symlinks; absent config is a documented no-op.
-func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
+func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	if _, err := os.Stat(paths.Config); err != nil {
 		fmt.Fprintf(stdout, "agent-compose: no config at %s; nothing to do (opt-in)\n", paths.Config)
 		return 0
@@ -121,7 +128,11 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 		return 1
 	}
 
-	if dryRun {
+	if opts.Verbose {
+		printLayout(stdout, paths.Config, manifestPath, byTarget, p, loadPoints)
+	}
+
+	if opts.DryRun {
 		for _, target := range sortedKeys(byTarget) {
 			entry := byTarget[target]
 			body, err := Compose(entry.sources, entry.overrides)
@@ -129,18 +140,18 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 				return 1
 			}
-			if readOr(target, "\x00") != body {
+			if opts.Reapply || readOr(target, "\x00") != body {
 				fmt.Fprintf(stdout, "would write %s (%d source(s))%s\n", target, len(entry.sources), tail)
 			}
 		}
-		if readOr(manifestPath, "\x00") != manifest {
+		if opts.Reapply || readOr(manifestPath, "\x00") != manifest {
 			fmt.Fprintf(stdout, "would write %s (mount-eligibility manifest)\n", manifestPath)
 		}
 		for _, target := range stale {
 			fmt.Fprintf(stdout, "would remove %s (obsolete generated output)\n", target)
 		}
 		for _, harness := range sortedKeys2(loadPoints) {
-			if !symlinkUpToDate(loadPoints[harness], p.outputs[harness]) {
+			if opts.Reapply || !symlinkUpToDate(loadPoints[harness], p.outputs[harness]) {
 				fmt.Fprintf(stdout, "would link  %s -> %s  [%s]\n", loadPoints[harness], p.outputs[harness], harness)
 			}
 		}
@@ -164,7 +175,7 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
 		}
-		if readOr(target, "\x00") == body {
+		if !opts.Reapply && readOr(target, "\x00") == body {
 			continue
 		}
 		if err := os.WriteFile(target, []byte(body), 0o644); err != nil {
@@ -174,7 +185,7 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
 		changed++
 	}
-	if readOr(manifestPath, "\x00") != manifest {
+	if opts.Reapply || readOr(manifestPath, "\x00") != manifest {
 		if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
@@ -183,7 +194,7 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 		changed++
 	}
 	for _, harness := range sortedKeys2(loadPoints) {
-		line, err := installSymlink(loadPoints[harness], p.outputs[harness])
+		line, err := installSymlink(loadPoints[harness], p.outputs[harness], opts.Reapply)
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
@@ -196,6 +207,31 @@ func Run(paths Paths, dryRun bool, stdout, stderr io.Writer) int {
 	fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d manifest=1 changed=%d\n",
 		len(byTarget), len(loadPoints), changed)
 	return 0
+}
+
+// printLayout emits deterministic file flow through composed outputs and
+// harness load points, including per-harness override inputs.
+func printLayout(
+	w io.Writer,
+	configPath string,
+	manifestPath string,
+	byTarget map[string]planned,
+	p plan,
+	loadPoints map[string]string,
+) {
+	for _, target := range sortedKeys(byTarget) {
+		entry := byTarget[target]
+		for _, source := range entry.sources {
+			fmt.Fprintf(w, "layout  %s => %s\n", source, target)
+			if override := entry.overrides[source]; override != "" {
+				fmt.Fprintf(w, "layout  %s => %s\n", override, target)
+			}
+		}
+	}
+	fmt.Fprintf(w, "layout  %s => %s\n", configPath, manifestPath)
+	for _, harness := range sortedKeys2(loadPoints) {
+		fmt.Fprintf(w, "layout  %s => %s\n", p.outputs[harness], loadPoints[harness])
+	}
 }
 
 // Check verifies on-disk outputs match a fresh compose; drift prints a

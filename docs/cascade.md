@@ -1,20 +1,19 @@
 # Cascade
 
-The cascade (bare `agent-compose compose`, or the hidden `cascade` verb for scripting) is the absorbed v1 composer: it turns doctrine
-sources into each harness's global context. Presence of
-`~/.agent-compose/agent-compose.yaml` activates it; without the file
-the verb is a documented no-op, so a host behaves exactly as if
-agent-compose were not installed.
+The cascade (bare `agent-compose compose`, with hidden `cascade` for scripts)
+turns doctrine sources into each harness's global context. It activates when
+`~/.agent-compose/agent-compose.yaml` exists. Missing config is a no-op.
 
 Bare `acompose` always summarizes its roster, outputs, harness load points,
 eligibility manifest, and skill links. Detailed lines identify repaired drift.
+Bare `acompose --reapply` recreates outputs and load-point links.
+`acompose --verbose` emits each source, override, manifest, and link as
+`source => destination`.
 
-All state lives under `~/.agent-compose`: the config, COMPOSED outputs, the
-mount-eligibility manifest, `sources/` (including the roster artifact), and
-the bundle cache at `bundles/`. A legacy `~/.config/agent-compose` directory
-migrates wholesale on first use, leaving a compatibility symlink behind so
-legacy manifest consumers and fleet config references keep resolving until
-the fleet cutover tracked in agentic-os#618.
+All state lives under `~/.agent-compose`: config, COMPOSED outputs, the mount
+manifest, roster sources, and bundle cache. A legacy
+`~/.config/agent-compose` directory migrates on first use and leaves a
+compatibility symlink through the fleet cutover tracked in agentic-os#618.
 
 Explicit `sources` compose first in listed order, then each `roots` entry is
 walked for `AGENTS.COMPOSE.md` files, appended sorted. That filename is the

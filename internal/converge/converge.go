@@ -18,11 +18,21 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
+// Options controls host compose-layout reporting and forced application.
+type Options struct {
+	Reapply bool
+	Verbose bool
+}
+
 // Run refreshes the roster from the embedded person plus configured overlays,
 // then cascades. Absent config stays the documented no-op.
-func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
+func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
+	cascadeOpts := cascade.RunOptions{
+		Reapply: opts.Reapply,
+		Verbose: opts.Verbose,
+	}
 	if _, err := os.Stat(paths.Config); err != nil {
-		return cascade.Run(paths, false, stdout, stderr)
+		return cascade.Run(paths, cascadeOpts, stdout, stderr)
 	}
 	cfg, err := cascade.LoadConfig(paths.Config)
 	if err != nil {
@@ -57,7 +67,7 @@ func Run(paths cascade.Paths, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
 
-	if code := cascade.Run(paths, false, stdout, stderr); code != 0 {
+	if code := cascade.Run(paths, cascadeOpts, stdout, stderr); code != 0 {
 		return code
 	}
 	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")

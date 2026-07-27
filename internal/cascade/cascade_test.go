@@ -57,8 +57,13 @@ func (e env) config(t *testing.T, body string) {
 
 func (e env) run(t *testing.T, dryRun bool) (int, string, string) {
 	t.Helper()
+	return e.runOptions(t, RunOptions{DryRun: dryRun})
+}
+
+func (e env) runOptions(t *testing.T, opts RunOptions) (int, string, string) {
+	t.Helper()
 	var out, errOut bytes.Buffer
-	code := Run(e.paths, dryRun, &out, &errOut)
+	code := Run(e.paths, opts, &out, &errOut)
 	return code, out.String(), errOut.String()
 }
 
@@ -108,6 +113,62 @@ func TestComposeBasicsAndSilentRecompose(t *testing.T) {
 	code, out, _ = e.run(t, false)
 	if code != 0 || strings.Contains(out, "wrote") || strings.Contains(out, "linked") {
 		t.Fatalf("converged recompose must be silent, got %q", out)
+	}
+}
+
+func TestReapplyRewritesCurrentLayout(t *testing.T) {
+	e := newEnv(t)
+	src := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	e.config(t, "sources:\n  - "+src+"\n")
+
+	if code, _, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("initial run failed: %s", errOut)
+	}
+	code, out, errOut := e.runOptions(t, RunOptions{Reapply: true})
+	if code != 0 {
+		t.Fatalf("reapply failed: %s %s", out, errOut)
+	}
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	for _, want := range []string{
+		"wrote   " + e.paths.Composed,
+		"wrote   " + manifestPath,
+		"linked  " + e.claude,
+		"linked  " + e.codex,
+		"changed=4",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("reapply output missing %q:\n%s", want, out)
+		}
+	}
+}
+
+func TestVerbosePrintsEveryLayoutMapping(t *testing.T) {
+	e := newEnv(t)
+	a := e.write(t, "src/a/AGENTS.COMPOSE.md", "# Alpha\n")
+	b := e.write(t, "src/b/AGENTS.COMPOSE.md", "# Beta\n")
+	override := e.write(t, "src/b/AGENTS.claude.md", "# Beta\n\nClaude\n")
+	e.config(t, "sources:\n  - "+a+"\n  - "+b+"\n")
+
+	code, out, errOut := e.runOptions(t, RunOptions{Verbose: true})
+	if code != 0 {
+		t.Fatalf("verbose run failed: %s %s", out, errOut)
+	}
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	claudeOut := harnessOutputPath(e.paths.Composed, "claude")
+	codexOut := harnessOutputPath(e.paths.Composed, "codex")
+	for _, want := range []string{
+		"layout  " + a + " => " + claudeOut,
+		"layout  " + b + " => " + claudeOut,
+		"layout  " + override + " => " + claudeOut,
+		"layout  " + a + " => " + codexOut,
+		"layout  " + b + " => " + codexOut,
+		"layout  " + e.paths.Config + " => " + manifestPath,
+		"layout  " + claudeOut + " => " + e.claude,
+		"layout  " + codexOut + " => " + e.codex,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("verbose output missing %q:\n%s", want, out)
+		}
 	}
 }
 

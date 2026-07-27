@@ -326,9 +326,9 @@ func symlinkUpToDate(dst, target string) bool {
 }
 
 // installSymlink points dst at target, backing up a pre-existing real file
-// to dst.bak; returns a log line or "" when already correct.
-func installSymlink(dst, target string) (string, error) {
-	if symlinkUpToDate(dst, target) {
+// to dst.bak. Reapply recreates an already-correct link.
+func installSymlink(dst, target string, reapply bool) (string, error) {
+	if !reapply && symlinkUpToDate(dst, target) {
 		return "", nil
 	}
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {

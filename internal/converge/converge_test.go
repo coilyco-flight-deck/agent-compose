@@ -15,7 +15,7 @@ import (
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 	t.Helper()
 	var out, errOut bytes.Buffer
-	code := Run(paths, &out, &errOut)
+	code := Run(paths, Options{}, &out, &errOut)
 	return code, out.String(), errOut.String()
 }
 

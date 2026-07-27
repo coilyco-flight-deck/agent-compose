@@ -72,6 +72,14 @@ func main() {
 						Name:  "explain",
 						Usage: "print the full decision tree after the summary",
 					},
+					&cli.BoolFlag{
+						Name:  "reapply",
+						Usage: "rewrite the host compose layout even when it is current",
+					},
+					&cli.BoolFlag{
+						Name:  "verbose",
+						Usage: "print every host compose source => destination mapping",
+					},
 					&cli.StringFlag{
 						Name:  "layout",
 						Usage: "load-point layout for the exec path (with a request)",
@@ -342,6 +350,9 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	if len(args) > 0 {
 		requestPath = args[0]
 	}
+	if requestPath != "" && (cmd.Bool("reapply") || cmd.Bool("verbose")) {
+		return fmt.Errorf("--reapply and --verbose apply only to host convergence without a request")
+	}
 
 	if len(command) > 0 {
 		return refreshThenExec(cmd, requestPath, command)
@@ -350,7 +361,10 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("--layout drives the exec path; add `-- <command>` (or use the project verb)")
 	}
 	if requestPath == "" {
-		if code := converge.Run(cascade.DefaultPaths(), os.Stdout, os.Stderr); code != 0 {
+		if code := converge.Run(cascade.DefaultPaths(), converge.Options{
+			Reapply: cmd.Bool("reapply"),
+			Verbose: cmd.Bool("verbose"),
+		}, os.Stdout, os.Stderr); code != 0 {
 			return cli.Exit("", code)
 		}
 		return nil
@@ -441,7 +455,10 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 		return execReal(command)
 	}
 	if requestPath == "" {
-		if code := converge.Run(cascade.DefaultPaths(), os.Stdout, os.Stderr); code != 0 {
+		if code := converge.Run(cascade.DefaultPaths(), converge.Options{
+			Reapply: cmd.Bool("reapply"),
+			Verbose: cmd.Bool("verbose"),
+		}, os.Stdout, os.Stderr); code != 0 {
 			return cli.Exit("", code)
 		}
 		return execReal(command)
@@ -515,7 +532,7 @@ func runCascade(_ context.Context, cmd *cli.Command) error {
 	if cmd.Bool("check") {
 		code = cascade.Check(paths, os.Stdout, os.Stderr)
 	} else {
-		code = cascade.Run(paths, cmd.Bool("dry-run"), os.Stdout, os.Stderr)
+		code = cascade.Run(paths, cascade.RunOptions{DryRun: cmd.Bool("dry-run")}, os.Stdout, os.Stderr)
 	}
 	if code != 0 {
 		return cli.Exit("", code)
