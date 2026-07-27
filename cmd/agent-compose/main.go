@@ -196,6 +196,10 @@ func main() {
 						Name:  "person-source",
 						Usage: "external person-package root (defaults to embedded person:kai)",
 					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
+					},
 				},
 				Action: runEvaluation,
 			},
@@ -412,7 +416,7 @@ func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
 }
 
 func runEvaluation(_ context.Context, cmd *cli.Command) error {
-	p, external, err := loadSelectedPerson(cmd.String("person-source"))
+	p, external, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
 	}

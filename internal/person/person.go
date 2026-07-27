@@ -255,7 +255,11 @@ type Person struct {
 
 // Load returns the shipped person:kai package.
 func Load() (*Person, error) {
-	return loadSource(embedded, "embedded person source")
+	p, err := loadSource(embedded, "embedded person source")
+	if err != nil {
+		return nil, err
+	}
+	return p, validateRolePersonalities(p)
 }
 
 // LoadDirectory reads one complete external person package using the default layout.
@@ -360,7 +364,7 @@ func discoverLibraries(root string) ([]string, error) {
 
 func mergeLibraries(p *Person, roots []string) (*Person, error) {
 	if len(roots) == 0 {
-		return p, nil
+		return p, validateRolePersonalities(p)
 	}
 	if p.Libraries == nil {
 		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
@@ -403,7 +407,18 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 		p.Libraries[id] = "admitted-local"
 	}
 	p.source = overlay
-	return p, nil
+	return p, validateRolePersonalities(p)
+}
+
+func validateRolePersonalities(p *Person) error {
+	for _, roleName := range p.RoleOrder {
+		for _, personalityName := range p.Roles[roleName].Personalities {
+			if _, ok := p.Personalities[personalityName]; !ok {
+				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
+			}
+		}
+	}
+	return nil
 }
 
 func loadLibrary(root string) (*Person, string, fs.FS, error) {
@@ -1051,11 +1066,6 @@ func parse(raw []byte) (*Person, error) {
 			return nil, fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
 		}
 		referencedInspirations[ref] = true
-		for _, personalityName := range p.Roles[roleName].Personalities {
-			if _, ok := p.Personalities[personalityName]; !ok {
-				return nil, fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
-			}
-		}
 	}
 	for name, personality := range p.Personalities {
 		ref := personality.Inspiration.ID

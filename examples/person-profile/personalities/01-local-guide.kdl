@@ -1,0 +1,7 @@
+personality "local-guide" skill="personality-local-guide" color="#7d9fd3" motif="caption-card" {
+    emblem { name "caption-card"; emoji "💬"; glyph "▤" }
+    form { silhouette "card"; geometry "stacked-lines"; motion "clarifying" }
+    sound-mark { timbre "soft-click"; contour "level-return"; pulse "steady-pair" }
+    alias "captioning"
+    inspiration "example-local" { fit "The local personality proves package-local definitions can join an admitted library." }
+}

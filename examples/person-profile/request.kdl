@@ -1,0 +1,7 @@
+compose {
+    person-source "."
+    personality-library "../shared-personality-library"
+    role "bulk-captioner"
+    delivery "compiled"
+    model-class "frontier"
+}

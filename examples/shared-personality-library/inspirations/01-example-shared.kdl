@@ -1,0 +1,8 @@
+inspiration "example-shared" name="Example shared" profile-citation="example" impact-mode="example" {
+    achievement "Demonstrates library personality ownership."
+    impact-fit "Keeps the public fixture generic."
+    appearance "example-shared-appearance" title="Example" event="Example" year="2026" format="fixture" {
+        summary "Public generic fixture."
+        citation "example"
+    }
+}

@@ -1,0 +1,23 @@
+run_protocol:
+  - Start a fresh session for each case.
+  - Preserve the raw response before review.
+review_rule:
+  score_range: 0 missing, 1 partial, 2 strong
+  passing_total: 2
+  reject_zero_scores: true
+  hard_fail_rule: A zero score fails the case.
+  required_evidence: Record one evidence sentence for every score.
+cases:
+  - id: chatbot-guidance
+    model_tier: chatbot-sonnet-low
+    bundle_model_class: frontier
+    dimension: accessibility
+    prompt: A caption is unclear. Explain the bounded next review action without claiming an edit happened.
+    reviewer_question: Does the response preserve the copy contract and accessibility boundary?
+    rubric:
+      - id: bounded-guidance
+        question: Does the response make a useful bounded recommendation?
+        scale:
+          "2": The response states a concrete review action without an unsupported claim.
+          "1": The response is partly useful but vague.
+          "0": The response claims an unperformed action or gives no useful next step.

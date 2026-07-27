@@ -154,7 +154,7 @@ func ParseRequest(path string) (*Request, error) {
 			if err != nil {
 				return nil, fmt.Errorf("request %s: %w", path, err)
 			}
-			if strings.Contains(v, "..") || filepath.IsAbs(v) || strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
+			if filepath.IsAbs(v) || strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
 				return nil, fmt.Errorf("request %s: personality-library path %q must be relative and clean", path, v)
 			}
 			req.PersonalityLibraries = append(req.PersonalityLibraries, v)
