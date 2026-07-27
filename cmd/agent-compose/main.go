@@ -96,6 +96,14 @@ func main() {
 				Action: runCompose,
 			},
 			{
+				Name: "bundle", Usage: "inspect or export verified bundles",
+				Commands: []*cli.Command{{
+					Name: "export", Usage: "write a deterministic verified .tar.gz archive", ArgsUsage: "<bundle-dir>",
+					Flags:  []cli.Flag{&cli.StringFlag{Name: "out", Required: true, Usage: "archive output path"}},
+					Action: runBundleExport,
+				}},
+			},
+			{
 				Name:  "catalog",
 				Usage: "inspect the selected local profile catalogue",
 				Commands: []*cli.Command{
@@ -316,6 +324,13 @@ func personCatalogFlags(includeQuery bool) []cli.Flag {
 		flags = append(flags, &cli.StringFlag{Name: "query", Usage: "personality slug or declared cue"})
 	}
 	return flags
+}
+
+func runBundleExport(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		return fmt.Errorf("bundle export needs exactly one bundle directory")
+	}
+	return bundle.Export(cmd.Args().First(), cmd.String("out"))
 }
 
 func writeCatalog(value any, asJSON bool, text string) error {
