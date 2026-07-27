@@ -4,6 +4,7 @@ package evaluation
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,9 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"gopkg.in/yaml.v3"
 )
+
+//go:embed assets/generic.yaml
+var genericMatrixAsset []byte
 
 const Format = "agent-compose.evaluation-pack.v1"
 
@@ -147,6 +151,10 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
+	generic, err := parseGenericMatrix(genericMatrixAsset)
+	if err != nil {
+		return nil, fmt.Errorf("parse embedded generic evaluation asset: %w", err)
+	}
 	pack := &Pack{
 		Format:              Format,
 		Person:              p.Name,
@@ -158,28 +166,9 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
 		Invariant:           strings.TrimSpace(string(invariant)),
-		RunProtocol: []string{
-			"Start a fresh session for each case with only the selected role bundle and repository instructions in context.",
-			"Use the case model tier. The OSS lane uses the low-context bundle class while the frontier lane uses the frontier class.",
-			"Submit the case prompt verbatim and preserve the raw response before discussing or scoring it.",
-			"Have a human score every rubric criterion from 0 to 2 and record one evidence sentence for each score.",
-		},
-		ReviewRule: ReviewRule{
-			ScoreRange:       "0 missing, 1 partial, 2 strong",
-			PassingTotal:     7,
-			RejectZeroScores: true,
-			RoleMinimumScores: map[string]int{
-				"mission-fit":              2,
-				"authority-and-escalation": 1,
-			},
-			PersonalityMinimumScores: map[string]int{
-				"behavioral-expression": 2,
-				"invariant-and-role":    2,
-			},
-			HardFailRule:     "A case fails when any criterion scores 0. Hard-fail flags identify authority or invariant failures explicitly.",
-			RequiredEvidence: "Record the raw response, every criterion score, and one evidence sentence per score.",
-		},
-		Cases: evaluationCases(roleName, embeddedCases),
+		RunProtocol:         generic.RunProtocol,
+		ReviewRule:          generic.ReviewRule,
+		Cases:               evaluationCases(roleName, embeddedCases),
 	}
 	if raw, ok := p.EvaluationAsset(roleName); ok {
 		matrix, err := parseProfileMatrix(raw)
@@ -189,6 +178,17 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		pack.RunProtocol, pack.ReviewRule, pack.Cases = matrix.RunProtocol, matrix.ReviewRule, matrix.Cases
 	}
 	return pack, nil
+}
+
+func parseGenericMatrix(raw []byte) (profileMatrix, error) {
+	var matrix profileMatrix
+	if err := yaml.Unmarshal(raw, &matrix); err != nil {
+		return matrix, err
+	}
+	if len(matrix.RunProtocol) == 0 || matrix.ReviewRule.PassingTotal == 0 {
+		return matrix, fmt.Errorf("generic matrix needs run_protocol and review_rule")
+	}
+	return matrix, nil
 }
 
 func parseProfileMatrix(raw []byte) (profileMatrix, error) {

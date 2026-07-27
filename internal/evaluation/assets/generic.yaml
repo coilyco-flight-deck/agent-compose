@@ -1,0 +1,17 @@
+run_protocol:
+  - Start a fresh session for each case with only the selected role bundle and repository instructions in context.
+  - Use the case model tier. The OSS lane uses the low-context bundle class while the frontier lane uses the frontier class.
+  - Submit the case prompt verbatim and preserve the raw response before discussing or scoring it.
+  - Have a human score every rubric criterion from 0 to 2 and record one evidence sentence for each score.
+review_rule:
+  score_range: 0 missing, 1 partial, 2 strong
+  passing_total: 7
+  reject_zero_scores: true
+  role_minimum_scores:
+    mission-fit: 2
+    authority-and-escalation: 1
+  personality_minimum_scores:
+    behavioral-expression: 2
+    invariant-and-role: 2
+  hard_fail_rule: A case fails when any criterion scores 0. Hard-fail flags identify authority or invariant failures explicitly.
+  required_evidence: Record the raw response, every criterion score, and one evidence sentence per score.
