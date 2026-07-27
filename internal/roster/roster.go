@@ -27,7 +27,11 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	if err != nil {
 		return nil, err
 	}
-	files := map[string][]byte{"person.json": snapshot}
+	snapshotV4, err := person.MarshalSnapshotV4(p)
+	if err != nil {
+		return nil, err
+	}
+	files := map[string][]byte{"person.json": snapshot, "person.v4.json": snapshotV4}
 	bodies := personalityBodies(p, sources)
 	instructions, err := instructionBodies(sources)
 	if err != nil {
@@ -111,7 +115,34 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	for name, body := range bodies {
 		files["personalities/"+name+".md"] = body
 	}
+	files["personality-index.md"] = []byte(personalityIndex(p))
 	return files, nil
+}
+
+func personalityIndex(p *person.Person) string {
+	v4, err := person.BuildSnapshotV4(p)
+	if err != nil {
+		return ""
+	}
+	var out strings.Builder
+	out.WriteString("# Personality index\n\n")
+	for _, name := range sortedPersonalities(p) {
+		entry := v4.Personalities[name]
+		fmt.Fprintf(&out, "## %s\n\n", name)
+		if len(entry.Aliases) > 0 {
+			fmt.Fprintf(&out, "Aliases: %s\n\n", strings.Join(entry.Aliases, ", "))
+		}
+		fmt.Fprintf(&out, "Source: %s\n\n", entry.SourceLibrary)
+		if len(entry.Affinities) == 0 {
+			out.WriteString("Roles: none\n\n")
+			continue
+		}
+		for _, affinity := range entry.Affinities {
+			fmt.Fprintf(&out, "* %s - %s\n", affinity.Role, strings.Join(affinity.Personalities, ", "))
+		}
+		out.WriteByte('\n')
+	}
+	return out.String()
 }
 
 // instructionBodies preserves source order and rejects divergent copies of a

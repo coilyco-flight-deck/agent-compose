@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/urfave/cli/v3"
@@ -92,6 +94,28 @@ func main() {
 					},
 				},
 				Action: runCompose,
+			},
+			{
+				Name:  "catalog",
+				Usage: "inspect the selected local profile catalogue",
+				Commands: []*cli.Command{
+					{
+						Name: "personalities", Usage: "list personalities or resolve one cue",
+						Flags: personCatalogFlags(true), Action: runCatalogPersonalities,
+					},
+					{
+						Name: "roles", Usage: "list profile roles",
+						Flags: personCatalogFlags(false), Action: runCatalogRoles,
+					},
+					{
+						Name: "seats", Usage: "list profile seats",
+						Flags: append(personCatalogFlags(false), &cli.StringFlag{Name: "role", Usage: "limit to one role"}), Action: runCatalogSeats,
+					},
+					{
+						Name: "expressions", Usage: "list stable expression vocabulary",
+						Flags: []cli.Flag{&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"}}, Action: runCatalogExpressions,
+					},
+				},
 			},
 			{
 				Name:  "mcp",
@@ -281,6 +305,94 @@ func main() {
 		fmt.Fprintf(os.Stderr, "agent-compose: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func personCatalogFlags(includeQuery bool) []cli.Flag {
+	flags := []cli.Flag{
+		&cli.StringFlag{Name: "person-source", Usage: "external person-package root (defaults to embedded person:kai)"},
+		&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"},
+	}
+	if includeQuery {
+		flags = append(flags, &cli.StringFlag{Name: "query", Usage: "personality slug or declared cue"})
+	}
+	return flags
+}
+
+func writeCatalog(value any, asJSON bool, text string) error {
+	if !asJSON {
+		_, err := fmt.Fprint(os.Stdout, text)
+		return err
+	}
+	raw, err := json.MarshalIndent(map[string]any{"format": "agent-compose.catalog.v1", "items": value}, "", "  ")
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintln(os.Stdout, string(raw))
+	return err
+}
+
+func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	if err != nil {
+		return err
+	}
+	names := make([]string, 0, len(p.Personalities))
+	for name := range p.Personalities {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	if query := cmd.String("query"); query != "" {
+		names, err = p.LookupCue(query)
+		if err != nil {
+			return err
+		}
+	}
+	var text strings.Builder
+	for _, name := range names {
+		entry := p.Personalities[name]
+		fmt.Fprintf(&text, "%s: %s\n", name, strings.Join(entry.Aliases, ", "))
+	}
+	return writeCatalog(names, cmd.Bool("json"), text.String())
+}
+
+func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	if err != nil {
+		return err
+	}
+	var text strings.Builder
+	for _, name := range p.RoleOrder {
+		fmt.Fprintf(&text, "%s: %s\n", name, p.Roles[name].Purpose)
+	}
+	return writeCatalog(p.RoleOrder, cmd.Bool("json"), text.String())
+}
+
+func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
+	if err != nil {
+		return err
+	}
+	roleNames := p.RoleOrder
+	if role := cmd.String("role"); role != "" {
+		if _, ok := p.Roles[role]; !ok {
+			return fmt.Errorf("role %q is not defined", role)
+		}
+		roleNames = []string{role}
+	}
+	seats := make([]person.Seat, 0)
+	var text strings.Builder
+	for _, roleName := range roleNames {
+		for _, seat := range p.Roles[roleName].Seats {
+			seats = append(seats, seat)
+			fmt.Fprintf(&text, "%s: %s (%s)\n", roleName, seat.Selector(), seat.Name)
+		}
+	}
+	return writeCatalog(seats, cmd.Bool("json"), text.String())
+}
+
+func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
+	expressions := person.ExpressionVocabulary()
+	return writeCatalog(expressions, cmd.Bool("json"), strings.Join(expressions, "\n")+"\n")
 }
 
 func runEvaluation(_ context.Context, cmd *cli.Command) error {

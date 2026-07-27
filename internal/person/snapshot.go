@@ -1,6 +1,7 @@
 package person
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 
@@ -91,6 +92,85 @@ func MarshalSnapshot(p *Person) ([]byte, error) {
 	raw, err := json.MarshalIndent(snapshot, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal person snapshot: %w", err)
+	}
+	return append(raw, '\n'), nil
+}
+
+// SnapshotV4 is an additive inspection projection. The v3 snapshot remains
+// available for consumers that have not adopted aliases and affinities.
+type SnapshotV4 struct {
+	Format        string                         `json:"format"`
+	SchemaVersion int                            `json:"schema_version"`
+	Person        string                         `json:"person"`
+	Roles         map[string]SnapshotRole        `json:"roles"`
+	Personalities map[string]SnapshotPersonality `json:"personalities"`
+	Expressions   []string                       `json:"expressions"`
+}
+
+type SnapshotPersonality struct {
+	Personality
+	SourceLibrary string            `json:"source_library"`
+	Digest        string            `json:"digest"`
+	Affinities    []PersonalityMeld `json:"affinities"`
+}
+
+type PersonalityMeld struct {
+	Role          string   `json:"role"`
+	Personalities []string `json:"personalities"`
+}
+
+// BuildSnapshotV4 derives aliases and role affinity from the effective
+// profile graph. Legacy complete packages are represented as one local source.
+func BuildSnapshotV4(p *Person) (*SnapshotV4, error) {
+	v3, err := BuildSnapshot(p)
+	if err != nil {
+		return nil, err
+	}
+	personalities := make(map[string]SnapshotPersonality, len(p.Personalities))
+	for _, name := range p.personalityOrder() {
+		binding := p.Personalities[name]
+		raw, err := json.Marshal(binding)
+		if err != nil {
+			return nil, fmt.Errorf("marshal personality %q for digest: %w", name, err)
+		}
+		digest := sha256.Sum256(raw)
+		entry := SnapshotPersonality{
+			Personality:   binding,
+			SourceLibrary: "person:" + p.Name + ":local",
+			Digest:        fmt.Sprintf("sha256:%x", digest),
+		}
+		for _, roleName := range p.RoleOrder {
+			role := p.Roles[roleName]
+			for _, member := range role.Personalities {
+				if member == name {
+					entry.Affinities = append(entry.Affinities, PersonalityMeld{
+						Role:          roleName,
+						Personalities: append([]string(nil), role.Personalities...),
+					})
+					break
+				}
+			}
+		}
+		personalities[name] = entry
+	}
+	return &SnapshotV4{
+		Format:        "agent-compose.person-snapshot.v4",
+		SchemaVersion: 4,
+		Person:        p.Name,
+		Roles:         v3.Roles,
+		Personalities: personalities,
+		Expressions:   v3.Expressions,
+	}, nil
+}
+
+func MarshalSnapshotV4(p *Person) ([]byte, error) {
+	snapshot, err := BuildSnapshotV4(p)
+	if err != nil {
+		return nil, err
+	}
+	raw, err := json.MarshalIndent(snapshot, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("marshal person snapshot v4: %w", err)
 	}
 	return append(raw, '\n'), nil
 }
