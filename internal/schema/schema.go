@@ -29,12 +29,13 @@ const (
 )
 
 type Request struct {
-	PersonPolicy string
-	PersonSource string
-	Role         string
-	Delivery     string
-	ModelClass   string
-	Sources      []SourceLocator
+	PersonPolicy         string
+	PersonSource         string
+	PersonalityLibraries []string
+	Role                 string
+	Delivery             string
+	ModelClass           string
+	Sources              []SourceLocator
 }
 
 type SourceLocator struct {
@@ -148,6 +149,15 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
+		case "personality-library":
+			v, err := oneStringArg(n)
+			if err != nil {
+				return nil, fmt.Errorf("request %s: %w", path, err)
+			}
+			if strings.Contains(v, "..") || filepath.IsAbs(v) || strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
+				return nil, fmt.Errorf("request %s: personality-library path %q must be relative and clean", path, v)
+			}
+			req.PersonalityLibraries = append(req.PersonalityLibraries, v)
 		case "person-policy", "person-source", "role", "delivery", "model-class":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())

@@ -31,15 +31,16 @@ var defaultMountSet = []string{
 }
 
 type Config struct {
-	Scopes          *scopeList          `yaml:"scopes"`
-	Sources         []string            `yaml:"sources"`
-	Roots           []string            `yaml:"roots"`
-	LoadPoints      map[string]RawValue `yaml:"load_points"`
-	PersonPolicy    string              `yaml:"person_policy"`
-	PersonSource    string              `yaml:"person_source"`
-	RosterSources   []string            `yaml:"roster_sources"`
-	SkillLoadPoints map[string]string   `yaml:"skill_load_points"`
-	MCPInventory    string              `yaml:"mcp_inventory"`
+	Scopes               *scopeList          `yaml:"scopes"`
+	Sources              []string            `yaml:"sources"`
+	Roots                []string            `yaml:"roots"`
+	LoadPoints           map[string]RawValue `yaml:"load_points"`
+	PersonPolicy         string              `yaml:"person_policy"`
+	PersonSource         string              `yaml:"person_source"`
+	PersonalityLibraries []string            `yaml:"personality_libraries"`
+	RosterSources        []string            `yaml:"roster_sources"`
+	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
+	MCPInventory         string              `yaml:"mcp_inventory"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its

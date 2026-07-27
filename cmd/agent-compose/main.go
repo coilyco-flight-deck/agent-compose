@@ -806,7 +806,16 @@ func loadHostPersonOptions(paths cascade.Paths) (compose.Options, error) {
 			paths.Config,
 			paths.Home,
 		),
+		PersonalityLibraries: resolveConfiguredPaths(cfg.PersonalityLibraries, paths.Config, paths.Home),
 	}, nil
+}
+
+func resolveConfiguredPaths(values []string, configPath, home string) []string {
+	paths := make([]string, 0, len(values))
+	for _, value := range values {
+		paths = append(paths, cascade.ResolveConfiguredPath(value, configPath, home))
+	}
+	return paths
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {

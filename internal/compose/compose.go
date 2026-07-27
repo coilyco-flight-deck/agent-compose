@@ -4,6 +4,7 @@ package compose
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
@@ -20,8 +21,9 @@ type Result struct {
 }
 
 type Options struct {
-	PersonPolicy string
-	PersonSource string
+	PersonPolicy         string
+	PersonSource         string
+	PersonalityLibraries []string
 }
 
 type externalOnlyError struct {
@@ -61,8 +63,12 @@ func RunWithOptions(requestPath, outDir string, opts Options) (*Result, error) {
 	externalOnly := hostExternalOnly ||
 		req.PersonPolicy == personpolicy.ExternalOnly
 	personSource := opts.PersonSource
+	libraries := append([]string(nil), opts.PersonalityLibraries...)
 	if req.PersonSource != "" {
 		personSource = filepath.Join(filepath.Dir(requestPath), req.PersonSource)
+	}
+	for _, library := range req.PersonalityLibraries {
+		libraries = append(libraries, filepath.Join(filepath.Dir(requestPath), library))
 	}
 	if err := personpolicy.Validate(effectivePolicy(externalOnly), personSource); err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
@@ -70,7 +76,9 @@ func RunWithOptions(requestPath, outDir string, opts Options) (*Result, error) {
 
 	p, err := person.Load()
 	if personSource != "" {
-		p, err = person.LoadDirectory(personSource)
+		p, err = person.LoadDirectoryWithLibraries(personSource, libraries...)
+	} else if len(libraries) > 0 {
+		return nil, wrapPolicyError(fmt.Errorf("personality-library requires a selected local person-source"), externalOnly)
 	}
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
