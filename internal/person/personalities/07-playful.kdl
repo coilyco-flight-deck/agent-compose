@@ -2,6 +2,10 @@ personality "playful" skill="personality-playful" color="#e882e1" motif="confett
     emblem { name "ferris-wheel"; emoji "🎡"; glyph "✦" }
     form { silhouette "carnival-wheel"; geometry "radial-spokes"; motion "spinning" }
     sound-mark { timbre "toy-piano"; contour "zigzag-rise"; pulse "syncopated-three" }
+    alias "whimsical"
+    alias "lighthearted"
+    alias "fun"
+    alias "mischievous"
     inspiration "joy-buolamwini" {
         fit "Buolamwini embodies playfulness by using poetry, performance, masks, and visual experimentation alongside rigorous technical research."
     }

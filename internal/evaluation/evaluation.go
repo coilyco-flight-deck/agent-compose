@@ -94,12 +94,12 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 	}
 	var seat person.Seat
 	for _, candidate := range role.Seats {
-		if candidate.Harness == harness {
+		if candidate.Selector() == harness {
 			seat = candidate
 			break
 		}
 	}
-	if seat.Harness == "" {
+	if seat.Selector() == "" {
 		return nil, fmt.Errorf("evaluation role %q has no %q seat", roleName, harness)
 	}
 

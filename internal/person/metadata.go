@@ -70,7 +70,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 		out.WriteString("* Known agent seats:\n")
 		for _, seat := range role.Seats {
 			fmt.Fprintf(&out, "  * `%s`: `%s` (pronouns: `%s`)\n",
-				seat.Harness, seat.Name, seat.Pronouns)
+				seat.Selector(), seat.Name, seat.Pronouns)
 		}
 	}
 	fmt.Fprintf(&out, "* Renderer expressions: `%s`\n", strings.Join(ExpressionVocabulary(), "`, `"))
@@ -107,7 +107,7 @@ func (p *Person) RenderRoleTranscript(
 	writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	roleBlock.WriteString("seats:\n")
 	for _, seat := range role.Seats {
-		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Harness, seat.Name, seat.Pronouns)
+		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
 	}
 	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 

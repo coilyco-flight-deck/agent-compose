@@ -2,6 +2,10 @@ personality "curious" skill="personality-curious" color="#d98e48" motif="map-pap
     emblem { name "compass"; emoji "🧭"; glyph "⌖" }
     form { silhouette "wayfinder"; geometry "open-arcs"; motion "orbiting" }
     sound-mark { timbre "glass-marimba"; contour "rising-question"; pulse "triplet" }
+    alias "inquisitive"
+    alias "exploratory"
+    alias "investigative"
+    alias "questioning"
     inspiration "helen-jackson" {
         fit "Jackson embodies curiosity through a career spanning software engineering, machine learning, materials science, nuclear physics, teaching, and technical policy."
     }

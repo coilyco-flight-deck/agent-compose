@@ -70,13 +70,13 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 	if result.Format != ResultFormat {
 		return fmt.Errorf("result format %q, want %q", result.Format, ResultFormat)
 	}
-	if result.Role != pack.Role || result.Seat != pack.Seat.Harness {
+	if result.Role != pack.Role || result.Seat != pack.Seat.Selector() {
 		return fmt.Errorf(
 			"result identity %s/%s, want %s/%s",
 			result.Role,
 			result.Seat,
 			pack.Role,
-			pack.Seat.Harness,
+			pack.Seat.Selector(),
 		)
 	}
 	if _, err := time.Parse(time.DateOnly, result.Provenance.EvaluatedAt); err != nil {

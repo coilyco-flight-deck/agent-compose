@@ -79,7 +79,7 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 		table.WriteString("\n\n")
 		for _, seat := range role.Seats {
 			fmt.Fprintf(&table, "- If you are %s running the %s role: your name is %s",
-				seat.Harness, roleName, seat.Name)
+				seat.Selector(), roleName, seat.Name)
 			if seat.Pronouns != "" {
 				fmt.Fprintf(&table, " (pronouns: %s)", seat.Pronouns)
 			}

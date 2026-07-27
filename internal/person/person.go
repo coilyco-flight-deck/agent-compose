@@ -11,8 +11,10 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 
 	kdl "github.com/calico32/kdl-go"
+	"golang.org/x/text/unicode/norm"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -33,9 +35,14 @@ var personSections = []struct {
 // Seat is one named agent identity within a role. The harness joins the
 // launcher's own catalog, while the name remains opaque here.
 type Seat struct {
+	// Key is the stable profile-owned seat selector. Harness remains populated
+	// for legacy agent entries and v1 result compatibility.
+	Key      string `json:"key,omitempty" yaml:"key,omitempty"`
 	Harness  string `json:"harness" yaml:"harness"`
 	Name     string `json:"name" yaml:"name"`
 	Pronouns string `json:"pronouns" yaml:"pronouns"`
+	Channel  string `json:"channel,omitempty" yaml:"channel,omitempty"`
+	Tier     string `json:"tier,omitempty" yaml:"tier,omitempty"`
 }
 
 // InspirationRef records why one role or personality cites a catalog entry.
@@ -101,6 +108,84 @@ type Personality struct {
 	Form        Form           `json:"form"`
 	SoundMark   SoundMark      `json:"sound_mark"`
 	Inspiration InspirationRef `json:"inspiration"`
+	Aliases     []string       `json:"aliases,omitempty"`
+}
+
+// Selector returns the stable key used by all new commands and artifacts.
+func (s Seat) Selector() string {
+	if s.Key != "" {
+		return s.Key
+	}
+	return s.Harness
+}
+
+// NormalizeCue turns a user-facing personality cue into a stable lookup form.
+func NormalizeCue(cue string) (string, error) {
+	cue = strings.TrimSpace(norm.NFKC.String(cue))
+	if cue == "" {
+		return "", fmt.Errorf("cue is empty")
+	}
+	var out strings.Builder
+	separator := false
+	for _, r := range strings.ToLower(cue) {
+		if unicode.IsControl(r) {
+			return "", fmt.Errorf("cue contains a control character")
+		}
+		if unicode.IsSpace(r) || r == '_' || r == '-' {
+			separator = out.Len() > 0
+			continue
+		}
+		if separator {
+			out.WriteByte('-')
+			separator = false
+		}
+		out.WriteRune(r)
+	}
+	if separator || out.Len() == 0 {
+		return "", fmt.Errorf("cue has a leading or trailing separator")
+	}
+	return out.String(), nil
+}
+
+// LookupCue preserves catalogue order and never hides an ambiguous alias.
+// A canonical slug is an exact match and therefore wins over aliases.
+func (p *Person) LookupCue(cue string) ([]string, error) {
+	normalized, err := NormalizeCue(cue)
+	if err != nil {
+		return nil, err
+	}
+	for _, name := range p.personalityOrder() {
+		slug, err := NormalizeCue(name)
+		if err != nil {
+			return nil, fmt.Errorf("normalize personality slug %q: %w", name, err)
+		}
+		if slug == normalized {
+			return []string{name}, nil
+		}
+	}
+	var matches []string
+	for _, name := range p.personalityOrder() {
+		for _, alias := range p.Personalities[name].Aliases {
+			normalizedAlias, err := NormalizeCue(alias)
+			if err != nil {
+				return nil, fmt.Errorf("normalize alias %q for personality %q: %w", alias, name, err)
+			}
+			if normalizedAlias == normalized {
+				matches = append(matches, name)
+				break
+			}
+		}
+	}
+	return matches, nil
+}
+
+func (p *Person) personalityOrder() []string {
+	names := make([]string, 0, len(p.Personalities))
+	for name := range p.Personalities {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 var expressionVocabulary = [...]string{
@@ -518,24 +603,33 @@ func parse(raw []byte) (*Person, error) {
 							modelClass,
 						)
 					}
-				case "agent":
+				case "agent", "seat":
 					aargs := c.Arguments()
 					if len(aargs) != 1 {
-						return nil, fmt.Errorf("role %q: agent node needs one harness argument", name)
+						return nil, fmt.Errorf("role %q: %s node needs one seat key argument", name, c.Name())
 					}
-					seat := Seat{Harness: aargs[0].String()}
+					seat := Seat{Key: aargs[0].String()}
+					if c.Name() == "agent" {
+						seat.Harness = seat.Key
+					}
 					if n := c.Prop("name"); n.IsValid() {
 						seat.Name = n.String()
 					}
 					if seat.Name == "" {
-						return nil, fmt.Errorf("role %q: agent %q needs a name property", name, seat.Harness)
+						return nil, fmt.Errorf("role %q: seat %q needs a name property", name, seat.Key)
 					}
 					if p := c.Prop("pronouns"); p.IsValid() {
 						seat.Pronouns = p.String()
 					}
+					if value := c.Prop("channel"); value.IsValid() {
+						seat.Channel = value.String()
+					}
+					if value := c.Prop("tier"); value.IsValid() {
+						seat.Tier = value.String()
+					}
 					for _, existing := range role.Seats {
-						if existing.Harness == seat.Harness {
-							return nil, fmt.Errorf("role %q: duplicate agent seat for %q", name, seat.Harness)
+						if existing.Key == seat.Key {
+							return nil, fmt.Errorf("role %q: duplicate seat %q", name, seat.Key)
 						}
 					}
 					role.Seats = append(role.Seats, seat)
@@ -558,8 +652,8 @@ func parse(raw []byte) (*Person, error) {
 			if paragraphs := briefingParagraphCount(role.Briefing); paragraphs < 3 {
 				return nil, fmt.Errorf("role %q: briefing needs at least three paragraphs, got %d", name, paragraphs)
 			}
-			if len(role.Personalities) < 2 || len(role.Personalities) > 3 {
-				return nil, fmt.Errorf("role %q needs two or three personalities, got %d", name, len(role.Personalities))
+			if len(role.Personalities) == 0 {
+				return nil, fmt.Errorf("role %q needs at least one personality", name)
 			}
 			if role.Inspiration.ID == "" {
 				return nil, fmt.Errorf("role %q needs an inspiration", name)
@@ -649,6 +743,23 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					personality.Inspiration = ref
+				case "alias":
+					args := c.Arguments()
+					if len(args) != 1 {
+						return nil, fmt.Errorf("personality %q alias needs one cue", name)
+					}
+					alias := args[0].String()
+					normalized, err := NormalizeCue(alias)
+					if err != nil {
+						return nil, fmt.Errorf("personality %q alias %q: %w", name, alias, err)
+					}
+					for _, prior := range personality.Aliases {
+						priorNormalized, _ := NormalizeCue(prior)
+						if priorNormalized == normalized {
+							return nil, fmt.Errorf("personality %q repeats alias %q", name, alias)
+						}
+					}
+					personality.Aliases = append(personality.Aliases, alias)
 				default:
 					return nil, fmt.Errorf("personality %q: unknown node %q", name, c.Name())
 				}

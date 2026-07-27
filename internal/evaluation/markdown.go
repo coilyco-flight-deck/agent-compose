@@ -11,7 +11,7 @@ func Markdown(pack *Pack) []byte {
 	fmt.Fprintf(&out, "* Format: `%s`\n", pack.Format)
 	fmt.Fprintf(&out, "* Person: `%s`\n", pack.Person)
 	fmt.Fprintf(&out, "* Role: `%s` - %s\n", pack.Role, pack.Purpose)
-	fmt.Fprintf(&out, "* Seat: `%s` - `%s` (pronouns: `%s`)\n", pack.Seat.Harness, pack.Seat.Name, pack.Seat.Pronouns)
+	fmt.Fprintf(&out, "* Seat: `%s` - `%s` (pronouns: `%s`)\n", pack.Seat.Selector(), pack.Seat.Name, pack.Seat.Pronouns)
 	fmt.Fprintf(&out, "* Personalities: `%s`\n", personalityNames(pack.Personalities))
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n\n", pack.MeldedFavoriteColor)
 

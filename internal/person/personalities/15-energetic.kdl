@@ -2,6 +2,10 @@ personality "energetic" skill="personality-energetic" color="#9bb611" motif="neo
     emblem { name "lightning"; emoji "⚡"; glyph "↗" }
     form { silhouette "bolt"; geometry "forward-diagonals"; motion "darting" }
     sound-mark { timbre "synth-pluck"; contour "rapid-rise"; pulse "driving-four" }
+    alias "lively"
+    alias "enthusiastic"
+    alias "high-energy"
+    alias "animated"
     inspiration "bozoma-saint-john" {
         fit "Saint John embodies energetic presence through vivid, high-visibility brand leadership across music, technology, entertainment, and consumer products."
     }

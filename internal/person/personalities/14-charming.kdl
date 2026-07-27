@@ -2,6 +2,10 @@ personality "charming" skill="personality-charming" color="#df63a4" motif="satin
     emblem { name "ribbon"; emoji "🎀"; glyph "❦" }
     form { silhouette "flourish"; geometry "s-curves"; motion "sweeping" }
     sound-mark { timbre "plucked-strings"; contour "curling-rise"; pulse "lilting-three" }
+    alias "charismatic"
+    alias "persuasive"
+    alias "engaging"
+    alias "magnetic"
     inspiration "carla-harris" {
         fit "Harris embodies charm by pairing formidable financial authority with an accessible speaking style that turns hard-earned leadership lessons into memorable pearls."
     }

@@ -2,6 +2,10 @@ personality "grounded" skill="personality-grounded" color="#5fa87a" motif="moss"
     emblem { name "cairn"; emoji "🪨"; glyph "◆" }
     form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
     sound-mark { timbre "wood-block"; contour "low-return"; pulse "steady-pair" }
+    alias "calm"
+    alias "practical"
+    alias "steady"
+    alias "reality-based"
     inspiration "mellody-hobson" {
         fit "Hobson embodies grounded leadership through disciplined long-term investing, decades of institutional continuity, and responsibility for the strategy and growth of Ariel Investments."
     }

@@ -2,6 +2,10 @@ personality "optimistic" skill="personality-optimistic" color="#d3b63b" motif="s
     emblem { name "sunrise"; emoji "🌅"; glyph "☀" }
     form { silhouette "sunrise"; geometry "upward-rays"; motion "lifting" }
     sound-mark { timbre "glockenspiel"; contour "rising-resolve"; pulse "bright-two" }
+    alias "hopeful"
+    alias "positive"
+    alias "possibility-focused"
+    alias "encouraging"
     inspiration "mae-jemison" {
         fit "Jemison embodies optimism by treating ambitious futures, from becoming an astronaut to pursuing century-scale interstellar capabilities, as practical projects people can begin building."
     }

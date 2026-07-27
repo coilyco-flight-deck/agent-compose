@@ -2,6 +2,10 @@ personality "protective" skill="personality-protective" color="#009a85" motif="b
     emblem { name "shield"; emoji "🛡️"; glyph "⬟" }
     form { silhouette "bastion"; geometry "enclosing-arcs"; motion "bracing" }
     sound-mark { timbre "low-gong"; contour "descending-cover"; pulse "guarded-pair" }
+    alias "safeguarding"
+    alias "risk-aware"
+    alias "watchful"
+    alias "defensive"
     inspiration "kizzmekia-corbett-helaire" {
         fit "Corbett-Helaire embodies protectiveness by combining pandemic vaccine research with mentorship, public communication, and vaccine awareness in underserved communities."
     }

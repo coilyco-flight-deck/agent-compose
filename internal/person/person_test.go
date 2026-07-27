@@ -68,6 +68,32 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
+func TestLookupCueUsesDeclaredAliasesAndPreservesAmbiguity(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		cue  string
+		want []string
+	}{
+		{cue: "calm", want: []string{"grounded"}},
+		{cue: " encouraging ", want: []string{"nurturing", "optimistic"}},
+		{cue: "grounded", want: []string{"grounded"}},
+	} {
+		got, lookupErr := p.LookupCue(test.cue)
+		if lookupErr != nil {
+			t.Fatalf("lookup %q: %v", test.cue, lookupErr)
+		}
+		if strings.Join(got, ",") != strings.Join(test.want, ",") {
+			t.Errorf("lookup %q = %v, want %v", test.cue, got, test.want)
+		}
+	}
+	if _, err := NormalizeCue("bad\x00cue"); err == nil {
+		t.Fatal("control characters must be rejected")
+	}
+}
+
 func TestLoadDirectoryKeepsExternalPersonIndependent(t *testing.T) {
 	p, err := LoadDirectory(filepath.Join("..", "..", "testdata", "contracts", "person-independent"))
 	if err != nil {
