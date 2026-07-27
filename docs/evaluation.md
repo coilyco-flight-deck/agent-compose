@@ -64,8 +64,11 @@ ordering, and score contract are deterministic.
 
 [`evaluations/latest/`](../evaluations/latest/) keeps one YAML record per
 evaluated default role and seat. Records preserve model identity, raw responses,
-criterion evidence, totals, verdicts, and provenance. `MarshalResult` validates
-each record against its current pack before deterministic encoding. A record may
+criterion evidence, totals, verdicts, and provenance. New records use
+`agent-compose.evaluation-result.v2` and include a SHA-256 digest of the exact
+canonical review pack. `MarshalResult` validates each record against its
+current pack before deterministic encoding. v1 records remain readable during
+the v1.x compatibility window. A record may
 repeat the canonical cases for multiple models in one tier. Every listed model
 must complete that tier's full case set. Git keeps prior baselines. CEO's failed
 OSS cases remain its frontier-only re-enable gate.
