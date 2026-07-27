@@ -70,6 +70,12 @@ type Pack struct {
 	Cases               []Case               `yaml:"cases"`
 }
 
+type profileMatrix struct {
+	RunProtocol []string   `yaml:"run_protocol"`
+	ReviewRule  ReviewRule `yaml:"review_rule"`
+	Cases       []Case     `yaml:"cases"`
+}
+
 func Build(roleName, harness string) (*Pack, error) {
 	p, err := person.Load()
 	if err != nil {
@@ -140,7 +146,7 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
-	return &Pack{
+	pack := &Pack{
 		Format:              Format,
 		Person:              p.Name,
 		Role:                roleName,
@@ -172,7 +178,38 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 			RequiredEvidence: "Record the raw response, every criterion score, and one evidence sentence per score.",
 		},
 		Cases: evaluationCases(roleName, embeddedCases),
-	}, nil
+	}
+	if raw, ok := p.EvaluationAsset(roleName); ok {
+		matrix, err := parseProfileMatrix(raw)
+		if err != nil {
+			return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
+		}
+		pack.RunProtocol, pack.ReviewRule, pack.Cases = matrix.RunProtocol, matrix.ReviewRule, matrix.Cases
+	}
+	return pack, nil
+}
+
+func parseProfileMatrix(raw []byte) (profileMatrix, error) {
+	var matrix profileMatrix
+	decoder := yaml.NewDecoder(bytes.NewReader(raw))
+	decoder.KnownFields(true)
+	if err := decoder.Decode(&matrix); err != nil {
+		return matrix, err
+	}
+	if len(matrix.RunProtocol) == 0 || len(matrix.Cases) == 0 || matrix.ReviewRule.PassingTotal == 0 {
+		return matrix, fmt.Errorf("matrix must include run_protocol, review_rule, and cases")
+	}
+	seen := map[string]bool{}
+	for _, c := range matrix.Cases {
+		if c.ID == "" || c.ModelTier == "" || c.BundleModelClass == "" || c.Prompt == "" || len(c.Rubric) == 0 {
+			return matrix, fmt.Errorf("matrix case is incomplete")
+		}
+		if seen[c.ID] {
+			return matrix, fmt.Errorf("matrix repeats case %q", c.ID)
+		}
+		seen[c.ID] = true
+	}
+	return matrix, nil
 }
 
 func MarshalYAML(pack *Pack) ([]byte, error) {
