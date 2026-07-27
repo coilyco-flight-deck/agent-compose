@@ -101,6 +101,54 @@ func TestValidateResultDerivesTotalsAndVerdictsFromPack(t *testing.T) {
 	}
 }
 
+func TestValidateResultAcceptsCompleteMultipleModelsPerTier(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("community", "discord")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	for _, scored := range result.Cases {
+		if strings.HasPrefix(scored.ID, "oss-") {
+			candidate := scored
+			candidate.Model = "second-oss-model"
+			result.Cases = append(result.Cases, candidate)
+		}
+	}
+	if err := ValidateResult(result, pack); err != nil {
+		t.Fatalf("complete second OSS model failed validation: %v", err)
+	}
+}
+
+func TestValidateResultRejectsIncompleteOrRepeatedModelCases(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("community", "discord")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	var candidate ScoredCase
+	for _, scored := range result.Cases {
+		if scored.ID == "oss-role-understanding" {
+			candidate = scored
+			candidate.Model = "incomplete-oss-model"
+			break
+		}
+	}
+	result.Cases = append(result.Cases, candidate)
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "is missing oss case") {
+		t.Fatalf("incomplete OSS model error = %v", err)
+	}
+
+	result = passingResult(pack)
+	result.Cases = append(result.Cases, result.Cases[2])
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "repeats case") {
+		t.Fatalf("repeated model case error = %v", err)
+	}
+}
+
 func passingResult(pack *Pack) *ScoredResult {
 	result := &ScoredResult{
 		Format: ResultFormat,

@@ -87,26 +87,53 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		strings.TrimSpace(result.Provenance.Reviewer) == "" {
 		return fmt.Errorf("result provenance is incomplete")
 	}
-	if len(result.Cases) != len(pack.Cases) {
-		return fmt.Errorf("result has %d cases, want %d", len(result.Cases), len(pack.Cases))
-	}
-
 	expected := make(map[string]Case, len(pack.Cases))
+	expectedByTier := make(map[string]map[string]bool)
 	for _, evalCase := range pack.Cases {
 		expected[evalCase.ID] = evalCase
+		if expectedByTier[evalCase.ModelTier] == nil {
+			expectedByTier[evalCase.ModelTier] = make(map[string]bool)
+		}
+		expectedByTier[evalCase.ModelTier][evalCase.ID] = true
 	}
 	seen := make(map[string]bool, len(result.Cases))
+	observed := make(map[string]map[string]map[string]bool)
 	for _, scored := range result.Cases {
 		evalCase, ok := expected[scored.ID]
 		if !ok {
 			return fmt.Errorf("result contains unknown case %q", scored.ID)
 		}
-		if seen[scored.ID] {
-			return fmt.Errorf("result repeats case %q", scored.ID)
+		key := evalCase.ModelTier + "\x00" + scored.Model + "\x00" + scored.ID
+		if seen[key] {
+			return fmt.Errorf("result repeats case %q for model %q", scored.ID, scored.Model)
 		}
-		seen[scored.ID] = true
+		seen[key] = true
 		if err := validateScoredCase(scored, evalCase, pack.ReviewRule); err != nil {
 			return fmt.Errorf("case %q: %w", scored.ID, err)
+		}
+		if observed[evalCase.ModelTier] == nil {
+			observed[evalCase.ModelTier] = make(map[string]map[string]bool)
+		}
+		if observed[evalCase.ModelTier][scored.Model] == nil {
+			observed[evalCase.ModelTier][scored.Model] = make(map[string]bool)
+		}
+		observed[evalCase.ModelTier][scored.Model][scored.ID] = true
+	}
+	for tier, expectedCases := range expectedByTier {
+		if len(observed[tier]) == 0 {
+			return fmt.Errorf("result has no %s model", tier)
+		}
+		for model, modelCases := range observed[tier] {
+			for id := range expectedCases {
+				if !modelCases[id] {
+					return fmt.Errorf(
+						"model %q is missing %s case %q",
+						model,
+						tier,
+						id,
+					)
+				}
+			}
 		}
 	}
 	return nil
