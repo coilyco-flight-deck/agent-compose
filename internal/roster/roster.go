@@ -70,6 +70,13 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 		fmt.Fprintf(&table, "\n## %s - %s\n\n", roleName, role.Purpose)
 		table.WriteString(role.Briefing)
 		table.WriteString("\n\n")
+		if role.CopyContract != nil {
+			fmt.Fprintf(&table, "Copy contract (%s):\n", role.CopyContract.Scope)
+			for _, rule := range role.CopyContract.Rules {
+				fmt.Fprintf(&table, "* prefer %s for %s\n", rule.Prefer, rule.Forbid)
+			}
+			table.WriteString("\n")
+		}
 		for _, seat := range role.Seats {
 			fmt.Fprintf(&table, "- If you are %s running the %s role: your name is %s",
 				seat.Selector(), roleName, seat.Name)
