@@ -75,16 +75,17 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 
 func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 	covered := map[string]bool{
-		"Name":             true,
-		"Roles":            true,
-		"RoleOrder":        true,
-		"Personalities":    true,
-		"Inspirations":     true,
-		"InspirationOrder": true,
-		"Raw":              true,
-		"Libraries":        true,
-		"evaluations":      true,
-		"source":           true,
+		"Name":                 true,
+		"Roles":                true,
+		"RoleOrder":            true,
+		"Personalities":        true,
+		"Inspirations":         true,
+		"InspirationOrder":     true,
+		"Raw":                  true,
+		"Libraries":            true,
+		"PersonalityLibraries": true,
+		"evaluations":          true,
+		"source":               true,
 	}
 	model := reflect.TypeOf(Person{})
 	for index := range model.NumField() {

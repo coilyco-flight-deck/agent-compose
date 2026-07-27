@@ -134,9 +134,13 @@ func BuildSnapshotV4(p *Person) (*SnapshotV4, error) {
 			return nil, fmt.Errorf("marshal personality %q for digest: %w", name, err)
 		}
 		digest := sha256.Sum256(raw)
+		sourceLibrary := p.PersonalityLibraries[name]
+		if sourceLibrary == "" {
+			sourceLibrary = "person:" + p.Name + ":local"
+		}
 		entry := SnapshotPersonality{
 			Personality:   binding,
-			SourceLibrary: "person:" + p.Name + ":local",
+			SourceLibrary: sourceLibrary,
 			Digest:        fmt.Sprintf("sha256:%x", digest),
 		}
 		for _, roleName := range p.RoleOrder {

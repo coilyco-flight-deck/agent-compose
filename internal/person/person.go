@@ -241,16 +241,17 @@ type Inspiration struct {
 }
 
 type Person struct {
-	Name             string                 `json:"person"`
-	Roles            map[string]Role        `json:"roles"`
-	RoleOrder        []string               `json:"role_order"`
-	Personalities    map[string]Personality `json:"personalities"`
-	Inspirations     map[string]Inspiration `json:"inspirations"`
-	InspirationOrder []string               `json:"inspiration_order"`
-	Raw              []byte                 `json:"-"`
-	Libraries        map[string]string      `json:"-"`
-	evaluations      map[string][]byte
-	source           fs.FS
+	Name                 string                 `json:"person"`
+	Roles                map[string]Role        `json:"roles"`
+	RoleOrder            []string               `json:"role_order"`
+	Personalities        map[string]Personality `json:"personalities"`
+	Inspirations         map[string]Inspiration `json:"inspirations"`
+	InspirationOrder     []string               `json:"inspiration_order"`
+	Raw                  []byte                 `json:"-"`
+	Libraries            map[string]string      `json:"-"`
+	PersonalityLibraries map[string]string      `json:"-"`
+	evaluations          map[string][]byte
+	source               fs.FS
 }
 
 // Load returns the shipped person:kai package.
@@ -369,6 +370,12 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 	if p.Libraries == nil {
 		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
 	}
+	if p.PersonalityLibraries == nil {
+		p.PersonalityLibraries = map[string]string{}
+		for name := range p.Personalities {
+			p.PersonalityLibraries[name] = "person:" + p.Name + ":local"
+		}
+	}
 	overlay, err := definitionOverlay(p.source, p.Personalities)
 	if err != nil {
 		return nil, err
@@ -394,6 +401,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 				}
 			}
 			p.Personalities[name] = binding
+			p.PersonalityLibraries[name] = id
 		}
 		for name, inspiration := range library.Inspirations {
 			if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
