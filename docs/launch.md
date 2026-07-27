@@ -32,6 +32,10 @@ the launch aborts. A refresh failure touches only the bundle cache and
 projection-owned files; credentials and mutable harness configuration are
 never in its write path.
 
+An effective `external-only` person policy disables this fallback. The prior
+projection may have used the embedded package, so launch aborts instead of
+risking a prohibited identity. Direct projection also rejects such bundles.
+
 ## Concurrency
 
 Concurrent identical launches converge on one cache entry: the materializer

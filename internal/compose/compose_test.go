@@ -11,6 +11,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -177,6 +178,9 @@ func TestComposeExternalPersonDoesNotInheritEmbeddedRoster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if !result.ExternalOnly {
+		t.Fatal("portable external-only request lost its policy")
+	}
 	manifest := readManifest(t, result.Bundle.Dir)
 	if manifest.Role != "builder" ||
 		!slices.Equal(manifest.Personalities, []string{"bright", "steady"}) {
@@ -201,6 +205,41 @@ func TestComposeExternalPersonDoesNotInheritEmbeddedRoster(t *testing.T) {
 	if !strings.Contains(string(instructions), "# Workbench invariant") ||
 		strings.Contains(string(instructions), "# Personality invariant") {
 		t.Fatalf("external instructions crossed person boundaries:\n%s", instructions)
+	}
+}
+
+func TestComposeHostExternalOnlySelection(t *testing.T) {
+	personRoot, err := filepath.Abs(fixture(t, "person-independent"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := RunWithOptions(
+		fixture(t, "custom-person-inherited.kdl"),
+		t.TempDir(),
+		Options{
+			PersonPolicy: personpolicy.ExternalOnly,
+			PersonSource: personRoot,
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest := readManifest(t, result.Bundle.Dir)
+	if !result.ExternalOnly ||
+		!slices.Equal(manifest.Sources, []string{"person:workbench", "aos-public"}) {
+		t.Fatalf("guarded host selection = %+v / %+v", result, manifest.Sources)
+	}
+}
+
+func TestComposeHostExternalOnlyRequiresSource(t *testing.T) {
+	_, err := RunWithOptions(
+		fixture(t, "native.kdl"),
+		t.TempDir(),
+		Options{PersonPolicy: personpolicy.ExternalOnly},
+	)
+	if err == nil || !IsExternalOnlyError(err) ||
+		!strings.Contains(err.Error(), "requires person_source") {
+		t.Fatalf("external-only missing source error = %v", err)
 	}
 }
 

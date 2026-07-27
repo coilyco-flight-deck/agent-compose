@@ -1,8 +1,7 @@
 # KDL contracts
 
-Agent-compose uses KDL for human-authored requests and policy. Parsers fail on
-unknown nodes, duplicate scalar facts, missing required sources, or an empty
-selection.
+Agent-compose uses KDL for human-authored requests and policy. Parsers reject
+unknown nodes, duplicate facts, missing sources, or an empty selection.
 
 ## Compose request
 
@@ -11,6 +10,7 @@ external capability sources:
 
 ```kdl
 compose {
+    person-policy "external-only"
     person-source "person"
     role "engineer"
     model-class "frontier"
@@ -19,9 +19,9 @@ compose {
 }
 ```
 
-`person-source` is optional and names one package root relative to the request.
-Omission selects the embedded `person:kai` package. An external selection fully
-replaces that default.
+`person-source` names a request-relative package and fully replaces the
+embedded package. `person-policy "external-only"` requires it and prohibits
+fallback. Omitting both selects `person:kai`, unless the host guard supplies it.
 
 The role activates its selected personality set, ordinary provider skills, and
 its composed-skill allowlist. `delivery` is `native-skills` or `compiled`.

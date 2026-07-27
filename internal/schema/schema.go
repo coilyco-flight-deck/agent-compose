@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	kdl "github.com/calico32/kdl-go"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 )
 
 const (
@@ -27,6 +29,7 @@ const (
 )
 
 type Request struct {
+	PersonPolicy string
 	PersonSource string
 	Role         string
 	Delivery     string
@@ -145,7 +148,7 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
-		case "person-source", "role", "delivery", "model-class":
+		case "person-policy", "person-source", "role", "delivery", "model-class":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -155,6 +158,8 @@ func ParseRequest(path string) (*Request, error) {
 				return nil, fmt.Errorf("request %s: %w", path, err)
 			}
 			switch n.Name() {
+			case "person-policy":
+				req.PersonPolicy = v
 			case "person-source":
 				if strings.Contains(v, "..") || filepath.IsAbs(v) ||
 					strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
@@ -241,6 +246,9 @@ func ParseRequest(path string) (*Request, error) {
 	if req.ModelClass != ModelClassFrontier && req.ModelClass != ModelClassLowContext {
 		return nil, fmt.Errorf("request %s: model-class must be %q or %q, got %q",
 			path, ModelClassFrontier, ModelClassLowContext, req.ModelClass)
+	}
+	if err := personpolicy.Validate(req.PersonPolicy, req.PersonSource); err != nil {
+		return nil, fmt.Errorf("request %s: %w", path, err)
 	}
 	return req, nil
 }

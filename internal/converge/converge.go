@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
@@ -46,7 +45,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if cfg.PersonSource != "" {
-		sourcePath := configuredPath(cfg.PersonSource, paths.Config, paths.Home)
+		sourcePath := cascade.ResolveConfiguredPath(cfg.PersonSource, paths.Config, paths.Home)
 		p, err = person.LoadDirectory(sourcePath)
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
@@ -89,7 +88,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 			skills.Managed, skills.LoadPoints, skills.Verified, skills.Linked, skills.Removed, skills.Skipped)
 	}
 	if cfg.MCPInventory != "" {
-		inventory := configuredPath(cfg.MCPInventory, paths.Config, paths.Home)
+		inventory := cascade.ResolveConfiguredPath(cfg.MCPInventory, paths.Config, paths.Home)
 		result, err := nativemcp.Project(nativemcp.Options{
 			Inventory: inventory,
 			Home:      paths.Home,
@@ -106,15 +105,4 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	}
 
 	return 0
-}
-
-func configuredPath(value, configPath, home string) string {
-	value = strings.TrimSpace(value)
-	if value == "~" || strings.HasPrefix(value, "~/") {
-		return filepath.Join(home, strings.TrimPrefix(strings.TrimPrefix(value, "~"), "/"))
-	}
-	if filepath.IsAbs(value) {
-		return value
-	}
-	return filepath.Join(filepath.Dir(configPath), value)
 }

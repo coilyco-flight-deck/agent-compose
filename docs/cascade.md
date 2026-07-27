@@ -1,19 +1,20 @@
 # Cascade
 
-The cascade (bare `agent-compose compose`, with hidden `cascade` for scripts)
-turns doctrine sources into each harness's global context. It activates when
+The cascade turns doctrine sources into each harness's global context when
 `~/.agent-compose/agent-compose.yaml` exists. Missing config is a no-op.
 
-Bare `acompose` always summarizes its roster, outputs, harness load points,
-eligibility manifest, and skill links. Detailed lines identify repaired drift.
+Bare `acompose` summarizes its roster, outputs, load points, manifest, skill
+links, and repaired drift.
 Bare `acompose --reapply` recreates outputs and load-point links.
 `acompose --verbose` emits each source, override, manifest, and link as
 `source => destination`.
 
-All state lives under `~/.agent-compose`: config, COMPOSED outputs, the mount
-manifest, roster sources, and bundle cache. A legacy
-`~/.config/agent-compose` directory migrates on first use and leaves a
-compatibility symlink through the fleet cutover tracked in agentic-os#618.
+`person_policy: external-only` requires `person_source`. A bad package aborts
+before roster or cascade projection can restore the embedded default.
+
+All state lives under `~/.agent-compose`: config, outputs, manifest, roster,
+and cache. A legacy `~/.config/agent-compose` migrates on first use and leaves
+a compatibility symlink through the cutover tracked in agentic-os#618.
 
 Explicit `sources` compose first in listed order, then each `roots` entry is
 walked for `AGENTS.COMPOSE.md` files, appended sorted. That filename is the

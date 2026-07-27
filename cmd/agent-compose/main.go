@@ -23,6 +23,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
@@ -402,7 +403,11 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 		}
 		outDir = filepath.Join(stateDir, "bundles")
 	}
-	result, err := compose.Run(requestPath, outDir)
+	hostPerson, err := loadHostPersonOptions(cascade.DefaultPaths())
+	if err != nil {
+		return err
+	}
+	result, err := compose.RunWithOptions(requestPath, outDir, hostPerson)
 	if err != nil {
 		return err
 	}
@@ -500,11 +505,17 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 		}
 		outDir = filepath.Join(stateDir, "bundles")
 	}
+	hostPerson, err := loadHostPersonOptions(cascade.DefaultPaths())
+	if err != nil {
+		return err
+	}
 	result, err := launch.Refresh(launch.Options{
-		RequestPath: requestPath,
-		Layout:      layout,
-		TargetDir:   cmd.String("target"),
-		OutDir:      outDir,
+		RequestPath:  requestPath,
+		Layout:       layout,
+		TargetDir:    cmd.String("target"),
+		OutDir:       outDir,
+		PersonPolicy: hostPerson.PersonPolicy,
+		PersonSource: hostPerson.PersonSource,
 	})
 	if err != nil {
 		return err
@@ -619,12 +630,47 @@ func runPaletteData(_ context.Context, cmd *cli.Command) error {
 }
 
 func loadSelectedPerson(source string) (*person.Person, bool, error) {
+	return loadSelectedPersonAt(source, cascade.DefaultPaths())
+}
+
+func loadSelectedPersonAt(source string, paths cascade.Paths) (*person.Person, bool, error) {
 	if source == "" {
-		p, err := person.Load()
-		return p, false, err
+		hostPerson, err := loadHostPersonOptions(paths)
+		if err != nil {
+			return nil, false, err
+		}
+		source = hostPerson.PersonSource
+		if source == "" {
+			p, err := person.Load()
+			return p, false, err
+		}
 	}
 	p, err := person.LoadDirectory(source)
 	return p, true, err
+}
+
+func loadHostPersonOptions(paths cascade.Paths) (compose.Options, error) {
+	if _, err := os.Stat(paths.Config); err != nil {
+		if os.IsNotExist(err) {
+			return compose.Options{}, nil
+		}
+		return compose.Options{}, fmt.Errorf("inspect host config %s: %w", paths.Config, err)
+	}
+	cfg, err := cascade.LoadConfig(paths.Config)
+	if err != nil {
+		return compose.Options{}, err
+	}
+	if cfg.PersonPolicy == "" {
+		return compose.Options{}, nil
+	}
+	return compose.Options{
+		PersonPolicy: cfg.PersonPolicy,
+		PersonSource: cascade.ResolveConfiguredPath(
+			cfg.PersonSource,
+			paths.Config,
+			paths.Home,
+		),
+	}, nil
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {
@@ -632,6 +678,13 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("project needs exactly one bundle directory")
 	}
 	bundleDir := cmd.Args().First()
+	hostPerson, err := loadHostPersonOptions(cascade.DefaultPaths())
+	if err != nil {
+		return err
+	}
+	if err := validateProjectPersonPolicy(bundleDir, hostPerson); err != nil {
+		return err
+	}
 	result, err := project.ProjectScoped(bundleDir, cmd.String("layout"), cmd.String("target"), cmd.String("scope"))
 	if err != nil {
 		return err
@@ -639,6 +692,29 @@ func runProject(_ context.Context, cmd *cli.Command) error {
 	fmt.Printf("projected %d files into layout %s (%s scope) under %s\n",
 		len(result.Files), result.Layout, cmd.String("scope"), cmd.String("target"))
 	return nil
+}
+
+func validateProjectPersonPolicy(bundleDir string, opts compose.Options) error {
+	if opts.PersonPolicy != personpolicy.ExternalOnly {
+		return nil
+	}
+	verification, err := bundle.Verify(bundleDir)
+	if err != nil {
+		return err
+	}
+	external := false
+	for _, identity := range verification.Identities {
+		if identity.Source == "person:kai" {
+			return fmt.Errorf("external-only person policy rejects bundle source %q", identity.Source)
+		}
+		if strings.HasPrefix(identity.Source, "person:") {
+			external = true
+		}
+	}
+	if external {
+		return nil
+	}
+	return fmt.Errorf("external-only person policy requires an external person bundle")
 }
 
 // printSummary renders the complete selected-role identity transcript followed

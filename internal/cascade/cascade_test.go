@@ -82,6 +82,29 @@ func TestNoConfigIsNoOp(t *testing.T) {
 	}
 }
 
+func TestLoadConfigValidatesPersonPolicy(t *testing.T) {
+	e := newEnv(t)
+	valid := e.write(
+		t,
+		"valid.yaml",
+		"person_policy: external-only\nperson_source: ./person\n",
+	)
+	if _, err := LoadConfig(valid); err != nil {
+		t.Fatalf("valid person policy failed: %v", err)
+	}
+	for name, body := range map[string]string{
+		"missing source": "person_policy: external-only\n",
+		"unknown policy": "person_policy: prefer-external\nperson_source: ./person\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			path := e.write(t, name+".yaml", body)
+			if _, err := LoadConfig(path); err == nil {
+				t.Fatal("invalid person policy passed")
+			}
+		})
+	}
+}
+
 func TestComposeBasicsAndSilentRecompose(t *testing.T) {
 	e := newEnv(t)
 	a := e.write(t, "src/a/AGENTS.COMPOSE.md", "# Alpha\n\nalpha doctrine\n")

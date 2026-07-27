@@ -59,6 +59,7 @@ The engine keeps this package as its opinionated zero-config default. Another
 deployment can select a complete package using the same validated layout. The
 selection is exclusive: an external package contributes its own roles, seats,
 personality definitions, and evaluation context without loading `person:kai`.
+An `external-only` policy makes that boundary fail closed across the machine.
 See [person packages](docs/person-packages.md).
 
 ## Status

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 )
 
@@ -14,10 +15,12 @@ import (
 const EnvSentinel = "AGENT_COMPOSE_LAUNCH"
 
 type Options struct {
-	RequestPath string
-	Layout      string
-	TargetDir   string
-	OutDir      string
+	RequestPath  string
+	Layout       string
+	TargetDir    string
+	OutDir       string
+	PersonPolicy string
+	PersonSource string
 }
 
 type Result struct {
@@ -31,13 +34,16 @@ type Result struct {
 // Refresh composes and projects, falling back to a validated last-known-good
 // projection on failure with the cause surfaced as a warning.
 func Refresh(opts Options) (*Result, error) {
-	composed, err := compose.Run(opts.RequestPath, opts.OutDir)
+	composed, err := compose.RunWithOptions(opts.RequestPath, opts.OutDir, compose.Options{
+		PersonPolicy: opts.PersonPolicy,
+		PersonSource: opts.PersonSource,
+	})
 	if err != nil {
-		return fallbackOr(opts, fmt.Errorf("compose: %w", err))
+		return fallbackOr(opts, compose.IsExternalOnlyError(err), fmt.Errorf("compose: %w", err))
 	}
 	projected, err := project.Project(composed.Bundle.Dir, opts.Layout, opts.TargetDir)
 	if err != nil {
-		return fallbackOr(opts, fmt.Errorf("project: %w", err))
+		return fallbackOr(opts, composed.ExternalOnly, fmt.Errorf("project: %w", err))
 	}
 	return &Result{
 		BundleDir:    composed.Bundle.Dir,
@@ -46,7 +52,10 @@ func Refresh(opts Options) (*Result, error) {
 	}, nil
 }
 
-func fallbackOr(opts Options, cause error) (*Result, error) {
+func fallbackOr(opts Options, externalOnly bool, cause error) (*Result, error) {
+	if externalOnly || opts.PersonPolicy == personpolicy.ExternalOnly {
+		return nil, fmt.Errorf("external-only person policy prohibits last-known-good fallback: %w", cause)
+	}
 	if err := project.Validate(opts.TargetDir); err != nil {
 		return nil, fmt.Errorf("refresh failed and no last-known-good projection is usable (%v): %w", err, cause)
 	}

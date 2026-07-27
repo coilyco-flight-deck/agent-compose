@@ -16,6 +16,7 @@ model, chooses credentials, or acquires execution authority.
 The command defaults to `person:kai`. `--person-source` loads one external
 package instead. The pack derives its person, role, seat, invariant, and active
 definitions from that package without inheriting default role-specific cases.
+On an `external-only` host, omission inherits the guarded external source.
 
 ## Four-case matrix
 

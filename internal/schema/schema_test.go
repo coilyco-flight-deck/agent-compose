@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 )
 
 func fixture(t *testing.T, name string) string {
@@ -53,6 +55,9 @@ func TestParseRequestAcceptsRelativePersonSource(t *testing.T) {
 	}
 	if req.PersonSource != "person-independent" {
 		t.Fatalf("person source = %q", req.PersonSource)
+	}
+	if req.PersonPolicy != personpolicy.ExternalOnly {
+		t.Fatalf("person policy = %q", req.PersonPolicy)
 	}
 }
 
@@ -128,6 +133,17 @@ func TestParseRequestFailsClosed(t *testing.T) {
 }`,
 		"absolute person source": `compose {
     person-source "/tmp/person"
+    role "engineer"
+    delivery "native-skills"
+}`,
+		"external-only without person source": `compose {
+    person-policy "external-only"
+    role "engineer"
+    delivery "native-skills"
+}`,
+		"unknown person policy": `compose {
+    person-policy "prefer-external"
+    person-source "person"
     role "engineer"
     delivery "native-skills"
 }`,

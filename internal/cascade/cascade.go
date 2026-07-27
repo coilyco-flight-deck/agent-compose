@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 )
 
 const (
@@ -33,6 +35,7 @@ type Config struct {
 	Sources         []string            `yaml:"sources"`
 	Roots           []string            `yaml:"roots"`
 	LoadPoints      map[string]RawValue `yaml:"load_points"`
+	PersonPolicy    string              `yaml:"person_policy"`
 	PersonSource    string              `yaml:"person_source"`
 	RosterSources   []string            `yaml:"roster_sources"`
 	SkillLoadPoints map[string]string   `yaml:"skill_load_points"`
@@ -87,6 +90,9 @@ func LoadConfig(path string) (*Config, error) {
 	if err := yaml.Unmarshal(raw, &cfg); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	if err := personpolicy.Validate(cfg.PersonPolicy, cfg.PersonSource); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
 	return &cfg, nil
 }
 
@@ -98,6 +104,19 @@ func expand(path string) string {
 		}
 	}
 	return path
+}
+
+// ResolveConfiguredPath expands one host-config path against its config file
+// and injectable home directory.
+func ResolveConfiguredPath(value, configPath, home string) string {
+	value = strings.TrimSpace(value)
+	if value == "~" || strings.HasPrefix(value, "~/") {
+		return filepath.Join(home, strings.TrimPrefix(strings.TrimPrefix(value, "~"), "/"))
+	}
+	if filepath.IsAbs(value) {
+		return value
+	}
+	return filepath.Join(filepath.Dir(configPath), value)
 }
 
 // DefaultLoadPoints wires claude and codex; opencode stays opt-in via config.

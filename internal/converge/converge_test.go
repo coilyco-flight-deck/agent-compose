@@ -146,7 +146,8 @@ func TestConvergeUsesConfiguredExternalPersonExclusively(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	config := "person_source: " + personRoot + "\n" +
+	config := "person_policy: external-only\n" +
+		"person_source: " + personRoot + "\n" +
 		"roots:\n  - " + filepath.Join(dir, "sources") + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n" +
 		"  codex: null\n"
@@ -171,6 +172,28 @@ func TestConvergeUsesConfiguredExternalPersonExclusively(t *testing.T) {
 	if !strings.Contains(snapshot, `"source": "person:workbench"`) ||
 		strings.Contains(snapshot, `"person:kai"`) {
 		t.Fatalf("external person snapshot crossed source boundaries:\n%s", snapshot)
+	}
+}
+
+func TestConvergeExternalOnlyFailsWithoutSource(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: dir,
+		Home:         filepath.Join(dir, "home"),
+	}
+	config := "person_policy: external-only\n" +
+		"roots:\n  - " + filepath.Join(dir, "sources") + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, _, errOut := run(t, paths)
+	if code != 1 || !strings.Contains(errOut, "requires person_source") {
+		t.Fatalf("unguarded convergence did not fail closed: %d %s", code, errOut)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "sources", "personality")); !os.IsNotExist(err) {
+		t.Fatalf("failed convergence wrote a roster: %v", err)
 	}
 }
 

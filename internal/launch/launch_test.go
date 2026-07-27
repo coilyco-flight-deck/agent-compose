@@ -7,6 +7,7 @@ import (
 	"sync"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 )
 
@@ -101,6 +102,52 @@ func TestRefreshFallsBackToLastKnownGood(t *testing.T) {
 	}
 	if !strings.Contains(readFile(t, target, "CLAUDE.md"), "Fixture foundation") {
 		t.Fatal("last-known-good projection must remain intact")
+	}
+}
+
+func TestExternalOnlyRefreshNeverFallsBack(t *testing.T) {
+	target, out := t.TempDir(), t.TempDir()
+	good := Options{
+		RequestPath: fixture(t, "native.kdl"),
+		Layout:      "claude",
+		TargetDir:   target,
+		OutDir:      out,
+	}
+	if _, err := Refresh(good); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := Refresh(Options{
+		RequestPath:  fixture(t, "native.kdl"),
+		Layout:       "claude",
+		TargetDir:    target,
+		OutDir:       out,
+		PersonPolicy: personpolicy.ExternalOnly,
+		PersonSource: filepath.Join(t.TempDir(), "missing-person"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "prohibits last-known-good fallback") {
+		t.Fatalf("external-only refresh fallback error = %v", err)
+	}
+}
+
+func TestPortableExternalOnlyRefreshNeverFallsBack(t *testing.T) {
+	target, out := t.TempDir(), t.TempDir()
+	if _, err := Refresh(Options{
+		RequestPath: fixture(t, "native.kdl"),
+		Layout:      "claude",
+		TargetDir:   target,
+		OutDir:      out,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	_, err := Refresh(Options{
+		RequestPath: fixture(t, "custom-person.kdl"),
+		Layout:      "missing-layout",
+		TargetDir:   target,
+		OutDir:      out,
+	})
+	if err == nil || !strings.Contains(err.Error(), "prohibits last-known-good fallback") {
+		t.Fatalf("portable external-only fallback error = %v", err)
 	}
 }
 

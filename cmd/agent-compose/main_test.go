@@ -1,14 +1,18 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -28,6 +32,84 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	}
 	if _, err := evaluationOutput(pack, "json"); err == nil {
 		t.Fatal("legacy JSON evaluation output remains accepted")
+	}
+}
+
+func TestDirectPersonSelectionInheritsExternalOnlyHost(t *testing.T) {
+	dir := t.TempDir()
+	personRoot, err := filepath.Abs(filepath.Join(
+		"..", "..", "testdata", "contracts", "person-independent",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	paths := cascade.Paths{
+		Config: filepath.Join(dir, "agent-compose.yaml"),
+		Home:   filepath.Join(dir, "home"),
+	}
+	config := "person_policy: " + personpolicy.ExternalOnly + "\n" +
+		"person_source: " + personRoot + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	p, external, err := loadSelectedPersonAt("", paths)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !external || p.Name != "workbench" {
+		t.Fatalf("direct selection = external:%t person:%q", external, p.Name)
+	}
+}
+
+func TestDirectPersonSelectionFailsClosedWithBrokenHostGuard(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config: filepath.Join(dir, "agent-compose.yaml"),
+		Home:   filepath.Join(dir, "home"),
+	}
+	if err := os.WriteFile(
+		paths.Config,
+		[]byte("person_policy: "+personpolicy.ExternalOnly+"\n"),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := loadSelectedPersonAt("", paths); err == nil ||
+		!strings.Contains(err.Error(), "requires person_source") {
+		t.Fatalf("broken host guard error = %v", err)
+	}
+}
+
+func TestProjectPersonPolicyRejectsEmbeddedBundle(t *testing.T) {
+	result, err := compose.Run(
+		filepath.Join("..", "..", "testdata", "contracts", "native.kdl"),
+		t.TempDir(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = validateProjectPersonPolicy(result.Bundle.Dir, compose.Options{
+		PersonPolicy: personpolicy.ExternalOnly,
+		PersonSource: "/person",
+	})
+	if err == nil || !strings.Contains(err.Error(), "person:kai") {
+		t.Fatalf("embedded bundle policy error = %v", err)
+	}
+}
+
+func TestProjectPersonPolicyAcceptsExternalBundle(t *testing.T) {
+	result, err := compose.Run(
+		filepath.Join("..", "..", "testdata", "contracts", "custom-person.kdl"),
+		t.TempDir(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := validateProjectPersonPolicy(result.Bundle.Dir, compose.Options{
+		PersonPolicy: personpolicy.ExternalOnly,
+		PersonSource: "/person",
+	}); err != nil {
+		t.Fatalf("external bundle rejected: %v", err)
 	}
 }
 
