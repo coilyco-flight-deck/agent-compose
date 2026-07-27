@@ -1,0 +1,6 @@
+compose {
+    person-source "person-independent"
+    role "builder"
+    delivery "native-skills"
+    source "aos-public" declaration="source-public.kdl" required=#true
+}

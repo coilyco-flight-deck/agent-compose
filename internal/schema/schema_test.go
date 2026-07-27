@@ -46,6 +46,16 @@ func TestParseRequestAcceptsLowContextModelClass(t *testing.T) {
 	}
 }
 
+func TestParseRequestAcceptsRelativePersonSource(t *testing.T) {
+	req, err := ParseRequest(fixture(t, "custom-person.kdl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req.PersonSource != "person-independent" {
+		t.Fatalf("person source = %q", req.PersonSource)
+	}
+}
+
 func writeRequest(t *testing.T, body string) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "request.kdl")
@@ -115,6 +125,11 @@ func TestParseRequestFailsClosed(t *testing.T) {
     role "engineer"
     delivery "native-skills"
     source "aos-public" root=""
+}`,
+		"absolute person source": `compose {
+    person-source "/tmp/person"
+    role "engineer"
+    delivery "native-skills"
 }`,
 		"invalid kdl": `compose { role "engineer`,
 	}

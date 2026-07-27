@@ -7,6 +7,8 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -149,35 +151,77 @@ type Person struct {
 	Inspirations     map[string]Inspiration `json:"inspirations"`
 	InspirationOrder []string               `json:"inspiration_order"`
 	Raw              []byte                 `json:"-"`
+	source           fs.FS
 }
 
+// Load returns the shipped person:kai package.
 func Load() (*Person, error) {
-	raw, err := assemblePersonSource(embedded)
+	return loadSource(embedded, "embedded person source")
+}
+
+// LoadDirectory reads one complete external person package using the default layout.
+// An external package replaces the embedded package rather than extending it.
+func LoadDirectory(root string) (*Person, error) {
+	if strings.TrimSpace(root) == "" {
+		return nil, fmt.Errorf("external person source path is empty")
+	}
+	absolute, err := filepath.Abs(root)
+	if err != nil {
+		return nil, fmt.Errorf("resolve external person source %s: %w", root, err)
+	}
+	info, err := os.Stat(absolute)
+	if err != nil {
+		return nil, fmt.Errorf("inspect external person source %s: %w", absolute, err)
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("external person source %s is not a directory", absolute)
+	}
+	if err := filepath.WalkDir(absolute, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.Type()&fs.ModeSymlink != 0 {
+			return fmt.Errorf("external person source contains symlink %s", path)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("inspect external person source tree %s: %w", absolute, err)
+	}
+	return loadSource(os.DirFS(absolute), "external person source "+absolute)
+}
+
+func loadSource(source fs.FS, label string) (*Person, error) {
+	raw, err := assemblePersonSource(source, label)
 	if err != nil {
 		return nil, err
 	}
-	return parse(raw)
+	p, err := parse(raw)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
+	p.source = source
+	return p, nil
 }
 
-func assemblePersonSource(source fs.FS) ([]byte, error) {
+func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 	manifest, err := fs.ReadFile(source, "person.kdl")
 	if err != nil {
-		return nil, fmt.Errorf("read embedded person manifest: %w", err)
+		return nil, fmt.Errorf("%s: read person manifest: %w", label, err)
 	}
 	manifest = bytes.TrimSpace(manifest)
 	doc, err := kdl.ParseString(string(manifest))
 	if err != nil {
-		return nil, fmt.Errorf("parse embedded person manifest: %w", err)
+		return nil, fmt.Errorf("%s: parse person manifest: %w", label, err)
 	}
 	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "person" {
-		return nil, fmt.Errorf("embedded person manifest: expected exactly one person node")
+		return nil, fmt.Errorf("%s: person manifest needs exactly one person node", label)
 	}
 	root := doc.Nodes[0]
 	if len(root.Arguments()) != 1 {
-		return nil, fmt.Errorf("embedded person manifest: person node needs one name argument")
+		return nil, fmt.Errorf("%s: person manifest node needs one name argument", label)
 	}
 	if len(root.Children().Nodes) != 0 {
-		return nil, fmt.Errorf("embedded person manifest: policy nodes belong in section files")
+		return nil, fmt.Errorf("%s: person policy nodes belong in section files", label)
 	}
 
 	var assembled bytes.Buffer
@@ -187,15 +231,16 @@ func assemblePersonSource(source fs.FS) ([]byte, error) {
 	for _, section := range personSections {
 		entries, err := fs.ReadDir(source, section.directory)
 		if err != nil {
-			return nil, fmt.Errorf("read embedded person %s: %w", section.directory, err)
+			return nil, fmt.Errorf("%s: read person %s: %w", label, section.directory, err)
 		}
 		if len(entries) == 0 {
-			return nil, fmt.Errorf("embedded person %s: section is empty", section.directory)
+			return nil, fmt.Errorf("%s: person %s section is empty", label, section.directory)
 		}
 		for _, entry := range entries {
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
 				return nil, fmt.Errorf(
-					"embedded person %s: unexpected entry %q",
+					"%s: person %s has unexpected entry %q",
+					label,
 					section.directory,
 					entry.Name(),
 				)
@@ -203,16 +248,17 @@ func assemblePersonSource(source fs.FS) ([]byte, error) {
 			path := section.directory + "/" + entry.Name()
 			fragment, err := fs.ReadFile(source, path)
 			if err != nil {
-				return nil, fmt.Errorf("read embedded person fragment %q: %w", path, err)
+				return nil, fmt.Errorf("%s: read person fragment %q: %w", label, path, err)
 			}
 			fragment = bytes.TrimSpace(fragment)
 			fragmentDoc, err := kdl.ParseString(string(fragment))
 			if err != nil {
-				return nil, fmt.Errorf("parse embedded person fragment %q: %w", path, err)
+				return nil, fmt.Errorf("%s: parse person fragment %q: %w", label, path, err)
 			}
 			if len(fragmentDoc.Nodes) != 1 || fragmentDoc.Nodes[0].Name() != section.node {
 				return nil, fmt.Errorf(
-					"embedded person fragment %q: expected exactly one %s node",
+					"%s: person fragment %q needs exactly one %s node",
+					label,
 					path,
 					section.node,
 				)
@@ -220,14 +266,16 @@ func assemblePersonSource(source fs.FS) ([]byte, error) {
 			args := fragmentDoc.Nodes[0].Arguments()
 			if len(args) != 1 {
 				return nil, fmt.Errorf(
-					"embedded person fragment %q: %s node needs one name argument",
+					"%s: person fragment %q %s node needs one name argument",
+					label,
 					path,
 					section.node,
 				)
 			}
 			if want, ok := personFragmentSlug(entry.Name()); !ok || args[0].String() != want {
 				return nil, fmt.Errorf(
-					"embedded person fragment %q: filename does not match %s %q",
+					"%s: person fragment %q filename does not match %s %q",
+					label,
 					path,
 					section.node,
 					args[0].String(),
@@ -261,28 +309,33 @@ func indentPersonFragment(fragment []byte) string {
 	return "    " + strings.ReplaceAll(text, "\n", "\n    ")
 }
 
-// Source returns the canonical person:kai content provider. The role catalog,
-// invariant, and every bound personality definition ship in one binary.
+// Source returns the selected person's content provider. The role catalog,
+// invariant, and every bound personality definition come from the same package.
 func Source(p *Person) (*schema.Source, error) {
-	files, err := fs.Sub(embedded, "definitions")
+	if p == nil {
+		return nil, fmt.Errorf("person is required")
+	}
+	source := p.source
+	strictDefinitions := true
+	if source == nil {
+		source = embedded
+		strictDefinitions = false
+	}
+	files, err := fs.Sub(source, "definitions")
 	if err != nil {
-		return nil, fmt.Errorf("open embedded personality definitions: %w", err)
+		return nil, fmt.Errorf("open person %q personality definitions: %w", p.Name, err)
 	}
 	invariant, err := fs.ReadFile(files, "INVARIANT.md")
 	if err != nil {
-		return nil, fmt.Errorf("read embedded personality invariant: %w", err)
+		return nil, fmt.Errorf("read person %q personality invariant: %w", p.Name, err)
 	}
 	if len(bytes.TrimSpace(invariant)) == 0 {
-		return nil, fmt.Errorf("embedded personality invariant is empty")
+		return nil, fmt.Errorf("person %q personality invariant is empty", p.Name)
 	}
 
-	canonical, err := Load()
-	if err != nil {
-		return nil, err
-	}
-	expected := make(map[string]bool, len(canonical.Personalities))
-	canonicalSkills := make([]string, 0, len(canonical.Personalities))
-	for _, binding := range canonical.Personalities {
+	expected := make(map[string]bool, len(p.Personalities))
+	canonicalSkills := make([]string, 0, len(p.Personalities))
+	for _, binding := range p.Personalities {
 		expected[binding.Skill] = true
 		canonicalSkills = append(canonicalSkills, binding.Skill)
 	}
@@ -294,7 +347,7 @@ func Source(p *Person) (*schema.Source, error) {
 			return nil, fmt.Errorf("personality %q has no skill binding", name)
 		}
 		if !expected[binding.Skill] {
-			return nil, fmt.Errorf("personality %q binds non-canonical skill %q", name, binding.Skill)
+			return nil, fmt.Errorf("personality %q binds unknown skill %q", name, binding.Skill)
 		}
 		if selected[binding.Skill] {
 			return nil, fmt.Errorf("personality skill %q is bound more than once", binding.Skill)
@@ -304,11 +357,12 @@ func Source(p *Person) (*schema.Source, error) {
 
 	entries, err := fs.ReadDir(files, "skills")
 	if err != nil {
-		return nil, fmt.Errorf("read embedded personality skills: %w", err)
+		return nil, fmt.Errorf("read person %q personality skills: %w", p.Name, err)
 	}
-	if len(entries) != len(canonicalSkills) {
+	if strictDefinitions && len(entries) != len(canonicalSkills) {
 		return nil, fmt.Errorf(
-			"embedded personality skills: catalog binds %d skills but definitions contain %d entries",
+			"person %q personality skills: catalog binds %d skills but definitions contain %d entries",
+			p.Name,
 			len(canonicalSkills),
 			len(entries),
 		)
@@ -323,15 +377,15 @@ func Source(p *Person) (*schema.Source, error) {
 		}},
 	}
 	for _, entry := range entries {
-		if !entry.IsDir() || !expected[entry.Name()] {
-			return nil, fmt.Errorf("embedded personality skills: unexpected entry %q", entry.Name())
+		if !entry.IsDir() || strictDefinitions && !expected[entry.Name()] {
+			return nil, fmt.Errorf("person %q personality skills: unexpected entry %q", p.Name, entry.Name())
 		}
 	}
 	for _, skill := range canonicalSkills {
 		skillPath := "skills/" + skill
 		raw, err := fs.ReadFile(files, skillPath+"/SKILL.md")
 		if err != nil {
-			return nil, fmt.Errorf("read embedded skill %q: %w", skill, err)
+			return nil, fmt.Errorf("read person %q skill %q: %w", p.Name, skill, err)
 		}
 		if err := validateSkillDefinition(skill, raw); err != nil {
 			return nil, err
@@ -351,22 +405,22 @@ func Source(p *Person) (*schema.Source, error) {
 func validateSkillDefinition(skill string, raw []byte) error {
 	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
 	if !strings.HasPrefix(text, "---\n") {
-		return fmt.Errorf("embedded skill %q: SKILL.md needs YAML frontmatter", skill)
+		return fmt.Errorf("person skill %q: SKILL.md needs YAML frontmatter", skill)
 	}
 	end := strings.Index(text[4:], "\n---\n")
 	if end < 0 {
-		return fmt.Errorf("embedded skill %q: SKILL.md has unterminated frontmatter", skill)
+		return fmt.Errorf("person skill %q: SKILL.md has unterminated frontmatter", skill)
 	}
 	end += 4
 	frontmatter := "\n" + text[4:end] + "\n"
 	if !strings.Contains(frontmatter, "\nname: "+skill+"\n") {
-		return fmt.Errorf("embedded skill %q: frontmatter name does not match", skill)
+		return fmt.Errorf("person skill %q: frontmatter name does not match", skill)
 	}
 	if !strings.Contains(frontmatter, "\ndescription: ") {
-		return fmt.Errorf("embedded skill %q: frontmatter needs a description", skill)
+		return fmt.Errorf("person skill %q: frontmatter needs a description", skill)
 	}
 	if strings.TrimSpace(text[end+5:]) == "" {
-		return fmt.Errorf("embedded skill %q: SKILL.md body is empty", skill)
+		return fmt.Errorf("person skill %q: SKILL.md body is empty", skill)
 	}
 	return nil
 }
@@ -374,15 +428,15 @@ func validateSkillDefinition(skill string, raw []byte) error {
 func parse(raw []byte) (*Person, error) {
 	doc, err := kdl.ParseString(string(raw))
 	if err != nil {
-		return nil, fmt.Errorf("parse embedded person source: %w", err)
+		return nil, fmt.Errorf("parse person source: %w", err)
 	}
 	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "person" {
-		return nil, fmt.Errorf("embedded person source: expected exactly one top-level person node")
+		return nil, fmt.Errorf("person source needs exactly one top-level person node")
 	}
 	root := doc.Nodes[0]
 	args := root.Arguments()
 	if len(args) != 1 {
-		return nil, fmt.Errorf("embedded person source: person node needs one name argument")
+		return nil, fmt.Errorf("person source person node needs one name argument")
 	}
 	p := &Person{
 		Name:          args[0].String(),
@@ -623,7 +677,7 @@ func parse(raw []byte) (*Person, error) {
 			p.Inspirations[id] = inspiration
 			p.InspirationOrder = append(p.InspirationOrder, id)
 		default:
-			return nil, fmt.Errorf("embedded person source: unknown node %q", n.Name())
+			return nil, fmt.Errorf("person source: unknown node %q", n.Name())
 		}
 	}
 	inspirationNames := map[string]string{}

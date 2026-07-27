@@ -4,9 +4,11 @@
 
 Agent-compose is the context substrate between knowledge providers and native
 or isolated harness consumers. It selects, compiles, and materializes agent
-context for hosts and staged homes. It is public source and embeds Kai's public-safe
-company roster, personalities, and composition defaults. Keep private identity
-detail, machines, credentials, and deployment values out of the repo.
+context for hosts and staged homes. It is public source and embeds Kai's
+public-safe company roster, personalities, and composition defaults. It also
+accepts one complete external person package that replaces that default for an
+independent deployment. Keep private identity detail, machines, credentials,
+and deployment values out of the repo.
 
 ## Project shape
 
@@ -18,16 +20,16 @@ package layout land together so the code never precedes its public boundary.
 ## Repo boundaries
 
 * `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
-  harness adapters, diagnostics, and Kai's public-safe person configuration.
-* The person configuration owns organizational purpose, personality catalog
-  bindings, curated compatibility, credited inspirations, and
-  context-selection policy.
+  harness adapters, diagnostics, and Kai's public-safe default person package.
+* Each selected person package owns its organizational purpose, personality
+  catalog bindings, compatibility, credited inspirations, and selection policy.
 * `agent-compose` owns the personality invariant and canonical personality
   definitions alongside the person configuration that binds them.
 * `agentic-os` owns reusable knowledge sources, general skills, capability
   providers, and editorial validators.
-* Private overlays stay outside this public repo and may extend the embedded
-  person source without replacing its canonical public-safe content.
+* An external person package stays outside this public repo and fully replaces
+  the embedded default. Private overlays may add scoped instructions to the
+  selected package without redefining its content.
 * Launch consumers own execution permissions, role authority, runtime-fact
   resolution, and their handoff schemas. Shared role slugs do not transfer
   permission ownership into agent-compose.
@@ -67,13 +69,13 @@ bundle.
 
 ## Cross-repo contracts
 
-The input contract names the requested role, delivery, and sources
-without importing launcher policy. The role activates its complete ordered
-personality set. The output contract is a manifest plus a filesystem tree that
-consumers treat as opaque. Agent-compose combines its embedded person policy
-with capability providers and scoped overlays. Native harness wrappers and
-staged-home adapters consume the output contract. Changes to either contract
-need compatibility tests against both paths before release.
+The input contract names the requested role, delivery, optional person package,
+and capability sources without importing launcher policy. The role activates
+its complete ordered personality set. The output contract is a manifest plus a
+filesystem tree that consumers treat as opaque. Agent-compose combines exactly
+one person package with capability providers and scoped overlays. Native
+harness wrappers and staged-home adapters consume the output contract. Changes
+to either contract need compatibility tests against both paths before release.
 
 ## Release
 

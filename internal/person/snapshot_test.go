@@ -82,6 +82,7 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"Inspirations":     true,
 		"InspirationOrder": true,
 		"Raw":              true,
+		"source":           true,
 	}
 	model := reflect.TypeOf(Person{})
 	for index := range model.NumField() {

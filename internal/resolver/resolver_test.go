@@ -281,8 +281,8 @@ func TestResolveValidationFailures(t *testing.T) {
 		Skill: "personality-absent", Color: "#d98e48",
 	}
 	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), missingDefinition, nil, nil); err == nil ||
-		!strings.Contains(err.Error(), `binds non-canonical skill "personality-absent"`) {
-		t.Fatalf("expected missing embedded definition failure, got %v", err)
+		!strings.Contains(err.Error(), `skill "personality-absent"`) {
+		t.Fatalf("expected missing selected-person definition failure, got %v", err)
 	}
 }
 

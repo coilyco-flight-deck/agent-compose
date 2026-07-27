@@ -1,6 +1,7 @@
-# Embedded person contract
+# Person package contract
 
-The binary embeds one ordered `person` source set for v0.1, without a provider interface:
+The binary embeds one ordered `person:kai` source set as the default. A caller
+may select one external package with the same contract:
 
 ```kdl
 person "kai" {
@@ -16,40 +17,30 @@ person "kai" {
 }
 ```
 
+A package splits the manifest, roles, personalities, inspirations, invariant,
+and definitions into the layout documented in
+[person-packages.md](person-packages.md). The loader assembles and validates the
+package before it becomes a source.
+
 A role names its purpose, briefing, two or three personalities, and seats. Its optional
 `model-class` list restricts composition, while omission supports both classes.
 The [role briefing](role-briefings.md) needs at least three paragraphs. The loader
-rejects invalid class names or personality sets. The embedded roster contains:
-
-* `director` - `bold`, `grounded`, `diplomatic`
-* `advisor` - `reflective`, `curious`, `candid`
-* `pm` - `warm`, `meticulous`, `curious`
-* `designer` - `imaginative`, `playful`, `warm`
-* `engineer` - `curious`, `grounded`, `meticulous`
-* `qa` - `meticulous`, `candid`, `playful`
-* `ops` - `protective`, `grounded`, `reflective`
-* `sales` - `charming`, `energetic`, `warm`
-* `social` - `quirky`, `playful`, `optimistic`
-* `community` - `nurturing`, `diplomatic`, `playful`
-* `customer-success` - `nurturing`, `diplomatic`, `optimistic`
-* `ceo` - `bold`, `grounded`, `protective`
-
-CEO supports `frontier` only. Its Claude, Codex, and Hermes seats remain intact.
+rejects invalid class names or personality sets. The embedded default has 12
+roles and 40 seats. CEO supports `frontier` only.
 
 A personality entry is a catalog binding from its canonical name to a stable
 skill id (`personality-<name>`). Every role reference needs one or the loader
-rejects it. The same embedded `person:kai` source supplies one complete
-`SKILL.md` tree for every binding plus the personality invariant. A missing,
-empty, extra, or mismatched canonical definition fails source validation.
-Roster output therefore carries every canonical definition without an
-external provider.
+rejects it. The same selected person source supplies one complete `SKILL.md`
+tree for every binding plus the personality invariant. A missing, empty, extra,
+or mismatched definition fails source validation. Roster output therefore
+carries every selected definition without a capability provider.
 
 The [identity primitives](identity-primitives.md) define renderer semantics. The [inspiration catalogue](inspiration-catalogue.md) defines credits.
 
 ## Favorite colors
 
-Every canonical personality declares one hex `color` in the embedded source,
-which owns the exact palette. Bundles tell the agent every active personality's
+Every selected personality declares one hex `color` in its person source, which
+owns the exact palette. Bundles tell the agent every active personality's
 name, skill, and color plus the melded favorite. The parse gate requires OKLab
 lightness 0.60-0.80 and chroma of at least 0.05. Each role derives its favorite
 as the OKLab centroid of every component, restores chroma to their minimum, and
@@ -69,12 +60,13 @@ activates its ordered personality set. Roster briefing delivery is documented
 in [role-briefings.md](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not
-redefine canonical roles, personalities, seats, definitions, or role
-personality sets. AOS owns no copy of this person source or its personality
-definitions.
+redefine selected roles, personalities, seats, definitions, or role
+personality sets. An external person package replaces the embedded default as
+one unit. AOS owns no copy of either package or its personality definitions.
 
 ## See also
 
 * [person-snapshot.md](person-snapshot.md) - complete machine-readable export.
+* [person-packages.md](person-packages.md) - external layout and selection.
 * [role-briefings.md](role-briefings.md) - role charter and delivery contract.
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.

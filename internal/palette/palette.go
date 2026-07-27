@@ -1,5 +1,5 @@
-// Package palette projects the embedded person source into the small JSON
-// contract consumed by the repository's local personality palette explorer.
+// Package palette projects a selected person source into the small JSON
+// contract consumed by a personality palette explorer.
 package palette
 
 import (

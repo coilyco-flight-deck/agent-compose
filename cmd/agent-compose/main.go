@@ -159,6 +159,10 @@ func main() {
 						Value: "markdown",
 						Usage: "output format: markdown or yaml",
 					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external person-package root (defaults to embedded person:kai)",
+					},
 				},
 				Action: runEvaluation,
 			},
@@ -190,6 +194,10 @@ func main() {
 						Name:  "json",
 						Usage: "emit the versioned renderer document",
 					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external person-package root (defaults to embedded person:kai)",
+					},
 				},
 				Action: runOverlay,
 			},
@@ -219,6 +227,10 @@ func main() {
 						Name:  "out",
 						Usage: "artifact directory (defaults to ~/.agent-compose/sources/personality)",
 					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external person-package root (defaults to embedded person:kai)",
+					},
 				},
 				Action: runRoster,
 			},
@@ -231,6 +243,10 @@ func main() {
 						Name:     "out",
 						Usage:    "write JSON to this path instead of stdout",
 						Required: false,
+					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external person-package root (defaults to embedded person:kai)",
 					},
 				},
 				Action: runPaletteData,
@@ -267,7 +283,16 @@ func main() {
 }
 
 func runEvaluation(_ context.Context, cmd *cli.Command) error {
-	pack, err := evaluation.Build(cmd.String("role"), cmd.String("seat"))
+	p, external, err := loadSelectedPerson(cmd.String("person-source"))
+	if err != nil {
+		return err
+	}
+	var pack *evaluation.Pack
+	if external {
+		pack, err = evaluation.BuildFor(p, cmd.String("role"), cmd.String("seat"))
+	} else {
+		pack, err = evaluation.Build(cmd.String("role"), cmd.String("seat"))
+	}
 	if err != nil {
 		return err
 	}
@@ -311,7 +336,7 @@ func runNativeMCP(_ context.Context, cmd *cli.Command) error {
 }
 
 func runOverlay(_ context.Context, cmd *cli.Command) error {
-	p, err := person.Load()
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
 	if err != nil {
 		return err
 	}
@@ -541,7 +566,7 @@ func runCascade(_ context.Context, cmd *cli.Command) error {
 }
 
 func runRoster(_ context.Context, cmd *cli.Command) error {
-	p, err := person.Load()
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
 	if err != nil {
 		return err
 	}
@@ -578,7 +603,7 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 }
 
 func runPaletteData(_ context.Context, cmd *cli.Command) error {
-	p, err := person.Load()
+	p, _, err := loadSelectedPerson(cmd.String("person-source"))
 	if err != nil {
 		return err
 	}
@@ -591,6 +616,15 @@ func runPaletteData(_ context.Context, cmd *cli.Command) error {
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+func loadSelectedPerson(source string) (*person.Person, bool, error) {
+	if source == "" {
+		p, err := person.Load()
+		return p, false, err
+	}
+	p, err := person.LoadDirectory(source)
+	return p, true, err
 }
 
 func runProject(_ context.Context, cmd *cli.Command) error {

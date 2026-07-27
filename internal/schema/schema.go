@@ -27,10 +27,11 @@ const (
 )
 
 type Request struct {
-	Role       string
-	Delivery   string
-	ModelClass string
-	Sources    []SourceLocator
+	PersonSource string
+	Role         string
+	Delivery     string
+	ModelClass   string
+	Sources      []SourceLocator
 }
 
 type SourceLocator struct {
@@ -144,7 +145,7 @@ func ParseRequest(path string) (*Request, error) {
 	seen := map[string]bool{}
 	for _, n := range doc.Nodes[0].Children().Nodes {
 		switch n.Name() {
-		case "role", "delivery", "model-class":
+		case "person-source", "role", "delivery", "model-class":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -154,6 +155,16 @@ func ParseRequest(path string) (*Request, error) {
 				return nil, fmt.Errorf("request %s: %w", path, err)
 			}
 			switch n.Name() {
+			case "person-source":
+				if strings.Contains(v, "..") || filepath.IsAbs(v) ||
+					strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
+					return nil, fmt.Errorf(
+						"request %s: person-source path %q must be relative and clean",
+						path,
+						v,
+					)
+				}
+				req.PersonSource = v
 			case "role":
 				req.Role = v
 			case "delivery":

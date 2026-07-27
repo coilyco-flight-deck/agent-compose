@@ -2,6 +2,7 @@ package person
 
 import (
 	"io/fs"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -67,6 +68,29 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
+func TestLoadDirectoryKeepsExternalPersonIndependent(t *testing.T) {
+	p, err := LoadDirectory(filepath.Join("..", "..", "testdata", "contracts", "person-independent"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Name != "workbench" || len(p.Roles) != 1 {
+		t.Fatalf("external person identity = %q roles=%d", p.Name, len(p.Roles))
+	}
+	if _, ok := p.Roles["builder"]; !ok {
+		t.Fatalf("external person omitted builder role: %+v", p.RoleOrder)
+	}
+	if _, inherited := p.Roles["engineer"]; inherited {
+		t.Fatal("external person inherited the embedded engineer role")
+	}
+	src, err := Source(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if src.ID != "person:workbench" || len(src.Skills) != 2 {
+		t.Fatalf("external person source = %q skills=%d", src.ID, len(src.Skills))
+	}
+}
+
 func TestAssemblePersonSourceSet(t *testing.T) {
 	source := fstest.MapFS{
 		"person.kdl": {
@@ -82,7 +106,7 @@ func TestAssemblePersonSourceSet(t *testing.T) {
 			Data: []byte(`inspiration "fixture-builder"`),
 		},
 	}
-	raw, err := assemblePersonSource(source)
+	raw, err := assemblePersonSource(source, "fixture person source")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +132,7 @@ func TestAssemblePersonSourceRejectsMisfiledFragment(t *testing.T) {
 			Data: []byte(`role "other"`),
 		},
 	}
-	_, err := assemblePersonSource(source)
+	_, err := assemblePersonSource(source, "fixture person source")
 	if err == nil || !strings.Contains(err.Error(), "filename does not match role") {
 		t.Fatalf("misfiled fragment error = %v", err)
 	}

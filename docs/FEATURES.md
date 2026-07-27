@@ -4,16 +4,16 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Repository foundation
 
-* Public, MIT-licensed context substrate with personal policy.
-* README, agent instructions, and shipped-feature inventory.
-* Ward-gated validation backed by the AOS hook catalog.
+* Public MIT source with Ward-gated AOS validation and catalog docs.
 
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `person:kai` carries 12 roles, 16 personalities, melds, and 40 seats.
-  Fifteen are AOSH-selected. Bundles inject role, seat, color,
-  [identity](identity-primitives.md), and [inspiration](inspiration-catalogue.md).
+* `person:kai` carries the default 12 roles, 16 personalities, melds, and 40 seats.
+  Bundles inject role, seat, color, [identity](identity-primitives.md), and
+  [inspiration](inspiration-catalogue.md).
+* [External person packages](person-packages.md) replace the default across
+  every person-dependent command.
 * AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.
   `low-context: optional` prunes optional skills.
 * Role compatibility fails closed before materialization. CEO supports only
@@ -43,7 +43,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
   delivery, trace integrity, and selected identities.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) - YAML review packs and scored baselines.
+* [Evaluation](evaluation.md) - selected-person YAML review packs and scored baselines.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
@@ -54,9 +54,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders the embedded invariant,
-  definitions, seats, role briefings, personality bodies, colors, and a claude
-  `@`-import override. See [role-briefings.md](role-briefings.md).
+* `agent-compose roster --out <dir>` renders the selected invariant,
+  definitions, seats, briefings, and colors. See [role briefings](role-briefings.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md) for
   roles, seats, compatibility, identities, inspirations, and appearances.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into

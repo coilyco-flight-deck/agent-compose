@@ -24,7 +24,7 @@ copies.
 
 ## Validation
 
-The embedded source fails to load when a role or personality omits its
+The selected person source fails to load when a role or personality omits its
 inspiration, a reference does not resolve, two entries name the same person, or
 an entry is unused. Each inspiration also needs its complete achievement,
 impact, profile, and speaking-appearance record. An appearance needs a curated

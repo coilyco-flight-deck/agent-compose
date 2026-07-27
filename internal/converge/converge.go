@@ -24,7 +24,7 @@ type Options struct {
 	Verbose bool
 }
 
-// Run refreshes the roster from the embedded person plus configured overlays,
+// Run refreshes the roster from the selected person plus configured overlays,
 // then cascades. Absent config stays the documented no-op.
 func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	cascadeOpts := cascade.RunOptions{
@@ -44,6 +44,14 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
+	}
+	if cfg.PersonSource != "" {
+		sourcePath := configuredPath(cfg.PersonSource, paths.Config, paths.Home)
+		p, err = person.LoadDirectory(sourcePath)
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
 	}
 	var sources []*schema.Source
 	for _, sourcePath := range cfg.RosterSources {

@@ -1,0 +1,8 @@
+inspiration "fixture-builder" name="Fixture Builder" profile-citation="fixture-builder-profile" impact-mode="fixture-building" {
+    achievement "The fixture builder makes the external person-package contract executable."
+    impact-fit "The fixture builder keeps the successful external package path complete and deterministic."
+    appearance "fixture-talk" title="Building Fixtures" event="Fixture Conference" year="2026" format="keynote" {
+        summary "The fixture builder explains how one independent person package stays internally consistent."
+        citation "fixture-builder-talk"
+    }
+}

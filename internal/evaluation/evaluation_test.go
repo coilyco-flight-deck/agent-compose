@@ -1,9 +1,11 @@
 package evaluation
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"gopkg.in/yaml.v3"
 )
@@ -40,6 +42,32 @@ func TestBuildEmitsFourCaseFrontierOSSMatrix(t *testing.T) {
 		if len(got.Rubric) != 4 || !strings.Contains(got.Prompt, "Do not name") {
 			t.Errorf("case %q is not review-ready: %+v", got.ID, got)
 		}
+	}
+}
+
+func TestBuildForExternalPersonUsesOnlySelectedPackage(t *testing.T) {
+	p, err := person.LoadDirectory(filepath.Join(
+		"..", "..", "testdata", "contracts", "person-independent",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pack, err := BuildFor(p, "builder", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pack.Person != "workbench" || pack.Role != "builder" ||
+		pack.Seat.Name != "workbench builder" {
+		t.Fatalf("external evaluation identity = %+v", pack)
+	}
+	if !strings.Contains(pack.Invariant, "Workbench invariant") ||
+		strings.Contains(pack.Invariant, "Personality invariant") {
+		t.Fatalf("external evaluation invariant crossed source boundaries: %q", pack.Invariant)
+	}
+	if len(pack.Personalities) != 2 ||
+		pack.Personalities[0].Name != "bright" ||
+		pack.Personalities[1].Name != "steady" {
+		t.Fatalf("external evaluation personalities = %+v", pack.Personalities)
 	}
 }
 

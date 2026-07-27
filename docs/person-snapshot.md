@@ -9,7 +9,7 @@ write `person.json` into the roster artifact directory. The default location is
 The JSON format marker is `agent-compose.person-snapshot.v3`, with numeric
 schema version `3`. The artifact exports:
 
-* the person name, `person:kai` source provenance, and canonical role order
+* the person name, selected `person:<name>` source provenance, and role order
 * every role's purpose, verbatim long-form briefing, supported model classes,
   ordered personality meld, derived color, inspiration relationship, and seats
 * every personality's skill binding, color, emblem, motif, form language,
@@ -49,6 +49,7 @@ systems keep those fields.
 
 ## See also
 
-* [person-contract.md](person-contract.md) - canonical embedded KDL model.
+* [person-contract.md](person-contract.md) - validated KDL package model.
+* [person-packages.md](person-packages.md) - external package selection.
 * [inspiration-catalogue.md](inspiration-catalogue.md) - credited evidence model.
 * [role-briefings.md](role-briefings.md) - unconditional role charter.

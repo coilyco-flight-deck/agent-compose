@@ -69,4 +69,4 @@ which harness or model sits behind it.
 
 * [architecture.md](architecture.md) - composition inputs and ownership.
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.
-* [person-contract.md](person-contract.md) - embedded personal policy.
+* [person-contract.md](person-contract.md) - person-package policy.

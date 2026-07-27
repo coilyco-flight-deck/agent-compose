@@ -2,16 +2,17 @@
 
 Agent-compose is the context substrate between knowledge providers and native
 or isolated agent harnesses. It selects, compiles, and installs the context an
-agent starts with while keeping executable authority outside the bundle. The public product
-is intentionally opinionated: it also includes Kai's public-safe operating
-roster, personality catalog, and composition defaults rather than presenting
-itself as a neutral enterprise framework.
+agent starts with while keeping executable authority outside the bundle. The
+public product is intentionally opinionated: it includes Kai's public-safe
+operating roster, personality catalog, and composition defaults. An independent
+deployment can select one complete external person package instead, with no
+role or definition inheritance from that default.
 
 The intended product accepts a role, a model class, a delivery mode, and
 optional capability sources. The role activates its complete ordered
 personality set.
-Agent-compose resolves every bound personality skill from its embedded person
-source, tells the agent every component and melded favorite color, injects
+Agent-compose resolves every bound personality skill from the selected person
+package, tells the agent every component and melded favorite color, injects
 compact selected-role metadata, and emits an immutable context bundle.
 
 ## Ownership boundary
@@ -20,7 +21,8 @@ Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
 * role-driven personality meld resolution
-* the twelve-role operating roster, concise purposes, and long-form role briefings
+* one selected person package, with Kai's twelve-role roster as the default
+* external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
 * complete selected-role terminal metadata, including identity primitives,
@@ -39,9 +41,10 @@ configuration:
 
 Knowledge providers own reusable doctrine, general skills, capability sources,
 and editorial validation. Agent-compose combines those sources with its
-embedded personality provider to build the concrete context surface for each
-harness. Private overlays remain outside this public repo. Launch consumers own
-executable authority, runtime facts, mounts, and lifecycle. Personality and
+selected person provider to build the concrete context surface for each
+harness. External person packages and private overlays remain outside this
+public repo. Launch consumers own executable authority, runtime facts, mounts,
+and lifecycle. Personality and
 organizational framing never alter consumer permissions. Infrastructure
 installs the resulting system across hosts.
 
@@ -52,9 +55,11 @@ sixteen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in
 [agent-compose#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10).
-The engine may keep clean internal contracts, but v0.1 does not add abstraction
-solely to make this personal configuration look generic. Other users can fork
-or replace policy later without becoming the design center now.
+The engine keeps this package as its opinionated zero-config default. Another
+deployment can select a complete package using the same validated layout. The
+selection is exclusive: an external package contributes its own roles, seats,
+personality definitions, and evaluation context without loading `person:kai`.
+See [person packages](docs/person-packages.md).
 
 ## Status
 
@@ -65,13 +70,14 @@ package-manager distribution. A configured mcporter inventory projects into
 both Claude Code and Codex native MCP registries during host convergence.
 Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
-embedded `person:kai` provider supplies the personality invariant and all 16
-canonical definitions, so host roster convergence needs no external
-personality source. The same person policy carries a normalized catalogue of
+default `person:kai` provider supplies the personality invariant and all 16
+canonical definitions, so its host roster convergence needs no external
+personality source. A configured external person package replaces that provider
+as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
 palette explorer, identity overlay, and four-case behavior evaluation pack.
-Bare `acompose` converges the host and atomically refreshes the complete
+Bare `acompose` converges the host and atomically refreshes the selected
 versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
@@ -135,6 +141,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/FEATURES.md](docs/FEATURES.md) - inventory of what exists today.
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
 * [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
+* [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.

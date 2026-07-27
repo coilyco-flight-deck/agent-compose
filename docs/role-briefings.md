@@ -1,6 +1,6 @@
 # Role briefings
 
-The embedded person policy gives every canonical role an unconditional
+The selected person policy gives every role an unconditional
 operating charter. The charter orients the agent before task-specific AOS
 knowledge activates.
 
@@ -23,7 +23,7 @@ role "engineer" {
 ```
 
 The loader trims outer whitespace while preserving internal paragraph breaks.
-It rejects a missing, empty, or duplicate briefing. All twelve embedded roles
+It rejects a missing, empty, or duplicate briefing. All twelve default roles
 carry at least three substantial paragraphs.
 
 ## Authoring shape

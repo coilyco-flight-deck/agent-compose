@@ -1,6 +1,6 @@
 # Personality identity primitives
 
-The embedded person source owns a renderer-neutral identity record for every
+The selected person source owns a renderer-neutral identity record for every
 personality. Web, mobile, terminal, audio, and generated-art consumers project
 the same semantics without making agent-compose own their presentation.
 

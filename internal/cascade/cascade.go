@@ -33,6 +33,7 @@ type Config struct {
 	Sources         []string            `yaml:"sources"`
 	Roots           []string            `yaml:"roots"`
 	LoadPoints      map[string]RawValue `yaml:"load_points"`
+	PersonSource    string              `yaml:"person_source"`
 	RosterSources   []string            `yaml:"roster_sources"`
 	SkillLoadPoints map[string]string   `yaml:"skill_load_points"`
 	MCPInventory    string              `yaml:"mcp_inventory"`

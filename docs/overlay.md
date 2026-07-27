@@ -1,6 +1,7 @@
 # Identity overlay
 
-`agent-compose overlay` projects one canonical member into a compact surface.
+`agent-compose overlay` projects one selected person-package member into a
+compact surface.
 It is deliberately noninteractive. Terminal panes can use the plain card, and
 other renderers can consume the same versioned JSON document.
 
@@ -10,10 +11,13 @@ Supply a role, harness seat, and renderer state:
 
 ```sh
 agent-compose overlay \
+  --person-source ./person \
   --role engineer \
   --seat codex \
   --expression acting
 ```
+
+Omit `--person-source` to use the embedded `person:kai` default.
 
 The default text width is 40 columns. `--width 200` collapses the same fields
 onto one line. Output contains no control sequences, so pipes and CI receive
@@ -28,7 +32,7 @@ Add `--json` for `agent-compose.overlay.v1`. The document contains:
 * the role's derived favorite color
 * every component personality's color and identity primitives
 
-The JSON is a projection of the embedded person model, not a second policy
+The JSON is a projection of the selected person model, not a second policy
 source.
 
 ## State boundary
@@ -43,4 +47,5 @@ future mobile surfaces without turning identity data into observability.
 ## See also
 
 * [identity-primitives.md](identity-primitives.md) - renderer semantics.
+* [person-packages.md](person-packages.md) - external package selection.
 * [person-snapshot.md](person-snapshot.md) - complete person export.

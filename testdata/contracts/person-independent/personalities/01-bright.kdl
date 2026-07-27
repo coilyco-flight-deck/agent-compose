@@ -1,0 +1,8 @@
+personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
+    emblem { name "lantern"; emoji "🏮"; glyph "✦" }
+    form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+    sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
+    inspiration "fixture-builder" {
+        fit "The fixture demonstrates an open and illuminating working style."
+    }
+}

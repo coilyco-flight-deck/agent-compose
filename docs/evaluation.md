@@ -1,17 +1,21 @@
 # Behavior evaluation
 
 `agent-compose evaluation` emits one deterministic, self-contained human-review
-pack for a canonical role and harness seat:
+pack for a selected role and harness seat:
 
 ```text
 agent-compose evaluation --role engineer --seat codex
-agent-compose evaluation --role ops --seat codex --format yaml
+agent-compose evaluation --person-source ./person --role builder --seat codex
 ```
 
 Markdown is the default for direct review. YAML uses the versioned
 `agent-compose.evaluation-pack.v1` format for an external runner or result
 collector. Agent-compose emits context and prompts only. It never invokes a
 model, chooses credentials, or acquires execution authority.
+
+The command defaults to `person:kai`. `--person-source` loads one external
+package instead. The pack derives its person, role, seat, invariant, and active
+definitions from that package without inheriting default role-specific cases.
 
 ## Four-case matrix
 
@@ -57,24 +61,16 @@ ordering, and score contract are deterministic.
 
 ## Scored results
 
-[`evaluations/latest/`](../evaluations/latest/) keeps one versioned YAML record
-per evaluated role and seat. Each record preserves model identity, raw
-responses, criterion scores and evidence, totals, verdicts, and issue
-provenance. Repository validation derives the expected cases, criteria, totals,
-and pass decisions from the current generated pack.
-
-A new accepted evaluation replaces that role and seat's latest file. Git
-history preserves prior baselines, while issue comments retain the review
-discussion that produced them. `MarshalResult` validates a scored record against
-its current generated pack before encoding deterministic YAML. CEO keeps its
-failed OSS cases as the evidence and re-enable gate for its frontier-only rule.
-
-Current accepted coverage includes Engineer, Director, QA, Advisor, Ops,
-PM, Designer, Social, Sales, Customer Success, Community, and CEO.
+[`evaluations/latest/`](../evaluations/latest/) keeps one YAML record per
+evaluated default role and seat. Records preserve model identity, raw responses,
+criterion evidence, totals, verdicts, and provenance. `MarshalResult` validates
+each record against its current pack before deterministic encoding. Git keeps
+prior baselines. CEO's failed OSS cases remain its frontier-only re-enable gate.
 
 ## See also
 
 * [role-briefings.md](role-briefings.md) - three-part role operating charters.
 * [role-selection.md](role-selection.md) - fixed role assignment.
 * [person-contract.md](person-contract.md) - roles, seats, and personalities.
+* [person-packages.md](person-packages.md) - independent evaluation context.
 * [integration.md](integration.md) - how bundles reach harnesses.

@@ -1,0 +1,8 @@
+personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" {
+    emblem { name "anchor"; emoji "⚓"; glyph "◆" }
+    form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+    sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
+    inspiration "fixture-builder" {
+        fit "The fixture demonstrates a stable and dependable working style."
+    }
+}

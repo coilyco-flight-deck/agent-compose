@@ -132,6 +132,48 @@ func TestConvergeWithoutConfigIsNoOp(t *testing.T) {
 	}
 }
 
+func TestConvergeUsesConfiguredExternalPersonExclusively(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: dir,
+		Home:         filepath.Join(dir, "home"),
+	}
+	personRoot, err := filepath.Abs(filepath.Join(
+		"..", "..", "testdata", "contracts", "person-independent",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := "person_source: " + personRoot + "\n" +
+		"roots:\n  - " + filepath.Join(dir, "sources") + "\n" +
+		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n" +
+		"  codex: null\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	code, out, errOut := run(t, paths)
+	if code != 0 {
+		t.Fatalf("external converge failed: %s %s", out, errOut)
+	}
+	composed := readFile(t, paths.Composed)
+	if !strings.Contains(composed, "workbench builder") ||
+		!strings.Contains(composed, "# Workbench invariant") {
+		t.Fatalf("external person did not reach host context:\n%s", composed)
+	}
+	if strings.Contains(composed, "opal engineer") ||
+		strings.Contains(composed, "# Personality invariant") {
+		t.Fatalf("external person inherited embedded context:\n%s", composed)
+	}
+	snapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
+	if !strings.Contains(snapshot, `"source": "person:workbench"`) ||
+		strings.Contains(snapshot, `"person:kai"`) {
+		t.Fatalf("external person snapshot crossed source boundaries:\n%s", snapshot)
+	}
+}
+
 func TestConvergeRetainsEmbeddedPersonalitiesOnBadRosterSource(t *testing.T) {
 	dir := t.TempDir()
 	paths := cascade.Paths{

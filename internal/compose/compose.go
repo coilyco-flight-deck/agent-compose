@@ -3,6 +3,8 @@
 package compose
 
 import (
+	"path/filepath"
+
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
@@ -22,6 +24,12 @@ func Run(requestPath, outDir string) (*Result, error) {
 	p, err := person.Load()
 	if err != nil {
 		return nil, err
+	}
+	if req.PersonSource != "" {
+		p, err = person.LoadDirectory(filepath.Join(filepath.Dir(requestPath), req.PersonSource))
+		if err != nil {
+			return nil, err
+		}
 	}
 	sources, missing, err := schema.LoadSources(req, requestPath)
 	if err != nil {

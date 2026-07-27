@@ -172,6 +172,38 @@ func TestComposeAllFixtures(t *testing.T) {
 	}
 }
 
+func TestComposeExternalPersonDoesNotInheritEmbeddedRoster(t *testing.T) {
+	result, err := Run(fixture(t, "custom-person.kdl"), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest := readManifest(t, result.Bundle.Dir)
+	if manifest.Role != "builder" ||
+		!slices.Equal(manifest.Personalities, []string{"bright", "steady"}) {
+		t.Fatalf("external manifest identity = %+v", manifest)
+	}
+	if !slices.Equal(manifest.Sources, []string{"person:workbench", "aos-public"}) {
+		t.Fatalf("external manifest sources = %+v", manifest.Sources)
+	}
+	if slices.Contains(manifest.Sources, "person:kai") {
+		t.Fatal("external composition inherited person:kai")
+	}
+	for _, rel := range []string{
+		"content/skills/person%3Aworkbench/personality-bright/SKILL.md",
+		"content/skills/person%3Aworkbench/personality-steady/SKILL.md",
+	} {
+		mustExist(t, result.Bundle.Dir, rel)
+	}
+	instructions, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "content", "instructions.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(instructions), "# Workbench invariant") ||
+		strings.Contains(string(instructions), "# Personality invariant") {
+		t.Fatalf("external instructions crossed person boundaries:\n%s", instructions)
+	}
+}
+
 func TestComposeLowContextPrunesOnlyOptedOutSkills(t *testing.T) {
 	result, err := Run(fixture(t, "low-context.kdl"), t.TempDir())
 	if err != nil {

@@ -23,17 +23,20 @@ owns the load points a host declares.
 
 ## Host tier: context rides the native cascade
 
-Agent-compose renders a roster artifact into `~/.agent-compose/sources/`, a
-directory the cascade walks as a source root, containing an
+Agent-compose renders the selected person package into a roster artifact under
+`~/.agent-compose/sources/`, a directory the cascade walks as a source root,
+containing an
 `AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
-carries the embedded personality invariant, admitted overlay instructions, and
+carries the selected personality invariant, admitted overlay instructions, and
 the seat dispatch table: "if you
 are codex running the engineer role, this is your operating briefing, name,
 pronouns, personality meld, definition paths, and derived favorite color."
+Host config may select one
+[external person package](person-packages.md), which replaces the embedded
+default before this artifact is rendered.
 Under the [role-selection contract](role-selection.md), an explicit role stays
 fixed. An unassigned native agent selects from the initial request and loads
-that role's definitions. No external roster source is required for canonical
-personality context.
+that role's definitions. The embedded default needs no external source.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
@@ -65,5 +68,6 @@ Hosts must reconcile hand-edited snapshots into sources before cutover.
 * [staged-home.md](staged-home.md) - isolated adapter handoff.
 * [launch.md](launch.md) - refresh-then-exec and the recursion guard.
 * [person-contract.md](person-contract.md) - roles, seats, and colors.
+* [person-packages.md](person-packages.md) - external package selection.
 * [role-briefings.md](role-briefings.md) - role charter delivery.
 * [architecture.md](architecture.md) - composition inputs and ownership.

@@ -6,10 +6,12 @@ selection.
 
 ## Compose request
 
-A request names a role, a delivery mode, and any external capability sources:
+A request names a role, a delivery mode, an optional person package, and any
+external capability sources:
 
 ```kdl
 compose {
+    person-source "person"
     role "engineer"
     model-class "frontier"
     delivery "native-skills"
@@ -17,14 +19,17 @@ compose {
 }
 ```
 
-The role activates its embedded personality set, ordinary provider skills, and
+`person-source` is optional and names one package root relative to the request.
+Omission selects the embedded `person:kai` package. An external selection fully
+replaces that default.
+
+The role activates its selected personality set, ordinary provider skills, and
 its composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
 `model-class` defaults to `frontier`. `low-context` excludes only skills whose top-level
 frontmatter says `low-context: optional`. Embedded role policy may reject a class.
 
-Legacy `density "full"` is ignored. Other densities fail.
-
-Sources run in request order. `root` and `declaration` only locate files.
+Legacy `density "full"` is ignored and other densities fail. Sources run in
+request order. `root` and `declaration` only locate files.
 
 ## Capability sources
 
@@ -36,9 +41,6 @@ ordinary skill under `.agents/skills` in lexical order. It also reads
 roles {
     role "engineer" {
         composed-skill "coding-shape-cli"
-        intent "autonomous-coding" {
-            harness "openhands"
-        }
     }
 }
 ```
@@ -48,8 +50,8 @@ role. Each `intent` records one model-opaque default harness route.
 Materialization renames the admitted entry point to `SKILL.md`. Nested
 `SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
-Roster sources are optional overlays. The embedded `person:kai` source always
-supplies the invariant and canonical personality bodies.
+Roster sources are optional overlays. The selected person source always
+supplies the invariant and bound personality bodies.
 
 An overlay or another provider can instead carry an explicit declaration:
 
@@ -69,12 +71,10 @@ missing source is skipped with a note in the trace.
 
 For rolling upgrades, inferred providers may still contain the former
 `personality-shared/INVARIANT.md` and `personality-*` trees. Identical copies
-shadow behind the embedded source. A different copy conflicts and stops
+shadow behind the selected person source. A different copy conflicts and stops
 composition.
 
 ## See also
 
-* [architecture.md](architecture.md) - composition inputs and ownership.
-* [bundle-protocol.md](bundle-protocol.md) - machine-readable output.
-* [person-contract.md](person-contract.md) - embedded personal policy.
-* [contract-review.md](contract-review.md) - review decisions of record.
+* [person-contract.md](person-contract.md) - person-package policy.
+* [person-packages.md](person-packages.md) - external package selection.
