@@ -45,8 +45,8 @@ and editorial validation. Agent-compose combines those sources with its
 selected person provider to build the concrete context surface for each
 harness. External person packages and private overlays remain outside this
 public repo. Launch consumers own executable authority, runtime facts, mounts,
-and lifecycle. Personality and
-organizational framing never alter consumer permissions. Infrastructure
+and lifecycle. Personality and operating framing never alter consumer
+permissions. Infrastructure
 installs the resulting system across hosts.
 
 ## Personal by design
@@ -56,8 +56,11 @@ sixteen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in
 [agent-compose#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10).
-The engine keeps this package as its opinionated zero-config default. Another
-deployment can select a complete package using the same validated layout. The
+The engine keeps this package as its opinionated zero-config default. Its roles
+operate Kai's real open-source, platform, community, personal, and gaming
+portfolio without inventing a company or active commercial venture. Potential
+contracting and SaaS work stays evidence-qualified. Another deployment can
+select a complete package using the same validated layout. The
 selection is exclusive: an external package contributes its own roles, seats,
 personality definitions, and evaluation context without loading `person:kai`.
 An `external-only` policy makes that boundary fail closed across the machine.

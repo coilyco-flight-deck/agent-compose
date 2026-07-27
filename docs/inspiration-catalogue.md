@@ -17,7 +17,7 @@ Each normalized entry is an ordered standalone KDL file:
 * Every inspiration owns one selected public speaking appearance with title,
   event, year, format, summary, and citation keys.
 
-The fit stays on the relationship because one person can inform a company role
+The fit stays on the relationship because one person can inform an operating role
 and a personality for different reasons. Shared biographical and impact data
 stays on the normalized inspiration so the source never maintains parallel
 copies.

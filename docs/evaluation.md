@@ -33,8 +33,8 @@ Both lanes keep the selected role and seat fixed.
 
 Role-understanding cases test whether the response applies the role's mission,
 operating method, completion ownership, and authority boundary without quoting
-the briefing. Most roles use a shared scenario with incomplete evidence,
-competing paths, a routine deadline, and a cross-role ownership offer.
+the briefing. Embedded roles use portfolio-native scenarios with incomplete
+evidence, competing paths, a routine deadline, and a cross-role ownership offer.
 
 Community instead uses Discord-native scenarios. Its role case separates approved orientation from a member guess and requests a public reply plus a text-only private plan.
 Its personality case recognizes a contribution while handling a possibly stale link. Together they expose usefulness, evidence discipline, and the no-action boundary.
@@ -54,7 +54,7 @@ personality hard fail.
 The reviewer preserves the raw response and records one evidence sentence for
 every score. The pack includes the full role briefing, personality invariant,
 and selected personality definitions so the review does not depend on hidden
-state.
+state. External packages retain a domain-neutral scenario.
 
 The command deliberately does not auto-score model prose. Role and personality
 quality are human judgments, while the matrix, context, prompts, rubric,

@@ -5,7 +5,7 @@
 Agent-compose is the context substrate between knowledge providers and native
 or isolated harness consumers. It selects, compiles, and materializes agent
 context for hosts and staged homes. It is public source and embeds Kai's
-public-safe company roster, personalities, and composition defaults. It also
+public-safe portfolio roster, personalities, and composition defaults. It also
 accepts one complete external person package that replaces that default for an
 independent deployment. Keep private identity detail, machines, credentials,
 and deployment values out of the repo.
@@ -21,7 +21,7 @@ package layout land together so the code never precedes its public boundary.
 
 * `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
   harness adapters, diagnostics, and Kai's public-safe default person package.
-* Each selected person package owns its organizational purpose, personality
+* Each selected person package owns its operating purpose, personality
   catalog bindings, compatibility, credited inspirations, and selection policy.
 * `agent-compose` owns the personality invariant and canonical personality
   definitions alongside the person configuration that binds them.

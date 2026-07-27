@@ -45,6 +45,27 @@ func TestBuildEmitsFourCaseFrontierOSSMatrix(t *testing.T) {
 	}
 }
 
+func TestBuildUsesPortfolioNativeEmbeddedCases(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		pack, buildErr := Build(roleName, role.Seats[0].Harness)
+		if buildErr != nil {
+			t.Fatalf("build %q: %v", roleName, buildErr)
+		}
+		rolePrompt := pack.Cases[0].Prompt
+		if rolePrompt == "" || strings.Contains(rolePrompt, "improve the company") {
+			t.Errorf("%q role prompt is not portfolio-native: %q", roleName, rolePrompt)
+		}
+		if strings.Contains(pack.Cases[1].Prompt, "The team has") {
+			t.Errorf("%q personality prompt retained fictional-team framing", roleName)
+		}
+	}
+}
+
 func TestBuildForExternalPersonUsesOnlySelectedPackage(t *testing.T) {
 	p, err := person.LoadDirectory(filepath.Join(
 		"..", "..", "testdata", "contracts", "person-independent",
@@ -68,6 +89,10 @@ func TestBuildForExternalPersonUsesOnlySelectedPackage(t *testing.T) {
 		pack.Personalities[0].Name != "bright" ||
 		pack.Personalities[1].Name != "steady" {
 		t.Fatalf("external evaluation personalities = %+v", pack.Personalities)
+	}
+	if strings.Contains(pack.Cases[0].Prompt, "Kai") ||
+		strings.Contains(pack.Cases[0].Prompt, "the company") {
+		t.Fatalf("external evaluation inherited embedded domain framing: %q", pack.Cases[0].Prompt)
 	}
 }
 

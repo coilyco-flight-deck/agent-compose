@@ -1,8 +1,7 @@
 # Role briefings
 
-The selected person policy gives every role an unconditional
-operating charter. The charter orients the agent before task-specific AOS
-knowledge activates.
+The selected person policy gives every role an unconditional operating charter.
+The embedded charters use Kai's real portfolio and communities.
 
 ## Schema
 
@@ -11,7 +10,7 @@ orientation:
 
 ```kdl
 role "engineer" {
-    purpose "Write code, merge code, stay focused on your goal."
+    purpose "Build and land work across Kai's real repository portfolio."
     briefing """
         You are an engineer. You turn a defined goal into working code.
 
@@ -28,11 +27,12 @@ carry at least three substantial paragraphs.
 
 ## Authoring shape
 
-The first paragraph establishes mission and default work. The second defines
+The first paragraph establishes mission, real operating domain, and default work. The second defines
 the role's operating method and evidence discipline. The third establishes
-completion, handoff, and escalation boundaries. The engineer briefing
-explicitly makes that role exclusively unattended. Other briefings define the
-interactive or autonomous posture their work requires.
+completion, handoff, and escalation boundaries. The engineer role is
+exclusively unattended. Other briefings define their own operating posture.
+External packages set their domain. The default treats contracting and SaaS
+as possibilities until supplied evidence promotes them.
 
 A briefing may shape attention, operating loop, and completion posture. It
 does not grant permissions, select a model, choose a harness, or weaken an

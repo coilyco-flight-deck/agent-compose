@@ -9,9 +9,9 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `person:kai` carries the default 12 roles, 16 personalities, melds, and 40 seats.
-  Bundles inject role, seat, color, [identity](identity-primitives.md), and
-  [inspiration](inspiration-catalogue.md).
+* `person:kai` carries a portfolio-native default with 12 roles, 16
+  personalities, melds, and 40 seats. It grounds work in Kai's real projects
+  while treating commercial paths as evidence-qualified possibilities.
 * [External person packages](person-packages.md) replace the default across
   every person-dependent command.
 * AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.

@@ -6,7 +6,7 @@ may select one external package with the same contract:
 ```kdl
 person "kai" {
     role "engineer" {
-        purpose "Write code, merge code, stay focused on your goal."
+        purpose "Build and land work across Kai's real repository portfolio."
         model-class "frontier"
         briefing "..."
         personality "curious" "grounded" "meticulous"
