@@ -57,3 +57,17 @@ visible as ordered candidate sets.
 Generated v1-compatible `person.json` remains available. The additive
 `person.v4.json` and `personality-index.md` provide aliases, affinities,
 logical provenance, and derived melds for consumers that need them.
+
+## Cues and affinities
+
+Libraries declare aliases with `alias "cue"` inside a personality entry.
+Lookup applies Unicode NFKC, lowercases, trims surrounding whitespace, and
+normalizes whitespace, underscores, and hyphens to one hyphen. A canonical
+slug match wins. Otherwise every matching alias candidate remains visible in
+deterministic catalogue order.
+
+Affinities derive from the effective profile only. Each v4 personality entry
+records its roles and each complete ordered meld, or an empty affinity list
+when no selected role uses it. A cue never changes a role, authority,
+permissions, or the native confirmation and lifetime rules for an interactive
+personality swap.
