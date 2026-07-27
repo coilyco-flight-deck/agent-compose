@@ -60,6 +60,17 @@ type Role struct {
 	Seats                 []Seat         `json:"seats"`
 	Inspiration           InspirationRef `json:"inspiration"`
 	SupportedModelClasses []string       `json:"supported_model_classes,omitempty"`
+	CopyContract          *CopyContract  `json:"copy_contract,omitempty"`
+}
+
+type CopyContract struct {
+	Scope string     `json:"scope"`
+	Rules []CopyRule `json:"rules"`
+}
+
+type CopyRule struct {
+	Forbid string `json:"forbid"`
+	Prefer string `json:"prefer"`
 }
 
 // SupportsModelClass keeps an absent role restriction backward-compatible.
@@ -796,27 +807,47 @@ func parse(raw []byte) (*Person, error) {
 					seenModelClasses := map[string]bool{}
 					for _, arg := range args {
 						modelClass := arg.String()
-						if modelClass != schema.ModelClassFrontier &&
-							modelClass != schema.ModelClassLowContext {
-							return nil, fmt.Errorf(
-								"role %q: unsupported model class %q",
-								name,
-								modelClass,
-							)
+						if modelClass != schema.ModelClassFrontier && modelClass != schema.ModelClassLowContext {
+							return nil, fmt.Errorf("role %q: unsupported model class %q", name, modelClass)
 						}
 						if seenModelClasses[modelClass] {
-							return nil, fmt.Errorf(
-								"role %q repeats model class %q",
-								name,
-								modelClass,
-							)
+							return nil, fmt.Errorf("role %q repeats model class %q", name, modelClass)
 						}
 						seenModelClasses[modelClass] = true
-						role.SupportedModelClasses = append(
-							role.SupportedModelClasses,
-							modelClass,
-						)
+						role.SupportedModelClasses = append(role.SupportedModelClasses, modelClass)
 					}
+				case "copy-contract":
+					if role.CopyContract != nil {
+						return nil, fmt.Errorf("role %q: duplicate copy-contract", name)
+					}
+					scope := c.Prop("scope")
+					if !scope.IsValid() || scope.String() != "tool-response" {
+						return nil, fmt.Errorf("role %q: copy-contract needs supported scope tool-response", name)
+					}
+					contract := &CopyContract{Scope: scope.String()}
+					seen := map[string]bool{}
+					for _, ruleNode := range c.Children().Nodes {
+						if ruleNode.Name() != "forbid" || len(ruleNode.Arguments()) != 1 {
+							return nil, fmt.Errorf("role %q: copy-contract needs forbid rules", name)
+						}
+						forbid, err := NormalizeCue(ruleNode.Arguments()[0].String())
+						if err != nil {
+							return nil, fmt.Errorf("role %q copy-contract forbid: %w", name, err)
+						}
+						prefer := ruleNode.Prop("prefer")
+						if !prefer.IsValid() || strings.TrimSpace(prefer.String()) == "" {
+							return nil, fmt.Errorf("role %q: copy-contract forbid %q needs prefer", name, forbid)
+						}
+						if seen[forbid] {
+							return nil, fmt.Errorf("role %q: copy-contract repeats forbid %q", name, forbid)
+						}
+						seen[forbid] = true
+						contract.Rules = append(contract.Rules, CopyRule{Forbid: forbid, Prefer: strings.TrimSpace(prefer.String())})
+					}
+					if len(contract.Rules) == 0 {
+						return nil, fmt.Errorf("role %q: copy-contract needs a rule", name)
+					}
+					role.CopyContract = contract
 				case "agent", "seat":
 					aargs := c.Arguments()
 					if len(aargs) != 1 {

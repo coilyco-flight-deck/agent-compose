@@ -62,6 +62,7 @@ type Pack struct {
 	Seat                person.Seat          `yaml:"seat"`
 	Purpose             string               `yaml:"purpose"`
 	Briefing            string               `yaml:"briefing"`
+	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
 	Invariant           string               `yaml:"invariant"`
@@ -153,6 +154,7 @@ func build(p *person.Person, roleName, harness string, embeddedCases bool) (*Pac
 		Seat:                seat,
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
+		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
 		Invariant:           strings.TrimSpace(string(invariant)),
