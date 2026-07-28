@@ -65,7 +65,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.
-* [Remote skill catalogs](remote-skills.md) hydrate Git trees before composition with locked offline caching.
+* [Remote skill catalogs](remote-skills.md) hydrate scalar Git locators with locked offline caching.
 * [Native MCP + approval projection](native-mcp.md).
 
 ## Release

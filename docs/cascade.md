@@ -67,8 +67,8 @@ match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this
 substrate operation.
 
-`remote_skill_sources` hydrates Git `<tree-ish>:<path>` catalogs before
-composition and projects each to every skill load point. See [remote
+`remote_skill_sources` hydrates scalar `owner/repo/path@ref` Git catalogs
+before composition and projects each to every skill load point. See [remote
 skills](remote-skills.md) for configuration, caching, and failures.
 
 ## See also

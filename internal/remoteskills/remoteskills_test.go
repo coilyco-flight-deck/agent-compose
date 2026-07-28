@@ -62,6 +62,82 @@ func testOptions(t *testing.T, ttl time.Duration) Options {
 	return Options{StateDir: t.TempDir(), TTL: ttl, Now: time.Now}
 }
 
+func TestParseLocator(t *testing.T) {
+	for name, test := range map[string]struct {
+		locator string
+		want    Source
+	}{
+		"github path and ref": {
+			locator: "kepano/obsidian-skills/skills@main",
+			want: Source{
+				URL: "https://github.com/kepano/obsidian-skills.git",
+				Ref: "main:skills",
+			},
+		},
+		"github host prefix": {
+			locator: "github.com/kepano/obsidian-skills/skills@v2",
+			want: Source{
+				URL: "https://github.com/kepano/obsidian-skills.git",
+				Ref: "v2:skills",
+			},
+		},
+		"github defaults": {
+			locator: "owner/repository",
+			want: Source{
+				URL: "https://github.com/owner/repository.git",
+				Ref: "HEAD:.agents/skills",
+			},
+		},
+		"generic git URL": {
+			locator: "https://example.test/owner/repository.git/catalog/skills@v2",
+			want: Source{
+				URL: "https://example.test/owner/repository.git",
+				Ref: "v2:catalog/skills",
+			},
+		},
+		"ssh URL and slash ref": {
+			locator: "ssh://git@example.test/owner/repository.git/skills@feature/catalog",
+			want: Source{
+				URL: "ssh://git@example.test/owner/repository.git",
+				Ref: "feature/catalog:skills",
+			},
+		},
+		"ssh URL defaults": {
+			locator: "ssh://git@example.test/owner/repository.git",
+			want: Source{
+				URL: "ssh://git@example.test/owner/repository.git",
+				Ref: "HEAD:.agents/skills",
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			got, err := ParseLocator(test.locator)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != test.want {
+				t.Fatalf("source = %+v, want %+v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestParseLocatorRejectsInvalidScalars(t *testing.T) {
+	for name, locator := range map[string]string{
+		"empty":         "",
+		"missing repo":  "owner",
+		"missing ref":   "owner/repository@",
+		"empty path":    "https://example.test/owner/repository.git/@main",
+		"escaping path": "owner/repository/../skills@main",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := ParseLocator(locator); err == nil {
+				t.Fatalf("invalid locator %q passed", locator)
+			}
+		})
+	}
+}
+
 func TestHydrateClonesThenReusesFreshCheckout(t *testing.T) {
 	source := Source{URL: newOrigin(t)}
 	opts := testOptions(t, time.Hour)

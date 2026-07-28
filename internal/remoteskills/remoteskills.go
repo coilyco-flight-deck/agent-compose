@@ -24,28 +24,143 @@ const defaultCatalogPath = ".agents/skills"
 
 // Source is one remote repository containing a skill catalog.
 type Source struct {
-	URL string `yaml:"url"`
-	Ref string `yaml:"ref"`
+	URL string
+	Ref string
 }
 
-// UnmarshalYAML rejects the superseded split locator and harness filter instead
-// of letting yaml.v3 silently ignore them and hydrate an unintended catalog.
+// UnmarshalYAML keeps the public configuration at one source locator per list
+// item. URL and Git object details stay internal after parsing.
 func (s *Source) UnmarshalYAML(node *yaml.Node) error {
-	type plainSource Source
-	var decoded plainSource
-	if err := node.Decode(&decoded); err != nil {
+	if node.Kind != yaml.ScalarNode || node.Tag != "!!str" {
+		return fmt.Errorf(
+			"remote skill source must be a scalar locator such as owner/repo/path@ref",
+		)
+	}
+	source, err := ParseLocator(node.Value)
+	if err != nil {
 		return err
 	}
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		switch node.Content[i].Value {
-		case "path":
-			return fmt.Errorf("remote skill source path moved into ref as <tree-ish>:<path>")
-		case "harnesses":
-			return fmt.Errorf("remote skill sources apply to every configured skill load point")
+	*s = source
+	return nil
+}
+
+// ParseLocator expands a GitHub Actions-style owner/repo/path@ref locator or a
+// generic Git URL whose optional catalog path follows its .git boundary.
+func ParseLocator(raw string) (Source, error) {
+	locator := strings.TrimSpace(raw)
+	if locator == "" {
+		return Source{}, fmt.Errorf("remote skill source locator cannot be empty")
+	}
+
+	address, revision := splitLocatorRevision(locator)
+	repository, catalogPath, err := splitRepositoryPath(address)
+	if err != nil {
+		return Source{}, err
+	}
+	source := Source{
+		URL: repository,
+		Ref: revision + ":" + catalogPath,
+	}
+	if err := ValidateSource(source); err != nil {
+		return Source{}, err
+	}
+	return source, nil
+}
+
+func splitLocatorRevision(locator string) (string, string) {
+	index := strings.LastIndex(locator, "@")
+	if index < 0 || locatorAtIsURLUser(locator, index) {
+		return locator, "HEAD"
+	}
+	revision := strings.TrimSpace(locator[index+1:])
+	if revision == "" {
+		return locator[:index], ""
+	}
+	return locator[:index], revision
+}
+
+func locatorAtIsURLUser(locator string, index int) bool {
+	if scheme := strings.Index(locator, "://"); scheme >= 0 {
+		authority := locator[scheme+3:]
+		if slash := strings.Index(authority, "/"); slash >= 0 {
+			return index < scheme+3+slash
+		}
+		return true
+	}
+	// Preserve the user separator in an SCP-style Git URL without an explicit
+	// locator ref. An explicit ref follows the repository's .git suffix.
+	return !strings.Contains(locator[:index], "/") &&
+		strings.Contains(locator[index+1:], ":")
+}
+
+func splitRepositoryPath(address string) (string, string, error) {
+	address = strings.TrimSpace(address)
+	if address == "" {
+		return "", "", fmt.Errorf("remote skill source needs a repository")
+	}
+	if marker := strings.LastIndex(address, ".git/"); marker >= 0 {
+		repository := address[:marker+len(".git")]
+		catalogPath := address[marker+len(".git/"):]
+		clean, err := cleanCatalogPath(catalogPath)
+		return repository, clean, err
+	}
+	if strings.HasSuffix(address, ".git") ||
+		strings.Contains(address, "://") ||
+		strings.HasPrefix(address, "/") ||
+		strings.HasPrefix(address, "./") ||
+		strings.HasPrefix(address, "../") ||
+		strings.Contains(address, `\`) ||
+		strings.Contains(address, ":") {
+		return address, defaultCatalogPath, nil
+	}
+
+	parts := strings.Split(strings.Trim(address, "/"), "/")
+	if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
+		return "", "", fmt.Errorf(
+			"remote skill source %q must use owner/repo/path@ref or a Git URL",
+			address,
+		)
+	}
+	ownerIndex := 0
+	if parts[0] == "github.com" {
+		if len(parts) < 3 {
+			return "", "", fmt.Errorf(
+				"remote skill source %q needs a GitHub owner and repository",
+				address,
+			)
+		}
+		ownerIndex = 1
+	}
+	repository := "https://github.com/" +
+		parts[ownerIndex] + "/" + parts[ownerIndex+1] + ".git"
+	catalogPath := defaultCatalogPath
+	if len(parts) > ownerIndex+2 {
+		var err error
+		catalogPath, err = cleanCatalogPath(
+			strings.Join(parts[ownerIndex+2:], "/"),
+		)
+		if err != nil {
+			return "", "", err
 		}
 	}
-	*s = Source(decoded)
-	return nil
+	return repository, catalogPath, nil
+}
+
+func cleanCatalogPath(catalogPath string) (string, error) {
+	if strings.TrimSpace(catalogPath) == "" {
+		return "", fmt.Errorf("remote skill source catalog path cannot be empty")
+	}
+	clean := path.Clean(catalogPath)
+	if strings.HasPrefix(catalogPath, "/") ||
+		clean == "." ||
+		clean == ".." ||
+		strings.HasPrefix(clean, "../") {
+		return "", fmt.Errorf(
+			"remote skill source catalog path %q must stay inside its repository",
+			catalogPath,
+		)
+	}
+	return clean, nil
 }
 
 // Catalog is one verified, hydrated skill root ready for native projection.

@@ -155,7 +155,7 @@ func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
 	local := filepath.Join(paths.ProjectsRoot, "coilyco-flight-deck", "agentic-os")
 	writeTestSkill(t, filepath.Join(local, ".agents", "skills"), "shared", "local")
 
-	origin := filepath.Join(dir, "remote")
+	origin := filepath.Join(dir, "remote.git")
 	writeTestSkill(t, filepath.Join(origin, ".agents", "skills"), "shared", "remote")
 	writeTestSkill(t, filepath.Join(origin, ".agents", "skills"), "remote-only", "remote")
 	runTestGit(t, origin, "init", "-b", "main", ".")
@@ -167,8 +167,7 @@ func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
 		"skill_load_points:\n  codex: " + skillLoadPoint + "\n" +
 		"remote_skill_cache_ttl: 1h\n" +
 		"remote_skill_sources:\n" +
-		"  - url: " + origin + "\n" +
-		"    ref: main:.agents/skills\n" +
+		"  - " + origin + "/.agents/skills@main\n" +
 		"load_points:\n  claude: null\n  codex: " + filepath.Join(dir, "links", "AGENTS.md") + "\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
 		t.Fatal(err)
@@ -215,7 +214,7 @@ func TestRemoteHydrationFailurePrecedesCompositionWrites(t *testing.T) {
 	}
 	config := "sources:\n  - " + doctrine + "\n" +
 		"remote_skill_sources:\n" +
-		"  - url: " + filepath.Join(dir, "missing-origin") + "\n"
+		"  - " + filepath.Join(dir, "missing-origin") + "@main\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
 		t.Fatal(err)
 	}

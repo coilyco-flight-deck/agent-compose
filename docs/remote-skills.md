@@ -16,17 +16,17 @@ skill_load_points:
 
 remote_skill_cache_ttl: 10m
 remote_skill_sources:
-  - url: https://example.com/owner/shared-skills.git
-    ref: main
-  - url: ssh://git@example.com/owner/private-skills.git
-    ref: v2:catalog/skills
+  - kepano/obsidian-skills/skills@main
+  - https://example.com/owner/private-skills.git/catalog/skills@v2
 ```
 
-`url` is required. `ref` uses Git's native `<tree-ish>:<path>` object syntax.
-The tree-ish accepts a branch, tag, or full commit ID. Omitting `ref` selects
-`HEAD:.agents/skills`. A bare tree-ish such as `main` also selects the
-conventional `.agents/skills` path. Use `main:skills` or
-`v2:catalog/skills` when an upstream repository keeps its catalog elsewhere.
+Each list item is one scalar locator. GitHub sources use the established
+`owner/repo/path@ref` spelling. The ref accepts a branch, tag, or full commit
+ID. The path is relative to the repository root. Generic Git URLs mark the
+repository boundary with `.git`, then append the catalog path and `@ref`.
+Omitting the path selects `.agents/skills`, and omitting `@ref` selects `HEAD`.
+GitHub locators may include the `github.com/` host prefix. Git uses the
+caller's normal credential chain. Configuration never embeds a credential.
 
 Remote catalogs are harness-neutral inputs. Every configured catalog projects
 to every configured `skill_load_points` destination after local eligible
@@ -34,8 +34,6 @@ repositories.
 
 `remote_skill_cache_ttl` accepts a Go duration and defaults to `10m`. `0s`
 refreshes movable refs on every convergence.
-Git uses the calling process's normal credential chain. Configuration names a
-clone URL and never embeds a credential.
 
 ## Cache lifecycle
 
