@@ -1,8 +1,0 @@
-format: agent-compose.evaluation-model-reference.v1
-source: coilyco-bridge/agentic-os-hardware/.agents/skills/leaderboard-agent-model-pairs/info/94-pairings.yaml
-models_needed:
-  - gpt-oss:120b
-  - ministral-3:8b
-  - ornith:35b
-  - qwen3-coder:30b
-  - qwen3.6:35b
