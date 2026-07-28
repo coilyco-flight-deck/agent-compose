@@ -21,9 +21,9 @@ role "engineer" {
 }
 ```
 
-The loader trims outer whitespace while preserving internal paragraph breaks.
-It rejects a missing, empty, or duplicate briefing. All twelve default roles
-carry at least three substantial paragraphs.
+The loader trims outer whitespace, preserves internal paragraph breaks, and
+rejects missing, empty, or duplicate briefings. All twelve default roles carry
+at least three substantial paragraphs.
 
 ## Authoring shape
 
@@ -60,9 +60,10 @@ The roster renders each named-seat role in this order:
 * component personalities, colors, and aligned inspiration metadata
 * melded favorite color
 
-The host cascade carries all twelve named roles into global context. A bundle
-places selected identity fit, achievement, impact, and citation metadata before
-its briefing. The appearance catalogue remains snapshot-only.
+The host cascade carries all twelve named roles into global context. An
+inferred role may activate another briefing and meld under
+[native adaptation](native-adaptation.md). A bundle places identity metadata
+before its caller-assigned briefing. Appearances remain snapshot-only.
 
 ## Ownership boundaries
 
@@ -76,5 +77,4 @@ authority policy.
 
 ## See also
 
-* [role-selection.md](role-selection.md) - assignment precedence and locks.
-* [../internal/person/roles](../internal/person/roles) - canonical role text.
+* [role-selection.md](role-selection.md) - inferred and assigned role origins.

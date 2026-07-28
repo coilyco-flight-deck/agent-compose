@@ -6,9 +6,9 @@ reviewable local data assets.
 
 ## Boundaries
 
-* Engine assets - generic evaluation behavior and the native interactive swap
-  policy. `internal/roster/definitions/NATIVE-SWAP.txt` is embedded data, not
-  a profile override.
+* Engine assets - generic evaluation behavior and the native adaptation
+  policy. `internal/roster/definitions/NATIVE-ADAPTATION.txt` is embedded data,
+  not a profile override.
 * Profile assets - roles, briefings, invariant, copy contracts, role
   inspirations, and optional complete `evaluations/<role>.yaml` matrices.
 * Personality-library assets - personality bindings, aliases, identity
@@ -31,7 +31,7 @@ The loader does not merge fields, and a role cannot silently opt out.
 * `internal/evaluation/result.go` - result decoding, score validation, and
   canonical v2 pack digesting remain executable behavior.
 * `internal/roster/roster.go` - rendering remains executable. The long-form
-  native-swap policy moved to `definitions/NATIVE-SWAP.txt`.
+  native-adaptation policy lives in `definitions/NATIVE-ADAPTATION.txt`.
 * `internal/person/person.go` - KDL parsing, local library merge, conflict
   detection, and copy-contract validation remain executable.
 * `cmd/agent-compose/main.go` - CLI help and command wiring remain executable

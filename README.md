@@ -20,8 +20,8 @@ compact selected-role metadata, and emits an immutable context bundle.
 Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
-* role-driven personality meld resolution, with separately confirmed
-  [native adaptation](docs/native-personality-swaps.md)
+* role-driven personality meld resolution with host-only
+  [native adaptation](docs/native-adaptation.md) for inferred roles and melds
 * one selected person package, with Kai's twelve-role roster as the default
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and

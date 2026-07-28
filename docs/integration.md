@@ -34,11 +34,11 @@ pronouns, personality meld, definition paths, and derived favorite color."
 Host config may select one
 [external person package](person-packages.md), which replaces the embedded
 default before this artifact is rendered.
-Under the [role-selection contract](role-selection.md), an explicit role stays
-fixed. An unassigned native agent selects from the initial request and loads
-that role's default definitions. The host-only
-[personality swap policy](native-personality-swaps.md) may temporarily activate
-others after confirmation. The embedded default needs no external source.
+Under the [role-selection contract](role-selection.md), an unassigned agent
+infers and records its initial role. Host-only
+[native adaptation](native-adaptation.md) lets a direct user switch among
+roles without another confirmation. Agent-proposed role and personality
+changes require confirmation. The default needs no external source.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global context loads at session
@@ -53,9 +53,10 @@ transactionally fills the claude, codex, goose, or opencode global load
 points. Black-box fixtures prove that each native home contains ordinary and
 role-composed skills plus every active personality, compiled homes contain all
 selected prose, and neither path changes the input bundle. Projected
-instructions fix the caller-selected role under the
-[same contract](role-selection.md). A composition adapter can use an empty
-private target under the [staged-home contract](staged-home.md).
+instructions keep the caller-selected role fixed under the
+[same contract](role-selection.md). A switch requires a new bundle. A
+composition adapter can use an empty private target under the
+[staged-home contract](staged-home.md).
 
 ## Migration state
 

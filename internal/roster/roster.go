@@ -15,8 +15,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed definitions/NATIVE-SWAP.txt
-var nativeSwapPolicy string
+//go:embed definitions/NATIVE-ADAPTATION.txt
+var nativeAdaptationPolicy string
 
 // Render produces the artifact file set; outDir only parameterizes the
 // absolute paths inside the claude override's mechanical imports.
@@ -52,15 +52,15 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 		table.WriteString("\n")
 	}
 	table.WriteString("# Agent seats\n\n")
-	table.WriteString("Each agent resolves its role once at session start. If launch context assigns\n")
-	table.WriteString("a role, the agent treats that assignment as authoritative. Otherwise, an\n")
-	table.WriteString("unassigned native agent uses the initial substantive request as a soft signal\n")
-	table.WriteString("and selects the closest role. The agent keeps that role for the whole session.\n")
-	table.WriteString("Later task shape does not change it.\n")
+	table.WriteString("Each agent resolves its role origin once at session start. If launch context\n")
+	table.WriteString("assigns a role, the agent treats that assignment as authoritative. Otherwise,\n")
+	table.WriteString("an unassigned native agent uses the initial substantive request as a soft\n")
+	table.WriteString("signal and selects the closest role. Later task shape does not change the role.\n")
+	table.WriteString("An eligible inferred native role changes only under the explicit policy below.\n")
 	table.WriteString("Each agent loads every linked definition on that role's Melded personalities\n")
 	table.WriteString("line before acting. Catalog definitions outside that default meld stay inactive\n")
 	table.WriteString("unless the native interactive policy below temporarily activates them.\n\n")
-	table.WriteString(nativeSwapPolicy)
+	table.WriteString(renderNativeAdaptationPolicy(p))
 
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
@@ -113,6 +113,25 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	}
 	files["personality-index.md"] = []byte(personalityIndex(p))
 	return files, nil
+}
+
+func renderNativeAdaptationPolicy(p *person.Person) string {
+	var slugs []string
+	for _, roleName := range p.RoleOrder {
+		if len(p.Roles[roleName].Seats) > 0 {
+			slugs = append(slugs, "`"+roleName+"`")
+		}
+	}
+	available := "none"
+	if len(slugs) > 0 {
+		available = strings.Join(slugs, ", ")
+	}
+	return strings.Replace(
+		nativeAdaptationPolicy,
+		"{{ROLE_SLUGS}}",
+		available,
+		1,
+	)
 }
 
 func personalityIndex(p *person.Person) string {
