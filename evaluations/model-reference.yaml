@@ -3,7 +3,6 @@ source: coilyco-bridge/agentic-os-hardware/.agents/skills/leaderboard-agent-mode
 models_needed:
   - gpt-oss:120b
   - ministral-3:8b
+  - ornith:35b
   - qwen3-coder:30b
   - qwen3.6:35b
-overrides:
-  community: ornith:35b
