@@ -61,7 +61,8 @@ Each harness uses the eligible repository paths already recorded in
 contributes skills when it contains `.agents/skills`. Defaults compose first,
 then additional eligible repositories in stable order, followed by configured
 remote catalogs in declaration order. Existing unowned entries at a load point
-always win. Agent-compose records its links in
+win. Unavailable entries warn and skip. Other inspection failures remain
+fatal. Agent-compose records its links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still
 match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this

@@ -125,6 +125,9 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		filepath.Dir(paths.Config),
 		catalogs,
 	)
+	for _, warning := range skills.Warnings {
+		fmt.Fprintf(stderr, "agent-compose: warning: %s (skipped)\n", warning)
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1

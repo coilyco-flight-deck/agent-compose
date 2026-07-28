@@ -35,7 +35,8 @@ type Catalog struct {
 	Path string
 }
 
-// Result summarizes one convergence without exposing host-specific paths.
+// Result summarizes one convergence. Warnings retain the affected path so a
+// host operator can repair unavailable catalog entries.
 type Result struct {
 	Linked     int
 	Removed    int
@@ -43,6 +44,7 @@ type Result struct {
 	Verified   int
 	Managed    int
 	LoadPoints int
+	Warnings   []string
 }
 
 func expand(path string) (string, error) {
@@ -78,17 +80,18 @@ func orderedRepos(manifest eligibility, harness string) []string {
 	return repos
 }
 
-func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, error) {
+func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, []string, error) {
 	raw, err := os.ReadFile(manifestPath)
 	if err != nil {
-		return nil, fmt.Errorf("read mount eligibility %s: %w", manifestPath, err)
+		return nil, nil, fmt.Errorf("read mount eligibility %s: %w", manifestPath, err)
 	}
 	var manifest eligibility
 	if err := json.Unmarshal(raw, &manifest); err != nil {
-		return nil, fmt.Errorf("parse mount eligibility %s: %w", manifestPath, err)
+		return nil, nil, fmt.Errorf("parse mount eligibility %s: %w", manifestPath, err)
 	}
 	desired := map[string]link{}
 	destinations := map[string]string{}
+	warnings := map[string]bool{}
 	harnesses := make([]string, 0, len(loadPoints))
 	for harness := range loadPoints {
 		harnesses = append(harnesses, harness)
@@ -97,10 +100,10 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 	for _, harness := range harnesses {
 		destination, err := expand(loadPoints[harness])
 		if err != nil {
-			return nil, fmt.Errorf("resolve %s skill load point: %w", harness, err)
+			return nil, nil, fmt.Errorf("resolve %s skill load point: %w", harness, err)
 		}
 		if owner, exists := destinations[destination]; exists {
-			return nil, fmt.Errorf("skill load point %s is shared by %s and %s", destination, owner, harness)
+			return nil, nil, fmt.Errorf("skill load point %s is shared by %s and %s", destination, owner, harness)
 		}
 		destinations[destination] = harness
 		skills := map[string]string{}
@@ -122,6 +125,10 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 			for _, entry := range entries {
 				target := filepath.Join(root, entry.Name())
 				info, err := os.Stat(target)
+				if errors.Is(err, os.ErrNotExist) {
+					warnings[fmt.Sprintf("inspect skill %s: %v", target, err)] = true
+					continue
+				}
 				if err != nil {
 					return fmt.Errorf("inspect skill %s: %w", target, err)
 				}
@@ -133,12 +140,12 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 		}
 		for _, repo := range orderedRepos(manifest, harness) {
 			if err := addRoot(filepath.Join(repo, ".agents", "skills")); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 		for _, catalog := range catalogs {
 			if err := addRoot(catalog.Path); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 		for name, target := range skills {
@@ -146,7 +153,12 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 			desired[linkKey(destination, name)] = item
 		}
 	}
-	return desired, nil
+	reported := make([]string, 0, len(warnings))
+	for warning := range warnings {
+		reported = append(reported, warning)
+	}
+	sort.Strings(reported)
+	return desired, reported, nil
 }
 
 func readSidecar(path string) (sidecar, error) {
@@ -211,9 +223,9 @@ func ApplyWithCatalogs(
 	if len(loadPoints) == 0 {
 		return Result{}, nil
 	}
-	desired, err := discover(manifestPath, loadPoints, catalogs)
+	desired, warnings, err := discover(manifestPath, loadPoints, catalogs)
 	if err != nil {
-		return Result{}, err
+		return Result{Warnings: warnings}, err
 	}
 	sidecarPath := filepath.Join(stateDir, sidecarName)
 	previous, err := readSidecar(sidecarPath)
@@ -225,7 +237,7 @@ func ApplyWithCatalogs(
 		owned[linkKey(item.Destination, item.Name)] = item
 	}
 
-	result := Result{Managed: len(desired), LoadPoints: len(loadPoints)}
+	result := Result{Managed: len(desired), LoadPoints: len(loadPoints), Warnings: warnings}
 	for key, item := range owned {
 		next, wanted := desired[key]
 		if wanted && next.Target == item.Target {

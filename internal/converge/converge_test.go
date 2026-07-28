@@ -43,6 +43,10 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(skillRoot, "coding-go", "SKILL.md"), []byte("# Go\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	missingSkill := filepath.Join(skillRoot, "missing-skill")
+	if err := os.Symlink(filepath.Join(dir, "vanished-skill"), missingSkill); err != nil {
+		t.Fatal(err)
+	}
 	mcpInventory := filepath.Join(dir, "mcporter.json")
 	if err := os.WriteFile(mcpInventory, []byte(`{"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp"}}}`+"\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -59,6 +63,11 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	code, out, errOut := run(t, paths)
 	if code != 0 {
 		t.Fatalf("converge failed: %s %s", out, errOut)
+	}
+	if !strings.Contains(errOut, "warning: inspect skill ") ||
+		!strings.Contains(errOut, filepath.Base(missingSkill)) ||
+		!strings.Contains(errOut, "(skipped)") {
+		t.Fatalf("vanished skill warning missing: %s", errOut)
 	}
 	if !strings.Contains(out, "roster  ") || !strings.Contains(out, "wrote") {
 		t.Fatalf("converge must refresh roster then cascade: %s", out)
@@ -113,8 +122,8 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	wantSkillSummary := fmt.Sprintf(
 		"skills  managed=%d load-points=1 verified=%d linked=0 removed=0 preserved=0",
-		len(skillEntries),
-		len(skillEntries),
+		len(skillEntries)-1,
+		len(skillEntries)-1,
 	)
 	if !strings.Contains(out, wantSkillSummary) {
 		t.Fatalf("second converge must summarize the full skill check: %s", out)

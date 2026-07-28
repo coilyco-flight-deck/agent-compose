@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -96,6 +97,76 @@ func TestApplyRemovesStaleOwnedLinksAndPreservesForeignEntries(t *testing.T) {
 	}
 	if raw, err := os.ReadFile(foreign); err != nil || string(raw) != "mine" {
 		t.Fatal("foreign entry must survive")
+	}
+}
+
+func TestApplyWarnsAndRemovesOwnedLinkWhenSkillTargetDisappears(t *testing.T) {
+	dir := t.TempDir()
+	root := filepath.Join(dir, "root")
+	skillRoot := filepath.Join(root, ".agents", "skills")
+	makeSkill(t, root, "kept")
+	target := filepath.Join(dir, "fragile-target")
+	if err := os.MkdirAll(target, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	fragile := filepath.Join(skillRoot, "fragile")
+	if err := os.Symlink(target, fragile); err != nil {
+		t.Fatal(err)
+	}
+	destination := filepath.Join(dir, "skills")
+	state := filepath.Join(dir, "state")
+	points := map[string]string{"codex": destination}
+	manifest := filepath.Join(dir, "mount-eligibility.json")
+	writeEligibility(t, manifest, []string{root}, map[string][]string{})
+
+	if _, err := Apply(manifest, points, state); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(target); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := Apply(manifest, points, state)
+	if err != nil {
+		t.Fatalf("vanished skill target must not fail convergence: %v", err)
+	}
+	if result.Removed != 1 || result.Verified != 1 {
+		t.Fatalf("result = %+v, want one stale removal and one verified skill", result)
+	}
+	if len(result.Warnings) != 1 ||
+		!strings.Contains(result.Warnings[0], fragile) ||
+		!strings.Contains(result.Warnings[0], "no such file") {
+		t.Fatalf("warnings = %q, want vanished skill path and cause", result.Warnings)
+	}
+	if _, err := os.Lstat(filepath.Join(destination, "fragile")); !os.IsNotExist(err) {
+		t.Fatal("owned projection for vanished skill must be removed")
+	}
+	if _, err := os.Stat(filepath.Join(destination, "kept")); err != nil {
+		t.Fatalf("available skill must remain projected: %v", err)
+	}
+}
+
+func TestApplyStillFailsOnNonMissingSkillInspectionError(t *testing.T) {
+	dir := t.TempDir()
+	root := filepath.Join(dir, "root")
+	skillRoot := filepath.Join(root, ".agents", "skills")
+	if err := os.MkdirAll(skillRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	loop := filepath.Join(skillRoot, "loop")
+	if err := os.Symlink(loop, loop); err != nil {
+		t.Fatal(err)
+	}
+	manifest := filepath.Join(dir, "mount-eligibility.json")
+	writeEligibility(t, manifest, []string{root}, map[string][]string{})
+
+	_, err := Apply(
+		manifest,
+		map[string]string{"codex": filepath.Join(dir, "skills")},
+		filepath.Join(dir, "state"),
+	)
+	if err == nil || !strings.Contains(err.Error(), "inspect skill") {
+		t.Fatalf("symlink loop must remain fatal, got %v", err)
 	}
 }
 
