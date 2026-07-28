@@ -11,7 +11,6 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/remoteskills"
 )
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
@@ -169,7 +168,7 @@ func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
 		"remote_skill_cache_ttl: 1h\n" +
 		"remote_skill_sources:\n" +
 		"  - url: " + origin + "\n" +
-		"    harnesses: [codex]\n" +
+		"    ref: main:.agents/skills\n" +
 		"load_points:\n  claude: null\n  codex: " + filepath.Join(dir, "links", "AGENTS.md") + "\n"
 	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
 		t.Fatal(err)
@@ -181,6 +180,9 @@ func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
 	}
 	if !strings.Contains(out, "remote  sources=1 cached=0 hydrated=1 refreshed=0 fallback=0") {
 		t.Fatalf("remote hydration summary missing: %s", out)
+	}
+	if strings.Index(out, "remote  sources=") > strings.Index(out, "roster  ") {
+		t.Fatalf("remote skills must hydrate before composition starts: %s", out)
 	}
 	shared, err := os.Readlink(filepath.Join(skillLoadPoint, "shared"))
 	if err != nil {
@@ -199,18 +201,36 @@ func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
 	}
 }
 
-func TestActiveRemoteSourcesSkipsUnusedHarnesses(t *testing.T) {
-	sources := []remoteskills.Source{
-		{URL: "all"},
-		{URL: "codex", Harnesses: []string{" codex "}},
-		{URL: "claude", Harnesses: []string{"claude"}},
+func TestRemoteHydrationFailurePrecedesCompositionWrites(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: filepath.Join(dir, "projects"),
+		Home:         filepath.Join(dir, "home"),
 	}
-	if got := activeRemoteSources(sources, nil); len(got) != 0 {
-		t.Fatalf("sources without load points = %v", got)
+	doctrine := filepath.Join(dir, "AGENTS.COMPOSE.md")
+	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
+		t.Fatal(err)
 	}
-	got := activeRemoteSources(sources, map[string]string{"codex": "/skills"})
-	if len(got) != 2 || got[0].URL != "all" || got[1].URL != "codex" {
-		t.Fatalf("active sources = %+v", got)
+	config := "sources:\n  - " + doctrine + "\n" +
+		"remote_skill_sources:\n" +
+		"  - url: " + filepath.Join(dir, "missing-origin") + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	code, _, errOut := run(t, paths)
+	if code != 1 || !strings.Contains(errOut, "hydrate remote skill source") {
+		t.Fatalf("remote failure = %d %s", code, errOut)
+	}
+	for _, path := range []string{
+		paths.Composed,
+		filepath.Join(dir, "sources", "personality"),
+	} {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("pre-compose remote failure wrote %s: %v", path, err)
+		}
 	}
 }
 

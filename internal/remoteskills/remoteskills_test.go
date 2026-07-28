@@ -63,7 +63,7 @@ func testOptions(t *testing.T, ttl time.Duration) Options {
 }
 
 func TestHydrateClonesThenReusesFreshCheckout(t *testing.T) {
-	source := Source{URL: newOrigin(t), Harnesses: []string{" codex "}}
+	source := Source{URL: newOrigin(t)}
 	opts := testOptions(t, time.Hour)
 
 	first, err := Hydrate(context.Background(), []Source{source}, opts)
@@ -76,8 +76,8 @@ func TestHydrateClonesThenReusesFreshCheckout(t *testing.T) {
 	if got := readSkill(t, first[0].Catalog.Path); got != "v1" {
 		t.Fatalf("skill = %q, want v1", got)
 	}
-	if strings.Join(first[0].Catalog.Harnesses, ",") != "codex" {
-		t.Fatalf("harnesses = %v", first[0].Catalog.Harnesses)
+	if first[0].Source.Ref != "HEAD:.agents/skills" {
+		t.Fatalf("canonical ref = %q", first[0].Source.Ref)
 	}
 
 	sentinel := filepath.Join(filepath.Dir(filepath.Dir(first[0].Catalog.Path)), "sentinel")
@@ -93,6 +93,33 @@ func TestHydrateClonesThenReusesFreshCheckout(t *testing.T) {
 	}
 	if _, err := os.Stat(sentinel); err != nil {
 		t.Fatal("fresh cache recreated its working checkout")
+	}
+}
+
+func TestHydrateUsesGitRevisionPath(t *testing.T) {
+	origin := newOrigin(t)
+	if err := os.MkdirAll(filepath.Join(origin, "catalog"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(
+		filepath.Join(origin, ".agents", "skills"),
+		filepath.Join(origin, "catalog", "skills"),
+	); err != nil {
+		t.Fatal(err)
+	}
+	gitFixture(t, origin, "add", ".")
+	gitFixture(t, origin, "commit", "-m", "move catalog")
+
+	results, err := Hydrate(
+		context.Background(),
+		[]Source{{URL: origin, Ref: "main:catalog/skills"}},
+		testOptions(t, time.Hour),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := readSkill(t, results[0].Catalog.Path); got != "v1" {
+		t.Fatalf("skill = %q, want v1", got)
 	}
 }
 
@@ -185,12 +212,12 @@ func TestHydrateChecksOutTagsAndSkipsNetworkForPinnedCommit(t *testing.T) {
 }
 
 func TestCacheKeyCoversCompleteLocator(t *testing.T) {
-	base := Source{URL: "https://example.test/catalog.git", Ref: "main", Path: ".agents/skills"}
+	base := Source{URL: "https://example.test/catalog.git", Ref: "main:.agents/skills"}
 	keys := map[string]bool{
 		cacheKey(base): true,
-		cacheKey(Source{URL: base.URL + "-other", Ref: base.Ref, Path: base.Path}): true,
-		cacheKey(Source{URL: base.URL, Ref: "v1", Path: base.Path}):                true,
-		cacheKey(Source{URL: base.URL, Ref: base.Ref, Path: "skills"}):             true,
+		cacheKey(Source{URL: base.URL + "-other", Ref: base.Ref}):   true,
+		cacheKey(Source{URL: base.URL, Ref: "v1:.agents/skills"}):   true,
+		cacheKey(Source{URL: base.URL, Ref: "main:catalog/skills"}): true,
 	}
 	if len(keys) != 4 {
 		t.Fatal("remote locator fields collided in the cache key")
@@ -205,7 +232,7 @@ func TestCacheKeyCoversCompleteLocator(t *testing.T) {
 const sha256HexLength = 64
 
 func TestFirstHydrationFailureLeavesNoWorkingCheckout(t *testing.T) {
-	source := Source{URL: newOrigin(t), Path: "missing/skills"}
+	source := Source{URL: newOrigin(t), Ref: "main:missing/skills"}
 	opts := testOptions(t, time.Hour)
 	if _, err := Hydrate(context.Background(), []Source{source}, opts); err == nil {
 		t.Fatal("missing skill path passed")
@@ -216,13 +243,13 @@ func TestFirstHydrationFailureLeavesNoWorkingCheckout(t *testing.T) {
 	}
 }
 
-func TestValidateSourceRejectsUnsafePathsAndHarnesses(t *testing.T) {
+func TestValidateSourceRejectsUnsafeRevisionPaths(t *testing.T) {
 	for name, source := range map[string]Source{
-		"missing url":       {},
-		"absolute path":     {URL: "origin", Path: "/skills"},
-		"escaping path":     {URL: "origin", Path: "../skills"},
-		"empty harness":     {URL: "origin", Harnesses: []string{""}},
-		"duplicate harness": {URL: "origin", Harnesses: []string{"codex", "codex"}},
+		"missing url":      {},
+		"missing revision": {URL: "origin", Ref: ":skills"},
+		"absolute path":    {URL: "origin", Ref: "main:/skills"},
+		"escaping path":    {URL: "origin", Ref: "main:../skills"},
+		"empty path":       {URL: "origin", Ref: "main:"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if err := ValidateSource(source); err == nil {

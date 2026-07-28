@@ -105,14 +105,6 @@ func LoadConfig(path string) (*Config, error) {
 		normalized := source
 		normalized.URL = strings.TrimSpace(normalized.URL)
 		normalized.Ref = strings.TrimSpace(normalized.Ref)
-		normalized.Path = strings.TrimSpace(normalized.Path)
-		if normalized.Path == "" {
-			normalized.Path = filepath.Join(".agents", "skills")
-		}
-		normalized.Path = filepath.Clean(normalized.Path)
-		for i := range normalized.Harnesses {
-			normalized.Harnesses[i] = strings.TrimSpace(normalized.Harnesses[i])
-		}
 		if err := remoteskills.ValidateSource(normalized); err != nil {
 			return nil, fmt.Errorf("%s: %w", path, err)
 		}

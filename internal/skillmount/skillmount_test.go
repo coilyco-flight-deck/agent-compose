@@ -118,7 +118,7 @@ func TestApplyDoesNotMutateWhenManifestIsMissing(t *testing.T) {
 	}
 }
 
-func TestApplyWithCatalogsOverlaysLocalSkillsAndHonorsHarnesses(t *testing.T) {
+func TestApplyWithCatalogsOverlaysLocalSkillsForEveryLoadPoint(t *testing.T) {
 	dir := t.TempDir()
 	local := filepath.Join(dir, "local")
 	remote := filepath.Join(dir, "remote-skills")
@@ -149,23 +149,21 @@ func TestApplyWithCatalogsOverlaysLocalSkillsAndHonorsHarnesses(t *testing.T) {
 		manifest,
 		loadPoints,
 		filepath.Join(dir, "state"),
-		[]Catalog{{Path: remote, Harnesses: []string{"codex"}}},
+		[]Catalog{{Path: remote}},
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Linked != 5 {
-		t.Fatalf("linked %d, want 5", result.Linked)
+	if result.Linked != 6 {
+		t.Fatalf("linked %d, want 6", result.Linked)
 	}
-	target, err := os.Readlink(filepath.Join(loadPoints["codex"], "shared"))
-	if err != nil || target != remoteShared {
-		t.Fatalf("remote catalog must overlay local for codex: target=%q err=%v", target, err)
-	}
-	if _, err := os.Lstat(filepath.Join(loadPoints["claude"], "remote-only")); !os.IsNotExist(err) {
-		t.Fatal("codex-only remote catalog leaked into claude")
-	}
-	target, err = os.Readlink(filepath.Join(loadPoints["claude"], "shared"))
-	if err != nil || target != filepath.Join(local, ".agents", "skills", "shared") {
-		t.Fatalf("claude local shared skill changed: target=%q err=%v", target, err)
+	for harness, destination := range loadPoints {
+		target, err := os.Readlink(filepath.Join(destination, "shared"))
+		if err != nil || target != remoteShared {
+			t.Fatalf("remote catalog must overlay local for %s: target=%q err=%v", harness, target, err)
+		}
+		if _, err := os.Readlink(filepath.Join(destination, "remote-only")); err != nil {
+			t.Fatalf("remote-only skill missing from %s: %v", harness, err)
+		}
 	}
 }

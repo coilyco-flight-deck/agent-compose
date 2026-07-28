@@ -10,26 +10,47 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 const DefaultTTL = 10 * time.Minute
+const defaultCatalogPath = ".agents/skills"
 
 // Source is one remote repository containing a skill catalog.
 type Source struct {
-	URL       string   `yaml:"url"`
-	Ref       string   `yaml:"ref"`
-	Path      string   `yaml:"path"`
-	Harnesses []string `yaml:"harnesses"`
+	URL string `yaml:"url"`
+	Ref string `yaml:"ref"`
+}
+
+// UnmarshalYAML rejects the superseded split locator and harness filter instead
+// of letting yaml.v3 silently ignore them and hydrate an unintended catalog.
+func (s *Source) UnmarshalYAML(node *yaml.Node) error {
+	type plainSource Source
+	var decoded plainSource
+	if err := node.Decode(&decoded); err != nil {
+		return err
+	}
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		switch node.Content[i].Value {
+		case "path":
+			return fmt.Errorf("remote skill source path moved into ref as <tree-ish>:<path>")
+		case "harnesses":
+			return fmt.Errorf("remote skill sources apply to every configured skill load point")
+		}
+	}
+	*s = Source(decoded)
+	return nil
 }
 
 // Catalog is one verified, hydrated skill root ready for native projection.
 type Catalog struct {
-	Path      string
-	Harnesses []string
+	Path string
 }
 
 // State describes the network and cache work used to resolve one catalog.
@@ -87,17 +108,12 @@ func Hydrate(ctx context.Context, sources []Source, opts Options) ([]Result, err
 func hydrateOne(ctx context.Context, source Source, opts Options) (Result, error) {
 	source.URL = strings.TrimSpace(source.URL)
 	source.Ref = strings.TrimSpace(source.Ref)
-	source.Path = strings.TrimSpace(source.Path)
-	if source.Path == "" {
-		source.Path = filepath.Join(".agents", "skills")
-	}
-	source.Path = filepath.Clean(source.Path)
-	for i := range source.Harnesses {
-		source.Harnesses[i] = strings.TrimSpace(source.Harnesses[i])
-	}
 	if err := ValidateSource(source); err != nil {
 		return Result{}, err
 	}
+	revision, catalogPath := splitRef(source.Ref)
+	source.Ref = revision + ":" + catalogPath
+	localCatalogPath := filepath.FromSlash(catalogPath)
 
 	cacheRoot := filepath.Join(opts.StateDir, "cache", "remote-skills", cacheKey(source))
 	mirror := filepath.Join(cacheRoot, "mirror.git")
@@ -121,7 +137,7 @@ func hydrateOne(ctx context.Context, source Source, opts Options) (Result, error
 		mirrorExists = true
 		state = StateHydrated
 	} else if mirrorStale(mirror, opts.TTL, opts.Now()) {
-		if immutableRefPresent(ctx, mirror, source.Ref) {
+		if immutableRefPresent(ctx, mirror, revision) {
 			touchFetchHead(mirror, opts.Now())
 		} else if err := runGit(ctx, "-C", mirror, "remote", "update", "--prune"); err != nil {
 			state = StateFallback
@@ -130,12 +146,11 @@ func hydrateOne(ctx context.Context, source Source, opts Options) (Result, error
 				displaySource(source),
 				err,
 			)
-			if checkoutValid(work, source.Path) {
+			if checkoutValid(work, localCatalogPath) {
 				return Result{
 					Source: source,
 					Catalog: Catalog{
-						Path:      filepath.Join(work, source.Path),
-						Harnesses: append([]string(nil), source.Harnesses...),
+						Path: filepath.Join(work, localCatalogPath),
 					},
 					State:   state,
 					Warning: warning,
@@ -147,19 +162,21 @@ func hydrateOne(ctx context.Context, source Source, opts Options) (Result, error
 		}
 	}
 
-	commit, err := resolveCommit(ctx, mirror, source.Ref)
+	commit, err := resolveCommit(ctx, mirror, revision)
 	if err != nil {
 		return Result{}, fmt.Errorf("resolve remote skill source %s: %w", displaySource(source), err)
 	}
-	if !checkoutMatches(ctx, work, commit, source.Path) {
-		if err := dropCheckout(ctx, source, mirror, work, commit); err != nil {
+	if err := verifyCatalogTree(ctx, mirror, revision, catalogPath); err != nil {
+		return Result{}, fmt.Errorf("resolve remote skill source %s: %w", displaySource(source), err)
+	}
+	if !checkoutMatches(ctx, work, commit, localCatalogPath) {
+		if err := dropCheckout(ctx, source, mirror, work, commit, localCatalogPath); err != nil {
 			return Result{}, fmt.Errorf("materialize remote skill source %s: %w", displaySource(source), err)
 		}
 	}
 
 	catalog := Catalog{
-		Path:      filepath.Join(work, source.Path),
-		Harnesses: append([]string(nil), source.Harnesses...),
+		Path: filepath.Join(work, localCatalogPath),
 	}
 	return Result{Source: source, Catalog: catalog, State: state, Warning: warning}, nil
 }
@@ -167,28 +184,36 @@ func hydrateOne(ctx context.Context, source Source, opts Options) (Result, error
 // ValidateSource checks one normalized remote locator without touching disk or
 // the network.
 func ValidateSource(source Source) error {
+	source.URL = strings.TrimSpace(source.URL)
+	source.Ref = strings.TrimSpace(source.Ref)
 	if source.URL == "" {
 		return fmt.Errorf("remote skill source needs url")
 	}
-	if filepath.IsAbs(source.Path) {
+	revision, catalogPath := splitRef(source.Ref)
+	if revision == "" {
+		return fmt.Errorf("remote skill source %s needs a revision before ':'", displaySource(source))
+	}
+	if strings.HasPrefix(catalogPath, "/") {
 		return fmt.Errorf("remote skill source %s path must be relative", displaySource(source))
 	}
-	clean := filepath.Clean(source.Path)
-	if clean == "." || clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+	clean := path.Clean(catalogPath)
+	if clean == "." || clean == ".." || strings.HasPrefix(clean, "../") {
 		return fmt.Errorf("remote skill source %s path escapes its checkout", displaySource(source))
 	}
-	seen := map[string]bool{}
-	for _, harness := range source.Harnesses {
-		harness = strings.TrimSpace(harness)
-		if harness == "" {
-			return fmt.Errorf("remote skill source %s has an empty harness", displaySource(source))
-		}
-		if seen[harness] {
-			return fmt.Errorf("remote skill source %s repeats harness %q", displaySource(source), harness)
-		}
-		seen[harness] = true
-	}
 	return nil
+}
+
+// splitRef applies Git's <tree-ish>:<path> syntax while preserving the common
+// shorthand where a bare revision selects the conventional skill root.
+func splitRef(locator string) (string, string) {
+	if locator == "" {
+		return "HEAD", defaultCatalogPath
+	}
+	revision, catalogPath, found := strings.Cut(locator, ":")
+	if !found {
+		return locator, defaultCatalogPath
+	}
+	return revision, path.Clean(catalogPath)
 }
 
 func displaySource(source Source) string {
@@ -200,7 +225,7 @@ func displaySource(source Source) string {
 
 func cacheKey(source Source) string {
 	h := sha256.New()
-	fmt.Fprintf(h, "url\x00%s\x00ref\x00%s\x00path\x00%s\x00", source.URL, source.Ref, filepath.ToSlash(source.Path))
+	fmt.Fprintf(h, "url\x00%s\x00ref\x00%s\x00", source.URL, source.Ref)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -233,6 +258,17 @@ func resolveCommit(ctx context.Context, mirror, ref string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
+func verifyCatalogTree(ctx context.Context, mirror, revision, catalogPath string) error {
+	objectType, err := gitOutput(ctx, "-C", mirror, "cat-file", "-t", revision+":"+catalogPath)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(objectType) != "tree" {
+		return fmt.Errorf("skill path %q is not a directory", catalogPath)
+	}
+	return nil
+}
+
 func checkoutMatches(ctx context.Context, work, commit, catalogPath string) bool {
 	if !checkoutValid(work, catalogPath) {
 		return false
@@ -245,7 +281,11 @@ func checkoutValid(work, catalogPath string) bool {
 	return isDir(filepath.Join(work, ".git")) && isDir(filepath.Join(work, catalogPath))
 }
 
-func dropCheckout(ctx context.Context, source Source, mirror, work, commit string) error {
+func dropCheckout(
+	ctx context.Context,
+	source Source,
+	mirror, work, commit, catalogPath string,
+) error {
 	parent := filepath.Dir(work)
 	stage, err := os.MkdirTemp(parent, ".work-*")
 	if err != nil {
@@ -269,8 +309,8 @@ func dropCheckout(ctx context.Context, source Source, mirror, work, commit strin
 	); err != nil {
 		return err
 	}
-	if !isDir(filepath.Join(stage, source.Path)) {
-		return fmt.Errorf("skill path %q is not a directory", source.Path)
+	if !isDir(filepath.Join(stage, catalogPath)) {
+		return fmt.Errorf("skill path %q is not a directory", catalogPath)
 	}
 	return replaceCheckout(stage, work)
 }

@@ -1,9 +1,9 @@
 # Remote skill catalogs
 
-Agent-compose can hydrate ordinary skill catalogs from Git and project them
-through the same native load points as local eligible repositories. The feature
-belongs to bare host convergence. Bundle requests and person-package loading
-remain local and deterministic.
+Before composing host context, agent-compose can hydrate ordinary skill
+catalogs from Git and project them through the same native load points as local
+eligible repositories. The feature belongs to bare host convergence. Bundle
+requests and person-package loading remain local and deterministic.
 
 ## Configuration
 
@@ -19,15 +19,18 @@ remote_skill_sources:
   - url: https://example.com/owner/shared-skills.git
     ref: main
   - url: ssh://git@example.com/owner/private-skills.git
-    ref: 0123456789abcdef0123456789abcdef01234567
-    path: catalog/skills
-    harnesses: [codex]
+    ref: v2:catalog/skills
 ```
 
-`url` is required. `ref` accepts a branch, tag, or full commit ID and defaults
-to the remote's default branch. `path` is relative to the checkout and defaults
-to `.agents/skills`. `harnesses` limits a catalog to named skill load points.
-An omitted harness list admits the catalog everywhere.
+`url` is required. `ref` uses Git's native `<tree-ish>:<path>` object syntax.
+The tree-ish accepts a branch, tag, or full commit ID. Omitting `ref` selects
+`HEAD:.agents/skills`. A bare tree-ish such as `main` also selects the
+conventional `.agents/skills` path. Use `main:skills` or
+`v2:catalog/skills` when an upstream repository keeps its catalog elsewhere.
+
+Remote catalogs are harness-neutral inputs. Every configured catalog projects
+to every configured `skill_load_points` destination after local eligible
+repositories.
 
 `remote_skill_cache_ttl` accepts a Go duration and defaults to `10m`. `0s`
 refreshes movable refs on every convergence.
@@ -36,9 +39,9 @@ clone URL and never embeds a credential.
 
 ## Cache lifecycle
 
-Each normalized URL, ref, and catalog path receives its own SHA-256 cache key
+Each normalized URL and Git revision-path receives its own SHA-256 cache key
 under `~/.agent-compose/cache/remote-skills/`. The cache stores a bare mirror
-and one verified working checkout. The URL and ref do not become directory
+and one verified working checkout. The URL and locator do not become directory
 names.
 
 One source lock serializes mirror and checkout changes across concurrent
@@ -63,7 +66,7 @@ tries the refresh again.
 
 Local eligible repositories keep their existing order. Remote catalogs apply
 after them in configuration order, so a later remote catalog wins a duplicate
-skill name. Harness allowlists are applied before that overlay.
+skill name at every configured load point.
 
 Existing unowned entries at a native load point still win over every managed
 catalog. Agent-compose removes a stale managed link only when its target still

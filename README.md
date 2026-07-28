@@ -83,7 +83,7 @@ as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
 palette explorer, identity overlay, and four-case behavior evaluation pack.
-Bare `acompose` converges the host, hydrates configured remote skill catalogs,
+Bare `acompose` hydrates configured remote skill catalogs, converges the host,
 and atomically refreshes the selected versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.

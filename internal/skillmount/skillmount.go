@@ -29,11 +29,10 @@ type eligibility struct {
 	Harnesses map[string][]string `json:"harnesses"`
 }
 
-// Catalog is a verified skill root, optionally limited to named harnesses.
+// Catalog is a verified skill root projected to every configured load point.
 // Catalogs apply after local repositories in declaration order.
 type Catalog struct {
-	Path      string
-	Harnesses []string
+	Path string
 }
 
 // Result summarizes one convergence without exposing host-specific paths.
@@ -138,9 +137,6 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 			}
 		}
 		for _, catalog := range catalogs {
-			if len(catalog.Harnesses) > 0 && !contains(catalog.Harnesses, harness) {
-				continue
-			}
 			if err := addRoot(catalog.Path); err != nil {
 				return nil, err
 			}
@@ -151,15 +147,6 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 		}
 	}
 	return desired, nil
-}
-
-func contains(values []string, wanted string) bool {
-	for _, value := range values {
-		if value == wanted {
-			return true
-		}
-	}
-	return false
 }
 
 func readSidecar(path string) (sidecar, error) {
