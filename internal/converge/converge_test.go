@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/remoteskills"
 )
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
@@ -79,7 +81,11 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		!strings.Contains(personSnapshot, `"briefing":`) {
 		t.Fatal("normal convergence must emit the complete versioned person snapshot")
 	}
-	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != filepath.Join(skillRoot, "coding-go") {
+	expectedSkillTarget, err := filepath.EvalSymlinks(filepath.Join(skillRoot, "coding-go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != expectedSkillTarget {
 		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
 	}
 	for _, path := range []string{
@@ -129,6 +135,82 @@ func TestConvergeWithoutConfigIsNoOp(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(dir, "sources")); !os.IsNotExist(err) {
 		t.Fatal("no-op must write nothing")
+	}
+}
+
+func TestConvergeHydratesRemoteSkillsThroughLocalProjection(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: filepath.Join(dir, "projects"),
+		Home:         filepath.Join(dir, "home"),
+	}
+	doctrine := filepath.Join(dir, "doctrine", "AGENTS.COMPOSE.md")
+	if err := os.MkdirAll(filepath.Dir(doctrine), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	local := filepath.Join(paths.ProjectsRoot, "coilyco-flight-deck", "agentic-os")
+	writeTestSkill(t, filepath.Join(local, ".agents", "skills"), "shared", "local")
+
+	origin := filepath.Join(dir, "remote")
+	writeTestSkill(t, filepath.Join(origin, ".agents", "skills"), "shared", "remote")
+	writeTestSkill(t, filepath.Join(origin, ".agents", "skills"), "remote-only", "remote")
+	runTestGit(t, origin, "init", "-b", "main", ".")
+	runTestGit(t, origin, "add", ".")
+	runTestGit(t, origin, "commit", "-m", "skills")
+
+	skillLoadPoint := filepath.Join(dir, "links", "skills")
+	config := "sources:\n  - " + doctrine + "\n" +
+		"skill_load_points:\n  codex: " + skillLoadPoint + "\n" +
+		"remote_skill_cache_ttl: 1h\n" +
+		"remote_skill_sources:\n" +
+		"  - url: " + origin + "\n" +
+		"    harnesses: [codex]\n" +
+		"load_points:\n  claude: null\n  codex: " + filepath.Join(dir, "links", "AGENTS.md") + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	code, out, errOut := run(t, paths)
+	if code != 0 {
+		t.Fatalf("remote converge failed: %s %s", out, errOut)
+	}
+	if !strings.Contains(out, "remote  sources=1 cached=0 hydrated=1 refreshed=0 fallback=0") {
+		t.Fatalf("remote hydration summary missing: %s", out)
+	}
+	shared, err := os.Readlink(filepath.Join(skillLoadPoint, "shared"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if body := readFile(t, filepath.Join(shared, "SKILL.md")); body != "remote" {
+		t.Fatalf("remote catalog did not overlay local catalog: %q", body)
+	}
+	if _, err := os.Readlink(filepath.Join(skillLoadPoint, "remote-only")); err != nil {
+		t.Fatal("remote-only skill was not projected")
+	}
+
+	code, out, errOut = run(t, paths)
+	if code != 0 || !strings.Contains(out, "remote  sources=1 cached=1 hydrated=0 refreshed=0 fallback=0") {
+		t.Fatalf("fresh remote cache was not reused: %d %s %s", code, out, errOut)
+	}
+}
+
+func TestActiveRemoteSourcesSkipsUnusedHarnesses(t *testing.T) {
+	sources := []remoteskills.Source{
+		{URL: "all"},
+		{URL: "codex", Harnesses: []string{" codex "}},
+		{URL: "claude", Harnesses: []string{"claude"}},
+	}
+	if got := activeRemoteSources(sources, nil); len(got) != 0 {
+		t.Fatalf("sources without load points = %v", got)
+	}
+	got := activeRemoteSources(sources, map[string]string{"codex": "/skills"})
+	if len(got) != 2 || got[0].URL != "all" || got[1].URL != "codex" {
+		t.Fatalf("active sources = %+v", got)
 	}
 }
 
@@ -228,4 +310,28 @@ func readFile(t *testing.T, path string) string {
 		t.Fatal(err)
 	}
 	return string(raw)
+}
+
+func writeTestSkill(t *testing.T, root, name, body string) {
+	t.Helper()
+	path := filepath.Join(root, name)
+	if err := os.MkdirAll(path, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(path, "SKILL.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func runTestGit(t *testing.T, dir string, args ...string) {
+	t.Helper()
+	argv := append([]string{
+		"-C", dir,
+		"-c", "user.email=test@example.test",
+		"-c", "user.name=Test",
+		"-c", "commit.gpgSign=false",
+	}, args...)
+	if raw, err := exec.Command("git", argv...).CombinedOutput(); err != nil {
+		t.Fatalf("git %v: %v\n%s", args, err, raw)
+	}
 }

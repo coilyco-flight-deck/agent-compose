@@ -51,30 +51,28 @@ mount set, as deterministic JSON.
 against a fresh compose and fails with a diff on drift. Writes happen only
 on change, so a converged host recomposes silently.
 
-Behavior was cross-checked against the Python composer on shared fixtures:
-outputs are byte-identical, including symlink-resolved link absolutization.
-
 ## Native skill roots
 
 Bare compose can also link authored skill catalogs into harness-native skill
-directories:
-
-```yaml
-skill_load_points:
-  codex: ~/.agents/skills
-```
+directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
 
 Each harness uses the eligible repository paths already recorded in
 `mount-eligibility.json`, including the default AOS and AOSK roots. A repository
 contributes skills when it contains `.agents/skills`. Defaults compose first,
-then additional eligible repositories in stable order. Existing unowned
-entries at a load point always win. Agent-compose records its links in
+then additional eligible repositories in stable order, followed by configured
+remote catalogs in declaration order. Existing unowned entries at a load point
+always win. Agent-compose records its links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still
 match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this
 substrate operation.
 
+`remote_skill_sources` adds Git catalogs to those load points.
+`ref`, `path`, and `harnesses` are optional. See
+[remote skills](remote-skills.md) for configuration, caching, and failures.
+
 ## See also
 
 * [integration.md](integration.md) - how roster and cascade fit together.
 * [projection.md](projection.md) - repo and home load-point projection.
+* [remote-skills.md](remote-skills.md) - Git hydration, caching, and offline reuse.

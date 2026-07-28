@@ -257,11 +257,11 @@ func staleGeneratedOutputs(composedPath string, active map[string]bool) []string
 // repoForSource maps a source to the projects-root repo backing it; sources
 // outside the projects tree back no mountable repo.
 func repoForSource(source, projects string) string {
-	absSource, err := filepath.Abs(source)
+	absSource, err := canonicalPath(source)
 	if err != nil {
 		return ""
 	}
-	absProjects, err := filepath.Abs(projects)
+	absProjects, err := canonicalPath(projects)
 	if err != nil {
 		return ""
 	}
@@ -273,7 +273,19 @@ func repoForSource(source, projects string) string {
 	if len(parts) < 3 {
 		return ""
 	}
-	return filepath.Join(projects, parts[0], parts[1])
+	return filepath.Join(absProjects, parts[0], parts[1])
+}
+
+func canonicalPath(path string) (string, error) {
+	absolute, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	resolved, err := filepath.EvalSymlinks(absolute)
+	if err == nil {
+		return resolved, nil
+	}
+	return absolute, nil
 }
 
 type manifestPayload struct {
@@ -286,6 +298,11 @@ type manifestPayload struct {
 // RenderManifest emits deterministic mount-eligibility JSON for consumers:
 // per harness, its source-backed repos unioned with the default mount set.
 func RenderManifest(slices map[string][]string, projects string) (string, error) {
+	canonicalProjects, err := canonicalPath(projects)
+	if err != nil {
+		return "", err
+	}
+	projects = canonicalProjects
 	defaults := make([]string, 0, len(defaultMountSet))
 	for _, slug := range defaultMountSet {
 		defaults = append(defaults, filepath.Join(projects, slug))

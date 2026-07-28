@@ -3,15 +3,18 @@
 package converge
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/remoteskills"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
@@ -77,8 +80,59 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	if code := cascade.Run(paths, cascadeOpts, stdout, stderr); code != 0 {
 		return code
 	}
+	ttl, err := cascade.RemoteSkillTTL(cfg)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	remote, err := remoteskills.Hydrate(
+		context.Background(),
+		activeRemoteSources(cfg.RemoteSkillSources, cfg.SkillLoadPoints),
+		remoteskills.Options{
+			StateDir: filepath.Dir(paths.Config),
+			TTL:      ttl,
+		},
+	)
+	if err != nil {
+		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+		return 1
+	}
+	catalogs := make([]skillmount.Catalog, 0, len(remote))
+	states := map[remoteskills.State]int{}
+	for _, result := range remote {
+		catalogs = append(catalogs, skillmount.Catalog{
+			Path:      result.Catalog.Path,
+			Harnesses: result.Catalog.Harnesses,
+		})
+		states[result.State]++
+		if result.Warning != "" {
+			fmt.Fprintf(stderr, "agent-compose: warning: %s\n", result.Warning)
+		}
+		if opts.Verbose {
+			label := result.Source.URL
+			if result.Source.Ref != "" {
+				label += "@" + result.Source.Ref
+			}
+			fmt.Fprintf(stdout, "remote  %s => %s [%s]\n",
+				label, result.Catalog.Path, result.State)
+		}
+	}
+	if len(remote) > 0 {
+		fmt.Fprintf(stdout, "remote  sources=%d cached=%d hydrated=%d refreshed=%d fallback=%d\n",
+			len(remote),
+			states[remoteskills.StateCached],
+			states[remoteskills.StateHydrated],
+			states[remoteskills.StateRefreshed],
+			states[remoteskills.StateFallback],
+		)
+	}
 	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
-	skills, err := skillmount.Apply(manifestPath, cfg.SkillLoadPoints, filepath.Dir(paths.Config))
+	skills, err := skillmount.ApplyWithCatalogs(
+		manifestPath,
+		cfg.SkillLoadPoints,
+		filepath.Dir(paths.Config),
+		catalogs,
+	)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
@@ -105,4 +159,27 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	}
 
 	return 0
+}
+
+func activeRemoteSources(
+	sources []remoteskills.Source,
+	loadPoints map[string]string,
+) []remoteskills.Source {
+	if len(loadPoints) == 0 {
+		return nil
+	}
+	active := make([]remoteskills.Source, 0, len(sources))
+	for _, source := range sources {
+		if len(source.Harnesses) == 0 {
+			active = append(active, source)
+			continue
+		}
+		for _, harness := range source.Harnesses {
+			if _, exists := loadPoints[strings.TrimSpace(harness)]; exists {
+				active = append(active, source)
+				break
+			}
+		}
+	}
+	return active
 }

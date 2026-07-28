@@ -29,6 +29,13 @@ type eligibility struct {
 	Harnesses map[string][]string `json:"harnesses"`
 }
 
+// Catalog is a verified skill root, optionally limited to named harnesses.
+// Catalogs apply after local repositories in declaration order.
+type Catalog struct {
+	Path      string
+	Harnesses []string
+}
+
 // Result summarizes one convergence without exposing host-specific paths.
 type Result struct {
 	Linked     int
@@ -72,7 +79,7 @@ func orderedRepos(manifest eligibility, harness string) []string {
 	return repos
 }
 
-func discover(manifestPath string, loadPoints map[string]string) (map[string]link, error) {
+func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, error) {
 	raw, err := os.ReadFile(manifestPath)
 	if err != nil {
 		return nil, fmt.Errorf("read mount eligibility %s: %w", manifestPath, err)
@@ -98,31 +105,44 @@ func discover(manifestPath string, loadPoints map[string]string) (map[string]lin
 		}
 		destinations[destination] = harness
 		skills := map[string]string{}
-		for _, repo := range orderedRepos(manifest, harness) {
-			root := filepath.Join(repo, ".agents", "skills")
+		addRoot := func(root string) error {
 			info, err := os.Stat(root)
 			if errors.Is(err, os.ErrNotExist) {
-				continue
+				return nil
 			}
 			if err != nil {
-				return nil, fmt.Errorf("inspect eligible skill root %s: %w", root, err)
+				return fmt.Errorf("inspect eligible skill root %s: %w", root, err)
 			}
 			if !info.IsDir() {
-				continue
+				return nil
 			}
 			entries, err := os.ReadDir(root)
 			if err != nil {
-				return nil, fmt.Errorf("read eligible skill root %s: %w", root, err)
+				return fmt.Errorf("read eligible skill root %s: %w", root, err)
 			}
 			for _, entry := range entries {
 				target := filepath.Join(root, entry.Name())
 				info, err := os.Stat(target)
 				if err != nil {
-					return nil, fmt.Errorf("inspect skill %s: %w", target, err)
+					return fmt.Errorf("inspect skill %s: %w", target, err)
 				}
 				if info.IsDir() {
 					skills[entry.Name()] = target
 				}
+			}
+			return nil
+		}
+		for _, repo := range orderedRepos(manifest, harness) {
+			if err := addRoot(filepath.Join(repo, ".agents", "skills")); err != nil {
+				return nil, err
+			}
+		}
+		for _, catalog := range catalogs {
+			if len(catalog.Harnesses) > 0 && !contains(catalog.Harnesses, harness) {
+				continue
+			}
+			if err := addRoot(catalog.Path); err != nil {
+				return nil, err
 			}
 		}
 		for name, target := range skills {
@@ -131,6 +151,15 @@ func discover(manifestPath string, loadPoints map[string]string) (map[string]lin
 		}
 	}
 	return desired, nil
+}
+
+func contains(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func readSidecar(path string) (sidecar, error) {
@@ -181,10 +210,21 @@ func writeSidecar(path string, state sidecar) error {
 // Apply converges eligible repository skill roots into configured load points.
 // Later eligible repositories win duplicate names. Unowned entries always win.
 func Apply(manifestPath string, loadPoints map[string]string, stateDir string) (Result, error) {
+	return ApplyWithCatalogs(manifestPath, loadPoints, stateDir, nil)
+}
+
+// ApplyWithCatalogs converges local eligible repositories plus verified
+// additional catalogs into the configured native load points.
+func ApplyWithCatalogs(
+	manifestPath string,
+	loadPoints map[string]string,
+	stateDir string,
+	catalogs []Catalog,
+) (Result, error) {
 	if len(loadPoints) == 0 {
 		return Result{}, nil
 	}
-	desired, err := discover(manifestPath, loadPoints)
+	desired, err := discover(manifestPath, loadPoints, catalogs)
 	if err != nil {
 		return Result{}, err
 	}

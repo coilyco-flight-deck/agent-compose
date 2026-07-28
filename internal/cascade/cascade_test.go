@@ -105,6 +105,41 @@ func TestLoadConfigValidatesPersonPolicy(t *testing.T) {
 	}
 }
 
+func TestLoadConfigParsesAndValidatesRemoteSkillSources(t *testing.T) {
+	e := newEnv(t)
+	valid := e.write(t, "remote-valid.yaml", "remote_skill_cache_ttl: 45m\n"+
+		"remote_skill_sources:\n"+
+		"  - url: https://example.test/catalog.git\n"+
+		"    ref: v1\n"+
+		"    path: skills\n"+
+		"    harnesses: [claude, codex]\n")
+	cfg, err := LoadConfig(valid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.RemoteSkillSources) != 1 ||
+		cfg.RemoteSkillSources[0].Ref != "v1" ||
+		cfg.RemoteSkillSources[0].Path != "skills" {
+		t.Fatalf("remote source = %+v", cfg.RemoteSkillSources)
+	}
+	if ttl, err := RemoteSkillTTL(cfg); err != nil || ttl.String() != "45m0s" {
+		t.Fatalf("remote TTL = %s, %v", ttl, err)
+	}
+
+	for name, body := range map[string]string{
+		"missing url":  "remote_skill_sources:\n  - ref: main\n",
+		"bad path":     "remote_skill_sources:\n  - url: origin\n    path: ../skills\n",
+		"bad ttl":      "remote_skill_cache_ttl: soon\n",
+		"negative ttl": "remote_skill_cache_ttl: -1s\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := LoadConfig(e.write(t, name+".yaml", body)); err == nil {
+				t.Fatal("invalid remote skill config passed")
+			}
+		})
+	}
+}
+
 func TestComposeBasicsAndSilentRecompose(t *testing.T) {
 	e := newEnv(t)
 	a := e.write(t, "src/a/AGENTS.COMPOSE.md", "# Alpha\n\nalpha doctrine\n")

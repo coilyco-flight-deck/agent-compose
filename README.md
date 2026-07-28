@@ -33,6 +33,7 @@ configuration:
 * model-class-aware pruning controlled by each skill's own frontmatter
 * fail-closed per-role model-class compatibility
 * native-skill and compiled-context delivery with source entry-point promotion
+* local and cached remote ordinary-skill catalogs projected through one native path
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * host doctrine convergence, native skill installation, and native MCP projection
@@ -82,8 +83,8 @@ as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
 palette explorer, identity overlay, and four-case behavior evaluation pack.
-Bare `acompose` converges the host and atomically refreshes the selected
-versioned person snapshot at
+Bare `acompose` converges the host, hydrates configured remote skill catalogs,
+and atomically refreshes the selected versioned person snapshot at
 `~/.agent-compose/sources/personality/person.json`.
 `acompose -- <command>` converges context before launching the command.
 `acompose --reapply` rewrites the generated compose outputs and recreates
@@ -150,6 +151,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
+* [docs/remote-skills.md](docs/remote-skills.md) - remote skill hydration and cache behavior.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

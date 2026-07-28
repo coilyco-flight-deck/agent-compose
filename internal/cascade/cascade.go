@@ -10,10 +10,12 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/remoteskills"
 )
 
 const (
@@ -31,16 +33,18 @@ var defaultMountSet = []string{
 }
 
 type Config struct {
-	Scopes               *scopeList          `yaml:"scopes"`
-	Sources              []string            `yaml:"sources"`
-	Roots                []string            `yaml:"roots"`
-	LoadPoints           map[string]RawValue `yaml:"load_points"`
-	PersonPolicy         string              `yaml:"person_policy"`
-	PersonSource         string              `yaml:"person_source"`
-	PersonalityLibraries []string            `yaml:"personality_libraries"`
-	RosterSources        []string            `yaml:"roster_sources"`
-	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
-	MCPInventory         string              `yaml:"mcp_inventory"`
+	Scopes               *scopeList            `yaml:"scopes"`
+	Sources              []string              `yaml:"sources"`
+	Roots                []string              `yaml:"roots"`
+	LoadPoints           map[string]RawValue   `yaml:"load_points"`
+	PersonPolicy         string                `yaml:"person_policy"`
+	PersonSource         string                `yaml:"person_source"`
+	PersonalityLibraries []string              `yaml:"personality_libraries"`
+	RosterSources        []string              `yaml:"roster_sources"`
+	SkillLoadPoints      map[string]string     `yaml:"skill_load_points"`
+	RemoteSkillSources   []remoteskills.Source `yaml:"remote_skill_sources"`
+	RemoteSkillCacheTTL  string                `yaml:"remote_skill_cache_ttl"`
+	MCPInventory         string                `yaml:"mcp_inventory"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its
@@ -94,7 +98,42 @@ func LoadConfig(path string) (*Config, error) {
 	if err := personpolicy.Validate(cfg.PersonPolicy, cfg.PersonSource); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	if _, err := RemoteSkillTTL(&cfg); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	for _, source := range cfg.RemoteSkillSources {
+		normalized := source
+		normalized.URL = strings.TrimSpace(normalized.URL)
+		normalized.Ref = strings.TrimSpace(normalized.Ref)
+		normalized.Path = strings.TrimSpace(normalized.Path)
+		if normalized.Path == "" {
+			normalized.Path = filepath.Join(".agents", "skills")
+		}
+		normalized.Path = filepath.Clean(normalized.Path)
+		for i := range normalized.Harnesses {
+			normalized.Harnesses[i] = strings.TrimSpace(normalized.Harnesses[i])
+		}
+		if err := remoteskills.ValidateSource(normalized); err != nil {
+			return nil, fmt.Errorf("%s: %w", path, err)
+		}
+	}
 	return &cfg, nil
+}
+
+// RemoteSkillTTL resolves the configured cache freshness window.
+func RemoteSkillTTL(cfg *Config) (time.Duration, error) {
+	raw := strings.TrimSpace(cfg.RemoteSkillCacheTTL)
+	if raw == "" {
+		return remoteskills.DefaultTTL, nil
+	}
+	ttl, err := time.ParseDuration(raw)
+	if err != nil {
+		return 0, fmt.Errorf("remote_skill_cache_ttl %q: %w", raw, err)
+	}
+	if ttl < 0 {
+		return 0, fmt.Errorf("remote_skill_cache_ttl cannot be negative")
+	}
+	return ttl, nil
 }
 
 func expand(path string) string {

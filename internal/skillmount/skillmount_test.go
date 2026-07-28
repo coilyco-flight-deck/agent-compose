@@ -117,3 +117,55 @@ func TestApplyDoesNotMutateWhenManifestIsMissing(t *testing.T) {
 		t.Fatal("validation failure must not mutate the destination")
 	}
 }
+
+func TestApplyWithCatalogsOverlaysLocalSkillsAndHonorsHarnesses(t *testing.T) {
+	dir := t.TempDir()
+	local := filepath.Join(dir, "local")
+	remote := filepath.Join(dir, "remote-skills")
+	makeSkill(t, local, "local-only")
+	makeSkill(t, local, "shared")
+	remoteShared := filepath.Join(remote, "shared")
+	if err := os.MkdirAll(remoteShared, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(remoteShared, "SKILL.md"), []byte("remote"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	remoteOnly := filepath.Join(remote, "remote-only")
+	if err := os.MkdirAll(remoteOnly, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(remoteOnly, "SKILL.md"), []byte("remote"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	loadPoints := map[string]string{
+		"claude": filepath.Join(dir, "claude"),
+		"codex":  filepath.Join(dir, "codex"),
+	}
+	manifest := filepath.Join(dir, "mount-eligibility.json")
+	writeEligibility(t, manifest, []string{local}, map[string][]string{})
+	result, err := ApplyWithCatalogs(
+		manifest,
+		loadPoints,
+		filepath.Join(dir, "state"),
+		[]Catalog{{Path: remote, Harnesses: []string{"codex"}}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Linked != 5 {
+		t.Fatalf("linked %d, want 5", result.Linked)
+	}
+	target, err := os.Readlink(filepath.Join(loadPoints["codex"], "shared"))
+	if err != nil || target != remoteShared {
+		t.Fatalf("remote catalog must overlay local for codex: target=%q err=%v", target, err)
+	}
+	if _, err := os.Lstat(filepath.Join(loadPoints["claude"], "remote-only")); !os.IsNotExist(err) {
+		t.Fatal("codex-only remote catalog leaked into claude")
+	}
+	target, err = os.Readlink(filepath.Join(loadPoints["claude"], "shared"))
+	if err != nil || target != filepath.Join(local, ".agents", "skills", "shared") {
+		t.Fatalf("claude local shared skill changed: target=%q err=%v", target, err)
+	}
+}

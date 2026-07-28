@@ -65,7 +65,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.
-* Configured skill roots mount safely into native harness skill directories.
+* [Remote skill catalogs](remote-skills.md) share native projection and a locked TTL cache with offline reuse.
 * [Native MCP + approval projection](native-mcp.md).
 
 ## Release
