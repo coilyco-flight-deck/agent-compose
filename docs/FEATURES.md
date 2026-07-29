@@ -9,7 +9,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `person:kai` carries a portfolio-native default with 12 roles, 16
+* `person:kai` carries a portfolio-native default with 12 roles, 17
   personalities, melds, and 40 seats. It grounds work in Kai's real projects
   while treating commercial paths as evidence-qualified possibilities.
 * [External person packages](person-packages.md) and

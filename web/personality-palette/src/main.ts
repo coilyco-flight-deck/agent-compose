@@ -53,6 +53,7 @@ const presentation: Presentation[] = [
   { name: "grounded", colorName: "sage", association: "steady growth" },
   { name: "protective", colorName: "emerald", association: "trusted shelter" },
   { name: "diplomatic", colorName: "teal", association: "balanced exchange" },
+  { name: "editorial", colorName: "ink blue", association: "usable clarity" },
   { name: "candid", colorName: "cyan", association: "clear air" },
   { name: "meticulous", colorName: "measured blue", association: "considered precision" },
   { name: "reflective", colorName: "indigo", association: "quiet depth" },

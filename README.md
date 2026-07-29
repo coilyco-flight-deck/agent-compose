@@ -54,7 +54,7 @@ installs the resulting system across hosts.
 ## Personal by design
 
 The initial person configuration is Kai's twelve-role operating roster and
-sixteen-personality catalog described in
+seventeen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in
 [agent-compose#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10).
@@ -77,7 +77,7 @@ package-manager distribution. A configured mcporter inventory projects into
 both Claude Code and Codex native MCP registries during host convergence.
 Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
-default `person:kai` provider supplies the personality invariant and all 16
+default `person:kai` provider supplies the personality invariant and all 17
 canonical definitions, so its host roster convergence needs no external
 personality source. A configured external person package replaces that provider
 as one unit. The selected person policy carries a normalized catalogue of

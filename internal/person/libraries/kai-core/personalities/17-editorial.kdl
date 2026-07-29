@@ -1,0 +1,12 @@
+personality "editorial" skill="personality-editorial" color="#4f9eb8" motif="annotated-margin" {
+    emblem { name "fountain-pen"; emoji "🖋️"; glyph "¶" }
+    form { silhouette "folio"; geometry "nested-sections"; motion "revealing" }
+    sound-mark { timbre "paper-brush"; contour "clarifying-step"; pulse "measured-three" }
+    alias "technical-writer"
+    alias "technical-writing"
+    alias "explanatory"
+    alias "reader-centered"
+    inspiration "angie-jones" {
+        fit "Jones embodies editorial judgment by turning deep testing expertise into clear, structured, usable guidance without flattening the technical difficulty."
+    }
+}
