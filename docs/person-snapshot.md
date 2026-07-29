@@ -10,8 +10,8 @@ The JSON format marker is `agent-compose.person-snapshot.v3`, with numeric
 schema version `3`. The artifact exports:
 
 * the person name, selected `person:<name>` source provenance, and role order
-* every role's purpose, verbatim long-form briefing, supported model classes,
-  ordered personality meld, derived color, inspiration relationship, and seats
+* every role's purpose, role-skill id, logical source, digest and body
+  projection, supported model classes, ordered meld, color, inspiration, and seats
 * every personality's skill binding, color, emblem, motif, form language,
   sound mark, and inspiration relationship
 * the fixed renderer expression vocabulary
@@ -31,7 +31,7 @@ transactional roster projection as the human-readable files. A failed
 projection restores the prior owned artifact. A second convergence leaves
 identical bytes unchanged.
 
-The `compose` terminal transcript and composed agent instructions render the
+The `compose` terminal transcript and compact identity card render the
 selected-role slice from this same model. Each inspiration record stays with
 the role or personality relationship it describes. Both surfaces include
 identity primitives, fits, achievements, impacts, profile citations, and the

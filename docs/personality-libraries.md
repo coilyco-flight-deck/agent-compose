@@ -1,7 +1,7 @@
 # Person profiles and personality libraries
 
-Agent Compose selects exactly one local person profile. A profile owns roles,
-seats, briefings, the invariant, copy contracts, role inspirations, and
+Agent Compose selects exactly one local person profile. A profile owns role
+skills, structured role metadata, seats, the invariant, copy contracts, role inspirations, and
 optional role evaluation matrices.
 
 ## Profile layout
@@ -9,6 +9,7 @@ optional role evaluation matrices.
 ```text
 person.kdl
 roles/NN-role.kdl
+roles/<role>/SKILL.md
 personalities/NN-local.kdl
 inspirations/NN-inspiration.kdl
 definitions/INVARIANT.md

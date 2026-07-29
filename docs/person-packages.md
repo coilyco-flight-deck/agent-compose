@@ -72,7 +72,7 @@ agent-compose evaluation \
 `overlay`, `roster`, and `palette-data` accept the same flag. Under the host
 guard they inherit its source when the flag is absent.
 
-Evaluation packs include the selected person name, role briefing, seat,
+Evaluation packs include the selected person name, canonical role-skill body, seat,
 invariant, and active definitions. External packages use the generic
 four-case frontier and OSS matrix, so they do not inherit a role-specific case
 from `person:kai`. Agent-compose emits the deterministic pack and validates

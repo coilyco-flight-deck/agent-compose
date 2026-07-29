@@ -3,4 +3,5 @@
 set -e
 go test ./...
 sh scripts/palette-web.sh test
+sh scripts/context-budget.sh
 pre-commit run --all-files

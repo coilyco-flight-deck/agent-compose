@@ -43,7 +43,7 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.ModelClass != schema.ModelClassFrontier {
 				t.Fatalf("model class = %q", verified.Manifest.ModelClass)
 			}
-			if len(verified.Identities) != len(verified.Manifest.Personalities)+1 {
+			if len(verified.Identities) != len(verified.Manifest.Personalities)+2 {
 				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
 			}
 			var foundOrdinary bool

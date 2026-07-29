@@ -2,10 +2,106 @@ package person
 
 import (
 	"fmt"
+	"io/fs"
 	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
+
+// RenderRoleIdentityCard keeps identity texture visible while long-form role
+// and personality doctrine remains lazy-loaded from ordinary skills.
+func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, error) {
+	role, ok := p.Roles[roleName]
+	if !ok {
+		return "", fmt.Errorf("render role identity card: role %q is not defined", roleName)
+	}
+	if meldedColor == "" {
+		return "", fmt.Errorf("render role identity card: role %q has no melded color", roleName)
+	}
+	var out strings.Builder
+	roleSkill := p.RoleSkillID(roleName)
+	fmt.Fprintf(&out, "# %s\n\n%s\n\n", displaySlug(roleName), role.Purpose)
+	fmt.Fprintf(&out, "**Role skill // `%s`**\n", roleSkill)
+	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
+	if len(role.Seats) > 0 {
+		out.WriteString("**Seats")
+		for _, seat := range role.Seats {
+			fmt.Fprintf(&out, " // %s: %s (%s)", seat.Selector(), seat.Name, seat.Pronouns)
+		}
+		out.WriteString("**\n")
+	}
+	out.WriteString("\n## Personality meld\n\n")
+	for _, name := range role.Personalities {
+		binding, exists := p.Personalities[name]
+		if !exists {
+			return "", fmt.Errorf("render role identity card: personality %q is not defined", name)
+		}
+		fmt.Fprintf(&out, "### %s %s\n\n", binding.Emblem.Emoji, displaySlug(name))
+		fmt.Fprintf(
+			&out,
+			"**%s // %s // %s // %s**\n\n",
+			binding.Color,
+			binding.Emblem.Name,
+			binding.Emblem.Glyph,
+			binding.Motif,
+		)
+		description, err := p.personalityDescription(binding)
+		if err != nil {
+			return "", fmt.Errorf("render role identity card: personality %q: %w", name, err)
+		}
+		fmt.Fprintf(&out, "%s\n\n", description)
+	}
+	out.WriteString("## Active doctrine\n\nBefore acting, load:\n\n")
+	fmt.Fprintf(&out, "* `%s`\n", roleSkill)
+	for _, name := range role.Personalities {
+		fmt.Fprintf(&out, "* `%s`\n", p.Personalities[name].Skill)
+	}
+	return out.String(), nil
+}
+
+func displaySlug(value string) string {
+	parts := strings.Split(value, "-")
+	for index, part := range parts {
+		if part == "" {
+			continue
+		}
+		runes := []rune(part)
+		runes[0] = []rune(strings.ToUpper(string(runes[0])))[0]
+		parts[index] = string(runes)
+	}
+	return strings.Join(parts, " ")
+}
+
+func (p *Person) personalityDescription(binding Personality) (string, error) {
+	if p.source == nil {
+		return "Load the personality skill for its complete behavioral definition.", nil
+	}
+	raw, err := fs.ReadFile(p.source, "definitions/skills/"+binding.Skill+"/SKILL.md")
+	if err != nil {
+		return "", err
+	}
+	return skillDescription(raw)
+}
+
+func skillDescription(raw []byte) (string, error) {
+	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	if !strings.HasPrefix(text, "---\n") {
+		return "", fmt.Errorf("missing YAML frontmatter")
+	}
+	end := strings.Index(text[4:], "\n---\n")
+	if end < 0 {
+		return "", fmt.Errorf("unterminated YAML frontmatter")
+	}
+	for _, line := range strings.Split(text[4:4+end], "\n") {
+		if value, found := strings.CutPrefix(line, "description: "); found {
+			if sentence, _, found := strings.Cut(value, ". "); found {
+				return sentence + ".", nil
+			}
+			return strings.TrimSpace(value), nil
+		}
+	}
+	return "", fmt.Errorf("missing description")
+}
 
 type RoleTranscriptOptions struct {
 	Color     bool

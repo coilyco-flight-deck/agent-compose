@@ -81,8 +81,12 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if !strings.Contains(composed, "opal engineer") {
 		t.Fatalf("dispatch table incomplete:\n%s", composed)
 	}
-	if _, err := os.Stat(filepath.Join(dir, "sources", "personality", "personalities", "curious.md")); err != nil {
-		t.Fatal("personality bodies must land under sources/personality")
+	identityRoot := filepath.Join(dir, "sources", "personality", ".agents", "skills")
+	if _, err := os.Stat(filepath.Join(identityRoot, "personality-curious", "SKILL.md")); err != nil {
+		t.Fatal("personality skills must land in the roster identity catalog")
+	}
+	if _, err := os.Stat(filepath.Join(identityRoot, "role-engineer", "SKILL.md")); err != nil {
+		t.Fatal("role skills must land in the roster identity catalog")
 	}
 	personSnapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
 	if !strings.Contains(personSnapshot, fmt.Sprintf(`"format": %q`, person.SnapshotFormat)) ||
@@ -95,6 +99,10 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	}
 	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != expectedSkillTarget {
 		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
+	}
+	expectedRoleTarget := filepath.Join(identityRoot, "role-engineer")
+	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "role-engineer")); err != nil || target != expectedRoleTarget {
+		t.Fatalf("role skill must mount through the native skill catalog: target=%q err=%v", target, err)
 	}
 	for _, path := range []string{
 		filepath.Join(paths.Home, ".mcporter", "mcporter.json"),
@@ -120,10 +128,14 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	identityEntries, err := os.ReadDir(identityRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
 	wantSkillSummary := fmt.Sprintf(
 		"skills  managed=%d load-points=1 verified=%d linked=0 removed=0 preserved=0",
-		len(skillEntries)-1,
-		len(skillEntries)-1,
+		len(skillEntries)-1+len(identityEntries),
+		len(skillEntries)-1+len(identityEntries),
 	)
 	if !strings.Contains(out, wantSkillSummary) {
 		t.Fatalf("second converge must summarize the full skill check: %s", out)

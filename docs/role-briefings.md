@@ -1,80 +1,63 @@
-# Role briefings
+# Role skills
 
-The selected person policy gives every role an unconditional operating charter.
-The embedded charters use Kai's real portfolio and communities.
+The selected person profile owns one ordinary role skill for every role.
+Structured KDL chooses the skill and retains compact identity data. The skill
+body is the sole canonical long-form mission, operating loop, ownership,
+completion, handoff, and escalation doctrine.
 
-## Schema
+## Profile layout
 
-`purpose` remains the concise role label. `briefing` carries the long-form
-orientation:
+A role fragment binds a stable skill id:
 
 ```kdl
-role "engineer" {
-    purpose "Build and land work across Kai's real repository portfolio."
-    briefing """
-        You are an engineer. You turn a defined goal into working code.
-
-        You inspect the surrounding system and exercise the risky paths.
-
-        You own validation and the resolved repository landing workflow.
-        """
+role "advisor" {
+    purpose "Research decisions for Kai's real project portfolio."
+    skill "role-advisor"
+    personality "reflective" "curious" "candid"
 }
 ```
 
-The loader trims outer whitespace, preserves internal paragraph breaks, and
-rejects missing, empty, or duplicate briefings. All twelve default roles carry
-at least three substantial paragraphs.
+The body lives at `roles/advisor/SKILL.md` with ordinary skill frontmatter.
+The loader requires `role-<slug>`, matching frontmatter, a nonempty
+description, and at least three substantive body paragraphs. Missing,
+malformed, or mismatched skills fail before composition.
 
-## Authoring shape
+V1.x packages may retain an inline `briefing`. The compatibility adapter
+projects it as an in-memory `role-<slug>` skill. A role cannot declare both
+forms, and the adapter never writes a second mutable source tree.
 
-The first paragraph establishes mission, real operating domain, and default work. The second defines
-the role's operating method and evidence discipline. The third establishes
-completion, handoff, and escalation boundaries. The engineer role is
-exclusively unattended. Other briefings define their own operating posture.
-External packages set their domain. The default treats contracting and SaaS
-as possibilities until supplied evidence promotes them.
+## Progressive disclosure
 
-A briefing may shape attention, operating loop, and completion posture. It
-does not grant permissions, select a model, choose a harness, or weaken an
-applicable safety boundary.
+An assigned native bundle materializes the selected role skill and every
+personality skill in its ordered meld. Startup instructions carry the fixed
+role bootstrap and a compact identity card. The card retains purpose, seats,
+pronouns, personality emblems, glyphs, motifs, colors, one-sentence cues, the
+melded favorite color, and exact skill ids. Compact fields use ` // `.
 
-## Bundle delivery
+The native roster installs all role and personality skills for discovery but
+does not import their full bodies into global startup context. After inference
+or an allowed role switch, the agent reads the selected role skill and its
+complete meld before acting.
 
-Every role-specific bundle begins with the caller-selected role assignment,
-heading, purpose, and complete briefing. The
-[role-selection contract](role-selection.md) makes that assignment authoritative
-for the session. Native-skill delivery projects the document to the harness
-instruction load point. Compiled delivery keeps the same role section first.
+Compiled delivery has no native skill loader. It appends the selected role
+skill first, then the active personality skills and capability skills, so its
+behavioral content stays equivalent without emitting unusable pointers.
 
-The bundle remains harness-blind. It carries the selected role charter but no
-harness identity, model choice, reasoning effort, or runtime authority. The
-projection layout decides whether the document lands at `AGENTS.md`,
-`CLAUDE.md`, or another harness-native instruction path.
+## Authority boundary
 
-## Roster delivery
+Role skills define identity and the feedback loop a role owns. Capability
+providers define task methods. Ward and guarded runtime policy define
+executable authority.
 
-The roster renders each named-seat role in this order:
-
-* role identity, concise purpose, and long-form briefing
-* harness-specific names and pronouns
-* component personalities, colors, and aligned inspiration metadata
-* melded favorite color
-
-The host cascade carries all twelve named roles into global context. An
-inferred role may activate another briefing and meld under
-[native adaptation](native-adaptation.md). A bundle places identity metadata
-before its caller-assigned briefing. Appearances remain snapshot-only.
-
-## Ownership boundaries
-
-Agent-compose owns these public-safe role charters. AOS owns reusable ordinary
-and role-composed task doctrine. Launch consumers own execution permissions,
-models, reasoning effort, and runtime authority.
-
-Briefings therefore state stable role behavior and refer to the repository's
-resolved workflow. They do not copy mutable repository commands or live
-authority policy.
+The Engineer role owns repository-proven reusable software. Ops owns controlled
+running-system change, live verification, and rollback. QA remains read-only
+unless the runtime explicitly grants an enforced disposable fixture mode. No
+role skill grants commands, credentials, mounts, network access, deployment,
+model selection, or permission.
 
 ## See also
 
-* [role-selection.md](role-selection.md) - inferred and assigned role origins.
+* [native-adaptation.md](native-adaptation.md) - inference and switching rules.
+* [personality-libraries.md](personality-libraries.md) - profile and library boundaries.
+* [person-snapshot.md](person-snapshot.md) - role skill provenance projections.
+* [role-skill-context-budget.md](role-skill-context-budget.md) - measured startup reduction.

@@ -71,11 +71,12 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(res.Skills) != 3 ||
-		res.Skills[0].ID != "personality-curious" ||
-		res.Skills[1].ID != "personality-grounded" ||
-		res.Skills[2].ID != "fixture-review" {
-		t.Fatalf("expected role personalities followed by ordinary skills, got %+v", res.Skills)
+	if len(res.Skills) != 4 ||
+		res.Skills[0].ID != "role-engineer" ||
+		res.Skills[1].ID != "personality-curious" ||
+		res.Skills[2].ID != "personality-grounded" ||
+		res.Skills[3].ID != "fixture-review" {
+		t.Fatalf("expected role skill, personalities, then ordinary skills, got %+v", res.Skills)
 	}
 	if res.FavoriteColor == "" {
 		t.Fatal("expected a melded favorite color")
@@ -88,7 +89,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 		if d.Subject == "skill:fixture-review" && d.Outcome == OutcomeSelected {
 			selected = true
 		}
-		if d.Subject == "instruction:role-briefing" &&
+		if d.Subject == "skill:role-engineer" &&
 			d.Source == "person:kai" &&
 			d.Outcome == OutcomeSelected {
 			briefingSelected = true
@@ -252,12 +253,15 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 				t.Fatal(err)
 			}
 			rolePersonalities := p.Roles[roleName].Personalities
-			if len(res.Skills) != len(rolePersonalities) {
-				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), len(rolePersonalities), res.Skills)
+			if len(res.Skills) != len(rolePersonalities)+1 {
+				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), len(rolePersonalities)+1, res.Skills)
+			}
+			if res.Skills[0].ID != p.RoleSkillID(roleName) {
+				t.Fatalf("selected role skill = %q, want %q", res.Skills[0].ID, p.RoleSkillID(roleName))
 			}
 			for i, personalityName := range rolePersonalities {
-				if want := p.Personalities[personalityName].Skill; res.Skills[i].ID != want {
-					t.Fatalf("selected skill %d = %q, want %q", i, res.Skills[i].ID, want)
+				if want := p.Personalities[personalityName].Skill; res.Skills[i+1].ID != want {
+					t.Fatalf("selected skill %d = %q, want %q", i+1, res.Skills[i+1].ID, want)
 				}
 			}
 		})
@@ -272,7 +276,10 @@ func TestResolveValidationFailures(t *testing.T) {
 		t.Fatalf("expected unknown role failure, got %v", err)
 	}
 	broken := testPerson()
-	broken.Roles["engineer"] = person.Role{Purpose: "Build.", Personalities: []string{"missing"}}
+	broken.Roles["engineer"] = person.Role{
+		Purpose: "Build.", Briefing: "Build from evidence.\n\nValidate the result.",
+		Personalities: []string{"missing"},
+	}
 	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), broken, []*schema.Source{src}, nil); err == nil || !strings.Contains(err.Error(), "without a catalog binding") {
 		t.Fatalf("expected missing catalog binding failure, got %v", err)
 	}
@@ -322,10 +329,11 @@ func TestCompiledDeliveryUsesCanonicalSkillBodies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(res.CompiledBodies) != 2 ||
+	if len(res.CompiledBodies) != 3 ||
 		res.CompiledBodies[0].EntryPoint != "SKILL.md" ||
-		res.CompiledBodies[1].EntryPoint != "SKILL.md" {
-		t.Fatalf("expected canonical SKILL.md for every personality, got %v", res.CompiledBodies)
+		res.CompiledBodies[1].EntryPoint != "SKILL.md" ||
+		res.CompiledBodies[2].EntryPoint != "SKILL.md" {
+		t.Fatalf("expected canonical SKILL.md for the role and every personality, got %v", res.CompiledBodies)
 	}
 }
 

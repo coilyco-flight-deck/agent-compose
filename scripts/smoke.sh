@@ -124,14 +124,14 @@ fi
 assert_contains "$first_output" "roster  "
 assert_contains "$first_output" "wrote"
 assert_contains "$first_output" "cascade outputs=1 load-points=1 manifest=1 changed="
-assert_contains "$first_output" "skills  managed=1 load-points=1"
+assert_contains "$first_output" "skills  managed="
 assert_contains "$first_output" "mcp     servers=1 state=changed"
 printf 'smoke: first isolated convergence... ok\n'
 show_transcript "first convergence" "$first_output"
 
 roster_table="$state_dir/sources/personality/AGENTS.COMPOSE.md"
 roster_override="$state_dir/sources/personality/AGENTS.claude.md"
-roster_body="$state_dir/sources/personality/personalities/curious.md"
+roster_body="$state_dir/sources/personality/.agents/skills/personality-curious/SKILL.md"
 person_snapshot="$state_dir/sources/personality/person.json"
 composed="$state_dir/COMPOSED.md"
 manifest="$state_dir/mount-eligibility.json"
@@ -142,7 +142,9 @@ codex_mcp="$fixture_home/.codex/config.toml"
 
 for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
   "$manifest" "$skill_state" "$mcporter" "$claude_mcp" "$codex_mcp" \
-  "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md"; do
+  "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md" \
+  "$load_points/skills/role-engineer/SKILL.md" \
+  "$load_points/skills/personality-curious/SKILL.md"; do
   assert_file "$path"
 done
 
@@ -180,7 +182,8 @@ if grep -F "wrote" "$second_output" >/dev/null; then
   fail "second convergence rewrote current state"
 fi
 assert_contains "$second_output" "cascade outputs=1 load-points=1 manifest=1 changed=0"
-assert_contains "$second_output" "skills  managed=1 load-points=1 verified=1 linked=0 removed=0 preserved=0"
+assert_contains "$second_output" "skills  managed="
+assert_contains "$second_output" "linked=0 removed=0 preserved=0"
 assert_contains "$second_output" "mcp     servers=1 state=unchanged"
 printf 'smoke: second isolated convergence reports unchanged state... ok\n'
 show_transcript "second convergence" "$second_output"

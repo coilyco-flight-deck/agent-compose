@@ -114,6 +114,9 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
+	catalogs = append(catalogs, skillmount.Catalog{
+		Path: filepath.Join(outDir, ".agents", "skills"),
+	})
 
 	if code := cascade.Run(paths, cascadeOpts, stdout, stderr); code != 0 {
 		return code

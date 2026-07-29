@@ -25,12 +25,10 @@ owns the load points a host declares.
 
 Agent-compose renders the selected person package into a roster artifact under
 `~/.agent-compose/sources/`, a directory the cascade walks as a source root,
-containing an
-`AGENTS.COMPOSE.md` entry plus the personality files it references. The entry
-carries the selected personality invariant, admitted overlay instructions, and
-the seat dispatch table: "if you
-are codex running the engineer role, this is your operating briefing, name,
-pronouns, personality meld, definition paths, and derived favorite color."
+containing an `AGENTS.COMPOSE.md` entry plus lazy-loaded role and personality
+skills. The entry carries the invariant, admitted overlay instructions,
+adaptation bootstrap, and compact identity cards with seats, pronouns, melds,
+emblems, colors, cues, and exact skill ids.
 Host config may select one
 [external person package](person-packages.md), which replaces the embedded
 default before this artifact is rendered.
@@ -41,17 +39,17 @@ roles without another confirmation. Agent-proposed role and personality
 changes require confirmation. The default needs no external source.
 
 Running `agent-compose cascade` then carries the table into every harness's
-global load point - one binary, no Python. Global context loads at session
-start unconditionally, which is what makes personality-at-launch mechanical
-rather than hopeful. Two concurrent agents sharing a (harness, role) pair
-share a seat by design. Containers disambiguate when that is wrong.
+global load point - one binary, no Python. Global bootstrap context loads at
+session start. The selected role and meld skills load before action instead of
+every long-form body loading eagerly. Two concurrent agents sharing a
+(harness, role) pair share a seat by design.
 
 ## Container tier: v2 owns the home
 
 `verify` checks a read-only bundle, then `project --scope home`
 transactionally fills the claude, codex, goose, or opencode global load
-points. Black-box fixtures prove that each native home contains ordinary and
-role-composed skills plus every active personality, compiled homes contain all
+points. Black-box fixtures prove that each native home contains ordinary,
+selected role, role-composed, and active personality skills. Compiled homes contain all
 selected prose, and neither path changes the input bundle. Projected
 instructions keep the caller-selected role fixed under the
 [same contract](role-selection.md). A switch requires a new bundle. A

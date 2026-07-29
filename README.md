@@ -11,16 +11,17 @@ role or definition inheritance from that default.
 The intended product accepts a role, a model class, a delivery mode, and
 optional capability sources. The role activates its complete ordered default
 personality set.
-Agent-compose resolves every bound personality skill from the selected person
-package, tells the agent every component and melded favorite color, injects
-compact selected-role metadata, and emits an immutable context bundle.
+Agent-compose resolves the selected role skill and every bound personality
+skill from the selected person package, tells the agent every component and
+melded favorite color through a compact identity card, and emits an immutable
+context bundle.
 
 ## Ownership boundary
 
 Agent-compose owns the context boundary and its bundled public-safe person
 configuration:
 
-* role-driven personality meld resolution with host-only
+* canonical role skills plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
 * one selected person package, with Kai's twelve-role roster as the default
 * external person packages that fully replace the default roster

@@ -4,6 +4,7 @@ package person
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -63,6 +64,9 @@ type InspirationRef struct {
 
 type Role struct {
 	Purpose               string         `json:"purpose"`
+	Skill                 string         `json:"skill"`
+	SkillSource           string         `json:"skill_source"`
+	SkillDigest           string         `json:"skill_digest"`
 	Briefing              string         `json:"briefing"`
 	Personalities         []string       `json:"personalities"`
 	Seats                 []Seat         `json:"seats"`
@@ -211,6 +215,18 @@ func (p *Person) personalityOrder() []string {
 	return names
 }
 
+func (p *Person) roleOrder() []string {
+	if len(p.RoleOrder) == len(p.Roles) {
+		return append([]string(nil), p.RoleOrder...)
+	}
+	names := make([]string, 0, len(p.Roles))
+	for name := range p.Roles {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 var expressionVocabulary = [...]string{
 	"available",
 	"listening",
@@ -263,6 +279,7 @@ type Person struct {
 	Libraries            map[string]string      `json:"-"`
 	PersonalityLibraries map[string]string      `json:"-"`
 	evaluations          map[string][]byte
+	roleSkills           map[string][]byte
 	source               fs.FS
 }
 
@@ -474,7 +491,7 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 }
 
 func validateResolvedPerson(p *Person) error {
-	for _, roleName := range p.RoleOrder {
+	for _, roleName := range p.roleOrder() {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
 				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
@@ -598,8 +615,104 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
+	if err := loadRoleSkills(source, p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
 	p.source = source
 	return p, nil
+}
+
+func loadRoleSkills(source fs.FS, p *Person) error {
+	p.roleSkills = map[string][]byte{}
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		if role.Briefing != "" {
+			raw := []byte(fmt.Sprintf(
+				"---\nname: %s\ndescription: Adopt the %s charter. Use when the session activates the %s role.\n---\n\n# %s\n\n%s\n",
+				role.Skill,
+				roleName,
+				roleName,
+				roleName,
+				role.Briefing,
+			))
+			p.roleSkills[roleName] = raw
+			role.SkillSource = "person:" + p.Name + ":legacy-role:" + roleName
+			digest := sha256.Sum256(raw)
+			role.SkillDigest = fmt.Sprintf("sha256:%x", digest)
+			p.Roles[roleName] = role
+			continue
+		}
+		if role.Skill != "role-"+roleName {
+			return fmt.Errorf("role %q skill %q must be role-%s", roleName, role.Skill, roleName)
+		}
+		raw, err := fs.ReadFile(source, "roles/"+roleName+"/SKILL.md")
+		if err != nil {
+			return fmt.Errorf("role %q skill %q: %w", roleName, role.Skill, err)
+		}
+		if err := validateSkillDefinition(role.Skill, raw); err != nil {
+			return err
+		}
+		body, err := skillBody(raw)
+		if err != nil {
+			return fmt.Errorf("role %q skill %q: %w", roleName, role.Skill, err)
+		}
+		if paragraphs := briefingParagraphCount(body); paragraphs < 3 {
+			return fmt.Errorf("role %q skill needs at least three paragraphs, got %d", roleName, paragraphs)
+		}
+		role.Briefing = body
+		role.SkillSource = "person:" + p.Name + ":role:" + roleName
+		digest := sha256.Sum256(raw)
+		role.SkillDigest = fmt.Sprintf("sha256:%x", digest)
+		p.roleSkills[roleName] = append([]byte(nil), raw...)
+		p.Roles[roleName] = role
+	}
+	return nil
+}
+
+func skillBody(raw []byte) (string, error) {
+	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	if !strings.HasPrefix(text, "---\n") {
+		return "", fmt.Errorf("missing YAML frontmatter")
+	}
+	end := strings.Index(text[4:], "\n---\n")
+	if end < 0 {
+		return "", fmt.Errorf("unterminated YAML frontmatter")
+	}
+	return strings.TrimSpace(text[end+9:]), nil
+}
+
+// RoleSkillDefinition returns the canonical role skill selected by the profile.
+func (p *Person) RoleSkillDefinition(roleName string) ([]byte, bool) {
+	raw, ok := p.roleSkills[roleName]
+	if !ok {
+		role, exists := p.Roles[roleName]
+		if !exists || strings.TrimSpace(role.Briefing) == "" {
+			return nil, false
+		}
+		skill := role.Skill
+		if skill == "" {
+			skill = "role-" + roleName
+		}
+		raw = []byte(fmt.Sprintf(
+			"---\nname: %s\ndescription: Adopt the %s charter. Use when the session activates the %s role.\n---\n\n# %s\n\n%s\n",
+			skill,
+			roleName,
+			roleName,
+			roleName,
+			role.Briefing,
+		))
+		ok = true
+	}
+	return append([]byte(nil), raw...), ok
+}
+
+// RoleSkillID returns the stable skill binding, including the v1.x legacy
+// adapter for callers that construct an inline role in memory.
+func (p *Person) RoleSkillID(roleName string) string {
+	if role, ok := p.Roles[roleName]; ok && role.Skill != "" {
+		return role.Skill
+	}
+	return "role-" + roleName
 }
 
 func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
@@ -639,6 +752,16 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 			return nil, fmt.Errorf("%s: person %s section is empty", label, section.directory)
 		}
 		for _, entry := range entries {
+			if entry.IsDir() && section.directory == "roles" {
+				if _, ok := pRoleSkillDirectory(entry.Name()); !ok {
+					return nil, fmt.Errorf(
+						"%s: person roles has unexpected entry %q",
+						label,
+						entry.Name(),
+					)
+				}
+				continue
+			}
 			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
 				return nil, fmt.Errorf(
 					"%s: person %s has unexpected entry %q",
@@ -695,6 +818,13 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 	return assembled.Bytes(), nil
 }
 
+func pRoleSkillDirectory(name string) (string, bool) {
+	if !validSemanticToken(name) {
+		return "", false
+	}
+	return name, true
+}
+
 func personFragmentSlug(name string) (string, bool) {
 	if len(name) < len("00-a.kdl") ||
 		name[0] < '0' || name[0] > '9' ||
@@ -734,9 +864,26 @@ func Source(p *Person) (*schema.Source, error) {
 		source = overlay
 		strictDefinitions = false
 	}
-	files, err := fs.Sub(source, "definitions")
+	definitions, err := fs.Sub(source, "definitions")
 	if err != nil {
 		return nil, fmt.Errorf("open person %q personality definitions: %w", p.Name, err)
+	}
+	files := fstest.MapFS{}
+	if err := fs.WalkDir(definitions, ".", func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		raw, readErr := fs.ReadFile(definitions, path)
+		if readErr != nil {
+			return readErr
+		}
+		files[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("copy person %q definitions: %w", p.Name, err)
 	}
 	invariant, err := fs.ReadFile(files, "INVARIANT.md")
 	if err != nil {
@@ -812,6 +959,21 @@ func Source(p *Person) (*schema.Source, error) {
 			EntryPoint: "SKILL.md",
 		})
 	}
+	src.RoleSkills = map[string][]schema.ContentRef{}
+	for _, roleName := range p.roleOrder() {
+		roleSkill := p.RoleSkillID(roleName)
+		raw, ok := p.RoleSkillDefinition(roleName)
+		if !ok {
+			return nil, fmt.Errorf("person %q role %q has no skill definition", p.Name, roleName)
+		}
+		path := "skills/" + roleSkill + "/SKILL.md"
+		files[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+		src.RoleSkills[roleName] = []schema.ContentRef{{
+			ID:         roleSkill,
+			Path:       "skills/" + roleSkill,
+			EntryPoint: "SKILL.md",
+		}}
+	}
 	return src, nil
 }
 
@@ -856,6 +1018,7 @@ func parse(raw []byte) (*Person, error) {
 		Roles:         map[string]Role{},
 		Personalities: map[string]Personality{},
 		Inspirations:  map[string]Inspiration{},
+		roleSkills:    map[string][]byte{},
 		Raw:           raw,
 	}
 	for _, n := range root.Children().Nodes {
@@ -871,6 +1034,7 @@ func parse(raw []byte) (*Person, error) {
 			}
 			role := Role{}
 			briefingSet := false
+			skillSet := false
 			for _, c := range n.Children().Nodes {
 				switch c.Name() {
 				case "purpose":
@@ -895,6 +1059,16 @@ func parse(raw []byte) (*Person, error) {
 					if role.Briefing == "" {
 						return nil, fmt.Errorf("role %q: briefing must not be empty", name)
 					}
+				case "skill":
+					if skillSet {
+						return nil, fmt.Errorf("role %q: duplicate skill", name)
+					}
+					skillSet = true
+					sargs := c.Arguments()
+					if len(sargs) != 1 || strings.TrimSpace(sargs[0].String()) == "" {
+						return nil, fmt.Errorf("role %q: skill needs one id", name)
+					}
+					role.Skill = sargs[0].String()
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
@@ -994,10 +1168,17 @@ func parse(raw []byte) (*Person, error) {
 					return nil, fmt.Errorf("role %q: unknown node %q", name, c.Name())
 				}
 			}
-			if !briefingSet {
-				return nil, fmt.Errorf("role %q needs a briefing", name)
+			if briefingSet && skillSet {
+				return nil, fmt.Errorf("role %q cannot define both briefing and skill", name)
 			}
-			if paragraphs := briefingParagraphCount(role.Briefing); paragraphs < 3 {
+			if !briefingSet && !skillSet {
+				return nil, fmt.Errorf("role %q needs a role skill or legacy briefing", name)
+			}
+			if briefingSet {
+				role.Skill = "role-" + name
+			}
+			if briefingSet && briefingParagraphCount(role.Briefing) < 3 {
+				paragraphs := briefingParagraphCount(role.Briefing)
 				return nil, fmt.Errorf("role %q: briefing needs at least three paragraphs, got %d", name, paragraphs)
 			}
 			if len(role.Personalities) == 0 {

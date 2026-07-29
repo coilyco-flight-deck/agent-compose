@@ -18,6 +18,15 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	seatNames := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
+		if role.Skill != "role-"+roleName ||
+			role.SkillSource == "" ||
+			!strings.HasPrefix(role.SkillDigest, "sha256:") {
+			t.Errorf("role %q skill provenance is incomplete: %+v", roleName, role)
+		}
+		if raw, ok := p.RoleSkillDefinition(roleName); !ok ||
+			!strings.Contains(string(raw), "\nname: "+role.Skill+"\n") {
+			t.Errorf("role %q canonical skill is missing or mismatched", roleName)
+		}
 		if got := briefingParagraphCount(role.Briefing); got < 3 {
 			t.Errorf("role %q briefing has %d paragraphs, want at least three", roleName, got)
 		}
@@ -65,6 +74,30 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			len(inspiration.Appearance.Citations) == 0 {
 			t.Errorf("inspiration %q appearance is incomplete: %+v", id, inspiration.Appearance)
 		}
+	}
+}
+
+func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
+	for name, files := range map[string]fstest.MapFS{
+		"missing": {},
+		"mismatched frontmatter": {
+			"roles/builder/SKILL.md": {
+				Data: []byte("---\nname: role-other\ndescription: Wrong.\n---\n\nOne.\n\nTwo.\n\nThree.\n"),
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p := &Person{
+				Name:      "fixture",
+				RoleOrder: []string{"builder"},
+				Roles: map[string]Role{
+					"builder": {Skill: "role-builder"},
+				},
+			}
+			if err := loadRoleSkills(files, p); err == nil {
+				t.Fatal("invalid role skill must fail")
+			}
+		})
 	}
 }
 
@@ -422,7 +455,7 @@ func TestParseRejectsInvalidRoleBriefing(t *testing.T) {
     personality "bright" skill="personality-bright" color="#d98e48"
     personality "steady" skill="personality-steady" color="#5fa87a"
 }`,
-			want: "needs a briefing",
+			want: "needs a role skill or legacy briefing",
 		},
 		"empty": {
 			body: `person "fixture" {

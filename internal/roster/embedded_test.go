@@ -25,15 +25,18 @@ func TestEmbeddedRosterRendersEveryCanonicalSeat(t *testing.T) {
 	table := string(files["AGENTS.COMPOSE.md"])
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		if !strings.Contains(table, "## "+roleName+" - "+role.Purpose) {
+		if !strings.Contains(table, "**Role skill // `"+p.RoleSkillID(roleName)+"`**") ||
+			!strings.Contains(table, role.Purpose) {
 			t.Errorf("roster omitted role %q", roleName)
 		}
 		for _, seat := range role.Seats {
-			want := fmt.Sprintf("If you are %s running the %s role: your name is %s",
-				seat.Harness, roleName, seat.Name)
+			want := fmt.Sprintf("// %s: %s (%s)", seat.Selector(), seat.Name, seat.Pronouns)
 			if !strings.Contains(table, want) {
 				t.Errorf("roster omitted seat %q for role %q", seat.Harness, roleName)
 			}
+		}
+		if _, ok := files[".agents/skills/"+p.RoleSkillID(roleName)+"/SKILL.md"]; !ok {
+			t.Errorf("roster omitted role skill %q", roleName)
 		}
 	}
 }

@@ -1,8 +1,9 @@
 # Load-point projection
 
 Composition is harness-blind. Projection only places verified content at paths
-the harness reads. Canonical instructions already begin with the selected
-role's purpose and briefing.
+the harness reads. Canonical native instructions carry the selected role's
+compact identity card and mandatory skill ids. Compiled context also embeds
+the selected role and personality bodies.
 
 ```
 agent-compose project <bundle-dir> --layout <name> --scope repo|home --target <dir>
@@ -52,14 +53,9 @@ the documented workaround is a symlink or an `@AGENTS.md` import from
 CLAUDE.md. The claude layout therefore keeps `CLAUDE.md` and
 `.claude/skills/`.
 
-Goose loads every configured context file it finds and combines them; its
-default set is `["AGENTS.md", ".goosehints"]`. The goose layout deliberately
-writes `.goosehints` so the projection composes beside a repo-owned AGENTS.md
-instead of competing for it. OpenCode reads AGENTS.md at the project root,
-falls back to CLAUDE.md only when AGENTS.md is absent, and can pull extra
-instruction files through the `instructions` list in opencode.json - a future
-layout variant could use that list when a hand-authored AGENTS.md already
-occupies the load point.
+Goose combines configured context files. Its layout writes `.goosehints`
+beside a repo-owned AGENTS.md. OpenCode reads root AGENTS.md and falls back to
+CLAUDE.md only when AGENTS.md is absent.
 
 ## Ownership and safety
 

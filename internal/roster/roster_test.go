@@ -70,27 +70,31 @@ func TestRenderDispatchTable(t *testing.T) {
 		"an unassigned native agent uses the initial substantive request as a soft\nsignal",
 		"Later task shape does not change the role.",
 		"An eligible inferred native role changes only under the explicit policy below.",
-		"Each agent loads every linked definition on that role's Melded personalities",
-		"If you are claude running the builder role: your name is opal builder (pronouns: she).",
-		"If you are codex running the builder role: your name is terran builder (pronouns: he).",
-		"bright (favorite color #c87945), defined in [bright](personalities/bright.md)",
-		"## builder - Build the fixture.",
-		"You are a builder. Build the fixture from repository evidence.\n\nFinish validation and return a complete result.",
-		"Melded personalities: bright (favorite color #c87945), defined in [bright](personalities/bright.md); pending (favorite color #7d9fd3), defined in [pending](personalities/pending.md).",
-		"Melded favorite color: " + melded,
+		"Before acting, each agent loads the selected role skill and every personality",
+		"# Builder",
+		"Build the fixture.",
+		"**Role skill // `role-builder`**",
+		"**Favorite color // `" + melded + "`**",
+		"// claude: opal builder (she)",
+		"// codex: terran builder (he)",
+		"###  Bright",
+		"**#c87945 //  //  // **",
+		"* `role-builder`",
+		"* `personality-curious`",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)
 		}
 	}
+	builderSection := renderedCard(t, table, "Builder")
 	ordered := []string{
-		"## builder - Build the fixture.",
-		"You are a builder.",
-		"If you are claude running the builder role",
-		"Melded personalities:",
+		"# Builder",
+		"**Role skill // `role-builder`**",
+		"## Personality meld",
+		"## Active doctrine",
 	}
 	for i := 1; i < len(ordered); i++ {
-		if strings.Index(table, ordered[i-1]) >= strings.Index(table, ordered[i]) {
+		if strings.Index(builderSection, ordered[i-1]) >= strings.Index(builderSection, ordered[i]) {
 			t.Fatalf("roster content is out of order: %q must precede %q", ordered[i-1], ordered[i])
 		}
 	}
@@ -99,13 +103,16 @@ func TestRenderDispatchTable(t *testing.T) {
 	}
 
 	override := string(files["AGENTS.claude.md"])
-	wantImport := "@" + filepath.Join("/opt/artifact", "personalities", "bright.md")
-	if !strings.Contains(override, wantImport) {
-		t.Fatalf("claude override missing mechanical import:\n%s", override)
+	if strings.Contains(override, "@") ||
+		!strings.Contains(override, "installs role and personality definitions as skills") {
+		t.Fatalf("claude override eagerly imports identity doctrine:\n%s", override)
 	}
 
-	if !strings.Contains(string(files["personalities/bright.md"]), "# Curious") {
+	if !strings.Contains(string(files[".agents/skills/personality-curious/SKILL.md"]), "# Curious") {
 		t.Fatal("personality body must carry the skill definition")
+	}
+	if !strings.Contains(string(files[".agents/skills/role-builder/SKILL.md"]), "You are a builder.") {
+		t.Fatal("role skill must carry the legacy briefing through the adapter")
 	}
 	var snapshot person.Snapshot
 	if err := json.Unmarshal(files["person.json"], &snapshot); err != nil {
@@ -136,7 +143,7 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 		"Available role slugs: `builder`.",
 		"case-insensitive spelling such as `QA` for `qa`",
 		"switches the inferred role\nwithout a second confirmation",
-		"loads the target role briefing and\nevery definition in its complete ordered personality meld",
+		"loads the target role skill and every\nskill in its complete ordered personality meld before acting",
 		"stops acting from the prior role charter",
 		"The switched role remains\ninferred.",
 		"persists until another explicit switch or session end",
@@ -153,6 +160,8 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 		"The task request itself does not count as confirmation.",
 		"Task completion restores the role's default meld.",
 		"Each later\nswap needs a new proposal and confirmation.",
+		"#### Conditional QA fixture authority",
+		"runtime explicitly\nlaunches it in an enforced fixture mode",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("native interactive swap policy missing %q:\n%s", want, table)
@@ -186,45 +195,42 @@ func TestRenderDefaultSupportsAdvisorToQASwitch(t *testing.T) {
 	}
 	for _, roleName := range []string{"advisor", "qa"} {
 		role := p.Roles[roleName]
-		section := renderedRoleSection(t, table, roleName)
-		if !strings.Contains(section, role.Briefing) {
-			t.Fatalf("role %q section omitted its briefing:\n%s", roleName, section)
+		if strings.Contains(table, role.Briefing) {
+			t.Fatalf("startup roster eagerly embedded role %q briefing:\n%s", roleName, table)
+		}
+		if !strings.Contains(string(files[".agents/skills/"+p.RoleSkillID(roleName)+"/SKILL.md"]), role.Briefing) {
+			t.Fatalf("role %q skill omitted its briefing", roleName)
 		}
 	}
 
-	qaSection := renderedRoleSection(t, table, "qa")
+	qaSection := renderedCard(t, table, "Qa")
 	ordered := []string{
-		p.Roles["qa"].Briefing,
-		"If you are codex running the qa role",
-		"Melded personalities:",
-		"meticulous (favorite color",
-		"candid (favorite color",
-		"playful (favorite color",
+		"# Qa",
+		"**Role skill // `role-qa`**",
+		"## Personality meld",
+		"* `role-qa`",
+		"* `personality-meticulous`",
+		"* `personality-candid`",
+		"* `personality-playful`",
 	}
 	for i := 1; i < len(ordered); i++ {
 		if strings.Index(qaSection, ordered[i-1]) >= strings.Index(qaSection, ordered[i]) {
 			t.Fatalf("QA activation content is out of order: %q must precede %q", ordered[i-1], ordered[i])
 		}
 	}
-	for _, definition := range []string{
-		"[meticulous](personalities/meticulous.md)",
-		"[candid](personalities/candid.md)",
-		"[playful](personalities/playful.md)",
-	} {
-		if !strings.Contains(qaSection, definition) {
-			t.Fatalf("QA activation omitted %q:\n%s", definition, qaSection)
-		}
+	if !strings.Contains(string(files[".agents/skills/role-qa/SKILL.md"]), "runtime explicitly grants fixture mode") {
+		t.Fatal("QA role skill omitted conditional fixture doctrine")
 	}
 }
 
-func renderedRoleSection(t *testing.T, table, roleName string) string {
+func renderedCard(t *testing.T, table, title string) string {
 	t.Helper()
-	start := strings.Index(table, "\n## "+roleName+" - ")
+	start := strings.Index(table, "\n# "+title+"\n")
 	if start < 0 {
-		t.Fatalf("rendered roster has no %q role section", roleName)
+		t.Fatalf("rendered roster has no %q card", title)
 	}
 	section := table[start+1:]
-	if next := strings.Index(section, "\n## "); next >= 0 {
+	if next := strings.Index(section, "\n# "); next >= 0 {
 		section = section[:next]
 	}
 	return section
@@ -268,12 +274,12 @@ func TestRenderUsesEmbeddedDefinitionsWithoutSources(t *testing.T) {
 		t.Fatal(err)
 	}
 	table := string(files["AGENTS.COMPOSE.md"])
-	if !strings.Contains(table, "bright (favorite color #c87945), defined in") ||
-		!strings.Contains(table, "pending (favorite color #7d9fd3), defined in") {
-		t.Fatalf("expected embedded definitions without sources:\n%s", table)
+	if !strings.Contains(table, "**#c87945 //") ||
+		!strings.Contains(table, "**#7d9fd3 //") {
+		t.Fatalf("expected compact identity metadata without sources:\n%s", table)
 	}
 	if _, ok := files["AGENTS.claude.md"]; !ok {
-		t.Fatal("embedded bodies must produce the claude import override")
+		t.Fatal("roster must produce the lazy-load claude bootstrap")
 	}
 }
 

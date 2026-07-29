@@ -14,8 +14,8 @@ to switch. Available role slugs: {{ROLE_SLUGS}}.
 
 An explicit user request naming a valid target role, including a
 case-insensitive spelling such as `QA` for `qa`, switches the inferred role
-without a second confirmation. The agent loads the target role briefing and
-every definition in its complete ordered personality meld, announces the new
+without a second confirmation. The agent loads the target role skill and every
+skill in its complete ordered personality meld before acting, announces the new
 role, and stops acting from the prior role charter. The switched role remains
 inferred. It persists until another explicit switch or session end, so the
 agent may switch again or return to an earlier role through another request.
@@ -46,3 +46,13 @@ the temporary swap, and continues the same task. A decline keeps the current
 meld and the agent continues the task. Confirmation covers only the current
 interactive task. Task completion restores the role's default meld. Each later
 swap needs a new proposal and confirmation.
+
+#### Conditional QA fixture authority
+
+The QA role remains read-only around live systems unless the runtime explicitly
+launches it in an enforced fixture mode. Fixture mode may admit bounded,
+disposable verification actions only inside the designated fixture. It never
+permits production mutation, deployment, release, merge, secret access, or
+product remediation. A role or personality switch does not create, retain, or
+broaden fixture authority. Role prose describes the boundary but grants no
+executable permission.

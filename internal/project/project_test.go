@@ -53,9 +53,9 @@ func TestProjectNativeLayouts(t *testing.T) {
 			}
 			if !strings.Contains(
 				readTarget(t, target, want.instructions),
-				"You are an engineer.",
+				"**Role skill // `role-engineer`**",
 			) {
-				t.Fatal("instructions load point missing the selected role briefing")
+				t.Fatal("instructions load point missing the selected role identity card")
 			}
 			for _, identity := range selectedFixtureSkills(t, "engineer") {
 				skill := readTarget(t, target, want.skillsDir+"/"+identity+"/SKILL.md")
@@ -347,7 +347,8 @@ func selectedFixtureSkills(t *testing.T, roleName string) []string {
 	if !ok {
 		t.Fatalf("fixture role %q is absent", roleName)
 	}
-	skills := make([]string, 0, len(role.Personalities))
+	skills := make([]string, 0, len(role.Personalities)+2)
+	skills = append(skills, p.RoleSkillID(roleName))
 	for _, personalityName := range role.Personalities {
 		skills = append(skills, p.Personalities[personalityName].Skill)
 	}
@@ -359,6 +360,10 @@ func selectedFixtureSkills(t *testing.T, roleName string) []string {
 func skillHeading(skillID string) string {
 	if skillID == "fixture-review" {
 		return "# Fixture review"
+	}
+	if strings.HasPrefix(skillID, "role-") {
+		name := strings.TrimPrefix(skillID, "role-")
+		return "# " + strings.ToUpper(name[:1]) + name[1:]
 	}
 	name := strings.TrimPrefix(skillID, "personality-")
 	return "# " + strings.ToUpper(name[:1]) + name[1:]

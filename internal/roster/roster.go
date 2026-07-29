@@ -18,9 +18,8 @@ import (
 //go:embed definitions/NATIVE-ADAPTATION.txt
 var nativeAdaptationPolicy string
 
-// Render produces the artifact file set; outDir only parameterizes the
-// absolute paths inside the claude override's mechanical imports.
-func Render(p *person.Person, sources []*schema.Source, outDir string) (map[string][]byte, error) {
+// Render produces the artifact file set.
+func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]byte, error) {
 	personSource, err := person.Source(p)
 	if err != nil {
 		return nil, err
@@ -57,9 +56,9 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 	table.WriteString("an unassigned native agent uses the initial substantive request as a soft\n")
 	table.WriteString("signal and selects the closest role. Later task shape does not change the role.\n")
 	table.WriteString("An eligible inferred native role changes only under the explicit policy below.\n")
-	table.WriteString("Each agent loads every linked definition on that role's Melded personalities\n")
-	table.WriteString("line before acting. Catalog definitions outside that default meld stay inactive\n")
-	table.WriteString("unless the native interactive policy below temporarily activates them.\n\n")
+	table.WriteString("Before acting, each agent loads the selected role skill and every personality\n")
+	table.WriteString("skill named by that role's complete ordered meld. Other role and personality\n")
+	table.WriteString("skills stay inactive unless the native interactive policy activates them.\n\n")
 	table.WriteString(renderNativeAdaptationPolicy(p))
 
 	for _, roleName := range p.RoleOrder {
@@ -67,9 +66,21 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 		if len(role.Seats) == 0 {
 			continue
 		}
-		fmt.Fprintf(&table, "\n## %s - %s\n\n", roleName, role.Purpose)
-		table.WriteString(role.Briefing)
-		table.WriteString("\n\n")
+		colors := make([]string, 0, len(role.Personalities))
+		for _, personalityName := range role.Personalities {
+			colors = append(colors, p.Personalities[personalityName].Color)
+		}
+		melded, err := color.Favorite(colors)
+		if err != nil {
+			return nil, fmt.Errorf("render role %q favorite color: %w", roleName, err)
+		}
+		card, err := p.RenderRoleIdentityCard(roleName, melded)
+		if err != nil {
+			return nil, err
+		}
+		table.WriteString("\n")
+		table.WriteString(card)
+		table.WriteString("\n")
 		if role.CopyContract != nil {
 			fmt.Fprintf(&table, "Copy contract (%s):\n", role.CopyContract.Scope)
 			for _, rule := range role.CopyContract.Rules {
@@ -77,39 +88,22 @@ func Render(p *person.Person, sources []*schema.Source, outDir string) (map[stri
 			}
 			table.WriteString("\n")
 		}
-		for _, seat := range role.Seats {
-			fmt.Fprintf(&table, "- If you are %s running the %s role: your name is %s",
-				seat.Selector(), roleName, seat.Name)
-			if seat.Pronouns != "" {
-				fmt.Fprintf(&table, " (pronouns: %s)", seat.Pronouns)
-			}
-			table.WriteString(".\n")
+		raw, ok := p.RoleSkillDefinition(roleName)
+		if !ok {
+			return nil, fmt.Errorf("render role %q: role skill is missing", roleName)
 		}
-		table.WriteString("\n")
-		line, err := personalityLine(p, role, bodies)
-		if err != nil {
-			return nil, fmt.Errorf("render role %q: %w", roleName, err)
-		}
-		table.WriteString(line)
-		table.WriteString("\n")
+		files[".agents/skills/"+p.RoleSkillID(roleName)+"/SKILL.md"] = raw
 	}
 	files["AGENTS.COMPOSE.md"] = []byte(table.String())
 
-	var imports []string
-	for _, name := range sortedPersonalities(p) {
-		if _, ok := bodies[name]; ok {
-			imports = append(imports, fmt.Sprintf("@%s", filepath.Join(outDir, "personalities", name+".md")))
-		}
-	}
-	if len(imports) > 0 {
-		override := "## Personality definitions\n\n" +
-			"Definitions load mechanically; read your role's line above to know\nwhich ones are yours.\n\n" +
-			strings.Join(imports, "\n") + "\n"
-		files["AGENTS.claude.md"] = []byte(override)
-	}
+	files["AGENTS.claude.md"] = []byte(
+		"## Lazy-loaded identity doctrine\n\n" +
+			"Agent-compose installs role and personality definitions as skills. " +
+			"The selected identity card names the exact skills the agent reads before acting.\n",
+	)
 
 	for name, body := range bodies {
-		files["personalities/"+name+".md"] = body
+		files[".agents/skills/"+p.Personalities[name].Skill+"/SKILL.md"] = body
 	}
 	files["personality-index.md"] = []byte(personalityIndex(p))
 	return files, nil

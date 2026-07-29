@@ -82,7 +82,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			instructionText := string(instructions)
-			wantMetadata, err := p.RenderRoleMetadata("engineer", wantColor)
+			wantCard, err := p.RenderRoleIdentityCard("engineer", wantColor)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -93,51 +93,16 @@ func TestComposeAllFixtures(t *testing.T) {
 				"The agent does not activate, blend, or adopt another role's briefing or personality set.",
 				"If the user requests a role switch, the agent rejects the request and directs the caller " +
 					"to launch a new bundle with the different role.",
-				wantMetadata,
-				p.Roles["engineer"].Briefing,
+				wantCard,
+				"**Role skill // `role-engineer`**",
 				"# Fixture foundation",
 			} {
 				if !strings.Contains(instructionText, selected) {
 					t.Fatalf("instructions missing %q:\n%s", selected, instructionText)
 				}
 			}
-			identityRefs := []person.InspirationRef{p.Roles["engineer"].Inspiration}
-			for _, personalityName := range wantPersonalities {
-				identityRefs = append(identityRefs, p.Personalities[personalityName].Inspiration)
-			}
-			for _, ref := range identityRefs {
-				inspiration := p.Inspirations[ref.ID]
-				for _, selected := range []string{
-					ref.Fit,
-					inspiration.Achievement,
-					inspiration.ImpactFit,
-					inspiration.ProfileCitation,
-				} {
-					if !strings.Contains(instructionText, selected) {
-						t.Fatalf("agent identity context missing %q:\n%s", selected, instructionText)
-					}
-				}
-				for _, excluded := range []string{
-					inspiration.Appearance.Title,
-					inspiration.Appearance.ID,
-					inspiration.Appearance.Event,
-					strings.Join(strings.Fields(inspiration.Appearance.Summary), " "),
-					strings.Join(inspiration.Appearance.Citations, "`, `"),
-				} {
-					if strings.Contains(instructionText, excluded) {
-						t.Fatalf("appearance field %q entered agent context:\n%s",
-							excluded, instructionText)
-					}
-				}
-			}
-			for _, key := range []string{"* Appearance:", "* Appearance citations:"} {
-				if strings.Contains(instructionText, key) {
-					t.Fatalf("appearance key %q entered agent context:\n%s", key, instructionText)
-				}
-			}
-			if strings.Index(instructionText, p.Roles["engineer"].Briefing) >=
-				strings.Index(instructionText, "# Fixture foundation") {
-				t.Fatalf("role briefing must precede provider instructions:\n%s", instructionText)
+			if strings.Contains(instructionText, p.Roles["engineer"].Briefing) {
+				t.Fatalf("native startup instructions eagerly embedded the role skill body:\n%s", instructionText)
 			}
 			for _, roleName := range p.RoleOrder {
 				if roleName == "engineer" {
@@ -148,6 +113,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				}
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
+			mustExist(t, result.Bundle.Dir, "content/skills/person%3Akai/role-engineer/SKILL.md")
 			for _, personalityName := range wantPersonalities {
 				skillPath := "content/skills/person%3Akai/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
@@ -162,8 +128,8 @@ func TestComposeAllFixtures(t *testing.T) {
 					t.Fatal(err)
 				}
 				if !strings.Contains(string(compiled), p.Roles["engineer"].Briefing) ||
-					!strings.Contains(string(compiled), wantMetadata) {
-					t.Fatalf("compiled context omitted role metadata or briefing:\n%s", compiled)
+					!strings.Contains(string(compiled), wantCard) {
+					t.Fatalf("compiled context omitted role card or skill body:\n%s", compiled)
 				}
 			} else {
 				if m.Delivery.SkillsRoot != "content/skills" || m.Delivery.CompiledContext != "" {

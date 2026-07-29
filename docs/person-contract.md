@@ -8,7 +8,7 @@ person "kai" {
     role "engineer" {
         purpose "Build and land work across Kai's real repository portfolio."
         model-class "frontier"
-        briefing "..."
+        skill "role-engineer"
         personality "curious" "grounded" "meticulous"
         agent "claude" name="opal engineer" pronouns="she"
         agent "codex" name="terran engineer" pronouns="he"
@@ -22,10 +22,10 @@ and definitions into the layout documented in
 [person-packages.md](person-packages.md). The loader assembles and validates the
 package before it becomes a source.
 
-A role names its purpose, briefing, two or three personalities, and seats. Its optional
+A role names its purpose, role skill, nonempty ordered personality meld, and seats. Its optional
 `model-class` list restricts composition, while omission supports both classes.
-The [role briefing](role-briefings.md) needs at least three paragraphs. The loader
-rejects invalid class names or personality sets. The embedded default has 12
+The [role skill](role-briefings.md) needs valid frontmatter and at least three
+body paragraphs. The loader rejects invalid class names or personality sets. The embedded default has 12
 roles and 40 seats. CEO supports `frontier` only.
 
 A personality entry is a catalog binding from its canonical name to a stable
@@ -56,7 +56,7 @@ All twelve roles keep Claude she/her and Codex he/him seats. Fifteen AOSH-select
 public seats use grep-friendly names and they/them pronouns. Discord adds one she/her community host, for 40 canonical seats total.
 
 Seats are personality-neutral. A compose request selects a role, and that role
-activates its ordered personality set. Roster briefing delivery is documented
+activates its role skill and ordered personality set. Roster delivery is documented
 in [role-briefings.md](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not

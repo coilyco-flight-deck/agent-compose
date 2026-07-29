@@ -22,8 +22,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.
-* Both delivery modes use canonical personality bodies. Identical legacy
-  copies shadow during upgrades and divergent copies fail closed.
+* Canonical role and personality skills use compact native identity cards and
+  compiled selected-body fallback. See [role skills](role-briefings.md).
 
 ## Load-point projection
 
@@ -55,8 +55,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Roster artifact and cascade
 
-* `agent-compose roster --out <dir>` renders the roster and
-  [native adaptation](native-adaptation.md) for role and personality switches.
+* `agent-compose roster --out <dir>` renders lazy-loaded role and personality
+  skills plus [native adaptation](native-adaptation.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md) for
   roles, seats, compatibility, identities, inspirations, and appearances.
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into

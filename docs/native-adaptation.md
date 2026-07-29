@@ -22,9 +22,9 @@ or inferred from the initial substantive request. Only an inferred role may
 switch.
 
 An explicit user request naming a valid target, such as `swap into QA`,
-activates `qa` without another confirmation. The agent loads the target
-briefing and its complete ordered personality meld, announces the new role,
-and stops following the prior charter. The new role remains inferred, so
+activates `qa` without another confirmation. The agent loads the target role
+skill and every skill in its complete ordered personality meld before acting,
+announces the new role, and stops following the prior charter. The new role remains inferred, so
 another explicit request may switch again or return to an earlier role. The
 current selection lasts until the next explicit switch or session end.
 
@@ -41,8 +41,8 @@ role slugs so the user can correct the request.
 
 A caller-assigned role remains fixed. The agent rejects a role-switch request
 and directs the caller to launch a new bundle with the different role.
-Compiled and native-skill bundles contain only the assigned role briefing and
-meld, which structurally preserves this boundary.
+Native bundles materialize only the assigned role skill and meld. Compiled
+bundles inline those same selected bodies, which preserves this boundary.
 
 ## Personality-only swaps
 
@@ -66,6 +66,10 @@ confirmation. Personality adaptation never changes the active role.
 A native role switch changes only the active charter and personality meld. A
 personality swap changes only the meld. The harness, model, tools, permissions,
 credentials, obligations, and executable authority remain unchanged.
+
+QA remains read-only around live systems unless runtime policy explicitly
+grants an enforced disposable fixture mode. A role or personality switch does
+not create, retain, or broaden that authority.
 
 ## See also
 

@@ -104,8 +104,13 @@ func verifyTree(dir string) (int, error) {
 }
 
 func verifyManifest(dir string, manifest *Manifest) error {
-	if manifest.Role == "" || len(manifest.Personalities) == 0 {
-		return fmt.Errorf("bundle manifest must name role and personalities")
+	if manifest.Role == "" || manifest.RoleSkill == "" ||
+		manifest.RoleSkillSource == "" || manifest.RoleSkillDigest == "" ||
+		len(manifest.Personalities) == 0 {
+		return fmt.Errorf("bundle manifest must name role skill provenance and personalities")
+	}
+	if manifest.RoleSkill != "role-"+manifest.Role {
+		return fmt.Errorf("bundle manifest role skill %q does not match role %q", manifest.RoleSkill, manifest.Role)
 	}
 	if manifest.ModelClass != schema.ModelClassFrontier &&
 		manifest.ModelClass != schema.ModelClassLowContext {

@@ -84,6 +84,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	if len(role.Personalities) == 0 {
 		return nil, fmt.Errorf("role %q defines no personalities", req.Role)
 	}
+	roleSkill := p.RoleSkillID(req.Role)
 	for _, src := range sources {
 		for _, roleName := range sortedKeys(src.RoleSkills) {
 			if _, ok := p.Roles[roleName]; !ok {
@@ -132,11 +133,6 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Subject: "role:" + req.Role, Kind: "profile", Source: "person:" + p.Name,
 		Outcome: OutcomeSelected,
 		Reason:  fmt.Sprintf("person %q defines this role: %s", p.Name, role.Purpose),
-	})
-	res.decide(Decision{
-		Subject: "instruction:role-briefing", Kind: "instruction", Source: "person:" + p.Name,
-		Outcome: OutcomeSelected,
-		Reason:  fmt.Sprintf("role %q activates its canonical operating charter", req.Role),
 	})
 	for _, name := range role.Personalities {
 		res.decide(Decision{
@@ -255,6 +251,12 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	}
 
 	added := map[string]bool{}
+	if selected, found := selectedBySkill[roleSkill]; found {
+		res.Skills = append(res.Skills, selected)
+		added[roleSkill] = true
+	} else {
+		return nil, fmt.Errorf("role %q binds skill %q, but no admitted source provides it", req.Role, roleSkill)
+	}
 	for _, name := range role.Personalities {
 		boundSkill := p.Personalities[name].Skill
 		selected, found := selectedBySkill[boundSkill]

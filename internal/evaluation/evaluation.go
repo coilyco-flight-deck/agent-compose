@@ -62,6 +62,9 @@ type Pack struct {
 	Format              string               `yaml:"format"`
 	Person              string               `yaml:"person"`
 	Role                string               `yaml:"role"`
+	RoleSkill           string               `yaml:"role_skill"`
+	RoleSkillSource     string               `yaml:"role_skill_source"`
+	RoleSkillDigest     string               `yaml:"role_skill_digest"`
 	Seat                person.Seat          `yaml:"seat"`
 	Purpose             string               `yaml:"purpose"`
 	Briefing            string               `yaml:"briefing"`
@@ -165,6 +168,9 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Format:              Format,
 		Person:              p.Name,
 		Role:                roleName,
+		RoleSkill:           p.RoleSkillID(roleName),
+		RoleSkillSource:     role.SkillSource,
+		RoleSkillDigest:     role.SkillDigest,
 		Seat:                seat,
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
