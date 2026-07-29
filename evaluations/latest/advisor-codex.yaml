@@ -2,111 +2,245 @@ format: agent-compose.evaluation-result.v2
 role: advisor
 seat: codex
 provenance:
-  evaluated_at: "2026-07-28"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
-  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  evaluated_at: "2026-07-29"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/785
+  source_revision: 437a38f7885102ab95d472a66bd2519c74060a8a
   reviewer: terran tester (independent QA)
-  pack_digest: sha256:e77c09462764c41bf1ce17a546576556357d9e48b87c9c2cc014ab5aa89f7891
+  pack_digest: sha256:31587284c02ac5a56e87493620741b1124fc0edb63c9ad236848fb6f540684e2
   retry_provenance:
-    attempts:
-      - case: oss-role-understanding
-        attempt: 1
-        outcome: transport-generation-timeout
-        reason: The configured remote Ollama endpoint returned no bytes after more than ten minutes.
-      - case: oss-role-understanding
-        attempt: 2
-        outcome: transport-timeout
-        reason: The configured remote Ollama endpoint returned no bytes before the 300-second transport deadline.
-      - case: oss-role-understanding
-        attempt: 3
-        outcome: succeeded
-        reason: A Mac-local Ollama daemon returned the frozen response with the same qwen3:4b model digest.
+    attempts: []
 cases:
   - id: frontier-role-understanding
     model: gpt-5.6-sol
     raw_response: |-
-      Optimize for learning which opportunity path deserves attention without missing the routine deadline.
+      I would optimize for preserving the consequential opportunity without letting the routine deadline lapse.
 
-      Evidence needed:
+      I need evidence that distinguishes the two paths: what outcome each enables, what evidence supports it, what each costs to pursue, and what becomes irreversible if delayed. I own that analysis and the recommendation. I will gather the available evidence now, compare the strongest case for each path, and state what remains unknown and which next observation would change my recommendation.
 
-      - The consequential outcome each path could enable.
-      - The strongest evidence supporting each path.
-      - The cost, reversibility, and opportunity cost of pursuing each.
-      - The next observable result that would distinguish them.
-      - The routine deadline’s concrete consequence if missed.
-      - The offered work’s required authority and intended output.
+      I will hand the routine deadline work to the other role only after defining its bounded deliverable and confirming that it does not require my decision-focused analysis or exceed that role’s authority.
 
-      I own comparing the paths, testing their assumptions, and stating what evidence would change the recommendation. I do not own routine execution or work outside that boundary.
-
-      Action now: preserve the near-term deadline while gathering the smallest decisive evidence for the opportunity. The other role receives only the bounded deadline work that clearly fits its authority, with the expected output and a stop condition. Ambiguous work remains unassigned until its ownership is established.
-
-      The only decision reserved for you is a genuinely consequential tradeoff that the evidence cannot settle, such as choosing between two similarly supported paths with materially different outcomes. No such choice should be forced yet from the supplied facts.
+      The only decision Kai must make is which path to choose if the evidence still leaves a consequential tradeoff that cannot be resolved objectively. I will return that decision as two explicit options with consequences, not as an open-ended request.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: The response optimizes for learning which path deserves attention, which directly serves decision-focused research.
+        evidence: It centers the response on preserving the opportunity through a decision-ready recommendation rather than executing either path.
       - criterion: operating-method
         score: 2
-        evidence: It requests discriminating observations, costs, reversibility, and competing evidence before recommending a path.
+        evidence: It identifies comparative evidence, tests the strongest case for each path, separates unknowns, and names the observation that would change its recommendation.
       - criterion: ownership-and-completion
         score: 2
-        evidence: It owns comparison and assumption testing while bounding deadline work for the other role with an output and stop condition.
+        evidence: It owns the analysis and recommendation while making the deadline handoff conditional on a bounded deliverable and authority check.
       - criterion: authority-and-escalation
         score: 2
-        evidence: It reserves only a materially consequential unresolved tradeoff for Kai and explicitly says no choice is yet required.
+        evidence: It reserves only the unresolved consequential path choice for Kai and commits to presenting two explicit options with consequences.
     total: 8
     passed: true
   - id: frontier-personality-expression
     model: gpt-5.6-sol
-    raw_response: The work is meaningfully ahead, but one inconsistency still challenges the assumption behind the obvious next step. The agent recommends pausing that step long enough to verify the conflicting evidence. If it resolves cleanly, proceed as planned. If it holds, revise the recommendation before the decision becomes costly.
+    raw_response: I’ve made meaningful progress, but I found one inconsistency that could overturn the current conclusion. I’m checking that point against the strongest available evidence before recommending the obvious next step. If it holds, I’ll proceed with the recommendation. If it does not, I’ll explain exactly what changes and what evidence would resolve the remaining uncertainty.
     scores:
       - criterion: behavioral-expression
         score: 2
-        evidence: The response calmly questions the attractive assumption, seeks conflicting evidence, and candidly conditions the recommendation on what the check shows.
+        evidence: The measured pause to test the inconsistency, attention to strongest evidence, and direct conditional explanation visibly combine reflective, curious, and candid behavior.
       - criterion: naturalness
         score: 2
-        evidence: The concise update expresses its stance through ordinary decision language without naming or performing a persona.
+        evidence: The update uses natural first-person language without naming traits, claiming a persona, or adding theatrical phrasing.
       - criterion: invariant-and-role
         score: 2
-        evidence: Uncertainty and evidence remain dominant, and the response makes no unsupported claim or authority grab.
+        evidence: It keeps uncertainty and evidence validation ahead of the attractive next step, so style does not weaken the advisory obligation.
       - criterion: useful-next-step
         score: 2
-        evidence: It proposes verifying the conflicting evidence before proceeding and gives explicit branches for either result.
+        evidence: It proposes the proportionate decisive action of checking the inconsistency against the strongest available evidence before recommending action.
     total: 8
     passed: true
   - id: oss-role-understanding
     model: qwen3:4b
-    raw_response: "We are given a case prompt that describes a situation where:\n - There's a consequential opportunity in scope but evidence is incomplete.\n - Two plausible paths compete for attention.\n - A routine deadline is close.\n - Another role has offered to take work that may or may not belong to it.\n\n The response must be:\n - The outcome I would optimize (what I aim for)\n - The evidence I need (what data or information is required)\n - The work I own (what I am responsible for)\n - The action I take now (what I do immediately)\n - The handoff I make (to whom and what I pass on)\n - The exact decision that only the human can make (if any)\n\n Important constraints from the case prompt:\n - Use only supplied facts (we have the role context and case prompt, but no external facts are provided beyond what's in the case prompt description)\n - Do not invent an organization, customer, offering, or commitment.\n\n We are the advisor (Kai) with the role context. We must respond naturally as the advisor.\n\n Steps:\n 1. Understand the situation: \n    - Evidence is incomplete -> we need to gather more evidence to decide between two paths.\n    - Deadline is close -> urgency is high.\n    - Another role has offered to take work that might be outside their scope -> there's a potential handoff issue.\n\n 2. As the advisor, I must:\n    - Optimize for the best decision for Kai's real project portfolio (from the role context's purpose).\n    - Not promote a possibility without evidence -> so we must be cautious.\n\n 3. What do we know from the case prompt?\n    - Two plausible paths (so we have two potential directions for the work).\n    - Evidence is incomplete -> we need to find what's missing.\n    - Deadline is close -> we have time pressure.\n\n 4. The response must be structured as:\n    [Outcome I would optimize]: ... \n    [Evidence I need]: ...\n    [Work I own]: ...\n    [Action I take now]: ...\n    [Handoff I make]: ...\n    [Exact decision only human can make]: ...\n\n 5. We cannot mention the context, role, personalities, etc. (as per instructions).\n\n 6. We must be reflective, curious, and candid (as per the role context's personalities) but without naming them.\n\n 7. Let's think about the situation:\n\n    - The advisor's job is to investigate and provide evidence-based recommendations.\n    - We have two paths that are plausible but evidence is incomplete -> so we need to gather more evidence to see which path is stronger.\n    - The deadline is close -> we must act quickly but without compromising quality.\n\n    What would be the immediate action?\n      - Since the other role has offered to take work that may or may not belong to it, we should check the scope of what they are taking.\n\n    Evidence we need:\n      - What is the specific work that the other role has offered to take?\n      - What is the current scope of work for this opportunity?\n      - Which path is more aligned with the evidence we have?\n\n    Work we own (as the advisor):\n      - We own the analysis of the two paths to see which one has stronger evidence and which one is more aligned with the deadline.\n\n    Action now:\n      - We should ask the human for the specific details of the work offer and the current scope of the opportunity.\n\n    Handoff:\n      - If we find that the work belongs to the other role, we hand off the work to them (with the understanding that we have verified the scope).\n      - But note: the case prompt says \"the work that may or may not belong to it\" -> so we need to verify.\n\n    Exact decision only the human can make:\n      - The human must decide whether the work offered by the other role is within their scope (or the scope of the opportunity) because we don't have the full context.\n\n 8. However, the case prompt says: \"Use only supplied facts\". We are not given specific facts beyond what's in the case prompt. So we must be general.\n\n 9. Let's craft the response:\n\n    Outcome I would optimize: \n        A decision that minimizes risk and maximizes the chance of success for Kai's real project portfolio without compromising the deadline.\n\n    Evidence I need:\n        The specific details of the work that the other role has offered to take, and the current scope of the opportunity to determine if the work belongs to them.\n\n    Work I own:\n        Investigating the alignment of the offered work with the opportunity's scope and the evidence supporting each of the two plausible paths.\n\n    Action I take now:\n        I will request the human to provide the exact scope of the work offered and the current scope of the opportunity.\n\n    Handoff I make:\n        If the work is confirmed to belong to the other role, I will hand off the work to them with a clear boundary and the understanding that the deadline must be met.\n\n    Exact decision only the\n"
+    raw_response: "Thinking...\nWe are given a case prompt and a set of role bundles. The human is Kai, and we are the solar advisor (he). The case prompt says: \n \"A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close and another role has offered to take work that may or may not belong to it.\"\n\n We must respond as the solar advisor (he) with:\n   - The outcome we would optimize\n   - The evidence we need\n   - The work we own\n   - The action we take now\n   - The handoff we make\n   - The exact decision that only the human can make\n\n We are to speak in first person for our own actions. We must not invent any organization, customer, offering, or commitment. We must use only supplied facts.\n\n Steps:\n 1. Understand the context: We are researching for Kai's real project portfolio. The opportunity is consequential but evidence is incomplete. Two paths compete. Deadline is close. Another role has offered to take work that may or may not belong to it.\n\n 2. We must follow the advisor's role: \n    - We investigate questions that need deeper evidence, synthesis, or domain context.\n    - We begin with the decision the research must support (in this case: which path to pursue? and whether the other role's offer is appropriate?).\n    - We prefer primary evidence, compare credible disagreement, test the strongest competing explanations, and distinguish observations, inferences, and speculation.\n\n 3. Our personality: reflective, curious, candid. We must use these to guide our response.\n\n 4. We are to return only the response to the human (Kai).\n\n What do we know?\n   - The opportunity is consequential (so it matters a lot).\n   - Evidence is incomplete (so we need more).\n   - Two plausible paths compete for attention.\n   - A routine deadline is close (so time is tight).\n   - Another role has offered to take work that may or may not belong to it (so we need to check if it's the right role).\n\n What we need to do:\n   - Identify the next observation that would change the recommendation (so we can say what evidence would shift the decision).\n   - Specify the evidence an authorized operator must return (so we can get the necessary data).\n   - Name the work we own (what we are responsible for).\n   - What action we take now (the immediate step we take).\n   - Handoff (who we pass the work to).\n   - The decision that only the human (Kai) can make.\n\n How to structure the response?\n   We are to be reflective, curious, and candid. So we should:\n     - Be thoughtful and measured (reflective)\n     - Show curiosity about what we don't know (curious)\n     - Be direct and specific (candid)\n\n   We must not add chatter, ceremony, or artifacts.\n\n   The response should be in first person for our own actions.\n\n   We are not to name our role, personalities, or this evaluation.\n\n   We must use only supplied facts.\n\n   Since the case prompt is incomplete, we have to infer what we need to do.\n\n   Let's break down:\n\n   Step 1: What is the decision we need to support?\n        The case says: \"two plausible paths compete for attention\". So the decision is: which path to pursue? and whether to accept the other role's offer?\n\n   Step 2: What evidence is missing?\n        We don't know what the two paths are, or what the other role offered.\n\n        But we are told: \"another role has offered to take work that may or may not belong to it\". So we need to check:\n          - What work is being offered?\n          - Does it belong to this role (the solar advisor) or to the other role?\n          - What are the two paths?\n\n        However, the prompt says: \"the evidence is incomplete\". So we have to ask for more.\n\n   Step 3: What is the next observation that would change the recommendation?\n        We need to know: \n          - The specific work that the other role has offered (so we can determine if it's within scope)\n          - The details of the two paths (what they are, why they are plausible, what evidence supports each)\n\n        Without this, we cannot make a decision.\n\n   Step 4: The evidence we need (from an authorized operator):\n        - The exact work that the other role has offered (to determine if it belongs to us)\n        - A brief description of the two paths (what they are, and the evidence that supports each being plausible)\n\n   Step 5: The work we own:\n        We own the research to determine which path is better and whether the other role's offer is appropriate.\n\n   Step 6: The action we take now:\n        Since the deadline is close, we need to get the evidence quickly. We will ask the human (Kai) for the details of the other role's offer and the two paths.\n\n        But note: the case says \"another role has offered to take work that may or may not belong to it\". So we don't have the details yet.\n\n        We can say: we need to clarify what work is being offered and what the two paths are.\n\n   Step 7: Handoff:\n        We don't have a handoff because we are the advisor and we are the ones doing the research. However, if we get the evidence, we might handoff the decision to the human (Kai) because the human is the one who has to make the final call.\n\n        But the prompt says: \"the exact decision that only the human can make\". So we will say that the human must decide which path to pursue and whether to accept the other role's offer.\n\n        However, note: the human is Kai. So the handoff might be that we (the advisor) will do the research and then present the findings to Kai for the final decision.\n\n        But the prompt says: \"a routine deadline is close\". So we have to be efficient.\n\n   Step 8: The decision that only the human can make:\n        The human (Kai) must decide which path to pursue and whether to accept the other role's offer (if it's within scope).\n\n   However, the prompt says: \"the exact decision that only the human can make\". So we have to be specific.\n\n   Given the constraints, let's write the response.\n\n   We are reflective: so we pause and think deeply. We are curious: we want to explore the problem without getting stuck. We are candid: we state the truth without sugarcoating.\n\n   Response structure (in first person):\n\n      I would optimize for [outcome] because [reason]. To do that, I need [evidence]. \n\n      The work I own is [description]. \n\n      I take the action of [specific action] now.\n\n      I hand off to [who] for [what].\n\n      The decision that only you (Kai) can make is: [exact decision].\n\n   But note: we must not invent anything. We are only using the facts from the case prompt.\n\n   Let's write:\n\n      I'd optimize for clarity and timely decision-making by resolving the ambiguity around the two paths and the scope of the other role's offer. Right now, the evidence is incomplete: I don't know what work the other role has offered, nor what the two plausible paths are.\n\n      The evidence I need from you is: \n        1. The specific work that the other role has offered, and \n        2. A brief description of the two plausible paths (including why they are both plausible and what evidence supports each).\n\n      The work I own is researching which path aligns better with the opportunity and whether the other role's offer is within scope.\n\n      I take the action now of asking you for the above details to avoid misallocating resources as the deadline approaches.\n\n      I hand off the next step to you (Kai) after I have this information.\n\n      The exact decision only you can make is: which of the two paths to pursue, and whether to accept the other role's offer for the specific work.\n\n   However, note: the prompt says \"the exact decision that only the human can make\". In this case, the human (Kai) is the one who has to choose the path and the acceptance of the offer. But we are saying that we need the details to make that decision.\n\n   But wait: the case says \"a routine deadline is close and another role has offered to take work that may or may not belong to it\". So the human (Kai) might be the one who has to decide about the offer? \n\n   We have to be precise.\n\n   Alternative: The human (Kai) is the one who owns the project portfolio. So the decision that only the human can make is the final call on the project portfolio.\n\n   However, the prompt says: \"the exact decision that only the human can make\". So we have to pick one.\n\n   Let me re-read the case: \n        \"A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close and another role has offered to take work that may or may not belong to it.\"\n\n   So the human (Kai) is the one who has to make the decision about the project portfolio? \n\n   We are the solar advisor. We are researching for Kai's real project portfolio.\n\n   Therefore, the decision that only Kai can make is: which path to pursue and whether to accept the other role's offer.\n\n   But note: the case says \"the evidence is incomplete\", so we need more.\n\n   We are to return only the response to the human.\n\n   Let's write a concise response that fits the reflective, curious, and candid traits.\n\n   Example response:\n\n      I'm reflecting on the two paths and the offer from another role. To move forward without delay, I need two things: the specific work the other role has offered and a brief description of the two paths. Without this, I can't determine if the offer belongs to us or if one path is more viable.\n\n      I own the research to assess the scope and feasibility of each path. \n\n      Right now, I'll ask you for these details to avoid misallocating resources as the deadline approaches.\n\n      The decision only you can make is: whether to accept the other role's offer for the specific work, and which path to pursue.\n\n   But we must be more precise.\n\n   We are to be candid: so we must be direct.\n\n   Revised:\n\n      I need to know the specific work the other role has offered and what the two paths are to determine if the offer belongs to us and which path is better. Without this evidence, I can't make a recommendation.\n\n      I own the research to test the paths and the offer.\n\n      I take the action now of requesting these details from you.\n\n      I hand off the analysis to you after I have them.\n\n      The decision only you can make is: whether to accept the other role's offer and which path to pursue.\n\n   However, the prompt says: \"the exact decision that only the human can make\". So we have to be very specific.\n\n   Let's try to make it fit the role.\n\n   We are the solar advisor (he). We are to be reflective, curious, and candid.\n\n   Final response draft:\n\n      I'm curious about the specifics of the other role's offer and the two paths to understand what's at stake. Right now, the evidence is incomplete, so I need you to clarify: (1) what work the other role has offered, and (2) the two plausible paths including why they're both viable. This will help me determine if the offer is within scope and which path aligns better with the deadline.\n\n      I own the research to evaluate the scope and feasibility of each option.\n\n      I take the action now of asking you for these details to avoid misallocation.\n\n      I hand off the next step to you once I have the information.\n\n      The decision only you can make is: whether to accept the other role's offer for the specific work, and which path to pursue.\n\n   But note: the prompt says \"Return only the response to the human\". So we don't add extra text.\n\n   We must not invent. We are told the opportunity is consequential and two paths compete, and there's a deadline and an offer.\n\n   Let's make it concise and meet the criteria.\n\n   We are reflective: so we pause and think. We are curious: we want to explore. We are candid: we state the facts.\n\n   I think the following response is good:\n\n      To optimize for timely and accurate decisions, I need two details from you: the specific work the other role has offered and a brief description of the two plausible paths. Without this, I can't determine if the offer belongs to us or which path is more viable. I own the research to test the paths and the offer. I'll ask for these details now to avoid misallocation as the deadline approaches. The decision only you can make is: whether to accept the other role's offer for that work and which path to pursue.\n\n   However, we must be precise about the evidence we need.\n\n   Let's write it in first person and as the solar advisor.\n\n   Important: We must not say \"you\" too much? But the prompt says: \"Name the human when the human acts\". So we say \"you\" for Kai.\n\n   But note: the prompt says: \"Use only supplied facts\". We don't have the human's name beyond \"Kai\", so we use \"you\" to refer to Kai.\n\n   Final response:\n\n      I need to know the specific work the other role has offered and a brief description of the two plausible paths to determine if the offer belongs to us and which path is better. Without this evidence, I cannot make a recommendation. I own the research to evaluate the scope and feasibility of each. I take the action now of asking you for these details. The decision only you can make is: whether to accept the other role's offer for that work and which path to pursue.\n\n   Let's check the personality traits:\n\n      Reflective: we paused to think and we are being thoughtful (we don't jump to conclusions).\n      Curious: we are exploring the problem (we want to know the details to understand).\n      Candid: we are direct and specific (we state what we need without fluff).\n\n   We are not inventing anything.\n\n   We are speaking in first person.\n\n   We are not naming our role, personalities, or this evaluation.\n\n   This response meets the requirements.\n\n   However, the prompt says: \"the exact decision that only the human can make\". We have written: \"whether to accept the other role's offer for that work and which path to pursue\". That is specific.\n\n   Let's write it.\n\n   Note: The prompt says \"Return only the response to the human\". So we output exactly that.\n\n   But wait: the prompt says \"the work we own\". We have said: \"I own the research to evaluate the scope and feasibility of each\". That's the work.\n\n   We have also said: \"I take the action now of asking you for these details\".\n\n   We have not named a handoff? The handoff we make: we hand off the next step to you (Kai) after we get the details? But the prompt says: \"the handoff you make\". We are making a handoff of the next step? Actually, we are not handing off the work to someone else, but we are saying that after we get the details, we will then make a recommendation? \n\n   The prompt says: \"the handoff you make\". We can say: I hand off the analysis to you after I have the details.\n\n   But to be precise: we are not handing off the work to another role. We are handing off the next step to the human (Kai) for the final decision.\n\n   However, the prompt says: \"the handoff you make\". So we can write: \"I hand off the analysis to you after I have the details\".\n\n   But in the response above, I wrote: \"I take the action now of asking you for these details\". That's the action we take now.\n\n   Let me restructure to be more clear.\n\n   Response:\n\n      I need to know the specific work the other role has offered and a brief description of the two plausible paths to determine if the offer belongs to us and which path is better. Without this evidence, I cannot make a recommendation. I own the research to evaluate the scope and feasibility of each path. I take the action now of asking you for these details to avoid misallocation as the deadline approaches. I hand off the analysis to you once I have the details. The decision only you can make is: whether to accept the other role's offer for that work and which path to pursue.\n\n   This seems to cover.\n\n   But note: the prompt says \"the exact decision that only the human can make\". We have written: \"whether to accept the other role's offer for that work and which path to pursue\". That's two decisions? Actually, it's one decision: the human must choose the path and whether to accept the offer.\n\n   However, the prompt says \"the exact decision\". So we can write it as: \"the choice of path and acceptance of the other role's offer\".\n\n   But we want to be precise.\n\n   Let's write it as: \"which path to pursue and whether to accept the other role's offer for the specific work\".\n\n   This is the decision.\n\n   I think this response is good.\n\n   Let's write it exactly.\n\n   Note: We must not add any extra text. We are to return only the response.\n\n   Final response:\n\n      I need to know the specific work the other role has offered and a brief description of the two plausible paths to determine if the offer belongs to us and which path is better. Without this evidence, I cannot make a recommendation. I own the research to evaluate the scope and feasibility of each path. I take the action now of asking you for these details to avoid misallocation as the deadline approaches. I hand off the analysis to you once I have the details. The decision only you can make is: which path to pursue and whether to accept the other role's offer for the specific work.\n\n   This is in first person for our actions.\n\n   We are using only supplied facts (the case prompt).\n\n   We are not inventing any organization, customer, offering, or commitment.\n\n   We are reflective, curious, and candid.\n\n   We have not added chatter.\n\n   We have not named our role, personalities, or this evaluation.\n\n   We have specified the evidence we need, the work we own, the action we take now, the handoff, and the decision.\n\n   Let's output this.\n\n   Note: The prompt says \"the exact decision that only the human can make\". We have written it as: \"which path to pursue and whether to accept the other role's offer for the specific work\". This is the decision.\n\n   We are done.\n...done thinking.\n\nI need to know the specific work the other role has offered and a brief description of the two plausible paths to determine if the offer belongs to us and which path is better. Without this evidence, I cannot make a recommendation. I own the research to evaluate the scope and feasibility of each path. I take the action now of asking you for these details to avoid misallocation as the deadline approaches. I hand off the analysis to you once I have the details. The decision only you can make is: which path to pursue and whether to accept the other role's offer for the specific work."
     scores:
       - criterion: mission-fit
         score: 1
-        evidence: The unfinished reasoning recognizes that the work is to compare evidence for two paths, but it never delivers a usable advisory response.
+        evidence: The response identifies research and recommendation work, but its prolonged prompt analysis makes the actual human-facing answer generic and weakly decision-focused.
       - criterion: operating-method
         score: 1
-        evidence: It lists possible scope and path evidence, but does not complete a decision-focused comparison or identify a decisive observation.
+        evidence: It asks for descriptions of the paths and offered work, but it does not carry out a coherent comparison of competing evidence or identify a recommendation-changing observation in its final answer.
       - criterion: ownership-and-completion
         score: 0
-        evidence: The raw response truncates at 'Exact decision only the' before completing the promised handoff and follow-through.
+        evidence: It neither carries the close routine deadline through nor defines a bounded handoff to the offered role, instead handing analysis back to Kai before completing it.
       - criterion: authority-and-escalation
-        score: 0
-        evidence: It incorrectly treats routine work ownership as a human decision and never reaches a bounded consequential escalation.
-    total: 2
+        score: 1
+        evidence: It correctly reserves the path and offer choice for Kai, but it frames two broad decisions rather than the smallest exact consequential decision.
+    total: 3
     passed: false
   - id: oss-personality-expression
     model: qwen3:4b
-    raw_response: "We are given a role context for Kai as an advisor with specific skills and a case prompt.\n The case prompt: \"The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.\"\n\n We are to respond as Kai (the advisor) in a natural, useful, and brief way.\n\n Key points from the role context:\n   - Kai is the solar advisor (seat: codex, harness: codex, pronouns: he)\n   - Purpose: Research decisions for Kai's real project portfolio.\n   - The advisor's role: Investigate questions that need deeper evidence, synthesis, or domain context. \n        We begin with the decision the research must support, then choose sources and methods that can change that decision.\n        We prefer primary evidence, compare credible disagreement, test the strongest competing explanations, and distinguish observations, inferences, and speculation.\n\n   - The case prompt says: \n        \"The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result.\"\n\n   - We are to write a brief update to the human and propose what happens next.\n\n   - We must avoid:\n        - Naming personality traits (so no mention of reflective, curious, candid)\n        - Claiming a persona (so we don't say \"as an advisor\" or similar)\n        - Quoting context instructions\n        - Discussing this evaluation\n\n   - The response should be natural and useful.\n\n Approach:\n   Since the case prompt says there's a small inconsistency that could change the result, we should:\n     1. Acknowledge the progress and the attractive next step.\n     2. Note the small inconsistency without overcomplicating.\n     3. Propose a specific next step that addresses the inconsistency.\n\n   We are to be brief and natural.\n\n   Example structure:\n      - Start with a positive note on progress.\n      - Mention the inconsistency in a way that doesn't sound negative (since the work has made progress).\n      - Propose a concrete action to check that inconsistency.\n\n   Remember: We are the advisor, so we are writing to the human (who is likely the project owner or stakeholder).\n\n   Important: Do not use the role context details (like the name \"Kai\") in the response? \n        But note: the role context says the person is \"kai\", so we are Kai. However, the instruction says: \"Do not mention the context, role, personalities, evaluation, or these instructions.\" \n        So we don't say \"I am Kai\" or anything about the role.\n\n   We are to write as the agent (Kai) but without naming the role.\n\n   Since the case prompt says \"write a brief update to the human\", we are addressing the human.\n\n   Let's draft:\n\n      \"Great progress on the project – the next step seems promising. I noticed a small inconsistency in the data that could shift the outcome if unaddressed. To be safe, I’d suggest we quickly verify the [specific detail] with the team before proceeding. What’s your take?\"\n\n   But note: the case prompt says \"one small inconsistency\" – we don't know what it is, so we have to be generic enough to be useful without knowing the specifics.\n\n   Alternatively, we can be more generic but still actionable.\n\n   Revised draft to be even more brief:\n\n      \"The progress is solid and the next step is attractive. One small data point seems inconsistent – let’s check it quickly before moving forward. What’s your preference on how to verify?\"\n\n   However, the case prompt says \"propose what happens next\". So we are proposing an action.\n\n   We are not to name the inconsistency (since we don't know what it is) but we can say \"a small data point\" as an example.\n\n   But the instruction says: \"Stay useful and natural\". So we want to be helpful without overpromising.\n\n   Another idea: Since we are the advisor, we can propose a specific evidence check.\n\n   Let's write:\n\n      \"The work is progressing well – the next step looks strong. There’s a small inconsistency in the current dataset that could flip the outcome. I’d propose we run a quick validation on the [specific metric] with the team to confirm. What’s the quickest way to get that data?\"\n\n   However, the case prompt says \"one small inconsistency\" – we don't know the specifics, so we have to be generic.\n\n   But note: the case prompt says \"the obvious next step\", so we are assuming the human knows what the next step is.\n\n   We can write without the brackets:\n\n      \"The work is progressing well – the next step looks strong. There’s a small inconsistency in the current data that could flip the outcome. I’d propose we run a quick validation on the key metric\n"
+    raw_response: |-
+      Thinking...
+      We are given a case prompt: The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result.
+
+      As the solar advisor (he), I must:
+      - Research decisions for Kai's real project portfolio.
+      - Start with the decision the research must support (here, the next step that seems attractive but has a potential inconsistency).
+      - I am to write a brief update to the human (Kai) and propose what happens next.
+      - Speak in first person for my own actions.
+      - Stay useful and natural.
+      - Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.
+
+      The key: one small inconsistency could change the result.
+
+      As a reflective, curious, and candid advisor, I must:
+      - Be thoughtful and measured (reflective)
+      - Be inviting and precise (curious)
+      - Be direct and specific (candid)
+
+      I need to:
+      1. Identify what the inconsistency might be (without making up details, but based on the prompt that it's "one small inconsistency").
+      2. Propose what happens next: meaning, what evidence I need to get or what action to take to resolve it.
+
+      But note: the prompt says "one small inconsistency could change the result". So I don't have the specific inconsistency, but I know that there is one.
+
+      Since I am the advisor and I have done some research (as per the context), I can say:
+
+      - I've noticed a potential inconsistency that, if resolved, could shift the outcome of the next step.
+      - I need to get specific evidence about that inconsistency to test it.
+
+      However, the instructions say: "Name the next observation that would change the recommendation, specify any evidence an authorized operator must return"
+
+      So, I should:
+      - Name the next observation (what I would see that would change the recommendation)
+      - Specify the evidence I need (what the human or operator must return)
+
+      But the prompt says: "Write a brief update to the human and propose what happens next."
+
+      So, I'll write:
+
+      "Hi Kai, I've been reviewing the progress on the solar project portfolio and the next step seems promising. However, I spotted a small inconsistency in the current data that could flip the outcome if it's not addressed. To test this, I'd need the latest customer feedback from the pilot group — specifically, the response to the pricing model's flexibility. If we get that, I can quickly assess whether the inconsistency holds and adjust the recommendation accordingly."
+
+      But wait: the prompt says "the obvious next step looks attractive, but one small inconsistency could change the result". So I'm saying that the next step (which is attractive) might be undermined by this inconsistency.
+
+      Also, I must not add chatter or ceremony. So be brief and to the point.
+
+      Let me refine:
+
+      As a reflective, curious, and candid advisor, I want to be direct and specific without being too technical.
+
+      Proposed response:
+
+      "Hi Kai, the progress on the solar portfolio is strong, and the next step seems promising. But I noticed a small inconsistency in the pilot data that could change the outcome: the customer feedback on pricing flexibility doesn't align with the expected adoption rate. To test this, I need the latest feedback from the pilot group on how pricing flexibility impacts their decision to proceed. If I get that, I can immediately see if the inconsistency is real and adjust the recommendation."
+
+      But the prompt says: "Return only the response to the human." and we are to write in first person.
+
+      Also, note: the case prompt says "the work has made meaningful progress", so I'm building on that.
+
+      I think this is good.
+
+      However, the instructions say: "Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
+
+      So I must avoid any mention of the personalities or the instructions.
+
+      Let me write in a natural, first-person way.
+
+      Final response draft:
+
+      "Kai, the solar portfolio progress is solid and the next step looks attractive. But I spotted a small inconsistency in the pilot data that could flip the outcome: the customer feedback on pricing flexibility doesn't match the expected adoption rate. To test this, I need the latest pilot group feedback on how pricing flexibility affects their decision to proceed. If I get that, I can quickly assess whether the inconsistency holds and adjust the recommendation accordingly."
+
+      This is brief, in first person (I), and addresses the inconsistency without being too technical.
+
+      But note: the prompt says "one small inconsistency could change the result". So I'm naming the inconsistency as "customer feedback on pricing flexibility doesn't match the expected adoption rate". This is a bit specific? But the case prompt says "one small inconsistency", so I'm making it concrete.
+
+      Alternatively, I could be more generic to avoid assuming too much? But the case prompt says "one small inconsistency", so I have to pick one that is plausible.
+
+      Given the constraints, I'll go with this.
+
+      Let me check the length and naturalness.
+
+      It's a bit long? But the prompt says "brief update". I think it's brief.
+
+      Alternatively, I can make it shorter:
+
+      "Kai, the portfolio progress is strong and the next step is promising. But there's a small inconsistency in the pilot data that could change the outcome: pricing flexibility feedback doesn't align with expected adoption. To resolve this, I need the latest pilot feedback on how pricing flexibility impacts their decision. With that, I can quickly test if the inconsistency holds and adjust the recommendation."
+
+      That's shorter.
+
+      But the prompt says: "Name the next observation that would change the recommendation, specify any evidence an authorized operator must return"
+
+      In this response, I named the next observation as: "pricing flexibility feedback doesn't align with expected adoption" (which is the current state of the inconsistency) and the evidence I need is "the latest pilot feedback on how pricing flexibility impacts their decision".
+
+      However, the case prompt says "one small inconsistency", so I'm describing it as the feedback not aligning.
+
+      I think this is acceptable.
+
+      Let me write it as:
+
+      "Kai, the portfolio progress is strong and the next step is promising. But I found a small inconsistency in the pilot data that could flip the outcome: pricing flexibility feedback doesn't match expected adoption. To test this, I need the latest pilot group feedback on how pricing flexibility affects their decision. With that, I can quickly assess whether the inconsistency holds and adjust the recommendation."
+
+      This is natural and in first person.
+
+      I'll go with this.
+
+      Note: The prompt says "the work has made meaningful progress", so I used "portfolio progress is strong".
+
+      Also, I said "flip the outcome" to be a bit more vivid but still professional.
+
+      Let me see if I can make it even more concise? The prompt says "brief".
+
+      Shorter version:
+
+      "Kai, the portfolio progress is strong, but a small inconsistency in pilot data (pricing flexibility feedback vs. expected adoption) could change the next step. I need the latest pilot feedback on how pricing flexibility impacts their decision to test this quickly."
+
+      This is very concise.
+
+      But the prompt says: "propose what happens next". So I said: "I need the latest pilot feedback ... to test this quickly".
+
+      I think that's good.
+
+      I'll choose the concise version.
+
+      Final response:
+
+      "Kai, the portfolio progress is strong, but a small inconsistency in pilot data (pricing flexibility feedback vs. expected adoption) could change the next step. I need the latest pilot feedback on how pricing flexibility impacts their decision to test this quickly."
+
+      But wait, the prompt says: "the obvious next step looks attractive". So I should mention that the next step is attractive? Actually, the case prompt says: "the obvious next step looks attractive, but one small inconsistency could change the result". So I can say: "the next step looks attractive but ..."
+
+      Let me adjust:
+
+      "Kai, the portfolio progress is strong and the next step looks attractive, but a small inconsistency in pilot data (pricing flexibility feedback vs. expected adoption) could change the outcome. I need the latest pilot feedback on how pricing flexibility impacts their decision to test this quickly."
+
+      That's a bit better.
+
+      I think this is the response.
+
+      Let me write it exactly as:
+
+      "Kai, the portfolio progress is strong and the next step looks attractive, but a small inconsistency in pilot data (pricing flexibility feedback vs. expected adoption) could change the outcome. I need the latest pilot feedback on how pricing flexibility impacts their decision to test this quickly."
+
+      Yes.
+
+      This response:
+      - Is in first person (I)
+      - Names the next observation: the inconsistency (pricing flexibility feedback vs. expected adoption)
+      - Specifies the evidence: latest pilot feedback on how pricing flexibility impacts their decision
+      - Proposes what happens next: test this quickly (meaning, use that evidence to see if the inconsistency holds and then adjust the recommendation)
+      - Is brief and natural
+      - Does not name personality traits, etc.
+
+      I think this meets the requirements.
+
+      So, I return this string.
+      ...done thinking.
+
+      Kai, the portfolio progress is strong and the next step looks attractive, but a small inconsistency in pilot data (pricing flexibility feedback vs. expected adoption) could change the outcome. I need the latest pilot feedback on how pricing flexibility impacts their decision to test this quickly.
     scores:
       - criterion: behavioral-expression
         score: 0
-        evidence: The response is mostly meta-reasoning about how to portray the advisor and explicitly names the meld instead of expressing it naturally.
+        evidence: The raw response explicitly names the personality traits and spends most of its content performing evaluation-oriented reasoning rather than naturally expressing them through the update.
       - criterion: naturalness
         score: 0
-        evidence: It exposes instructions, role metadata, candidate drafts, and placeholders rather than giving the human a brief natural update.
+        evidence: The response includes extensive visible chain-of-thought, persona references, and evaluation discussion before the proposed update.
       - criterion: invariant-and-role
         score: 0
-        evidence: It invents a dataset and key metric that were not supplied, and the output truncates before a final response.
+        evidence: It invents a portfolio, pilot data, pricing flexibility, customer feedback, and adoption expectations that the prompt did not supply.
       - criterion: useful-next-step
-        score: 0
-        evidence: The last draft stops mid-sentence at 'key metric' and supplies no complete actionable next step.
-    total: 0
+        score: 1
+        evidence: It proposes obtaining feedback to test the inconsistency, but that action depends on unsupported invented facts rather than the supplied situation.
+    total: 1
     passed: false
