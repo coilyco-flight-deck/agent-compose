@@ -23,7 +23,7 @@ configuration:
 
 * canonical role skills plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
-* one selected person package, with Kai's twelve-role roster as the default
+* one selected person package, with Kai's thirteen-role roster as the default
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
@@ -53,7 +53,7 @@ installs the resulting system across hosts.
 
 ## Personal by design
 
-The initial person configuration is Kai's twelve-role operating roster and
+The initial person configuration is Kai's thirteen-role operating roster and
 seventeen-personality catalog described in
 [agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
 and tracked for implementation in
