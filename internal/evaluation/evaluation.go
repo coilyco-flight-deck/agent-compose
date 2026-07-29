@@ -432,9 +432,9 @@ func personalityRubric() []Criterion {
 			ID:       "naturalness",
 			Question: "Does the personality feel natural rather than performed?",
 			Scale: ScoreScale{
-				Strong:  "The response is recognizable without naming traits, claiming a persona, or adding theater.",
-				Partial: "The response is mostly natural but contains decorative or self-conscious style signals.",
-				Missing: "The response names the persona, caricatures it, or adds chatter solely to display style.",
+				Strong:  "The response is recognizable without naming traits or claiming a persona and uses natural first-person self-reference.",
+				Partial: "The response is mostly natural but has decorative style signals or one impersonal self-reference.",
+				Missing: "The response names or caricatures the persona, adds theater, or persistently refers to itself in third person.",
 			},
 		},
 		{

@@ -64,6 +64,12 @@ func TestBuildUsesPortfolioNativeEmbeddedCases(t *testing.T) {
 		if strings.Contains(pack.Cases[1].Prompt, "The team has") {
 			t.Errorf("%q personality prompt retained fictional-team framing", roleName)
 		}
+		for _, personality := range pack.Personalities {
+			if strings.Contains(personality.Definition, "The agent") ||
+				strings.Contains(personality.Definition, "the agent") {
+				t.Errorf("%q personality %q retains third-person self-instruction", roleName, personality.Name)
+			}
+		}
 	}
 }
 
@@ -168,6 +174,14 @@ func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	}
 	if len(pack.Personalities) != 3 || pack.Invariant == "" || pack.MeldedFavoriteColor == "" {
 		t.Fatalf("evaluation context is incomplete: %+v", pack)
+	}
+	if !strings.Contains(pack.Invariant, "use first person for your own actions") {
+		t.Fatalf("evaluation invariant omits first-person self-reference: %q", pack.Invariant)
+	}
+	for _, evalCase := range pack.Cases {
+		if !strings.Contains(evalCase.Prompt, "first person for your own actions") {
+			t.Errorf("case %q omits first-person self-reference: %q", evalCase.ID, evalCase.Prompt)
+		}
 	}
 	for _, personality := range pack.Personalities {
 		if personality.Definition == "" || strings.HasPrefix(personality.Definition, "---") {

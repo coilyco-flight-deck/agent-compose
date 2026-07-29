@@ -21,6 +21,7 @@ func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 		"qa":               true,
 		"sales":            true,
 		"social":           true,
+		"technical-writer": true,
 	}
 	root := filepath.Join("..", "..", "evaluations", "latest")
 	files, err := filepath.Glob(filepath.Join(root, "*.yaml"))
