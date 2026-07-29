@@ -77,6 +77,29 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
+func TestCEORoleSkillDefinesLongHorizonConcentration(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := p.Roles["ceo"]
+	for _, required := range []string{
+		"1 to 3 years, portfolio thesis",
+		"2 to 4 quarters, strategic bets",
+		"Current quarter, capital allocation",
+		"authenticated portfolio scorecard and in-flight-work inventory",
+		"core compounding assets, strategic options, experiments, and retirement candidates",
+		"work or capacity it displaces",
+		"PM owns discovery, program decomposition, sequencing, and learning loops",
+		"decline a disconnected product experiment",
+		"double-down, reshape, or exit",
+	} {
+		if !strings.Contains(role.Briefing, required) {
+			t.Errorf("CEO role skill omitted %q", required)
+		}
+	}
+}
+
 func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 	for name, files := range map[string]fstest.MapFS{
 		"missing": {},
