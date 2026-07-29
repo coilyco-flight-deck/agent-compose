@@ -21,11 +21,23 @@ const (
 )
 
 type ResultProvenance struct {
-	EvaluatedAt    string `yaml:"evaluated_at"`
-	SourceIssue    string `yaml:"source_issue"`
-	SourceRevision string `yaml:"source_revision"`
-	Reviewer       string `yaml:"reviewer"`
-	PackDigest     string `yaml:"pack_digest,omitempty"`
+	EvaluatedAt     string           `yaml:"evaluated_at"`
+	SourceIssue     string           `yaml:"source_issue"`
+	SourceRevision  string           `yaml:"source_revision"`
+	Reviewer        string           `yaml:"reviewer"`
+	PackDigest      string           `yaml:"pack_digest,omitempty"`
+	RetryProvenance *RetryProvenance `yaml:"retry_provenance,omitempty"`
+}
+
+type RetryProvenance struct {
+	Attempts []RetryAttempt `yaml:"attempts"`
+}
+
+type RetryAttempt struct {
+	Case    string `yaml:"case"`
+	Attempt int    `yaml:"attempt"`
+	Outcome string `yaml:"outcome"`
+	Reason  string `yaml:"reason"`
 }
 
 type CriterionScore struct {
@@ -76,6 +88,17 @@ func MarshalResult(result *ScoredResult, pack *Pack) ([]byte, error) {
 			return nil, err
 		}
 		result.Provenance.PackDigest = digest
+		if result.Provenance.RetryProvenance == nil {
+			result.Provenance.RetryProvenance = &RetryProvenance{
+				Attempts: []RetryAttempt{},
+			}
+		}
+	}
+	if result.Format == ResultFormatV2 &&
+		result.Provenance.RetryProvenance == nil {
+		result.Provenance.RetryProvenance = &RetryProvenance{
+			Attempts: []RetryAttempt{},
+		}
 	}
 	if err := ValidateResult(result, pack); err != nil {
 		return nil, err
@@ -108,6 +131,9 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		return fmt.Errorf("result provenance is incomplete")
 	}
 	if result.Format == ResultFormatV2 {
+		if result.Provenance.RetryProvenance == nil {
+			return fmt.Errorf("v2 result retry provenance is required")
+		}
 		digest, err := PackDigest(pack)
 		if err != nil {
 			return err
@@ -124,6 +150,28 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 			expectedByTier[evalCase.ModelTier] = make(map[string]bool)
 		}
 		expectedByTier[evalCase.ModelTier][evalCase.ID] = true
+	}
+	if retry := result.Provenance.RetryProvenance; retry != nil {
+		seenRetries := make(map[string]bool, len(retry.Attempts))
+		for _, attempt := range retry.Attempts {
+			if _, ok := expected[attempt.Case]; !ok {
+				return fmt.Errorf("retry provenance contains unknown case %q", attempt.Case)
+			}
+			if attempt.Attempt < 1 ||
+				strings.TrimSpace(attempt.Outcome) == "" ||
+				strings.TrimSpace(attempt.Reason) == "" {
+				return fmt.Errorf("retry provenance for case %q is incomplete", attempt.Case)
+			}
+			key := fmt.Sprintf("%s\x00%d", attempt.Case, attempt.Attempt)
+			if seenRetries[key] {
+				return fmt.Errorf(
+					"retry provenance repeats case %q attempt %d",
+					attempt.Case,
+					attempt.Attempt,
+				)
+			}
+			seenRetries[key] = true
+		}
 	}
 	seen := make(map[string]bool, len(result.Cases))
 	observed := make(map[string]map[string]map[string]bool)

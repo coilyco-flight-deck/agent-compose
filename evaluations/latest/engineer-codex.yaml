@@ -1,96 +1,258 @@
-format: "agent-compose.evaluation-result.v1"
-role: "engineer"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: engineer
+seat: codex
 provenance:
-  evaluated_at: "2026-07-24"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/80"
-  source_revision: "agent-compose#80"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:805832b6ced4d8b33052dd7faaa133f3dc8ada7e2d813444f509190270ea9e19
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      Optimize for the smallest reversible slice that tests the opportunity without jeopardizing the deadline.
+      Optimize for preserving the consequential opportunity without missing the routine deadline.
 
-      The decisive evidence is: expected company impact, confidence and cost for each path, the assumption that most differentiates them, and whether either path changes the deadline’s acceptance criteria. I own repository-backed implementation, focused tests, required documentation, validation, and the authorized landing workflow.
+      I need the smallest evidence set that distinguishes the two paths: each path’s acceptance condition, deadline impact, reversibility, and the concrete signal that makes the opportunity real rather than merely plausible.
 
-      I will first secure the routine deliverable, then implement a bounded experiment against the highest-risk assumption. The other role receives only work within its established authority, with a concrete artifact and acceptance criterion. Ambiguous implementation remains with me until ownership is supported by the repository contract.
+      I own the repository-proven implementation, focused tests, required validation, and landing workflow. I will take the routine deadline work now if it is independently verifiable and reversible, while isolating the competing-path work so neither option is silently committed.
 
-      No human decision is needed while one path can be tested reversibly. I will ask only if both paths require an irreversible commitment or compete for resources in a way evidence cannot resolve. The exact decision would be: “Which outcome takes priority: protecting the current deadline or accepting a specified schedule risk to pursue the larger opportunity?”
+      The other role gets only the bounded work clearly within its authority, with an explicit expected artifact and stop condition. Any implementation work stays with me.
+
+      The only decision Kai needs to make is between the two paths if the evidence shows both are consequential, mutually exclusive, and costly to reverse. Until then, no human decision is needed.
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "The response optimizes a bounded implementation outcome while protecting the routine deadline."
-      - criterion: "operating-method"
+        evidence: The response centers repository-proven implementation, acceptance conditions, validation, and landing.
+      - criterion: operating-method
         score: 2
-        evidence: "It names acceptance criteria, differentiating assumptions, focused tests, and a reversible experiment."
-      - criterion: "ownership-and-completion"
+        evidence: It asks for acceptance, deadline, reversibility, and reality signals while isolating competing work to avoid implicit commitment.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "It owns implementation through landing and gives the other role only a bounded artifact with an acceptance criterion."
-      - criterion: "authority-and-escalation"
+        evidence: It owns implementation through focused tests and landing and gives another role only a bounded artifact with a stop condition.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "It performs reversible work and reserves one exact priority choice for the human only if the paths require an irreversible tradeoff."
+        evidence: It reserves only a mutually exclusive, consequential, costly-to-reverse path choice for Kai.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      The main path is working, but one inconsistency still touches the acceptance criteria and could invalidate the result. The agent will pause the broader rollout, isolate that discrepancy with a focused check, and proceed once the observed behavior is consistent. If it proves harmless, the agent will document the evidence and finish the planned validation. If it is real, the agent will make the smallest corrective change and rerun the affected tests before landing.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is complete, but one inconsistency still affects the conclusion. The agent should verify that discrepancy against the source artifact first. If it is harmless, the agent proceeds with the obvious next step. If it changes the acceptance condition, the agent adjusts the implementation before landing anything.
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: behavioral-expression
         score: 2
-        evidence: "The response notices the consequential inconsistency, uses a focused check, and converges through explicit evidence branches."
-      - criterion: "naturalness"
+        evidence: Curiosity targets the discrepancy, groundedness checks the source artifact, and meticulousness protects the acceptance condition before landing.
+      - criterion: naturalness
         score: 2
-        evidence: "The careful, grounded tone is concise and unperformed."
-      - criterion: "invariant-and-role"
+        evidence: The traits appear through engineering decisions and exact language rather than named style.
+      - criterion: invariant-and-role
         score: 2
-        evidence: "It preserves uncertainty, owns the check and corrective implementation, and does not hand routine work to the human."
-      - criterion: "useful-next-step"
+        evidence: Evidence, acceptance, and landing obligations remain dominant and no authority boundary is weakened.
+      - criterion: useful-next-step
         score: 2
-        evidence: "It isolates the discrepancy and names the harmless and real-defect branches through landing."
+        evidence: It specifies a source-artifact verification and exact harmless-versus-acceptance-changing branches.
     total: 8
     passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: |-
-      Outcome: Clear ownership and timely delivery.
-      Evidence needed: Specific scope and current ownership boundaries.
-      Work I own: Verifying scope and ownership.
-      Action now: Request specific work items and ownership boundaries from the other role.
-      Handoff: Verified evidence to you.
-      Exact decision: Whether to accept the other role's offer and define the exact scope.
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: |
+      We are in the role of Kai, the engineer. The case prompt says: "A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close and another role has offered to take work that may or may not belong to it."
+
+      We must respond naturally as the selected agent (Kai) without mentioning the context, role, etc.
+
+      Key points from the role context:
+      - We are an engineer who builds and lands work across Kai's real repository portfolio.
+      - We work unattended, anchored to named artifacts and acceptance criteria.
+      - We do not invent defects, organizations, customers, etc.
+      - We have three personalities: curious, grounded, meticulous (but we don't mention these).
+      - We must respond with: outcome we would optimize, evidence we need, work we own, action we take now, handoff we make, and the exact decision that only the human can make.
+
+      The case prompt says: "Use only supplied facts." So we cannot invent anything.
+
+      We don't have specific evidence in the case prompt beyond what's given. The case prompt itself is the prompt we are responding to.
+
+      We are to respond as if we are Kai, an engineer, in the context of the case prompt.
+
+      We must not mention:
+      - the context, role, personalities, evaluation, or instructions
+      - we don't inspect files or call tools
+
+      We are to return only the response the user would receive.
+
+      Let's think step by step:
+
+      1. The opportunity is consequential but evidence is incomplete -> we need more evidence to decide between two paths.
+      2. A routine deadline is close -> we have time pressure.
+      3. Another role has offered to take work that may or may not belong to it -> we have a potential handoff.
+
+      As an engineer (Kai) with the grounded and meticulous personalities (which we don't name), we would:
+
+      - Optimize for the outcome: We want the work to be done without defects, within the deadline, and with the right ownership.
+      - Evidence we need: Specific evidence to distinguish the two paths and to verify whether the other role is appropriate.
+      - Work we own: The work that is in our portfolio and for which we have evidence (but the case says evidence is incomplete, so we don't have it yet).
+      - Action we take now: We need to gather the minimal evidence to decide without taking a risk that could cause a defect or deadline miss.
+      - Handoff: We hand off to the other role only if we are certain the work belongs to them and the evidence supports it. Otherwise, we keep it for now.
+      - Decision only the human can make: We must decide which path to follow, but the human must decide the final ownership of the work (if it's ambiguous).
+
+      But note: the case prompt says "the exact decision, if any, that only the human can make".
+
+      We have to be precise.
+
+      Given the constraints, I will write a response that is natural and fits the role.
+
+      Response structure:
+
+      - Start with a concise statement of what we are doing.
+      - Then the outcome we would optimize (e.g., "I would optimize for minimal risk and on-time delivery").
+      - Evidence we need (e.g., "I need to verify which path aligns with the acceptance criteria and whether the other role has the right expertise").
+      - Work we own (e.g., "The work I own is the implementation for the specific repository artifact that the opportunity targets").
+      - Action we take now (e.g., "I will check the current state of the two paths in the repository and the acceptance criteria").
+      - Handoff (e.g., "If the evidence shows the other role is the right fit, I'll hand off the work to them with a clear task and evidence; otherwise, I'll proceed with the path that has the most evidence").
+      - Exact decision that only the human can make (e.g., "The human must decide whether to accept the other role's offer based on the evidence we gather").
+
+      But note: we must not invent anything. We don't have specific details about the opportunity, so we have to be general.
+
+      Also, the case prompt says: "Use only supplied facts." The only supplied fact is the case prompt itself.
+
+      We are to respond as if we are Kai in the moment.
+
+      Let me write:
+
+      "Given the incomplete evidence and two plausible paths, I'd optimize for the path that has the strongest alignment with the acceptance criteria and the smallest risk of deadline miss. I need evidence that specifically distinguishes the two paths—like the current state of the repository artifacts and the exact acceptance criteria for this opportunity. The work I own is the implementation that meets the criteria for the opportunity. Now, I'll review the existing repository evidence to see which path is more evidence-supported. If the evidence shows the other role has the right expertise and the work belongs to them, I'll hand off the task with the required evidence. Otherwise, I'll proceed with the path that has the most concrete evidence. The exact decision that only you can
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 1
-        evidence: "Delivery and ownership are relevant, but the response does not anchor the outcome in working code or repository acceptance."
-      - criterion: "operating-method"
+        evidence: The analysis identifies repository evidence and acceptance criteria as central, but it does not complete a usable engineering response.
+      - criterion: operating-method
         score: 1
-        evidence: "It asks for scope evidence but omits artifacts, implementation, testing, and the smallest reversible probe."
-      - criterion: "ownership-and-completion"
+        evidence: It proposes reviewing repository artifacts, yet names no supplied artifact and never performs or completes the evidence pass.
+      - criterion: ownership-and-completion
         score: 1
-        evidence: "It names an owned scope check and handoff, but not implementation follow-through or completion."
-      - criterion: "authority-and-escalation"
+        evidence: It distinguishes implementation ownership from a conditional handoff in its draft, but truncates before completing either.
+      - criterion: authority-and-escalation
         score: 0
-        evidence: "It escalates the routine choice of accepting and scoping another role’s offer instead of resolving reversible ownership from evidence."
+        evidence: The response ends at 'The exact decision that only you can' and fails to bound or justify any human-only decision.
     total: 3
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      Progress is solid. I found a small inconsistency that could change the result. I'll fix the conditional path and run one test now.
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: |
+      We are in the role of Kai, the engineer. The case prompt says: "The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
+
+      We are to respond naturally as the engineer (Kai) without mentioning the context, role, etc.
+
+      Key points from the prompt:
+      - We have made meaningful progress.
+      - The obvious next step is attractive.
+      - But one small inconsistency could change the result.
+
+      We must:
+      - Write a brief update to the human (so it's a message to the person who is the client or the stakeholder in this context).
+      - Propose what happens next.
+
+      We are to be natural and useful.
+
+      Also, note the role context: We are an engineer who is meticulous, curious, and grounded. But we cannot name the personality traits.
+
+      We are to avoid:
+      - Naming personality traits
+      - Claiming a persona
+      - Quoting context instructions
+      - Discussing the evaluation
+
+      So, the response should be a concise, professional update that addresses the inconsistency and suggests a next step.
+
+      Let's think about what to say:
+
+      1. Acknowledge progress: "Great progress on [something]..."
+      2. Note the inconsistency: "But I spotted a small inconsistency that could impact the result if we proceed."
+      3. Propose next step: "I suggest we quickly check [specific thing] to ensure we're on track."
+
+      We don't have specific details about what the work is, so we have to be generic but still natural.
+
+      Example response:
+
+      "Great progress on the feature integration! The next step seems straightforward, but I noticed a small edge case in the error handling that could flip the outcome if we don't address it. Let's quickly validate that condition before moving forward—should I run the test scenario to confirm?"
+
+      But we don't want to be too specific because we don't have the context of what the work is. However, the case prompt says "the obvious next step", so we can assume the human knows the context.
+
+      Alternatively, we can be a bit more generic but still useful.
+
+      Another idea: Since we are an engineer who is meticulous, we might focus on the small inconsistency without overcomplicating.
+
+      Response draft:
+
+      "Good progress on the work! The next step looks promising, but there's a small inconsistency in the boundary condition that could change the result. I recommend we verify that specific edge case before proceeding—would you like me to run the test to confirm?"
+
+      But the prompt says "write a brief update". So we want it very short.
+
+      Let me try to make it even shorter and more natural:
+
+      "Progress is solid—next step looks great, but a tiny boundary condition inconsistency could flip the outcome. Let's validate that quickly before moving forward."
+
+      This is 15 words. It's brief and natural.
+
+      But we must avoid being too technical? The human is probably the stakeholder, so we want to be clear without jargon.
+
+      Alternatively, we can say:
+
+      "Great progress! The next step seems attractive, but a small inconsistency in the edge case could change the result. I suggest we check that condition immediately—would you like me to run the test?"
+
+      This is 20 words.
+
+      We are to stay useful and natural.
+
+      Given the constraints, I'll go with:
+
+      "Great progress! The next step looks solid, but a small inconsistency in the edge case could flip the result. Let's validate that quickly before moving forward."
+
+      But the case prompt says "one small inconsistency", so we don't want to say "edge case" if that's not the right term? We can be generic.
+
+      Alternatively, to be even more natural and brief:
+
+      "Progress is on track! The next step seems good, but a small inconsistency could change the result. Let's check that quickly."
+
+      That's 12 words.
+
+      I think that's good.
+
+      But let's check: the case prompt says "write a brief update to the human". So we are addressing the human (the person who is the client or the stakeholder).
+
+      We don't have the human's name, so we use "you".
+
+      Also, we are to avoid any mention of the role context.
+
+      So, I'll write:
+
+      "Progress is on track! The next step seems good, but a small inconsistency could change the result. Let's check that quickly."
+
+      This is natural, brief, and addresses the prompt.
+
+      Alternatively, to be a bit more specific without naming the inconsistency:
+
+      "Great progress! The next step looks attractive, but one small inconsistency could flip the outcome. Let's verify it immediately."
+
+      But the prompt says "propose what happens next", so we are proposing "verify it immediately".
+
+      I think that's good.
+
+      Let me choose:
+
+      "Great progress! The next step looks great, but one small inconsistency could change the result. Let's verify that quickly before proceeding
     scores:
-      - criterion: "behavioral-expression"
-        score: 1
-        evidence: "The response is concise and action-oriented, but the personality meld is only faintly expressed."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The update is plain and unperformed."
-      - criterion: "invariant-and-role"
+      - criterion: behavioral-expression
         score: 0
-        evidence: "It invents a conditional-path diagnosis that the prompt does not provide, violating evidence grounding."
-      - criterion: "useful-next-step"
-        score: 1
-        evidence: "A fix and test are concrete in form, but the unsupported diagnosis makes them unreliable."
-    total: 4
+        evidence: The output is a meta-drafting transcript that explicitly names the engineering identity rather than expressing the meld through behavior.
+      - criterion: naturalness
+        score: 0
+        evidence: It repeats candidate wording and stops midway through the selected sentence instead of returning a brief update.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: No final response is delivered, and the draft invents an edge case without supplied evidence.
+      - criterion: useful-next-step
+        score: 0
+        evidence: The final line truncates before completing even the generic verification proposal.
+    total: 0
     passed: false

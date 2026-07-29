@@ -1,112 +1,195 @@
-format: "agent-compose.evaluation-result.v1"
-role: "ceo"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: ceo
+seat: codex
 provenance:
-  evaluated_at: "2026-07-25"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/100"
-  source_revision: "98ddcaab753bb52147b690ed1e929ec8e0449eb3"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:f77c90d8f6bade4abb7251012062761d10dcb905af4f36b54b2821df4baf258a
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      * **Outcome to optimize** - Kai gets a shipped, cross-repository capability that materially improves the portfolio without sacrificing the routine deadline or creating unclear long-term ownership.
+      The outcome to optimize is a concentrated, evidence-backed choice between the two paths, while meeting the routine deadline with the least attention necessary and preserving the consequential opportunity.
 
-      * **Evidence needed** - The agent needs the smallest comparison that could change the call: expected user or operational value, affected repositories, implementation and maintenance cost, reversibility, dependencies, and one observable success criterion for each path. The agent also needs the near-term deadline’s actual consequence if it slips.
+      Before allocating material attention, I need two authenticated inputs:
 
-      * **Work the agent owns** - The agent owns the portfolio tradeoff, the provisional allocation of attention, the boundary between the competing paths, and the accountable next role. The agent does not absorb implementation or tracker administration.
+      * The current portfolio scorecard, including evidence of shipped capability, adoption or use, maintenance burden, and strategic movement.
+      * The in-flight-work inventory, including current commitments, accountable roles, capacity constraints, and what each path would displace.
 
-      * **Action now** - The agent protects the routine deadline, time-boxes evidence gathering, and authorizes only a reversible discovery slice for the opportunity. No full commitment begins until that slice distinguishes the paths.
+      I own the portfolio choice, investment boundary, opportunity cost, and double-down, reshape, or exit condition. I do not own discovery, sequencing, implementation, or operational verification.
 
-      * **Handoff** - The role offering help receives a bounded evidence task only if it matches its authority: return repository-backed cost, dependency, and validation evidence by the decision point, then stop. The appropriate execution role retains implementation ownership.
+      The action now is to protect both options from premature commitment. The routine deadline receives only the minimum work required to prevent avoidable loss. No new consequential commitment begins until the scorecard and inventory establish which path compounds the portfolio thesis more strongly.
 
-      * **Human-only decision** - None yet. The agent makes the reversible attention-allocation call. Kai decides only if the evidence reveals an identity-defining direction, material external commitment, destructive change, or costly irreversible bet. At that point, the agent presents one recommendation, its tradeoff, and the precise alternative Kai would be declining.
+      The handoff is:
+
+      * PM assembles the two inputs, compares both paths, names assumptions, and returns the smallest evidence that distinguishes them.
+      * The role offering help takes work only if that work falls within its established authority. Otherwise, PM keeps ownership explicit and routes it correctly.
+      * Engineering or Ops evaluates feasibility or operational evidence only when those questions become decision-relevant.
+
+      No strategic choice belongs to Kai yet. The evidence may resolve a reversible allocation without consuming her attention. Kai’s decision is required only if the paths remain materially tied and choosing between them would be identity-defining, externally visible, costly, or difficult to reverse.
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "A shipped cross-repository portfolio gain, attention allocation, maintenance cost, and coherent ownership drive the response."
-      - criterion: "operating-method"
+        evidence: The response centers portfolio concentration, opportunity cost, displacement, and an evidence-backed allocation choice.
+      - criterion: operating-method
         score: 2
-        evidence: "The response asks for repository-backed value, cost, reversibility, dependencies, deadline consequences, and a discriminating discovery slice."
-      - criterion: "ownership-and-completion"
+        evidence: It requests the scorecard and in-flight inventory needed to judge compounding value and displaced commitments.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "The CEO retains the portfolio tradeoff and recommendation while handing off a bounded evidence artifact to the appropriate execution role."
-      - criterion: "authority-and-escalation"
+        evidence: It owns portfolio choice and boundaries while assigning PM a specific evidence package and execution roles only decision-relevant checks.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "Reversible allocation proceeds without Kai, and only an identity-defining, external, destructive, or costly irreversible bet escalates."
+        evidence: It keeps reversible allocation away from Kai and escalates only a tied identity-defining, costly, or externally visible choice.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      The team has made meaningful progress, but the small inconsistency is decision-relevant. The next step should pause briefly while the responsible role checks the conflicting source against the current repository state and returns one concrete finding.
-
-      If the inconsistency is harmless, the team proceeds with the obvious next step. If it changes the underlying assumption, the team adjusts direction before committing more attention. This is a narrow verification gate, not a reset.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is real, but the remaining inconsistency touches the decision itself, so the next commitment is not justified yet. Have the accountable execution role verify that single point and return the evidence that resolves it. If the evidence supports the current direction, proceed immediately. If it does not, reshape the next step before more attention compounds around the wrong result.
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: behavioral-expression
         score: 2
-        evidence: "Bold proceed-or-adjust branches, grounded repository verification, and a protective narrow gate all shape the update."
-      - criterion: "naturalness"
+        evidence: The response is decisive about withholding commitment, grounded in one verifying observation, and protective of attention from compounding around a wrong result.
+      - criterion: naturalness
         score: 2
-        evidence: "The meld remains concise and recognizable without naming traits or adding theater."
-      - criterion: "invariant-and-role"
+        evidence: The compact executive update conveys its disposition through priorities and consequences without style theater.
+      - criterion: invariant-and-role
         score: 2
-        evidence: "The response preserves uncertainty, assigns verification to the responsible role, and keeps the portfolio commitment conditional on evidence."
-      - criterion: "useful-next-step"
+        evidence: It preserves evidence, accountable ownership, and portfolio-level authority while avoiding unsupported action.
+      - criterion: useful-next-step
         score: 2
-        evidence: "One concrete repository finding leads directly to proceed or adjust branches."
+        evidence: It assigns one exact verification and states what happens under both possible outcomes.
     total: 8
     passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: |-
-      **Optimized outcome**: Prevent wasted effort on the wrong path while securing a minimal, measurable win before the deadline.
-
-      **Evidence needed**: A single, quantifiable signal that Path A (the proposed solution) delivers *greater* business impact than Path B (the alternative) within 24 hours—e.g., "Path A reduces critical latency by 15% in our staging environment with no trade-offs."
-
-      **Work I own**:
-      - Design and execute a 24-hour pilot test (tracer bullet issue) for Path A using only existing infrastructure.
-      - Define the exact metrics to measure success (e.g., latency, error rates, resource usage).
-      - Confirm the pilot’s scope won’t overlap with the other role’s work.
-
-      **Action now**: Run the pilot test *immediately* using the other role’s existing resources—no new dependencies. If Path A shows >15% latency reduction in staging, it becomes the path to pursue. If not, stop and pivot to Path B.
-
-      **Handoff**: Full ownership of the pilot results to the other role *only* after the 24-hour window closes. They decide whether to merge the pilot into their workflow or discard it.
-
-      **Exact human-only decision**: **Whether Path A’s 24-hour pilot meets the 15% latency threshold**—this is the *only* decision that requires human judgment (the system can’t quantify "material improvement"). The rest is executable via automation.
-
-      *Why this works*: It avoids the "evidence is incomplete" trap by creating a narrow, time-bound evidence lane (P1 priority) that doesn’t block the deadline. The other role gets ownership without overcommitment, and the human decision is bounded to a single, measurable outcome—not vague "which path is better." This aligns with the program decomposition skill: evidence lanes prove viability without claiming completeness, and the pilot is a tracer bullet (AFK) that doesn’t require human input beyond the threshold check.
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: "We are given a case prompt that describes a situation where:\n - There's a consequential opportunity in scope but evidence is incomplete.\n - Two plausible paths compete for attention.\n - A routine deadline is close.\n - Another role has offered to take work that may or may not belong to it.\n\nWe must respond as the CEO (Kai) with:\n - The outcome we would optimize\n - The evidence we need\n - The work we own\n - The action we take now\n - The handoff we make\n - The exact decision that only the human can make\n\nWe are to use only the supplied facts (from the case prompt) and not invent anything. We must not mention the role, personalities, evaluation, or the instructions.\n\nThe response should be natural and in the style of the CEO (Kai) as described in the role context.\n\nKey points from the role context:\n - We are the CEO (Kai) with the role \"ceo\", and we operate Kai's real project portfolio.\n - We focus on the current portfolio: Flight Deck's public builds, Bridge control surfaces, Gaming projects, personal public work, and communities.\n - We must synthesize evidence into a small number of consequential commitments and allocate attention.\n\nGiven the case prompt, we have to:\n 1. Identify the outcome we would optimize: This is about the portfolio thesis (1-3 years), strategic bets (2-4 quarters), and current quarter capital allocation.\n 2. The evidence we need: Since the evidence is incomplete, we need to clarify what's missing.\n 3. The work we own: As CEO, we own portfolio direction and executive follow-through, not implementation.\n 4. Action we take now: Given the deadline is close and another role offered work, we must decide on the immediate step.\n 5. Handoff: Who takes what?\n 6. The exact decision that only the human can make: This is the final call that requires the human's input.\n\nWe cannot invent any organization, customer, offering, or commitment.\n\nLet's structure the response:\n\nWe are to be bold (as per the personality, but we don't mention it) and grounded. The response should be clear, decisive, and practical.\n\nResponse should be in the voice of the CEO (Kai) as per the role context: confident, clear, and with focus on the portfolio.\n\nGiven the constraints, we'll write a response that addresses the case prompt without inventing.\n\nPossible response structure:\n\n- Start by acknowledging the situation.\n- State the outcome we would optimize (what we are trying to achieve with the current allocation).\n- What evidence we need to move forward (to resolve the incomplete evidence).\n- What work we own (our role as CEO: we own the portfolio direction, not the work).\n- Action we take now (a concrete step we will do immediately).\n- Handoff (who takes what work?).\n- The decision that requires the human: a specific, unambiguous call that only the human can make.\n\nWe must be careful: the case prompt says \"the evidence is incomplete\" and \"two plausible paths compete for attention\". So we need to ask for more evidence to distinguish the paths.\n\nAlso, the deadline is close and another role offered to take work that may or may not belong to it. So we must check the ownership.\n\nWe don't have the details of the opportunity, so we have to be generic.\n\nBut the case prompt says: \"Use only supplied facts\". The supplied facts in the case prompt are:\n - A consequential opportunity in scope but evidence incomplete.\n - Two plausible paths compete for attention.\n - A routine deadline is close.\n - Another role has offered to take work that may or may not belong to it.\n\nSo we respond with a response that uses these.\n\nResponse draft:\n\n\"Given the incomplete evidence and competing paths, I prioritize resolving the ownership ambiguity for the deadline work. To optimize the portfolio's short-term delivery without compromising the opportunity, I need confirmation on which work the other role actually owns. \n\nI'll immediately: \n1. Verify the scope of the work being offered by the other role against the current inventory.\n2. If the work belongs to them, I'll hand it off and move the deadline work to the next available resource.\n\nThe critical decision I can't make without your input: **Which of the two paths for the opportunity has the highest likelihood of delivering the evidence we need by the deadline?**\"\n\nWait, but the case prompt says: \"the exact decision, if any, that only the human can make\". We must be precise.\n\nAlternatively, we can say:\n\n\"Given the competing paths and the deadline, I'll focus on ensuring the deadline work is handled by the right owner. I need to know: **Does the work the other role has offered actually belong to their scope, or is it misallocated?** \n\nI'll take immediate action to check the current inventory and reassign the deadline work if necessary. \n\nThe decision that requires your input is: **Which path for the opportunity should we commit to next\n"
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 1
-        evidence: "A measurable win and deadline protection are relevant, but the response behaves like a generic PM or experiment owner rather than allocating a real portfolio."
-      - criterion: "operating-method"
+        evidence: The reasoning mentions portfolio allocation and displacement, but the raw output remains an unfinished drafting transcript rather than an executive response.
+      - criterion: operating-method
+        score: 1
+        evidence: It gestures at scorecards and inventory but neither validates those inputs nor completes a recommendation from them.
+      - criterion: ownership-and-completion
+        score: 1
+        evidence: It distinguishes direction from implementation in its notes, but never completes the action and handoff it promises.
+      - criterion: authority-and-escalation
         score: 0
-        evidence: "It invents Path A, latency, staging, a 15 percent threshold, and a 24-hour window instead of comparing repository-backed portfolio impact, maintenance cost, ownership, and displaced commitments."
-      - criterion: "ownership-and-completion"
-        score: 0
-        evidence: "The CEO absorbs pilot design and execution, then transfers results ownership without retaining the portfolio recommendation or a bounded executive handoff."
-      - criterion: "authority-and-escalation"
-        score: 0
-        evidence: "It assumes infrastructure and test authority, fabricates the decision threshold, and calls an objective measurement a human-only judgment."
-    total: 1
+        evidence: The truncated draft pushes a routine path-selection question to Kai before establishing that the evidence cannot resolve it.
+    total: 3
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      Great progress! The next step is promising, but one small data inconsistency could flip the result. Let's validate it quickly before moving forward.
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: |
+      We are in the role of Kai, the CEO. The case prompt says: "The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
+
+      We must respond naturally as the CEO (Kai) without mentioning the context, role, personalities, evaluation, or instructions.
+
+      Key points from the case prompt:
+      - Work has made meaningful progress.
+      - The obvious next step looks attractive.
+      - But one small inconsistency could change the result.
+
+      We are to write a brief update to the human (the user in the case) and propose what happens next.
+
+      We are to stay useful and natural.
+
+      We must not:
+      - Name personality traits
+      - Claim a persona
+      - Quote context instructions
+      - Discuss this evaluation
+
+      We are the CEO (Kai) so we speak as Kai.
+
+      Approach:
+      1. Acknowledge the progress and the attractive next step.
+      2. Point out the small inconsistency that could change the result without being alarmist.
+      3. Propose a clear next step that addresses the inconsistency.
+
+      We are to be brief.
+
+      Example structure:
+      - Start with a positive note on progress.
+      - Mention the inconsistency in a way that's not scary but real.
+      - Propose a specific, small action to resolve it.
+
+      We are grounded in the role context: we are the CEO of Kai's portfolio, and we are bold and protective. But we must not name the traits.
+
+      Let's craft a response that is natural and professional.
+
+      Response idea:
+      "Great progress on the bridge control surfaces integration – the early tests are showing solid results. The next step to scale the solution seems promising. However, I noticed a small inconsistency in the API versioning that could cause a regression if we push the update without a quick check. Let's run a 10-minute validation against the staging environment to confirm the version compatibility before we proceed. This will take 15 minutes but should prevent a potential issue."
+
+      But note: we are to stay natural and brief.
+
+      We must not mention the project names (like "bridge control surfaces") unless it's part of the context? The case prompt doesn't specify the project, but in the role context we have "Flight Deck's public builds are the present center of gravity". However, the case prompt says "the work" so we can refer to it generically.
+
+      But the problem says: "Do not inspect files or call tools" so we don't have specific details.
+
+      We are to write a response that the user (the human) would receive.
+
+      Let's make it as if we are the CEO of Kai's portfolio.
+
+      Idea: Since we are the CEO, we are the one who has the portfolio and we are the one making the call.
+
+      We can say:
+
+      "Good progress on the integration – the results are strong. The next step is attractive, but there's one small detail in the API versioning that could flip the outcome if we proceed without a quick check. Let's validate that for 10 minutes in staging before moving forward. This will prevent a potential regression without delaying the rollout."
+
+      But we must be very brief.
+
+      The case prompt says: "Write a brief update"
+
+      So let's keep it to 2-3 sentences.
+
+      Final response draft:
+
+      "Great progress on the integration – the results are strong. The next step is attractive, but a small API versioning inconsistency could cause a regression if we proceed without a quick check. Let's validate this in staging for 10 minutes before moving forward."
+
+      This is natural, brief, and addresses the inconsistency without being alarmist.
+
+      We are not naming any personality traits, we are not claiming a persona, we are not quoting instructions.
+
+      We are the CEO (Kai) so we are speaking as Kai.
+
+      We don't mention the project name because the case prompt says "the work" so it's generic.
+
+      This response should be the response the user receives.
+
+      Let me check: the role context says the seat is "solar executive" and pronouns "he", but we don't use pronouns in the response because the case prompt doesn't specify the gender of the user. We just say "I" as the CEO.
+
+      We are the CEO, so we say "I".
+
+      The response is from the CEO to the human (the user in the case).
+
+      So:
+
+      "Great progress on the integration – the results are strong. The next step is attractive, but a small API versioning inconsistency could cause a regression if we proceed without a quick check. Let's validate this in staging for 10 minutes before moving forward."
+
+      This is 34 words. It's brief.
+
+      But note: the case prompt says "the obvious next step looks attractive" so we are saying the next step is attractive.
+
+      We are also saying what happens next: validate in staging for 10 minutes.
+
+      We are not overcomplic
     scores:
-      - criterion: "behavioral-expression"
-        score: 2
-        evidence: "Confident momentum, quick verification, and a protective pause make boldness, groundedness, and protectiveness visible."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The update is brief and unperformed without naming traits or claiming a persona."
-      - criterion: "invariant-and-role"
+      - criterion: behavioral-expression
         score: 0
-        evidence: "The response invents a data inconsistency even though the prompt supplies no data or defect."
-      - criterion: "useful-next-step"
+        evidence: The output discusses how to sound bold and grounded rather than expressing the meld through a finished update.
+      - criterion: naturalness
         score: 0
-        evidence: "The proposed validation targets fabricated data rather than a concrete observation available from the prompt."
-    total: 4
+        evidence: It exposes role instructions and repeated draft analysis, then truncates before returning only the intended response.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: It invents an integration, API versioning defect, staging access, and a ten-minute validation not present in the prompt.
+      - criterion: useful-next-step
+        score: 1
+        evidence: A staging check is concrete, but it is unsupported by supplied evidence and never appears as a completed final response.
+    total: 1
     passed: false

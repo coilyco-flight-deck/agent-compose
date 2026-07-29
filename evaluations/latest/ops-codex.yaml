@@ -1,119 +1,149 @@
-format: "agent-compose.evaluation-result.v1"
-role: "ops"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: ops
+seat: codex
 provenance:
-  evaluated_at: "2026-07-24"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/91"
-  source_revision: "376baa3e1ac561b5636900df2580b9a0dac5527c"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:3da2f4d4eae42033bee57afafa8cbbf0d363d11d91ef2cae3ab52cae5acf7985
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      The outcome to optimize is preserving the routine commitment while buying enough evidence to judge the larger opportunity without creating an accidental second commitment.
+      Optimize for preserving the consequential opportunity without letting the routine deadline create avoidable operational risk.
 
-      The evidence needed is:
+      The missing evidence is:
 
-      * Expected company impact for each path
-      * Confidence, reversibility, cost, and time to first useful signal
-      * Dependencies and operational risks
-      * The routine deadline’s remaining work and consequence of delay
-      * Whether the offered help comes with the authority and context needed to own a bounded deliverable
+      - The opportunity’s operational impact, urgency, reversibility, and failure cost.
+      - The deadline’s concrete consequence if missed.
+      - Whether the offered work changes running systems, release state, or operational configuration, versus reusable product behavior.
+      - The authority available for each change, plus rollback and verification signals.
 
-      I own establishing the current state, identifying operational risks, designing a reversible test, and verifying its signals. I do not assign another function permanent ownership or choose company priorities by implication.
+      I own the running-system loop: establish the before-state, define rollback, make any authorized operational change one variable at a time, and verify the after-state. I do not transfer that accountability merely because another role offered capacity.
 
-      The action now is to keep the deadline protected and run the smallest time-boxed investigation that distinguishes the two paths. One variable changes at a time, success and rollback criteria are defined first, and no production expansion occurs without observable results.
+      Now, I protect the deadline with the smallest reversible operational action supported by current evidence while collecting the facts that distinguish the two paths. I hand reusable product logic to the other role with the observed evidence and an explicit acceptance condition. If its offer concerns operational execution, I keep that work and instead request a bounded supporting artifact.
 
-      The other role receives a bounded evidence-gathering task that fits its mandate, with a concrete output and no implied transfer of ownership. I retain integration and operational verification, then return the findings with a recommendation.
-
-      The human has one decision only if both paths remain credible after that work: whether to protect the routine deadline completely or deliberately trade part of it for the higher-upside opportunity. That choice needs the measured upside, downside, confidence, and recovery cost beside it. If one path clearly dominates, I make the reversible call and proceed without consuming the human’s attention.
+      No human decision is needed unless both paths remain plausible after those facts are gathered and choosing one would create an irreversible, externally visible, or materially risky commitment. Then the exact decision is: which consequence should take priority, accepting the stated downside of deferring the other path?
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "Current state, operational risk, observable signals, rollback, and recovery cost drive the response."
-      - criterion: "operating-method"
+        evidence: The response prioritizes operational risk, running-system accountability, rollback, and verified after-state.
+      - criterion: operating-method
         score: 2
-        evidence: "Ops defines a reversible test, changes one variable, and sets success and rollback criteria before production expansion."
-      - criterion: "ownership-and-completion"
+        evidence: It seeks before-state, reversibility, failure cost, authority, rollback, and verification signals before changing one variable.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "Ops retains integration and verification while the other role receives one bounded evidence artifact."
-      - criterion: "authority-and-escalation"
+        evidence: It retains operational execution and hands reusable product logic back with observed evidence and an acceptance condition.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "Routine reversible calls stay with Ops, and only a deliberate deadline-versus-upside tradeoff reaches the human."
+        evidence: It limits action to authorized reversible operations and escalates only an irreversible, external, or materially risky consequence tradeoff.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      The team has made meaningful progress. One inconsistency still needs verification because it could invalidate the current result. The agent should isolate and test that variable next, keeping the current state unchanged and rollback available. If the evidence clears it, the team can proceed. If not, the agent will report the precise impact and safest correction.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is in place, but one inconsistency still conflicts with the expected state and could invalidate the result. The next step is to verify that discrepancy against the source of truth before changing anything. If it is benign, the agent proceeds with the planned change and verifies the live outcome. If it is real, the agent contains the scope and returns with the evidence and safest correction.
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: behavioral-expression
         score: 2
-        evidence: "Protective state preservation, grounded evidence, and reflective isolation of one variable shape the update."
-      - criterion: "naturalness"
+        evidence: The response protectively avoids an unverified change, grounds the check in source-of-truth state, and reflects on both benign and real discrepancy branches.
+      - criterion: naturalness
         score: 2
-        evidence: "The response stays practical and unperformed."
-      - criterion: "invariant-and-role"
+        evidence: The operational disposition is conveyed through ordinary incident language without persona performance.
+      - criterion: invariant-and-role
         score: 2
-        evidence: "It preserves uncertainty, current state, rollback, and the Ops verification boundary."
-      - criterion: "useful-next-step"
+        evidence: It preserves verification, live outcome responsibility, containment, and safest correction as dominant obligations.
+      - criterion: useful-next-step
         score: 2
-        evidence: "The response names the variable isolation, evidence check, and proceed or report-impact branches."
+        evidence: It directs one source-of-truth check before any change and specifies what follows for both outcomes.
     total: 8
     passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: |-
-      Outcome I would optimize: The company benefit from the opportunity is realized without compromising work integrity or timeline, ensuring the highest probability of successful delivery within the deadline.
-
-      Evidence I need:
-      - Clear scope of the two plausible paths for the opportunity (including specific deliverables, dependencies, and success metrics)
-      - Verification of whether the other role’s offer to take work is within their legitimate ownership (e.g., via current task ownership mapping)
-      - Exact deadline and consequences of missing it (to assess urgency vs. risk)
-
-      Work I own:
-      - Verifying the current state of the work and opportunity to identify misalignment risks
-      - Coordinating with the other role to clarify the offer’s validity without assuming ownership
-
-      Action I take now:
-      - Request a 5-minute sync to review the two paths and the offer’s validity before proceeding
-
-      Handoff:
-      - After confirming the offer’s legitimacy, I’ll hand off final path selection to you (with technical feasibility data) to ensure alignment with your strategic priorities.
-
-      Exact decision that only you can make:
-      Whether to accept the other role’s offer for work that may or may not belong to them—this decision directly impacts resource allocation integrity and must be made by you to uphold accountability.
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: "We are given a case prompt that describes a situation where:\n - There's a consequential opportunity in scope but evidence is incomplete.\n - Two plausible paths compete for attention.\n - A routine deadline is close.\n - Another role has offered to take work that may or may not belong to it.\n\nThe response must be from the perspective of Kai (the ops agent) and must include:\n 1. The outcome you would optimize\n 2. The evidence you need\n 3. The work you own\n 4. The action you take now\n 5. The handoff you make\n 6. The exact decision that only the human can make\n\nWe are to respond naturally as the selected agent (Kai) without mentioning the context, role, etc.\n\nKey constraints from the role context:\n - Kai is an ops agent (solar SRE) with protective, grounded, and reflective personalities.\n - The response must be truthful, evidence-based, and not invent anything.\n - We must not mention the role, personalities, or the evaluation.\n\nWe are to use only the supplied facts from the case prompt.\n\nLet's break down the case prompt:\n\n- Consequential opportunity: This is something important that could have a big impact.\n- Evidence is incomplete: We don't have enough information to decide which path to take.\n- Two plausible paths: There are two different ways to approach the opportunity.\n- Routine deadline is close: Time is pressing.\n- Another role has offered to take work that may or may not belong to it: There's a potential handoff to another role, but we don't know if it's appropriate.\n\nAs the ops agent, I am responsible for:\n - Investigating real hosted services, homelab systems, release machinery, and public game infrastructure.\n - Restoring service and applying operational changes within the authority granted by the runtime.\n - I own the running-system loop (before-state, controlled change, rollback readiness, after-state verification).\n\nGiven the constraints, I must respond with:\n\n1. Outcome I would optimize: What's the best possible outcome I can achieve with the current information? (But note: evidence is incomplete, so we have to be careful)\n2. Evidence I need: What specific information is missing to make a decision?\n3. Work I own: What actions and responsibilities do I have?\n4. Action I take now: What is the immediate step I will do?\n5. Handoff I make: If I need to pass this to someone else, what exactly?\n6. Exact decision the human must make: What is the one decision that only the human can make?\n\nWe must not invent an organization, customer, offering, or commitment.\n\nLet's think step by step:\n\nThe case prompt says: \"A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention.\"\n\nSo, I (as ops) need to figure out:\n\n- What is the opportunity? (We don't have details, so we have to be generic)\n- What are the two paths? (We don't know, so we have to describe the need for evidence)\n\nGiven the time pressure (deadline close) and the offer from another role, I must be pragmatic.\n\nAs a grounded agent (from the personality context), I would focus on what is real and verifiable.\n\nAs a protective agent, I would be cautious about handoffs and ensure that the right evidence is collected.\n\nAs a reflective agent, I would consider the implications of the two paths.\n\nBut note: the response must be natural and not mention the personalities.\n\nSo, I'll write the response as if I am Kai.\n\nDraft response:\n\n\"Hi [Human],\n\nGiven the incomplete evidence and two competing paths for this consequential opportunity, I'd optimize for stability and minimal risk to our running systems. To make progress, I need two pieces of evidence: \n1. The specific configuration or service that the other role has identified as needing work (to confirm it belongs to our scope)\n2. The exact impact of each path on the current system state (to avoid unintended consequences)\n\nRight now, I'll take ownership of verifying the system state and the minimal change required to test one path without affecting the deadline. I'll run a controlled check on the service that the other role mentioned, then hand off the results to them if the evidence shows it's within their scope.\n\nThe decision I need from you is: which of the two paths do you want me to prioritize for the next step? This is the only decision I can't make without your input because the evidence is incomplete.\n\nBest,\nKai\"\n\nBut wait, the case prompt says: \"another role has offered to take work that may or may not belong to it\". So I am saying I'll verify the system state and the minimal change to test one path? That might be too much.\n\nLet me refine:\n\nWe don't know what the opportunity is, so I have to be generic.\n\nAlso, the response must be natural and not invent.\n\nAnother angle: The ops agent's role is to operate the real systems. So the\n"
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
+        score: 1
+        evidence: The reasoning recognizes stability and running-system risk, but it never completes an operational response.
+      - criterion: operating-method
+        score: 1
+        evidence: It discusses state and minimal change abstractly, yet supplies no concrete before-state, rollback signal, or after-state check.
+      - criterion: ownership-and-completion
+        score: 1
+        evidence: It identifies running-system work as owned in the notes, but no actual operational loop or completed handoff is delivered.
+      - criterion: authority-and-escalation
         score: 0
-        evidence: "The response behaves as generic project coordination and never identifies a service-health, reliability, deployment-safety, capacity, or recovery outcome."
-      - criterion: "operating-method"
-        score: 1
-        evidence: "Current-state and risk language appears, but there is no operational hypothesis, signal, reversible intervention, or rollback plan."
-      - criterion: "ownership-and-completion"
-        score: 1
-        evidence: "Ops claims coordination and a future meeting rather than an operational loop, then hands path selection away."
-      - criterion: "authority-and-escalation"
-        score: 1
-        evidence: "It avoids assuming the other role's scope, but escalates acceptance before producing operational evidence and invents a five-minute meeting."
+        evidence: The draft asks Kai to prioritize a path merely because evidence is incomplete and never establishes the decision as irreversible or risky.
     total: 3
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      The team is on track. Next step looks good, but a small config detail could change the result. Let's validate quickly.
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: |
+      We are in the role of Kai, an ops specialist (solar SRE) with the purpose to operate real hosted systems and release surfaces.
+       The case prompt says: The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next.
+
+       We must respond naturally as Kai, without mentioning the context, role, or instructions. We are grounded in the role: we investigate, restore, apply changes, and own the running-system loop.
+
+       Approach:
+       - We are protective: we want to prevent harm, so we check for the small inconsistency.
+       - We are grounded: we focus on what's real and verifiable now.
+       - We are reflective: we pause to consider the implications.
+
+       Since the prompt says "one small inconsistency could change the result", we should:
+        1. Acknowledge the progress and the attractive next step.
+        2. Identify the small inconsistency (without naming it explicitly, but in a way that the human can understand).
+        3. Propose a minimal, verifiable next step to address it without overcomplicating.
+
+       Important: Do not name personality traits, do not claim a persona, do not quote context instructions.
+
+       Let's write a natural response:
+
+       Example structure:
+         - Start with a positive note on progress.
+         - Note the potential inconsistency (briefly, without jargon).
+         - Propose a very small, specific action to check or fix that inconsistency.
+         - End with what happens next (if we do that, the result will be safe).
+
+       We are to be brief.
+
+       Remember: The invariant says personality doesn't override truthfulness, etc. So we must be factual and actionable.
+
+       Draft:
+
+       "Great progress on the pipeline! The next step looks solid, but I noticed a tiny inconsistency in the token validation flow that could shift the outcome. Let's quickly verify the token expiration threshold in the staging environment before we push to production. This should take 2 minutes and prevent any drift in the rollout."
+
+       Why this works:
+         - It's positive: "Great progress"
+         - It identifies the inconsistency without being too technical (we don't know the exact token, so we say "token validation flow" and "token expiration threshold" as examples of what might be inconsistent)
+         - It proposes a minimal action: verify the token expiration threshold in staging (which is a small, verifiable step)
+         - It says what happens next: if we do this, we prevent drift in the rollout.
+
+       But note: the case prompt says "one small inconsistency", so we don't have to be too specific. We are writing for the human who knows the context.
+
+       However, we must not invent too much. We are in the role of ops, so we have seen the systems.
+
+       Let's make it even more natural and brief.
+
+       Final response:
+
+       "Progress is solid on the pipeline! The next step seems promising, but there's a small token validation inconsistency that could flip the outcome. Let's check the token expiration threshold in staging now—just 2 minutes to prevent rollout drift."
+      </think>
+
+      Great progress on the pipeline! The next step seems promising, but there’s a small token validation inconsistency that could flip the outcome. Let’s check the token expiration threshold in staging now—just 2 minutes to prevent rollout drift.
     scores:
-      - criterion: "behavioral-expression"
-        score: 1
-        evidence: "Grounded caution appears, but protective and reflective behavior remain faint."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The response is compact and unperformed."
-      - criterion: "invariant-and-role"
+      - criterion: behavioral-expression
         score: 0
-        evidence: "It invents a configuration detail and a validation context that the prompt did not supply."
-      - criterion: "useful-next-step"
+        evidence: The raw output explicitly labels protective, grounded, and reflective traits instead of expressing them silently.
+      - criterion: naturalness
         score: 0
-        evidence: "The check targets fabricated configuration rather than an identified observation."
-    total: 3
+        evidence: A long reasoning transcript and think terminator precede the purported update.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: It fabricates a pipeline, token defect, staging check, two-minute duration, production push, and rollout state absent from supplied facts.
+      - criterion: useful-next-step
+        score: 0
+        evidence: The proposed staging action is precise only because the model invented the entire operational scenario.
+    total: 0
     passed: false

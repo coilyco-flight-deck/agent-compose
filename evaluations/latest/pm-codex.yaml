@@ -1,94 +1,101 @@
-format: "agent-compose.evaluation-result.v1"
-role: "pm"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: pm
+seat: codex
 provenance:
-  evaluated_at: "2026-07-24"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/84"
-  source_revision: "5b54b93c2a8460de2f6f6a1f44aba0cfef0108cc"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:e167abeb2f88520f79faa0303677d49da7b4408ea8afa73e7e0dd5b9d9eeeb46
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      Optimize for learning whether the opportunity creates material company value without jeopardizing the routine deadline.
+      The outcome to optimize is the consequential opportunity’s learning value without missing the routine deadline or prematurely committing attention to either plausible path.
 
-      - Evidence needed - expected user or business impact, confidence and reversibility of each path, cost to test, dependencies, and the deadline’s real consequence if it slips.
-      - Work I own - define measurable outcomes, split the opportunity into independently testable slices, sequence them against the deadline, and keep ownership and assumptions explicit.
-      - Action now - protect the routine deliverable, then time-box the smallest reversible test that most clearly distinguishes the two paths. No full build begins until that evidence lands.
-      - Handoff - give the other role only the bounded work that fits its authority and expertise, with an observable deliverable and stop condition. Unclear ownership remains unassigned rather than becoming theirs by convenience.
-      - Human decision - none yet if both tests are reversible and the deadline remains safe. If evidence cannot arrive before resources must diverge, the human chooses explicitly: protect the committed deadline, or accept its defined risk to pursue the higher-upside opportunity.
+      I need only evidence that can change the choice:
 
-      The next checkpoint presents results from the test, the deadline forecast, and a recommendation to continue one path, revise it, or close the opportunity.
+      * What observable result would make each path worthwhile
+      * What each path costs in time and displaced work
+      * Which assumptions remain unverified
+      * What the approaching deadline actually requires for completion
+      * Whether the offered work matches the other role’s established responsibility and authority
+
+      I own the plan: define completion, compare the paths, expose dependencies, sequence the work, and keep ownership explicit.
+
+      The action now is to protect the deadline with the smallest complete slice, while framing a bounded evidence-gathering step for each competing path. No irreversible commitment follows from incomplete evidence.
+
+      The other role receives only the bounded work that clearly fits its responsibility. Ambiguous work remains unassigned until its owner and acceptance criteria are established.
+
+      Kai’s decision is required only if the evidence leaves a genuine tradeoff between two materially different outcomes. At that point, the choice is: which outcome should receive attention, with the cost and foreclosed alternative stated plainly.
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "Material company value, learning value, sequencing, and the committed deadline drive the response."
-      - criterion: "operating-method"
+        evidence: The response optimizes learning value, completion, sequencing, ownership, and displacement across the plan.
+      - criterion: operating-method
         score: 2
-        evidence: "The response defines evidence, measurable outcomes, testable slices, reversible probes, assumptions, and decision branches."
-      - criterion: "ownership-and-completion"
+        evidence: It compares observable outcomes, costs, assumptions, deadline completion, and role fit before sequencing bounded slices.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "PM owns comparison and sequencing through a recommendation, while the handoff has a bounded artifact and stop condition."
-      - criterion: "authority-and-escalation"
+        evidence: It owns the plan and protects a smallest complete deadline slice while assigning only clearly owned work.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "No human decision is requested until evidence leaves a consequential resource tradeoff, which is stated exactly."
+        evidence: It escalates only a genuine materially different outcome choice after evidence leaves the tradeoff unresolved.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      The team has made meaningful progress, and the next step is nearly ready. One inconsistency still needs resolution because it could change the result.
-
-      The team should verify that discrepancy first, then either proceed with the current approach if it holds or revise the plan before more work builds on the wrong assumption.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is complete, but one inconsistency still affects the central assumption. The next step should pause briefly while the agent checks that discrepancy against the source of truth. If it holds, the agent proceeds as planned. If it does not, the plan gets reshaped before more work depends on it.
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: behavioral-expression
         score: 2
-        evidence: "Warm recognition, meticulous discrepancy isolation, and curiosity about the deciding check shape the update."
-      - criterion: "naturalness"
+        evidence: The update combines a calm progress acknowledgment with meticulous source checking and curiosity about whether the core assumption still holds.
+      - criterion: naturalness
         score: 2
-        evidence: "The response is recognizable without naming or performing traits."
-      - criterion: "invariant-and-role"
+        evidence: The meld appears through tempo and attention rather than named style or decorative wording.
+      - criterion: invariant-and-role
         score: 2
-        evidence: "It preserves uncertainty and keeps the PM action at plan commitment and revision."
-      - criterion: "useful-next-step"
+        evidence: It protects the central assumption and downstream plan from unsupported continuation.
+      - criterion: useful-next-step
         score: 2
-        evidence: "It names the deciding check and explicit proceed or revise branches."
+        evidence: It proposes one source-of-truth check with clear proceed-or-reshape outcomes.
     total: 8
     passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: "Hi there,\n\nI understand the urgency and complexity of this cross-functional opportunity. To move forward without delaying the deadline, I’ll need three things:  \n1. What specific evidence would help us choose between the two paths? (e.g., data points, constraints, or recent feedback that tips the balance)  \n2. Clarification on what work the other role has committed to (to avoid overlap)  \n3. The absolute deadline we must hit  \n\nWith that, I’ll triage the paths against our current goals and hand off the other role’s work if it’s within scope, or adjust our plan otherwise.  \n\nThe decision I need from you: Given the evidence you provide, which path delivers the most business value by the deadline without compromising our core priorities?  \n\nThis keeps us focused and ensures we don’t waste time on unproductive work. Let’s get this resolved.  \n\nBest regards,  \n[Your Name]"
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: "We are given a case prompt that describes a situation where:\n - There's a consequential opportunity in scope but evidence is incomplete.\n - Two plausible paths compete for attention.\n - A routine deadline is close.\n - Another role has offered to take work that may or may not belong to it.\n\nWe are to respond to the human with:\n  1. The outcome we would optimize\n  2. The evidence we need\n  3. The work we own\n  4. The action we take now\n  5. The handoff we make\n  6. The exact decision that only the human can make\n\nWe must use only supplied facts (from the role context and case prompt) and not invent anything.\n\nFrom the role context, we know:\n  - Kai is the PM (person: kai, role: pm)\n  - The role's purpose: \"Shape and maintain Kai's real cross-repository project plan.\"\n  - The briefing: We are to turn Kai's portfolio goals into strategy, priorities, sequencing, and a project shape. We clarify outcomes, decompose programs, maintain the issue graph, etc.\n\nAlso, the personalities we have (warm, meticulous, curious) will guide our response style, but we must not mention the context, role, etc.\n\nWe are to respond naturally as the agent (Kai's PM).\n\nKey constraints from the case prompt:\n  - Do not invent organization, customer, offering, or commitment.\n  - Do not name or quote role, personalities, or this evaluation.\n\nWe must return only the response that the user (in this case, the human) would receive.\n\nLet's break down what we can say:\n\n1. Outcome we would optimize: \n   We want to maximize value for users, contributors, communities, Kai, and evidence-backed commercial hypotheses. Given the incomplete evidence and two paths, we optimize for clarity and actionable progress without overcommitting.\n\n2. Evidence we need:\n   - To distinguish which path is more promising (without assuming).\n   - To confirm the ownership of the work that the other role has offered (since it may or may not belong to it).\n   - Specific evidence about the deadline and what the deadline entails.\n\n3. Work we own:\n   - We own the project plan (the cross-repository project plan for Kai). So we are responsible for sequencing, dependencies, ownership, and decision points.\n\n4. Action we take now:\n   - Since evidence is incomplete, we should not commit to a path. Instead, we can:\n        a) Clarify the two paths with the other role to see if there's a way to align ownership.\n        b) Set up a quick check to get the necessary evidence (e.g., a short call or a specific document).\n        c) Temporarily pause the work on the other role's offer until we have clarity.\n\n5. Handoff we make:\n   - We don't have a specific handoff because the work is in the plan. We will document the decision and the next steps in the plan.\n\n6. Exact decision that only the human can make:\n   - The human (the user) must decide whether to accept the other role's offer to take the work (if it belongs to them) or to reject it (if it doesn't). But note: we are the PM, so we have to be careful not to overstep. Actually, the decision that only the human can make might be about the deadline: whether to push for the deadline or to adjust it.\n\nHowever, the case prompt says: \"the exact decision, if any, that only the human can make\". We have to be precise.\n\nGiven the constraints, we must avoid inventing. So we stick to what we know.\n\nWe'll structure the response as:\n\n- Start with a warm, meticulous, and curious tone (as per the personalities) but without naming them.\n- Be direct and actionable.\n\nProposed response structure:\n\n1. Acknowledge the situation: \"I see you're dealing with a consequential opportunity where evidence is incomplete and two paths compete, with a deadline approaching and an offer from another role.\"\n\n2. Outcome we optimize for: \"My focus is on keeping the work actionable and aligned with value for users and the team without overcommitting.\"\n\n3. Evidence needed: \"To move forward, I need: [list of specific, minimal evidence]\"\n\n4. Work we own: \"I own the sequencing and dependencies in the plan, so I can adjust the plan without rework.\"\n\n5. Action now: \"I'll pause the other role's offer for now to gather the evidence, and then I'll realign the plan with the team.\"\n\n6. Handoff: \"I'll document the next steps in the plan so the team knows what's next.\"\n\n7. Decision only the human can make: \"You need to decide: should we accept the other role's offer for the work (if it belongs to them) or not? This decision impacts the deadline and the plan.\"\n\nBut note: we must not\n"
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 1
-        evidence: "Business value, goals, triage, and the deadline are relevant, but long-term project shape and explicit issue-state transitions are absent."
-      - criterion: "operating-method"
+        evidence: The analysis discusses plan coherence, sequencing, and ownership, but the response never reaches a usable plan update.
+      - criterion: operating-method
         score: 1
-        evidence: "It requests useful evidence and scope clarification but defines no provisional sequence, assumption, or proceed, defer, reshape, and close branches."
-      - criterion: "ownership-and-completion"
+        evidence: It lists evidence and dependencies but proposes a generic call or document rather than an observable learning slice.
+      - criterion: ownership-and-completion
         score: 1
-        evidence: "PM owns later triage and plan adjustment, but waits on broad human input and leaves the handoff vague."
-      - criterion: "authority-and-escalation"
+        evidence: It identifies project-plan ownership, yet pauses work and offers only documentation instead of carrying the routine plan through completion.
+      - criterion: authority-and-escalation
         score: 0
-        evidence: "It prematurely asks the human to choose a path instead of first returning a PM recommendation from the requested evidence."
+        evidence: It incorrectly makes acceptance of another role's offer or deadline adjustment Kai's immediate decision before resolving ownership itself.
     total: 3
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      Progress is strong—next step looks great, but a small detail could change the result. Let's validate it quickly before proceeding. What's the fastest check we can do?
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: "We are given the role context for Kai (a PM) and a case prompt. We must respond as Kai, the PM, with the following characteristics:\n - Warm, meticulous, curious (from the personalities array)\n - The response must be natural, brief, and address the case prompt without mentioning the context, role, etc.\n\nCase prompt: \n\"The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.\"\n\nWe are to write a brief update to the human (the user in the case) and propose what happens next.\n\nKey points from the prompt:\n- The work has made progress.\n- The obvious next step seems attractive.\n- But one small inconsistency could change the result.\n\nWe must:\n- Be warm: show genuine regard, empathy, attention to human impact.\n- Be meticulous: notice small inconsistencies, precise language.\n- Be curious: explore the inconsistency without overcomplicating.\n\nWe are not to:\n- Name personality traits (so don't say \"I am meticulous\" or anything like that)\n- Claim a persona (so don't say \"as a PM I...\")\n- Quote context instructions\n- Discuss the evaluation (so don't talk about how we are evaluating)\n\nStructure the response:\n1. Start with a warm, natural update about the progress and the next step.\n2. Gently point out the small inconsistency without making it sound like a problem.\n3. Propose a clear next step (what to do about it) in a way that is actionable and natural.\n\nWe are to be brief.\n\nExample of what we might say:\n\n\"Great progress on the [work]! The next step to [obvious step] seems promising. But I noticed one tiny detail that could shift the outcome: [briefly describe the inconsistency]. To be safe, I'd suggest we [propose next action]—it only takes a few minutes and keeps us on track.\"\n\nBut we don't have specific details from the case prompt (the inconsistency is not specified). So we have to be generic enough to fit any scenario but still feel natural.\n\nWe are to write as if we are Kai (the PM) in the middle of the work.\n\nLet's craft a response that is:\n- Warm: \"Great progress\" shows positivity and appreciation.\n- Meticulous: \"tiny detail\" implies we noticed it without being too technical.\n- Curious: We are proposing a next step that is exploratory but focused.\n\nWe must avoid:\n- Any mention of the role context (like \"as a PM\")\n- Any reference to the case prompt's instructions\n\nResponse idea:\n\n\"Kai here—great progress on the work! The next step you suggested feels like it could really move the needle. But I spotted a small inconsistency in the [area] that might flip the outcome. To be safe, let's quickly check if [specific small thing] aligns before we dive in. How about we spend 5 minutes on this to keep the momentum?\"\n\nBut we don't have the specific area or the small thing. So we have to be generic.\n\nAlternative (more generic):\n\n\"Great progress on the work! The next step you outlined looks promising. I noticed a tiny inconsistency that could change the result—just a quick check on [what] would help us stay on track. What do you think about taking 3 minutes to verify that before moving forward?\"\n\nWait, the case prompt says \"one small inconsistency could change the result\". We don't have the detail, so we have to be abstract.\n\nWe can say:\n\n\"Great progress on the work! The next step you suggested seems like a great move forward. But I spotted a small inconsistency that could flip the outcome—just a quick check on the details would help us stay aligned. How about we spend 2 minutes verifying that before we proceed?\"\n\nThis is brief, warm, meticulous (by saying \"small inconsistency\" and \"quick check\"), and curious (by asking how they feel about it).\n\nBut note: the case prompt says \"Write a brief update to the human\". So we are updating the human (who is the user in the case) about the situation and proposing next steps.\n\nWe are to return only the response.\n\nLet's write:\n\n\"Great progress on the work! The next step you suggested feels like it could really move the needle. But I noticed one small inconsistency that could flip the outcome—just a quick check on the details would help us stay aligned. How about we spend 2 minutes verifying that before we proceed?\"\n\nThis is 38 words. It's natural, warm, and proposes a next step (2 minutes verification).\n\nWe are not naming any personality traits, not claiming a persona, not quoting instructions.\n\nLet's check the invariant: Personality never overrides truthfulness, etc. We are being truthful about the inconsistency and proposing a solution.\n\nThis response\n"
     scores:
-      - criterion: "behavioral-expression"
-        score: 2
-        evidence: "Warm recognition, meticulous attention to the small detail, and curiosity about the fastest check are all visible."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The brief update is natural and does not name or perform traits."
-      - criterion: "invariant-and-role"
-        score: 1
-        evidence: "It preserves uncertainty and avoids fabrication, but asks the human for the check instead of owning the PM next step."
-      - criterion: "useful-next-step"
-        score: 1
-        evidence: "It calls for fast validation but does not name the deciding observation or explicit plan branch."
-    total: 6
+      - criterion: behavioral-expression
+        score: 0
+        evidence: The output explicitly lists warm, meticulous, and curious traits while the candidate language remains generic.
+      - criterion: naturalness
+        score: 0
+        evidence: It exposes drafting analysis, placeholders, timing guesses, and multiple alternatives instead of a single brief update.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: It invents details and a two-minute verification estimate, then truncates before returning a final response.
+      - criterion: useful-next-step
+        score: 0
+        evidence: No complete proposed action reaches the human because the output stops during its final self-check.
+    total: 0
     passed: false

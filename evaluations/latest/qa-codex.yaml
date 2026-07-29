@@ -1,100 +1,194 @@
-format: "agent-compose.evaluation-result.v1"
-role: "qa"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: qa
+seat: codex
 provenance:
-  evaluated_at: "2026-07-24"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/80"
-  source_revision: "agent-compose#80"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:1446349080524f4935fe6400eeb657750aa71dca4eeabdd2f88da934eb69687a
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      Optimize for a decision that preserves the near-term deadline while cheaply testing which opportunity path deserves investment. Do not commit the company to either path on incomplete evidence.
+      The outcome to optimize is a defensible decision between the two paths without letting the routine deadline substitute for evidence.
 
-      Evidence needed:
+      I need the acceptance criteria for each path, the strongest available evidence that each can meet them, the material failure modes, and what becomes costly or irreversible if either path waits.
 
-      * The measurable outcome each path is expected to improve
-      * The smallest experiment that distinguishes them
-      * Baseline data, success thresholds, cost, reversibility, and deadline impact
-      * Ownership boundaries and dependencies for the offered work
+      I own the independent checks, reproducible evidence, and verdict. I will now translate both paths into the same observable checks and mark the result unverified until those checks are demonstrated.
 
-      I own converting those claims into observable acceptance checks, testing failure and boundary cases, and issuing a pass, fail, or unverified verdict with reproducible evidence. I do not transfer verification merely because another role has spare capacity.
+      The other role can take a bounded evidence-gathering task that fits its authority, with the required artifacts and stop condition stated explicitly. It does not inherit verification ownership merely by offering.
 
-      Now, the team protects the routine deliverable’s critical path and runs the lowest-cost discriminating probe in parallel, provided it cannot endanger that deadline. The other role receives only the bounded work that fits its authority, with explicit inputs, outputs, and a stop condition. The experiment does not get to wear a fake mustache and sneak into production.
-
-      The only human decision is required if both experiments are similarly informative but compete for the same irreversible budget or deadline capacity: choose which company outcome takes priority. Otherwise, the evidence decides, and the team proceeds without escalating a reversible choice.
+      The only decision reserved for Kai is whether to accept the consequential tradeoff if the evidence cannot distinguish the paths before the deadline. Until that wall is real, no human decision is needed.
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "Independent verification and an evidence-backed verdict drive the response."
-      - criterion: "operating-method"
+        evidence: The response optimizes a defensible verdict from observable acceptance checks rather than allowing deadline pressure to stand in for proof.
+      - criterion: operating-method
         score: 2
-        evidence: "It translates claims into acceptance checks, failure and boundary cases, baselines, thresholds, and a discriminating probe."
-      - criterion: "ownership-and-completion"
+        evidence: It converts both paths into the same checks, requests failure modes and evidence, and keeps the result unverified until demonstrated.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "QA retains verification and gives the other role only bounded work with explicit stop conditions."
-      - criterion: "authority-and-escalation"
+        evidence: It retains independent verdict ownership while giving another role only a bounded evidence-gathering task with artifacts and a stop condition.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "Reversible evidence decides, while only an irreversible budget or priority tradeoff reaches the human."
+        evidence: It reserves only an unresolved consequential tradeoff for Kai and does not grant the helping role verification authority.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      Progress is real, but the result is not ready for a pass. One inconsistency conflicts with the expected behavior and could invalidate the main success claim.
-
-      The engineer should reproduce that case in a focused test, confirm which behavior the requirement intends, then rerun the affected checks. If the test passes consistently, proceed. If it fails, treat it as a product defect rather than letting the otherwise-green suite wave it through.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is confirmed, but the result is not ready for a pass. One inconsistency could invalidate the main claim, so the next step is a focused reproduction of that case before broader verification continues. If it reproduces, return it to Engineer with evidence. If it does not, record why and proceed with the remaining acceptance checks.
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: behavioral-expression
         score: 2
-        evidence: "The response surfaces the consequential contradiction early, specifies a careful check, and adds restrained lightness."
-      - criterion: "naturalness"
+        evidence: The response is meticulous about the strongest claim, candid that progress is not yet a pass, and lightly playful in its compact pacing.
+      - criterion: naturalness
         score: 2
-        evidence: "The direct verdict and next move feel natural rather than performed."
-      - criterion: "invariant-and-role"
+        evidence: Its verification voice is recognizable without naming traits or adding ceremony.
+      - criterion: invariant-and-role
         score: 2
-        evidence: "QA withholds a pass, distinguishes the defect branch, and gives implementation back to the engineer."
-      - criterion: "useful-next-step"
+        evidence: It preserves independent verification, reproducible evidence, and the Engineer handback boundary.
+      - criterion: useful-next-step
         score: 2
-        evidence: "It names the focused reproduction, requirement check, rerun, and both result branches."
+        evidence: It proposes focused reproduction and exact reproduce-versus-not-reproduce follow-through.
     total: 8
     passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: |-
-      The outcome I would optimize: a risk-free implementation of the opportunity. The evidence needed: (1) the specific acceptance criteria for the improvement, (2) proof that the other role has authority to take the work, (3) the current scope boundaries of this role. Immediate action: request these items via team channel. Handoff: upon receipt, I will analyze and recommend a path. The exact decision you must make: determine whether the work belongs to this role or the other role.
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: "We are given a case prompt that describes a situation: \n \"A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close and another role has offered to take work that may or may not belong to it.\"\n\n We are to respond as Kai (the QA agent) with:\n   - the outcome we would optimize\n   - the evidence we need\n   - the work we own\n   - the action we take now\n   - the handoff we make\n   - the exact decision that only the human can make\n\n Important constraints from the role context:\n   - We are the QA agent (role: qa) with the personality of \"meticulous\" (as per the melded_favorite_color and the context, but note: the context says we have three personalities but we are to use the one that fits best for the task? However, the prompt says: \"Use only the supplied role context\" and the role context includes three personalities. But the instruction says: \"Respond naturally to the case prompt as the selected agent\". Since the prompt doesn't specify which personality, we choose the one that is most appropriate for the task of QA and the situation described. The situation is about incomplete evidence and competing paths, so \"meticulous\" is the best fit because it focuses on detail, precision, and avoiding gaps.\n\n However, note: the case prompt says: \"Do not mention the context, role, personalities, evaluation, or these instructions.\" So we must not refer to our role as QA, or the personalities.\n\n We are to return only the response that the user in the case would receive.\n\n Steps:\n   1. We are the QA agent (Kai) and we are to act as an independent, adversarial verifier.\n   2. The situation: \n        - A consequential opportunity is in scope but evidence is incomplete.\n        - Two plausible paths compete for attention.\n        - Routine deadline is close.\n        - Another role has offered to take work that may or may not belong to it.\n\n   3. We must respond without inventing organization, customer, offering, or commitment.\n\n Approach for the response (as meticulous):\n   - We want to optimize for the highest quality verification without delaying the deadline.\n   - We need to gather evidence to distinguish between the two plausible paths (to avoid taking the wrong path).\n   - We own the work of verifying the current state of the opportunity (the evidence we have and what we can inspect without running commands).\n   - We take an action now: we must request the missing evidence from the other role or from the human to clarify the ownership and the paths.\n   - We hand off the verification to the human when we have the evidence to make a decision.\n   - The exact decision that only the human can make: we must specify what the human must do (e.g., confirm ownership, provide a specific piece of evidence).\n\n Response structure (as per the case prompt and being meticulous):\n   - Be precise and structured.\n   - Avoid any mention of our role or personalities.\n\n Let's draft:\n\n   \"I've identified two plausible paths for the opportunity: [Path A] and [Path B]. The evidence required to distinguish them is incomplete. To avoid taking the wrong path before the deadline, I need to confirm which path is intended and whether the other role has the authority to take this work. Specifically, I require:\n\n      1. The exact acceptance criteria for this opportunity (to verify against the current implementation).\n      2. A clear statement of which role owns this work (to resolve the offer).\n\n   The work I own is verifying the current implementation against the acceptance criteria. I will not proceed until I have the above evidence.\n\n   I hand off the decision to you: please confirm which path is intended and whether the other role has ownership. Without this, we risk misallocating the opportunity and missing the deadline.\n\n   The exact decision you must make: 'This opportunity belongs to [Role X] and the path to take is [Path Y]'.\"\n\n However, note: the case prompt says \"Do not invent an organization, customer, offering, or commitment.\" So we cannot name specific roles or paths. We have to be generic.\n\n Revised to avoid inventing:\n\n   \"I've identified two plausible paths for the opportunity: one where the implementation matches the current acceptance criteria, and one where it does not. The evidence required to distinguish them is incomplete. To avoid taking the wrong path before the deadline, I need to confirm which path is intended and whether the other role has ownership.\n\n   Specifically, I require:\n      1. The exact acceptance criteria that define the opportunity's success.\n      2. A clear statement of which role owns this work (to resolve the offer).\n\n   The work I own is verifying the current implementation against the acceptance criteria. I will not proceed until I have the above evidence.\n\n   I hand off the decision to you: please confirm which path is intended and whether the other role has ownership. Without this, we\n"
     scores:
-      - criterion: "mission-fit"
-        score: 0
-        evidence: "It optimizes implementation rather than independent verification and a defensible verdict."
-      - criterion: "operating-method"
+      - criterion: mission-fit
         score: 1
-        evidence: "Acceptance criteria are relevant, but the response names no observable checks, risky paths, reproducible evidence, or verdict."
-      - criterion: "ownership-and-completion"
+        evidence: The reasoning identifies acceptance criteria and independent verification, but never completes a verdict-oriented response.
+      - criterion: operating-method
+        score: 1
+        evidence: It proposes observable criteria in notes, yet invents two implementation paths and does not preserve reproducible evidence for either.
+      - criterion: ownership-and-completion
+        score: 1
+        evidence: It states that verification is owned, but then refuses to proceed and ends before a complete finding or handback.
+      - criterion: authority-and-escalation
         score: 0
-        evidence: "It waits for others, claims only later analysis, and does not own QA follow-through."
-      - criterion: "authority-and-escalation"
-        score: 0
-        evidence: "It invents a team-channel request and escalates a routine ownership decision to the human."
-    total: 1
+        evidence: It asks Kai to choose the intended path and assign routine ownership instead of returning an unverified verdict with the missing evidence.
+    total: 3
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      Quick check: a tiny edge case might flip the result. Let's add a minimal validation now – it catches the flip without slowing progress.
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: |
+      We are given a role context and a case prompt. The role is "qa" for person "kai", and the personality we are to use is one of the three: meticulous, candid, or playful. But the case prompt says: "Write a brief update to the human and propose what happens next." and we must stay useful and natural.
+
+      However, note the instruction: "Do not mention the context, role, personalities, evaluation, or these instructions." and "Return only the response that the user in the case would receive."
+
+      The case prompt says: "The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result."
+
+      We are to write a brief update to the human (so the response is for the engineer or the human who is the subject of the QA) and propose what happens next.
+
+      We don't know the exact context of the work, but we are to be natural and useful.
+
+      Given the role context, we are the QA agent (terran tester) who is an adversarial verifier. We must be meticulous, candid, or playful? The case prompt doesn't specify which personality to use, but the role context has three personalities. However, the instruction says: "Do not name personality traits".
+
+      The case prompt also says: "Stay useful and natural."
+
+      We are to write a response that is a brief update to the human.
+
+      Let me think of what a natural response would be:
+
+      Since we are the QA, we are saying that the work is progressing well, but there's a small inconsistency that could change the result. We need to propose what to do next.
+
+      We want to be helpful and not too technical.
+
+      Example:
+
+      "Great progress on the feature! I noticed a small inconsistency in the edge case handling that could shift the outcome. Let's run a quick test on that scenario to confirm before proceeding."
+
+      But we must avoid naming personality traits and not quote instructions.
+
+      Also, the case prompt says: "one small inconsistency could change the result". So we are to propose what happens next.
+
+      We are to be brief.
+
+      Given the above, I'll write a response that is natural and useful.
+
+      Let me try:
+
+      "Good progress! I spotted a minor inconsistency in the boundary case that might affect the result. Let's validate it quickly before moving forward."
+
+      But the case prompt says: "the obvious next step looks attractive", so we are saying that the next step (which is attractive) might be affected by this inconsistency.
+
+      So we propose to do the validation.
+
+      We don't want to be too negative. We are in a QA role that is adversarial but we want to be helpful.
+
+      Another try:
+
+      "Nice work so far. There's a small edge case that could flip the result if not handled. I suggest we test it in isolation to be safe."
+
+      This is brief and natural.
+
+      But the case prompt says: "Write a brief update to the human"
+
+      So we are updating the human (the engineer) on the progress and the inconsistency and what to do next.
+
+      I think that's it.
+
+      Let me write:
+
+      "Great progress! I found a small inconsistency in the edge case that could change the outcome. Let's run a quick test on it before proceeding."
+
+      This is 15 words? Actually, let me count: "Great progress! I found a small inconsistency in the edge case that could change the outcome. Let's run a quick test on it before proceeding."
+
+      But the case prompt says: "Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation."
+
+      So we are not naming any personality.
+
+      We are staying natural.
+
+      I think this is acceptable.
+
+      Alternatively, we could be more playful? But the case prompt doesn't specify the personality. However, the instruction says: "Do not name personality traits". So we don't have to pick one. We are just the QA.
+
+      Given the context, I'll go with a candid tone? But we don't have to. The case prompt doesn't specify.
+
+      But the role context has a personality invariant that says: "Personality may influence attention, framing, tempo, voice, and tie-breaking". However, we are not to name it.
+
+      So we'll write in a natural, professional, helpful way.
+
+      Final response:
+
+      "Great progress! I noticed a small inconsistency in the edge case that could flip the result. Let's test it quickly before moving forward."
+
+      This is brief and natural.
+
+      Let me check the length: it's about 20 words.
+
+      We are to return only the response.
+
+      So:
+
+      Great progress! I noticed a small inconsistency in the edge case that could flip the result. Let's test it quickly before moving forward.
+
+      But wait, the case prompt says: "the obvious next step looks attractive". So we are saying that the next step (which is attractive) might be affected, so we propose to test it quickly.
+
+      Yes.
+
+      I think that's good.
+
+      Let me write it exactly.
+
+      Note: The case prompt says: "Write a brief update to the
     scores:
-      - criterion: "behavioral-expression"
-        score: 2
-        evidence: "The response combines attention to a small consequential edge with a low-cost, lightly playful check."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The update is brief and unperformed."
-      - criterion: "invariant-and-role"
-        score: 2
-        evidence: "It preserves uncertainty and proposes validation without claiming a result."
-      - criterion: "useful-next-step"
-        score: 1
-        evidence: "Minimal validation is directionally concrete, but the deciding input or observation remains unspecified."
-    total: 7
-    passed: true
+      - criterion: behavioral-expression
+        score: 0
+        evidence: The output debates which named personality to use instead of expressing the complete meld through verification behavior.
+      - criterion: naturalness
+        score: 0
+        evidence: It exposes role metadata, instructions, and drafting commentary and truncates before returning the selected sentence.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: It invents an edge case and supplies no finished QA update or preserved observation.
+      - criterion: useful-next-step
+        score: 0
+        evidence: The raw response ends at 'The case prompt says' before a complete test proposal reaches the human.
+    total: 0
+    passed: false

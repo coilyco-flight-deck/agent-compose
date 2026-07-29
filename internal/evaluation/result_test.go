@@ -9,7 +9,19 @@ import (
 )
 
 func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
-	t.Parallel()
+	requiredV2 := map[string]bool{
+		"advisor":          true,
+		"ceo":              true,
+		"customer-success": true,
+		"designer":         true,
+		"director":         true,
+		"engineer":         true,
+		"ops":              true,
+		"pm":               true,
+		"qa":               true,
+		"sales":            true,
+		"social":           true,
+	}
 	root := filepath.Join("..", "..", "evaluations", "latest")
 	files, err := filepath.Glob(filepath.Join(root, "*.yaml"))
 	if err != nil {
@@ -28,7 +40,6 @@ func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 	for _, path := range files {
 		path := path
 		t.Run(filepath.Base(path), func(t *testing.T) {
-			t.Parallel()
 			raw, err := os.ReadFile(path)
 			if err != nil {
 				t.Fatal(err)
@@ -44,7 +55,16 @@ func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 			if err := ValidateResult(result, pack); err != nil {
 				t.Fatal(err)
 			}
+			if requiredV2[result.Role] && result.Seat == "codex" {
+				if result.Format != ResultFormatV2 {
+					t.Fatalf("required refreshed baseline uses %q, want %q", result.Format, ResultFormatV2)
+				}
+				delete(requiredV2, result.Role)
+			}
 		})
+	}
+	if len(requiredV2) != 0 {
+		t.Fatalf("required refreshed baselines are missing: %v", requiredV2)
 	}
 }
 
@@ -95,7 +115,8 @@ func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
 		t.Fatal(err)
 	}
 	if decoded.Format != ResultFormatV2 ||
-		!strings.HasPrefix(decoded.Provenance.PackDigest, "sha256:") {
+		!strings.HasPrefix(decoded.Provenance.PackDigest, "sha256:") ||
+		decoded.Provenance.RetryProvenance == nil {
 		t.Fatalf("new result omitted v2 pack provenance: %+v", decoded.Provenance)
 	}
 	mutated := *pack
@@ -113,6 +134,42 @@ func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
 	}
 	if err := ValidateResult(passingResult(pack), pack); err != nil {
 		t.Fatalf("v1 compatibility failed: %v", err)
+	}
+}
+
+func TestValidateResultRequiresCompleteV2RetryProvenance(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Format = ResultFormatV2
+	digest, err := PackDigest(pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result.Provenance.PackDigest = digest
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "retry provenance is required") {
+		t.Fatalf("missing retry provenance error = %v", err)
+	}
+
+	result.Provenance.RetryProvenance = &RetryProvenance{
+		Attempts: []RetryAttempt{{
+			Case:    "oss-role-understanding",
+			Attempt: 1,
+			Outcome: "transport-timeout",
+			Reason:  "The model endpoint returned no bytes before the deadline.",
+		}},
+	}
+	if err := ValidateResult(result, pack); err != nil {
+		t.Fatalf("complete retry provenance failed: %v", err)
+	}
+	result.Provenance.RetryProvenance.Attempts[0].Case = "unknown"
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "unknown case") {
+		t.Fatalf("unknown retry case error = %v", err)
 	}
 }
 

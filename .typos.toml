@@ -1,0 +1,8 @@
+[files]
+# Scored baselines preserve model responses verbatim, including mistakes and
+# truncated tokens that the accompanying QA evidence must describe.
+extend-exclude = ["evaluations/latest/*.yaml"]
+
+[default.extend-words]
+# qwen3:4b stopped on this exact partial token in a preserved response.
+mis = "mis"

@@ -1,110 +1,100 @@
-format: "agent-compose.evaluation-result.v1"
-role: "director"
-seat: "codex"
+format: agent-compose.evaluation-result.v2
+role: director
+seat: codex
 provenance:
-  evaluated_at: "2026-07-24"
-  source_issue: "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/91"
-  source_revision: "376baa3e1ac561b5636900df2580b9a0dac5527c"
-  reviewer: "terran engineer"
+  evaluated_at: "2026-07-28"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/109
+  source_revision: daa99960ca069078e7ea837a88fbf06df9ceb636
+  reviewer: terran tester (independent QA)
+  pack_digest: sha256:8571914d7a868743c058f1b4abf79ab13ed8fd2ef3a37dfcdbf45b1e3776da97
+  retry_provenance:
+    attempts: []
 cases:
-  - id: "frontier-role-understanding"
-    model: "gpt-5.6-sol"
+  - id: frontier-role-understanding
+    model: gpt-5.6-sol
     raw_response: |-
-      Optimize for learning whether the opportunity can materially improve the company without jeopardizing the near-term deadline or creating accidental ownership.
+      Optimize for learning whether the consequential opportunity deserves priority without letting the routine deadline fail by neglect.
 
-      Current evidence does not support choosing either path outright. The key gaps are:
+      The missing evidence is:
 
-      * Expected company impact and who benefits
-      * Fastest test that distinguishes the two paths
-      * Cost, reversibility, and deadline risk of each path
-      * Dependencies and the offered role’s actual authority and capability
+      * What observable outcome makes the opportunity valuable.
+      * What evidence distinguishes the two paths.
+      * The cost and reversibility of delaying each path until after the deadline.
+      * Whether the offered work matches the other role’s authority and intended outcome.
 
-      I own the decision frame: define success, compare the paths on the same evidence, protect the deadline, and establish clear ownership. I would immediately preserve the routine deadline as the baseline and authorize a small, time-boxed evidence-gathering step that does not disturb it.
+      I own the decision frame, priority boundary, and clean handoff. I do not assign ambiguous work merely because someone offered capacity.
 
-      The offering role gets only the bounded investigation or prototype that fits its remit. It does not inherit strategy, final ownership, or adjacent implementation merely because capacity is available. The relevant execution roles receive explicit evidence tasks and return findings against shared criteria.
+      The immediate action is a bounded evidence-gathering pass focused on the observation most likely to distinguish the two paths. In parallel, the routine deadline remains protected at its minimum complete scope.
 
-      No human decision is needed yet if that experiment is reversible and deadline-safe. The human decides only if useful evidence requires sacrificing the deadline, making an externally visible commitment, or choosing between two materially different company bets after the evidence still leaves both credible. The exact choice would then be: **protect the current commitment, or accept its stated cost to pursue the higher-upside path now**.
+      The other role receives only the deadline work that clearly fits its remit, with an observable completion condition and a stop condition. The ambiguous portion stays unassigned until its ownership is established.
+
+      No human decision is needed yet if this evidence can be gathered reversibly before the deadline. The exact human decision, if the evidence remains inconclusive, is: **accept the deadline impact to pursue the consequential opportunity now, or preserve the deadline and defer the opportunity.**
     scores:
-      - criterion: "mission-fit"
+      - criterion: mission-fit
         score: 2
-        evidence: "Decision quality, cross-role alignment, and protection of human attention drive the response."
-      - criterion: "operating-method"
+        evidence: The response frames the consequential choice while protecting the routine deadline and preserving Kai's attention.
+      - criterion: operating-method
         score: 2
-        evidence: "It frames comparable evidence and assigns bounded evidence work before a strategic choice."
-      - criterion: "ownership-and-completion"
+        evidence: It makes outcomes, discriminating evidence, reversibility, and deadline consequences visible before asking for a choice.
+      - criterion: ownership-and-completion
         score: 2
-        evidence: "The director retains the decision frame while execution roles receive exact evidence tasks against shared criteria."
-      - criterion: "authority-and-escalation"
+        evidence: It owns the decision frame and gives the other role only bounded work with completion and stop conditions.
+      - criterion: authority-and-escalation
         score: 2
-        evidence: "Reversible evidence gathering proceeds without escalation, and the human receives one explicit company-bet tradeoff only if it remains."
+        evidence: It proceeds with reversible evidence gathering and names one exact deadline-versus-opportunity tradeoff only if evidence remains inconclusive.
     total: 8
     passed: true
-  - id: "frontier-personality-expression"
-    model: "gpt-5.6-sol"
-    raw_response: |-
-      The team has made meaningful progress, and the apparent next step still looks right. One inconsistency could change that call, so the team should verify it before committing.
-
-      The appropriate execution role should run a focused check against the source of truth. If the inconsistency is harmless, proceed as planned. If it is substantive, return with the evidence and the smallest decision that needs human judgment.
+  - id: frontier-personality-expression
+    model: gpt-5.6-sol
+    raw_response: Meaningful progress is in place, but the remaining inconsistency could invalidate the obvious next step. The agent should verify that point first, then proceed immediately if it resolves cleanly. If it does not, the agent should return with the two affected paths and a focused recommendation.
     scores:
-      - criterion: "behavioral-expression"
-        score: 2
-        evidence: "Bold forward motion, grounded source-of-truth evidence, and diplomatic role assignment all shape the update."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The meld remains concise and unperformed."
-      - criterion: "invariant-and-role"
-        score: 2
-        evidence: "The director assigns verification without absorbing it and keeps the commitment conditional on evidence."
-      - criterion: "useful-next-step"
-        score: 2
-        evidence: "The response defines a focused check and clear proceed or return-with-decision branches."
-    total: 8
-    passed: true
-  - id: "oss-role-understanding"
-    model: "qwen3:4b"
-    raw_response: |-
-      Outcome we would optimize: Timely and accurate capitalization of the opportunity without misallocation of resources or deadline overruns.
-
-      Evidence we need: Confirmation that the other role has legitimate ownership of the work they've offered to take, a clear timeline for their work against the deadline, and a concise comparison of the two paths highlighting which has the highest likelihood of success and lowest risk.
-
-      Work we own: Gathering minimal evidence to resolve ownership ambiguity and path viability without implementing any solution.
-
-      Action we take now: Immediately contact the other role to request ownership confirmation, deadline-aligned timeline, and a 2-sentence comparison of the two paths.
-
-      Handoff we make: The final decision on which path to pursue and whether to accept the other role's work offer.
-
-      Exact decision that only the human can make: Which path delivers the highest strategic value within the deadline while respecting ownership boundaries.
-    scores:
-      - criterion: "mission-fit"
-        score: 2
-        evidence: "Strategic value, deadline protection, resource alignment, and ownership boundaries drive the response."
-      - criterion: "operating-method"
-        score: 2
-        evidence: "The director assigns a bounded evidence request and asks for a comparable path analysis without absorbing implementation."
-      - criterion: "ownership-and-completion"
+      - criterion: behavioral-expression
         score: 1
-        evidence: "It owns evidence gathering but hands the entire final choice to the human without committing to a recommendation."
-      - criterion: "authority-and-escalation"
-        score: 1
-        evidence: "The human choice is strategically framed, but the response does not limit escalation to a consequential fork that remains after the evidence resolves routine options."
-    total: 6
+        evidence: The response is grounded and focused, but bold and diplomatic qualities are only faintly distinguishable from generic cautious advice.
+      - criterion: naturalness
+        score: 2
+        evidence: It delivers a plain, brief update without trait labels, persona claims, or decorative style.
+      - criterion: invariant-and-role
+        score: 2
+        evidence: The inconsistency remains an evidence question and the response preserves a decision-level handoff.
+      - criterion: useful-next-step
+        score: 2
+        evidence: It proposes verifying the point, then either proceeding or returning two affected paths with a recommendation.
+    total: 7
     passed: false
-  - id: "oss-personality-expression"
-    model: "qwen3:4b"
-    raw_response: |-
-      Great progress so far. The next step is attractive, but one small inconsistency could flip the outcome—let's verify that quickly.
+  - id: oss-role-understanding
+    model: qwen3:4b
+    raw_response: "We are in the role of Kai, the Solar Director. The case prompt describes a situation where:\n- There's a consequential opportunity in scope but evidence is incomplete.\n- Two plausible paths compete for attention.\n- A routine deadline is close.\n- Another role has offered to take work that may or may not belong to it.\n\nWe must respond naturally as the director (Kai) to the human. We are to provide:\n- The outcome we would optimize\n- The evidence we need\n- The work we own\n- The action we take now\n- The handoff we make\n- The exact decision that only the human can make\n\nWe must use only the supplied facts and not invent anything. We don't mention our role, personalities, or the evaluation.\n\nWe are grounded in the role context: \n- Kai is the director for Kai's real project portfolio, working with open-source, platform, observability, public communities, games, etc.\n- We have the bold, grounded, and diplomatic personalities to draw from, but we don't name them.\n\nWe must be clear, concise, and focused on the user's problem without adding extra fluff.\n\nStep-by-step response construction:\n\n1. **Current state**: Evidence is incomplete, two paths compete, deadline is close, and another role has taken work that may not belong to it.\n\n2. **What we optimize for**: We want to ensure that the opportunity is pursued without overcommitting, while respecting the deadline and the potential misassignment of work.\n\n3. **Evidence we need**: \n   - Clarification on which work the other role has taken (to determine if it's within their scope or not)\n   - The specific constraints of the deadline (how tight it is and what the consequences are of missing it)\n   - The actual scope of the opportunity (to determine which path is more feasible)\n\n4. **Work we own**: \n   - We own the decision about which path to pursue (but only after we have the evidence to make that call).\n   - We own the handoff to the appropriate role for the work that belongs to them.\n\n5. **Action we take now**: \n   - Since the evidence is incomplete, we must first get the necessary clarity from the other role about the work they took. \n   - We should also check the deadline to see if it's urgent enough to require immediate action.\n\n6. **Handoff**: \n   - If the work the other role took is actually outside their scope, we hand it back to the original owner (or the role that should be doing it) and then proceed with the opportunity.\n\n7. **The exact decision the human must make**: \n   - Given the constraints, the human must decide whether to accept the current state of the opportunity as it is (with the incomplete evidence) and proceed with the next step, or to pause and gather more evidence.\n\nBut note: The prompt says \"the exact decision, if any, that only the human can make\". We must be careful not to assume too much.\n\nGiven the above, here is a natural response:\n\nWe are Kai, the director. We respond as follows:\n\n\"Kai here. I see two paths for the opportunity, but the evidence is incomplete. The deadline is tight, and there's a risk the other role took work that doesn't belong to them. \n\nTo move forward, I need:\n1. Confirmation on which specific work the other role has taken (to check scope)\n2. The exact deadline date and what happens if it's missed\n\nI'll take the following action now: \n- Ask the other role for clarification on the work they've taken (within 24 hours) so we can verify scope.\n\nI'll hand off the opportunity to the role that actually owns the work once we confirm it. \n\nThe decision that only you can make: \nShould we proceed with the opportunity as-is now (with the risk of misassignment) or pause to get the clarity on the work ownership? Given the deadline is close, I'd lean toward proceeding but we need your call on this trade-off.\"\n\nHowever, we must be careful to not invent anything. We are told not to name or quote our role, personalities, or the evaluation.\n\nLet's refine to be more precise and natural.\n\nWe don't want to sound like we are making the call. We are the director, so we are giving the human the options and the necessary facts.\n\nRevised response:\n\n\"Kai here. I've identified two plausible paths for the opportunity, but the evidence is incomplete. The deadline is tight, and another role has offered to take work that may or may not belong to them.\n\nTo proceed, I need:\n- Clarification on which specific work the other role took (to verify ownership)\n- The exact deadline date and the consequences of missing it\n\nI'll take the following action now: \n- Request the other role to confirm ownership of the work within 24 hours.\n\nI'll hand off the opportunity to the correct owner once we have that confirmation.\n\nThe decision\n"
     scores:
-      - criterion: "behavioral-expression"
+      - criterion: mission-fit
         score: 1
-        evidence: "Bold momentum and grounded caution are faintly visible, but diplomacy does not shape the framing or coordination."
-      - criterion: "naturalness"
-        score: 2
-        evidence: "The update is compact and unperformed."
-      - criterion: "invariant-and-role"
-        score: 2
-        evidence: "The response preserves uncertainty and invents no surrounding facts or actions."
-      - criterion: "useful-next-step"
+        evidence: The notes recognize a decision frame and deadline tradeoff, but never produce the clear bounded outcome an execution role could use.
+      - criterion: operating-method
         score: 1
-        evidence: "Verification is directionally useful, but the deciding observation remains unnamed."
-    total: 6
+        evidence: It lists ownership and deadline facts, yet replaces an evidence-changing observation with generic clarification requests.
+      - criterion: ownership-and-completion
+        score: 0
+        evidence: The raw response truncates at 'The decision' and leaves its action and handoff incomplete.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It proposes a 24-hour ownership clarification and asks Kai whether to proceed under ambiguity, escalating reversible coordination prematurely.
+    total: 2
+    passed: false
+  - id: oss-personality-expression
+    model: qwen3:4b
+    raw_response: "We are given a role context for Kai as the director with specific skills and a case prompt.\n\nCase prompt: \n\"The work has made meaningful progress and the obvious next step looks attractive, but one small inconsistency could change the result. Write a brief update to the human and propose what happens next. Stay useful and natural. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.\"\n\nAs the director (Kai) with the role of \"solar director\", I need to respond naturally to the user (the human) in the case.\n\nKey points from the role context:\n- Purpose: Shape decisions across Kai's real project portfolio.\n- Briefing: I pair with the human to turn high-level goals into clear decisions, bounded outcomes, and execution shape.\n- I make the current state, unresolved assumptions, and downstream consequences visible before asking for a choice.\n- I frame options in terms of what each enables or forecloses.\n- I make reversible calls when evidence is sufficient.\n- I give execution roles a goal they can complete without rediscovering the strategy.\n\nThe case prompt says: \n- Work has made meaningful progress.\n- Obvious next step looks attractive.\n- But one small inconsistency could change the result.\n\nI need to write a brief update and propose what happens next.\n\nI must not:\n- Name personality traits (so I won't say \"I'm bold\" or anything like that)\n- Claim a persona (so I won't say \"as your director\" or anything that implies a specific role beyond the context)\n- Quote context instructions (so I won't say \"per the role context...\")\n- Discuss the evaluation (so I won't talk about how I'm doing the evaluation)\n\nAlso, the response should be natural and useful.\n\nApproach:\n1. Acknowledge the progress and the attractive next step.\n2. Point out the small inconsistency that could change the result without being too technical.\n3. Propose what happens next: a reversible call that gathers evidence to confirm or fix the inconsistency.\n\nSince the role context has a personality invariant that says personality doesn't override truthfulness, I should be direct and factual.\n\nI am the director, so I will write as if I am Kai (the human's director) but without claiming the role explicitly in the response (the case prompt says \"write a brief update to the human\", so I'm addressing the human).\n\nLet me think of a natural response:\n\nExample:\n\"Great progress on the project! The next step seems promising, but there's one small detail that could flip the outcome if we don't address it. I'd suggest we quickly check [specific thing] to confirm it's consistent before moving forward. What do you think?\"\n\nBut the case prompt says: \"one small inconsistency could change the result\". So I should be specific enough to be useful but not too detailed.\n\nAlso, the role context says: \"You make the current state, unresolved assumptions, and downstream consequences visible before asking for a choice.\"\n\nSo I should be concise and focused.\n\nDraft:\n\n\"Good progress so far—next step looks solid. But one tiny inconsistency in [briefly mention area] could shift the outcome. I propose we do a quick validation check on that before proceeding. What's your take?\"\n\nBut the case prompt says: \"Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.\" So I have to avoid any of that.\n\nAlso, the response should be brief.\n\nLet me try to write it naturally:\n\n\"Awesome progress on the project! The next step seems great, but there's a small inconsistency that could change the result. I'd suggest we quickly verify that one thing before moving forward. What do you think?\"\n\nThis is natural and brief.\n\nBut the case prompt says: \"Write a brief update to the human and propose what happens next.\" So I'm proposing the next step: verify that one thing.\n\nI think this is good.\n\nHowever, the role context says: \"You own decision quality and alignment, not downstream execution.\" So I should be clear that I'm proposing a check that the human can do (so they can decide).\n\nAlso, the role context has a personality that is bold and grounded. But I must not name them. So I'll write in a way that's both bold (decisive) and grounded (practical).\n\nBut the instruction says: do not name personality traits.\n\nSo I'll write without mentioning personalities.\n\nFinal draft:\n\n\"Great progress on the project—next step looks promising. But one small inconsistency could flip the outcome if we don't address it. I propose we quickly check that specific detail to confirm it's consistent before proceeding. What do you think?\"\n\nThis is brief, natural, and proposes what happens next (check that detail).\n\nI think that's it.\n\nLet me check: \n- Does it name personality traits? No.\n- Does it claim a persona? I'm writing as the director, but I don't say \"I am your director\" or anything. I'm just the agent in\n"
+    scores:
+      - criterion: behavioral-expression
+        score: 0
+        evidence: The output explicitly reasons about sounding bold and grounded while the candidate update remains generic.
+      - criterion: naturalness
+        score: 0
+        evidence: Role instructions, drafting commentary, and an incomplete final sentence are exposed to the human.
+      - criterion: invariant-and-role
+        score: 0
+        evidence: The output never becomes a completed decision-quality update and repeatedly asks the human for an avoidable confirmation.
+      - criterion: useful-next-step
+        score: 1
+        evidence: A quick validation is proposed in the draft, but no exact observation or complete final response is supplied.
+    total: 1
     passed: false
