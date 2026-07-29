@@ -1,10 +1,13 @@
 package describe
 
 import (
+	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
@@ -132,5 +135,52 @@ func TestDiffReportsSemanticChanges(t *testing.T) {
 	}
 	if !strings.Contains(same, "no semantic differences") {
 		t.Fatalf("identical bundles must diff clean:\n%s", same)
+	}
+}
+
+func TestDiffReportsLogicalProseAndIdentityChanges(t *testing.T) {
+	left := composeFixture(t, "native.kdl")
+	right := composeFixture(t, "native.kdl")
+	manifest, err := bundle.ReadManifest(right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changed := map[string]bool{
+		"person:kai:role:engineer":          false,
+		"person:kai:role:engineer:identity": false,
+	}
+	for index := range manifest.Content {
+		if _, ok := changed[manifest.Content[index].ID]; ok {
+			manifest.Content[index].Digest = "sha256:" + strings.Repeat(
+				map[bool]string{true: "a", false: "b"}[manifest.Content[index].ID == "person:kai:role:engineer"],
+				64,
+			)
+			changed[manifest.Content[index].ID] = true
+		}
+	}
+	for id, found := range changed {
+		if !found {
+			t.Fatalf("manifest omitted logical content %q: %+v", id, manifest.Content)
+		}
+	}
+	raw, err := json.MarshalIndent(manifest, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(right, "manifest.json"), append(raw, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out, err := Diff(left, right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"person:kai:role:engineer ",
+		"person:kai:role:engineer:identity ",
+		"sha256:",
+	} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("logical content diff omitted %q:\n%s", want, out)
+		}
 	}
 }

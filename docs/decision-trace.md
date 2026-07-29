@@ -24,8 +24,10 @@ styling - stays out of the trace.
 
 `agent-compose describe` renders the stored decisions in scannable sections,
 `describe --why <item>` follows one item to its outcome, and `diff` compares
-two bundles by decision subject rather than file bytes - all without
-reopening source files. `trace.json` itself is the machine-readable surface;
+two bundles by decision subject plus manifest logical content ID and digest.
+Artifact-level changes remain visible beside logical changes. These commands
+do not reopen authoring roots. `trace.json` itself is the decision
+machine-readable surface;
 there is no second explanation format. Human output and TTY styling are views
 over the trace and never enter model instructions; redirected output is plain
 and deterministic.
@@ -34,3 +36,4 @@ and deterministic.
 
 * [bundle-protocol.md](bundle-protocol.md) - where the trace lives.
 * [architecture.md](architecture.md) - resolver flow and ownership.
+* [catalogues-and-export.md](catalogues-and-export.md) - logical content diff semantics.

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
@@ -172,9 +173,59 @@ func MarshalSnapshotV4(p *Person) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := ValidateSnapshotV4(snapshot); err != nil {
+		return nil, err
+	}
 	raw, err := json.MarshalIndent(snapshot, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal person snapshot v4: %w", err)
 	}
 	return append(raw, '\n'), nil
+}
+
+// ValidateSnapshotV4 proves that aliases, provenance, and affinities form one
+// self-consistent effective profile projection.
+func ValidateSnapshotV4(snapshot *SnapshotV4) error {
+	if snapshot == nil || snapshot.Format != "agent-compose.person-snapshot.v4" ||
+		snapshot.SchemaVersion != 4 || snapshot.Person == "" {
+		return fmt.Errorf("person snapshot v4 identity is incomplete")
+	}
+	for name, entry := range snapshot.Personalities {
+		if entry.SourceLibrary == "" || len(entry.Digest) != 71 ||
+			entry.Digest[:7] != "sha256:" {
+			return fmt.Errorf("personality %q has invalid provenance", name)
+		}
+		seenAliases := map[string]bool{}
+		for _, alias := range entry.Aliases {
+			normalized, err := NormalizeCue(alias)
+			if err != nil {
+				return fmt.Errorf("personality %q alias: %w", name, err)
+			}
+			if seenAliases[normalized] {
+				return fmt.Errorf("personality %q repeats normalized alias %q", name, normalized)
+			}
+			seenAliases[normalized] = true
+		}
+		seenRoles := map[string]bool{}
+		for _, affinity := range entry.Affinities {
+			role, ok := snapshot.Roles[affinity.Role]
+			if !ok {
+				return fmt.Errorf("personality %q affinity names unknown role %q", name, affinity.Role)
+			}
+			if seenRoles[affinity.Role] {
+				return fmt.Errorf("personality %q repeats affinity role %q", name, affinity.Role)
+			}
+			seenRoles[affinity.Role] = true
+			if !slices.Equal(affinity.Personalities, role.Personalities) ||
+				!slices.Contains(affinity.Personalities, name) {
+				return fmt.Errorf("personality %q affinity for role %q has inconsistent meld", name, affinity.Role)
+			}
+		}
+		for roleName, role := range snapshot.Roles {
+			if slices.Contains(role.Personalities, name) != seenRoles[roleName] {
+				return fmt.Errorf("personality %q affinity coverage disagrees with role %q", name, roleName)
+			}
+		}
+	}
+	return nil
 }

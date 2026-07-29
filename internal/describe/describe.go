@@ -166,11 +166,11 @@ func Diff(leftDir, rightDir string) (string, error) {
 		fmt.Fprintln(&b, "  no semantic differences")
 	}
 	fmt.Fprintf(&b, "  %d decisions unchanged\n", unchanged)
-	leftContent, err := contentDigests(leftDir)
+	leftContent, err := contentDigests(leftDir, leftManifest)
 	if err != nil {
 		return "", err
 	}
-	rightContent, err := contentDigests(rightDir)
+	rightContent, err := contentDigests(rightDir, rightManifest)
 	if err != nil {
 		return "", err
 	}
@@ -189,15 +189,31 @@ func Diff(leftDir, rightDir string) (string, error) {
 	sort.Strings(contentChanged)
 	if len(contentChanged) > 0 {
 		fmt.Fprintln(&b, "  content changes:")
-		for _, path := range contentChanged {
-			fmt.Fprintf(&b, "  ~ %s\n", path)
+		for _, id := range contentChanged {
+			switch {
+			case leftContent[id] == "":
+				fmt.Fprintf(&b, "  + %s %s\n", id, shortDigest(rightContent[id]))
+			case rightContent[id] == "":
+				fmt.Fprintf(&b, "  - %s %s\n", id, shortDigest(leftContent[id]))
+			default:
+				fmt.Fprintf(
+					&b,
+					"  ~ %s %s → %s\n",
+					id,
+					shortDigest(leftContent[id]),
+					shortDigest(rightContent[id]),
+				)
+			}
 		}
 	}
 	return b.String(), nil
 }
 
-func contentDigests(root string) (map[string]string, error) {
+func contentDigests(root string, manifest *bundle.Manifest) (map[string]string, error) {
 	digests := map[string]string{}
+	for _, entry := range manifest.Content {
+		digests[entry.ID] = entry.Digest
+	}
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
@@ -221,6 +237,13 @@ func contentDigests(root string) (map[string]string, error) {
 		return nil
 	})
 	return digests, err
+}
+
+func shortDigest(digest string) string {
+	if len(digest) <= 19 {
+		return digest
+	}
+	return digest[:19]
 }
 
 func keysString(values map[string]string) []string {

@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/urfave/cli/v3"
@@ -109,19 +108,23 @@ func main() {
 				Commands: []*cli.Command{
 					{
 						Name: "personalities", Usage: "list personalities or resolve one cue",
-						Flags: personCatalogFlags(true), Action: runCatalogPersonalities,
+						Description: "JSON items: slug, skill, description, aliases, identity primitives, source_library, digest, and affinities.",
+						Flags:       personCatalogFlags(true), Action: runCatalogPersonalities,
 					},
 					{
 						Name: "roles", Usage: "list profile roles",
-						Flags: personCatalogFlags(false), Action: runCatalogRoles,
+						Description: "JSON items: slug, purpose, role skill provenance, seats, ordered personalities, and favorite_color.",
+						Flags:       personCatalogFlags(false), Action: runCatalogRoles,
 					},
 					{
 						Name: "seats", Usage: "list profile seats",
-						Flags: append(personCatalogFlags(false), &cli.StringFlag{Name: "role", Usage: "limit to one role"}), Action: runCatalogSeats,
+						Description: "JSON items: role plus the complete stable seat key, name, pronouns, channel, and tier.",
+						Flags:       append(personCatalogFlags(false), &cli.StringFlag{Name: "role", Usage: "limit to one role"}), Action: runCatalogSeats,
 					},
 					{
 						Name: "expressions", Usage: "list stable expression vocabulary",
-						Flags: []cli.Flag{&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"}}, Action: runCatalogExpressions,
+						Description: "JSON items are the stable expression strings.",
+						Flags:       []cli.Flag{&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"}}, Action: runCatalogExpressions,
 					},
 				},
 			},
@@ -368,23 +371,33 @@ func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	names := make([]string, 0, len(p.Personalities))
-	for name := range p.Personalities {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	var names []string
 	if query := cmd.String("query"); query != "" {
 		names, err = p.LookupCue(query)
 		if err != nil {
 			return err
 		}
+		if names == nil {
+			names = []string{}
+		}
+	}
+	entries, err := p.PersonalityCatalog(names)
+	if err != nil {
+		return err
 	}
 	var text strings.Builder
-	for _, name := range names {
-		entry := p.Personalities[name]
-		fmt.Fprintf(&text, "%s: %s\n", name, strings.Join(entry.Aliases, ", "))
+	for _, entry := range entries {
+		fmt.Fprintf(
+			&text,
+			"%s // %s // %s // aliases: %s // roles: %s\n",
+			entry.Slug,
+			entry.Skill,
+			entry.Description,
+			strings.Join(entry.Aliases, ", "),
+			catalogAffinityRoles(entry.Affinities),
+		)
 	}
-	return writeCatalog(names, cmd.Bool("json"), text.String())
+	return writeCatalog(entries, cmd.Bool("json"), text.String())
 }
 
 func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
@@ -392,11 +405,23 @@ func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	var text strings.Builder
-	for _, name := range p.RoleOrder {
-		fmt.Fprintf(&text, "%s: %s\n", name, p.Roles[name].Purpose)
+	entries, err := p.RoleCatalog()
+	if err != nil {
+		return err
 	}
-	return writeCatalog(p.RoleOrder, cmd.Bool("json"), text.String())
+	var text strings.Builder
+	for _, entry := range entries {
+		fmt.Fprintf(
+			&text,
+			"%s // %s // %s // meld: %s // color: %s\n",
+			entry.Slug,
+			entry.Skill,
+			entry.Purpose,
+			strings.Join(entry.Personalities, ", "),
+			entry.FavoriteColor,
+		)
+	}
+	return writeCatalog(entries, cmd.Bool("json"), text.String())
 }
 
 func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
@@ -404,22 +429,32 @@ func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	roleNames := p.RoleOrder
-	if role := cmd.String("role"); role != "" {
-		if _, ok := p.Roles[role]; !ok {
-			return fmt.Errorf("role %q is not defined", role)
-		}
-		roleNames = []string{role}
+	seats, err := p.SeatCatalog(cmd.String("role"))
+	if err != nil {
+		return err
 	}
-	seats := make([]person.Seat, 0)
 	var text strings.Builder
-	for _, roleName := range roleNames {
-		for _, seat := range p.Roles[roleName].Seats {
-			seats = append(seats, seat)
-			fmt.Fprintf(&text, "%s: %s (%s)\n", roleName, seat.Selector(), seat.Name)
-		}
+	for _, entry := range seats {
+		fmt.Fprintf(
+			&text,
+			"%s // %s // %s // %s // channel: %s // tier: %s\n",
+			entry.Role,
+			entry.Seat.Selector(),
+			entry.Seat.Name,
+			entry.Seat.Pronouns,
+			entry.Seat.Channel,
+			entry.Seat.Tier,
+		)
 	}
 	return writeCatalog(seats, cmd.Bool("json"), text.String())
+}
+
+func catalogAffinityRoles(affinities []person.PersonalityMeld) string {
+	roles := make([]string, 0, len(affinities))
+	for _, affinity := range affinities {
+		roles = append(roles, affinity.Role)
+	}
+	return strings.Join(roles, ", ")
 }
 
 func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {

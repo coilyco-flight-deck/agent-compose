@@ -10,10 +10,14 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
@@ -32,6 +36,67 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	}
 	if _, err := evaluationOutput(pack, "json"); err == nil {
 		t.Fatal("legacy JSON evaluation output remains accepted")
+	}
+}
+
+func TestExternalPersonProfileExampleExercisesEveryPersonSurface(t *testing.T) {
+	profile := filepath.Join("..", "..", "examples", "person-profile")
+	library := filepath.Join("..", "..", "examples", "shared-personality-library")
+	request := filepath.Join(profile, "request.kdl")
+	p, err := person.LoadDirectoryWithLibraries(profile, library)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := compose.Run(request, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := bundle.Verify(result.Bundle.Dir); err != nil {
+		t.Fatal(err)
+	}
+	archive := filepath.Join(t.TempDir(), "example.tar.gz")
+	if err := bundle.Export(result.Bundle.Dir, archive); err != nil {
+		t.Fatal(err)
+	}
+	if info, err := os.Stat(archive); err != nil || info.Size() == 0 {
+		t.Fatalf("example export is missing: info=%v err=%v", info, err)
+	}
+	if _, err := describe.Bundle(result.Bundle.Dir, describe.Options{}); err != nil {
+		t.Fatal(err)
+	}
+	pack, err := evaluation.BuildFor(p, "bulk-captioner", "chatbot-sonnet-low")
+	if err != nil || len(pack.Cases) != 1 {
+		t.Fatalf("example evaluation failed: cases=%v err=%v", pack, err)
+	}
+	projected, err := overlay.Build(p, "bulk-captioner", "chatbot-sonnet-low", "available")
+	if err != nil || projected.Seat.Pronouns != "they" {
+		t.Fatalf("example overlay failed: doc=%v err=%v", projected, err)
+	}
+	if _, err := palette.Build(p); err != nil {
+		t.Fatal(err)
+	}
+	files, err := roster.Render(p, nil, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{
+		"person.json",
+		"person.v4.json",
+		"personality-index.md",
+		".agents/skills/role-bulk-captioner/SKILL.md",
+	} {
+		if len(files[path]) == 0 {
+			t.Errorf("example roster omitted %q", path)
+		}
+	}
+	if entries, err := p.PersonalityCatalog(nil); err != nil || len(entries) != 3 {
+		t.Fatalf("example personality catalogue failed: entries=%v err=%v", entries, err)
+	}
+	if entries, err := p.RoleCatalog(); err != nil || len(entries) != 2 {
+		t.Fatalf("example role catalogue failed: entries=%v err=%v", entries, err)
+	}
+	if entries, err := p.SeatCatalog("bulk-captioner"); err != nil || len(entries) != 1 {
+		t.Fatalf("example seat catalogue failed: entries=%v err=%v", entries, err)
 	}
 }
 

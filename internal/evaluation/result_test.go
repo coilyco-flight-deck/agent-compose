@@ -79,6 +79,43 @@ func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
 	}
 }
 
+func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Format = ""
+	raw, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := DecodeResult(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if decoded.Format != ResultFormatV2 ||
+		!strings.HasPrefix(decoded.Provenance.PackDigest, "sha256:") {
+		t.Fatalf("new result omitted v2 pack provenance: %+v", decoded.Provenance)
+	}
+	mutated := *pack
+	mutated.Briefing += "\n\nA prose-only role change."
+	if err := ValidateResult(decoded, &mutated); err == nil ||
+		!strings.Contains(err.Error(), "pack digest") {
+		t.Fatalf("role prose drift passed v2 validation: %v", err)
+	}
+	mutated = *pack
+	mutated.Personalities = append([]PersonalityContext(nil), pack.Personalities...)
+	mutated.Personalities[0].Definition += "\nA prose-only personality change."
+	if err := ValidateResult(decoded, &mutated); err == nil ||
+		!strings.Contains(err.Error(), "pack digest") {
+		t.Fatalf("personality prose drift passed v2 validation: %v", err)
+	}
+	if err := ValidateResult(passingResult(pack), pack); err != nil {
+		t.Fatalf("v1 compatibility failed: %v", err)
+	}
+}
+
 func TestValidateResultDerivesTotalsAndVerdictsFromPack(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("engineer", "codex")

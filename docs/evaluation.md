@@ -14,9 +14,7 @@ collector. Agent-compose emits context and prompts only. It never invokes a
 model, chooses credentials, or acquires execution authority.
 
 The command defaults to `person:kai`. `--person-source` loads one external
-package instead. The pack derives its person, role, seat, invariant, and active
-definitions from that package without inheriting default role-specific cases.
-On an `external-only` host, omission inherits the guarded external source.
+package and derives the whole review context from it.
 
 ## Four-case matrix
 
@@ -77,4 +75,5 @@ OSS cases remain its frontier-only re-enable gate.
 * [role-selection.md](role-selection.md) - fixed role assignment.
 * [person-contract.md](person-contract.md) - roles, seats, and personalities.
 * [person-packages.md](person-packages.md) - independent evaluation context.
+* [evaluation-matrices.md](evaluation-matrices.md) - profile-owned replacement matrices.
 * [integration.md](integration.md) - how bundles reach harnesses.

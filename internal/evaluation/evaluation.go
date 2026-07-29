@@ -4,6 +4,7 @@ package evaluation
 
 import (
 	"bytes"
+	"crypto/sha256"
 	_ "embed"
 	"fmt"
 	"path/filepath"
@@ -75,6 +76,38 @@ type Pack struct {
 	RunProtocol         []string             `yaml:"run_protocol"`
 	ReviewRule          ReviewRule           `yaml:"review_rule"`
 	Cases               []Case               `yaml:"cases"`
+}
+
+type AssetDigest struct {
+	ID     string
+	Digest string
+}
+
+// EffectiveAssetDigests names the evaluation assets that determine one role's
+// pack without exposing filesystem paths.
+func EffectiveAssetDigests(p *person.Person, roleName string) ([]AssetDigest, error) {
+	genericDigest := sha256.Sum256(genericMatrixAsset)
+	generic := AssetDigest{
+		ID:     "engine:evaluation:generic",
+		Digest: fmt.Sprintf("sha256:%x", genericDigest),
+	}
+	raw, ok := p.EvaluationAsset(roleName)
+	if !ok {
+		return []AssetDigest{generic}, nil
+	}
+	matrix, err := parseProfileMatrix(raw)
+	if err != nil {
+		return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
+	}
+	customDigest := sha256.Sum256(raw)
+	custom := AssetDigest{
+		ID:     "person:" + p.Name + ":evaluation:" + roleName,
+		Digest: fmt.Sprintf("sha256:%x", customDigest),
+	}
+	if len(matrix.Cases) > 0 {
+		return []AssetDigest{custom}, nil
+	}
+	return []AssetDigest{generic, custom}, nil
 }
 
 type profileMatrix struct {
@@ -192,6 +225,8 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 			return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
 		}
 		if len(matrix.Cases) > 0 {
+			pack.RunProtocol = matrix.RunProtocol
+			pack.ReviewRule = matrix.ReviewRule
 			pack.Cases = matrix.Cases
 			return pack, nil
 		}
@@ -224,12 +259,49 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 		return matrix, err
 	}
 	if len(matrix.Cases) > 0 {
+		if len(matrix.RunProtocol) == 0 ||
+			matrix.ReviewRule.PassingTotal == 0 ||
+			strings.TrimSpace(matrix.ReviewRule.ScoreRange) == "" ||
+			strings.TrimSpace(matrix.ReviewRule.HardFailRule) == "" ||
+			strings.TrimSpace(matrix.ReviewRule.RequiredEvidence) == "" {
+			return matrix, fmt.Errorf("complete custom matrix needs run_protocol, review_rule, and cases")
+		}
+		for index, evalCase := range matrix.Cases {
+			if err := validateCompleteCase(evalCase); err != nil {
+				return matrix, fmt.Errorf("case %d: %w", index, err)
+			}
+		}
 		return matrix, nil
 	}
 	if matrix.RolePrompt == "" || matrix.PersonalityPrompt == "" {
 		return matrix, fmt.Errorf("matrix must include role_prompt and personality_prompt")
 	}
 	return matrix, nil
+}
+
+func validateCompleteCase(evalCase Case) error {
+	if strings.TrimSpace(evalCase.ID) == "" ||
+		strings.TrimSpace(evalCase.ModelTier) == "" ||
+		strings.TrimSpace(evalCase.BundleModelClass) == "" ||
+		strings.TrimSpace(evalCase.Dimension) == "" ||
+		strings.TrimSpace(evalCase.Prompt) == "" ||
+		strings.TrimSpace(evalCase.ReviewerQuestion) == "" ||
+		len(evalCase.Rubric) == 0 {
+		return fmt.Errorf("custom case is incomplete")
+	}
+	if evalCase.BundleModelClass != "frontier" && evalCase.BundleModelClass != "low-context" {
+		return fmt.Errorf("custom case has unsupported bundle model class %q", evalCase.BundleModelClass)
+	}
+	for _, criterion := range evalCase.Rubric {
+		if strings.TrimSpace(criterion.ID) == "" ||
+			strings.TrimSpace(criterion.Question) == "" ||
+			strings.TrimSpace(criterion.Scale.Strong) == "" ||
+			strings.TrimSpace(criterion.Scale.Partial) == "" ||
+			strings.TrimSpace(criterion.Scale.Missing) == "" {
+			return fmt.Errorf("custom case %q has an incomplete rubric", evalCase.ID)
+		}
+	}
+	return nil
 }
 
 func MarshalYAML(pack *Pack) ([]byte, error) {

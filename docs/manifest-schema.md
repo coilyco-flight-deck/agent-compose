@@ -6,10 +6,19 @@
 {
   "format": "agent-compose.bundle",
   "role": "engineer",
+  "role_skill": "role-engineer",
+  "role_skill_source": "person:kai:role:engineer",
+  "role_skill_digest": "sha256:<digest>",
   "model_class": "frontier",
   "personalities": ["curious", "grounded", "meticulous"],
   "color": "#90a66a",
   "sources": ["person:kai", "aos-public"],
+  "content": [
+    {
+      "id": "person:kai:role:engineer:identity",
+      "digest": "sha256:<digest>"
+    }
+  ],
   "delivery": {
     "mode": "native-skills",
     "instructions": "content/instructions.md",
@@ -22,12 +31,11 @@ A compiled bundle replaces `skills_root` with `compiled_context` pointing at
 `delivery/compiled.md` while the canonical skill trees stay in the tree for
 inspection. Every named entry point must exist inside the bundle.
 
-That is the whole schema. There is no subject block, digest list, or
-schema-version ceremony. `format` is a plain marker, not a trust or
-cryptographic boundary. The built-in verifier checks structural integrity:
-safe relative entry points, regular files and directories only, complete
-delivery data, and one identity tree per trace-selected skill. A consumer that
-needs content authentication still hashes or signs the tree itself.
+`format` is a plain marker, not a trust or cryptographic boundary. The built-in
+verifier checks structural integrity: safe relative entry points, regular files
+and directories only, complete delivery data, unique logical content IDs with
+SHA-256 digests, and one identity tree per trace-selected skill. A consumer
+that needs content authentication still hashes or signs the tree itself.
 
 `sources` records which places content came from, by stable id, so the trace
 and a human reader can refer to them. Locators and absolute paths never
@@ -36,6 +44,13 @@ their melded favorite, derived from every component color.
 [person-contract.md](person-contract.md) owns the legibility and blend rules.
 `model_class` records the caller fact used for per-skill context pruning. It
 does not identify or route a runtime model.
+
+`role_skill`, `role_skill_source`, and `role_skill_digest` bind the role
+identity to its canonical doctrine. `content` records the effective logical
+role skill, invariant, personality definitions, evaluation assets, copy
+contract, and compact role identity metadata. `diff` compares these stable IDs
+and digests without reopening the authoring roots. Local filesystem paths never
+appear.
 
 ## See also
 

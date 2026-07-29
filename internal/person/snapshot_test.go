@@ -100,3 +100,34 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		t.Fatalf("snapshot field policy names %d fields, person model has %d", len(covered), model.NumField())
 	}
 }
+
+func TestSnapshotV4RejectsInconsistentProvenanceAndAffinities(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := BuildSnapshotV4(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ValidateSnapshotV4(snapshot); err != nil {
+		t.Fatal(err)
+	}
+	entry := snapshot.Personalities["curious"]
+	entry.Digest = "bad"
+	snapshot.Personalities["curious"] = entry
+	if err := ValidateSnapshotV4(snapshot); err == nil {
+		t.Fatal("invalid personality provenance passed")
+	}
+
+	snapshot, err = BuildSnapshotV4(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry = snapshot.Personalities["curious"]
+	entry.Affinities[0].Personalities = []string{"curious"}
+	snapshot.Personalities["curious"] = entry
+	if err := ValidateSnapshotV4(snapshot); err == nil {
+		t.Fatal("inconsistent affinity meld passed")
+	}
+}

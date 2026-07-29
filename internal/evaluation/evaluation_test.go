@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -96,6 +97,67 @@ func TestBuildForExternalPersonUsesOnlySelectedPackage(t *testing.T) {
 	}
 }
 
+func TestBuildForCustomRoleReplacesCompleteMatrix(t *testing.T) {
+	p, err := person.LoadDirectoryWithLibraries(
+		filepath.Join("..", "..", "examples", "person-profile"),
+		filepath.Join("..", "..", "examples", "shared-personality-library"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	custom, err := BuildFor(p, "bulk-captioner", "chatbot-sonnet-low")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(custom.RunProtocol) != 2 ||
+		custom.ReviewRule.PassingTotal != 2 ||
+		len(custom.Cases) != 1 ||
+		custom.Cases[0].ID != "chatbot-guidance" {
+		t.Fatalf("custom matrix was field-merged with generic data: %+v", custom)
+	}
+	if custom.Seat.Selector() != "chatbot-sonnet-low" ||
+		custom.Seat.Pronouns != "they" ||
+		custom.CopyContract == nil ||
+		custom.CopyContract.Source == "" ||
+		!strings.HasPrefix(custom.CopyContract.Digest, "sha256:") {
+		t.Fatalf("custom evaluation context is incomplete: %+v", custom)
+	}
+
+	generic, err := BuildFor(p, "caption-review", "chatbot-sonnet-low")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(generic.Cases) != 4 || generic.Cases[0].ID != "frontier-role-understanding" {
+		t.Fatalf("role without a custom matrix did not receive generic fallback: %+v", generic.Cases)
+	}
+}
+
+func TestParseProfileMatrixRejectsIncompleteAndUnknownAssets(t *testing.T) {
+	for name, raw := range map[string]string{
+		"missing review rule": `
+run_protocol: [Run.]
+cases:
+  - id: fixture
+    model_tier: frontier
+    bundle_model_class: frontier
+    dimension: role
+    prompt: Respond.
+    reviewer_question: Is it sound?
+    rubric:
+      - id: sound
+        question: Is it sound?
+        scale: {"2": Yes., "1": Partly., "0": No.}
+`,
+		"unknown field": "role_prompt: One.\npersonality_prompt: Two.\nunknown: true\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parseProfileMatrix([]byte(raw)); err == nil {
+				t.Fatal("malformed profile matrix passed")
+			}
+		})
+	}
+}
+
 func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	pack, err := Build("ops", "codex")
 	if err != nil {
@@ -187,6 +249,30 @@ func TestBuildReviewMinimumsReferenceCaseCriteria(t *testing.T) {
 				t.Errorf("case %q minimum for %q is outside score range: %d", evalCase.ID, criterion, minimum)
 			}
 		}
+	}
+}
+
+func TestSeatSelectionChangesIdentityNotDoctrineOrAuthority(t *testing.T) {
+	claude, err := Build("engineer", "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	codex, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if claude.Seat.Selector() == codex.Seat.Selector() ||
+		claude.Seat.Name == codex.Seat.Name {
+		t.Fatalf("fixture seats are not distinct: %+v %+v", claude.Seat, codex.Seat)
+	}
+	if claude.RoleSkill != codex.RoleSkill ||
+		claude.RoleSkillDigest != codex.RoleSkillDigest ||
+		claude.Briefing != codex.Briefing ||
+		!reflect.DeepEqual(claude.Personalities, codex.Personalities) ||
+		!reflect.DeepEqual(claude.RunProtocol, codex.RunProtocol) ||
+		!reflect.DeepEqual(claude.ReviewRule, codex.ReviewRule) ||
+		!reflect.DeepEqual(claude.Cases, codex.Cases) {
+		t.Fatal("seat selection changed role doctrine or evaluation authority boundary")
 	}
 }
 

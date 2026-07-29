@@ -2,6 +2,7 @@ package person
 
 import (
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -170,6 +171,153 @@ func TestLoadDirectoryKeepsExternalPersonIndependent(t *testing.T) {
 	}
 	if src.ID != "person:workbench" || len(src.Skills) != 2 {
 		t.Fatalf("external person source = %q skills=%d", src.ID, len(src.Skills))
+	}
+}
+
+func TestExternalProfileComposesLibrariesSeatsAndCopyContracts(t *testing.T) {
+	profile := filepath.Join("..", "..", "examples", "person-profile")
+	library := filepath.Join("..", "..", "examples", "shared-personality-library")
+	p, err := LoadDirectoryWithLibraries(profile, library)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Name != "example" ||
+		len(p.Roles["caption-review"].Personalities) != 1 ||
+		strings.Join(p.Roles["bulk-captioner"].Personalities, ",") != "local-guide,shared-care" {
+		t.Fatalf("external effective graph is wrong: %+v", p.Roles)
+	}
+	role := p.Roles["bulk-captioner"]
+	if role.Seats[0].Selector() != "chatbot-sonnet-low" ||
+		role.Seats[0].Channel != "chatbot" ||
+		role.Seats[0].Tier != "sonnet-low" ||
+		role.Seats[0].Pronouns != "they" {
+		t.Fatalf("generalized seat was not preserved: %+v", role.Seats)
+	}
+	if role.CopyContract == nil ||
+		role.CopyContract.Source != "person:example:role:bulk-captioner:copy-contract" ||
+		!strings.HasPrefix(role.CopyContract.Digest, "sha256:") {
+		t.Fatalf("copy contract provenance is incomplete: %+v", role.CopyContract)
+	}
+	personalities, err := p.PersonalityCatalog(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(personalities) != 3 ||
+		personalities[0].Description == "" ||
+		personalities[0].SourceLibrary == "" ||
+		!strings.HasPrefix(personalities[0].Digest, "sha256:") {
+		t.Fatalf("personality catalogue is incomplete: %+v", personalities)
+	}
+	var unusedFound bool
+	for _, entry := range personalities {
+		if entry.Slug == "unused-spark" {
+			unusedFound = true
+			if len(entry.Affinities) != 0 {
+				t.Fatalf("unused personality acquired affinities: %+v", entry.Affinities)
+			}
+		}
+	}
+	if !unusedFound {
+		t.Fatal("effective catalogue omitted unused personality")
+	}
+	roles, err := p.RoleCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(roles) != 2 ||
+		roles[0].Skill == "" ||
+		roles[0].SkillSource == "" ||
+		roles[0].FavoriteColor == "" {
+		t.Fatalf("role catalogue is incomplete: %+v", roles)
+	}
+	seats, err := p.SeatCatalog("bulk-captioner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(seats) != 1 || seats[0].Role != "bulk-captioner" ||
+		seats[0].Seat.Selector() != "chatbot-sonnet-low" {
+		t.Fatalf("seat catalogue is incomplete: %+v", seats)
+	}
+}
+
+func TestExternalLibraryRejectsSymlinks(t *testing.T) {
+	link := filepath.Join(t.TempDir(), "linked-library")
+	target, err := filepath.Abs(filepath.Join("..", "..", "examples", "shared-personality-library"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	_, err = LoadDirectoryWithLibraries(
+		filepath.Join("..", "..", "examples", "person-profile"),
+		link,
+	)
+	if err == nil || !strings.Contains(err.Error(), "symlink") {
+		t.Fatalf("symlinked personality library passed: %v", err)
+	}
+}
+
+func TestExternalLibraryConflictDiagnostics(t *testing.T) {
+	profile := filepath.Join("..", "..", "examples", "person-profile")
+	library := filepath.Join("..", "..", "examples", "shared-personality-library")
+	if _, err := LoadDirectoryWithLibraries(profile, filepath.Join(t.TempDir(), "missing")); err == nil ||
+		!strings.Contains(err.Error(), "inspect personality library") {
+		t.Fatalf("missing library diagnostic = %v", err)
+	}
+	if _, err := LoadDirectoryWithLibraries(profile, library, library); err == nil ||
+		!strings.Contains(err.Error(), "admitted more than once") {
+		t.Fatalf("duplicate library diagnostic = %v", err)
+	}
+
+	invalid := filepath.Join(t.TempDir(), "invalid")
+	copyTestTree(t, library, invalid)
+	if err := os.WriteFile(filepath.Join(invalid, "library.kdl"), []byte(`library "Bad ID"`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadDirectoryWithLibraries(profile, invalid); err == nil ||
+		!strings.Contains(err.Error(), "stable logical id") {
+		t.Fatalf("invalid library id diagnostic = %v", err)
+	}
+
+	divergent := filepath.Join(t.TempDir(), "divergent")
+	copyTestTree(t, library, divergent)
+	if err := os.WriteFile(filepath.Join(divergent, "library.kdl"), []byte(`library "shared-example-copy"`+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	skillPath := filepath.Join(divergent, "definitions", "skills", "personality-shared-care", "SKILL.md")
+	raw, err := os.ReadFile(skillPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw = append(raw, []byte("\nDivergent copy.\n")...)
+	if err := os.WriteFile(skillPath, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadDirectoryWithLibraries(profile, library, divergent); err == nil ||
+		!strings.Contains(err.Error(), "definition") ||
+		!strings.Contains(err.Error(), "conflicts") {
+		t.Fatalf("divergent definition diagnostic = %v", err)
+	}
+}
+
+func copyTestTree(t *testing.T, source, target string) {
+	t.Helper()
+	if err := fs.WalkDir(os.DirFS(source), ".", func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		destination := filepath.Join(target, filepath.FromSlash(path))
+		if entry.IsDir() {
+			return os.MkdirAll(destination, 0o755)
+		}
+		raw, err := fs.ReadFile(os.DirFS(source), path)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(destination, raw, 0o644)
+	}); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -614,6 +762,50 @@ func TestParseSeatValidation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			if _, err := parse([]byte(body)); err == nil {
 				t.Fatal("expected parse failure")
+			}
+		})
+	}
+}
+
+func TestParseCopyContractValidation(t *testing.T) {
+	valid := inspirationFixture()
+	insert := func(contract string) string {
+		return strings.Replace(
+			valid,
+			`        personality "bright" "steady"`,
+			contract+"\n        "+`personality "bright" "steady"`,
+			1,
+		)
+	}
+	for name, tc := range map[string]struct {
+		body string
+		want string
+	}{
+		"unsupported scope": {
+			body: insert(`        copy-contract scope="chat" { forbid "asset" prefer="video" }`),
+			want: "supported scope tool-response",
+		},
+		"missing replacement": {
+			body: insert(`        copy-contract scope="tool-response" { forbid "asset" }`),
+			want: "needs prefer",
+		},
+		"normalized duplicate": {
+			body: insert(`        copy-contract scope="tool-response" {
+            forbid "asset" prefer="video"
+            forbid "Asset" prefer="media"
+        }`),
+			want: "repeats forbid",
+		},
+		"conflicting declarations": {
+			body: insert(`        copy-contract scope="tool-response" { forbid "asset" prefer="video" }
+        copy-contract scope="tool-response" { forbid "upload" prefer="add" }`),
+			want: "duplicate copy-contract",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(tc.body)); err == nil ||
+				!strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("copy-contract parse error = %v, want %q", err, tc.want)
 			}
 		})
 	}

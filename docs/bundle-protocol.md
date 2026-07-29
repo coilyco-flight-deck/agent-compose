@@ -39,6 +39,11 @@ Successful verification prints only bounded skill and file counts. Selected
 identity details remain in `trace.json`, where `describe` can render them as a
 scannable audit instead of expanding them into the startup transcript.
 
+`agent-compose bundle export <bundle-dir> --out <file>.tar.gz` runs verification
+before opening the output. It writes sorted slash-separated file names with
+normalized gzip and tar metadata. Identical verified trees therefore produce
+byte-identical archives across supported platforms.
+
 Runtime telemetry - durations, cache location, cache-hit status, terminal
 state - never lands under the bundle root.
 
@@ -49,3 +54,4 @@ state - never lands under the bundle root.
 * [decision-trace.md](decision-trace.md) - the retained explanation data.
 * [architecture.md](architecture.md) - integration boundaries.
 * [contract-review.md](contract-review.md) - review decisions of record.
+* [catalogues-and-export.md](catalogues-and-export.md) - inspection, archive, and diff behavior.

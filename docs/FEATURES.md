@@ -35,7 +35,6 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 * `compose ... -- <command>` refreshes then execs, guarded against recursion.
 * Refresh uses validated fallback unless `external-only` forbids it.
-  Concurrent launches share locks.
 
 ## Inspection
 
@@ -43,6 +42,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   follows one item from consideration to outcome.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
   delivery, trace integrity, and selected identities.
+* [Catalogues and export](catalogues-and-export.md) provide rich inspection,
+  reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
 * [Evaluation](evaluation.md) - guarded person review packs and multi-model baselines.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
@@ -57,15 +58,14 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 * `agent-compose roster --out <dir>` renders lazy-loaded role and personality
   skills plus [native adaptation](native-adaptation.md).
-* Bare convergence emits deterministic [`person.json`](person-snapshot.md) for
-  roles, seats, compatibility, identities, inspirations, and appearances.
+* Bare convergence emits deterministic [`person.json`](person-snapshot.md).
 * `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
   per-harness files, symlinks, filtering, overrides, a mount manifest,
   and dry-run/check behavior compatible with the Python outputs.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.
-* [Remote skill catalogs](remote-skills.md) hydrate scalar Git locators with locked offline caching.
+* [Remote skill catalogs](remote-skills.md) hydrate locked Git locators.
 * [Native MCP + approval projection](native-mcp.md).
 
 ## Release

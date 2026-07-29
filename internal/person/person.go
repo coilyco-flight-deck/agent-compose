@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -76,8 +77,10 @@ type Role struct {
 }
 
 type CopyContract struct {
-	Scope string     `json:"scope"`
-	Rules []CopyRule `json:"rules"`
+	Scope  string     `json:"scope"`
+	Rules  []CopyRule `json:"rules"`
+	Source string     `json:"source"`
+	Digest string     `json:"digest"`
 }
 
 type CopyRule struct {
@@ -491,6 +494,11 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 }
 
 func validateResolvedPerson(p *Person) error {
+	for roleName := range p.evaluations {
+		if _, ok := p.Roles[roleName]; !ok {
+			return fmt.Errorf("evaluation matrix %q has no profile role", roleName)
+		}
+	}
 	for _, roleName := range p.roleOrder() {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
@@ -516,6 +524,17 @@ func loadLibrary(root string) (*Person, string, fs.FS, error) {
 	if !info.IsDir() {
 		return nil, "", nil, fmt.Errorf("personality library %s is not a directory", absolute)
 	}
+	if err := filepath.WalkDir(absolute, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.Type()&fs.ModeSymlink != 0 {
+			return fmt.Errorf("personality library contains symlink %s", path)
+		}
+		return nil
+	}); err != nil {
+		return nil, "", nil, fmt.Errorf("inspect personality library tree %s: %w", absolute, err)
+	}
 	source := os.DirFS(absolute)
 	library, id, err := loadLibrarySource(source, "personality library "+absolute)
 	if err != nil {
@@ -534,6 +553,9 @@ func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 		return nil, "", fmt.Errorf("%s: needs one library name", label)
 	}
 	id := doc.Nodes[0].Arguments()[0].String()
+	if !validLogicalID(id) {
+		return nil, "", fmt.Errorf("%s: library name %q is not a stable logical id", label, id)
+	}
 	assembled, err := assembleLibrarySource(source, id)
 	if err != nil {
 		return nil, "", err
@@ -618,8 +640,36 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 	if err := loadRoleSkills(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
+	if err := addCopyContractProvenance(p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
 	p.source = source
 	return p, nil
+}
+
+func addCopyContractProvenance(p *Person) error {
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		if role.CopyContract == nil {
+			continue
+		}
+		canonical := struct {
+			Scope string     `json:"scope"`
+			Rules []CopyRule `json:"rules"`
+		}{
+			Scope: role.CopyContract.Scope,
+			Rules: role.CopyContract.Rules,
+		}
+		raw, err := json.Marshal(canonical)
+		if err != nil {
+			return fmt.Errorf("role %q copy contract: %w", roleName, err)
+		}
+		digest := sha256.Sum256(raw)
+		role.CopyContract.Source = "person:" + p.Name + ":role:" + roleName + ":copy-contract"
+		role.CopyContract.Digest = fmt.Sprintf("sha256:%x", digest)
+		p.Roles[roleName] = role
+	}
+	return nil
 }
 
 func loadRoleSkills(source fs.FS, p *Person) error {
@@ -1366,6 +1416,19 @@ func briefingParagraphCount(briefing string) int {
 		}
 	}
 	return count
+}
+
+func validLogicalID(value string) bool {
+	parts := strings.Split(value, ":")
+	if len(parts) == 0 {
+		return false
+	}
+	for _, part := range parts {
+		if !validSemanticToken(part) {
+			return false
+		}
+	}
+	return true
 }
 
 func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[string]string, error) {

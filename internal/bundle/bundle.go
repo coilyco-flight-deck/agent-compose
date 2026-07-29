@@ -8,8 +8,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -22,16 +25,22 @@ type Delivery struct {
 }
 
 type Manifest struct {
-	Format          string   `json:"format"`
-	Role            string   `json:"role"`
-	RoleSkill       string   `json:"role_skill"`
-	RoleSkillSource string   `json:"role_skill_source"`
-	RoleSkillDigest string   `json:"role_skill_digest"`
-	ModelClass      string   `json:"model_class"`
-	Personalities   []string `json:"personalities"`
-	Color           string   `json:"color"`
-	Sources         []string `json:"sources"`
-	Delivery        Delivery `json:"delivery"`
+	Format          string          `json:"format"`
+	Role            string          `json:"role"`
+	RoleSkill       string          `json:"role_skill"`
+	RoleSkillSource string          `json:"role_skill_source"`
+	RoleSkillDigest string          `json:"role_skill_digest"`
+	ModelClass      string          `json:"model_class"`
+	Personalities   []string        `json:"personalities"`
+	Color           string          `json:"color"`
+	Sources         []string        `json:"sources"`
+	Content         []ContentDigest `json:"content"`
+	Delivery        Delivery        `json:"delivery"`
+}
+
+type ContentDigest struct {
+	ID     string `json:"id"`
+	Digest string `json:"digest"`
 }
 
 type Trace struct {
@@ -181,6 +190,10 @@ func write(res *resolver.Resolution, root string) error {
 	}
 
 	role := res.Person.Roles[res.Request.Role]
+	content, err := manifestContent(res)
+	if err != nil {
+		return err
+	}
 	manifest, err := json.MarshalIndent(Manifest{
 		Format:          "agent-compose.bundle",
 		Role:            res.Request.Role,
@@ -191,6 +204,7 @@ func write(res *resolver.Resolution, root string) error {
 		Personalities:   res.Personalities,
 		Color:           res.FavoriteColor,
 		Sources:         res.SourceIDs,
+		Content:         content,
 		Delivery:        delivery,
 	}, "", "  ")
 	if err != nil {
@@ -249,6 +263,13 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 	}
 	fmt.Fprintf(h, "rendered-instructions\x00%d\x00", len(renderedInstructions))
 	h.Write(renderedInstructions)
+	content, err := manifestContent(res)
+	if err != nil {
+		return "", err
+	}
+	for _, entry := range content {
+		fmt.Fprintf(h, "logical-content\x00%s\x00%s\x00", entry.ID, entry.Digest)
+	}
 	for _, d := range res.Decisions {
 		fmt.Fprintf(h, "decision\x00%s\x00%s\x00%s\x00%s\x00", d.Subject, d.Source, d.Outcome, d.Reason)
 	}
@@ -284,6 +305,90 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 		}
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
+	roleName := res.Request.Role
+	role := res.Person.Roles[roleName]
+	content := []ContentDigest{{
+		ID:     role.SkillSource,
+		Digest: role.SkillDigest,
+	}}
+	identity := struct {
+		Purpose               string
+		Skill                 string
+		Personalities         []string
+		Seats                 []person.Seat
+		Inspiration           person.InspirationRef
+		SupportedModelClasses []string
+		FavoriteColor         string
+	}{
+		Purpose:               role.Purpose,
+		Skill:                 role.Skill,
+		Personalities:         role.Personalities,
+		Seats:                 role.Seats,
+		Inspiration:           role.Inspiration,
+		SupportedModelClasses: role.SupportedModelClasses,
+		FavoriteColor:         res.FavoriteColor,
+	}
+	raw, err := json.Marshal(identity)
+	if err != nil {
+		return nil, fmt.Errorf("marshal role identity metadata: %w", err)
+	}
+	digest := sha256.Sum256(raw)
+	content = append(content, ContentDigest{
+		ID:     "person:" + res.Person.Name + ":role:" + roleName + ":identity",
+		Digest: fmt.Sprintf("sha256:%x", digest),
+	})
+	if role.CopyContract != nil {
+		content = append(content, ContentDigest{
+			ID:     role.CopyContract.Source,
+			Digest: role.CopyContract.Digest,
+		})
+	}
+	for _, selected := range res.Instructions {
+		if selected.ID != "personality-invariant" {
+			continue
+		}
+		invariant, err := fs.ReadFile(selected.Files, selected.Path)
+		if err != nil {
+			return nil, err
+		}
+		digest := sha256.Sum256(invariant)
+		content = append(content, ContentDigest{
+			ID:     "person:" + res.Person.Name + ":invariant",
+			Digest: fmt.Sprintf("sha256:%x", digest),
+		})
+	}
+	active := map[string]bool{}
+	for _, personalityName := range res.Personalities {
+		active[res.Person.Personalities[personalityName].Skill] = true
+	}
+	for _, selected := range res.Skills {
+		if !active[selected.ID] {
+			continue
+		}
+		raw, err := fs.ReadFile(selected.Files, path.Join(selected.Path, selectedEntryPoint(selected)))
+		if err != nil {
+			return nil, err
+		}
+		digest := sha256.Sum256(raw)
+		content = append(content, ContentDigest{
+			ID:     selected.Source + ":skill:" + selected.ID,
+			Digest: fmt.Sprintf("sha256:%x", digest),
+		})
+	}
+	evaluationAssets, err := evaluation.EffectiveAssetDigests(res.Person, roleName)
+	if err != nil {
+		return nil, err
+	}
+	for _, asset := range evaluationAssets {
+		content = append(content, ContentDigest{ID: asset.ID, Digest: asset.Digest})
+	}
+	slices.SortFunc(content, func(left, right ContentDigest) int {
+		return strings.Compare(left.ID, right.ID)
+	})
+	return content, nil
 }
 
 func validateSelectedSkills(skills []resolver.Selected) error {

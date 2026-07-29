@@ -1,0 +1,7 @@
+personality "unused-spark" skill="personality-unused-spark" color="#d3b63b" motif="quiet-spark" {
+    emblem { name "quiet-spark"; emoji "✨"; glyph "⋆" }
+    form { silhouette "spark"; geometry "four-rays"; motion "hovering" }
+    sound-mark { timbre "glass-tap"; contour "brief-rise"; pulse "single" }
+    alias "dormant"
+    inspiration "example-shared" { fit "The unused personality proves admitted catalogue entries remain available without acquiring a role affinity." }
+}

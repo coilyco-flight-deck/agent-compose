@@ -137,6 +137,19 @@ func verifyManifest(dir string, manifest *Manifest) error {
 			return fmt.Errorf("bundle manifest contains an empty source id")
 		}
 	}
+	if len(manifest.Content) == 0 {
+		return fmt.Errorf("bundle manifest names no logical content")
+	}
+	seenContent := map[string]bool{}
+	for _, entry := range manifest.Content {
+		if entry.ID == "" || seenContent[entry.ID] {
+			return fmt.Errorf("bundle manifest has empty or duplicate logical content id %q", entry.ID)
+		}
+		if len(entry.Digest) != 71 || !strings.HasPrefix(entry.Digest, "sha256:") {
+			return fmt.Errorf("bundle manifest logical content %q has invalid digest", entry.ID)
+		}
+		seenContent[entry.ID] = true
+	}
 	if err := requireRegularEntry(dir, "instructions", manifest.Delivery.Instructions); err != nil {
 		return err
 	}

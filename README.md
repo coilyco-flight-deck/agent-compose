@@ -150,6 +150,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
 * [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
+* [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
 * [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
 * [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
 * [docs/remote-skills.md](docs/remote-skills.md) - remote skill hydration and cache behavior.
