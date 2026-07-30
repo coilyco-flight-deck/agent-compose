@@ -67,7 +67,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Release
 
-* Main pushes publish binaries, checksums, Homebrew, and Scoop. See [release.md](release.md).
+* [Release](release.md) publishes product-impacting main pushes. Docs and
+  results only validate. A tracked hold reserves major versions for dispatch.
 
 ## See also
 

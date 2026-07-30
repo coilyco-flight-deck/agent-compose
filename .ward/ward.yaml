@@ -57,3 +57,12 @@ commands:
   release-package:
     run: sh scripts/render-packaging.sh
     description: Render the brew formula and scoop manifest from dist/ binaries.
+  release-package-test:
+    run: sh scripts/render-packaging-test.sh
+    description: Render v2 fixture package metadata and inspect its public contract.
+  release-impact:
+    run: sh scripts/release-impact.sh
+    description: Decide whether one validated revision should publish a product release.
+  release-impact-test:
+    run: sh scripts/release-impact-test.sh
+    description: Exercise documentation, result, product, hold, and manual release fixtures.
