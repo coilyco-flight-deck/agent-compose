@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/catalogmanifest"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
@@ -78,6 +79,22 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 			states[remoteskills.StateRefreshed],
 			states[remoteskills.StateFallback],
 		)
+	}
+	if cfg.SkillCatalogManifest != "" {
+		manifestPath := cascade.ResolveConfiguredPath(
+			cfg.SkillCatalogManifest,
+			paths.Config,
+			paths.Home,
+		)
+		local, err := catalogmanifest.Load(manifestPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		for _, catalog := range local {
+			catalogs = append(catalogs, skillmount.Catalog{Path: catalog.Path})
+		}
+		fmt.Fprintf(stdout, "catalog local=%d\n", len(local))
 	}
 
 	p, err := person.Load()

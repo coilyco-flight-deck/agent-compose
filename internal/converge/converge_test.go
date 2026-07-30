@@ -254,6 +254,106 @@ func TestRemoteHydrationFailurePrecedesCompositionWrites(t *testing.T) {
 	}
 }
 
+func TestConvergeProjectsAOSLocalCatalogueManifest(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: filepath.Join(dir, "projects"),
+		Home:         filepath.Join(dir, "home"),
+	}
+	doctrine := filepath.Join(dir, "doctrine", "AGENTS.COMPOSE.md")
+	if err := os.MkdirAll(filepath.Dir(doctrine), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	first := filepath.Join(dir, "catalogues", "first")
+	second := filepath.Join(dir, "catalogues", "second")
+	writeTestSkill(t, first, "shared", "first")
+	writeTestSkill(t, second, "shared", "second")
+	writeTestSkill(t, second, "aos-only", "aos")
+	manifest := filepath.Join(dir, "catalogues.json")
+	body := `{
+  "format": "aos.catalogues.v1",
+  "catalogues": [
+    {"source": "one/catalogue@main", "path": "` + filepath.ToSlash(first) + `", "commit": "1111111111111111111111111111111111111111"},
+    {"source": "two/catalogue@main", "path": "` + filepath.ToSlash(second) + `", "commit": "2222222222222222222222222222222222222222"}
+  ]
+}
+`
+	if err := os.WriteFile(manifest, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	skillLoadPoint := filepath.Join(dir, "links", "skills")
+	config := "sources:\n  - " + doctrine + "\n" +
+		"skill_catalog_manifest: " + manifest + "\n" +
+		"skill_load_points:\n  codex: " + skillLoadPoint + "\n" +
+		"load_points:\n  claude: null\n  codex: " +
+		filepath.Join(dir, "links", "AGENTS.md") + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	code, out, errOut := run(t, paths)
+	if code != 0 {
+		t.Fatalf("local catalogue converge failed: %s %s", out, errOut)
+	}
+	if !strings.Contains(out, "catalog local=2") {
+		t.Fatalf("local catalogue summary missing: %s", out)
+	}
+	shared, err := os.Readlink(filepath.Join(skillLoadPoint, "shared"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if body := readFile(t, filepath.Join(shared, "SKILL.md")); body != "second" {
+		t.Fatalf("manifest declaration order was not preserved: %q", body)
+	}
+	if _, err := os.Readlink(filepath.Join(skillLoadPoint, "aos-only")); err != nil {
+		t.Fatal("AOS-only skill was not projected")
+	}
+}
+
+func TestBadLocalCatalogueManifestPrecedesCompositionWrites(t *testing.T) {
+	dir := t.TempDir()
+	paths := cascade.Paths{
+		Config:       filepath.Join(dir, "agent-compose.yaml"),
+		Composed:     filepath.Join(dir, "COMPOSED.md"),
+		ProjectsRoot: filepath.Join(dir, "projects"),
+		Home:         filepath.Join(dir, "home"),
+	}
+	doctrine := filepath.Join(dir, "AGENTS.COMPOSE.md")
+	if err := os.WriteFile(doctrine, []byte("# Doctrine\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	manifest := filepath.Join(dir, "catalogues.json")
+	if err := os.WriteFile(
+		manifest,
+		[]byte(`{"format":"aos.catalogues.v2","catalogues":[]}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	config := "sources:\n  - " + doctrine + "\n" +
+		"skill_catalog_manifest: " + manifest + "\n"
+	if err := os.WriteFile(paths.Config, []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, _, errOut := run(t, paths)
+	if code != 1 || !strings.Contains(errOut, "aos.catalogues.v2") {
+		t.Fatalf("bad manifest failure = %d %s", code, errOut)
+	}
+	for _, path := range []string{
+		paths.Composed,
+		filepath.Join(dir, "sources", "personality"),
+	} {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("pre-compose manifest failure wrote %s: %v", path, err)
+		}
+	}
+}
+
 func TestConvergeUsesConfiguredExternalPersonExclusively(t *testing.T) {
 	dir := t.TempDir()
 	paths := cascade.Paths{
