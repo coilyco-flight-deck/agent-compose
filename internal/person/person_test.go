@@ -124,6 +124,29 @@ func TestDesignerRoleSkillAllowsOnlyVisualWebImplementation(t *testing.T) {
 	}
 }
 
+func TestContentRoleSkillAllowsOnlyContentImplementation(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	briefing := strings.Join(strings.Fields(p.Roles["content"].Briefing), " ")
+	for _, required := range []string{
+		"complete product effect is content",
+		"reverting the patch would change only human-facing words or static media",
+		"File extensions and frameworks do not decide the boundary",
+		"literal copy or static content consumed by existing behavior",
+		"documentation, interface copy, CLI help text, verified error wording",
+		"identifiers, commands, flags, structured output, APIs, data contracts",
+		"agent prompts or instructions that determine system behavior",
+		"isolate and land the content-only slice",
+		"does not grant commands, credentials, mounts, network access",
+	} {
+		if !strings.Contains(briefing, required) {
+			t.Errorf("Content Manager role skill omitted %q", required)
+		}
+	}
+}
+
 func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 	for name, files := range map[string]fstest.MapFS{
 		"missing": {},
