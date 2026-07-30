@@ -61,18 +61,14 @@ do not follow the rubric.
 
 ## Scored results
 
-[`evaluations/latest/`](../evaluations/latest/) contains the complete
-independently reviewed v2 baseline. Historical mode remains available for
-rendering archived records without rebinding their immutable pack digests to
-the current Core Roster.
+[`evaluations/latest/`](../evaluations/latest/) contains the independently
+reviewed v2 baseline. Historical mode renders archived records without
+rebinding their pack digests.
 
-V2 records preserve exact model identity, raw responses, criterion evidence,
-totals, verdicts, pack digest, source revision, reviewer, and retry provenance.
-Runner-local paths are replaced with the literal `<evaluation-worktree>` before
-commit so preserved responses stay public-safe without changing substantive
-model output.
-Every listed model must complete its tier's full case set. Frontier role,
-personality, and adjacent-role cases are release gates. OSS failures remain
+V2 records keep exact models, raw responses, scores, evidence, verdicts, pack
+digests, source revisions, reviewers, and retries. Runner-local paths become
+`<evaluation-worktree>` before commit. Every model completes its tier. Frontier
+role, personality, and adjacent-role cases gate release. OSS failures remain
 visible and keep that role and model class unsupported.
 
 ## See also
