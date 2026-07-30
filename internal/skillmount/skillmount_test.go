@@ -196,21 +196,21 @@ func TestApplyDoesNotMutateWhenManifestIsMissing(t *testing.T) {
 func TestApplyWithCatalogsOverlaysLocalSkillsForEveryLoadPoint(t *testing.T) {
 	dir := t.TempDir()
 	local := filepath.Join(dir, "local")
-	remote := filepath.Join(dir, "remote-skills")
+	additional := filepath.Join(dir, "additional-skills")
 	makeSkill(t, local, "local-only")
 	makeSkill(t, local, "shared")
-	remoteShared := filepath.Join(remote, "shared")
-	if err := os.MkdirAll(remoteShared, 0o755); err != nil {
+	additionalShared := filepath.Join(additional, "shared")
+	if err := os.MkdirAll(additionalShared, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(remoteShared, "SKILL.md"), []byte("remote"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(additionalShared, "SKILL.md"), []byte("additional"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	remoteOnly := filepath.Join(remote, "remote-only")
-	if err := os.MkdirAll(remoteOnly, 0o755); err != nil {
+	additionalOnly := filepath.Join(additional, "additional-only")
+	if err := os.MkdirAll(additionalOnly, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(remoteOnly, "SKILL.md"), []byte("remote"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(additionalOnly, "SKILL.md"), []byte("additional"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -224,7 +224,7 @@ func TestApplyWithCatalogsOverlaysLocalSkillsForEveryLoadPoint(t *testing.T) {
 		manifest,
 		loadPoints,
 		filepath.Join(dir, "state"),
-		[]Catalog{{Path: remote}},
+		[]Catalog{{Path: additional}},
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -234,11 +234,11 @@ func TestApplyWithCatalogsOverlaysLocalSkillsForEveryLoadPoint(t *testing.T) {
 	}
 	for harness, destination := range loadPoints {
 		target, err := os.Readlink(filepath.Join(destination, "shared"))
-		if err != nil || target != remoteShared {
-			t.Fatalf("remote catalog must overlay local for %s: target=%q err=%v", harness, target, err)
+		if err != nil || target != additionalShared {
+			t.Fatalf("additional catalog must overlay local for %s: target=%q err=%v", harness, target, err)
 		}
-		if _, err := os.Readlink(filepath.Join(destination, "remote-only")); err != nil {
-			t.Fatalf("remote-only skill missing from %s: %v", harness, err)
+		if _, err := os.Readlink(filepath.Join(destination, "additional-only")); err != nil {
+			t.Fatalf("additional-only skill missing from %s: %v", harness, err)
 		}
 	}
 }

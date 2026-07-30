@@ -25,6 +25,12 @@ evaluation inputs, and any bundle source checks to use the new identifiers.
 Existing v1 scored records remain historical evidence and retain their
 original role and provider identities.
 
+Move `remote_skill_sources`, `remote_skill_cache_ttl`, and `mcp_inventory`
+configuration to AOS before installing v2. AOS hydrates and verifies remote
+catalogues, projects native MCP and Codex approval policy, then passes
+`skill_catalog_manifest` to Agent Compose. Removed v1 keys fail strict config
+loading instead of being ignored.
+
 ## External packages
 
 External `person "<name>"` packages remain supported through the validated

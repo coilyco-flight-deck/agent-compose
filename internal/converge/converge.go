@@ -3,7 +3,6 @@
 package converge
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -11,10 +10,8 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/catalogmanifest"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/remoteskills"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
@@ -41,45 +38,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	ttl, err := cascade.RemoteSkillTTL(cfg)
-	if err != nil {
-		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
-		return 1
-	}
-	remote, err := remoteskills.Hydrate(
-		context.Background(),
-		cfg.RemoteSkillSources,
-		remoteskills.Options{
-			StateDir: filepath.Dir(paths.Config),
-			TTL:      ttl,
-		},
-	)
-	if err != nil {
-		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
-		return 1
-	}
-	catalogs := make([]skillmount.Catalog, 0, len(remote))
-	states := map[remoteskills.State]int{}
-	for _, result := range remote {
-		catalogs = append(catalogs, skillmount.Catalog{Path: result.Catalog.Path})
-		states[result.State]++
-		if result.Warning != "" {
-			fmt.Fprintf(stderr, "agent-compose: warning: %s\n", result.Warning)
-		}
-		if opts.Verbose {
-			fmt.Fprintf(stdout, "remote  %s@%s => %s [%s]\n",
-				result.Source.URL, result.Source.Ref, result.Catalog.Path, result.State)
-		}
-	}
-	if len(remote) > 0 {
-		fmt.Fprintf(stdout, "remote  sources=%d cached=%d hydrated=%d refreshed=%d fallback=%d\n",
-			len(remote),
-			states[remoteskills.StateCached],
-			states[remoteskills.StateHydrated],
-			states[remoteskills.StateRefreshed],
-			states[remoteskills.StateFallback],
-		)
-	}
+	var catalogs []skillmount.Catalog
 	if cfg.SkillCatalogManifest != "" {
 		manifestPath := cascade.ResolveConfiguredPath(
 			cfg.SkillCatalogManifest,
@@ -156,22 +115,5 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "skills  managed=%d load-points=%d verified=%d linked=%d removed=%d preserved=%d\n",
 			skills.Managed, skills.LoadPoints, skills.Verified, skills.Linked, skills.Removed, skills.Skipped)
 	}
-	if cfg.MCPInventory != "" {
-		inventory := cascade.ResolveConfiguredPath(cfg.MCPInventory, paths.Config, paths.Home)
-		result, err := nativemcp.Project(nativemcp.Options{
-			Inventory: inventory,
-			Home:      paths.Home,
-		})
-		if err != nil {
-			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
-			return 1
-		}
-		state := "unchanged"
-		if result.Changed {
-			state = "changed"
-		}
-		fmt.Fprintf(stdout, "mcp     servers=%d state=%s\n", result.Servers, state)
-	}
-
 	return 0
 }

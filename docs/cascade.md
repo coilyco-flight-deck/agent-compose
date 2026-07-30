@@ -59,18 +59,16 @@ directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
 Each harness uses the eligible repository paths already recorded in
 `mount-eligibility.json`, including the default AOS and AOSK roots. A repository
 contributes skills when it contains `.agents/skills`. Defaults compose first,
-then additional eligible repositories in stable order, followed by configured
-remote catalogs in declaration order. Existing unowned entries at a load point
-win. Unavailable entries warn and skip. Other inspection failures remain
-fatal. Agent-compose records its links in
+then additional eligible repositories and AOS-verified local catalogue roots
+in stable order. Existing unowned entries at a load point win. Unavailable
+entries warn and skip. Other inspection failures remain fatal. Agent-compose records its links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still
 match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this
 substrate operation.
 
 `skill_catalog_manifest` projects AOS-verified roots without network work.
-The v1 remote-source compatibility window and local trust contract are in
-[local skill catalogues](local-skill-catalogues.md).
+[Local skill catalogues](local-skill-catalogues.md) define the trust contract.
 
 ## See also
 

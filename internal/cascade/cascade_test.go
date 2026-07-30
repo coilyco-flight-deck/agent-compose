@@ -105,36 +105,16 @@ func TestLoadConfigValidatesPersonPolicy(t *testing.T) {
 	}
 }
 
-func TestLoadConfigParsesAndValidatesRemoteSkillSources(t *testing.T) {
+func TestLoadConfigRejectsRemovedV1IntegrationKeys(t *testing.T) {
 	e := newEnv(t)
-	valid := e.write(t, "remote-valid.yaml", "remote_skill_cache_ttl: 45m\n"+
-		"remote_skill_sources:\n"+
-		"  - owner/catalog/skills@v1\n")
-	cfg, err := LoadConfig(valid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(cfg.RemoteSkillSources) != 1 ||
-		cfg.RemoteSkillSources[0].URL != "https://github.com/owner/catalog.git" ||
-		cfg.RemoteSkillSources[0].Ref != "v1:skills" {
-		t.Fatalf("remote source = %+v", cfg.RemoteSkillSources)
-	}
-	if ttl, err := RemoteSkillTTL(cfg); err != nil || ttl.String() != "45m0s" {
-		t.Fatalf("remote TTL = %s, %v", ttl, err)
-	}
-
 	for name, body := range map[string]string{
-		"mapping form": "remote_skill_sources:\n" +
-			"  - url: https://example.test/catalog.git\n" +
-			"    ref: main\n",
-		"missing revision": "remote_skill_sources:\n  - owner/catalog@\n",
-		"bad path":         "remote_skill_sources:\n  - owner/catalog/../skills@main\n",
-		"bad ttl":          "remote_skill_cache_ttl: soon\n",
-		"negative ttl":     "remote_skill_cache_ttl: -1s\n",
+		"remote sources": "remote_skill_sources:\n  - owner/catalog/skills@v1\n",
+		"remote ttl":     "remote_skill_cache_ttl: 45m\n",
+		"mcp inventory":  "mcp_inventory: /tmp/mcporter.json\n",
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := LoadConfig(e.write(t, name+".yaml", body)); err == nil {
-				t.Fatal("invalid remote skill config passed")
+				t.Fatal("removed v1 key passed strict config loading")
 			}
 		})
 	}

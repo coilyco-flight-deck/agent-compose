@@ -23,7 +23,6 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -152,26 +151,6 @@ func main() {
 						Flags:       []cli.Flag{&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"}}, Action: runCatalogExpressions,
 					},
 				},
-			},
-			{
-				Name:  "mcp",
-				Usage: "project one mcporter inventory into Claude and Codex native MCP registries",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "inventory",
-						Usage:    "canonical mcporter.json source",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:  "home",
-						Usage: "home receiving mcporter and native harness configs",
-					},
-					&cli.BoolFlag{
-						Name:  "check",
-						Usage: "report drift without writing",
-					},
-				},
-				Action: runNativeMCP,
 			},
 			{
 				Name:      "describe",
@@ -593,26 +572,6 @@ func runScorecard(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	return writeScorecard(os.Stdout, raw, cmd.String("out"), cmd.Bool("check"))
-}
-
-func runNativeMCP(_ context.Context, cmd *cli.Command) error {
-	result, err := nativemcp.Project(nativemcp.Options{
-		Inventory: cmd.String("inventory"),
-		Home:      cmd.String("home"),
-		Check:     cmd.Bool("check"),
-	})
-	if err != nil {
-		return err
-	}
-	state := "unchanged"
-	if result.Changed {
-		state = "changed"
-	}
-	fmt.Printf("native-mcp servers=%d state=%s\n", result.Servers, state)
-	if cmd.Bool("check") && result.Changed {
-		return cli.Exit("native MCP projection drift", 1)
-	}
-	return nil
 }
 
 func runOverlay(_ context.Context, cmd *cli.Command) error {

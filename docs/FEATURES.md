@@ -63,7 +63,6 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
-* [Native MCP + approval projection](native-mcp.md).
 
 ## Release
 
