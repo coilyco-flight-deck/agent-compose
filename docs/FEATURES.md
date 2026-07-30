@@ -18,7 +18,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use compact identity cards and compiled fallback. Designer
-  may land visual-only web changes. Content may land content-only code changes.
+  may land bounded page-level web experiences. Content may land content-only
+  code changes.
 * Historical scorecard mode renders preserved v1 results without rebinding.
 
 ## Load-point projection

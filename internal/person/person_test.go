@@ -98,24 +98,31 @@ func TestPortfolioStrategistOwnsPrioritiesWithoutDispatch(t *testing.T) {
 	}
 }
 
-func TestDesignerRoleSkillAllowsOnlyVisualWebImplementation(t *testing.T) {
+func TestDesignerRoleSkillAllowsBoundedPageExperiences(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	briefing := p.Roles["design"].Briefing
+	briefing := strings.Join(strings.Fields(p.Roles["design"].Briefing), " ")
 	for _, required := range []string{
 		"existing graphical web application",
 		"complete product effect is visual presentation",
+		"complete page-level experience",
+		"static or content-driven routes, navigation placement, presentation, accessibility, and page copy",
 		"reverting the patch would change presentation while leaving all non-visual behavior and generated system output unchanged",
+		"reverting the patch would remove or reshape that bounded experience",
 		"File extensions and frameworks do not decide the boundary",
-		"consumes existing props and state",
-		"repository-prescribed formatting, type checks, local UI checks",
-		"event handling, navigation, routing, forms, validation, keyboard behavior, interaction-state logic",
-		"accessibility semantics or behavior beyond preserving the existing contract",
-		"Terminal, CLI, and TUI presentation never activates this exception",
-		"factory simulation, galaxy or world generation, procedural visual systems",
-		"isolate and land the visual-only slice",
+		"file-based routes or focused route declarations whose sole purpose is exposing those pages",
+		"adding, removing, renaming, or reordering their navigation entries",
+		"meaningful page copy, static public data catalogs",
+		"accessibility semantics, focus treatment, ordinary keyboard access",
+		"metadata, Open Graph treatment, empty states, error copy",
+		"focused route, rendering, accessibility, and navigation tests",
+		"Business rules, application state machines, cross-feature interaction logic",
+		"runtime data fetching, APIs, networking, persistence, authentication, permissions, analytics",
+		"stateful forms, validation engines, transactions, workflows, routing-system architecture",
+		"Terminal, CLI, TUI, game, simulation, procedural-generation, infrastructure, deployment, release, and live-operations work",
+		"isolate and land the coherent design-owned slice",
 		"does not grant commands, credentials, mounts, network access, model selection, or executable permission",
 	} {
 		if !strings.Contains(briefing, required) {
