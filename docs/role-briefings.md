@@ -56,11 +56,15 @@ unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
 
-Designer (`design`) owns experience definition everywhere and may implement and land only
-effect-tested visual presentation changes in an existing graphical web
-application. Behavior, semantics, data, generated systems, terminal
-experiences, games, infrastructure, deployment, and live verification remain
-outside that exception.
+Designer (`design`) owns experience definition everywhere and may implement and
+land an effect-tested, bounded page-level experience in an existing graphical
+web application. Static or content-driven pages, focused routes, navigation
+placement, page copy, static public display data, presentation, metadata,
+ordinary accessibility, and focused tests qualify when business rules and
+application data flow stay unchanged. Routing-system architecture, runtime
+data, stateful workflows, terminal experiences, procedural games,
+infrastructure, deployment, release, and live operations remain outside that
+boundary.
 
 Content Manager (`content`) may implement and land content-only repository
 changes, including human-facing literals embedded in code. The exception

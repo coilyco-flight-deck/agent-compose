@@ -350,7 +350,7 @@ func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	}
 }
 
-func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t *testing.T) {
+func TestDesignerPageExperienceBoundaryMatchesNativeAndCompiledDelivery(t *testing.T) {
 	provider := t.TempDir()
 	skillDir := filepath.Join(provider, ".agents", "skills", "fixture")
 	if err := os.MkdirAll(skillDir, 0o755); err != nil {
@@ -404,7 +404,7 @@ func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t 
 				t.Fatal(err)
 			}
 			if !strings.Contains(string(raw), want) {
-				t.Fatalf("%s delivery omitted the canonical Designer boundary:\n%s",
+				t.Fatalf("%s delivery omitted the canonical Designer page-experience boundary:\n%s",
 					delivery, raw)
 			}
 		})
