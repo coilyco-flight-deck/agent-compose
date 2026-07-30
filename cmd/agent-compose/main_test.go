@@ -382,11 +382,11 @@ func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
 	audit := strings.Index(got, "sources:")
 	role := strings.Index(got, "role metadata")
 	personality := strings.Index(got, "personality metadata")
-	if audit < 0 || role < audit || personality < role {
+	if audit < 0 || personality < audit || role < personality {
 		t.Fatalf("native launch summary order is wrong:\n%s", got)
 	}
-	if strings.Contains(got[personality:], "sources:") {
-		t.Fatalf("routine audit followed the personality meld:\n%s", got)
+	if strings.Contains(got[role:], "sources:") {
+		t.Fatalf("routine audit followed the role metadata:\n%s", got)
 	}
 }
 
