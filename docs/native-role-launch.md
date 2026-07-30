@@ -32,9 +32,16 @@ ordered personality meld, ordinary admitted skills, and role-composed skills
 bound to that role. Startup instructions require the harness to read the role
 and meld skills before acting. Another role requires another launch.
 
-Before the harness starts, the launcher renders the same canonical role
-transcript as explicit composition. TTY output uses the melded role color and
-each personality's own color. Redirected output and `NO_COLOR` remain plain.
+Before the harness starts, the launcher prints routine composition status at
+normal speed, then renders the canonical role transcript as the final
+substantive block. When both input and output belong to an interactive terminal,
+`Press Enter to continue` keeps that identity visible until acknowledgement.
+Enter starts the harness. Ctrl-C cancels before launch.
+
+Piped, redirected, and headless launches retain the non-interactive flow. They
+never read stdin or wait for acknowledgement. TTY output uses the melded role
+color and each personality's own color. Redirected output and `NO_COLOR` remain
+plain.
 
 Bare interactive Codex launches also supply an initial prompt asking the active
 Codex seat to introduce itself from the loaded identity card and personality

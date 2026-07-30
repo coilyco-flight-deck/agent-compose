@@ -33,7 +33,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Launch-time refresh
 
-* [Launch](native-role-launch.md) adds color and a Codex intro to assigned role bundles.
+* [Launch](native-role-launch.md) adds color, an Enter gate, and a Codex intro.
 * Refresh uses validated fallback unless `external-only` forbids it.
 
 ## Inspection

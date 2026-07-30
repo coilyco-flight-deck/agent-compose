@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -252,26 +254,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result := &compose.Result{
-		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
-		Resolution: &resolver.Resolution{
-			Request: &schema.Request{
-				Role:       "engineer",
-				ModelClass: schema.ModelClassFrontier,
-				Delivery:   "native-skills",
-			},
-			Personalities: []string{"curious", "grounded", "meticulous"},
-			FavoriteColor: "#90a66a",
-			SourceIDs:     []string{"person:kai", "aos-public"},
-			Person:        p,
-			Decisions: []resolver.Decision{
-				{Outcome: resolver.OutcomeSelected},
-				{Outcome: resolver.OutcomeExcluded},
-				{Outcome: resolver.OutcomeShadowed},
-				{Outcome: resolver.OutcomeDelivered},
-			},
-		},
-	}
+	result := summaryFixture(t, p)
 
 	var output strings.Builder
 	if err := printSummary(&output, result, person.RoleTranscriptOptions{}); err != nil {
@@ -310,6 +293,30 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 	if !strings.Contains(colored.String(), "\x1b[38;2;144;166;106mbundle") {
 		t.Fatalf("summary intro did not use melded truecolor:\n%q", colored.String())
+	}
+}
+
+func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
+	t.Helper()
+	return &compose.Result{
+		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
+		Resolution: &resolver.Resolution{
+			Request: &schema.Request{
+				Role:       "engineer",
+				ModelClass: schema.ModelClassFrontier,
+				Delivery:   "native-skills",
+			},
+			Personalities: []string{"curious", "grounded", "meticulous"},
+			FavoriteColor: "#90a66a",
+			SourceIDs:     []string{"person:kai", "aos-public"},
+			Person:        p,
+			Decisions: []resolver.Decision{
+				{Outcome: resolver.OutcomeSelected},
+				{Outcome: resolver.OutcomeExcluded},
+				{Outcome: resolver.OutcomeShadowed},
+				{Outcome: resolver.OutcomeDelivered},
+			},
+		},
 	}
 }
 
@@ -353,6 +360,126 @@ func TestNativeHarnessCommandDoesNotPromptOtherHarnesses(t *testing.T) {
 	if got, want := nativeHarnessCommand("claude", nil), []string{"claude"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("command = %#v, want %#v", got, want)
 	}
+}
+
+func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
+	t.Parallel()
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := summaryFixture(t, p)
+	var output strings.Builder
+	if err := printNativeLaunchSummary(
+		&output,
+		result,
+		person.RoleTranscriptOptions{},
+		true,
+	); err != nil {
+		t.Fatal(err)
+	}
+	got := output.String()
+	audit := strings.Index(got, "sources:")
+	role := strings.Index(got, "role metadata")
+	personality := strings.Index(got, "personality metadata")
+	if audit < 0 || role < audit || personality < role {
+		t.Fatalf("native launch summary order is wrong:\n%s", got)
+	}
+	if strings.Contains(got[personality:], "sources:") {
+		t.Fatalf("routine audit followed the personality meld:\n%s", got)
+	}
+}
+
+func TestAcknowledgeNativeLaunchWaitsForEnter(t *testing.T) {
+	t.Parallel()
+	input := &enterGateReader{
+		started: make(chan struct{}),
+		release: make(chan struct{}),
+	}
+	var output strings.Builder
+	done := make(chan error, 1)
+	go func() {
+		done <- acknowledgeNativeLaunch(input, &output, true)
+	}()
+	<-input.started
+	if got, want := output.String(), "Press Enter to continue"; got != want {
+		t.Fatalf("visible acknowledgement = %q, want %q", got, want)
+	}
+	select {
+	case err := <-done:
+		t.Fatalf("acknowledgement returned before Enter: %v", err)
+	default:
+	}
+	close(input.release)
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	if got, want := output.String(), "Press Enter to continue\n"; got != want {
+		t.Fatalf("acknowledgement output = %q, want %q", got, want)
+	}
+}
+
+func TestAcknowledgeNativeLaunchSkipsNonInteractiveInput(t *testing.T) {
+	t.Parallel()
+	input := &failReader{err: errors.New("stdin must not be read")}
+	var output strings.Builder
+	if err := acknowledgeNativeLaunch(input, &output, false); err != nil {
+		t.Fatal(err)
+	}
+	if input.reads != 0 || output.Len() != 0 {
+		t.Fatalf("non-interactive acknowledgement touched I/O: reads=%d output=%q",
+			input.reads, output.String())
+	}
+}
+
+func TestAcknowledgeNativeLaunchStopsBeforeExecOnInputFailure(t *testing.T) {
+	t.Parallel()
+	want := errors.New("interrupted")
+	err := acknowledgeNativeLaunch(&failReader{err: want}, io.Discard, true)
+	if !errors.Is(err, want) {
+		t.Fatalf("acknowledgement error = %v, want wrapped interruption", err)
+	}
+}
+
+func TestNativeLaunchInteractiveRejectsPipes(t *testing.T) {
+	t.Parallel()
+	input, inputWriter, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer input.Close()
+	defer inputWriter.Close()
+	output, outputWriter, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer output.Close()
+	defer outputWriter.Close()
+	if nativeLaunchInteractive(input, outputWriter) {
+		t.Fatal("piped input and output were treated as an interactive terminal")
+	}
+}
+
+type failReader struct {
+	err   error
+	reads int
+}
+
+func (r *failReader) Read(_ []byte) (int, error) {
+	r.reads++
+	return 0, r.err
+}
+
+type enterGateReader struct {
+	started chan struct{}
+	release chan struct{}
+}
+
+func (r *enterGateReader) Read(p []byte) (int, error) {
+	close(r.started)
+	<-r.release
+	p[0] = '\n'
+	return 1, nil
 }
 
 func TestPrintVerificationUsesBoundedCounts(t *testing.T) {

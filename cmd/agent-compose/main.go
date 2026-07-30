@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v3"
+	"golang.org/x/term"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
@@ -743,15 +744,32 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	if err := printSummary(os.Stdout, result.Composition, person.RoleTranscriptOptions{
+	interactive := nativeLaunchInteractive(os.Stdin, os.Stdout)
+	summaryOpts := person.RoleTranscriptOptions{
 		Color:     colorEnabled(),
 		TrueColor: trueColorTerminal(),
-	}); err != nil {
-		return err
 	}
 	state := "new"
 	if result.BundleReused {
 		state = "reused"
+	}
+	if interactive {
+		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
+	}
+	if err := printNativeLaunchSummary(
+		os.Stdout,
+		result.Composition,
+		summaryOpts,
+		interactive,
+	); err != nil {
+		return err
+	}
+	if err := acknowledgeNativeLaunch(
+		os.Stdin,
+		os.Stdout,
+		interactive,
+	); err != nil {
+		return err
 	}
 	runtimeHome := strings.TrimSpace(os.Getenv(nativelaunch.EnvRuntimeHome))
 	if err := clearNativeLaunchEnvironment(); err != nil {
@@ -762,8 +780,24 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			return err
 		}
 	}
+	if !interactive {
+		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
+	}
+	return execReal(nativeHarnessCommand(harness, args[2:]))
+}
+
+func nativeLaunchInteractive(input, output *os.File) bool {
+	return term.IsTerminal(int(input.Fd())) && term.IsTerminal(int(output.Fd()))
+}
+
+func printNativeLaunchStatus(
+	w io.Writer,
+	role, harness string,
+	result *nativelaunch.Result,
+	state string,
+) {
 	fmt.Fprintf(
-		os.Stderr,
+		w,
 		"agent-compose: assigned %s to %s (%s %s bundle, %d files)\n",
 		role,
 		harness,
@@ -771,7 +805,32 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		state,
 		result.Projected,
 	)
-	return execReal(nativeHarnessCommand(harness, args[2:]))
+}
+
+func acknowledgeNativeLaunch(
+	input io.Reader,
+	output io.Writer,
+	interactive bool,
+) error {
+	if !interactive {
+		return nil
+	}
+	if _, err := fmt.Fprint(output, "Press Enter to continue"); err != nil {
+		return fmt.Errorf("write native launch acknowledgement: %w", err)
+	}
+	var next [1]byte
+	for {
+		count, err := input.Read(next[:])
+		if count > 0 && next[0] == '\n' {
+			if _, writeErr := fmt.Fprintln(output); writeErr != nil {
+				return fmt.Errorf("finish native launch acknowledgement: %w", writeErr)
+			}
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("read native launch acknowledgement: %w", err)
+		}
+	}
 }
 
 func nativeHarnessCommand(harness string, args []string) []string {
@@ -1189,6 +1248,15 @@ func printSummary(
 	r *compose.Result,
 	opts person.RoleTranscriptOptions,
 ) error {
+	return printNativeLaunchSummary(w, r, opts, false)
+}
+
+func printNativeLaunchSummary(
+	w io.Writer,
+	r *compose.Result,
+	opts person.RoleTranscriptOptions,
+	roleLast bool,
+) error {
 	state := "new"
 	if r.Bundle.Reused {
 		state = "reused"
@@ -1214,13 +1282,21 @@ func printSummary(
 	if err != nil {
 		return err
 	}
-	fmt.Fprint(w, metadata)
-	fmt.Fprintln(w)
-	fmt.Fprintf(w, "sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
-	fmt.Fprintf(w, "decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
+	var audit strings.Builder
+	fmt.Fprintf(&audit, "sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
+	fmt.Fprintf(&audit, "decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
 		counts[resolver.OutcomeSelected], counts[resolver.OutcomeExcluded],
 		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
-	fmt.Fprintf(w, "path: %s\n", r.Bundle.Dir)
-	fmt.Fprintf(w, "trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
+	fmt.Fprintf(&audit, "path: %s\n", r.Bundle.Dir)
+	fmt.Fprintf(&audit, "trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
+	if roleLast {
+		fmt.Fprint(w, audit.String())
+		fmt.Fprintln(w)
+		fmt.Fprint(w, metadata)
+		return nil
+	}
+	fmt.Fprint(w, metadata)
+	fmt.Fprintln(w)
+	fmt.Fprint(w, audit.String())
 	return nil
 }
