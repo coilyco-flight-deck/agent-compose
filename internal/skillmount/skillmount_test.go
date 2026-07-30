@@ -22,7 +22,11 @@ func makeSkill(t *testing.T, repo, name string) string {
 
 func writeEligibility(t *testing.T, path string, defaults []string, harnesses map[string][]string) {
 	t.Helper()
-	raw, err := json.Marshal(eligibility{Defaults: defaults, Harnesses: harnesses})
+	raw, err := json.Marshal(Eligibility{
+		ProjectsRoot: filepath.Dir(path),
+		Defaults:     defaults,
+		Harnesses:    harnesses,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

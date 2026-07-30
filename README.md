@@ -84,10 +84,10 @@ as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
 palette explorer, identity overlay, and four-case behavior evaluation pack.
-Bare `acompose` hydrates configured remote skill catalogs, converges the host,
-and atomically refreshes the selected versioned person snapshot at
-`~/.agent-compose/sources/personality/person.json`.
-`acompose -- <command>` converges context before launching the command.
+Bare `acompose` hydrates remote skills, converges the host, and refreshes the
+versioned person snapshot. `acompose -- <command>` launches with inferred
+context. `acompose <role> <harness>` launches an assigned
+[native role bundle](docs/native-role-launch.md).
 `acompose --reapply` rewrites the generated compose outputs and recreates
 global load-point links even when they are current. `acompose --verbose`
 prints every composition source and load-point file as

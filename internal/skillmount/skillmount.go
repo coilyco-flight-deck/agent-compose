@@ -24,9 +24,10 @@ type sidecar struct {
 	Links []link `json:"links"`
 }
 
-type eligibility struct {
-	Defaults  []string            `json:"defaults"`
-	Harnesses map[string][]string `json:"harnesses"`
+type Eligibility struct {
+	ProjectsRoot string              `json:"projects_root"`
+	Defaults     []string            `json:"defaults"`
+	Harnesses    map[string][]string `json:"harnesses"`
 }
 
 // Catalog is a verified skill root projected to every configured load point.
@@ -62,7 +63,7 @@ func linkKey(destination, name string) string {
 	return filepath.Join(destination, name)
 }
 
-func orderedRepos(manifest eligibility, harness string) []string {
+func (manifest Eligibility) Repositories(harness string) []string {
 	seen := map[string]bool{}
 	repos := make([]string, 0, len(manifest.Defaults)+len(manifest.Harnesses[harness]))
 	for _, repo := range manifest.Defaults {
@@ -80,14 +81,25 @@ func orderedRepos(manifest eligibility, harness string) []string {
 	return repos
 }
 
-func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, []string, error) {
-	raw, err := os.ReadFile(manifestPath)
+func LoadEligibility(path string) (Eligibility, error) {
+	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, nil, fmt.Errorf("read mount eligibility %s: %w", manifestPath, err)
+		return Eligibility{}, fmt.Errorf("read mount eligibility %s: %w", path, err)
 	}
-	var manifest eligibility
+	var manifest Eligibility
 	if err := json.Unmarshal(raw, &manifest); err != nil {
-		return nil, nil, fmt.Errorf("parse mount eligibility %s: %w", manifestPath, err)
+		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: %w", path, err)
+	}
+	if strings.TrimSpace(manifest.ProjectsRoot) == "" {
+		return Eligibility{}, fmt.Errorf("mount eligibility %s names no projects_root", path)
+	}
+	return manifest, nil
+}
+
+func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, []string, error) {
+	manifest, err := LoadEligibility(manifestPath)
+	if err != nil {
+		return nil, nil, err
 	}
 	desired := map[string]link{}
 	destinations := map[string]string{}
@@ -138,7 +150,7 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 			}
 			return nil
 		}
-		for _, repo := range orderedRepos(manifest, harness) {
+		for _, repo := range manifest.Repositories(harness) {
 			if err := addRoot(filepath.Join(repo, ".agents", "skills")); err != nil {
 				return nil, nil, err
 			}

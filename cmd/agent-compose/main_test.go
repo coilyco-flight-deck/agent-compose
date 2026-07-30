@@ -192,6 +192,14 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "--", "claude"},
 			[]string{"acompose", "compose", "--", "claude"},
 		},
+		"acompose role and harness inject launch": {
+			[]string{"acompose", "designer", "codex", "--model", "gpt"},
+			[]string{"acompose", "launch", "designer", "codex", "--model", "gpt"},
+		},
+		"acompose request and layout remain compose": {
+			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
+			[]string{"acompose", "compose", "--layout", "codex", "request.kdl", "--", "codex"},
+		},
 		"windows exe suffix": {
 			[]string{`C:\shims\acompose.exe`, "req.kdl"},
 			[]string{`C:\shims\acompose.exe`, "compose", "req.kdl"},
@@ -287,5 +295,29 @@ func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
 	printVerification(&output, verification)
 	if got, want := output.String(), "bundle verified: 2 skills // 128 files\n"; got != want {
 		t.Fatalf("verification output = %q, want %q", got, want)
+	}
+}
+
+func TestActivateNativeRuntimeHome(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", "old-home")
+	t.Setenv("USERPROFILE", "old-profile")
+	t.Setenv("CODEX_HOME", "old-codex")
+	t.Setenv("XDG_CONFIG_HOME", "old-config")
+	t.Setenv("CLAUDE_CONFIG_DIR", "old-claude")
+
+	if err := activateNativeRuntimeHome(home, "claude"); err != nil {
+		t.Fatal(err)
+	}
+	for name, want := range map[string]string{
+		"HOME":              home,
+		"USERPROFILE":       home,
+		"CODEX_HOME":        filepath.Join(home, ".codex"),
+		"XDG_CONFIG_HOME":   filepath.Join(home, ".config"),
+		"CLAUDE_CONFIG_DIR": filepath.Join(home, ".claude"),
+	} {
+		if got := os.Getenv(name); got != want {
+			t.Errorf("%s = %q, want %q", name, got, want)
+		}
 	}
 }

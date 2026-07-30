@@ -16,6 +16,23 @@ files - so a warm launch is a no-op that validates and execs. The warm path
 runs in single-digit milliseconds on the reference host, well inside the
 250 ms budget the test suite enforces.
 
+The assigned-role shorthand is separate:
+
+```
+acompose <role> <harness> [harness arguments...]
+```
+
+It resolves eligible host providers, selects the complete role bundle, and
+projects through the harness layout before exec. Unlike generic request
+refresh, an assigned-role launch does not fall back to a prior projection.
+Starting with the wrong stale role would violate the caller assignment.
+Launch consumers may pass their model-class decision through
+`AGENT_COMPOSE_MODEL_CLASS`. Agent Compose defaults to `frontier` and clears
+the launch-only variable before handing control to the harness.
+`AGENT_COMPOSE_RUNTIME_HOME` similarly selects a prepared session home. Agent
+Compose switches `HOME`, `CODEX_HOME`, `XDG_CONFIG_HOME`, and Claude's config
+directory only after composition, then clears the control variable.
+
 ## Recursion guard
 
 Launch sets `AGENT_COMPOSE_LAUNCH` in the child environment before exec. A
@@ -55,5 +72,6 @@ surgery, is what prevents recursion. No rollout code lives here.
 ## See also
 
 * [projection.md](projection.md) - the load-point layer launch drives.
+* [native-role-launch.md](native-role-launch.md) - assigned native sessions.
 * [bundle-protocol.md](bundle-protocol.md) - cache identity and atomicity.
 * [architecture.md](architecture.md) - composition inputs and ownership.

@@ -33,7 +33,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Launch-time refresh
 
-* `compose ... -- <command>` refreshes then execs, guarded against recursion.
+* [Launch](native-role-launch.md) supports assigned `acompose <role> <harness>` bundles.
 * Refresh uses validated fallback unless `external-only` forbids it.
 
 ## Inspection

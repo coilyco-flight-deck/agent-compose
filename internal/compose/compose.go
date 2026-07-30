@@ -26,6 +26,12 @@ type Options struct {
 	PersonalityLibraries []string
 }
 
+// RootSource names one trusted provider root selected by a host launcher.
+type RootSource struct {
+	ID   string
+	Root string
+}
+
 type externalOnlyError struct {
 	err error
 }
@@ -87,6 +93,56 @@ func RunWithOptions(requestPath, outDir string, opts Options) (*Result, error) {
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
 	}
+	return materialize(req, p, sources, missing, outDir, externalOnly)
+}
+
+// RunRoots composes trusted absolute provider roots selected by a host
+// launcher without weakening the portable KDL path rules.
+func RunRoots(
+	req *schema.Request,
+	roots []RootSource,
+	outDir string,
+	opts Options,
+) (*Result, error) {
+	hostExternalOnly := opts.PersonPolicy == personpolicy.ExternalOnly
+	if err := personpolicy.Validate(opts.PersonPolicy, opts.PersonSource); err != nil {
+		return nil, wrapPolicyError(err, hostExternalOnly)
+	}
+	p, err := person.Load()
+	if opts.PersonSource != "" {
+		p, err = person.LoadDirectoryWithLibraries(
+			opts.PersonSource,
+			opts.PersonalityLibraries...,
+		)
+	} else if len(opts.PersonalityLibraries) > 0 {
+		err = fmt.Errorf("personality-library requires a selected local person-source")
+	}
+	if err != nil {
+		return nil, wrapPolicyError(err, hostExternalOnly)
+	}
+	sources := make([]*schema.Source, 0, len(roots))
+	for _, root := range roots {
+		source, err := schema.LoadSource(root.Root)
+		if err != nil {
+			return nil, wrapPolicyError(
+				fmt.Errorf("source %q: %w", root.ID, err),
+				hostExternalOnly,
+			)
+		}
+		source.ID = root.ID
+		sources = append(sources, source)
+	}
+	return materialize(req, p, sources, nil, outDir, hostExternalOnly)
+}
+
+func materialize(
+	req *schema.Request,
+	p *person.Person,
+	sources []*schema.Source,
+	missing []schema.MissingSource,
+	outDir string,
+	externalOnly bool,
+) (*Result, error) {
 	res, err := resolver.Resolve(req, p, sources, missing)
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)

@@ -20,6 +20,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
@@ -44,7 +45,20 @@ func dispatchArgs(args []string) []string {
 	if strings.TrimSuffix(base, ".exe") != "acompose" {
 		return args
 	}
+	if len(args) >= 3 && !strings.HasPrefix(args[1], "-") &&
+		nativeHarness(args[2]) {
+		return append([]string{args[0], "launch"}, args[1:]...)
+	}
 	return append([]string{args[0], "compose"}, args[1:]...)
+}
+
+func nativeHarness(value string) bool {
+	switch value {
+	case "claude", "codex", "goose", "opencode":
+		return true
+	default:
+		return false
+	}
 }
 
 func main() {
@@ -93,6 +107,13 @@ func main() {
 					},
 				},
 				Action: runCompose,
+			},
+			{
+				Name:            "launch",
+				Usage:           "launch one native harness with a caller-assigned role bundle",
+				ArgsUsage:       "<role> <harness> [harness arguments...]",
+				SkipFlagParsing: true,
+				Action:          runNativeLaunch,
 			},
 			{
 				Name: "bundle", Usage: "inspect or export verified bundles",
@@ -603,6 +624,122 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 			return err
 		}
 		fmt.Print(rendered)
+	}
+	return nil
+}
+
+func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
+	args := cmd.Args().Slice()
+	if len(args) < 2 {
+		return fmt.Errorf("launch needs <role> <harness> [harness arguments...]")
+	}
+	role := strings.TrimSpace(args[0])
+	harness := strings.TrimSpace(args[1])
+	if !nativeHarness(harness) {
+		return fmt.Errorf(
+			"unsupported native harness %q: want claude, codex, goose, or opencode",
+			harness,
+		)
+	}
+	if os.Getenv(launch.EnvSentinel) != "" {
+		return fmt.Errorf("native role launch cannot start inside another agent-compose launch")
+	}
+	paths := cascade.DefaultPaths()
+	if code := converge.Run(
+		paths,
+		converge.Options{},
+		os.Stdout,
+		os.Stderr,
+	); code != 0 {
+		return cli.Exit("", code)
+	}
+	stateDir, err := home.Dir()
+	if err != nil {
+		return fmt.Errorf("resolve agent-compose state: %w", err)
+	}
+	cwd, err := filepath.Abs(".")
+	if err != nil {
+		return fmt.Errorf("resolve native launch directory: %w", err)
+	}
+	personSelection, err := loadHostPersonOptions(paths)
+	if err != nil {
+		return err
+	}
+	result, err := nativelaunch.Refresh(nativelaunch.Options{
+		Role:            role,
+		Harness:         harness,
+		ModelClass:      os.Getenv(nativelaunch.EnvModelClass),
+		CWD:             cwd,
+		TargetDir:       cwd,
+		ManifestPath:    filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json"),
+		OutDir:          filepath.Join(stateDir, "bundles"),
+		PersonSelection: personSelection,
+	})
+	if err != nil {
+		return err
+	}
+	state := "new"
+	if result.BundleReused {
+		state = "reused"
+	}
+	runtimeHome := strings.TrimSpace(os.Getenv(nativelaunch.EnvRuntimeHome))
+	if err := clearNativeLaunchEnvironment(); err != nil {
+		return err
+	}
+	if runtimeHome != "" {
+		if err := activateNativeRuntimeHome(runtimeHome, harness); err != nil {
+			return err
+		}
+	}
+	fmt.Fprintf(
+		os.Stderr,
+		"agent-compose: assigned %s to %s (%s %s bundle, %d files)\n",
+		role,
+		harness,
+		result.ModelClass,
+		state,
+		result.Projected,
+	)
+	return execReal(append([]string{harness}, args[2:]...))
+}
+
+func clearNativeLaunchEnvironment() error {
+	for _, name := range []string{
+		nativelaunch.EnvModelClass,
+		nativelaunch.EnvRuntimeHome,
+	} {
+		if err := os.Unsetenv(name); err != nil {
+			return fmt.Errorf("clear native launch environment %s: %w", name, err)
+		}
+	}
+	return nil
+}
+
+func activateNativeRuntimeHome(home, harness string) error {
+	absolute, err := filepath.Abs(home)
+	if err != nil {
+		return fmt.Errorf("resolve native runtime home: %w", err)
+	}
+	info, err := os.Stat(absolute)
+	if err != nil {
+		return fmt.Errorf("inspect native runtime home %s: %w", absolute, err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("native runtime home %s is not a directory", absolute)
+	}
+	environment := map[string]string{
+		"HOME":            absolute,
+		"USERPROFILE":     absolute,
+		"CODEX_HOME":      filepath.Join(absolute, ".codex"),
+		"XDG_CONFIG_HOME": filepath.Join(absolute, ".config"),
+	}
+	if harness == "claude" {
+		environment["CLAUDE_CONFIG_DIR"] = filepath.Join(absolute, ".claude")
+	}
+	for name, value := range environment {
+		if err := os.Setenv(name, value); err != nil {
+			return fmt.Errorf("set native runtime environment %s: %w", name, err)
+		}
 	}
 	return nil
 }

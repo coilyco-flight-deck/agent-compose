@@ -70,11 +70,14 @@ state_dir="$fixture_home/.agent-compose"
 projects_dir="$smoke_root/projects"
 provider_dir="$projects_dir/coilyco-flight-deck/agentic-os"
 skill_dir="$provider_dir/.agents/skills/coding-go"
+composed_dir="$provider_dir/.agents/composed/design-method"
 load_points="$smoke_root/load-points"
 fixtures="$smoke_root/fixtures"
 snapshot_dir="$smoke_root/snapshot"
+launch_target="$smoke_root/native-launch"
 
-mkdir -p "$smoke_root/bin" "$state_dir" "$skill_dir" "$load_points" "$fixtures" "$snapshot_dir"
+mkdir -p "$smoke_root/bin" "$state_dir" "$skill_dir" "$composed_dir" \
+  "$load_points" "$fixtures" "$snapshot_dir" "$launch_target"
 
 cat >"$fixtures/AGENTS.COMPOSE.md" <<'EOF'
 # Smoke doctrine
@@ -87,6 +90,28 @@ cat >"$skill_dir/SKILL.md" <<'EOF'
 
 Use Go for the smoke fixture.
 EOF
+
+cat >"$composed_dir/COMPOSED.md" <<'EOF'
+# Design method
+
+Shape the complete interaction before implementation.
+EOF
+
+cat >"$provider_dir/.agents/roles.kdl" <<'EOF'
+roles {
+    role designer {
+        composed-skill design-method
+    }
+}
+EOF
+
+cat >"$smoke_root/bin/codex" <<'EOF'
+#!/bin/sh
+printf 'fake codex'
+printf ' <%s>' "$@"
+printf '\n'
+EOF
+chmod +x "$smoke_root/bin/codex"
 
 cat >"$fixtures/mcporter.json" <<'EOF'
 {"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp"}}}
@@ -199,6 +224,31 @@ assert_unchanged "$mcporter" mcporter
 assert_unchanged "$claude_mcp" claude-mcp
 assert_unchanged "$codex_mcp" codex-mcp
 printf 'smoke: representative artifacts remain byte-stable... ok\n'
+
+role_output="$smoke_root/role-launch.txt"
+if ! (
+  cd "$launch_target"
+  unset AGENT_COMPOSE_LAUNCH
+  env HOME="$native_root/home" USERPROFILE="$native_root/home" \
+    PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
+    "$binary_exec" designer codex --version
+) >"$role_output" 2>&1; then
+  cat "$role_output" >&2
+  fail "assigned native role launch failed"
+fi
+
+assert_contains "$role_output" "agent-compose: assigned designer to codex"
+assert_contains "$role_output" "fake codex <--version>"
+for path in \
+  "$launch_target/AGENTS.md" \
+  "$launch_target/.agents/skills/role-designer/SKILL.md" \
+  "$launch_target/.agents/skills/personality-imaginative/SKILL.md" \
+  "$launch_target/.agents/skills/design-method/SKILL.md"; do
+  assert_file "$path"
+done
+assert_contains "$launch_target/AGENTS.md" 'assigned the `designer` role'
+printf 'smoke: assigned native role and composed skill projection... ok\n'
+show_transcript "native role launch" "$role_output"
 
 third_output="$smoke_root/third.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
