@@ -45,7 +45,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * [Catalogues and export](catalogues-and-export.md) provide rich inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) - guarded person review packs and multi-model baselines.
+* [Evaluation](evaluation.md) has packs, baselines, and [scorecards](evaluation-scorecard.md).
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 

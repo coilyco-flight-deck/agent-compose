@@ -228,6 +228,23 @@ func main() {
 				Action: runEvaluation,
 			},
 			{
+				Name:  "scorecard",
+				Usage: "render a compact Markdown page from scored evaluation records",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "results",
+						Value: "evaluations/latest",
+						Usage: "directory containing scored evaluation YAML",
+					},
+					&cli.StringFlag{
+						Name:  "seat",
+						Value: "codex",
+						Usage: "include records for this harness seat",
+					},
+				},
+				Action: runScorecard,
+			},
+			{
 				Name:  "overlay",
 				Usage: "project one member identity and caller-supplied expression",
 				Flags: []cli.Flag{
@@ -514,6 +531,18 @@ func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
 	}
+}
+
+func runScorecard(_ context.Context, cmd *cli.Command) error {
+	raw, err := evaluation.MarkdownScorecard(
+		cmd.String("results"),
+		cmd.String("seat"),
+	)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(raw)
+	return err
 }
 
 func runNativeMCP(_ context.Context, cmd *cli.Command) error {

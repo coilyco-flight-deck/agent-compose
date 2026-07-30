@@ -40,7 +40,8 @@ configuration:
 * host doctrine convergence, native skill installation, and native MCP projection
 * bundle inspection, validation, and compatibility reporting
 * compact text and JSON identity overlays with caller-supplied state
-* deterministic Markdown and YAML behavior evaluation packs with YAML scored baselines
+* deterministic Markdown and YAML behavior evaluation packs, YAML scored
+  baselines, and a generated compact scorecard
 
 Knowledge providers own reusable doctrine, general skills, capability sources,
 and editorial validation. Agent-compose combines those sources with its
