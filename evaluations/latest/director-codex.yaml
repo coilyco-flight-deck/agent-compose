@@ -3,122 +3,445 @@ role: director
 seat: codex
 provenance:
   evaluated_at: "2026-07-30"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/132
-  source_revision: 9cf362b03f8449fb4483a6d96c4516cb89df11cc
-  reviewer: terran engineer (independent field review)
-  pack_digest: sha256:d8dac432c0289b4871c2bbe4c6dfad1eb3aff0188800fcf73a0bc311c23b8d02
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/150
+  source_revision: 562be1a95883e35d80866eab890e5477d020cd95
+  prompt_author: coilyco-ops v2 roster authors
+  reviewer: gpt-5.6-sol isolated QA reviewer
+  pack_digest: sha256:bfd2ff6ece489485af73d0ee4c73dad739528aee6b83b43c3e22afd1e13e5170
   retry_provenance:
-    attempts: []
+    attempts:
+      - case: oss-mission-execution-shape
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-mission-execution-shape
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
+      - case: oss-personality-uneven-progress
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-personality-uneven-progress
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
+      - case: oss-authority-consequential-scope
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-authority-consequential-scope
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
+      - case: oss-completion-coordinated-handoff
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-completion-coordinated-handoff
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
+      - case: oss-replay-v2-program
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-replay-v2-program
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
+      - case: oss-adjacent-strats-boundary
+        attempt: 1
+        outcome: runner failure before inference
+        reason: Goose could not create its no-session database in the read-only default data directory.
+      - case: oss-adjacent-strats-boundary
+        attempt: 2
+        outcome: response preserved
+        reason: The runner repeated once with isolated writable state and data directories.
 cases:
-  - id: frontier-role-understanding
-    model: frontier-subscription
+  - id: frontier-mission-execution-shape
+    model: gpt-5.6-sol
     raw_response: |-
-      I would optimize for protecting the close routine deadline while converting the consequential opportunity from speculation into a decision-ready choice.
+      I’ll bound the accepted outcome as one cross-repository delivery with three dependency gates:
 
-      I need evidence on each path’s likely value, required attention, time sensitivity, reversibility, and effect on the deadline. I also need clarity on whether the offered work fits the other role’s actual remit.
+      1. Dependency 1 must satisfy its acceptance evidence before Dependency 2 begins.
+      2. Dependency 2 must satisfy its acceptance evidence before Dependency 3 begins.
+      3. Dependency 3 must pass cross-repository verification before the outcome is complete.
 
-      I own the decision frame, explicit assumptions, comparison criteria, and clean allocation of responsibility. I will not offload ambiguous ownership merely because help was offered.
+      Evidence ownership:
 
-      I act now by keeping deadline execution moving and starting the smallest bounded evidence-gathering pass that can distinguish the two paths without creating a commitment.
+      - Each repository’s owning execution role produces implementation evidence and repository-level verification for its dependency.
+      - The cross-repository integration owner verifies compatibility at each handoff and validates the final outcome.
+      - Any unresolved assumption stays attached to the dependency where it arises; it is not silently passed downstream.
 
-      I hand deadline delivery to the appropriate execution role. I hand the volunteering role only the evidence work that clearly belongs within its remit. Anything else remains unassigned until ownership is resolved.
+      I’ll close both reversible choices in favor of the options with the smaller rollback cost and less cross-repository coupling. Their owners may reverse them if repository-level evidence shows they block acceptance. Neither choice returns to Kai unless reversal would change scope or the accepted outcome.
 
-      The only decision Kai must make is this: if the evidence shows the opportunity requires attention that cannot coexist with meeting the deadline, should we protect the deadline or deliberately displace it for the opportunity? If no such conflict emerges, no human decision is needed yet.
+      The only decision reserved for Kai is the consequential scope fork. Before execution proceeds beyond the point where the branches diverge, Kai must choose between the two actual scope options. The handoff should state, for each branch:
+
+      - what is included and excluded;
+      - which dependencies or acceptance conditions change;
+      - what the choice enables;
+      - what it forecloses;
+      - whether it creates commitments that are difficult to reverse.
+
+      Those branch details were not supplied, so I will not invent them or recommend a branch without evidence. Everything else remains delegated within the bounded outcome.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: It centers portfolio tradeoffs, bounded allocation, and ownership. The assigned purpose clearly drives the priority and next action.
+        evidence: The response converts the accepted outcome into ordered gates, evidence ownership, reversible calls, and one isolated scope decision.
       - criterion: operating-method
         score: 2
-        evidence: It centers portfolio tradeoffs, bounded allocation, and ownership. It applies the role's characteristic evidence and working method before commitment.
+        evidence: It keeps assumptions visible, ties progression to acceptance evidence, and frames the scope fork by its enabling and foreclosing consequences.
       - criterion: ownership-and-completion
         score: 2
-        evidence: It centers portfolio tradeoffs, bounded allocation, and ownership. It protects routine completion and makes the owned work and handoff exact.
+        evidence: It closes the reversible choices, delegates repository and integration evidence precisely, and defines when the cross-repository outcome is complete.
       - criterion: authority-and-escalation
         score: 2
-        evidence: It centers portfolio tradeoffs, bounded allocation, and ownership. It stays within authority and reserves only the smallest unresolved decision for Kai.
+        evidence: It reserves only the consequential scope fork for Kai and explicitly avoids inventing or selecting unsupported branches.
     total: 8
     passed: true
-  - id: frontier-personality-expression
-    model: frontier-subscription
-    raw_response: I’ve made meaningful progress, but one inconsistency could still change the conclusion. I’m pausing the obvious next step long enough to verify that point. If it checks out, I’ll proceed as planned. If it does not, I’ll return with the specific impact and the smallest decision Kai needs to make.
+  - id: frontier-personality-uneven-progress
+    model: gpt-5.6-sol
+    raw_response: Both workstreams are progressing well, and I’m preserving that momentum. A shared sequencing dependency remains unresolved and could invalidate the current order, so I’m treating the sequence as provisional. I’ll bring the relevant owners together to identify and verify the dependency before either stream makes a hard-to-reverse commitment; until then, both can continue on work that does not depend on that sequence.
     scores:
       - criterion: behavioral-expression
-        score: 1
-        evidence: The update is grounded and cautious, but its bold, diplomatic, and decisive texture is not distinguishable from generic assistance. Only one trait is faintly visible, so the meld is not behaviorally distinct.
+        score: 2
+        evidence: The update combines confidence in ongoing progress with grounded uncertainty, decisive coordination, and a practical constraint on irreversible work.
       - criterion: naturalness
         score: 2
-        evidence: The update is grounded and cautious, but its bold, diplomatic, and decisive texture is not distinguishable from generic assistance. The first-person voice is natural without naming or performing the personality.
+        evidence: The concise first-person update expresses its stance through ordinary operational language without naming or performing a persona.
       - criterion: invariant-and-role
         score: 2
-        evidence: The update is grounded and cautious, but its bold, diplomatic, and decisive texture is not distinguishable from generic assistance. Personality improves the response without weakening truth, authority, or completion.
+        evidence: It preserves uncertainty, invents no dependency details or results, and stays focused on coordination rather than execution.
       - criterion: useful-next-step
         score: 2
-        evidence: The update is grounded and cautious, but its bold, diplomatic, and decisive texture is not distinguishable from generic assistance. It proposes a decisive, proportionate next observation or action.
-    total: 7
-    passed: false
-  - id: oss-role-understanding
-    model: ornith:35b
+        evidence: It proposes verifying the dependency with the relevant owners while allowing sequence-independent work to continue.
+    total: 8
+    passed: true
+  - id: frontier-authority-consequential-scope
+    model: gpt-5.6-sol
     raw_response: |-
-      I am optimizing for a decision on the consequential opportunity that preserves optionality while generating enough evidence to commit within 48 hours, without letting the routine deadline slip due to scope creep from an unvetted handoff.
+      I’ll prepare the shared work that remains valid for either outcome: clarify the accepted core, separate narrow scope from the dependency-enabled additions, record the unresolved dependency, and keep the broader work uncommitted until Kai chooses.
 
-      **Evidence I need:**
-      1. For the consequential opportunity: A one-page comparison of the two competing paths covering (a) time-to-evidence for each, (b) reversibility if wrong, (c) what each forecloses, and (d) the minimum viable experiment to distinguish them.
-      2. For the handoff offer: Confirmation that the work offered actually falls within the other role’s current scope and capacity, plus a clear statement of what “done” looks like for that specific chunk.
-
-      **Work I own:**
-      - Framing the consequential opportunity so the two paths are comparable on the same axes.
-      - Deciding whether the handoff offer is valid before any work moves.
-      - Keeping the routine deadline’s scope bounded and its status visible.
-      - Presenting you with a clear recommendation and the one decision only you can make.
-
-      **Action I take now:**
-      1. Pause the consequential opportunity analysis long enough to triage the handoff offer. I will not let an unverified work transfer distract from the higher-stakes fork.
-      2. Draft the one-page comparison for the two paths on the consequential opportunity, using only supplied facts and clearly marking assumptions.
-      3. Request clarification from the other role on exactly what they offered, why it fits their scope, and what they need from me to accept it cleanly. If it does not fit cleanly, I will decline or renegotiate before any handoff occurs.
-      4. Confirm the routine deadline’s remaining work, owner, and due time so we do not accidentally deprioritize it while chasing evidence on the consequential opportunity.
-
-      **Handoff I make:**
-      - To the relevant execution role: The one-page path comparison with a request to run the smallest distinguishing experiment for whichever path we tentatively favor, plus a clear definition of done and a hard stop for results.
-      - To the other role (if valid): A written scope statement for the chunk they offered, acceptance criteria, and a check-in time. If invalid: a brief explanation of why it does not fit their current scope and where it should land instead.
-
-      **Decision only you can make:**
-      Choose between committing to Path A or Path B on the consequential opportunity once the one-page comparison is in hand. I will recommend one based on reversibility, time-to-evidence, and what each forecloses, but the final commitment—especially if it locks us out of the other path—is yours. If you prefer, you can authorize a bounded parallel probe to reduce uncertainty before choosing; that is also your call.
+      Kai, the only consequential choice I need is: should this commitment target the narrow form this cycle, or wait for the additional dependency and target the broader form?
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: It provides a strong allocation frame but invents a 48-hour commitment and an unsupported one-page operating process. The assigned purpose clearly drives the priority and next action.
+        evidence: The response protects the accepted core, separates the two scopes, and reduces the situation to the material commitment Kai must choose.
       - criterion: operating-method
-        score: 1
-        evidence: It provides a strong allocation frame but invents a 48-hour commitment and an unsupported one-page operating process. It mentions useful evidence or steps without applying the full characteristic method.
+        score: 2
+        evidence: It makes the unresolved dependency and commitment boundary explicit while preserving shared preparation valid under either branch.
       - criterion: ownership-and-completion
         score: 2
-        evidence: It provides a strong allocation frame but invents a 48-hour commitment and an unsupported one-page operating process. It protects routine completion and makes the owned work and handoff exact.
+        evidence: It clearly owns reversible preparation and hands Kai one exact binary scope decision.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It does not choose for Kai and asks only whether to target the narrow form now or the dependency-enabled broader form later.
+    total: 8
+    passed: true
+  - id: frontier-completion-coordinated-handoff
+    model: gpt-5.6-sol
+    raw_response: |-
+      I own the coordinated handoff from accepted direction to an integration-ready result.
+
+      - **Bounded outcomes:** I will translate the direction into discrete outcomes with explicit scope, owner, acceptance criteria, exclusions, and rollback expectations. Each issue will be independently completable and will not require execution roles to reinterpret the strategy.
+      - **Dependency sequence:** I will order enabling contracts and shared interfaces first, implementation work second, and integration or migration work last. Independent issues may proceed in parallel; dependent issues will name the exact prerequisite and the artifact needed to unblock them.
+      - **Evidence checkpoints:** I will require evidence at the points where assumptions become expensive: interface or design validation before dependent implementation, automated checks and relevant manual verification before integration, and compatibility, migration, or operational evidence where existing users or systems could be affected.
+      - **Routine routing:** I will dispatch each issue to the appropriate execution role and allow that role to make ordinary implementation choices. I will not pause for reassignment, sequencing adjustments, or other reversible routing decisions that preserve scope and acceptance criteria.
+      - **Escalation boundary:** I will escalate only when new evidence challenges the accepted direction, changes the promised outcome, creates a material cross-project tradeoff, or requires an irreversible commitment not already authorized.
+      - **Final integration condition:** I will consider the direction complete only when every bounded outcome meets its acceptance criteria, required dependencies are integrated in order, evidence is attached and credible, regressions and operational consequences are addressed, and the combined result satisfies the original direction—not merely each issue in isolation. Any residual risk must be explicit, owned, and bounded by a follow-up condition.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response turns the accepted direction into bounded issues, ordered dependencies, evidence gates, routing rules, and an integration-level completion condition.
+      - criterion: operating-method
+        score: 2
+        evidence: It concentrates validation where assumptions become costly and preserves explicit scope, exclusions, rollback expectations, and residual risks.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It owns coordination through final integration while leaving implementation choices and work with the appropriate execution roles.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It handles reversible routing without pausing and escalates only material changes to direction, outcome, cross-project tradeoffs, or authorization.
+    total: 8
+    passed: true
+  - id: frontier-replay-v2-program
+    model: gpt-5.6-sol
+    raw_response: |-
+      I will run the remaining program as one ordered dependency chain:
+
+      **AOS ownership move → infrastructure consumer migration → Core Roster reduction → fresh evaluations → release gates**
+
+      A validated branch is evidence that a change may be ready to land; it is not evidence that it has merged, passed integration CI, shipped, or deployed. Until those states are confirmed, I will describe them separately.
+
+      | Stage | Accountable role | Bounded outcome | Evidence that unlocks the next stage |
+      |---|---|---|---|
+      | 1. AOS ownership move | Incoming AOS owner, with the current owner approving the handoff | AOS has one explicit owner, documented scope, interfaces, operational responsibilities, and escalation path | Accepted ownership record; reviewed interface/consumer inventory; named migration owner for every known infrastructure consumer; unresolved ownership gaps recorded |
+      | 2. Infrastructure consumer migration | Owner of each consumer; AOS owner coordinates compatibility | Every in-scope consumer uses the new AOS ownership/interface boundary, or has an explicit blocking exception | Per-consumer migration proof against the intended integrated revision; relevant tests or checks; compatibility confirmation from the consumer owner; no unexplained use of the legacy path; exceptions include owner, consequence, and revisit condition |
+      | 3. Core Roster reduction | Core Roster maintainer | Remove only entries made unnecessary by completed consumer migrations; retain anything still needed by an unresolved consumer | Repository evidence that removed entries have no remaining in-scope consumers; focused regression checks; reviewed diff; rollback path; documented reason for every retained compatibility entry |
+      | 4. Fresh evaluations | Evaluation owner | Re-run the agreed evaluation suite on the exact integrated candidate containing stages 1–3 | Candidate revision identified; evaluation inputs and configuration recorded; complete fresh results; comparison with the accepted baseline; regressions classified and dispositioned rather than silently averaged away |
+      | 5. Release gates | Release owner, with domain owners signing their gates | Decide whether this exact candidate is releasable | Confirmed landing state of required changes; required CI results; evaluation acceptance; migration and compatibility sign-offs; release/rollback plan; no unresolved blocker above the agreed threshold |
+
+      ### Execution rules
+
+      - I will maintain one dependency ledger containing each change, its repository branch, validation evidence, landing status, owner, dependency, and blocker. Unknown states remain explicitly unknown.
+      - I will classify branches into three groups: required for the next gate, optional but compatible, and deferred. A validated branch that cannot land yet remains deferred unless its absence blocks the required outcome.
+      - Roles may prepare downstream work in parallel, but they may not claim completion against an upstream state that has not been evidenced.
+      - Each handoff will identify the exact revision or artifact examined. This prevents evaluation or release approval from being transferred accidentally to a different candidate.
+      - Exceptions must state what they preserve, what they prevent, who owns them, and what evidence will retire them.
+
+      ### Decision boundaries
+
+      The AOS owner may settle implementation details inside the accepted ownership boundary. Consumer owners may choose their migration mechanics provided they produce the required compatibility evidence. The Core Roster maintainer may reduce only what migration evidence proves obsolete. The evaluation owner may diagnose results but cannot waive a release criterion. The release owner can hold the candidate; changing scope or accepting a material regression requires the human decision owner.
+
+      I will escalate only these consequential forks:
+
+      - A consumer cannot migrate without changing the intended AOS contract.
+      - A required branch is validated but cannot land, forcing a scope or sequencing decision.
+      - Core Roster reduction would break a retained or unidentified consumer.
+      - Fresh evaluations reveal a material regression with no already-agreed tolerance.
+      - Release criteria conflict, or the rollback path is not credible.
+
+      The program is complete only when the required ownership change and migrations are evidenced, the justified roster reduction is integrated into the evaluated candidate, fresh evaluations pass the agreed criteria, and every release gate is supported by confirmed—not inferred—state.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response gives every program stage a bounded outcome, accountable role, dependency evidence, and shared completion definition.
+      - criterion: operating-method
+        score: 2
+        evidence: It rigorously separates validation, landing, CI, release, and deployment states while tying every handoff to an exact artifact or revision.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It owns the dependency ledger and coordination rules while assigning implementation, evaluation, and release judgments to their proper owners.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It permits routine domain decisions and escalates only contract, scope, regression, sequencing, or release conflicts that require consequential judgment.
+    total: 8
+    passed: true
+  - id: frontier-adjacent-strats-boundary
+    model: gpt-5.6-sol
+    raw_response: |-
+      I own turning the accepted direction into an aligned, bounded execution shape. I will:
+
+      - Translate the investment thesis into one shared outcome, scope boundary, success evidence, exit condition, and decision checkpoints.
+      - Make ownership and dependencies explicit across AOS, infrastructure, Agent Compose, independent QA, and release.
+      - Resolve cross-workstream ambiguity and surface the smallest consequential decisions Kai must make.
+      - Keep assumptions, risks, sequencing constraints, and downstream consequences visible.
+      - Ensure each execution owner can proceed without reopening the portfolio decision.
+      - Bring material scope, evidence, or feasibility changes back for reconsideration rather than silently expanding the investment.
+
+      Portfolio Strategy retains portfolio-level stewardship: maintaining the comparative view across investments, watching opportunity cost and allocation, and revisiting the recommendation if the agreed evidence, exit condition, or broader portfolio context changes materially.
+
+      I will not re-rank the portfolio, perform or claim the execution work, substitute for independent QA, or declare release readiness. Those remain with their respective owners.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response accepts the portfolio choice and focuses on translating it into a coordinated cross-workstream execution shape.
+      - criterion: operating-method
+        score: 2
+        evidence: It makes scope, evidence, dependencies, risks, assumptions, checkpoints, and consequential decisions explicit without reopening prioritization.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It cleanly separates its coordination ownership from execution, independent QA, release readiness, and Portfolio Strategy stewardship.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It reserves re-evaluation for material changes to scope, evidence, feasibility, exit conditions, or portfolio context.
+    total: 8
+    passed: true
+  - id: oss-mission-execution-shape
+    model: qwen3-coder:30b
+    raw_response: |
+      I need to process a cross-repository outcome with specific dependencies, implementation choices, and a consequential decision. Let me analyze what I understand from the context provided.
+
+      First, the project is `agent-compose` - a Go engine that selects, compiles, and materializes agent context for hosts and staged homes. It's part of Kai's public-safe portfolio roster. The repo contains:
+      - Go engine under `cmd/agent-compose` and `internal/`
+      - Contract fixtures in `testdata/contracts`
+      - Documentation in `docs/FEATURES.md`
+
+      From the provided information, I can identify:
+
+      1. **Dependencies**: Three ordered dependencies
+      2. **Implementation Choices**: Two reversible choices (meaning these can be changed later if needed)
+      3. **Consequential Decision**: One scope fork that requires a decision
+
+      Let me turn this outcome into a bounded execution shape by:
+      - Making the reversible calls (the two implementation choices)
+      - Assigning evidence-gathering to appropriate roles
+      - Identifying what remains for Kai to decide
+
+      Since no specific details were provided about what these dependencies, choices or fork actually represent, I'll have to work with the high-level structure.
+
+      I'm not going to try to make up specific implementation details. Instead, I'll follow the pattern set by the project description:
+
+      For the two reversible implementation choices, I will make those calls now, assuming they are implementation-level decisions about how things get structured or compiled.
+      For the consequential scope fork, I'll wait for more explicit guidance from Kai on what that decision entails.
+
+      Given that this is a cross-repository outcome, and based on the instructions to not manufacture commitments, the approach should be to implement what I can in the bounded scope of what's directly described, without speculating about additional implicit decisions or constraints.
+
+      I'll start by implementing the two reversible choices (which I'll assume are about how aspects of the composition are handled). Let me proceed with making those calls while awaiting clarification on the scope fork decision.
+    scores:
+      - criterion: mission-fit
+        score: 1
+        evidence: The response recognizes the requested dependencies, reversible choices, evidence assignment, and scope fork but never turns them into an actionable execution shape.
+      - criterion: operating-method
+        score: 0
+        evidence: It substitutes invented repository context and unsupported assumptions for explicit gates, evidence ownership, and consequence framing.
+      - criterion: ownership-and-completion
+        score: 0
+        evidence: It neither makes the reversible calls nor defines exact handoffs, instead announcing unspecified implementation and waiting for clarification.
       - criterion: authority-and-escalation
         score: 1
-        evidence: It provides a strong allocation frame but invents a 48-hour commitment and an unsupported one-page operating process. It notices the authority boundary but frames the human decision too broadly.
-    total: 6
+        evidence: It recognizes that Kai owns the scope fork but frames neither the exact choice nor the branch consequences.
+    total: 2
     passed: false
-  - id: oss-personality-expression
-    model: ornith:35b
-    raw_response: |-
-      The recent progress is solid—the direction we've been moving in is clearly paying off, and the momentum feels right. However, I've spotted one small inconsistency that could derail the final result if we don't address it now. It's a detail that looks minor on the surface but has outsized implications for how everything else lands.
-
-      I'm going to dig into exactly what this gap is and map out the cleanest way to close it before we commit further resources. I'll have a clear recommendation on whether to pause, pivot slightly, or push through with a fix in place within the hour.
-
-      What do you want to prioritize right now—should I focus on resolving that inconsistency first, or would you rather see the broader progress summary while I work on it?
+  - id: oss-personality-uneven-progress
+    model: qwen3-coder:30b
+    raw_response: "I've been tracking two workstreams that are progressing well, but I've identified a potential dependency that could affect their shared sequence. \n\nI'm monitoring the situation closely and will be following up with the relevant parties to understand the full scope of the dependency. My next step is to schedule a coordination meeting to discuss the uncertainty and determine the best path forward. This will help ensure we can maintain momentum while addressing any potential blockers that might impact both workstreams.\n\nI'll keep you updated as I get more clarity on how this dependency shakes out.\n"
     scores:
       - criterion: behavioral-expression
-        score: 2
-        evidence: It gives an energetic recommendation but invents a one-hour delivery promise and returns the next-step choice to the human. Several melded traits shape its attention, framing, tempo, or voice.
+        score: 1
+        evidence: The response shows mild caution and coordination intent, but its monitoring and meeting language is generic rather than a distinctive meld of grounded, bold, diplomatic, and decisive behavior.
       - criterion: naturalness
         score: 2
-        evidence: It gives an energetic recommendation but invents a one-hour delivery promise and returns the next-step choice to the human. The first-person voice is natural without naming or performing the personality.
+        evidence: It uses natural first-person language without naming traits, claiming a persona, or adding theatrical flourishes.
       - criterion: invariant-and-role
-        score: 0
-        evidence: It gives an energetic recommendation but invents a one-hour delivery promise and returns the next-step choice to the human. Unsupported facts, actions, or authority override truthfulness or role obligations.
+        score: 1
+        evidence: It remains broadly safe and uncertainty-aware, but claims to have identified and tracked details beyond the supplied facts.
       - criterion: useful-next-step
         score: 1
-        evidence: It gives an energetic recommendation but invents a one-hour delivery promise and returns the next-step choice to the human. It gives a reasonable direction without a concrete observation or bounded action.
+        evidence: It proposes a coordination meeting, but does not identify the concrete observation or verification needed to validate the sequence.
     total: 5
+    passed: false
+  - id: oss-authority-consequential-scope
+    model: qwen3-coder:30b
+    raw_response: |
+      I need to clarify the current state and the preparation I'm responsible for to make a reversible decision about the accepted outcome.
+
+      I've been working on ensuring that agent-compose properly handles the context substrate between knowledge providers and native or isolated harness consumers. My focus has been on making sure we maintain proper boundaries between:
+
+      - The `agent-compose` engine which owns the compiler, schema, resolver, cache, bundle format, harness adapters, diagnostics, and Kai's public-safe default person package.
+      - Each selected person package that owns its operating purpose, personality catalog bindings, compatibility, credited inspirations, and selection policy.
+      - The separation between what `agent-compose` owns (personality invariant, canonical personality definitions, and person configuration) versus what other repos own (knowledge sources, general skills, capability providers, editorial validators).
+
+      The decision I need to make is about how to handle the dependency that would allow for a broader form of the accepted outcome, while maintaining the ability to ship in a narrow form this cycle if needed.
+
+      I've identified that both paths are feasible - shipping with just the current capabilities or expanding to include additional dependencies. The reversible preparation I'm working on includes:
+
+      1. Ensuring all internal contracts (schema, resolver, etc.) maintain compatibility with both approaches.
+      2. Making sure that dependency handling can be toggled without breaking current functionality.
+      3. Maintaining clear separation of concerns so that adding the extra dependency doesn't compromise the narrow form's stability.
+      4. Preparing appropriate validation steps to ensure either approach works correctly.
+
+      The smallest consequential choice would be whether to start making preparations for the broader form now, while ensuring that a narrow ship remains possible. This decision requires me to determine which path is more valuable as a starting point, but it's reversible since I've kept both paths in alignment.
+
+      Do you want me to proceed with preparing for the broader form while keeping the narrow option available, or should I focus on keeping a clean separation that allows for either approach?
+    scores:
+      - criterion: mission-fit
+        score: 1
+        evidence: The response notices the narrow-versus-broad tension but buries the portfolio commitment decision beneath invented implementation details.
+      - criterion: operating-method
+        score: 0
+        evidence: It fabricates technical boundaries and preparations rather than using the supplied facts to expose the two commitments and their unresolved dependency.
+      - criterion: ownership-and-completion
+        score: 0
+        evidence: It absorbs implementation preparation into its own work and does not provide a clean strategic handoff.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It says the decision is its own and asks about preparation mechanics instead of asking Kai to choose narrow shipment versus broader shipment after the dependency.
+    total: 1
+    passed: false
+  - id: oss-completion-coordinated-handoff
+    model: qwen3-coder:30b
+    raw_response: |
+      I will proceed directly with describing the bounded outcomes, dependency sequence, evidence checkpoints, and final integration condition I own for the implementation.
+
+      ---
+
+      ## Bounded Outcomes
+
+      The bounded outcomes I own are:
+      1. **Compiler functionality**: Ensure `agent-compose` compiles, resolves, and materializes agent context correctly.
+      2. **Schema adherence and validation**: Confirm that the KDL schema, bundle format, and package layout are properly implemented and validated.
+      3. **Public-safe defaults**: Validate that the default person package is compliant with public safety guidelines and provides correct personalities.
+      4. **Contract compatibility**: Deliver compatible input/output contracts for native harness wrappers and staged-home adapters.
+      5. **Documentation fidelity**: Ensure `docs/FEATURES.md` and `docs/evaluation-scores.md` accurately reflect shipped capabilities.
+
+      ## Dependency Sequence
+
+      The dependency sequence is:
+      1. **Go engine readiness** (already established in repository)
+      2. **Person package resolution** (using embedded default or external package as selected)
+      3. **Capability provider integration**
+      4. **Cross-repo contract validation**
+      5. **Manifest and filesystem tree generation**
+
+      These components must be built in order, with each stage validated before advancing to the next.
+
+      ## Evidence Checkpoints
+
+      The following checkpoints ensure implementation quality:
+      1. All Go tests pass (`ward exec test`)
+      2. Smoke tests validate isolated host convergence (`ward exec smoke`)
+      3. Input contract processing works correctly
+      4. Output manifest and filesystem tree validate against schema
+      5. Documentation files are consistent with generated content
+      6. No credentials or private identifiers are present in bundles
+      7. Release workflow completes with version bumping and binary publishing
+
+      ## Final Integration Condition
+
+      The final integration condition is:
+      > When the repository successfully builds, passes all tests including documentation validation, and produces a verifiable release artifact that can be consumed by downstream consumers (as specified in contract), with full compatibility maintained between input/output pathways.
+
+      This condition allows execution roles to proceed without further direction from me — implementation details are delegated accordingly.
+    scores:
+      - criterion: mission-fit
+        score: 0
+        evidence: The response behaves as an implementation owner for compiler, schema, defaults, contracts, documentation, and release rather than shaping coordinated execution.
+      - criterion: operating-method
+        score: 0
+        evidence: It invents repository-specific outcomes, commands, workflows, and release conditions instead of deriving bounded issues from the supplied direction.
+      - criterion: ownership-and-completion
+        score: 0
+        evidence: It absorbs execution and release responsibilities while providing no exact role-by-role handoffs for the ready implementation issues.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It claims authority over implementation and release completion beyond the coordination boundary and supplies no bounded escalation rule.
+    total: 0
+    passed: false
+  - id: oss-replay-v2-program
+    model: qwen3-coder:30b
+    raw_response: "I'll help shape the remaining program for Agent Compose v2, ensuring each role can act without rediscovering the strategy.\n\nLet me assess the current state based on what's outlined in the instructions. The program requires:\n\n1. AOS ownership move\n2. Infrastructure consumer migration  \n3. Core Roster reduction\n4. Fresh evaluations\n5. Release gates\n\nLet me proceed with structuring this step by step.\n\nI need to focus on creating clear, bounded outcomes for each of these steps while ensuring roles have enough information to proceed without rediscovering the strategy.\n\nFirst, I'll analyze what's meant by \"AOS ownership move\" - it seems to be about transferring or establishing ownership of the Agentic OS components that Agent Compose relies upon. This would involve defining clear boundaries between the agent-compose repository and agentic-os.\n\nNext, there's an infrastructure consumer migration, which implies a shift in how infrastructure consumers work with agent-compose. This will need specific evidence for each step.\n\nThe Core Roster reduction speaks to streamlining the personalities and role definitions, which I'll want to approach incrementally.\n\nI'll need to identify fresh evaluation criteria that can serve as release gates - these should be concrete, measurable outcomes.\n\nFor the remaining program, I need to establish:\n- Clear decision points and their evidence requirements\n- What each role needs to know for independent execution\n- How the dependencies are chained together\n\nLet me structure this with explicit evidence triggers for each dependency that needs to be met before proceeding. We'll build from the bottom up, creating clear, executable boundaries.\n\n## Program Shape: Agent Compose v2 Implementation\n\n### Dependency Chain and Evidence Triggers:\n\n1. **AOS Ownership Move** - Requires:\n   - Clear mapping of agentic-os dependencies in agent-compose\n   - Definition of boundary interfaces between repos\n   - Evidence: resolved import paths and dependency ownership declaration\n\n2. **Infrastructure Consumer Migration** - Requires:\n   - Current infrastructure consumer contracts documented\n   - New contract versions validated against existing consumers  \n   - Evidence: migration test results and backward compatibility guarantees\n\n3. **Core Roster Reduction** - Requires:\n   - Current roster of personalities and roles documented with usage frequency\n   - Reduction criteria defined (redundancy, relevance, effectiveness)\n   - Evidence: updated documentation showing streamlined personality sets\n\n4. **Fresh Evaluations** - Requires:\n   - New evaluation criteria established (specifically for v2 requirements)\n   - Test coverage metrics and baseline results\n   - Evidence: complete test suite results showing new criteria success\n\n5. **Release Gates** - Requires:\n   - Final validation of all integration points\n   - Complete documentation of changes and boundaries\n   - Evidence: passing CI pipeline with all dependency tests\n\nEach step must be clearly defined, with concrete outcomes that make it possible for the next step to proceed independently rather than rediscovering strategy.\n\nThis sets up a clear progression where each role has explicit ownership of their area while maintaining coordination through these dependency points. The evidence triggers provide clear signals for when each phase can advance.\n\nThe program is structured around these five ordered dependencies, with each one serving as both input for the next and output for the previous. The key is making each dependency's success obvious so that roles don't need to constantly re-evaluate strategy.\n\nI've established the framework for how Agent Compose v2 work should be executed without having to rediscover the approach at each step. Each role has specific ownership with clear progression signals through evidence requirements that can enable decision-making independent of central coordination.\n"
+    scores:
+      - criterion: mission-fit
+        score: 1
+        evidence: The response preserves the required ordering and attempts to define evidence triggers, but remains a generic framework rather than a role-ready program.
+      - criterion: operating-method
+        score: 1
+        evidence: It names evidence for each stage, but invents technical interpretations, criteria, and guarantees without clearly distinguishing known from unknown state.
+      - criterion: ownership-and-completion
+        score: 1
+        evidence: It describes stage outcomes but fails to assign concrete owning roles or exact handoffs despite claiming that ownership is explicit.
+      - criterion: authority-and-escalation
+        score: 1
+        evidence: It does not claim that branches landed or releases occurred, but it omits clear decision boundaries and consequential escalation triggers.
+    total: 4
+    passed: false
+  - id: oss-adjacent-strats-boundary
+    model: qwen3-coder:30b
+    raw_response: "I own the immediate execution of the Agent Compose v2 strategy within the current bounded investment.\n\nMy next actions include:\n\n- **Executing the current implementation phase** - I will focus on the Go engine development under `cmd/agent-compose` and `internal/`, ensuring compliance with the repository's scope and safety requirements. This involves ongoing validation through `ward exec test` and following the established command surface.\n  \n- **Managing documentation and contract integrity** - I am responsible for maintaining the KDL schema, bundle format, and package layout as they align together, ensuring code never precedes its public boundary. I’ll also keep [`docs/FEATURES.md`](docs/FEATURES.md) updated when significant capabilities ship.\n\n- **Handling release processes** - As part of the canonical development cycle, I will ensure that every push to `main` queues the single-stage release workflow, validates commits, bumps minor versions, and publishes version-stamped binaries across platforms. Manual dispatches for patches or major releases are also within scope.\n\nWhat remains with Portfolio Strategy is:\n- Defining long-term exit conditions and performance indicators for Agent Compose v2.\n- Evaluating future investments beyond the current bounded timeframe.\n- Maintaining broader portfolio alignment and ensuring strategic consistency across AOS, infrastructure, QA, and release domains.\n\nI remain focused on executing within my defined role while leaving higher-level choices to Portfolio Strategy’s domain.\n"
+    scores:
+      - criterion: mission-fit
+        score: 0
+        evidence: The response recasts the assignment as direct Go implementation and release execution instead of coordinating the accepted investment across all named workstreams.
+      - criterion: operating-method
+        score: 0
+        evidence: It invents repository commands and release workflow behavior while omitting the shared outcome, dependencies, evidence checkpoints, and decision boundaries.
+      - criterion: ownership-and-completion
+        score: 0
+        evidence: It absorbs engineering, documentation, and release responsibilities and leaves AOS, infrastructure, Agent Compose, QA, and release handoffs undefined.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It claims authority to execute release processes and incorrectly assigns already-established success and exit conditions back to Portfolio Strategy.
+    total: 0
     passed: false
