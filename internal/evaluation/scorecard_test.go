@@ -68,3 +68,35 @@ func TestMarkdownScorecardRequiresSelectedResults(t *testing.T) {
 		t.Fatalf("empty scorecard error = %v", err)
 	}
 }
+
+func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Format = ResultFormatV2
+	result.Provenance.PackDigest = "sha256:historical-fixture"
+	raw, err := marshalYAML(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "engineer-codex.yaml"), raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	scorecard, err := MarkdownHistoricalScorecard(root, "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"| role | FR | FP | FA | OR | OP | OA | Σ |",
+		"| engineer | 32/32✓ | 8✓ | 8✓ | 32/32✓ | 8✓ | 8✓ | 96/96 |",
+	} {
+		if !strings.Contains(string(scorecard), want) {
+			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)
+		}
+	}
+}

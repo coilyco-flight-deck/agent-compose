@@ -34,10 +34,10 @@ commands:
     run: pre-commit run --all-files
     description: Run the complete pre-commit suite explicitly.
   evaluation-scorecard:
-    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --historical
     description: Refresh the committed compact scorecard from validated evaluation records.
   evaluation-scorecard-check:
-    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --check
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --historical --check
     description: Fail when the committed evaluation scorecard is stale.
   evaluation-packs:
     run: sh scripts/render-evaluation-packs.sh
