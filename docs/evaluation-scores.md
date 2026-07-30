@@ -2,22 +2,17 @@
 
 # Evaluation scorecard
 
-`2026-07-30 · seat codex · 28/52 pass · 330/416 points`
+`2026-07-30 · seat codex · F gpt-5.6-sol · O qwen3-coder:30b · 48/96 pass · 530/768 points`
 
-| role | F model | O model | FR | FP | OR | OP | Σ |
-|---|---|---|---:|---:|---:|---:|---:|
-| advisor | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 5× | 24/32 |
-| ceo | frontier-subscription | ornith:35b | 8✓ | 8✓ | 7✓ | 6× | 29/32 |
-| community | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 7× | 26/32 |
-| customer-success | frontier-subscription | ornith:35b | 8✓ | 8✓ | 4× | 7× | 27/32 |
-| designer | frontier-subscription | agent-proxy:designer/design-production | 8✓ | 8✓ | 7✓ | 8✓ | 31/32 |
-| director | frontier-subscription | ornith:35b | 8✓ | 7× | 6× | 5× | 26/32 |
-| engineer | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 3× | 22/32 |
-| ops | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 2× | 21/32 |
-| pm | frontier-subscription | ornith:35b | 8✓ | 7× | 7✓ | 5× | 27/32 |
-| qa | frontier-subscription | ornith:35b | 8✓ | 8✓ | 2× | 8✓ | 26/32 |
-| sales | frontier-subscription | ornith:35b | 8✓ | 8✓ | 4× | 2× | 22/32 |
-| social | frontier-subscription | ornith:35b | 8✓ | 7× | 5× | 5× | 25/32 |
-| technical-writer | frontier-subscription | ornith:35b | 8✓ | 8✓ | 6× | 2× | 24/32 |
+| role | FR | FP | FA | OR | OP | OA | Σ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| community | 31/32✓ | 8✓ | 8✓ | 14/32× | 4× | 4× | 69/96 |
+| content | 32/32✓ | 8✓ | 16/16✓ | 9/32× | 2× | 4/16× | 71/112 |
+| design | 32/32✓ | 8✓ | 8✓ | 5/32× | 5× | 2× | 60/96 |
+| director | 32/32✓ | 8✓ | 8✓ | 7/32× | 5× | 0× | 60/96 |
+| engineer | 32/32✓ | 8✓ | 8✓ | 15/32× | 7× | 0× | 70/96 |
+| ops | 32/32✓ | 8✓ | 8✓ | 15/32× | 6× | 1× | 70/96 |
+| qa | 32/32✓ | 8✓ | - | 18/32× | 6× | - | 64/80 |
+| strats | 32/32✓ | 8✓ | 8✓ | 9/32× | 3× | 6× | 66/96 |
 
-`F` frontier · `O` OSS · `R` role · `P` personality · `✓` pass · `×` fail. Cells are points out of 8.
+`F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination · `✓` pass · `×` fail. Cells are points.
