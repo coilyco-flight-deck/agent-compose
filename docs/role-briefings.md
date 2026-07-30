@@ -62,6 +62,11 @@ application. Behavior, semantics, data, generated systems, terminal
 experiences, games, infrastructure, deployment, and live verification remain
 outside that exception.
 
+Content Manager (`content`) may implement and land content-only repository
+changes, including human-facing literals embedded in code. The exception
+requires unchanged control flow, state, schemas, structured contracts, and
+executable behavior. Mixed content and behavior returns to Engineer.
+
 ## See also
 
 * [native-adaptation.md](native-adaptation.md) - inference and switching rules.
