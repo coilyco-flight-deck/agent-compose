@@ -40,7 +40,10 @@ role launch inside its leased native workspace and supplies a shadow home
 before invoking `agent-compose launch`. The shadow preserves native host state
 but omits the host user-skill mount, so inactive role and personality skills do
 not re-enter the session. System and plugin skills remain harness-owned. No
-container is involved.
+container is involved. When the shadow links an existing Codex state directory,
+Agent Compose resolves that link before setting `CODEX_HOME`. Codex therefore
+keeps one canonical identity for persisted hook trust while `HOME` remains
+isolated to the session.
 
 The direct long form projects into the current directory using Agent Compose's
 transactional sidecar rules. A consumer that permits concurrent sessions

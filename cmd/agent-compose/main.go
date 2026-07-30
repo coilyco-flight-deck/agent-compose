@@ -790,10 +790,18 @@ func activateNativeRuntimeHome(home, harness string) error {
 	if !info.IsDir() {
 		return fmt.Errorf("native runtime home %s is not a directory", absolute)
 	}
+	codexHome := filepath.Join(absolute, ".codex")
+	if harness == "codex" {
+		if resolved, err := filepath.EvalSymlinks(codexHome); err == nil {
+			codexHome = resolved
+		} else if !os.IsNotExist(err) {
+			return fmt.Errorf("resolve native Codex home %s: %w", codexHome, err)
+		}
+	}
 	environment := map[string]string{
 		"HOME":            absolute,
 		"USERPROFILE":     absolute,
-		"CODEX_HOME":      filepath.Join(absolute, ".codex"),
+		"CODEX_HOME":      codexHome,
 		"XDG_CONFIG_HOME": filepath.Join(absolute, ".config"),
 	}
 	if harness == "claude" {

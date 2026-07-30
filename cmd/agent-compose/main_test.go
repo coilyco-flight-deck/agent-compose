@@ -353,3 +353,29 @@ func TestActivateNativeRuntimeHome(t *testing.T) {
 		}
 	}
 }
+
+func TestActivateNativeRuntimeHomePreservesCanonicalCodexState(t *testing.T) {
+	hostCodexHome := filepath.Join(t.TempDir(), ".codex")
+	if err := os.MkdirAll(hostCodexHome, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	hostCodexHome, err := filepath.EvalSymlinks(hostCodexHome)
+	if err != nil {
+		t.Fatal(err)
+	}
+	home := t.TempDir()
+	if err := os.Symlink(hostCodexHome, filepath.Join(home, ".codex")); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := activateNativeRuntimeHome(home, "codex"); err != nil {
+		t.Fatal(err)
+	}
+
+	if got := os.Getenv("CODEX_HOME"); got != hostCodexHome {
+		t.Fatalf("CODEX_HOME = %q, want canonical host state %q", got, hostCodexHome)
+	}
+	if got := os.Getenv("HOME"); got != home {
+		t.Fatalf("HOME = %q, want isolated runtime home %q", got, home)
+	}
+}
