@@ -34,8 +34,11 @@ commands:
     run: pre-commit run --all-files
     description: Run the complete pre-commit suite explicitly.
   evaluation-scorecard:
-    run: go run ./cmd/agent-compose scorecard --results evaluations/latest
-    description: Render the compact Markdown scorecard from validated evaluation records.
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md
+    description: Refresh the committed compact scorecard from validated evaluation records.
+  evaluation-scorecard-check:
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --check
+    description: Fail when the committed evaluation scorecard is stale.
   palette-build:
     run: sh scripts/palette-web.sh build
     description: Generate canonical palette data and build the local explorer.

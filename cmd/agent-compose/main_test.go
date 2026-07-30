@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -36,6 +37,37 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	}
 	if _, err := evaluationOutput(pack, "json"); err == nil {
 		t.Fatal("legacy JSON evaluation output remains accepted")
+	}
+}
+
+func TestWriteScorecardSupportsOutputAndFreshnessCheck(t *testing.T) {
+	t.Parallel()
+	raw := []byte("# scorecard\n")
+	var stdout bytes.Buffer
+	if err := writeScorecard(&stdout, raw, "", false); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(stdout.Bytes(), raw) {
+		t.Fatalf("scorecard stdout = %q", stdout.Bytes())
+	}
+
+	output := filepath.Join(t.TempDir(), "SCORECARD.md")
+	if err := writeScorecard(&stdout, raw, output, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeScorecard(&stdout, raw, output, true); err != nil {
+		t.Fatalf("fresh scorecard failed check: %v", err)
+	}
+	if err := os.WriteFile(output, []byte("stale\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeScorecard(&stdout, raw, output, true); err == nil ||
+		!strings.Contains(err.Error(), "stale") {
+		t.Fatalf("stale scorecard error = %v", err)
+	}
+	if err := writeScorecard(&stdout, raw, "", true); err == nil ||
+		!strings.Contains(err.Error(), "requires --out") {
+		t.Fatalf("missing output check error = %v", err)
 	}
 }
 

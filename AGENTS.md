@@ -93,9 +93,10 @@ public-safe role, personality, and inspiration policy is first-class product
 content. Do not generalize it prematurely, copy ordinary AOS skills into this
 repo, or allow personality to alter truthfulness, authority, safety, rollback,
 or completion.
-Generated bundles and rendered references stay uncommitted. Update
-[`docs/FEATURES.md`](docs/FEATURES.md) only when a significant capability
-actually ships.
+Generated bundles and rendered references stay uncommitted, except the
+renderer-verified [`docs/evaluation-scores.md`](docs/evaluation-scores.md).
+Update [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant
+capability actually ships.
 
 ## See also
 

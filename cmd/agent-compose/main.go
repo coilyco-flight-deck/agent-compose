@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -240,6 +241,14 @@ func main() {
 						Name:  "seat",
 						Value: "codex",
 						Usage: "include records for this harness seat",
+					},
+					&cli.StringFlag{
+						Name:  "out",
+						Usage: "write the page to this path instead of standard output",
+					},
+					&cli.BoolFlag{
+						Name:  "check",
+						Usage: "fail when the output path does not match the generated page",
 					},
 				},
 				Action: runScorecard,
@@ -522,6 +531,32 @@ func runEvaluation(_ context.Context, cmd *cli.Command) error {
 	return err
 }
 
+func writeScorecard(stdout io.Writer, raw []byte, output string, check bool) error {
+	if output == "" {
+		if check {
+			return fmt.Errorf("scorecard --check requires --out")
+		}
+		_, err := stdout.Write(raw)
+		return err
+	}
+	if check {
+		current, err := os.ReadFile(output)
+		if err != nil {
+			return fmt.Errorf("read committed scorecard: %w", err)
+		}
+		if !bytes.Equal(current, raw) {
+			return fmt.Errorf(
+				"scorecard is stale: rerun ward exec evaluation-scorecard",
+			)
+		}
+		return nil
+	}
+	if err := os.WriteFile(output, raw, 0o644); err != nil {
+		return fmt.Errorf("write scorecard: %w", err)
+	}
+	return nil
+}
+
 func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
 	switch format {
 	case "markdown":
@@ -541,8 +576,7 @@ func runScorecard(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	_, err = os.Stdout.Write(raw)
-	return err
+	return writeScorecard(os.Stdout, raw, cmd.String("out"), cmd.Bool("check"))
 }
 
 func runNativeMCP(_ context.Context, cmd *cli.Command) error {
