@@ -55,6 +55,12 @@ unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
 
+Designer owns experience definition everywhere and may implement and land only
+effect-tested visual presentation changes in an existing graphical web
+application. Behavior, semantics, data, generated systems, terminal
+experiences, games, infrastructure, deployment, and live verification remain
+outside that exception.
+
 ## See also
 
 * [native-adaptation.md](native-adaptation.md) - inference and switching rules.
