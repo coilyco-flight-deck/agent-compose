@@ -36,6 +36,8 @@ import (
 // version is stamped by the release build via -ldflags; dev builds say dev.
 var version = "dev"
 
+const nativeCodexIntroductionPrompt = "Introduce yourself now as the active Codex seat for your assigned role. Use your loaded identity card and personality meld, keep the introduction warm and concise, then ask what the user would like to work on."
+
 // dispatchArgs makes the acompose install name behave as the compose verb,
 // so the daily command is dash-free and stutter-free.
 func dispatchArgs(args []string) []string {
@@ -741,6 +743,12 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+	if err := printSummary(os.Stdout, result.Composition, person.RoleTranscriptOptions{
+		Color:     colorEnabled(),
+		TrueColor: trueColorTerminal(),
+	}); err != nil {
+		return err
+	}
 	state := "new"
 	if result.BundleReused {
 		state = "reused"
@@ -763,7 +771,60 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		state,
 		result.Projected,
 	)
-	return execReal(append([]string{harness}, args[2:]...))
+	return execReal(nativeHarnessCommand(harness, args[2:]))
+}
+
+func nativeHarnessCommand(harness string, args []string) []string {
+	command := append([]string{harness}, args...)
+	if harness == "codex" && codexAcceptsInitialPrompt(args) {
+		command = append(command, nativeCodexIntroductionPrompt)
+	}
+	return command
+}
+
+func codexAcceptsInitialPrompt(args []string) bool {
+	valueOptions := map[string]bool{
+		"-a": true, "--add-dir": true, "--ask-for-approval": true,
+		"-c": true, "--cd": true, "--config": true,
+		"-i": true, "--image": true,
+		"-m": true, "--model": true,
+		"-p": true, "--profile": true,
+		"-s": true, "--sandbox": true,
+		"--disable": true, "--enable": true,
+		"--local-provider": true, "--remote": true, "--remote-auth-token-env": true,
+	}
+	booleanOptions := map[string]bool{
+		"--dangerously-bypass-approvals-and-sandbox": true,
+		"--dangerously-bypass-hook-trust":            true,
+		"--no-alt-screen":                            true,
+		"--oss":                                      true,
+		"--search":                                   true,
+		"--strict-config":                            true,
+	}
+	for index := 0; index < len(args); index++ {
+		arg := args[index]
+		if arg == "--" || !strings.HasPrefix(arg, "-") {
+			return false
+		}
+		name := arg
+		if before, _, found := strings.Cut(arg, "="); found {
+			name = before
+		}
+		if valueOptions[name] {
+			if strings.Contains(arg, "=") {
+				continue
+			}
+			index++
+			if index >= len(args) {
+				return false
+			}
+			continue
+		}
+		if !booleanOptions[name] {
+			return false
+		}
+	}
+	return true
 }
 
 func clearNativeLaunchEnvironment() error {

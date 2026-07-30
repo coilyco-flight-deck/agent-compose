@@ -97,6 +97,10 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 			if result.ModelClass != tc.modelClass {
 				t.Fatalf("model class = %q, want %q", result.ModelClass, tc.modelClass)
 			}
+			if result.Composition == nil ||
+				result.Composition.Resolution.Request.Role != "designer" {
+				t.Fatalf("composition result does not retain the assigned role: %+v", result.Composition)
+			}
 			instructions, err := os.ReadFile(filepath.Join(target, tc.instructions))
 			if err != nil {
 				t.Fatal(err)

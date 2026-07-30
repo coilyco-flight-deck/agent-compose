@@ -313,6 +313,48 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 }
 
+func TestNativeHarnessCommandPromptsFreshCodexSession(t *testing.T) {
+	t.Parallel()
+	for name, args := range map[string][]string{
+		"bare": nil,
+		"AOS trust override": {
+			"--config",
+			`projects={"/tmp/aos-native/session/projects"={trust_level="trusted"}}`,
+		},
+		"model selection": {"--model", "gpt-5.6"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			got := nativeHarnessCommand("codex", args)
+			if got[len(got)-1] != nativeCodexIntroductionPrompt {
+				t.Fatalf("command does not end with the introduction prompt: %#v", got)
+			}
+		})
+	}
+}
+
+func TestNativeHarnessCommandPreservesExplicitCodexWork(t *testing.T) {
+	t.Parallel()
+	for name, args := range map[string][]string{
+		"prompt":         {"help me debug this"},
+		"subcommand":     {"exec", "run the tests"},
+		"unknown option": {"--future-option"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			want := append([]string{"codex"}, args...)
+			if got := nativeHarnessCommand("codex", args); !reflect.DeepEqual(got, want) {
+				t.Fatalf("command = %#v, want unchanged %#v", got, want)
+			}
+		})
+	}
+}
+
+func TestNativeHarnessCommandDoesNotPromptOtherHarnesses(t *testing.T) {
+	t.Parallel()
+	if got, want := nativeHarnessCommand("claude", nil), []string{"claude"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("command = %#v, want %#v", got, want)
+	}
+}
+
 func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
 	t.Parallel()
 	verification := &bundle.Verification{

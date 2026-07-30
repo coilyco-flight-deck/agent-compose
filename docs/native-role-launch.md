@@ -32,6 +32,17 @@ ordered personality meld, ordinary admitted skills, and role-composed skills
 bound to that role. Startup instructions require the harness to read the role
 and meld skills before acting. Another role requires another launch.
 
+Before the harness starts, the launcher renders the same canonical role
+transcript as explicit composition. TTY output uses the melded role color and
+each personality's own color. Redirected output and `NO_COLOR` remain plain.
+
+Bare interactive Codex launches also supply an initial prompt asking the active
+Codex seat to introduce itself from the loaded identity card and personality
+meld, then invite the user's task. Codex options such as AOS's workspace trust
+override or an explicit model selection may precede that prompt. An explicit
+positional prompt, subcommand, or unknown option passes through without an
+added prompt.
+
 ## Native workspace integration
 
 Agent Compose owns selection and projection. A launch consumer owns workspace

@@ -238,6 +238,9 @@ if ! (
 fi
 
 assert_contains "$role_output" "agent-compose: assigned designer to codex"
+assert_contains "$role_output" "role metadata"
+assert_contains "$role_output" "role: designer"
+assert_contains "$role_output" "personality: imaginative"
 assert_contains "$role_output" "fake codex <--version>"
 for path in \
   "$launch_target/AGENTS.md" \
@@ -249,6 +252,21 @@ done
 assert_contains "$launch_target/AGENTS.md" 'assigned the `designer` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
+
+intro_output="$smoke_root/role-introduction.txt"
+if ! (
+  cd "$launch_target"
+  unset AGENT_COMPOSE_LAUNCH
+  env HOME="$native_root/home" USERPROFILE="$native_root/home" \
+    PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
+    "$binary_exec" designer codex
+) >"$intro_output" 2>&1; then
+  cat "$intro_output" >&2
+  fail "bare Codex introduction launch failed"
+fi
+assert_contains "$intro_output" "fake codex <Introduce yourself now as the active Codex seat"
+printf 'smoke: bare Codex launch supplies its introduction prompt... ok\n'
+show_transcript "bare Codex introduction" "$intro_output"
 
 third_output="$smoke_root/third.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \

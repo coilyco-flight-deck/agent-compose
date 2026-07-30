@@ -87,8 +87,8 @@ biography to runtime prompts. The repository also ships a local personality
 palette explorer, identity overlay, and four-case behavior evaluation pack.
 Bare `acompose` hydrates remote skills, converges the host, and refreshes the
 versioned person snapshot. `acompose -- <command>` launches with inferred
-context. `acompose <role> <harness>` launches an assigned
-[native role bundle](docs/native-role-launch.md).
+context. Assigned [native role launches](docs/native-role-launch.md) render
+canonical identity colors, and bare Codex prompts its seat to introduce itself.
 `acompose --reapply` rewrites the generated compose outputs and recreates
 global load-point links even when they are current. `acompose --verbose`
 prints every composition source and load-point file as

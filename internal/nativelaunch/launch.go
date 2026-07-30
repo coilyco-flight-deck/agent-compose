@@ -38,6 +38,7 @@ type Options struct {
 // Result records the immutable bundle and projected load points selected for
 // the native session.
 type Result struct {
+	Composition  *compose.Result
 	BundleDir    string
 	BundleReused bool
 	Projected    int
@@ -96,6 +97,7 @@ func Refresh(opts Options) (*Result, error) {
 		)
 	}
 	return &Result{
+		Composition:  composed,
 		BundleDir:    composed.Bundle.Dir,
 		BundleReused: composed.Bundle.Reused,
 		Projected:    len(projected.Files),
