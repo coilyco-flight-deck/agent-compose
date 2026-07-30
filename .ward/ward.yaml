@@ -39,6 +39,9 @@ commands:
   evaluation-scorecard-check:
     run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --historical --check
     description: Fail when the committed evaluation scorecard is stale.
+  evaluation-packs:
+    run: sh scripts/render-evaluation-packs.sh
+    description: Render the complete Core Roster review packs into an explicitly selected empty directory.
   palette-build:
     run: sh scripts/palette-web.sh build
     description: Generate canonical palette data and build the local explorer.

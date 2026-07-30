@@ -15,6 +15,8 @@ Roster pack, writes one file per role, and writes `index.json` with exact pack
 digests. The output directory must be empty so stale role files cannot survive
 a roster change.
 
+Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evaluation-packs`; `<dir>` must be empty.
+
 Agent Compose emits context and prompts only. It never invokes a model, chooses
 credentials, scores prose, or acquires execution authority. The command
 defaults to `roster:core`. `--person-source` loads one external package and
