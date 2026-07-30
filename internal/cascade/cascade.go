@@ -42,6 +42,7 @@ type Config struct {
 	PersonalityLibraries []string              `yaml:"personality_libraries"`
 	RosterSources        []string              `yaml:"roster_sources"`
 	SkillLoadPoints      map[string]string     `yaml:"skill_load_points"`
+	SkillCatalogManifest string                `yaml:"skill_catalog_manifest"`
 	RemoteSkillSources   []remoteskills.Source `yaml:"remote_skill_sources"`
 	RemoteSkillCacheTTL  string                `yaml:"remote_skill_cache_ttl"`
 	MCPInventory         string                `yaml:"mcp_inventory"`

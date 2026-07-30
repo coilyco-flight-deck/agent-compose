@@ -68,12 +68,12 @@ match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this
 substrate operation.
 
-`remote_skill_sources` hydrates scalar `owner/repo/path@ref` Git catalogs
-before composition and projects each to every skill load point. See [remote
-skills](remote-skills.md) for configuration, caching, and failures.
+`skill_catalog_manifest` projects AOS-verified roots without network work.
+The v1 remote-source compatibility window and local trust contract are in
+[local skill catalogues](local-skill-catalogues.md).
 
 ## See also
 
 * [integration.md](integration.md) - how roster and cascade fit together.
 * [projection.md](projection.md) - repo and home load-point projection.
-* [remote-skills.md](remote-skills.md) - Git hydration, caching, and offline reuse.
+* [local-skill-catalogues.md](local-skill-catalogues.md) - AOS local-root handoff.
