@@ -331,9 +331,8 @@ func historicalScorecardCases(result *ScoredResult) ([]Case, error) {
 	}
 	cases := make([]Case, 0, len(result.Cases))
 	for _, scored := range result.Cases {
-		tier, dimension, ok := strings.Cut(scored.ID, "-")
-		if !ok || (tier != frontierTier && tier != ossTier) ||
-			(dimension != roleDimension && dimension != personalityDimension) {
+		tier, dimension, scenarioKind, ok := historicalCaseShape(scored)
+		if !ok {
 			return nil, fmt.Errorf("case %q does not encode a supported tier and dimension", scored.ID)
 		}
 		if scored.Model == "" || strings.TrimSpace(scored.RawResponse) == "" ||
@@ -353,10 +352,42 @@ func historicalScorecardCases(result *ScoredResult) ([]Case, error) {
 			return nil, fmt.Errorf("case %q total is %d, want %d", scored.ID, scored.Total, total)
 		}
 		cases = append(cases, Case{
-			ID: scored.ID, ModelTier: tier, Dimension: dimension, Rubric: rubric,
+			ID: scored.ID, ModelTier: tier, Dimension: dimension,
+			ScenarioKind: scenarioKind, Rubric: rubric,
 		})
 	}
 	return cases, nil
+}
+
+func historicalCaseShape(scored ScoredCase) (string, string, string, bool) {
+	tier, scenario, ok := strings.Cut(scored.ID, "-")
+	if !ok || (tier != frontierTier && tier != ossTier) {
+		return "", "", "", false
+	}
+	switch scenario {
+	case roleDimension:
+		return tier, roleDimension, "", true
+	case personalityDimension:
+		return tier, personalityDimension, "", true
+	}
+
+	criteria := make(map[string]bool, len(scored.Scores))
+	for _, score := range scored.Scores {
+		criteria[score.Criterion] = true
+	}
+	isRole := criteria["mission-fit"] && criteria["authority-and-escalation"]
+	isPersonality := criteria["behavioral-expression"] && criteria["invariant-and-role"]
+	if isRole == isPersonality {
+		return "", "", "", false
+	}
+	if isPersonality {
+		return tier, personalityDimension, "", true
+	}
+	scenarioKind := ""
+	if strings.HasPrefix(scenario, "adjacent-") {
+		scenarioKind = ScenarioAdjacentRole
+	}
+	return tier, roleDimension, scenarioKind, true
 }
 
 func sortedScorecardModels(models map[string]*scorecardModel) []*scorecardModel {
