@@ -23,7 +23,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical role and personality skills use compact native identity cards and
-  compiled selected-body fallback. See [role skills](role-briefings.md).
+  compiled fallback. Designer may land visual-only web presentation changes.
 
 ## Load-point projection
 

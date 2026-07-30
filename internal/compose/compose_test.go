@@ -350,6 +350,67 @@ func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	}
 }
 
+func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t *testing.T) {
+	provider := t.TempDir()
+	skillDir := filepath.Join(provider, ".agents", "skills", "fixture")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(
+		filepath.Join(skillDir, "SKILL.md"),
+		[]byte("---\nname: fixture\ndescription: Fixture capability.\n---\n\n# Fixture\n"),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := p.Roles["designer"].Briefing
+	for _, delivery := range []string{
+		schema.DeliveryNativeSkills,
+		schema.DeliveryCompiled,
+	} {
+		t.Run(delivery, func(t *testing.T) {
+			result, err := RunRoots(
+				&schema.Request{
+					Role:       "designer",
+					Delivery:   delivery,
+					ModelClass: schema.ModelClassFrontier,
+				},
+				[]RootSource{{ID: "fixture", Root: provider}},
+				t.TempDir(),
+				Options{},
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var path string
+			if delivery == schema.DeliveryCompiled {
+				path = filepath.Join(result.Bundle.Dir, "delivery", "compiled.md")
+			} else {
+				path = filepath.Join(
+					result.Bundle.Dir,
+					"content",
+					"skills",
+					"person%3Akai",
+					"role-designer",
+					"SKILL.md",
+				)
+			}
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(raw), want) {
+				t.Fatalf("%s delivery omitted the canonical Designer boundary:\n%s",
+					delivery, raw)
+			}
+		})
+	}
+}
+
 func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 	out := t.TempDir()
 	first, err := Run(fixture(t, "native.kdl"), out)

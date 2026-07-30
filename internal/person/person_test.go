@@ -101,6 +101,32 @@ func TestCEORoleSkillDefinesLongHorizonConcentration(t *testing.T) {
 	}
 }
 
+func TestDesignerRoleSkillAllowsOnlyVisualWebImplementation(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	briefing := p.Roles["designer"].Briefing
+	for _, required := range []string{
+		"existing graphical web application",
+		"complete product effect is visual presentation",
+		"reverting the patch would change presentation while leaving all non-visual behavior and generated system output unchanged",
+		"File extensions and frameworks do not decide the boundary",
+		"consumes existing props and state",
+		"repository-prescribed formatting, type checks, local UI checks",
+		"event handling, navigation, routing, forms, validation, keyboard behavior, interaction-state logic",
+		"accessibility semantics or behavior beyond preserving the existing contract",
+		"Terminal, CLI, and TUI presentation never activates this exception",
+		"factory simulation, galaxy or world generation, procedural visual systems",
+		"isolate and land the visual-only slice",
+		"does not grant commands, credentials, mounts, network access, model selection, or executable permission",
+	} {
+		if !strings.Contains(briefing, required) {
+			t.Errorf("Designer role skill omitted %q", required)
+		}
+	}
+}
+
 func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 	for name, files := range map[string]fstest.MapFS{
 		"missing": {},
