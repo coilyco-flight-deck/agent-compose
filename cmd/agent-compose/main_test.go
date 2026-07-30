@@ -34,11 +34,48 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(string(raw), "format: agent-compose.evaluation-pack.v1\n") {
+	if !strings.HasPrefix(string(raw), "format: agent-compose.evaluation-pack.v2\n") {
 		t.Fatalf("evaluation output is not YAML:\n%s", raw)
 	}
 	if _, err := evaluationOutput(pack, "json"); err == nil {
 		t.Fatal("legacy JSON evaluation output remains accepted")
+	}
+}
+
+func TestWriteEvaluationPacksEmitsCompleteDigestIndex(t *testing.T) {
+	t.Parallel()
+	packs, err := evaluation.BuildCorePacks("codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	output := t.TempDir()
+	if err := writeEvaluationPacks(packs, "yaml", output); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 9 {
+		t.Fatalf("evaluation output entries = %d, want 9", len(entries))
+	}
+	index, err := os.ReadFile(filepath.Join(output, "index.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`"format": "agent-compose.evaluation-index.v1"`,
+		`"role": "engineer"`,
+		`"role": "content"`,
+		`"pack_digest": "sha256:`,
+	} {
+		if !strings.Contains(string(index), want) {
+			t.Errorf("evaluation index omitted %q:\n%s", want, index)
+		}
+	}
+	if err := writeEvaluationPacks(packs, "yaml", output); err == nil ||
+		!strings.Contains(err.Error(), "must be empty") {
+		t.Fatalf("non-empty output directory error = %v", err)
 	}
 }
 
@@ -191,7 +228,7 @@ func TestProjectPersonPolicyRejectsEmbeddedBundle(t *testing.T) {
 		PersonPolicy: personpolicy.ExternalOnly,
 		PersonSource: "/person",
 	})
-	if err == nil || !strings.Contains(err.Error(), "person:kai") {
+	if err == nil || !strings.Contains(err.Error(), "roster:core") {
 		t.Fatalf("embedded bundle policy error = %v", err)
 	}
 }
@@ -227,8 +264,8 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "compose", "--", "claude"},
 		},
 		"acompose role and harness inject launch": {
-			[]string{"acompose", "designer", "codex", "--model", "gpt"},
-			[]string{"acompose", "launch", "designer", "codex", "--model", "gpt"},
+			[]string{"acompose", "design", "codex", "--model", "gpt"},
+			[]string{"acompose", "launch", "design", "codex", "--model", "gpt"},
 		},
 		"acompose request and layout remain compose": {
 			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
@@ -263,7 +300,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	got := output.String()
 	for _, want := range []string{
 		"request: model class frontier // delivery native-skills",
-		"person: kai // provided by: person:kai",
+		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"personalities: curious // grounded // meticulous",
 		"melded color: #90a66a",
@@ -308,7 +345,7 @@ func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 			},
 			Personalities: []string{"curious", "grounded", "meticulous"},
 			FavoriteColor: "#90a66a",
-			SourceIDs:     []string{"person:kai", "aos-public"},
+			SourceIDs:     []string{"roster:core", "aos-public"},
 			Person:        p,
 			Decisions: []resolver.Decision{
 				{Outcome: resolver.OutcomeSelected},
@@ -487,7 +524,7 @@ func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
 	verification := &bundle.Verification{
 		Files: 128,
 		Identities: []bundle.Identity{
-			{Source: "person:kai", Skill: "personality-curious"},
+			{Source: "roster:core", Skill: "personality-curious"},
 			{Source: "aos-public", Skill: "coding-go"},
 		},
 	}

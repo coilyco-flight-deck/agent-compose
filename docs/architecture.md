@@ -9,7 +9,7 @@ Consumers supply runtime facts and executable authority outside the bundle.
 The caller supplies every input. Agent-compose infers nothing about the agent:
 
 * `person source` - the caller may name one complete external package. Omission
-  selects the embedded `person:kai` default.
+  selects the embedded `roster:core` default.
 * `role` - the caller names it, the selected person source validates it, and the role
   activates every personality it declares.
 * `model class` - the caller names it and embedded role compatibility may
@@ -24,7 +24,8 @@ capability files reached through source locators.
 
 ## Policy ownership
 
-Agent-compose embeds `person:kai` as its public-safe default. A caller may
+Agent-compose embeds the eight-role Core Roster, `roster:core`, as its
+public-safe default. A caller may
 select one complete [external package](person-packages.md) instead. Selection
 is exclusive. The package owns roles, personalities, compatibility, invariant,
 definitions, and inspirations. Capability sources add knowledge but cannot

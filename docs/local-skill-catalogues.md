@@ -39,15 +39,13 @@ Entries retain declaration order. Later catalogue entries win duplicate skill
 names. Existing unowned files at a native load point still win over every
 managed catalogue.
 
-## Compatibility window
+## Ownership boundary
 
-The v1 `remote_skill_sources` and `mcp_inventory` fields remain temporarily
-available while AOS and infrastructure land their side of the ordered
-migration. New convergence config uses `skill_catalog_manifest`. Agent Compose
-v2 removes the network and native MCP mutation surfaces after consumers move.
+Agent Compose v2 accepts only the local manifest. It does not fetch catalogue
+repositories or mutate MCP and approval configuration. AOS owns those
+environment-facing operations and must complete them before invoking Agent
+Compose convergence.
 
 ## See also
 
 * [Cascade](cascade.md) - native skill projection and ownership sidecar.
-* [Remote skills](remote-skills.md) - deprecated v1 hydration behavior.
-* [Native MCP](native-mcp.md) - deprecated v1 projection behavior.

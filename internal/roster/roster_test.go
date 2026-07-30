@@ -172,7 +172,7 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 	}
 }
 
-func TestRenderDefaultSupportsAdvisorToQASwitch(t *testing.T) {
+func TestRenderDefaultSupportsStratsToQASwitch(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -193,7 +193,7 @@ func TestRenderDefaultSupportsAdvisorToQASwitch(t *testing.T) {
 	if !strings.Contains(table, wantTargets) {
 		t.Fatalf("default native switch targets drifted:\nwant %s\n\n%s", wantTargets, table)
 	}
-	for _, roleName := range []string{"advisor", "qa"} {
+	for _, roleName := range []string{"strats", "qa"} {
 		role := p.Roles[roleName]
 		if strings.Contains(table, role.Briefing) {
 			t.Fatalf("startup roster eagerly embedded role %q briefing:\n%s", roleName, table)
@@ -203,9 +203,9 @@ func TestRenderDefaultSupportsAdvisorToQASwitch(t *testing.T) {
 		}
 	}
 
-	qaSection := renderedCard(t, table, "Qa")
+	qaSection := renderedCard(t, table, "QA")
 	ordered := []string{
-		"# Qa",
+		"# QA",
 		"**Role skill // `role-qa`**",
 		"## Personality meld",
 		"* `role-qa`",

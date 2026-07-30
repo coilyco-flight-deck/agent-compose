@@ -1,80 +1,78 @@
 # Behavior evaluation
 
-`agent-compose evaluation` emits one deterministic, self-contained human-review
-pack for a selected role and harness seat:
+`agent-compose evaluation` emits deterministic, self-contained human-review
+packs:
 
 ```text
 agent-compose evaluation --role engineer --seat codex
 agent-compose evaluation --person-source ./person --role builder --seat codex
+agent-compose evaluation --all --seat codex --format yaml --out-dir <empty-dir>
 ```
 
-Markdown is the default for direct review. YAML uses the versioned
-`agent-compose.evaluation-pack.v1` format for an external runner or result
-collector. Agent-compose emits context and prompts only. It never invokes a
-model, chooses credentials, or acquires execution authority.
+Markdown is the default for one-role review. YAML uses
+`agent-compose.evaluation-pack.v2`. `--all` validates every embedded Core
+Roster pack, writes one file per role, and writes `index.json` with exact pack
+digests. The output directory must be empty so stale role files cannot survive
+a roster change.
 
-The command defaults to `person:kai`. `--person-source` loads one external
-package and derives the whole review context from it.
+Agent Compose emits context and prompts only. It never invokes a model, chooses
+credentials, scores prose, or acquires execution authority. The command
+defaults to `roster:core`. `--person-source` loads one external package and
+derives the whole review context from it.
 
-## Four-case matrix
+## Core Roster matrix
 
-The pack fixes two dimensions across two model tiers:
+Each role owns mission, personality, authority, completion, and real-portfolio
+replay scenarios. Every scenario expands unchanged across a frontier lane with
+a `frontier` bundle and an OSS lane with a `low-context` bundle.
 
-* frontier role understanding
-* frontier personality expression
-* OSS role understanding
-* OSS personality expression
+The matrix also has explicit adjacent-role discrimination scenarios for
+Portfolio Strategist and Director, Content Manager and Designer, Engineer and
+DevOps, plus Content Manager and Community Manager. Both roles receive their
+side of each boundary. Content Manager therefore has two adjacent-role
+scenarios. QA has none because the approved v2 boundary list names no QA pair.
 
-The frontier lane uses a `frontier` bundle. The OSS lane uses a `low-context`
-bundle so the comparison exercises the pruning contract smaller models receive.
-Both lanes keep the selected role and seat fixed.
-
-Role-understanding cases test whether the response applies the role's mission,
-operating method, completion ownership, and authority boundary without quoting
-the briefing. Embedded roles use portfolio-native scenarios with incomplete
-evidence, competing paths, a routine deadline, and a cross-role ownership offer.
-
-Community instead uses Discord-native scenarios. Its role case separates approved orientation from a member guess and requests a public reply plus a text-only private plan.
-Its personality case recognizes a contribution while handling a possibly stale link. Together they expose usefulness, evidence discipline, and the no-action boundary.
-
-Personality-expression cases test whether the meld appears through attention,
-framing, tempo, and voice without naming traits or performing a caricature.
+The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
+duplicates, and incorrect adjacent-role targets. External packages retain the
+generic fallback or may provide a complete custom matrix.
 
 ## Review contract
 
 Each case carries four criteria scored from 0 to 2. A case passes at 7/8 or
 higher with no criterion at 0. A role case also requires mission fit at 2 and
-authority and escalation at 1 or higher. A personality case requires behavioral
-expression and invariant and role at 2. Authority and escalation remain the
-role hard fail. The personality invariant and role obligations remain the
-personality hard fail.
+authority and escalation at 1 or higher. A personality case requires
+behavioral expression and invariant and role at 2. Authority and escalation
+remain the role hard fail. The personality invariant and role obligations
+remain the personality hard fail.
 
-The reviewer preserves the raw response and records one evidence sentence for
-every score. The pack includes the full role briefing, personality invariant,
-and selected personality definitions so the review does not depend on hidden
-state. External packages retain a domain-neutral scenario.
+The runner starts a fresh session per case, submits the prompt verbatim, records
+the exact model identity, and preserves the raw response before discussion.
+Transport or runner retries record case, attempt number, outcome, and reason.
+Failures remain evidence and are never replaced by a cleaner response.
 
-The command deliberately does not auto-score model prose. Role and personality
-quality are human judgments, while the matrix, context, prompts, rubric,
-ordering, and score contract are deterministic.
+An independent reviewer scores every criterion and writes one evidence sentence
+per score. The author of a roster, prompt, or rubric change cannot be the sole
+reviewer. The reviewer records the exact source revision and the digest from
+`index.json`. `agent-compose scorecard` rejects incomplete lanes, unknown cases,
+digest drift, missing retry provenance, inconsistent totals, and verdicts that
+do not follow the rubric.
 
 ## Scored results
 
-[`evaluations/latest/`](../evaluations/latest/) keeps one YAML record per
-evaluated default role and seat. Records preserve model identity, raw responses,
-criterion evidence, totals, verdicts, and v2 pack-digest and retry provenance.
-Retry entries name the case, attempt, outcome, and reason. The list is empty
-when no retry occurred. `MarshalResult` validates against the current pack
-before encoding. v1 records remain readable during v1.x. A record may
-repeat the canonical cases for multiple models in one tier. Every listed model
-must complete that tier's full case set. Git keeps prior baselines. CEO's failed
-OSS cases remain its frontier-only re-enable gate.
+[`evaluations/latest/`](../evaluations/latest/) preserves the v1 baseline until
+the complete independently reviewed v2 baseline replaces it. Historical mode
+renders those records without rebinding their immutable pack digests to the
+current Core Roster.
+
+V2 records preserve exact model identity, raw responses, criterion evidence,
+totals, verdicts, pack digest, source revision, reviewer, and retry provenance.
+Every listed model must complete its tier's full case set. Frontier role,
+personality, and adjacent-role cases are release gates. OSS failures remain
+visible and keep that role and model class unsupported.
 
 ## See also
 
-* [role-briefings.md](role-briefings.md) - three-part role operating charters.
-* [role-selection.md](role-selection.md) - fixed role assignment.
-* [person-contract.md](person-contract.md) - roles, seats, and personalities.
+* [role-briefings.md](role-briefings.md) - role operating charters.
 * [person-packages.md](person-packages.md) - independent evaluation context.
-* [evaluation-matrices.md](evaluation-matrices.md) - profile-owned replacement matrices.
-* [integration.md](integration.md) - how bundles reach harnesses.
+* [evaluation-matrices.md](evaluation-matrices.md) - profile-owned matrices.
+* [evaluation-scorecard.md](evaluation-scorecard.md) - validated aggregate view.

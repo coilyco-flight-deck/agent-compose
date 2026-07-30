@@ -23,7 +23,6 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativemcp"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -154,26 +153,6 @@ func main() {
 				},
 			},
 			{
-				Name:  "mcp",
-				Usage: "project one mcporter inventory into Claude and Codex native MCP registries",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "inventory",
-						Usage:    "canonical mcporter.json source",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:  "home",
-						Usage: "home receiving mcporter and native harness configs",
-					},
-					&cli.BoolFlag{
-						Name:  "check",
-						Usage: "report drift without writing",
-					},
-				},
-				Action: runNativeMCP,
-			},
-			{
 				Name:      "describe",
 				Usage:     "render a bundle's stored decision tree",
 				ArgsUsage: "<bundle-dir>",
@@ -203,7 +182,7 @@ func main() {
 			},
 			{
 				Name:  "evaluation",
-				Usage: "emit the four-case frontier and OSS human-review matrix",
+				Usage: "emit deterministic frontier and OSS human-review packs",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "role",
@@ -222,11 +201,19 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
 						Usage: "additional local personality-library root (repeatable)",
+					},
+					&cli.BoolFlag{
+						Name:  "all",
+						Usage: "emit the complete validated Core Roster matrix",
+					},
+					&cli.StringFlag{
+						Name:  "out-dir",
+						Usage: "empty directory receiving --all packs and their digest index",
 					},
 				},
 				Action: runEvaluation,
@@ -252,6 +239,10 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "check",
 						Usage: "fail when the output path does not match the generated page",
+					},
+					&cli.BoolFlag{
+						Name:  "historical",
+						Usage: "render preserved records without comparing them to the current roster",
 					},
 				},
 				Action: runScorecard,
@@ -286,7 +277,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -323,7 +314,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -344,7 +335,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -386,7 +377,7 @@ func main() {
 
 func personCatalogFlags(includeQuery bool) []cli.Flag {
 	flags := []cli.Flag{
-		&cli.StringFlag{Name: "person-source", Usage: "external person-package root (defaults to embedded person:kai)"},
+		&cli.StringFlag{Name: "person-source", Usage: "external roster-package root (defaults to embedded roster:core)"},
 		&cli.StringSliceFlag{Name: "personality-library", Usage: "additional local personality-library root (repeatable)"},
 		&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"},
 	}
@@ -513,6 +504,22 @@ func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
 }
 
 func runEvaluation(_ context.Context, cmd *cli.Command) error {
+	if cmd.Bool("all") {
+		if cmd.String("person-source") != "" || len(cmd.StringSlice("personality-library")) > 0 {
+			return fmt.Errorf("evaluation --all is limited to the embedded Core Roster")
+		}
+		if cmd.String("out-dir") == "" {
+			return fmt.Errorf("evaluation --all requires --out-dir")
+		}
+		packs, err := evaluation.BuildCorePacks(cmd.String("seat"))
+		if err != nil {
+			return err
+		}
+		return writeEvaluationPacks(packs, cmd.String("format"), cmd.String("out-dir"))
+	}
+	if cmd.String("out-dir") != "" {
+		return fmt.Errorf("evaluation --out-dir requires --all")
+	}
 	p, external, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -532,6 +539,76 @@ func runEvaluation(_ context.Context, cmd *cli.Command) error {
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+type evaluationPackIndex struct {
+	Format string                     `json:"format"`
+	Seat   string                     `json:"seat"`
+	Packs  []evaluationPackIndexEntry `json:"packs"`
+}
+
+type evaluationPackIndexEntry struct {
+	Role       string `json:"role"`
+	File       string `json:"file"`
+	Cases      int    `json:"cases"`
+	PackDigest string `json:"pack_digest"`
+}
+
+func writeEvaluationPacks(packs []*evaluation.Pack, format, output string) error {
+	if format != "yaml" && format != "markdown" {
+		return fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
+	}
+	if err := os.MkdirAll(output, 0o755); err != nil {
+		return fmt.Errorf("create evaluation output directory: %w", err)
+	}
+	entries, err := os.ReadDir(output)
+	if err != nil {
+		return fmt.Errorf("read evaluation output directory: %w", err)
+	}
+	if len(entries) != 0 {
+		return fmt.Errorf("evaluation output directory must be empty")
+	}
+	extension := ".md"
+	if format == "yaml" {
+		extension = ".yaml"
+	}
+	index := evaluationPackIndex{
+		Format: "agent-compose.evaluation-index.v1",
+	}
+	for _, pack := range packs {
+		if index.Seat == "" {
+			index.Seat = pack.Seat.Selector()
+		} else if index.Seat != pack.Seat.Selector() {
+			return fmt.Errorf("evaluation packs mix seats")
+		}
+		raw, err := evaluationOutput(pack, format)
+		if err != nil {
+			return err
+		}
+		digest, err := evaluation.PackDigest(pack)
+		if err != nil {
+			return err
+		}
+		name := pack.Role + "-" + pack.Seat.Selector() + extension
+		if err := os.WriteFile(filepath.Join(output, name), raw, 0o644); err != nil {
+			return fmt.Errorf("write evaluation pack %q: %w", name, err)
+		}
+		index.Packs = append(index.Packs, evaluationPackIndexEntry{
+			Role:       pack.Role,
+			File:       name,
+			Cases:      len(pack.Cases),
+			PackDigest: digest,
+		})
+	}
+	rawIndex, err := json.MarshalIndent(index, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal evaluation pack index: %w", err)
+	}
+	rawIndex = append(rawIndex, '\n')
+	if err := os.WriteFile(filepath.Join(output, "index.json"), rawIndex, 0o644); err != nil {
+		return fmt.Errorf("write evaluation pack index: %w", err)
+	}
+	return nil
 }
 
 func writeScorecard(stdout io.Writer, raw []byte, output string, check bool) error {
@@ -572,34 +649,23 @@ func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
 }
 
 func runScorecard(_ context.Context, cmd *cli.Command) error {
-	raw, err := evaluation.MarkdownScorecard(
-		cmd.String("results"),
-		cmd.String("seat"),
-	)
+	var raw []byte
+	var err error
+	if cmd.Bool("historical") {
+		raw, err = evaluation.MarkdownHistoricalScorecard(
+			cmd.String("results"),
+			cmd.String("seat"),
+		)
+	} else {
+		raw, err = evaluation.MarkdownScorecard(
+			cmd.String("results"),
+			cmd.String("seat"),
+		)
+	}
 	if err != nil {
 		return err
 	}
 	return writeScorecard(os.Stdout, raw, cmd.String("out"), cmd.Bool("check"))
-}
-
-func runNativeMCP(_ context.Context, cmd *cli.Command) error {
-	result, err := nativemcp.Project(nativemcp.Options{
-		Inventory: cmd.String("inventory"),
-		Home:      cmd.String("home"),
-		Check:     cmd.Bool("check"),
-	})
-	if err != nil {
-		return err
-	}
-	state := "unchanged"
-	if result.Changed {
-		state = "changed"
-	}
-	fmt.Printf("native-mcp servers=%d state=%s\n", result.Servers, state)
-	if cmd.Bool("check") && result.Changed {
-		return cli.Exit("native MCP projection drift", 1)
-	}
-	return nil
 }
 
 func runOverlay(_ context.Context, cmd *cli.Command) error {
@@ -1112,7 +1178,7 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	result, err := project.ApplyOwned(outDir, files, "roster", "person:"+p.Name)
+	result, err := project.ApplyOwned(outDir, files, "roster", p.ProviderID())
 	if err != nil {
 		return err
 	}
@@ -1228,7 +1294,7 @@ func validateProjectPersonPolicy(bundleDir string, opts compose.Options) error {
 	}
 	external := false
 	for _, identity := range verification.Identities {
-		if identity.Source == "person:kai" {
+		if identity.Source == "roster:core" {
 			return fmt.Errorf("external-only person policy rejects bundle source %q", identity.Source)
 		}
 		if strings.HasPrefix(identity.Source, "person:") {

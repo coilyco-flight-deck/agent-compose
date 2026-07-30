@@ -51,9 +51,9 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	}
 	for _, want := range []string{
 		"# Evaluation scorecard",
-		"F frontier-test · O oss-test · 3/4 pass · 30/32 points",
-		"| engineer | 8✓ | 8✓ | 6× | 8✓ | 30/32 |",
-		"`F` frontier · `O` OSS · `R` role · `P` personality",
+		"F frontier-test · O oss-test · 7/12 pass · 86/96 points",
+		"| engineer | 32/32✓ | 8✓ | 8✓ | 24/32× | 8✓ | 6× | 86/96 |",
+		"`F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination",
 	} {
 		if !strings.Contains(string(first), want) {
 			t.Errorf("scorecard omitted %q:\n%s", want, first)

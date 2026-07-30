@@ -20,7 +20,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	}
 	var out strings.Builder
 	roleSkill := p.RoleSkillID(roleName)
-	fmt.Fprintf(&out, "# %s\n\n%s\n\n", displaySlug(roleName), role.Purpose)
+	fmt.Fprintf(&out, "# %s\n\n%s\n\n", p.RoleDisplayName(roleName), role.Purpose)
 	fmt.Fprintf(&out, "**Role skill // `%s`**\n", roleSkill)
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if len(role.Seats) > 0 {
@@ -123,8 +123,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	out.WriteString("## Active role metadata\n\n")
 	out.WriteString("Agent-compose selected these public-safe facts for the agent. ")
 	out.WriteString("Credits acknowledge influences and do not assign another identity.\n\n")
-	fmt.Fprintf(&out, "* Person: `%s`\n", p.Name)
-	fmt.Fprintf(&out, "* Provider: `person:%s`\n", p.Name)
+	fmt.Fprintf(&out, "* Provider: `%s`\n", p.ProviderID())
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
 	out.WriteString("* Role inspiration:\n")
@@ -194,7 +193,7 @@ func (p *Person) RenderRoleTranscript(
 	var out strings.Builder
 	var roleBlock strings.Builder
 	roleBlock.WriteString("role metadata\n")
-	fmt.Fprintf(&roleBlock, "person: %s // provided by: person:%s\n", p.Name, p.Name)
+	fmt.Fprintf(&roleBlock, "%s: %s // provided by: %s\n", p.providerKind(), p.Name, p.ProviderID())
 	fmt.Fprintf(&roleBlock, "role: %s\n", roleName)
 	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))

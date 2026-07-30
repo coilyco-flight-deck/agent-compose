@@ -3,6 +3,7 @@ package evaluation
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,6 +25,7 @@ type ResultProvenance struct {
 	EvaluatedAt     string           `yaml:"evaluated_at"`
 	SourceIssue     string           `yaml:"source_issue"`
 	SourceRevision  string           `yaml:"source_revision"`
+	PromptAuthor    string           `yaml:"prompt_author,omitempty"`
 	Reviewer        string           `yaml:"reviewer"`
 	PackDigest      string           `yaml:"pack_digest,omitempty"`
 	RetryProvenance *RetryProvenance `yaml:"retry_provenance,omitempty"`
@@ -131,6 +133,18 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		return fmt.Errorf("result provenance is incomplete")
 	}
 	if result.Format == ResultFormatV2 {
+		if strings.TrimSpace(result.Provenance.PromptAuthor) == "" {
+			return fmt.Errorf("v2 result prompt author is required")
+		}
+		if strings.EqualFold(
+			strings.TrimSpace(result.Provenance.PromptAuthor),
+			strings.TrimSpace(result.Provenance.Reviewer),
+		) {
+			return fmt.Errorf("v2 result reviewer must be independent from the prompt author")
+		}
+		if !isFullGitRevision(result.Provenance.SourceRevision) {
+			return fmt.Errorf("v2 result source_revision must be a full Git object id")
+		}
 		if result.Provenance.RetryProvenance == nil {
 			return fmt.Errorf("v2 result retry provenance is required")
 		}
@@ -214,6 +228,14 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		}
 	}
 	return nil
+}
+
+func isFullGitRevision(revision string) bool {
+	if len(revision) != 40 && len(revision) != 64 {
+		return false
+	}
+	_, err := hex.DecodeString(revision)
+	return err == nil
 }
 
 // PackDigest binds a v2 result to the complete rendered review contract.

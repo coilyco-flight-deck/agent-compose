@@ -58,7 +58,7 @@ func TestRenderTextIsWidthResponsiveAndPlain(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "customer-success", "codex", "waiting-for-human")
+	doc, err := Build(p, "community", "codex", "waiting-for-human")
 	if err != nil {
 		t.Fatal(err)
 	}

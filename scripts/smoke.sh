@@ -99,7 +99,7 @@ EOF
 
 cat >"$provider_dir/.agents/roles.kdl" <<'EOF'
 roles {
-    role designer {
+    role design {
         composed-skill design-method
     }
 }
@@ -113,10 +113,6 @@ printf '\n'
 EOF
 chmod +x "$smoke_root/bin/codex"
 
-cat >"$fixtures/mcporter.json" <<'EOF'
-{"imports":[],"mcpServers":{"reader":{"baseUrl":"https://mcp.example.test/mcp"}}}
-EOF
-
 cat >"$state_dir/agent-compose.yaml" <<EOF
 sources:
   - $native_root/fixtures/AGENTS.COMPOSE.md
@@ -126,7 +122,6 @@ roster_sources:
   - $native_root/projects/coilyco-flight-deck/agentic-os
 skill_load_points:
   codex: $native_root/load-points/skills
-mcp_inventory: $native_root/fixtures/mcporter.json
 load_points:
   claude: $native_root/load-points/CLAUDE.md
   codex: null
@@ -150,7 +145,6 @@ assert_contains "$first_output" "roster  "
 assert_contains "$first_output" "wrote"
 assert_contains "$first_output" "cascade outputs=1 load-points=1 manifest=1 changed="
 assert_contains "$first_output" "skills  managed="
-assert_contains "$first_output" "mcp     servers=1 state=changed"
 printf 'smoke: first isolated convergence... ok\n'
 show_transcript "first convergence" "$first_output"
 
@@ -161,12 +155,8 @@ person_snapshot="$state_dir/sources/personality/person.json"
 composed="$state_dir/COMPOSED.md"
 manifest="$state_dir/mount-eligibility.json"
 skill_state="$state_dir/skill-mounts.json"
-mcporter="$fixture_home/.mcporter/mcporter.json"
-claude_mcp="$fixture_home/.claude.json"
-codex_mcp="$fixture_home/.codex/config.toml"
-
 for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
-  "$manifest" "$skill_state" "$mcporter" "$claude_mcp" "$codex_mcp" \
+  "$manifest" "$skill_state" \
   "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md" \
   "$load_points/skills/role-engineer/SKILL.md" \
   "$load_points/skills/personality-curious/SKILL.md"; do
@@ -179,10 +169,7 @@ assert_contains "$composed" "# Agent seats"
 assert_contains "$composed" "opal engineer"
 assert_contains "$person_snapshot" '"format": "agent-compose.person-snapshot.v3"'
 assert_contains "$person_snapshot" '"briefing":'
-assert_contains "$mcporter" "\"reader\""
-assert_contains "$claude_mcp" "\"reader\""
-assert_contains "$codex_mcp" "[mcp_servers.\"reader\"]"
-printf 'smoke: roster, cascade, skill, MCP, and load-point artifacts... ok\n'
+printf 'smoke: roster, cascade, skill, and load-point artifacts... ok\n'
 
 snapshot_file "$roster_table" roster-table
 snapshot_file "$roster_override" roster-override
@@ -191,10 +178,6 @@ snapshot_file "$person_snapshot" person-snapshot
 snapshot_file "$composed" composed
 snapshot_file "$manifest" manifest
 snapshot_file "$skill_state" skill-state
-snapshot_file "$mcporter" mcporter
-snapshot_file "$claude_mcp" claude-mcp
-snapshot_file "$codex_mcp" codex-mcp
-
 second_output="$smoke_root/second.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
   PROJECTS_ROOT="$native_root/projects" "$binary_exec" >"$second_output" 2>&1; then
@@ -209,7 +192,6 @@ fi
 assert_contains "$second_output" "cascade outputs=1 load-points=1 manifest=1 changed=0"
 assert_contains "$second_output" "skills  managed="
 assert_contains "$second_output" "linked=0 removed=0 preserved=0"
-assert_contains "$second_output" "mcp     servers=1 state=unchanged"
 printf 'smoke: second isolated convergence reports unchanged state... ok\n'
 show_transcript "second convergence" "$second_output"
 
@@ -220,9 +202,6 @@ assert_unchanged "$person_snapshot" person-snapshot
 assert_unchanged "$composed" composed
 assert_unchanged "$manifest" manifest
 assert_unchanged "$skill_state" skill-state
-assert_unchanged "$mcporter" mcporter
-assert_unchanged "$claude_mcp" claude-mcp
-assert_unchanged "$codex_mcp" codex-mcp
 printf 'smoke: representative artifacts remain byte-stable... ok\n'
 
 role_output="$smoke_root/role-launch.txt"
@@ -231,25 +210,25 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" designer codex --version
+    "$binary_exec" design codex --version
 ) >"$role_output" 2>&1; then
   cat "$role_output" >&2
   fail "assigned native role launch failed"
 fi
 
-assert_contains "$role_output" "agent-compose: assigned designer to codex"
+assert_contains "$role_output" "agent-compose: assigned design to codex"
 assert_contains "$role_output" "role metadata"
-assert_contains "$role_output" "role: designer"
+assert_contains "$role_output" "role: design"
 assert_contains "$role_output" "personality: imaginative"
 assert_contains "$role_output" "fake codex <--version>"
 for path in \
   "$launch_target/AGENTS.md" \
-  "$launch_target/.agents/skills/role-designer/SKILL.md" \
+  "$launch_target/.agents/skills/role-design/SKILL.md" \
   "$launch_target/.agents/skills/personality-imaginative/SKILL.md" \
   "$launch_target/.agents/skills/design-method/SKILL.md"; do
   assert_file "$path"
 done
-assert_contains "$launch_target/AGENTS.md" 'assigned the `designer` role'
+assert_contains "$launch_target/AGENTS.md" 'assigned the `design` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
 
@@ -259,7 +238,7 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" designer codex
+    "$binary_exec" design codex
 ) >"$intro_output" 2>&1; then
   cat "$intro_output" >&2
   fail "bare Codex introduction launch failed"
@@ -280,7 +259,6 @@ assert_contains "$third_output" "layout  $native_root/fixtures/AGENTS.COMPOSE.md
 assert_contains "$third_output" " => $native_root/load-points/CLAUDE.md"
 assert_contains "$third_output" "wrote"
 assert_contains "$third_output" "cascade outputs=1 load-points=1 manifest=1 changed=3"
-assert_contains "$third_output" "mcp     servers=1 state=unchanged"
 printf 'smoke: verbose reapply traces and recreates the compose layout... ok\n'
 show_transcript "verbose reapply" "$third_output"
 

@@ -1,6 +1,6 @@
-# Forgejo-canonical single-stage release pipeline. Every main push validates,
-# bumps the minor version, publishes binaries, and refreshes install channels.
-# Runs queue without cancellation so closely spaced pushes release in order.
+# Forgejo-canonical release pipeline. Every main push validates. Product-impact
+# changes publish automatically unless a tracked major-release hold is active.
+# Runs queue without cancellation so closely spaced pushes validate in order.
 
 name: release
 
@@ -34,6 +34,7 @@ jobs:
     container:
       image: forgejo.coilysiren.me/coilyco-flight-deck/agentic-os:release
     outputs:
+      publish: ${{ steps.impact.outputs.publish }}
       tag: ${{ steps.tag.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v6
@@ -51,7 +52,18 @@ jobs:
       - name: Validate the release commit
         run: ward exec test
 
+      - id: impact
+        name: Classify product release impact
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_BASE: ${{ github.event.before }}
+          RELEASE_HEAD: ${{ github.sha }}
+        run: |
+          publish="$(ward exec release-impact)"
+          echo "publish=${publish}" >> "${GITHUB_OUTPUT}"
+
       - id: tag
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         uses: coilyco-flight-deck/agentic-os/actions/tag-bump@main
         with:
           bump: ${{ github.event.inputs.bump || 'minor' }}
@@ -60,14 +72,17 @@ jobs:
           release_sha: ${{ github.sha }}
 
       - name: Fetch the release tag into the build checkout
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         run: git fetch --tags --force
 
       - name: Build binaries and package metadata
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         run: |
           ward exec release-build
           ward exec release-package
 
       - id: create
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         uses: coilyco-flight-deck/agentic-os/actions/create-release@main
         with:
           tag: ${{ steps.tag.outputs.new_tag }}
@@ -75,6 +90,7 @@ jobs:
           body: ${{ steps.tag.outputs.changelog }}
 
       - name: Attach release artifacts
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         env:
           FORGEJO_TOKEN: ${{ github.token }}
           RELEASE_ID: ${{ steps.create.outputs.release_id }}
@@ -99,6 +115,7 @@ jobs:
           done
 
       - name: Update the Homebrew tap
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         env:
           TAP_WRITE_TOKEN: ${{ secrets.TAP_WRITE_TOKEN }}
           TAG: ${{ steps.tag.outputs.new_tag }}
@@ -124,6 +141,7 @@ jobs:
             HEAD:main
 
       - name: Update the Scoop bucket
+        if: ${{ steps.impact.outputs.publish == 'true' }}
         env:
           SCOOP_WRITE_TOKEN: ${{ secrets.SCOOP_WRITE_TOKEN }}
           TAG: ${{ steps.tag.outputs.new_tag }}

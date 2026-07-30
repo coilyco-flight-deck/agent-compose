@@ -10,14 +10,15 @@ completion, handoff, and escalation doctrine.
 A role fragment binds a stable skill id:
 
 ```kdl
-role "advisor" {
-    purpose "Research decisions for Kai's real project portfolio."
-    skill "role-advisor"
-    personality "reflective" "curious" "candid" "skeptical"
+role "strats" {
+    display-name "Portfolio Strategist"
+    purpose "Decide where Kai should invest attention across her real portfolio."
+    skill "role-strats"
+    personality "curious" "skeptical" "grounded" "decisive"
 }
 ```
 
-The body lives at `roles/advisor/SKILL.md` with ordinary skill frontmatter.
+The body lives at `roles/strats/SKILL.md` with ordinary skill frontmatter.
 The loader requires `role-<slug>`, matching frontmatter, a nonempty
 description, and at least three substantive body paragraphs. Missing,
 malformed, or mismatched skills fail before composition.
@@ -55,7 +56,7 @@ unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
 
-Designer owns experience definition everywhere and may implement and land only
+Designer (`design`) owns experience definition everywhere and may implement and land only
 effect-tested visual presentation changes in an existing graphical web
 application. Behavior, semantics, data, generated systems, terminal
 experiences, games, infrastructure, deployment, and live verification remain

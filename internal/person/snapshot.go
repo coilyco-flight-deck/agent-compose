@@ -74,7 +74,7 @@ func BuildSnapshot(p *Person) (*Snapshot, error) {
 	return &Snapshot{
 		Format:           SnapshotFormat,
 		SchemaVersion:    SnapshotSchemaVersion,
-		Source:           "person:" + p.Name,
+		Source:           p.ProviderID(),
 		Person:           p.Name,
 		RoleOrder:        append([]string(nil), p.RoleOrder...),
 		Roles:            roles,
@@ -137,7 +137,7 @@ func BuildSnapshotV4(p *Person) (*SnapshotV4, error) {
 		digest := sha256.Sum256(raw)
 		sourceLibrary := p.PersonalityLibraries[name]
 		if sourceLibrary == "" {
-			sourceLibrary = "person:" + p.Name + ":local"
+			sourceLibrary = p.localSourceID()
 		}
 		entry := SnapshotPersonality{
 			Personality:   binding,

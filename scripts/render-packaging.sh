@@ -14,7 +14,7 @@ WINDOWS_AMD64="$(sha dist/agent-compose-windows-amd64.exe)"
 
 cat > dist/agent-compose.rb <<EOF
 class AgentCompose < Formula
-  desc "Context substrate for AOS, Ward, and native agent harnesses"
+  desc "Core Roster context composition for native agent harnesses"
   homepage "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose"
   version "${BARE}"
   license "MIT"
@@ -50,7 +50,7 @@ EOF
 cat > dist/agent-compose.json <<EOF
 {
     "version": "${BARE}",
-    "description": "Context substrate for AOS, Ward, and native agent harnesses",
+    "description": "Core Roster context composition for native agent harnesses",
     "homepage": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose",
     "license": "MIT",
     "architecture": {

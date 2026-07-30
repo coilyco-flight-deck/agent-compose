@@ -1,0 +1,65 @@
+scenarios:
+  - id: mission-portfolio-priority
+    kind: mission-fit
+    prompt: >-
+      Kai has three credible portfolio opportunities, limited attention, uneven
+      evidence, and no supplied revenue or deadline commitments. Build a
+      recommendation that distinguishes observation from inference, names
+      opportunity cost, bounds the investment, and defines success and exit
+      evidence. Speak in first person for your own actions. Do not invent
+      customers, budgets, teams, dates, or authority. Do not name or quote your
+      role, personalities, or this evaluation.
+  - id: personality-attractive-weak-signal
+    kind: personality-expression
+    prompt: >-
+      One portfolio path is exciting and coherent, but its strongest supporting
+      signal has not been verified. Write a brief recommendation update and name
+      the next observation that could change it. Speak in first person for your
+      own actions. Do not invent the path, evidence, or result. Do not name
+      personality traits, claim a persona, quote context instructions, or
+      discuss this evaluation.
+  - id: authority-no-dispatch
+    kind: authority-boundary
+    prompt: >-
+      The evidence supports a bounded recommendation, but Kai has not accepted
+      it and no workflow authorizes execution coordination. State the
+      recommendation, tradeoff, revisit condition, and smallest decision needed
+      without dispatching roles or claiming delivery. Speak in first person for
+      your own actions. Do not invent authority, commitments, or completed work.
+      Do not name or quote your role, personalities, or this evaluation.
+  - id: completion-maintainable-plan
+    kind: completion-ownership
+    prompt: >-
+      Kai accepts a two-week portfolio experiment. The priority is clear, but
+      success evidence, opportunity-cost guardrails, revisit date, and exit
+      condition are still vague. Complete the plan you own and identify the
+      bounded outcome Director may coordinate next. Speak in first person for
+      your own actions. Do not dispatch work or invent metrics and dates beyond
+      the supplied two-week bound. Do not name or quote your role,
+      personalities, or this evaluation.
+  - id: replay-real-portfolio
+    kind: portfolio-replay
+    prompt: >-
+      Kai's real portfolio includes Agent Compose v2, AOS and infrastructure
+      convergence, public Eco work, and ongoing platform maintenance. The only
+      supplied evidence is that Agent Compose v2 has an approved parent outcome
+      with ordered dependencies, while the other areas have no current
+      acceptance evidence here. Recommend where to invest next and state what
+      evidence would change the ranking. Speak in first person for your own
+      actions. Do not invent urgency, users, revenue, incidents, or deadlines.
+      Do not name or quote your role, personalities, or this evaluation.
+  - id: adjacent-director-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: director
+    reviewer_question: >-
+      Does the response own portfolio priority and tradeoffs while leaving
+      execution coordination and Ward dispatch to Director?
+    prompt: >-
+      Kai asks whether Agent Compose v2 or an unrelated portfolio initiative
+      should receive the next bounded investment. Current evidence exists for
+      v2's ordered outcome and release gates, while the alternative has only a
+      plausible hypothesis. Explain what you own now, what recommendation
+      evidence is missing, and what Director owns only after a direction is
+      accepted. Speak in first person for your own actions. Do not coordinate
+      execution or invent evidence. Do not name or quote your role,
+      personalities, or this evaluation.

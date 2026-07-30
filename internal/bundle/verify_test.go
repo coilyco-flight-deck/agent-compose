@@ -53,8 +53,8 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 						t.Fatalf("ordinary identity source = %q, want aos-public", identity.Source)
 					}
 					foundOrdinary = true
-				} else if identity.Source != "person:kai" {
-					t.Fatalf("personality identity source = %q, want person:kai", identity.Source)
+				} else if identity.Source != "roster:core" {
+					t.Fatalf("personality identity source = %q, want roster:core", identity.Source)
 				}
 			}
 			if !foundOrdinary {
@@ -133,7 +133,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 
 	t.Run("missing identity document", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
-		skillDoc := filepath.Join(dir, "content", "skills", "person%3Akai", "personality-curious", "SKILL.md")
+		skillDoc := filepath.Join(dir, "content", "skills", "roster%3Acore", "personality-curious", "SKILL.md")
 		if err := os.Remove(skillDoc); err != nil {
 			t.Fatal(err)
 		}

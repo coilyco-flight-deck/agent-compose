@@ -37,9 +37,9 @@ func TestBundleRendersSections(t *testing.T) {
 		"engineer/" + personalitySet,
 		"melded #",
 		"\nprofile\n", "\nsources\n", "\nselection\n", "\ndelivery\n",
-		"role engineer", "person \"kai\" defines this role",
+		"role engineer", "roster:core defines this role",
 		"personality curious", "activates its full personality set",
-		"✓ person:kai",
+		"✓ roster:core",
 		"✓ aos-public",
 		"✓ skill personality-curious",
 		"✓ skill personality-grounded",
@@ -146,13 +146,13 @@ func TestDiffReportsLogicalProseAndIdentityChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	changed := map[string]bool{
-		"person:kai:role:engineer":          false,
-		"person:kai:role:engineer:identity": false,
+		"roster:core:role:engineer":          false,
+		"roster:core:role:engineer:identity": false,
 	}
 	for index := range manifest.Content {
 		if _, ok := changed[manifest.Content[index].ID]; ok {
 			manifest.Content[index].Digest = "sha256:" + strings.Repeat(
-				map[bool]string{true: "a", false: "b"}[manifest.Content[index].ID == "person:kai:role:engineer"],
+				map[bool]string{true: "a", false: "b"}[manifest.Content[index].ID == "roster:core:role:engineer"],
 				64,
 			)
 			changed[manifest.Content[index].ID] = true
@@ -175,8 +175,8 @@ func TestDiffReportsLogicalProseAndIdentityChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"person:kai:role:engineer ",
-		"person:kai:role:engineer:identity ",
+		"roster:core:role:engineer ",
+		"roster:core:role:engineer:identity ",
 		"sha256:",
 	} {
 		if !strings.Contains(out, want) {

@@ -34,10 +34,10 @@ commands:
     run: pre-commit run --all-files
     description: Run the complete pre-commit suite explicitly.
   evaluation-scorecard:
-    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --historical
     description: Refresh the committed compact scorecard from validated evaluation records.
   evaluation-scorecard-check:
-    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --check
+    run: go run ./cmd/agent-compose scorecard --results evaluations/latest --out docs/evaluation-scores.md --historical --check
     description: Fail when the committed evaluation scorecard is stale.
   palette-build:
     run: sh scripts/palette-web.sh build
@@ -57,3 +57,12 @@ commands:
   release-package:
     run: sh scripts/render-packaging.sh
     description: Render the brew formula and scoop manifest from dist/ binaries.
+  release-package-test:
+    run: sh scripts/render-packaging-test.sh
+    description: Render v2 fixture package metadata and inspect its public contract.
+  release-impact:
+    run: sh scripts/release-impact.sh
+    description: Decide whether one validated revision should publish a product release.
+  release-impact-test:
+    run: sh scripts/release-impact-test.sh
+    description: Exercise documentation, result, product, hold, and manual release fixtures.

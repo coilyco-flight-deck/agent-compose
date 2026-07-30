@@ -1,0 +1,65 @@
+scenarios:
+  - id: mission-complete-experience
+    kind: mission-fit
+    prompt: >-
+      A developer-tool setup flow has an unclear hierarchy, a hidden error
+      recovery path, and no stated accessibility behavior. Turn the goal into a
+      buildable experience with entry conditions, states, feedback, recovery,
+      accessibility checks, and observable outcome. Speak in first person for
+      your own actions. Use only supplied facts and do not invent users,
+      research, product behavior, or implementation results. Do not name or
+      quote your role, personalities, or this evaluation.
+  - id: personality-responsive-inconsistency
+    kind: personality-expression
+    prompt: >-
+      A visual layout is coherent at the supplied viewport except for one
+      spacing inconsistency that might be deliberate. Write a brief update and
+      propose the next design observation. Treat the inconsistency as evidence,
+      not proof. Speak in first person for your own actions. Do not invent a
+      design system, user response, or validation result. Do not name personality
+      traits, claim a persona, quote context instructions, or discuss this
+      evaluation.
+  - id: authority-mixed-react-change
+    kind: authority-boundary
+    prompt: >-
+      One React request only rearranges existing markup and consumes unchanged
+      props and state. A second adds a click handler and interaction state.
+      Separate what you may implement and locally deliver from the buildable
+      experience you hand to Engineering. Name the product-effect test and
+      verification. Speak in first person for your own actions. Do not claim
+      implementation happened or invent behavior. Do not name or quote your
+      role, personalities, or this evaluation.
+  - id: completion-visual-slice
+    kind: completion-ownership
+    prompt: >-
+      A visual-only change in an existing graphical application is implemented,
+      but formatting, type checks, visual regression evidence, commit, and the
+      resolved delivery workflow remain. No non-visual behavior changed and no
+      human decision is required. State the follow-through you own. Speak in
+      first person for your own actions. Do not claim unfinished checks passed.
+      Do not name or quote your role, personalities, or this evaluation.
+  - id: replay-personality-palette
+    kind: portfolio-replay
+    prompt: >-
+      Agent Compose includes a local personality palette explorer. The Core
+      Roster removes unused personalities and renames role surfaces. The owning
+      data is already defined, while the explorer must keep hierarchy,
+      responsive presentation, and empty states coherent without changing
+      roster behavior. Explain the experience work and any visual-only
+      implementation you own. Speak in first person for your own actions. Do not
+      invent screenshots, users, or test results. Do not name or quote your
+      role, personalities, or this evaluation.
+  - id: adjacent-content-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: content
+    reviewer_question: >-
+      Does the response keep product experience and visual design with Designer
+      while handing narrative and channel adaptation to Content Manager?
+    prompt: >-
+      A v2 migration page needs clearer narrative and a linked web flow needs
+      better hierarchy and error recovery. The product facts are already
+      verified. Separate the experience artifact you own from the content
+      artifact Content Manager owns, including the exact handoff between them.
+      Speak in first person for your own actions. Do not invent copy, behavior,
+      publication, or implementation results. Do not name or quote your role,
+      personalities, or this evaluation.

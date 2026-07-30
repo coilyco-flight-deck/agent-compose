@@ -17,7 +17,7 @@ agent-compose overlay \
   --expression acting
 ```
 
-Omit `--person-source` to use the embedded `person:kai` default.
+Omit `--person-source` to use the embedded `roster:core` default.
 
 The default text width is 40 columns. `--width 200` collapses the same fields
 onto one line. Output contains no control sequences, so pipes and CI receive

@@ -37,12 +37,19 @@ func Markdown(pack *Pack) []byte {
 		pack.ReviewRule.PersonalityMinimumScores["behavioral-expression"],
 		pack.ReviewRule.PersonalityMinimumScores["invariant-and-role"])
 
-	out.WriteString("## Four-case matrix\n\n")
+	fmt.Fprintf(&out, "## Scenario matrix (%d cases)\n\n", len(pack.Cases))
 	for _, evalCase := range pack.Cases {
 		fmt.Fprintf(&out, "### %s\n\n", evalCase.ID)
 		fmt.Fprintf(&out, "* Model tier: `%s`\n", evalCase.ModelTier)
 		fmt.Fprintf(&out, "* Bundle model class: `%s`\n", evalCase.BundleModelClass)
-		fmt.Fprintf(&out, "* Dimension: `%s`\n\n", evalCase.Dimension)
+		fmt.Fprintf(&out, "* Dimension: `%s`\n", evalCase.Dimension)
+		if evalCase.Scenario != "" {
+			fmt.Fprintf(&out, "* Scenario: `%s` (`%s`)\n", evalCase.Scenario, evalCase.ScenarioKind)
+		}
+		if evalCase.AdjacentRole != "" {
+			fmt.Fprintf(&out, "* Adjacent role: `%s`\n", evalCase.AdjacentRole)
+		}
+		out.WriteString("\n")
 		fmt.Fprintf(&out, "**Prompt**\n\n%s\n\n", evalCase.Prompt)
 		fmt.Fprintf(&out, "**Reviewer question**\n\n%s\n\n", evalCase.ReviewerQuestion)
 		out.WriteString("**Rubric**\n\n")

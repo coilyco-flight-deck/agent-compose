@@ -3,10 +3,11 @@
 Agent-compose is the context substrate between knowledge providers and native
 or isolated agent harnesses. It selects, compiles, and installs the context an
 agent starts with while keeping executable authority outside the bundle. The
-public product is intentionally opinionated: it includes Kai's public-safe
-operating roster, personality catalog, and composition defaults. An independent
-deployment can select one complete external person package instead, with no
-role or definition inheritance from that default.
+public product is intentionally opinionated: its first-party **Core Roster**
+provides eight public-safe roles, sixteen personalities, seats, compatibility,
+and evaluation context. An independent deployment can select one complete
+external package instead, with no role or definition inheritance from that
+default.
 
 The intended product accepts a role, a model class, a delivery mode, and
 optional capability sources. The role activates its complete ordered default
@@ -18,12 +19,12 @@ context bundle.
 
 ## Ownership boundary
 
-Agent-compose owns the context boundary and its bundled public-safe person
-configuration:
+Agent-compose owns the context boundary and its bundled public-safe Core
+Roster:
 
 * canonical role skills plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
-* one selected person package, with Kai's thirteen-role roster as the default
+* one selected roster package, with `roster:core` as the zero-config default
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
@@ -34,10 +35,10 @@ configuration:
 * model-class-aware pruning controlled by each skill's own frontmatter
 * fail-closed per-role model-class compatibility
 * native-skill and compiled-context delivery with source entry-point promotion
-* local and cached remote ordinary-skill catalogs projected through one native path
+* local ordinary-skill catalogues projected through one native path
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
-* host doctrine convergence, native skill installation, and native MCP projection
+* host doctrine convergence and native skill installation
 * bundle inspection, validation, and compatibility reporting
 * compact text and JSON identity overlays with caller-supplied state
 * deterministic Markdown and YAML behavior evaluation packs, YAML scored
@@ -52,20 +53,19 @@ and lifecycle. Personality and operating framing never alter consumer
 permissions. Infrastructure
 installs the resulting system across hosts.
 
-## Personal by design
+## Core Roster
 
-The initial person configuration is Kai's thirteen-role operating roster and
-twenty-one-personality catalog described in
-[agentic-os#602](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/602)
-and tracked for implementation in
-[agent-compose#10](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/10).
-The engine keeps this package as its opinionated zero-config default. Its roles
+The engine keeps `roster:core` as its opinionated zero-config default. Engineer,
+Director, QA, DevOps (`ops`), Designer (`design`), Community Manager
+(`community`), Portfolio Strategist (`strats`), and Content Manager (`content`)
 operate Kai's real open-source, platform, community, personal, and gaming
 portfolio without inventing a company or active commercial venture. Potential
-contracting and SaaS work stays evidence-qualified. Another deployment can
-select a complete package using the same validated layout. The
-selection is exclusive: an external package contributes its own roles, seats,
-personality definitions, and evaluation context without loading `person:kai`.
+contracting and SaaS work stays evidence-qualified.
+
+Another deployment can select a complete package using the same validated
+layout. The selection is exclusive: an external package contributes its own
+roles, seats, personality definitions, and evaluation context without loading
+`roster:core`.
 An `external-only` policy makes that boundary fail closed across the machine.
 See [person packages](docs/person-packages.md).
 
@@ -74,19 +74,17 @@ See [person packages](docs/person-packages.md).
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. A configured mcporter inventory projects into
-both Claude Code and Codex native MCP registries during host convergence.
-Provider roots contribute ordinary skills for
+package-manager distribution. Provider roots contribute ordinary skills for
 every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
-default `person:kai` provider supplies the personality invariant and all 21
+default `roster:core` provider supplies the personality invariant and all 16
 canonical definitions, so its host roster convergence needs no external
 personality source. A configured external person package replaces that provider
 as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
-palette explorer, identity overlay, and four-case behavior evaluation pack.
-Bare `acompose` hydrates remote skills, converges the host, and refreshes the
-versioned person snapshot. `acompose -- <command>` launches with inferred
+palette explorer, identity overlay, and Core Roster v2 behavior matrices.
+Bare `acompose` consumes AOS-verified local catalogue roots, converges the host,
+and refreshes the versioned person snapshot. `acompose -- <command>` launches with inferred
 context. Assigned [native role launches](docs/native-role-launch.md) render
 canonical identity colors, and bare Codex prompts its seat to introduce itself.
 `acompose --reapply` rewrites the generated compose outputs and recreates
@@ -129,7 +127,7 @@ Every push to canonical `main` validates and publishes the next minor release.
 Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
 `ward exec test` runs the Go and palette tests plus the full pre-commit sweep.
 `ward exec smoke` builds the real `acompose` entry point and converges an
-isolated temporary home twice, covering roster, cascade, skills, MCP projection,
+isolated temporary home twice, covering roster, cascade, skills, load points,
 and idempotence without touching live host state or the network. It reports each
 stage. `ward exec smoke-verbose` also prints both captured convergence transcripts.
 `build`, `lint`, `install`, and `tidy` cover the remaining Go verbs.
@@ -150,11 +148,10 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
 * [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
 * [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
+* [docs/v2-migration.md](docs/v2-migration.md) - v1 provider and role destinations.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
-* [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
-* [docs/personality-palette.md](docs/personality-palette.md) - local color explorer.
-* [docs/remote-skills.md](docs/remote-skills.md) - remote skill hydration and cache behavior.
+* [docs/evaluation.md](docs/evaluation.md) - deterministic human behavior review.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
-* [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.
+* [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared catalog structure.

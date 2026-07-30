@@ -171,19 +171,19 @@ func TestResolveRejectsUnsupportedRoleModelClass(t *testing.T) {
 		t.Fatal(err)
 	}
 	lowContext := &schema.Request{
-		Role:       "ceo",
+		Role:       "strats",
 		Delivery:   schema.DeliveryNativeSkills,
 		ModelClass: schema.ModelClassLowContext,
 	}
 	if _, err := Resolve(lowContext, p, nil, nil); err == nil ||
-		err.Error() != `role "ceo" requires a frontier model` {
-		t.Fatalf("low-context CEO error = %v", err)
+		err.Error() != `role "strats" requires a frontier model` {
+		t.Fatalf("low-context Portfolio Strategist error = %v", err)
 	}
 
 	frontier := *lowContext
 	frontier.ModelClass = schema.ModelClassFrontier
 	if _, err := Resolve(&frontier, p, nil, nil); err != nil {
-		t.Fatalf("frontier CEO failed: %v", err)
+		t.Fatalf("frontier Portfolio Strategist failed: %v", err)
 	}
 }
 

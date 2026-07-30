@@ -23,6 +23,7 @@ type PersonalityCatalogEntry struct {
 
 type RoleCatalogEntry struct {
 	Slug          string   `json:"slug"`
+	DisplayName   string   `json:"display_name"`
 	Purpose       string   `json:"purpose"`
 	Skill         string   `json:"skill"`
 	SkillSource   string   `json:"skill_source"`
@@ -97,6 +98,7 @@ func (p *Person) RoleCatalog() ([]RoleCatalogEntry, error) {
 		role := p.Roles[name]
 		out = append(out, RoleCatalogEntry{
 			Slug:          name,
+			DisplayName:   p.RoleDisplayName(name),
 			Purpose:       role.Purpose,
 			Skill:         p.RoleSkillID(name),
 			SkillSource:   role.SkillSource,

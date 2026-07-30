@@ -130,13 +130,13 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		res.SourceIDs = append(res.SourceIDs, src.ID)
 	}
 	res.decide(Decision{
-		Subject: "role:" + req.Role, Kind: "profile", Source: "person:" + p.Name,
+		Subject: "role:" + req.Role, Kind: "profile", Source: p.ProviderID(),
 		Outcome: OutcomeSelected,
-		Reason:  fmt.Sprintf("person %q defines this role: %s", p.Name, role.Purpose),
+		Reason:  fmt.Sprintf("%s defines this role: %s", p.ProviderID(), role.Purpose),
 	})
 	for _, name := range role.Personalities {
 		res.decide(Decision{
-			Subject: "personality:" + name, Kind: "profile", Source: "person:" + p.Name,
+			Subject: "personality:" + name, Kind: "profile", Source: p.ProviderID(),
 			Outcome: OutcomeSelected,
 			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
 		})

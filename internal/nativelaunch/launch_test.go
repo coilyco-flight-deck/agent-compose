@@ -39,7 +39,7 @@ func writeProvider(t *testing.T, root string, withRole bool) {
 	writeFile(
 		t,
 		filepath.Join(root, ".agents", "roles.kdl"),
-		"roles {\n    role designer {\n        composed-skill design-method\n    }\n}\n",
+		"roles {\n    role design {\n        composed-skill design-method\n    }\n}\n",
 	)
 }
 
@@ -67,7 +67,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	designer := profile.Roles["designer"]
+	designer := profile.Roles["design"]
 
 	cases := map[string]struct {
 		instructions string
@@ -83,7 +83,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 		t.Run(harness, func(t *testing.T) {
 			target := t.TempDir()
 			result, err := Refresh(Options{
-				Role:         "designer",
+				Role:         "design",
 				Harness:      harness,
 				ModelClass:   tc.modelClass,
 				CWD:          projects,
@@ -98,19 +98,19 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 				t.Fatalf("model class = %q, want %q", result.ModelClass, tc.modelClass)
 			}
 			if result.Composition == nil ||
-				result.Composition.Resolution.Request.Role != "designer" {
+				result.Composition.Resolution.Request.Role != "design" {
 				t.Fatalf("composition result does not retain the assigned role: %+v", result.Composition)
 			}
 			instructions, err := os.ReadFile(filepath.Join(target, tc.instructions))
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !strings.Contains(string(instructions), "assigned the `designer` role") {
+			if !strings.Contains(string(instructions), "assigned the `design` role") {
 				t.Fatalf("assigned role missing from instructions:\n%s", instructions)
 			}
 			skills := []string{
 				"ordinary",
-				"role-designer",
+				"role-design",
 				"design-method",
 			}
 			for _, name := range designer.Personalities {
@@ -141,7 +141,7 @@ func TestRefreshDefaultsToFrontierModelClass(t *testing.T) {
 	writeManifest(t, manifest, projects, provider)
 
 	result, err := Refresh(Options{
-		Role:         "designer",
+		Role:         "design",
 		Harness:      "goose",
 		CWD:          projects,
 		TargetDir:    t.TempDir(),
@@ -164,7 +164,7 @@ func TestRefreshRequiresRoleComposedProvider(t *testing.T) {
 	writeManifest(t, manifest, projects, provider)
 
 	_, err := Refresh(Options{
-		Role:         "designer",
+		Role:         "design",
 		Harness:      "codex",
 		CWD:          projects,
 		TargetDir:    t.TempDir(),
