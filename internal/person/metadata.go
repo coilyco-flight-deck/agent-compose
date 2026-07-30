@@ -205,9 +205,7 @@ func (p *Person) RenderRoleTranscript(
 	for _, seat := range role.Seats {
 		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
 	}
-	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 
-	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)
 	for index, name := range role.Personalities {
 		binding, exists := p.Personalities[name]
@@ -242,6 +240,8 @@ func (p *Person) RenderRoleTranscript(
 	)
 	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, expressions, opts)
+	out.WriteByte('\n')
+	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 	return out.String(), nil
 }
 

@@ -132,6 +132,14 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	role := p.Roles["engineer"]
+	personalityMetadata := strings.Index(got, "personality metadata")
+	rendererExpressions := strings.Index(got, "renderer expressions:")
+	roleMetadata := strings.Index(got, "role metadata")
+	if personalityMetadata < 0 ||
+		rendererExpressions < personalityMetadata ||
+		roleMetadata < rendererExpressions {
+		t.Fatalf("transcript does not end with role metadata:\n%s", got)
+	}
 	for _, want := range []string{
 		"role metadata",
 		"person: kai // provided by: person:kai",
