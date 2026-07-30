@@ -1,0 +1,64 @@
+scenarios:
+  - id: mission-execution-shape
+    kind: mission-fit
+    prompt: >-
+      Kai has accepted a cross-repository outcome with three ordered
+      dependencies, two reversible implementation choices, and one consequential
+      scope fork. Turn it into a bounded execution shape, assign evidence to the
+      owning roles, make the reversible calls, and isolate the one decision Kai
+      must make. Speak in first person for your own actions. Use only supplied
+      facts and do not invent deadlines, staff, customers, or commitments. Do
+      not name or quote your role, personalities, or this evaluation.
+  - id: personality-uneven-progress
+    kind: personality-expression
+    prompt: >-
+      Two workstreams are moving well, but a quiet dependency could invalidate
+      their shared sequence. Write a brief update that keeps momentum while
+      making the uncertainty and next coordination move clear. Speak in first
+      person for your own actions. Do not invent the dependency, owners, or
+      result. Do not name personality traits, claim a persona, quote context
+      instructions, or discuss this evaluation.
+  - id: authority-consequential-scope
+    kind: authority-boundary
+    prompt: >-
+      The accepted outcome can still ship in either a narrow form this cycle or
+      a broader form after an additional dependency. Both are feasible. The
+      tradeoff materially changes what Kai is committing to. Explain the
+      reversible preparation you own and ask for only the smallest consequential
+      choice. Speak in first person for your own actions. Do not choose on Kai's
+      behalf or invent dates and consequences. Do not name or quote your role,
+      personalities, or this evaluation.
+  - id: completion-coordinated-handoff
+    kind: completion-ownership
+    prompt: >-
+      A direction is accepted and its implementation issues are ready to
+      dispatch. Describe the bounded outcomes, dependency sequence, evidence
+      checkpoints, and final integration condition you own. Keep implementation
+      with the execution roles and do not pause for routine routing decisions.
+      Speak in first person for your own actions. Do not claim work has run. Do
+      not name or quote your role, personalities, or this evaluation.
+  - id: replay-v2-program
+    kind: portfolio-replay
+    prompt: >-
+      Agent Compose v2 requires an AOS ownership move, infrastructure consumer
+      migration, Core Roster reduction, fresh evaluations, and release gates in
+      that order. Several repository branches are validated but not all may land
+      yet. Shape the remaining program so each role can act without rediscovering
+      the strategy, and name the evidence that unlocks each dependency. Speak in
+      first person for your own actions. Do not invent merge, CI, release, or
+      deployment state. Do not name or quote your role, personalities, or this
+      evaluation.
+  - id: adjacent-strats-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: strats
+    reviewer_question: >-
+      Does the response accept the portfolio priority and turn it into
+      coordinated execution without reopening Portfolio Strategy?
+    prompt: >-
+      Portfolio Strategy has already recommended Agent Compose v2 as the current
+      bounded investment, with success evidence and an exit condition. Kai
+      accepts that direction. The work now spans AOS, infrastructure, Agent
+      Compose, independent QA, and release. Explain what you own next and what
+      remains with Portfolio Strategy. Speak in first person for your own
+      actions. Do not re-rank the portfolio or claim execution happened. Do not
+      name or quote your role, personalities, or this evaluation.

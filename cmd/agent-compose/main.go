@@ -182,7 +182,7 @@ func main() {
 			},
 			{
 				Name:  "evaluation",
-				Usage: "emit the four-case frontier and OSS human-review matrix",
+				Usage: "emit deterministic frontier and OSS human-review packs",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "role",
@@ -206,6 +206,14 @@ func main() {
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
 						Usage: "additional local personality-library root (repeatable)",
+					},
+					&cli.BoolFlag{
+						Name:  "all",
+						Usage: "emit the complete validated Core Roster matrix",
+					},
+					&cli.StringFlag{
+						Name:  "out-dir",
+						Usage: "empty directory receiving --all packs and their digest index",
 					},
 				},
 				Action: runEvaluation,
@@ -496,6 +504,22 @@ func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
 }
 
 func runEvaluation(_ context.Context, cmd *cli.Command) error {
+	if cmd.Bool("all") {
+		if cmd.String("person-source") != "" || len(cmd.StringSlice("personality-library")) > 0 {
+			return fmt.Errorf("evaluation --all is limited to the embedded Core Roster")
+		}
+		if cmd.String("out-dir") == "" {
+			return fmt.Errorf("evaluation --all requires --out-dir")
+		}
+		packs, err := evaluation.BuildCorePacks(cmd.String("seat"))
+		if err != nil {
+			return err
+		}
+		return writeEvaluationPacks(packs, cmd.String("format"), cmd.String("out-dir"))
+	}
+	if cmd.String("out-dir") != "" {
+		return fmt.Errorf("evaluation --out-dir requires --all")
+	}
 	p, external, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -515,6 +539,76 @@ func runEvaluation(_ context.Context, cmd *cli.Command) error {
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+type evaluationPackIndex struct {
+	Format string                     `json:"format"`
+	Seat   string                     `json:"seat"`
+	Packs  []evaluationPackIndexEntry `json:"packs"`
+}
+
+type evaluationPackIndexEntry struct {
+	Role       string `json:"role"`
+	File       string `json:"file"`
+	Cases      int    `json:"cases"`
+	PackDigest string `json:"pack_digest"`
+}
+
+func writeEvaluationPacks(packs []*evaluation.Pack, format, output string) error {
+	if format != "yaml" && format != "markdown" {
+		return fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
+	}
+	if err := os.MkdirAll(output, 0o755); err != nil {
+		return fmt.Errorf("create evaluation output directory: %w", err)
+	}
+	entries, err := os.ReadDir(output)
+	if err != nil {
+		return fmt.Errorf("read evaluation output directory: %w", err)
+	}
+	if len(entries) != 0 {
+		return fmt.Errorf("evaluation output directory must be empty")
+	}
+	extension := ".md"
+	if format == "yaml" {
+		extension = ".yaml"
+	}
+	index := evaluationPackIndex{
+		Format: "agent-compose.evaluation-index.v1",
+	}
+	for _, pack := range packs {
+		if index.Seat == "" {
+			index.Seat = pack.Seat.Selector()
+		} else if index.Seat != pack.Seat.Selector() {
+			return fmt.Errorf("evaluation packs mix seats")
+		}
+		raw, err := evaluationOutput(pack, format)
+		if err != nil {
+			return err
+		}
+		digest, err := evaluation.PackDigest(pack)
+		if err != nil {
+			return err
+		}
+		name := pack.Role + "-" + pack.Seat.Selector() + extension
+		if err := os.WriteFile(filepath.Join(output, name), raw, 0o644); err != nil {
+			return fmt.Errorf("write evaluation pack %q: %w", name, err)
+		}
+		index.Packs = append(index.Packs, evaluationPackIndexEntry{
+			Role:       pack.Role,
+			File:       name,
+			Cases:      len(pack.Cases),
+			PackDigest: digest,
+		})
+	}
+	rawIndex, err := json.MarshalIndent(index, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal evaluation pack index: %w", err)
+	}
+	rawIndex = append(rawIndex, '\n')
+	if err := os.WriteFile(filepath.Join(output, "index.json"), rawIndex, 0o644); err != nil {
+		return fmt.Errorf("write evaluation pack index: %w", err)
+	}
+	return nil
 }
 
 func writeScorecard(stdout io.Writer, raw []byte, output string, check bool) error {

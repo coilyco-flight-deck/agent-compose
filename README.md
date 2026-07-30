@@ -82,7 +82,7 @@ personality source. A configured external person package replaces that provider
 as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
-palette explorer, identity overlay, and four-case behavior evaluation pack.
+palette explorer, identity overlay, and Core Roster v2 behavior matrices.
 Bare `acompose` consumes AOS-verified local catalogue roots, converges the host,
 and refreshes the versioned person snapshot. `acompose -- <command>` launches with inferred
 context. Assigned [native role launches](docs/native-role-launch.md) render
@@ -151,7 +151,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/v2-migration.md](docs/v2-migration.md) - v1 provider and role destinations.
 * [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
-* [docs/evaluation.md](docs/evaluation.md) - four-case human behavior review.
+* [docs/evaluation.md](docs/evaluation.md) - deterministic human behavior review.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared catalog structure.

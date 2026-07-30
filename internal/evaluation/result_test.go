@@ -127,6 +127,7 @@ func TestValidateResultRequiresCompleteV2RetryProvenance(t *testing.T) {
 	}
 	result := passingResult(pack)
 	result.Format = ResultFormatV2
+	result.Provenance.PromptAuthor = "fixture prompt author"
 	digest, err := PackDigest(pack)
 	if err != nil {
 		t.Fatal(err)
@@ -139,7 +140,7 @@ func TestValidateResultRequiresCompleteV2RetryProvenance(t *testing.T) {
 
 	result.Provenance.RetryProvenance = &RetryProvenance{
 		Attempts: []RetryAttempt{{
-			Case:    "oss-role-understanding",
+			Case:    caseForScenarioKind(t, pack, ossTier, ScenarioMissionFit).ID,
 			Attempt: 1,
 			Outcome: "transport-timeout",
 			Reason:  "The model endpoint returned no bytes before the deadline.",
@@ -152,6 +153,41 @@ func TestValidateResultRequiresCompleteV2RetryProvenance(t *testing.T) {
 	if err := ValidateResult(result, pack); err == nil ||
 		!strings.Contains(err.Error(), "unknown case") {
 		t.Fatalf("unknown retry case error = %v", err)
+	}
+}
+
+func TestValidateResultRequiresIndependentV2ReviewerAndExactRevision(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Format = ResultFormatV2
+	result.Provenance.PackDigest, err = PackDigest(pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result.Provenance.RetryProvenance = &RetryProvenance{Attempts: []RetryAttempt{}}
+	result.Provenance.PromptAuthor = ""
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "prompt author") {
+		t.Fatalf("missing prompt author error = %v", err)
+	}
+	result.Provenance.PromptAuthor = result.Provenance.Reviewer
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "independent") {
+		t.Fatalf("same reviewer error = %v", err)
+	}
+	result.Provenance.PromptAuthor = "fixture prompt author"
+	result.Provenance.SourceRevision = "short"
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "full Git object id") {
+		t.Fatalf("short revision error = %v", err)
+	}
+	result.Provenance.SourceRevision = strings.Repeat("a", 40)
+	if err := ValidateResult(result, pack); err != nil {
+		t.Fatalf("independent provenance failed: %v", err)
 	}
 }
 
@@ -205,7 +241,7 @@ func TestValidateResultRejectsIncompleteOrRepeatedModelCases(t *testing.T) {
 	result := passingResult(pack)
 	var candidate ScoredCase
 	for _, scored := range result.Cases {
-		if scored.ID == "oss-role-understanding" {
+		if scored.ID == caseForScenarioKind(t, pack, ossTier, ScenarioMissionFit).ID {
 			candidate = scored
 			candidate.Model = "incomplete-oss-model"
 			break
@@ -233,7 +269,8 @@ func passingResult(pack *Pack) *ScoredResult {
 		Provenance: ResultProvenance{
 			EvaluatedAt:    "2026-01-01",
 			SourceIssue:    "https://example.com/issues/1",
-			SourceRevision: "example#1",
+			SourceRevision: strings.Repeat("a", 40),
+			PromptAuthor:   "fixture prompt author",
 			Reviewer:       "fixture reviewer",
 		},
 	}

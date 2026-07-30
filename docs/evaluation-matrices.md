@@ -1,17 +1,28 @@
 # Profile-owned evaluation matrices
 
-The engine ships one complete generic evaluation fallback. A profile may add
-`evaluations/<role>.yaml` with its own complete `run_protocol`, `review_rule`,
-and arbitrary named `cases`.
+The engine owns the run protocol, scoring rule, frontier and OSS lanes, and
+generic rubrics. A Core Roster role owns `evaluations/<role>.yaml` with ordered
+scenario inputs. Each scenario names a stable id, one supported kind, its
+prompt, and an optional reviewer question. Adjacent-role scenarios also name
+the role whose boundary they test.
 
-Each custom case names its stable seat-oriented lane, bundle model class,
-dimension, prompt, reviewer question, and rubric. A complete custom matrix
-replaces the generic matrix as one unit. A role without one receives the
-generic fallback.
+Supported Core Roster scenario kinds are:
 
-Legacy prompt-only profile assets remain readable during v1.x. They retain the
-generic protocol, review rule, lanes, and rubrics while replacing only the
-role-specific prompts.
+* `mission-fit`
+* `personality-expression`
+* `authority-boundary`
+* `completion-ownership`
+* `portfolio-replay`
+* `adjacent-role-discrimination`
+
+The engine expands each scenario into paired frontier and OSS cases. Keeping
+lanes and rubrics in the engine prevents eight role assets from restating the
+same evaluation configuration.
+
+External roster packages may instead provide a complete custom matrix with
+`run_protocol`, `review_rule`, and arbitrary `cases`. A complete matrix replaces
+the generic matrix as one unit. A role without an asset receives the generic
+fallback. Legacy prompt-only assets remain readable for external v1 packages.
 
 ## See also
 

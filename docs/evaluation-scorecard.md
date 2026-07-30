@@ -9,8 +9,11 @@ agent-compose scorecard --results evaluations/latest --seat codex
 ```
 
 Each role occupies one row. `FR`, `FP`, `OR`, and `OP` are the frontier role,
-frontier personality, OSS role, and OSS personality cases. A cell carries its
-points plus `✓` or `×`. The header carries aggregate case and point totals.
+frontier personality, OSS role, and OSS personality cases. V2 scorecards add
+`FA` and `OA` for adjacent-role discrimination when any result contains those
+cases. A cell aggregates its cases and carries points plus `✓` or `×`. A missing
+adjacent lane renders `-`, which is expected for QA. The header carries
+aggregate case and point totals.
 
 The Ward verb refreshes the committed
 [`evaluation-scores.md`](evaluation-scores.md). Direct CLI use emits

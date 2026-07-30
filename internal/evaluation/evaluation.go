@@ -18,7 +18,16 @@ import (
 //go:embed assets/generic.yaml
 var genericMatrixAsset []byte
 
-const Format = "agent-compose.evaluation-pack.v1"
+const Format = "agent-compose.evaluation-pack.v2"
+
+const (
+	ScenarioMissionFit          = "mission-fit"
+	ScenarioPersonality         = "personality-expression"
+	ScenarioAuthorityBoundary   = "authority-boundary"
+	ScenarioCompletionOwnership = "completion-ownership"
+	ScenarioPortfolioReplay     = "portfolio-replay"
+	ScenarioAdjacentRole        = "adjacent-role-discrimination"
+)
 
 type PersonalityContext struct {
 	Name       string `yaml:"name"`
@@ -44,9 +53,20 @@ type Case struct {
 	ModelTier        string      `yaml:"model_tier"`
 	BundleModelClass string      `yaml:"bundle_model_class"`
 	Dimension        string      `yaml:"dimension"`
+	Scenario         string      `yaml:"scenario,omitempty"`
+	ScenarioKind     string      `yaml:"scenario_kind,omitempty"`
+	AdjacentRole     string      `yaml:"adjacent_role,omitempty"`
 	Prompt           string      `yaml:"prompt"`
 	ReviewerQuestion string      `yaml:"reviewer_question"`
 	Rubric           []Criterion `yaml:"rubric"`
+}
+
+type Scenario struct {
+	ID               string `yaml:"id"`
+	Kind             string `yaml:"kind"`
+	AdjacentRole     string `yaml:"adjacent_role,omitempty"`
+	Prompt           string `yaml:"prompt"`
+	ReviewerQuestion string `yaml:"reviewer_question,omitempty"`
 }
 
 type ReviewRule struct {
@@ -104,7 +124,7 @@ func EffectiveAssetDigests(p *person.Person, roleName string) ([]AssetDigest, er
 		ID:     p.ProviderID() + ":evaluation:" + roleName,
 		Digest: fmt.Sprintf("sha256:%x", customDigest),
 	}
-	if len(matrix.Cases) > 0 {
+	if len(matrix.Cases) > 0 || len(matrix.Scenarios) > 0 {
 		return []AssetDigest{custom}, nil
 	}
 	return []AssetDigest{generic, custom}, nil
@@ -114,6 +134,7 @@ type profileMatrix struct {
 	RunProtocol         []string          `yaml:"run_protocol"`
 	ReviewRule          ReviewRule        `yaml:"review_rule"`
 	Cases               []Case            `yaml:"cases"`
+	Scenarios           []Scenario        `yaml:"scenarios"`
 	RolePrompt          string            `yaml:"role_prompt"`
 	PersonalityPrompt   string            `yaml:"personality_prompt"`
 	PersonalityByRole   map[string]string `yaml:"personality_by_role"`
@@ -224,6 +245,13 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		if err != nil {
 			return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
 		}
+		if len(matrix.Scenarios) > 0 {
+			pack.Cases, err = casesForScenarios(generic, matrix.Scenarios)
+			if err != nil {
+				return nil, fmt.Errorf("evaluation matrix for role %q: %w", roleName, err)
+			}
+			return pack, nil
+		}
 		if len(matrix.Cases) > 0 {
 			pack.RunProtocol = matrix.RunProtocol
 			pack.ReviewRule = matrix.ReviewRule
@@ -258,6 +286,28 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 	if err := decoder.Decode(&matrix); err != nil {
 		return matrix, err
 	}
+	if len(matrix.Cases) > 0 && len(matrix.Scenarios) > 0 {
+		return matrix, fmt.Errorf("matrix cannot mix cases and scenarios")
+	}
+	if len(matrix.Scenarios) > 0 {
+		if len(matrix.RunProtocol) > 0 ||
+			matrix.ReviewRule.PassingTotal > 0 ||
+			matrix.RolePrompt != "" ||
+			matrix.PersonalityPrompt != "" {
+			return matrix, fmt.Errorf("scenario matrix inherits the engine protocol and rubric")
+		}
+		seen := make(map[string]bool, len(matrix.Scenarios))
+		for index, scenario := range matrix.Scenarios {
+			if err := validateScenario(scenario); err != nil {
+				return matrix, fmt.Errorf("scenario %d: %w", index, err)
+			}
+			if seen[scenario.ID] {
+				return matrix, fmt.Errorf("scenario id %q is repeated", scenario.ID)
+			}
+			seen[scenario.ID] = true
+		}
+		return matrix, nil
+	}
 	if len(matrix.Cases) > 0 {
 		if len(matrix.RunProtocol) == 0 ||
 			matrix.ReviewRule.PassingTotal == 0 ||
@@ -277,6 +327,31 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 		return matrix, fmt.Errorf("matrix must include role_prompt and personality_prompt")
 	}
 	return matrix, nil
+}
+
+func validateScenario(scenario Scenario) error {
+	if strings.TrimSpace(scenario.ID) == "" ||
+		strings.TrimSpace(scenario.Kind) == "" ||
+		strings.TrimSpace(scenario.Prompt) == "" {
+		return fmt.Errorf("scenario is incomplete")
+	}
+	switch scenario.Kind {
+	case ScenarioMissionFit,
+		ScenarioPersonality,
+		ScenarioAuthorityBoundary,
+		ScenarioCompletionOwnership,
+		ScenarioPortfolioReplay:
+		if scenario.AdjacentRole != "" {
+			return fmt.Errorf("scenario %q cannot name an adjacent role", scenario.ID)
+		}
+	case ScenarioAdjacentRole:
+		if strings.TrimSpace(scenario.AdjacentRole) == "" {
+			return fmt.Errorf("adjacent scenario %q must name the adjacent role", scenario.ID)
+		}
+	default:
+		return fmt.Errorf("scenario %q has unsupported kind %q", scenario.ID, scenario.Kind)
+	}
+	return nil
 }
 
 func validateCompleteCase(evalCase Case) error {
@@ -346,6 +421,46 @@ func casesForProfile(generic, profile profileMatrix, roleName string) ([]Case, e
 			return nil, fmt.Errorf("generic matrix has unknown dimension %q", caseCopy.Dimension)
 		}
 		cases[i] = caseCopy
+	}
+	return cases, nil
+}
+
+func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, error) {
+	type lane struct {
+		tier       string
+		modelClass string
+	}
+	lanes := []lane{
+		{tier: frontierTier, modelClass: "frontier"},
+		{tier: ossTier, modelClass: "low-context"},
+	}
+	cases := make([]Case, 0, len(lanes)*len(scenarios))
+	for _, currentLane := range lanes {
+		for _, scenario := range scenarios {
+			dimension := roleDimension
+			question := generic.RoleQuestion
+			rubric := generic.RoleRubric
+			if scenario.Kind == ScenarioPersonality {
+				dimension = personalityDimension
+				question = generic.PersonalityQuestion
+				rubric = generic.PersonalityRubric
+			}
+			if scenario.ReviewerQuestion != "" {
+				question = scenario.ReviewerQuestion
+			}
+			cases = append(cases, Case{
+				ID:               currentLane.tier + "-" + scenario.ID,
+				ModelTier:        currentLane.tier,
+				BundleModelClass: currentLane.modelClass,
+				Dimension:        dimension,
+				Scenario:         scenario.ID,
+				ScenarioKind:     scenario.Kind,
+				AdjacentRole:     scenario.AdjacentRole,
+				Prompt:           scenario.Prompt,
+				ReviewerQuestion: question,
+				Rubric:           rubric,
+			})
+		}
 	}
 	return cases, nil
 }

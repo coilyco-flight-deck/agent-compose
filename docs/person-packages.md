@@ -74,7 +74,7 @@ guard they inherit its source when the flag is absent.
 
 Evaluation packs include the selected person name, canonical role-skill body, seat,
 invariant, and active definitions. External packages use the generic
-four-case frontier and OSS matrix, so they do not inherit a role-specific case
+frontier and OSS fallback, so they do not inherit Core Roster scenarios
 from `roster:core`. Agent-compose emits the deterministic pack and validates
 scored results. An external runner or human still owns model invocation,
 credentials, response capture, and scoring.
