@@ -1,0 +1,12 @@
+personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-paper" {
+    emblem { name "shears"; emoji "✂️"; glyph "✂" }
+    form { silhouette "blade"; geometry "clean-diagonal"; motion "severing" }
+    sound-mark { timbre "snare-crack"; contour "falling-cut"; pulse "single-accent" }
+    alias "committed"
+    alias "closing-options"
+    alias "choiceful"
+    alias "resolute"
+    inspiration "carla-harris" {
+        fit "Harris embodies decisiveness through long-running capital-markets leadership that converts executive judgment into consequential commitments and clear direction."
+    }
+}

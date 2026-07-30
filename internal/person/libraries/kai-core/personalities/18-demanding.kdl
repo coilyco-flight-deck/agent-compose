@@ -1,0 +1,12 @@
+personality "demanding" skill="personality-demanding" color="#c96d3c" motif="whetstone" {
+    emblem { name "anvil"; emoji "⚒️"; glyph "⧗" }
+    form { silhouette "anvil"; geometry "hard-planes"; motion "pressing" }
+    sound-mark { timbre "hammer"; contour "striking"; pulse "insistent-two" }
+    alias "high-bar"
+    alias "exacting"
+    alias "uncompromising"
+    alias "standards-driven"
+    inspiration "arlan-hamilton" {
+        fit "Hamilton embodies demanding standards by building investment infrastructure around founders conventional systems overlooked and insisting that the market's comfortable judgment was too narrow."
+    }
+}

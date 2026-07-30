@@ -172,7 +172,7 @@ func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	if paragraphs := strings.Count(pack.Briefing, "\n\n") + 1; paragraphs < 3 {
 		t.Fatalf("ops briefing has %d paragraphs", paragraphs)
 	}
-	if len(pack.Personalities) != 3 || pack.Invariant == "" || pack.MeldedFavoriteColor == "" {
+	if len(pack.Personalities) == 0 || pack.Invariant == "" || pack.MeldedFavoriteColor == "" {
 		t.Fatalf("evaluation context is incomplete: %+v", pack)
 	}
 	if !strings.Contains(pack.Invariant, "use first person for your own actions") {

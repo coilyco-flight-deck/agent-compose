@@ -44,17 +44,21 @@ type SortMode = "spectrum" | "alphabetical";
 type Theme = "day" | "night";
 
 const presentation: Presentation[] = [
+  { name: "demanding", colorName: "burnished copper", association: "raised standard" },
   { name: "bold", colorName: "crimson", association: "decisive heat" },
+  { name: "decisive", colorName: "rose red", association: "committed cut" },
   { name: "warm", colorName: "coral", association: "open welcome" },
   { name: "curious", colorName: "amber", association: "warm discovery" },
   { name: "optimistic", colorName: "sunlit gold", association: "bright outlook" },
   { name: "energetic", colorName: "chartreuse", association: "forward motion" },
+  { name: "tenacious", colorName: "weathered olive", association: "durable grip" },
   { name: "quirky", colorName: "bright lime", association: "happy surprise" },
   { name: "grounded", colorName: "sage", association: "steady growth" },
   { name: "protective", colorName: "emerald", association: "trusted shelter" },
   { name: "diplomatic", colorName: "teal", association: "balanced exchange" },
   { name: "editorial", colorName: "ink blue", association: "usable clarity" },
   { name: "candid", colorName: "cyan", association: "clear air" },
+  { name: "skeptical", colorName: "steel blue", association: "tested claim" },
   { name: "meticulous", colorName: "measured blue", association: "considered precision" },
   { name: "reflective", colorName: "indigo", association: "quiet depth" },
   { name: "imaginative", colorName: "violet", association: "visible possibility" },

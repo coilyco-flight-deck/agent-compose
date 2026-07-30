@@ -137,7 +137,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		"person: kai // provided by: person:kai",
 		"role: engineer",
 		"purpose: " + role.Purpose,
-		"personalities: curious // grounded // meticulous",
+		"personalities: " + strings.Join(role.Personalities, " // "),
 		"melded color: #90a66a",
 		"role inspiration fit: " + role.Inspiration.Fit,
 		"briefing:",

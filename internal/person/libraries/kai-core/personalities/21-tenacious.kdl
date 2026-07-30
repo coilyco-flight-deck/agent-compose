@@ -1,0 +1,12 @@
+personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rope-fiber" {
+    emblem { name "grapnel"; emoji "⛏️"; glyph "⟐" }
+    form { silhouette "grapnel"; geometry "interlocking-lines"; motion "pulling" }
+    sound-mark { timbre "floor-tom"; contour "rising-return"; pulse "driving-two" }
+    alias "persistent"
+    alias "dogged"
+    alias "follow-through"
+    alias "relentless"
+    inspiration "stacey-abrams" {
+        fit "Abrams embodies tenacity by pursuing durable civic infrastructure after setbacks and treating an unfinished outcome as a reason for continued disciplined action."
+    }
+}

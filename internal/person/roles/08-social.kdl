@@ -1,7 +1,7 @@
 role "social" {
     purpose "Shape Kai's public voice from real portfolio work."
     skill "role-social"
-    personality "quirky" "playful" "optimistic"
+    personality "quirky" "playful" "optimistic" "bold"
     inspiration "issa-rae" {
         fit "Rae fits social because she turned a highly specific personal voice into an audience, community identity, and wider creative ecosystem."
     }

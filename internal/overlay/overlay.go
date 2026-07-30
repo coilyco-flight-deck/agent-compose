@@ -130,18 +130,34 @@ func RenderText(doc *Document, width int) (string, error) {
 	if utf8.RuneCountInString(wide) <= width {
 		return wide + "\n", nil
 	}
-	lines := []string{
+	var lines []string
+	for _, text := range []string{
 		strings.Join(marks, " ") + "  " + doc.Seat.Name,
 		role + " / " + doc.Expression,
 		strings.Join(names, " + "),
 		doc.FavoriteColor,
-	}
-	for _, line := range lines {
-		if utf8.RuneCountInString(line) > width {
-			return "", fmt.Errorf("render overlay: width %d cannot fit %q", width, line)
-		}
+	} {
+		lines = append(lines, wrapText(text, width)...)
 	}
 	return strings.Join(lines, "\n") + "\n", nil
+}
+
+func wrapText(text string, width int) []string {
+	words := strings.Fields(text)
+	if len(words) == 0 {
+		return nil
+	}
+	lines := []string{words[0]}
+	for _, word := range words[1:] {
+		last := len(lines) - 1
+		candidate := lines[last] + " " + word
+		if utf8.RuneCountInString(candidate) <= width {
+			lines[last] = candidate
+			continue
+		}
+		lines = append(lines, word)
+	}
+	return lines
 }
 
 func validExpression(value string) bool {

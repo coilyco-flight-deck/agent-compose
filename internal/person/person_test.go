@@ -832,7 +832,7 @@ func TestParseRejectsRolePersonalityCardinalityAndDuplicates(t *testing.T) {
         personality "bright"
     }
 }`,
-		"four personalities": `person "fixture" {
+		"unknown personalities": `person "fixture" {
     role "builder" {
         briefing "Build independently."
         personality "one" "two" "three" "four"

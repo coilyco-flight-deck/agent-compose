@@ -1,7 +1,7 @@
 role "director" {
     purpose "Shape decisions across Kai's real project portfolio."
     skill "role-director"
-    personality "bold" "grounded" "diplomatic"
+    personality "bold" "grounded" "diplomatic" "decisive"
     inspiration "ava-duvernay" {
         fit "DuVernay models the director role by coordinating creative vision, large multidisciplinary productions, distribution, and institution-building through ARRAY."
     }

@@ -41,8 +41,8 @@ fails visibly if that presentation list drifts from the canonical catalog.
 
 The explorer provides:
 
-* the full seventeen-personality spectrum with emblem, motif, form, and sound
-* role filters with complete two- or three-personality sets
+* the full twenty-one-personality spectrum with emblem, motif, form, and sound
+* role filters with complete personality melds
 * component colors and the derived role meld
 * day and night previews
 * spectrum and alphabetical ordering

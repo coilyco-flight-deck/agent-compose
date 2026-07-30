@@ -13,7 +13,7 @@ A role fragment binds a stable skill id:
 role "advisor" {
     purpose "Research decisions for Kai's real project portfolio."
     skill "role-advisor"
-    personality "reflective" "curious" "candid"
+    personality "reflective" "curious" "candid" "skeptical"
 }
 ```
 

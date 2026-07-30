@@ -6,7 +6,7 @@ provenance:
   source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/785
   source_revision: 437a38f7885102ab95d472a66bd2519c74060a8a
   reviewer: terran tester (independent QA)
-  pack_digest: sha256:895966e7d7cc86d4a63447d8df34c42a7f81c60f9b72eddf9a7383eb33ad7cdc
+  pack_digest: sha256:63b2b83fb0f1c1662e3350ec0f6231bc4c73c00ab7e09e5a68192a53fc745fbe
   retry_provenance:
     attempts: []
 cases:
