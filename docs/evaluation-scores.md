@@ -2,22 +2,22 @@
 
 # Evaluation scorecard
 
-`2026-07-30 · seat codex · F frontier-subscription · O ornith:35b · 27/52 pass · 328/416 points`
+`2026-07-30 · seat codex · 28/52 pass · 330/416 points`
 
-| role | FR | FP | OR | OP | Σ |
-|---|---:|---:|---:|---:|---:|
-| advisor | 8✓ | 8✓ | 3× | 5× | 24/32 |
-| ceo | 8✓ | 8✓ | 7✓ | 6× | 29/32 |
-| community | 8✓ | 8✓ | 3× | 7× | 26/32 |
-| customer-success | 8✓ | 8✓ | 4× | 7× | 27/32 |
-| designer | 8✓ | 8✓ | 7✓ | 6× | 29/32 |
-| director | 8✓ | 7× | 6× | 5× | 26/32 |
-| engineer | 8✓ | 8✓ | 3× | 3× | 22/32 |
-| ops | 8✓ | 8✓ | 3× | 2× | 21/32 |
-| pm | 8✓ | 7× | 7✓ | 5× | 27/32 |
-| qa | 8✓ | 8✓ | 2× | 8✓ | 26/32 |
-| sales | 8✓ | 8✓ | 4× | 2× | 22/32 |
-| social | 8✓ | 7× | 5× | 5× | 25/32 |
-| technical-writer | 8✓ | 8✓ | 6× | 2× | 24/32 |
+| role | F model | O model | FR | FP | OR | OP | Σ |
+|---|---|---|---:|---:|---:|---:|---:|
+| advisor | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 5× | 24/32 |
+| ceo | frontier-subscription | ornith:35b | 8✓ | 8✓ | 7✓ | 6× | 29/32 |
+| community | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 7× | 26/32 |
+| customer-success | frontier-subscription | ornith:35b | 8✓ | 8✓ | 4× | 7× | 27/32 |
+| designer | frontier-subscription | agent-proxy:designer/design-production | 8✓ | 8✓ | 7✓ | 8✓ | 31/32 |
+| director | frontier-subscription | ornith:35b | 8✓ | 7× | 6× | 5× | 26/32 |
+| engineer | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 3× | 22/32 |
+| ops | frontier-subscription | ornith:35b | 8✓ | 8✓ | 3× | 2× | 21/32 |
+| pm | frontier-subscription | ornith:35b | 8✓ | 7× | 7✓ | 5× | 27/32 |
+| qa | frontier-subscription | ornith:35b | 8✓ | 8✓ | 2× | 8✓ | 26/32 |
+| sales | frontier-subscription | ornith:35b | 8✓ | 8✓ | 4× | 2× | 22/32 |
+| social | frontier-subscription | ornith:35b | 8✓ | 7× | 5× | 5× | 25/32 |
+| technical-writer | frontier-subscription | ornith:35b | 8✓ | 8✓ | 6× | 2× | 24/32 |
 
 `F` frontier · `O` OSS · `R` role · `P` personality · `✓` pass · `×` fail. Cells are points out of 8.
