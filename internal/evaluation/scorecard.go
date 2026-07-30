@@ -42,6 +42,16 @@ type scorecardRow struct {
 
 // MarkdownScorecard validates scored result files and renders one compact page.
 func MarkdownScorecard(resultsDir, seat string) ([]byte, error) {
+	return markdownScorecard(resultsDir, seat, false)
+}
+
+// MarkdownHistoricalScorecard renders preserved records without rebinding
+// their immutable pack digests to the current roster.
+func MarkdownHistoricalScorecard(resultsDir, seat string) ([]byte, error) {
+	return markdownScorecard(resultsDir, seat, true)
+}
+
+func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error) {
 	if strings.TrimSpace(resultsDir) == "" {
 		return nil, fmt.Errorf("scorecard results directory is required")
 	}
@@ -80,20 +90,29 @@ func MarkdownScorecard(resultsDir, seat string) ([]byte, error) {
 				result.Seat,
 			)
 		}
-		pack, err := Build(result.Role, result.Seat)
-		if err != nil {
-			return nil, fmt.Errorf("build scorecard pack for %q: %w", entry.Name(), err)
-		}
-		if err := ValidateResult(result, pack); err != nil {
-			return nil, fmt.Errorf("validate scorecard result %q: %w", entry.Name(), err)
+		var packCases []Case
+		if historical {
+			packCases, err = historicalScorecardCases(result)
+			if err != nil {
+				return nil, fmt.Errorf("validate historical scorecard result %q: %w", entry.Name(), err)
+			}
+		} else {
+			pack, buildErr := Build(result.Role, result.Seat)
+			if buildErr != nil {
+				return nil, fmt.Errorf("build scorecard pack for %q: %w", entry.Name(), buildErr)
+			}
+			if err := ValidateResult(result, pack); err != nil {
+				return nil, fmt.Errorf("validate scorecard result %q: %w", entry.Name(), err)
+			}
+			packCases = pack.Cases
 		}
 
 		models := map[string]map[string]*scorecardModel{
 			frontierTier: {},
 			ossTier:      {},
 		}
-		cases := make(map[string]Case, len(pack.Cases))
-		for _, evalCase := range pack.Cases {
+		cases := make(map[string]Case, len(packCases))
+		for _, evalCase := range packCases {
 			cases[evalCase.ID] = evalCase
 		}
 		for _, scored := range result.Cases {
@@ -249,6 +268,44 @@ func MarkdownScorecard(resultsDir, seat string) ([]byte, error) {
 	}
 	out.WriteString(".\n")
 	return out.Bytes(), nil
+}
+
+func historicalScorecardCases(result *ScoredResult) ([]Case, error) {
+	if result == nil || result.Format != ResultFormatV2 ||
+		result.Role == "" || result.Seat == "" ||
+		result.Provenance.EvaluatedAt == "" ||
+		result.Provenance.SourceRevision == "" ||
+		result.Provenance.PackDigest == "" {
+		return nil, fmt.Errorf("historical result identity or provenance is incomplete")
+	}
+	cases := make([]Case, 0, len(result.Cases))
+	for _, scored := range result.Cases {
+		tier, dimension, ok := strings.Cut(scored.ID, "-")
+		if !ok || (tier != frontierTier && tier != ossTier) ||
+			(dimension != roleDimension && dimension != personalityDimension) {
+			return nil, fmt.Errorf("case %q does not encode a supported tier and dimension", scored.ID)
+		}
+		if scored.Model == "" || strings.TrimSpace(scored.RawResponse) == "" ||
+			len(scored.Scores) == 0 {
+			return nil, fmt.Errorf("case %q has incomplete evidence", scored.ID)
+		}
+		total := 0
+		rubric := make([]Criterion, 0, len(scored.Scores))
+		for _, score := range scored.Scores {
+			if score.Criterion == "" || score.Evidence == "" || score.Score < 0 || score.Score > 2 {
+				return nil, fmt.Errorf("case %q has invalid criterion evidence", scored.ID)
+			}
+			total += score.Score
+			rubric = append(rubric, Criterion{ID: score.Criterion})
+		}
+		if total != scored.Total {
+			return nil, fmt.Errorf("case %q total is %d, want %d", scored.ID, scored.Total, total)
+		}
+		cases = append(cases, Case{
+			ID: scored.ID, ModelTier: tier, Dimension: dimension, Rubric: rubric,
+		})
+	}
+	return cases, nil
 }
 
 func sortedScorecardModels(models map[string]*scorecardModel) []*scorecardModel {

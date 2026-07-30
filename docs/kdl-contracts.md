@@ -21,7 +21,7 @@ compose {
 
 `person-source` names a request-relative package and fully replaces the
 embedded package. `person-policy "external-only"` requires it and prohibits
-fallback. Omitting both selects `person:kai`, unless the host guard supplies it.
+fallback. Omitting both selects `roster:core`, unless the host guard supplies it.
 
 The role activates its selected personality set, ordinary provider skills, and
 its composed-skill allowlist. `delivery` is `native-skills` or `compiled`.

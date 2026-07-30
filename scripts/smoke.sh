@@ -99,7 +99,7 @@ EOF
 
 cat >"$provider_dir/.agents/roles.kdl" <<'EOF'
 roles {
-    role designer {
+    role design {
         composed-skill design-method
     }
 }
@@ -231,25 +231,25 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" designer codex --version
+    "$binary_exec" design codex --version
 ) >"$role_output" 2>&1; then
   cat "$role_output" >&2
   fail "assigned native role launch failed"
 fi
 
-assert_contains "$role_output" "agent-compose: assigned designer to codex"
+assert_contains "$role_output" "agent-compose: assigned design to codex"
 assert_contains "$role_output" "role metadata"
-assert_contains "$role_output" "role: designer"
+assert_contains "$role_output" "role: design"
 assert_contains "$role_output" "personality: imaginative"
 assert_contains "$role_output" "fake codex <--version>"
 for path in \
   "$launch_target/AGENTS.md" \
-  "$launch_target/.agents/skills/role-designer/SKILL.md" \
+  "$launch_target/.agents/skills/role-design/SKILL.md" \
   "$launch_target/.agents/skills/personality-imaginative/SKILL.md" \
   "$launch_target/.agents/skills/design-method/SKILL.md"; do
   assert_file "$path"
 done
-assert_contains "$launch_target/AGENTS.md" 'assigned the `designer` role'
+assert_contains "$launch_target/AGENTS.md" 'assigned the `design` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
 
@@ -259,7 +259,7 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" designer codex
+    "$binary_exec" design codex
 ) >"$intro_output" 2>&1; then
   cat "$intro_output" >&2
   fail "bare Codex introduction launch failed"

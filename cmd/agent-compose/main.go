@@ -222,7 +222,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -252,6 +252,10 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "check",
 						Usage: "fail when the output path does not match the generated page",
+					},
+					&cli.BoolFlag{
+						Name:  "historical",
+						Usage: "render preserved records without comparing them to the current roster",
 					},
 				},
 				Action: runScorecard,
@@ -286,7 +290,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -323,7 +327,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -344,7 +348,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external person-package root (defaults to embedded person:kai)",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -386,7 +390,7 @@ func main() {
 
 func personCatalogFlags(includeQuery bool) []cli.Flag {
 	flags := []cli.Flag{
-		&cli.StringFlag{Name: "person-source", Usage: "external person-package root (defaults to embedded person:kai)"},
+		&cli.StringFlag{Name: "person-source", Usage: "external roster-package root (defaults to embedded roster:core)"},
 		&cli.StringSliceFlag{Name: "personality-library", Usage: "additional local personality-library root (repeatable)"},
 		&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"},
 	}
@@ -572,10 +576,19 @@ func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
 }
 
 func runScorecard(_ context.Context, cmd *cli.Command) error {
-	raw, err := evaluation.MarkdownScorecard(
-		cmd.String("results"),
-		cmd.String("seat"),
-	)
+	var raw []byte
+	var err error
+	if cmd.Bool("historical") {
+		raw, err = evaluation.MarkdownHistoricalScorecard(
+			cmd.String("results"),
+			cmd.String("seat"),
+		)
+	} else {
+		raw, err = evaluation.MarkdownScorecard(
+			cmd.String("results"),
+			cmd.String("seat"),
+		)
+	}
 	if err != nil {
 		return err
 	}
@@ -1112,7 +1125,7 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	result, err := project.ApplyOwned(outDir, files, "roster", "person:"+p.Name)
+	result, err := project.ApplyOwned(outDir, files, "roster", p.ProviderID())
 	if err != nil {
 		return err
 	}
@@ -1228,7 +1241,7 @@ func validateProjectPersonPolicy(bundleDir string, opts compose.Options) error {
 	}
 	external := false
 	for _, identity := range verification.Identities {
-		if identity.Source == "person:kai" {
+		if identity.Source == "roster:core" {
 			return fmt.Errorf("external-only person policy rejects bundle source %q", identity.Source)
 		}
 		if strings.HasPrefix(identity.Source, "person:") {

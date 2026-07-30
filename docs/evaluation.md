@@ -13,7 +13,7 @@ Markdown is the default for direct review. YAML uses the versioned
 collector. Agent-compose emits context and prompts only. It never invokes a
 model, chooses credentials, or acquires execution authority.
 
-The command defaults to `person:kai`. `--person-source` loads one external
+The command defaults to `roster:core`. `--person-source` loads one external
 package and derives the whole review context from it.
 
 ## Four-case matrix
@@ -51,8 +51,7 @@ personality hard fail.
 
 The reviewer preserves the raw response and records one evidence sentence for
 every score. The pack includes the full role briefing, personality invariant,
-and selected personality definitions so the review does not depend on hidden
-state. External packages retain a domain-neutral scenario.
+and selected personality definitions. External packages use a neutral scenario.
 
 The command deliberately does not auto-score model prose. Role and personality
 quality are human judgments, while the matrix, context, prompts, rubric,
@@ -60,15 +59,16 @@ ordering, and score contract are deterministic.
 
 ## Scored results
 
-[`evaluations/latest/`](../evaluations/latest/) keeps one YAML record per
-evaluated default role and seat. Records preserve model identity, raw responses,
+[`evaluations/latest/`](../evaluations/latest/) preserves the v1 baseline until
+the complete v2 matrix replaces it. Records preserve model identity, responses,
 criterion evidence, totals, verdicts, and v2 pack-digest and retry provenance.
 Retry entries name the case, attempt, outcome, and reason. The list is empty
 when no retry occurred. `MarshalResult` validates against the current pack
-before encoding. v1 records remain readable during v1.x. A record may
+before encoding. Historical mode renders v1 records without comparing their
+immutable pack digests to the current Core Roster. A record may
 repeat the canonical cases for multiple models in one tier. Every listed model
-must complete that tier's full case set. Git keeps prior baselines. CEO's failed
-OSS cases remain its frontier-only re-enable gate.
+must complete that tier's full case set. Git keeps prior baselines. New v2
+support remains fail-closed until its scored matrix establishes compatibility.
 
 ## See also
 
@@ -77,4 +77,3 @@ OSS cases remain its frontier-only re-enable gate.
 * [person-contract.md](person-contract.md) - roles, seats, and personalities.
 * [person-packages.md](person-packages.md) - independent evaluation context.
 * [evaluation-matrices.md](evaluation-matrices.md) - profile-owned replacement matrices.
-* [integration.md](integration.md) - how bundles reach harnesses.

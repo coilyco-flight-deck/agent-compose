@@ -1,7 +1,7 @@
 # Role-skill context budget
 
 This comparison measures the role-skill migration against released `v1.32.0`.
-Both sides use the embedded `person:kai` profile. The assigned measurement uses
+Both sides use the embedded `roster:core` profile. The assigned measurement uses
 `testdata/contracts/native.kdl` with Engineer selected. Approximate tokens use
 the deliberately simple `ceil(bytes / 4)` heuristic.
 

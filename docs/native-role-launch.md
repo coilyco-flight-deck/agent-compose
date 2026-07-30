@@ -4,10 +4,10 @@
 caller-assigned role bundle:
 
 ```sh
-acompose designer codex
+acompose design codex
 acompose engineer claude --model opus
 acompose qa goose run
-acompose social opencode
+acompose content opencode
 ```
 
 Arguments after the harness pass through unchanged. The long form is

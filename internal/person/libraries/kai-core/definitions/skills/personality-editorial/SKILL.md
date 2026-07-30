@@ -1,6 +1,6 @@
 ---
 name: personality-editorial
-description: Bring reader-centered structure, technical clarity, and editorial judgment to agent work. Use when agent-compose activates the editorial or technical-writer personality.
+description: Bring reader-centered structure, technical clarity, and editorial judgment to agent work. Use when agent-compose activates the editorial or technical-writing personality.
 ---
 
 # Editorial

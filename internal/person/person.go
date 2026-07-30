@@ -64,6 +64,7 @@ type InspirationRef struct {
 }
 
 type Role struct {
+	DisplayName           string         `json:"display_name"`
 	Purpose               string         `json:"purpose"`
 	Skill                 string         `json:"skill"`
 	SkillSource           string         `json:"skill_source"`
@@ -271,6 +272,7 @@ type Inspiration struct {
 }
 
 type Person struct {
+	ProviderKind         string                 `json:"provider_kind"`
 	Name                 string                 `json:"person"`
 	Roles                map[string]Role        `json:"roles"`
 	RoleOrder            []string               `json:"role_order"`
@@ -286,9 +288,34 @@ type Person struct {
 	source               fs.FS
 }
 
-// Load returns the shipped person:kai package.
+// ProviderID returns the package identity. Legacy in-memory fixtures default
+// to person so external package callers retain their v1 identity.
+func (p *Person) ProviderID() string {
+	return p.providerKind() + ":" + p.Name
+}
+
+func (p *Person) localSourceID() string {
+	return p.ProviderID() + ":local"
+}
+
+func (p *Person) providerKind() string {
+	if p.ProviderKind == "" {
+		return "person"
+	}
+	return p.ProviderKind
+}
+
+// RoleDisplayName returns the authored product label for a role.
+func (p *Person) RoleDisplayName(roleName string) string {
+	if role, ok := p.Roles[roleName]; ok && role.DisplayName != "" {
+		return role.DisplayName
+	}
+	return displaySlug(roleName)
+}
+
+// Load returns the shipped roster:core package.
 func Load() (*Person, error) {
-	p, err := loadSource(embedded, "embedded person source")
+	p, err := loadSource(embedded, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
@@ -299,14 +326,20 @@ func Load() (*Person, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open embedded personality library: %w", err)
 	}
-	library, id, err := loadLibrarySource(librarySource, "embedded kai-core library")
+	library, id, err := loadLibrarySource(librarySource, "embedded core personality library")
 	if err != nil {
 		return nil, err
 	}
 	if err := mergeLoadedLibrary(p, library, id, librarySource); err != nil {
 		return nil, err
 	}
-	return p, validateResolvedPerson(p)
+	if err := validateResolvedPerson(p); err != nil {
+		return nil, err
+	}
+	if err := validateNoUnusedPersonalities(p); err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // LoadDirectory reads one complete external person package using the default layout.
@@ -414,12 +447,12 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 		return p, validateResolvedPerson(p)
 	}
 	if p.Libraries == nil {
-		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
+		p.Libraries = map[string]string{p.localSourceID(): "profile-local"}
 	}
 	if p.PersonalityLibraries == nil {
 		p.PersonalityLibraries = map[string]string{}
 		for name := range p.Personalities {
-			p.PersonalityLibraries[name] = "person:" + p.Name + ":local"
+			p.PersonalityLibraries[name] = p.localSourceID()
 		}
 	}
 	overlay, err := definitionOverlay(p.source, p.Personalities)
@@ -453,7 +486,7 @@ func mergeLoadedLibrary(p *Person, library *Person, id string, source fs.FS) err
 
 func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Person, id string, librarySource fs.FS) error {
 	if p.Libraries == nil {
-		p.Libraries = map[string]string{"person:" + p.Name + ":local": "profile-local"}
+		p.Libraries = map[string]string{p.localSourceID(): "profile-local"}
 	}
 	if p.PersonalityLibraries == nil {
 		p.PersonalityLibraries = map[string]string{}
@@ -508,6 +541,27 @@ func validateResolvedPerson(p *Person) error {
 		if _, ok := p.Inspirations[p.Roles[roleName].Inspiration.ID]; !ok {
 			return fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, p.Roles[roleName].Inspiration.ID)
 		}
+	}
+	return nil
+}
+
+// validateNoUnusedPersonalities derives garbage collection from the effective
+// Core Roster graph without maintaining a second inventory.
+func validateNoUnusedPersonalities(p *Person) error {
+	used := map[string]bool{}
+	for _, roleName := range p.RoleOrder {
+		for _, personalityName := range p.Roles[roleName].Personalities {
+			used[personalityName] = true
+		}
+	}
+	var unused []string
+	for _, personalityName := range p.personalityOrder() {
+		if !used[personalityName] {
+			unused = append(unused, personalityName)
+		}
+	}
+	if len(unused) != 0 {
+		return fmt.Errorf("core roster has unused personalities: %s", strings.Join(unused, ", "))
 	}
 	return nil
 }
@@ -665,7 +719,7 @@ func addCopyContractProvenance(p *Person) error {
 			return fmt.Errorf("role %q copy contract: %w", roleName, err)
 		}
 		digest := sha256.Sum256(raw)
-		role.CopyContract.Source = "person:" + p.Name + ":role:" + roleName + ":copy-contract"
+		role.CopyContract.Source = p.ProviderID() + ":role:" + roleName + ":copy-contract"
 		role.CopyContract.Digest = fmt.Sprintf("sha256:%x", digest)
 		p.Roles[roleName] = role
 	}
@@ -686,7 +740,7 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 				role.Briefing,
 			))
 			p.roleSkills[roleName] = raw
-			role.SkillSource = "person:" + p.Name + ":legacy-role:" + roleName
+			role.SkillSource = p.ProviderID() + ":legacy-role:" + roleName
 			digest := sha256.Sum256(raw)
 			role.SkillDigest = fmt.Sprintf("sha256:%x", digest)
 			p.Roles[roleName] = role
@@ -710,7 +764,7 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 			return fmt.Errorf("role %q skill needs at least three paragraphs, got %d", roleName, paragraphs)
 		}
 		role.Briefing = body
-		role.SkillSource = "person:" + p.Name + ":role:" + roleName
+		role.SkillSource = p.ProviderID() + ":role:" + roleName
 		digest := sha256.Sum256(raw)
 		role.SkillDigest = fmt.Sprintf("sha256:%x", digest)
 		p.roleSkills[roleName] = append([]byte(nil), raw...)
@@ -775,12 +829,13 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: parse person manifest: %w", label, err)
 	}
-	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "person" {
-		return nil, fmt.Errorf("%s: person manifest needs exactly one person node", label)
+	if len(doc.Nodes) != 1 ||
+		(doc.Nodes[0].Name() != "person" && doc.Nodes[0].Name() != "roster") {
+		return nil, fmt.Errorf("%s: manifest needs exactly one person or roster node", label)
 	}
 	root := doc.Nodes[0]
 	if len(root.Arguments()) != 1 {
-		return nil, fmt.Errorf("%s: person manifest node needs one name argument", label)
+		return nil, fmt.Errorf("%s: manifest node needs one name argument", label)
 	}
 	if len(root.Children().Nodes) != 0 {
 		return nil, fmt.Errorf("%s: person policy nodes belong in section files", label)
@@ -979,7 +1034,7 @@ func Source(p *Person) (*schema.Source, error) {
 	}
 
 	src := &schema.Source{
-		ID:    "person:" + p.Name,
+		ID:    p.ProviderID(),
 		Files: files,
 		Instructions: []schema.ContentRef{{
 			ID:   "personality-invariant",
@@ -1055,15 +1110,17 @@ func parse(raw []byte) (*Person, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse person source: %w", err)
 	}
-	if len(doc.Nodes) != 1 || doc.Nodes[0].Name() != "person" {
-		return nil, fmt.Errorf("person source needs exactly one top-level person node")
+	if len(doc.Nodes) != 1 ||
+		(doc.Nodes[0].Name() != "person" && doc.Nodes[0].Name() != "roster") {
+		return nil, fmt.Errorf("person source needs exactly one top-level person or roster node")
 	}
 	root := doc.Nodes[0]
 	args := root.Arguments()
 	if len(args) != 1 {
-		return nil, fmt.Errorf("person source person node needs one name argument")
+		return nil, fmt.Errorf("person source provider node needs one name argument")
 	}
 	p := &Person{
+		ProviderKind:  doc.Nodes[0].Name(),
 		Name:          args[0].String(),
 		Roles:         map[string]Role{},
 		Personalities: map[string]Personality{},
@@ -1087,6 +1144,15 @@ func parse(raw []byte) (*Person, error) {
 			skillSet := false
 			for _, c := range n.Children().Nodes {
 				switch c.Name() {
+				case "display-name":
+					if role.DisplayName != "" {
+						return nil, fmt.Errorf("role %q: duplicate display-name", name)
+					}
+					dargs := c.Arguments()
+					if len(dargs) != 1 || strings.TrimSpace(dargs[0].String()) == "" {
+						return nil, fmt.Errorf("role %q: display-name needs one argument", name)
+					}
+					role.DisplayName = strings.TrimSpace(dargs[0].String())
 				case "purpose":
 					if role.Purpose != "" {
 						return nil, fmt.Errorf("role %q: duplicate purpose", name)

@@ -101,7 +101,7 @@ func EffectiveAssetDigests(p *person.Person, roleName string) ([]AssetDigest, er
 	}
 	customDigest := sha256.Sum256(raw)
 	custom := AssetDigest{
-		ID:     "person:" + p.Name + ":evaluation:" + roleName,
+		ID:     p.ProviderID() + ":evaluation:" + roleName,
 		Digest: fmt.Sprintf("sha256:%x", customDigest),
 	}
 	if len(matrix.Cases) > 0 {

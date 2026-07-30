@@ -78,25 +78,22 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
-func TestCEORoleSkillDefinesLongHorizonConcentration(t *testing.T) {
+func TestPortfolioStrategistOwnsPrioritiesWithoutDispatch(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	role := p.Roles["ceo"]
+	role := p.Roles["strats"]
 	for _, required := range []string{
-		"1 to 3 years, portfolio thesis",
-		"2 to 4 quarters, strategic bets",
-		"Current quarter, capital allocation",
-		"authenticated portfolio scorecard and in-flight-work inventory",
-		"core compounding assets, strategic options, experiments, and retirement candidates",
-		"work or capacity it displaces",
-		"PM owns discovery, program decomposition, sequencing, and learning loops",
-		"decline a disconnected product experiment",
-		"double-down, reshape, or exit",
+		"decide where Kai should invest attention",
+		"opportunity cost",
+		"revisit or exit condition",
+		"not execution coordination or agent dispatch",
+		"Director turns an accepted direction into coordinated Ward work",
+		"Never invent authority",
 	} {
 		if !strings.Contains(role.Briefing, required) {
-			t.Errorf("CEO role skill omitted %q", required)
+			t.Errorf("Portfolio Strategist role skill omitted %q", required)
 		}
 	}
 }
@@ -106,7 +103,7 @@ func TestDesignerRoleSkillAllowsOnlyVisualWebImplementation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	briefing := p.Roles["designer"].Briefing
+	briefing := p.Roles["design"].Briefing
 	for _, required := range []string{
 		"existing graphical web application",
 		"complete product effect is visual presentation",
@@ -161,7 +158,7 @@ func TestLookupCueUsesDeclaredAliasesAndPreservesAmbiguity(t *testing.T) {
 		want []string
 	}{
 		{cue: "calm", want: []string{"grounded"}},
-		{cue: " encouraging ", want: []string{"optimistic", "nurturing"}},
+		{cue: " encouraging ", want: []string{"nurturing"}},
 		{cue: "grounded", want: []string{"grounded"}},
 	} {
 		got, lookupErr := p.LookupCue(test.cue)
@@ -403,8 +400,8 @@ func TestEmbeddedPersonSourceOwnsEveryPersonalityDefinition(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if src.ID != "person:kai" {
-		t.Fatalf("source id = %q, want person:kai", src.ID)
+	if src.ID != "roster:core" {
+		t.Fatalf("source id = %q, want roster:core", src.ID)
 	}
 	if len(src.Instructions) != 1 || src.Instructions[0].ID != "personality-invariant" {
 		t.Fatalf("unexpected embedded instructions: %+v", src.Instructions)

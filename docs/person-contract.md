@@ -1,10 +1,10 @@
-# Person package contract
+# Roster package contract
 
-The binary embeds one ordered `person:kai` source set as the default. A caller
+The binary embeds one ordered `roster:core` source set as the default. A caller
 may select one external package with the same contract:
 
 ```kdl
-person "kai" {
+roster "core" {
     role "engineer" {
         purpose "Build and land work across Kai's real repository portfolio."
         model-class "frontier"
@@ -22,11 +22,13 @@ and definitions into the layout documented in
 [person-packages.md](person-packages.md). The loader assembles and validates the
 package before it becomes a source.
 
-A role names its purpose, role skill, nonempty ordered personality meld, and seats. Its optional
+A role names its display name, purpose, role skill, nonempty ordered
+personality meld, and seats. Its optional
 `model-class` list restricts composition, while omission supports both classes.
 The [role skill](role-briefings.md) needs valid frontmatter and at least three
-body paragraphs. The loader rejects invalid class names or personality sets. The embedded default has 13
-roles and 44 seats. CEO supports `frontier` only.
+body paragraphs. The loader rejects invalid class names or personality sets.
+The embedded default has eight roles and sixteen personalities. Portfolio
+Strategist supports `frontier` only until a v2 OSS evaluation admits more.
 
 A personality entry is a catalog binding from its canonical name to a stable
 skill id (`personality-<name>`). Every role reference needs one or the loader
@@ -52,8 +54,8 @@ An `agent` node is a named seat. The harness is its join key, while `name` and `
 Launch consumers keep permissions, models, and reasoning effort on their side.
 Nothing here grants authority.
 
-All thirteen roles keep Claude she/her and Codex he/him seats. Seventeen AOSH-selected
-public seats use grep-friendly names and they/them pronouns. Discord adds one she/her community host, for 44 canonical seats total.
+Every Core Roster role carries named harness seats. Seat keys remain stable
+join points while display names and pronouns remain roster-owned identity.
 
 Seats are personality-neutral. A compose request selects a role, and that role
 activates its role skill and ordered personality set. Roster delivery is documented

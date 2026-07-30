@@ -66,7 +66,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				m.Delivery.Mode != want {
 				t.Fatalf("unexpected manifest: %+v", m)
 			}
-			if len(m.Sources) != 2 || m.Sources[0] != "person:kai" || m.Sources[1] != "aos-public" {
+			if len(m.Sources) != 2 || m.Sources[0] != "roster:core" || m.Sources[1] != "aos-public" {
 				t.Fatalf("unexpected sources: %+v", m.Sources)
 			}
 			if m.Color != wantColor {
@@ -113,9 +113,9 @@ func TestComposeAllFixtures(t *testing.T) {
 				}
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
-			mustExist(t, result.Bundle.Dir, "content/skills/person%3Akai/role-engineer/SKILL.md")
+			mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/role-engineer/SKILL.md")
 			for _, personalityName := range wantPersonalities {
-				skillPath := "content/skills/person%3Akai/personality-" + personalityName + "/SKILL.md"
+				skillPath := "content/skills/roster%3Acore/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
 			}
 			if want == "compiled" {
@@ -156,8 +156,8 @@ func TestComposeExternalPersonDoesNotInheritEmbeddedRoster(t *testing.T) {
 	if !slices.Equal(manifest.Sources, []string{"person:workbench", "aos-public"}) {
 		t.Fatalf("external manifest sources = %+v", manifest.Sources)
 	}
-	if slices.Contains(manifest.Sources, "person:kai") {
-		t.Fatal("external composition inherited person:kai")
+	if slices.Contains(manifest.Sources, "roster:core") {
+		t.Fatal("external composition inherited roster:core")
 	}
 	for _, rel := range []string{
 		"content/skills/person%3Aworkbench/personality-bright/SKILL.md",
@@ -233,7 +233,7 @@ func TestComposeLowContextPrunesOnlyOptedOutSkills(t *testing.T) {
 		mustExist(
 			t,
 			result.Bundle.Dir,
-			"content/skills/person%3Akai/personality-"+personalityName+"/SKILL.md",
+			"content/skills/roster%3Acore/personality-"+personalityName+"/SKILL.md",
 		)
 	}
 	var excluded bool
@@ -277,7 +277,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
     role "engineer" {
         composed-skill "coding-shape-cli"
     }
-    role "designer" {
+    role "design" {
         composed-skill "design-system"
     }
 }
@@ -310,7 +310,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		t.Fatalf("composition omitted the embedded personality invariant:\n%s", instructions)
 	}
 	for _, rel := range []string{
-		"content/skills/person%3Akai/personality-curious/SKILL.md",
+		"content/skills/roster%3Acore/personality-curious/SKILL.md",
 		"content/skills/aos-public/coding-go/SKILL.md",
 		"content/skills/aos-public/coding-shape-cli/SKILL.md",
 	} {
@@ -367,7 +367,7 @@ func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t 
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := p.Roles["designer"].Briefing
+	want := p.Roles["design"].Briefing
 	for _, delivery := range []string{
 		schema.DeliveryNativeSkills,
 		schema.DeliveryCompiled,
@@ -375,7 +375,7 @@ func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t 
 		t.Run(delivery, func(t *testing.T) {
 			result, err := RunRoots(
 				&schema.Request{
-					Role:       "designer",
+					Role:       "design",
 					Delivery:   delivery,
 					ModelClass: schema.ModelClassFrontier,
 				},
@@ -394,8 +394,8 @@ func TestDesignerVisualImplementationBoundaryMatchesNativeAndCompiledDelivery(t 
 					result.Bundle.Dir,
 					"content",
 					"skills",
-					"person%3Akai",
-					"role-designer",
+					"roster%3Acore",
+					"role-design",
 					"SKILL.md",
 				)
 			}

@@ -8,21 +8,7 @@ import (
 	"testing"
 )
 
-func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
-	requiredV2 := map[string]bool{
-		"advisor":          true,
-		"ceo":              true,
-		"customer-success": true,
-		"designer":         true,
-		"director":         true,
-		"engineer":         true,
-		"ops":              true,
-		"pm":               true,
-		"qa":               true,
-		"sales":            true,
-		"social":           true,
-		"technical-writer": true,
-	}
+func TestV1ScoredResultsRemainReadableHistoricalEvidence(t *testing.T) {
 	root := filepath.Join("..", "..", "evaluations", "latest")
 	files, err := filepath.Glob(filepath.Join(root, "*.yaml"))
 	if err != nil {
@@ -49,23 +35,18 @@ func TestLatestScoredResultsValidateAgainstCurrentPacks(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pack, err := Build(result.Role, result.Seat)
-			if err != nil {
-				t.Fatal(err)
+			if result.Format != ResultFormatV2 {
+				t.Fatalf("historical result uses %q, want %q", result.Format, ResultFormatV2)
 			}
-			if err := ValidateResult(result, pack); err != nil {
-				t.Fatal(err)
+			if result.Role == "" || result.Seat == "" || len(result.Cases) == 0 {
+				t.Fatalf("historical result lost identity or evidence: %+v", result)
 			}
-			if requiredV2[result.Role] && result.Seat == "codex" {
-				if result.Format != ResultFormatV2 {
-					t.Fatalf("required refreshed baseline uses %q, want %q", result.Format, ResultFormatV2)
+			for _, scoredCase := range result.Cases {
+				if strings.TrimSpace(scoredCase.RawResponse) == "" {
+					t.Fatalf("historical case %q lost raw response", scoredCase.ID)
 				}
-				delete(requiredV2, result.Role)
 			}
 		})
-	}
-	if len(requiredV2) != 0 {
-		t.Fatalf("required refreshed baselines are missing: %v", requiredV2)
 	}
 }
 

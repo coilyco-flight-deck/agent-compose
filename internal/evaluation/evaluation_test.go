@@ -233,7 +233,7 @@ func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
 }
 
 func TestBuildUsesDesignerVisualImplementationBoundaryCases(t *testing.T) {
-	pack, err := Build("designer", "codex")
+	pack, err := Build("design", "codex")
 	if err != nil {
 		t.Fatal(err)
 	}

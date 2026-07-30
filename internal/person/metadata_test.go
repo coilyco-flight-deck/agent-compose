@@ -59,7 +59,6 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 	}
 	for _, want := range []string{
 		"## Active role metadata",
-		"* Person: `fixture`",
 		"* Provider: `person:fixture`",
 		"* Role: `builder`",
 		"* Purpose: Build the fixture.",
@@ -142,7 +141,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	}
 	for _, want := range []string{
 		"role metadata",
-		"person: kai // provided by: person:kai",
+		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"purpose: " + role.Purpose,
 		"personalities: " + strings.Join(role.Personalities, " // "),

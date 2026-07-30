@@ -2,28 +2,24 @@
 
 Inventory of what ships today. Planned behavior lives in the issue tracker.
 
-## Repository foundation
-
-* Public MIT source with Ward-gated AOS validation and catalog docs.
-
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `person:kai` carries a portfolio-native default with 13 roles, 21
-  personalities, melds, and 44 seats. It grounds work in Kai's real projects
-  while treating commercial paths as evidence-qualified possibilities.
+* `roster:core` carries eight roles, sixteen referenced personalities, display
+  names, melds, and seats grounded in Kai's real projects.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
 * AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.
   `low-context: optional` prunes optional skills.
-* Role compatibility fails closed before materialization. CEO supports only
-  `frontier`, while its failed OSS evaluation remains the re-enable gate.
+* Role compatibility fails closed. Portfolio Strategist supports only
+  `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces selected, excluded, shadowed, and delivered outcomes.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical role and personality skills use compact native identity cards and
   compiled fallback. Designer may land visual-only web presentation changes.
+* Historical scorecard mode renders preserved v1 results without rebinding.
 
 ## Load-point projection
 
@@ -46,6 +42,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
 * [Evaluation](evaluation.md) has packs, baselines, and [scorecards](evaluation-scorecard.md).
+* [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
 
@@ -77,4 +74,4 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * [../README.md](../README.md) - product boundary and current status.
 * [../AGENTS.md](../AGENTS.md) - repo-specific operating rules.
 * [../.ward/ward.yaml](../.ward/ward.yaml) - allowlisted development commands.
-* [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.
+* [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared structure.

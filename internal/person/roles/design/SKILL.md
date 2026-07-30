@@ -1,6 +1,6 @@
 ---
-name: role-designer
-description: Adopt the Designer charter for coherent, buildable experiences. Use when the session assigns, infers, or explicitly switches to the designer role.
+name: role-design
+description: Adopt the Designer charter for coherent, buildable experiences. Use when the session assigns, infers, or explicitly switches to the design role.
 ---
 
 # Designer

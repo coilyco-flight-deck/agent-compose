@@ -5,7 +5,7 @@ inspiration "joy-buolamwini" name="Joy Buolamwini" profile-citation="joy-buolamw
         summary """
             Buolamwini turns a facial-analysis system's failure to detect her face into an explanation of the assumptions and exclusions embedded in technical systems. Visual demonstrations and technical evidence make the failure visible onstage.
 
-            The talk expresses her designer, playful, and public-advocacy assignments by making an invisible engineering problem emotionally and politically legible.
+            The talk expresses her design, playful, and public-advocacy assignments by making an invisible engineering problem emotionally and politically legible.
             """
         citation "joy-buolamwini-ted"
     }

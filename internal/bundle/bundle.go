@@ -337,7 +337,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 	}
 	digest := sha256.Sum256(raw)
 	content = append(content, ContentDigest{
-		ID:     "person:" + res.Person.Name + ":role:" + roleName + ":identity",
+		ID:     res.Person.ProviderID() + ":role:" + roleName + ":identity",
 		Digest: fmt.Sprintf("sha256:%x", digest),
 	})
 	if role.CopyContract != nil {
@@ -356,7 +356,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		}
 		digest := sha256.Sum256(invariant)
 		content = append(content, ContentDigest{
-			ID:     "person:" + res.Person.Name + ":invariant",
+			ID:     res.Person.ProviderID() + ":invariant",
 			Digest: fmt.Sprintf("sha256:%x", digest),
 		})
 	}

@@ -7,15 +7,15 @@
   "format": "agent-compose.bundle",
   "role": "engineer",
   "role_skill": "role-engineer",
-  "role_skill_source": "person:kai:role:engineer",
+  "role_skill_source": "roster:core:role:engineer",
   "role_skill_digest": "sha256:<digest>",
   "model_class": "frontier",
   "personalities": ["curious", "grounded", "meticulous"],
   "color": "#90a66a",
-  "sources": ["person:kai", "aos-public"],
+  "sources": ["roster:core", "aos-public"],
   "content": [
     {
-      "id": "person:kai:role:engineer:identity",
+      "id": "roster:core:role:engineer:identity",
       "digest": "sha256:<digest>"
     }
   ],

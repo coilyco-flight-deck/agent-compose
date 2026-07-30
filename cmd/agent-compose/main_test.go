@@ -191,7 +191,7 @@ func TestProjectPersonPolicyRejectsEmbeddedBundle(t *testing.T) {
 		PersonPolicy: personpolicy.ExternalOnly,
 		PersonSource: "/person",
 	})
-	if err == nil || !strings.Contains(err.Error(), "person:kai") {
+	if err == nil || !strings.Contains(err.Error(), "roster:core") {
 		t.Fatalf("embedded bundle policy error = %v", err)
 	}
 }
@@ -227,8 +227,8 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "compose", "--", "claude"},
 		},
 		"acompose role and harness inject launch": {
-			[]string{"acompose", "designer", "codex", "--model", "gpt"},
-			[]string{"acompose", "launch", "designer", "codex", "--model", "gpt"},
+			[]string{"acompose", "design", "codex", "--model", "gpt"},
+			[]string{"acompose", "launch", "design", "codex", "--model", "gpt"},
 		},
 		"acompose request and layout remain compose": {
 			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
@@ -263,7 +263,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	got := output.String()
 	for _, want := range []string{
 		"request: model class frontier // delivery native-skills",
-		"person: kai // provided by: person:kai",
+		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"personalities: curious // grounded // meticulous",
 		"melded color: #90a66a",
@@ -308,7 +308,7 @@ func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 			},
 			Personalities: []string{"curious", "grounded", "meticulous"},
 			FavoriteColor: "#90a66a",
-			SourceIDs:     []string{"person:kai", "aos-public"},
+			SourceIDs:     []string{"roster:core", "aos-public"},
 			Person:        p,
 			Decisions: []resolver.Decision{
 				{Outcome: resolver.OutcomeSelected},
@@ -487,7 +487,7 @@ func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
 	verification := &bundle.Verification{
 		Files: 128,
 		Identities: []bundle.Identity{
-			{Source: "person:kai", Skill: "personality-curious"},
+			{Source: "roster:core", Skill: "personality-curious"},
 			{Source: "aos-public", Skill: "coding-go"},
 		},
 	}

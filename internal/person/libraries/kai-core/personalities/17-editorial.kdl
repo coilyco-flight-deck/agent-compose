@@ -2,7 +2,6 @@ personality "editorial" skill="personality-editorial" color="#4f9eb8" motif="ann
     emblem { name "fountain-pen"; emoji "🖋️"; glyph "¶" }
     form { silhouette "folio"; geometry "nested-sections"; motion "revealing" }
     sound-mark { timbre "paper-brush"; contour "clarifying-step"; pulse "measured-three" }
-    alias "technical-writer"
     alias "technical-writing"
     alias "explanatory"
     alias "reader-centered"

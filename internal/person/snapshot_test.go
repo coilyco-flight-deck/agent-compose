@@ -32,7 +32,7 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 	}
 	if snapshot.Format != SnapshotFormat ||
 		snapshot.SchemaVersion != SnapshotSchemaVersion ||
-		snapshot.Source != "person:"+p.Name ||
+		snapshot.Source != p.ProviderID() ||
 		snapshot.Person != p.Name {
 		t.Fatalf("unexpected snapshot identity: %+v", snapshot)
 	}
@@ -75,6 +75,7 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 
 func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 	covered := map[string]bool{
+		"ProviderKind":         true,
 		"Name":                 true,
 		"Roles":                true,
 		"RoleOrder":            true,

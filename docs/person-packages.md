@@ -1,7 +1,7 @@
 # External person packages
 
 One agent-compose installation can use a person package that is completely
-independent of the shipped `person:kai` default. Selection is exclusive.
+independent of the shipped Core Roster, `roster:core`. Selection is exclusive.
 Agent-compose never merges roles, seats, personalities, definitions, or
 evaluation context across the two packages.
 
@@ -26,7 +26,7 @@ compose {
 }
 ```
 
-Omitting both person nodes selects the embedded `person:kai` default.
+Omitting both person nodes selects the embedded `roster:core` default.
 `person-policy "external-only"` requires its paired source. The bundle manifest
 records `person:<name>`, never the local package path.
 
@@ -75,6 +75,6 @@ guard they inherit its source when the flag is absent.
 Evaluation packs include the selected person name, canonical role-skill body, seat,
 invariant, and active definitions. External packages use the generic
 four-case frontier and OSS matrix, so they do not inherit a role-specific case
-from `person:kai`. Agent-compose emits the deterministic pack and validates
+from `roster:core`. Agent-compose emits the deterministic pack and validates
 scored results. An external runner or human still owns model invocation,
 credentials, response capture, and scoring.

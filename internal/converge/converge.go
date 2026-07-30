@@ -125,7 +125,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	result, err := project.ApplyOwned(outDir, files, "roster", "person:"+p.Name)
+	result, err := project.ApplyOwned(outDir, files, "roster", p.ProviderID())
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
