@@ -236,7 +236,7 @@ func renderCodex(path string, servers map[string]server, home string) ([]byte, b
 	} else if !os.IsNotExist(err) {
 		return nil, false, fmt.Errorf("native MCP: read Codex config: %w", err)
 	}
-	rendered := spliceManagedBlock(existing, codexBlock(servers, home))
+	rendered := spliceManagedBlock(stripCodexServerTables(existing, servers), codexBlock(servers, home))
 	return []byte(rendered), rendered != existing, nil
 }
 
@@ -288,6 +288,139 @@ func spliceManagedBlock(existing, block string) string {
 		return block
 	}
 	return strings.TrimSpace(existing) + "\n\n" + block
+}
+
+func stripCodexServerTables(existing string, servers map[string]server) string {
+	lines := strings.SplitAfter(existing, "\n")
+	kept := make([]string, 0, len(lines))
+	drop := false
+	managed := false
+	for _, line := range lines {
+		marker := strings.TrimSpace(line)
+		if marker == blockBegin {
+			managed = true
+			drop = false
+		}
+		if !managed {
+			if path, ok := tomlTablePath(line); ok {
+				drop = len(path) >= 2 && path[0] == "mcp_servers"
+				if drop {
+					_, drop = servers[path[1]]
+				}
+			}
+		}
+		if managed || !drop {
+			kept = append(kept, line)
+		}
+		if marker == blockEnd {
+			managed = false
+			drop = false
+		}
+	}
+	return strings.Join(kept, "")
+}
+
+func tomlTablePath(line string) ([]string, bool) {
+	header := strings.TrimSpace(stripTOMLComment(line))
+	array := strings.HasPrefix(header, "[[") && strings.HasSuffix(header, "]]")
+	if array {
+		header = strings.TrimSpace(header[2 : len(header)-2])
+	} else if strings.HasPrefix(header, "[") && strings.HasSuffix(header, "]") {
+		header = strings.TrimSpace(header[1 : len(header)-1])
+	} else {
+		return nil, false
+	}
+
+	var path []string
+	for i := 0; i < len(header); {
+		for i < len(header) && (header[i] == ' ' || header[i] == '\t') {
+			i++
+		}
+		if i == len(header) {
+			return nil, false
+		}
+
+		var key string
+		switch header[i] {
+		case '"':
+			start := i
+			i++
+			escaped := false
+			for i < len(header) {
+				if header[i] == '"' && !escaped {
+					i++
+					break
+				}
+				if header[i] == '\\' && !escaped {
+					escaped = true
+				} else {
+					escaped = false
+				}
+				i++
+			}
+			if i > len(header) || header[i-1] != '"' {
+				return nil, false
+			}
+			decoded, err := strconv.Unquote(header[start:i])
+			if err != nil {
+				return nil, false
+			}
+			key = decoded
+		case '\'':
+			i++
+			start := i
+			for i < len(header) && header[i] != '\'' {
+				i++
+			}
+			if i == len(header) {
+				return nil, false
+			}
+			key = header[start:i]
+			i++
+		default:
+			start := i
+			for i < len(header) && header[i] != '.' && header[i] != ' ' && header[i] != '\t' {
+				i++
+			}
+			key = header[start:i]
+		}
+		if key == "" {
+			return nil, false
+		}
+		path = append(path, key)
+
+		for i < len(header) && (header[i] == ' ' || header[i] == '\t') {
+			i++
+		}
+		if i == len(header) {
+			return path, true
+		}
+		if header[i] != '.' {
+			return nil, false
+		}
+		i++
+	}
+	return nil, false
+}
+
+func stripTOMLComment(line string) string {
+	var quote byte
+	escaped := false
+	for i := 0; i < len(line); i++ {
+		switch {
+		case quote == '"' && line[i] == '\\' && !escaped:
+			escaped = true
+		case quote != 0 && line[i] == quote && !escaped:
+			quote = 0
+		case quote == 0 && (line[i] == '"' || line[i] == '\''):
+			quote = line[i]
+		case quote == 0 && line[i] == '#':
+			return line[:i]
+		default:
+			escaped = false
+		}
+	}
+	return line
 }
 
 func stripLegacyHeaders(text string) string {

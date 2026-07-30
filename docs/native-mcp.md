@@ -35,7 +35,8 @@ The projector:
   Claude state
 * replaces Codex's bracketed managed MCP block while preserving unrelated
   settings, explicit built-in disables, and configured per-server approval
-  policy
+  policy; on first adoption, same-name MCP tables outside the managed block are
+  absorbed instead of duplicated
 * reports drift without writing when `--check` is present
 
 The hard server-set projection is intentional. Removing an entry from the

@@ -35,6 +35,15 @@ func TestProjectConvergesBothNativeRegistries(t *testing.T) {
 	write(t, filepath.Join(home, ".codex", "config.toml"), `[features]
 js_repl = false
 
+[mcp_servers.reader]
+url = "https://old.example.test/mcp"
+
+[mcp_servers."local"]
+command = "/old/server"
+
+[mcp_servers."local".env]
+STALE = "true"
+
 [mcp_servers."computer-use"]
 enabled = false
 `)
@@ -88,6 +97,16 @@ enabled = false
 	} {
 		if !strings.Contains(codex, want) {
 			t.Fatalf("Codex projection missing %q:\n%s", want, codex)
+		}
+	}
+	for _, name := range []string{"reader", "local"} {
+		if got := strings.Count(codex, `[mcp_servers."`+name+`"]`); got != 1 {
+			t.Fatalf("Codex projection contains %d managed %q tables, want 1:\n%s", got, name, codex)
+		}
+	}
+	for _, stale := range []string{"https://old.example.test/mcp", "/old/server", "STALE"} {
+		if strings.Contains(codex, stale) {
+			t.Fatalf("Codex projection retained stale managed config %q:\n%s", stale, codex)
 		}
 	}
 
