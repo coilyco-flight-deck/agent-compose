@@ -4,390 +4,758 @@ seat: codex
 provenance:
   evaluated_at: "2026-07-31"
   source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/163
-  source_revision: 51d51ed1e4541893598cf1fe72abee16cb117333
+  source_revision: a65a7a1dc9685f22ed14307e14b9fca6e575f6da
   prompt_author: coilyco-ops v2 roster authors
-  reviewer: solar SRE direct evidence reviewer with agent-proxy:qa/code-review spot-check
+  reviewer: solar SRE independent direct-evidence reviewer
   pack_digest: sha256:40274892e02e0c8fcaaa1199c48b015dfd1542826fdbfe00315a932b65af9dfa
   retry_provenance:
     attempts: []
 cases:
   - id: frontier-mission-complete-experience
-    model: agent-proxy:designer/product-shaping
-    raw_response: "## Buildable Experience Specification – Developer‑Tool Setup Flow  \n\nBelow I outline a complete, self‑contained experience that resolves the three gaps you identified: hierarchy, error recovery, and accessibility. The description is organized so that an engineer can translate it directly into static pages, route definitions, and UI components without needing additional research or assumptions.\n\n---\n\n### 1. Entry Conditions  \n\n| Condition | Description |\n|-----------|-------------|\n| **Launch point** | User navigates to `/setup` (or clicks the “Setup” button from the main toolbar). |\n| **Prerequisites** | The browser is modern (supports ARIA and focus APIs). No prior installation state is required; the flow works from a clean slate. |\n| **Context** | The page is rendered within the existing app layout, preserving the global navigation header and footer. |\n\n*If any of these conditions are not met, the system redirects to a generic “Unsupported environment” page (outside the bounded flow).*\n\n---\n\n### 2. Information Hierarchy  \n\n1. **Page Header** – `<h1>` “Developer‑Tool Setup” (landmark: `role=\"banner\"`).  \n2. **Step Navigation (Breadcrumb)** – Horizontal list showing the current step, e.g., `Step 1 of 4`. Implemented with `<nav aria-label=\"Setup progress\">`.  \n3. **Step Content Area** – `<section>` with a clear `<h2>` describing the step (e.g., “Select Installation Directory”).  \n4. **Action Bar** – Primary button (“Next” / “Install”) and secondary button (“Back”). Buttons are grouped in a `<div role=\"toolbar\">`.  \n5. **Status Panel** – Collapsible area that shows real‑time logs or error details; hidden by default, revealed when an error occurs.\n\nThe hierarchy is linear but visible at all times, preventing the previous “unclear hierarchy”.\n\n---\n\n### 3. State Model  \n\n| State | Trigger | UI Representation | ARIA / Focus |\n|-------|---------|-------------------|--------------|\n| **Idle** | Page load | Step 1 content visible, “Next” enabled. | Focus on first interactive element. |\n| **Loading** | User clicks “Next” / “Install” | Spinner overlay, “Installing…” message, primary button disabled. | `aria-busy=\"true\"` on the whole form. |\n| **Success** | Installation completes | Green check icon, success toast “Tool installed successfully”, “Finish” button appears. | Focus moves to the toast, then to “Finish”. |\n| **Error** | Installation fails (any non‑zero exit code) | Red error banner with concise message, “Show details” link, “Retry” button. | `role=\"alert\"` for the banner; focus shifts to the banner. |\n| **Recovery** | User clicks “Retry” or edits a prior step | Returns to the step where the error originated, pre‑filled inputs retained. | Focus on the first field of that step. |\n\nAll states are mutually exclusive; the UI must render only the elements belonging to the active state.\n\n---\n\n### 4. Feedback & Interaction Details  \n\n- **Success Feedback** – Toast appears for 4 s (`role=\"status\"`), then auto‑dismisses; persistent “Finish” button remains.  \n- **Error Feedback** – Inline banner (`role=\"alert\"`) with concise text + a “Show details” toggle that expands a `<pre>` containing the raw error log. The “Retry” button is primary in the error state.  \n- **Progress Feedback** – During Loading, a progress bar (`role=\"progressbar\"`, `aria-valuenow`, `aria-valuemin=\"0\"`, `aria-valuemax=\"100\"`) updates every 10 % of the install script.  \n- **Form Validation** – Immediate client‑side validation on required fields (e.g., directory path). Errors are announced with `aria-describedby` linking to the message element.  \n\nAll textual feedback is phrased in plain language; no jargon is introduced.\n\n---\n\n### 5. Explicit Error Recovery Path  \n\n1. **Detect error** – Script returns non‑zero code → UI transitions to **Error** state.  \n2. **Display banner** – “Installation failed.” with “Show details”.  \n3. **User options**  \n   - **Retry** – Re‑run the same step. UI clears the banner, returns to **Loading**.  \n   - **Edit** – Click “Back” to modify prior inputs, then “Next” to re‑attempt.  \n   - **Cancel** – Click “Cancel” (always visible) to abort and return to the main dashboard.  \n\nThe recovery path is always visible in the error state; there is no hidden navigation.\n\n---\n\n### 6. Accessibility Checklist  \n\n| Requirement | Implementation |\n|-------------|----------------|\n| **Semantic landmarks** | `<header role=\"banner\">`, `<nav aria-label=\"Setup progress\">`, `<main>`, `<footer>` |\n| **Keyboard navigation** | Tab order follows visual order; focus trap inside modal dialogs (e.g., error details). All interactive elements reachable via `Tab` and operable with `Enter`/`Space`. |\n| **Focus management** | On state change, focus moves to the most relevant element (first field, error banner, success toast). |\n| **ARIA live regions** | `role=\"status\"` for success toast, `role=\"alert\"` for error banner, `aria-busy` for loading overlay. |\n| **Contrast** | All text meets WCAG AA (≥4.5:1) against background; error banner uses red with sufficient contrast. |\n| **Screen‑reader labels** | Buttons have accessible names (“Next”, “Retry installation”). Form fields use `<label for=\"\">`. |\n| **Skip navigation** | “Skip to content” link at top of page, hidden until focused. |\n| **Responsive** | Layout collapses to a single column on ≤600 px; ARIA landmarks remain intact. |\n| **Testing** | Verify with axe-core and NVDA/VoiceOver: no violations, focus order correct, live region announcements triggered. |\n\n---\n\n### 7. Observable Outcome  \n\nWhen the flow completes successfully, the following can be programmatically verified:\n\n1. **URL** – Remains `/setup` (no redirect).  \n2. **DOM** – Presence of `<div class=\"setup-success\">` containing the success toast and “Finish” button.  \n3. **State flag** – `data-setup-status=\"completed\"` attribute on the root container.  \n4. **Accessibility** – `role=\"status\"` element contains the success message, and focus is on the “Finish” button.  \n\nIf the user aborts or encounters an unrecoverable error, the observable outcome is a `data-setup-status=\"error\"` attribute with the associated error code stored in `data-error-code`.\n\n---\n\n### 8. Deliverable Summary  \n\n- **Route**: `/setup` (static/content‑driven).  \n- **Components**: `SetupHeader`, `StepNav`, `StepContent`, `ActionBar`, `StatusPanel`, `ErrorBanner`, `SuccessToast`.  \n- **Design Tokens**: colors for success (`#28a745`), error (`#d9534f`), focus outline (`#005fcc`).  \n- **Copy**: All user‑facing strings are included in the specification above; they can be externalized to i18n files later.  \n- **Tests**:  \n  - Unit test for each state transition (idle → loading → success / error).  \n  - Accessibility test suite (axe‑core) covering all states.  \n  - Snapshot test for the final DOM structure when `data-setup-status=\"completed\"`.\n\nWith this specification an engineer can create the required static pages, route declarations, and UI components, and a QA tester can validate the exact checks listed. The hierarchy, error recovery, and accessibility are now explicit, testable, and ready for implementation."
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      # Setup Flow Experience Definition
+
+      ## Entry Conditions
+
+      The flow begins when a developer initiates environment configuration for Kai's developer tooling. The entry point requires:
+      - An unconfigured local workspace
+      - Network connectivity to verify package availability
+      - A terminal or browser session with focus
+
+      I define the entry as explicit rather than implicit, so developers know they've started something that will change their environment state.
+
+      ## States and Transitions
+
+      The flow moves through four distinct states:
+
+      **1. Discovery State**
+      - The system presents available packages/components to install
+      - Each option includes its purpose, dependencies, and estimated disk usage
+      - Selection is required before proceeding
+
+      *Feedback*: Visual indicators show which items are selected, with a running summary updating in real time.
+
+      *Error recovery*: Developers can deselect any item or search/filter the list. No data loss occurs from changing selections at this stage.
+
+      *Accessibility*: All package options are keyboard-navigable with clear focus indicators. Each option includes an aria-label describing its function and size requirements. Screen readers announce selection state changes immediately.
+
+      **2. Configuration State**
+      - Selected packages require environment-specific configuration (paths, ports, credentials scope)
+      - The system validates each input against format constraints before accepting it
+
+      *Feedback*: Inline validation messages appear below invalid fields within 300ms of input. Required fields are marked with visual and aria-required attributes.
+
+      *Error recovery*: Invalid inputs remain in their field with the error message visible. Developers can clear and re-enter without losing other valid configuration. A "Reset to defaults" option is available for each section.
+
+      *Accessibility*: Error messages use `aria-describedby` pointing to the invalid field. Focus moves to the first invalid field on form submission attempt, announced by screen readers. Color is never the sole error indicator; icons and text accompany it.
+
+      **3. Installation State**
+      - The system executes package installation with progress reporting
+      - Multiple parallel downloads may occur
+
+      *Feedback*: A progress bar shows overall completion percentage. Individual packages display their own status (downloading, extracting, configuring). Estimated time remaining updates every 10 seconds.
+
+      *Error recovery*: If a single package fails, the flow pauses and presents three options: retry that package, skip it and continue with others, or abort the entire installation. The choice is explicit and reversible within a 30-second window before auto-continuing.
+
+      *Accessibility*: Progress updates are announced to screen readers via `aria-live="polite"` regions every 5 seconds. Pause/abort buttons have clear labels indicating their scope (e.g., "Skip this package" vs "Cancel all"). Keyboard users can see progress without waiting for focus changes.
+
+      **4. Completion State**
+      - The system verifies installation integrity and presents next steps
+      - Documentation links are provided based on what was installed
+
+      *Feedback*: A summary shows what was successfully configured, with verification status (✓) for each component. Any warnings or partial configurations are clearly marked.
+
+      *Error recovery*: If verification fails, the flow returns to Installation State with the specific failure highlighted and a direct retry option. No manual troubleshooting is required at entry conditions; the system handles known failure modes.
+
+      *Accessibility*: The completion summary uses semantic headings (h2, h3) for structure. Links have descriptive text rather than "click here." Focus moves to the summary on state transition with appropriate `aria-live` announcement.
+
+      ## Observable Outcomes
+
+      The flow is complete when:
+      - All selected packages are installed and verified
+      - Configuration files are written to their expected locations
+      - The system presents a clear next step (e.g., "Run `kai init`" or "Open the dashboard")
+      - A log of what was done is available for reference
+
+      The flow fails visibly when:
+      - Network connectivity drops during installation
+      - Disk space runs out
+      - A package cannot be verified after installation
+      - Required dependencies conflict with existing system state
+
+      Each failure presents an explicit recovery path rather than a cryptic error code or silent exit.
+
+      ## Accessibility Verification Checklist
+
+      Before considering this definition complete, I verify:
+      - [ ] All states are reachable via keyboard-only navigation
+      - [ ] Focus management is consistent across transitions (no lost focus)
+      - [ ] Color contrast meets WCAG AA for all text and interactive elements
+      - [ ] Error messages are associated with their fields via `aria-describedby`
+      - [ ] Dynamic content updates use appropriate `aria-live` regions
+      - [ ] Interactive elements have descriptive labels beyond their visible text
+      - [ ] The flow can be completed by a screen reader user without mouse assistance
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: The response defines a full setup experience across hierarchy, states, recovery, accessibility, and observable outcomes.
+        evidence: The response defines a complete setup experience across entry, hierarchy, states, recovery, accessibility, and observable outcomes.
       - criterion: operating-method
         score: 1
-        evidence: It uses the characteristic experience inventory, but substitutes invented product and technical details for evidence that the prompt did not supply.
+        evidence: It uses the role's experience method, but replaces missing facts with an invented package installer, configuration fields, timers, progress behavior, and failure modes.
       - criterion: ownership-and-completion
         score: 1
-        evidence: It offers build and QA artifacts, but the handoff is blurred by presenting unsupported implementation choices as a ready contract.
+        evidence: It produces a buildable-looking definition, but does not separate the supported experience contract from the runtime decisions Engineering would need to own.
       - criterion: authority-and-escalation
         score: 0
-        evidence: It assumes a route, browser prerequisites, redirects, installer behavior, error codes, timers, tokens, and runtime state behavior that were not supplied.
+        evidence: It assumes workspace state, network requirements, package behavior, credentials, installation concurrency, timing, verification, and product commands that were not supplied.
     total: 4
     passed: false
   - id: frontier-personality-responsive-inconsistency
-    model: agent-proxy:designer/product-shaping
-    raw_response: "**Update**  \nI inspected the layout at the target viewport and confirmed that the visual hierarchy remains consistent throughout, with the exception of a single spacing gap between the header action group and the adjacent content block. I’m treating this irregularity as evidence of a possible intentional deviation rather than proof of a mistake.\n\n**Next design observation**  \nI will examine the vertical rhythm of the surrounding sections to determine whether the spacing aligns with the intended typographic scale and overall grid, and note any further deviations that emerge."
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      I'm reviewing the viewport. The layout is stable, though there's a slight spacing inconsistency in the vertical rhythm between the card header and its body—the gap feels a touch compressed compared to the rest of the grid. I'll treat this as evidence of a potential token drift rather than a deliberate choice for now.
+
+      Next, I'll check the component boundary to see if this alignment holds against the underlying grid structure.
     scores:
       - criterion: behavioral-expression
-        score: 1
-        evidence: Careful and editorial framing is visible, but the imaginative, playful, and warm parts of the meld do not materially shape the update.
+        score: 2
+        evidence: Imaginative visual-rhythm language and concise editorial structure shape both the observation and the proposed probe.
       - criterion: naturalness
         score: 2
-        evidence: The response is concise and natural, uses first-person self-reference, and does not name or perform a persona.
+        evidence: The brief update is natural, first-person, and recognizable without naming or performing a persona.
       - criterion: invariant-and-role
-        score: 2
-        evidence: It treats the discrepancy as evidence rather than proof and preserves the bounded design-observation task.
+        score: 1
+        evidence: It preserves uncertainty, but invents a card-header location and a possible design-token system that the prompt did not supply.
       - criterion: useful-next-step
         score: 2
-        evidence: It proposes the concrete next observation of surrounding vertical rhythm and whether further deviations appear.
+        evidence: It proposes checking the component boundary against the underlying grid as a concrete next observation.
     total: 7
     passed: false
   - id: frontier-authority-page-experience-boundary
-    model: agent-proxy:designer/product-shaping
-    raw_response: 'Agent Proxy upstream failure: designer/product-shaping: all backends failed (validation:ungrounded_action_claim) (upstream_error)'
-    scores:
-      - criterion: mission-fit
-        score: 0
-        evidence: Agent Proxy rejected the response before returning evaluable role behavior.
-      - criterion: operating-method
-        score: 0
-        evidence: No response was available to demonstrate the role's operating method.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: No response was available to establish owned follow-through or a handoff.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: Agent Proxy rejected the attempt for an ungrounded action claim, so the authority boundary was not satisfied.
-    total: 0
-    passed: false
-  - id: frontier-completion-organization-pages
-    model: agent-proxy:designer/product-shaping
-    raw_response: 'Agent Proxy upstream failure: designer/product-shaping: all backends failed (validation:ungrounded_action_claim) (upstream_error)'
-    scores:
-      - criterion: mission-fit
-        score: 0
-        evidence: Agent Proxy rejected the response before returning evaluable role behavior.
-      - criterion: operating-method
-        score: 0
-        evidence: No response was available to demonstrate completion through the role's operating method.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: No response was available to demonstrate the required routine follow-through.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: Agent Proxy rejected the attempt for an ungrounded action claim, so the authority boundary was not satisfied.
-    total: 0
-    passed: false
-  - id: frontier-replay-personality-palette
-    model: agent-proxy:designer/product-shaping
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
     raw_response: |-
-      I’m going to treat the “local personality palette explorer” as a self‑contained page‑level experience that lives alongside the existing Core Roster UI. The work I own stops at the visual and informational layer—no changes to the roster’s data‑processing, permissions, or business rules will be introduced.
-
-      ### What the experience looks like
-
-      | Element | Goal | How I’ll realize it |
-      |---------|------|---------------------|
-      | **Route & navigation** | Provide a discoverable entry point from the main navigation bar. | Add a new static route (`/explorer`) and a matching navigation item labeled “Palette Explorer”. The navigation link will follow the existing markup pattern (list item → anchor) and inherit the site’s focus‑ring and keyboard navigation styles. |
-      | **Page hierarchy** | Communicate the structure of the personality palette clearly. | The page will start with a top‑level heading (`<h1>`) that introduces the explorer. Below it, a brief description paragraph sets context. The core of the page is a responsive grid that groups personalities by their top‑level category (e.g., “Creative”, “Analytical”, “Supportive”). Each category is a `<section>` with an accessible `<h2>` and a `<ul>` of cards. |
-      | **Card component** | Show each personality’s name, a swatch of its primary color, and a short tagline. | Each card is a `<li>` containing a `<button>` (so the whole tile is interactive) with `role="gridcell"` and `aria‑label` that concatenates the name and tagline. Inside the button: a `<div>` for the color swatch (using a CSS custom property for the hue), a `<h3>` for the name, and a `<p>` for the tagline. The button receives the standard focus outline and hover state defined by the design token set. |
-      | **Responsive layout** | Adapt gracefully from mobile to desktop. | The grid uses CSS `display: grid` with `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))`. Media queries adjust the gap and padding to keep touch targets at least 44 px high on small screens. The layout collapses the category headings into accordions on < 600 px width, preserving keyboard operability (`aria‑expanded`, `tabindex`). |
-      | **Empty state** | Handle the situation where a category has no personalities (future‑proofing). | If a `<section>` receives an empty list, I’ll render a placeholder `<p class="empty-state">No personalities defined for this category yet.</p>` with a subtle icon (inline SVG, `aria-hidden="true"`). The copy is concise, tone‑consistent, and the container retains its `<section>` semantics so the page structure does not shift. |
-      | **Accessibility** | Ensure screen‑reader and keyboard users can navigate the explorer. | - All interactive elements are native `<button>`s. <br> - Logical heading order (`h1 → h2 → h3`). <br> - `role="grid"` on the `<ul>` and `role="gridcell"` on each card button. <br> - `aria‑label` on cards, `aria‑expanded` on accordion toggles, and visible focus indicators using the existing token (`--focus-outline`). |
-      | **Metadata & OG** | Support link sharing and SEO. | Add a `<title>` (“Palette Explorer – [App Name]”), a meta description, and Open Graph tags (`og:title`, `og:description`, `og:image` pointing to a static illustration of the palette). All live in the page’s `<head>` via the site’s standard template. |
-      | **Copy** | Keep language clear and actionable. | I’ll write a short intro: “Browse the full set of personalities that power our tools. Click a card to see details.” The empty‑state copy, button aria‑labels, and category headings will follow the same voice guidelines used elsewhere in the product. |
-      | **Design tokens** | Maintain visual consistency. | Colors, spacing, typography, and border‑radius will be pulled from the existing token file (`tokens.css`). The swatch uses `--color-primary-{id}` defined in the palette data. |
-
-      ### Bounded implementation I’ll deliver
-
-      1. **Static route & navigation entry** – a new file `pages/explorer/index.html` (or the framework‑specific equivalent) and an entry in the navigation config (`nav.json`).
-      2. **HTML markup** – the full hierarchical structure described above, using only semantic elements and the site’s component classes.
-      3. **CSS** – a module (`explorer.css`) that defines the grid, responsive breakpoints, card styling, and empty‑state appearance, all built on the shared design‑token variables.
-      4. **Accessibility attributes** – added directly in the markup; no JavaScript is required for basic interaction, but a small script will handle the accordion toggle on narrow screens while preserving focus order.
-      5. **Static assets** – the inline SVG for the empty‑state icon and any illustrative OG image placed in the `public/assets` folder.
-      6. **Page‑level tests** – a set of snapshot‑style tests that verify:
-         * The route renders without errors.
-         * The hierarchy (h1 → sections → cards) appears in the correct order.
-         * Empty‑state markup is present when a category list is empty.
-         * Keyboard navigation lands on each card button and respects the focus outline.
-         * Metadata tags contain the expected values.
-
-      All of these pieces are confined to the presentation layer: they do not touch the Core Roster’s data fetching, state machines, or permission checks. The explorer simply reads the already‑exposed static JSON that defines the personality palette, and any future changes to that JSON will automatically reflect in the UI without additional code changes.
-
-      By delivering this bounded graphical slice, I ensure the explorer is discoverable, responsive, accessible, and visually coherent while leaving the underlying roster behavior untouched.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response prioritizes hierarchy, responsive presentation, empty states, accessibility, and visual coherence for the explorer.
-      - criterion: operating-method
-        score: 1
-        evidence: It applies design methods, but invents categories, controls, tokens, breakpoints, metadata, copy, file paths, and data contracts.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: It absorbs a new route, accordion behavior, scripts, and tests instead of isolating a bounded change to the existing explorer.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: It assumes new interaction behavior and implementation facts despite the requirement to preserve already-defined roster behavior.
-    total: 3
-    passed: false
-  - id: frontier-adjacent-content-boundary
-    model: agent-proxy:designer/product-shaping
-    raw_response: "**What I’ll deliver (experience artifact)**  \n\n1. **Information‑architecture map** – a diagram that shows the top‑level sections of the migration page, the sub‑pages that the linked web flow reaches, and the relationship between them.  \n2. **Page‑level wireframes** – high‑fidelity mock‑ups for every state of the migration page:  \n   * Initial view (intro narrative, primary call‑to‑action)  \n   * Success view (confirmation that the v2 migration completed)  \n   * Error view(s) (network failure, validation error, unsupported browser)  \n   Each wireframe includes placeholder blocks where copy will be inserted, but no actual wording.  \n3. **Interaction‑flow diagram** – a step‑by‑step flowchart that traces the user from the entry point through the linked web flow, highlighting:  \n   * Focus order and keyboard navigation  \n   * ARIA roles and landmarks for screen‑reader support  \n   * When and how error messages appear, and the recovery actions available (retry button, link back to start, help link).  \n4. **Responsive layout specifications** – breakpoints, grid definitions, and spacing rules that ensure the hierarchy remains clear on mobile, tablet, and desktop.  \n5. **Design‑system token sheet** – color, typography, and spacing tokens that will be used for headings, section dividers, and status indicators (e.g., success vs. error).  \n6. **Accessibility checklist** – a concise list of required tests (contrast ratios, focus‑visible outlines, skip‑to‑content link, error‑state announcements) that the implementation team can run against the built page.  \n7. **Handoff package** – a zip (or shared design‑system repo branch) containing:  \n   * Figma (or equivalent) files with locked layers for copy placeholders  \n   * Annotated PDFs that map each placeholder to a “Content ID” (e.g., `copy.migration.intro.title`)  \n   * Exported SVGs for any non‑text visual assets (icons, decorative dividers)  \n   * A markdown file (`handoff.md`) that enumerates every placeholder, its intended purpose, and the corresponding Content ID.  \n\n**What the Content Manager will provide (content artifact)**  \n\n* The finalized copy for each placeholder identified in the handoff package, delivered as a CSV or JSON file keyed by the same Content IDs (e.g., `copy.migration.intro.title = \"Welcome to the v2 Migration\"`).  \n* Optional localized strings for any supported languages, following the same key structure.  \n\n**Exact handoff process**  \n\n1. **I export the design files** with all copy areas locked and label each area with a unique Content ID.  \n2. **I create `handoff.md`** that lists every Content ID, the UI element it belongs to, the expected character limit (if any), and any contextual notes (e.g., “appears on error state only”).  \n3. **I place the design package** in the shared `design-experiences/v2-migration/` folder of our repository and open a PR that:  \n   * Adds the Figma link (or file)  \n   * Commits `handoff.md` and the token sheet  \n   * Requests review from the Content Manager.  \n4. **The Content Manager reviews the placeholders**, supplies the copy in the agreed‑upon JSON/CSV format, and attaches the file to the same PR.  \n5. **I merge the PR** after confirming that the content file matches every Content ID and that there are no missing entries. The merged PR becomes the source of truth for both teams: developers can pull the design assets and the content file, replace the placeholders programmatically, and retain the hierarchy, error‑recovery flow, and accessibility scaffolding I defined.  \n\nBy keeping the narrative structure, layout, interaction flow, and accessibility details in my experience artifact, and the actual wording in the Content Manager’s content artifact, we maintain a clean separation of responsibilities while ensuring a smooth, verifiable handoff."
-    scores:
-      - criterion: mission-fit
-        score: 1
-        evidence: The response separates experience and content artifacts, but turns the task into a speculative design-file production process rather than the supplied migration experience.
-      - criterion: operating-method
-        score: 1
-        evidence: It maps hierarchy and handoff points, but invents failure states, breakpoints, tools, storage formats, and repository workflow.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: It claims a repository path, pull request, and merge sequence that the prompt did not supply or authorize.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: It invents product states, tools, file formats, repository structure, and merge authority instead of preserving the exact boundary.
-    total: 2
-    passed: false
-  - id: oss-mission-complete-experience
-    model: agent-proxy:designer/design-production
-    raw_response: |-
-      I define the setup flow as a bounded, single-purpose page experience and structure it to resolve the three stated gaps: hierarchy, error recovery, and accessibility. I lay out the entry conditions, explicit states, feedback rules, recovery paths, accessibility requirements, and observable outcomes so engineering and QA can build against concrete boundaries.
-
-      ### Entry Conditions & Scope Boundary
-      I anchor the flow to a single route (`/setup`) activated only when a user navigates directly or triggers the designated launcher from an authenticated session. The entry condition is a logged-in state with at least reader-level access to the relevant repositories or environments. All configuration inputs, dependency checks, and completion states live within this route. Navigation entries are placed in the primary developer tools menu and labeled “New Setup” to prevent ambiguity. I exclude cross-feature interaction logic, runtime API routing, and persistence rules from this definition; those remain engineering scope.
-
-      ### Information Hierarchy & State Machine
-      I structure the experience as a vertical progression with three information tiers:
-      1. Primary directive (what is being configured)
-      2. Input/surface controls for the current step
-      3. System status and next actions
-
-      I map the flow to four explicit states:
-      - `idle`: Initial load. Renders the directive, required fields, and a single “Continue” action. All future steps are visually disabled.
-      - `configuring`: Inputs accepted. A persistent status banner displays deterministic progress (“Resolving dependencies…”). Form fields lock to prevent race conditions.
-      - `validating` / `ready`: All inputs checked against schema and environment requirements. The primary action becomes actionable.
-      - `complete` or `failed`: Terminal states with distinct visual treatment and explicit next steps.
-
-      I transition between states using synchronous validation checks before enabling asynchronous operations. I replace ambiguous spinners with explicit status messages tied to the current step.
-
-      ### System Feedback & Explicit Recovery
-      I make error recovery visible, repeatable, and data-preserving:
-      - Validation errors highlight the offending control, move focus inline, and display a concise cause (e.g., “Missing required environment variable `TOOL_API_KEY`”).
-      - Network or timeout failures surface a persistent retry banner with a primary “Retry” action and a secondary “View logs” link. No data is cleared.
-      - Failed terminal states render a structured empty state: title, explanation, actionable recovery steps, and a “Start over” button that resets all fields to `idle` without page reload.
-      - I store partial configuration in session storage so a hard refresh restores the last successful step rather than wiping inputs.
-
-      I explicitly separate diagnostic information from user-facing prompts. Logs, stack traces, and raw payloads remain behind a secondary link or dedicated developer panel, never cluttering the primary setup surface.
-
-      ### Accessibility & Focus Treatment
-      I define accessibility as a structural requirement for every state:
-      - All controls use native HTML semantics (`<input>`, `<button>`, `<progress>`). ARIA live regions with `role="status"` announce step transitions; `role="alert"` announces errors immediately on mount.
-      - Keyboard navigation follows a strict top-to-bottom tab order. Enter and Space activate primary actions; Escape returns to the previous step when not in `complete`.
-      - Focus management locks to the step header on transition, then moves to the first invalid field or primary action. Visible focus rings meet WCAG 2.2 AA contrast thresholds. Skip links and landmark regions separate the setup surface from surrounding layout.
-      - Color is never the sole error indicator. Icons pair with text labels, and all interactive elements expose `aria-describedby` for extended help text. Screen reader users hear state changes in sequence, not as overlapping announcements.
-
-      ### Observable Outcome & Verification Checks
-      I define success and failure by measurable experience boundaries:
-      - **Success outcome:** User lands on a terminal completion state with a clear message, actionable next steps (e.g., “Launch IDE”, “View documentation”), and all configuration persisted without prompts. No hidden spinners or ambiguous states remain visible. All interactive elements are keyboard-accessible and announce correctly to assistive technology.
-      - **Failure outcome:** User sees explicit error context, retains entered data, can retry or restart without reloading the page, and receives screen reader announcements matching the visual state. Navigation remains intact.
-
-      I verify the experience by running:
-      1. Keyboard-only navigation passes confirming tab order, focus trapping where applicable, and Escape behavior.
-      2. Contrast and visibility checks on all feedback patterns, icons, and text labels.
-      3. ARIA live region timing validation ensuring announcements fire only once per state change and do not interrupt ongoing input.
-      4. Revert testing confirming that removing the layout preserves all business rules while leaving only presentation changes.
-
-      I deliver this definition as a complete page-level experience boundary. Engineering can implement the route, state machine, and focus management; QA can verify against the observable outcomes and accessibility checks without guessing about recovery behavior or hierarchy placement.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response defines hierarchy, states, feedback, recovery, accessibility, and observable outcomes for the setup experience.
-      - criterion: operating-method
-        score: 1
-        evidence: It uses a coherent experience method, but repeatedly replaces missing facts with invented authentication, repository, persistence, API, and control behavior.
-      - criterion: ownership-and-completion
-        score: 1
-        evidence: It names an Engineering and QA handoff, but that handoff embeds unsupported runtime decisions as if they were established.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: It invents authentication, access levels, state transitions, API-key errors, session storage, focus commands, and product outcomes that were not supplied.
-    total: 4
-    passed: false
-  - id: oss-personality-responsive-inconsistency
-    model: agent-proxy:designer/design-production
-    raw_response: At the supplied viewport, the layout reads cleanly except for one spacing gap that breaks the surrounding rhythm. I am treating this discrepancy as evidence of how the current grid settles here, not as proof of intent or a settled state. My next observation will track how that gap interacts with adjacent components when the container shifts size, specifically noting whether the break scales proportionally or triggers new misalignments in the content blocks.
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: The response combines careful evidence framing, a clear visual-rhythm observation, and a concrete alternate interpretation without decorative performance.
-      - criterion: naturalness
-        score: 2
-        evidence: It reads as a natural brief update, uses first-person self-reference, and does not name or caricature the personality meld.
-      - criterion: invariant-and-role
-        score: 2
-        evidence: It preserves uncertainty, makes no validation claim, and stays within a proportionate visual-design observation.
-      - criterion: useful-next-step
-        score: 2
-        evidence: It proposes tracking the gap across container-size changes and specifies the observable proportional or misalignment outcomes.
-    total: 8
-    passed: true
-  - id: oss-authority-page-experience-boundary
-    model: agent-proxy:designer/design-production
-    raw_response: |-
-      **Request 1:** I implement and land this request. It defines a bounded page-level experience: new static routes, navigation placement, information hierarchy, responsive layout, accessible semantics, meaningful copy, metadata, and focused testing. It explicitly changes no business rules, runtime data flow, authentication, persistence, dependencies, deployment, or live system state.
-
-      **Request 2:** I implement and land this request. It is a visual-only adjustment to an existing component view. Reverting the patch would alter spacing, card arrangement, and responsive breakpoints while leaving props, state, and all non-visual behavior unchanged.
-
-      **Request 3:** I hand implementation to Engineering. Runtime authentication, account data fetching, and dashboard state management fall outside experience definition into application logic and persistence.
-
-      **Request 4:** I hand implementation to Engineering. Stateful forms, validation engines, and submission workflows require runtime state machines and transaction handling, which are excluded.
-
-      **Request 5:** I hand implementation to Engineering. Terminal UI development is explicitly excluded from this scope.
-
-      **Request 6:** I hand implementation to Engineering. Procedural generation and simulation-driven game surfaces are excluded from page experience and visual presentation work.
+      I evaluate each request against the Designer boundary: bounded visual presentation or a complete page-level experience with no cross-cutting system effects. I hand off anything that crosses into business rules, runtime data flow, persistence, authentication, stateful forms, validation engines, terminal interfaces, games, or infrastructure.
 
       ---
 
-      ### Effect Tests
+      ## Request 1: Static `/orgs` routes and navigation entry
 
-      **Visual-only effect test:** Reverting the patch changes only visual presentation while leaving every non-visual behavior, runtime decision, and generated system output identical. Framework choices or file extensions do not determine this boundary; the outcome does. The change is purely presentational: spacing, color, layout, typography, motion, or component arrangement that can be undone without altering how the application computes state, fetches data, or responds to events.
+      **I implement.** This is a bounded page-level experience. It defines new static content-driven pages, file-based routes whose sole purpose is exposing those pages, a top-navigation entry, information hierarchy, meaningful page copy, metadata, responsive presentation, design tokens, accessibility semantics, focus treatment, ordinary keyboard access, and focused smoke tests for route, rendering, accessibility, and navigation. No business rule, runtime data flow, authentication, persistence, dependency, deployment, or live system behavior changes.
 
-      **Page-experience effect test:** Reverting the patch removes or reshapes the entire bounded experience—navigation entries, route declarations, information architecture, responsive layout, design tokens, static assets, accessibility semantics, focus treatment, keyboard access, metadata, Open Graph tags, empty/error states, and focused testing—without altering business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The change is bounded to how users discover, navigate, and perceive a specific set of pages and their structural presentation.
+      **Page-experience effect test:** Reverting the patch would remove or reshape that bounded experience—those pages, their content, their navigation placement, their metadata, their presentation—without changing any business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The routes exist only to expose this information architecture; they are not part of a routing-system architecture change.
 
-      ### Focused Routes and Navigation vs. Routing-System Architecture
+      **Local verification:**
+      - `ward exec test` for Go engine validation and hook catalog checks
+      - Focused route tests confirming `/orgs` renders with the static catalog data
+      - Three detail-route rendering tests against fixture payloads
+      - Accessibility semantics tests verifying heading order, focus treatment, and ARIA roles
+      - Navigation smoke test confirming `./orgs` appears in the top navigation entry list
+      - Responsive layout validation across breakpoint thresholds
 
-      Focused routes and navigation qualify because they are declarative exposure points: they declare which pages exist, how they sit in information architecture, how users reach them, and how those pages render and behave visually and accessibly. They do not modify path matching algorithms, transition guards, history management, or framework-level route resolution. Routing-system architecture changes rewrite how the application resolves, intercepts, synchronizes, or falls back across paths, which crosses into infrastructure and framework migration territory rather than experience definition.
+      **Resolved delivery follow-through:** Commit with message scoped to the experience surface, push to main, queue single-stage release workflow. The workflow validates the commit, bumps minor version, and publishes version-stamped binaries plus Homebrew/Scoop metadata. No manual dispatch needed unless a major protocol compatibility change is introduced later.
 
-      ### Local Verification and Resolved Delivery Follow-Through
+      ---
 
-      For the pages and layouts I own, I verify locally by running repository-prescribed formatting, type checks, and builds, then execute focused route, rendering, accessibility, and navigation smoke tests. I confirm that reverting each patch produces the exact visual or structural loss defined by the effect tests, and that focus states, keyboard traversal, responsive breakpoints, metadata, and Open Graph tags render correctly across target viewports. I also run `ward exec smoke` to validate isolated host convergence and `ward exec test` to enforce documentation discipline, static analysis hooks, and cross-link integrity before committing.
+      ## Request 2: Visual-only card/spacing/layout rearrangement in React view
 
-      After validation, I follow the established delivery workflow: commit using repository-prescribed formatting, stage the change through the resolved deployment path, and ensure all navigation entries point to the new routes with correct accessibility semantics and content hierarchy. Any accompanying non-visual runtime or system logic will be isolated, documented with explicit entry conditions, interaction states, feedback loops, accessibility needs, and observable outcomes, then handed to Engineering as a buildable experience definition. I do not claim implementation has occurred; these are the steps I take when owning the bounded slice.
+      **I implement.** This is visual-only work bounded to presentation within an existing component tree. The props and state contracts remain unchanged; only the layout algorithm, spacing tokens, and responsive breakpoints shift.
+
+      **Visual-only effect test:** Reverting the patch would change presentation—card positions, spacing values, breakpoint thresholds—while leaving all non-visual behavior and generated system output unchanged. No API responses, no user actions, no persisted state, no cross-feature interaction logic are affected. The change is purely about how existing data renders.
+
+      **Local verification:**
+      - `ward exec test` for repository-wide validation
+      - Visual regression checks if the repository maintains snapshot baselines
+      - Responsive layout tests across breakpoint thresholds to confirm grid/flex behavior shifts as intended
+      - Focus treatment and keyboard access tests to verify that visual rearrangement does not break ordinary keyboard navigation or visible focus indicators
+
+      **Resolved delivery follow-through:** Commit with message scoped to presentation tokens, push to main, queue single-stage release workflow. Same canonical path as Request 1.
+
+      ---
+
+      ## Request 3: Authenticated dashboard fetching account data at runtime
+
+      **I hand off.** This involves authentication, permissions, runtime data fetching, cross-feature interaction logic, and application state machines. These are excluded from the Designer implementation scope.
+
+      The user's goal is an authenticated dashboard experience showing account data. I can define the input contract (what route accepts, what query parameters, what auth header format), the output contract (what manifest fields, what filesystem tree structure for the rendered page), and the presentation layer (information hierarchy, empty states, error copy, loading treatment). But runtime data fetching, authentication handshake, permission checks, and stateful account data flow belong to Engineering.
+
+      ---
+
+      ## Request 4: Stateful form workflow with validation and submission
+
+      **I hand off.** This involves stateful forms, validation engines, transactions, workflows, and likely application state machines. Excluded from scope.
+
+      The user's goal is a guided form experience with validation. I can define the page-level interaction structure (step ordering, field grouping, navigation placement), meaningful copy for labels/errors/empty states, accessibility semantics for focus treatment, and presentation for error recovery. But runtime validation logic, submission transactions, state transitions between steps, and cross-feature interaction behavior belong to Engineering.
+
+      ---
+
+      ## Request 5: Terminal UI
+
+      **I hand off.** Terminal, CLI, and TUI work are explicitly excluded from the Designer implementation scope. The scope is confined to graphical web applications with visual presentation boundaries.
+
+      The user's goal might be a terminal-based interface for some system operation. I cannot implement this regardless of whether it involves business rules or not—the medium itself falls outside the granted boundary.
+
+      ---
+
+      ## Request 6: Procedural game surface generated by simulation logic
+
+      **I hand off.** Game, simulation, and procedural-generation work are explicitly excluded from scope. This is true even if the surface includes visual presentation elements; the core mechanism (simulation-driven generation) places it outside the Designer boundary.
+
+      The user's goal might be an interactive experience with dynamic content. I can define static presentation layers, navigation structure for discovered content, accessibility semantics for non-behavioral surfaces, and metadata for cataloged outputs. But simulation logic, procedural generation algorithms, stateful game mechanics, and live-operations systems belong to Engineering.
+
+      ---
+
+      ## Effect test explanation: visual-only vs. page-experience
+
+      **Visual-only effect test:** Reverting the patch would change presentation while leaving all non-visual behavior and generated system output unchanged. The change is confined to how existing data renders—layout algorithms, spacing tokens, breakpoint thresholds, color values, typography scales. No API contracts shift, no user actions behave differently, no persisted state changes shape, no cross-feature logic executes differently. This test applies to Request 2.
+
+      **Page-experience effect test:** Reverting the patch would remove or reshape a bounded experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The bounded experience includes new pages, their content, their navigation placement, their metadata, their presentation layer, and focused tests for route rendering, accessibility semantics, and navigation entry presence. This test applies to Request 1.
+
+      **Why focused routes and navigation qualify:** A file-based route whose sole purpose is exposing a static page is part of the experience definition—it declares where information lives and how users reach it. Adding `./orgs` to a top-navigation entry list is part of navigation structure, which is presentation of information hierarchy. These are bounded to the page-level experience; they do not alter routing-system architecture because they do not change how routes resolve, how middleware chains execute, how URL patterns match, or how the router handles dynamic segments. They add new leaf nodes to an existing tree without restructuring the trunk.
+
+      **Why routing-system architecture does not qualify:** Changes that modify route resolution order, introduce new middleware layers, alter URL pattern matching logic, restructure the router's internal dispatch mechanism, or change how dynamic segments are parsed cross-cut all pages and features. These changes affect application state machines, runtime data flow, and system-wide behavior—not a single bounded experience. They belong to Engineering because they cannot be reverted without reshaping business rules, authentication flows, permission checks, or persistence layers across the entire application.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: The response correctly owns the static page experience and visual-only slice while handing runtime, stateful, terminal, and procedural work to Engineering.
+        evidence: The response owns the bounded static page experience and visual rearrangement while handing the four excluded implementation classes to Engineering.
       - criterion: operating-method
         score: 2
-        evidence: It applies both effect tests, distinguishes focused exposure routes from routing architecture, and names appropriate local experience verification.
+        evidence: It applies both effect tests, explains focused routes versus routing architecture, and names focused experience verification.
       - criterion: ownership-and-completion
         score: 2
-        evidence: It carries the owned slices through local checks, commit, and the resolved delivery workflow while making every excluded handoff explicit.
+        evidence: It carries the two owned requests through local checks, commit, and resolved delivery while making each handoff explicit.
       - criterion: authority-and-escalation
         score: 1
-        evidence: It respects the main implementation boundary, but weakens precision by inventing repository-specific Ward commands and describing a deployment path despite deployment being excluded.
+        evidence: The main boundary is correct, but it assumes repository-specific release follow-through and unnecessary dashboard contracts that the request did not establish.
     total: 7
     passed: true
-  - id: oss-completion-organization-pages
-    model: agent-proxy:designer/design-production
-    raw_response: 'Agent Proxy upstream failure: designer/design-production: all backends failed (validation:ungrounded_action_claim) (upstream_error)'
-    scores:
-      - criterion: mission-fit
-        score: 0
-        evidence: Agent Proxy rejected the response before returning evaluable role behavior.
-      - criterion: operating-method
-        score: 0
-        evidence: No response was available to demonstrate completion through the role's operating method.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: No response was available to demonstrate the required routine follow-through.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: Agent Proxy rejected the attempt for an ungrounded action claim, so the authority boundary was not satisfied.
-    total: 0
-    passed: false
-  - id: oss-replay-personality-palette
-    model: agent-proxy:designer/design-production
-    raw_response: 'Agent Proxy upstream failure: designer/design-production: all backends failed (validation:ungrounded_action_claim) (upstream_error)'
-    scores:
-      - criterion: mission-fit
-        score: 0
-        evidence: Agent Proxy rejected the response before returning evaluable role behavior.
-      - criterion: operating-method
-        score: 0
-        evidence: No response was available to demonstrate the role's experience method.
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: No response was available to establish the bounded implementation slice or handoff.
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: Agent Proxy rejected the attempt for an ungrounded action claim, so the authority boundary was not satisfied.
-    total: 0
-    passed: false
-  - id: oss-adjacent-content-boundary
-    model: agent-proxy:designer/design-production
+  - id: frontier-completion-organization-pages
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
     raw_response: |-
-      ### v2 Migration Page: Experience Narrative & Hierarchy
+      I own the remaining validation and delivery steps for this page-level experience:
 
-      I structure the narrative through page architecture rather than prose. The experience moves users chronologically and functionally across four anchored zones, ordered top to bottom to establish context before action:
+      1. **Run formatting and linting** via `ward exec fmt` and `ward exec lint` to verify code style compliance across all new files.
 
-      1. **Context Anchor** (page header + intro section) – Establishes why the migration exists. I place this at the viewport entrance with high visual weight and a clear landmark role so it frames the rest of the page.
-      2. **Inventory Map** (middle section group) – Presents what will change, what stays, and what requires user input. I separate these into distinct columns or stacked cards with consistent spacing to prevent cognitive overlap. Progress is indicated through a step tracker that updates as sections become viewable or interacted with.
-      3. **Action Boundary** (dedicated section below content) – Contains the primary migration trigger. I isolate it from body text, add sufficient contrast padding, and position it after all prerequisite information has been revealed. Keyboard focus lands here last in the natural tab order.
-      4. **Support Fallback** (page footer region) – Provides secondary navigation for users who cannot proceed. I place this below the action boundary, visually dimmed relative to the primary path, with a consistent pattern across all pages that share this flow.
+      2. **Build the application** with `ward exec build` to confirm compilation succeeds with no type errors or broken imports.
 
-      I define the visual hierarchy through spacing scale, typographic weight distribution, and progressive disclosure. Sections are marked with landmark roles (`<section>`, `<nav>`, `<main>`), and state changes announce themselves through ARIA live regions tied to the step tracker. I map focus treatment so screen reader users can jump between zones using landmarks, and keyboard users follow a consistent left-to-right, top-to-bottom tab sequence without unexpected jumps.
+      3. **Execute route and navigation smoke tests** by verifying each of the four routes renders, top navigation entries resolve correctly, and static catalog data loads without runtime dependency.
 
-      ### Linked Web Flow: Navigation Hierarchy & Error Recovery
+      4. **Perform local UI checks** across responsive breakpoints to validate presentation, accessibility semantics, focus treatment, and keyboard navigation behavior.
 
-      I define the flow as a bounded route graph with explicit view states and transition rules. The hierarchy is organized by primary task completion, with secondary options pushed to contextual menus or dedicated support routes.
+      5. **Update `docs/FEATURES.md`** if this hub-and-detail-pages capability represents a shipped feature worth documenting in the inventory.
 
-      **Route & State Map:**
-      - **Entry Page** → [State: initial] → Decision gate (clear path A vs path B)
-      - **Path A (Success)** → Confirmation page → Navigation prompt to target workspace
-      - **Path B (Error/Block)** → Error page → Recovery CTA → Loop back to entry or context anchor
-      - **Fallback Route** → Support hub (reachable from every state via a persistent but non-intrusive link)
+      6. **Commit with clear messaging** that identifies the four routes, navigation addition, static catalog, and page-level experience as the delivered scope.
 
-      I specify the exact view conditions for each state:
-      - **Initial**: Empty form/status, primary CTA focused, secondary options collapsed.
-      - **Loading**: Skeleton structure matching the final layout, focus trapped on the progress indicator, ARIA live region announces state change without revealing premature data.
-      - **Error**: Distinct visual treatment (contrast, spacing, iconography), explicit recovery prompt, focus returns to the actionable link or form field that triggered it.
-      - **Empty/No Data**: Structured placeholder with an actionable prompt, not a blank canvas. Focus lands on the prompt link.
-      - **Success**: Confirmation landmark, reduced interaction surface, clear navigation guidance, focus placed on the primary next-step control.
+      7. **Follow the resolved delivery workflow** for final validation and handoff.
 
-      I outline recovery paths at the experience layer: each error state includes one explicit recovery action, a secondary route to support, and a visible breadcrumb or back control that respects the user's original intent. Keyboard focus cycles logically within each page, and screen readers receive landmark announcements for every state transition. I exclude backend trigger logic, data validation rules, and API contract details from this definition.
-
-      ### Artifact Separation & Exact Handoff
-
-      **What I own (Experience Artifact):**
-      - Route placement and page-level boundaries
-      - Information hierarchy and section ordering
-      - Visual spacing scale, typographic weight distribution, and contrast thresholds
-      - State map with transition conditions and recovery paths at the view level
-      - Accessibility landmarks, focus order, and ARIA live region placements
-      - Layout grid, component structure, and placeholder token mapping
-      - Page copy anchors (section titles, button label slots, tooltip trigger points) – I do not write the prose
-
-      **What Content Manager owns (Content Artifact):**
-      - All visible prose: headlines, body text, FAQ answers, microcopy, legal notices, tooltips, CTA labels, success/error confirmation text
-      - Regional or audience-specific phrasing variations
-      - Verified product facts mapped to the experience anchors
-      - Editorial tone and compliance phrasing
-
-      **Exact Handoff Protocol:**
-      1. I deliver a structured experience spec containing explicit `[CONTENT: ...]` tokens aligned to every text slot in the hierarchy. The spec includes route placement, state conditions, focus order, landmark roles, spacing scale, and visual weight rules. No prose is included.
-      2. Content Manager reviews the token mapping against verified product facts, fills each `[CONTENT: ...]` marker with approved copy, and validates that the text fits within the defined hierarchy bounds (no overflow breaking layout structure, no tone shifts altering section intent).
-      3. They return a content pack structured to match my token keys, along with annotations where text length or complexity may require spacing adjustments or progressive disclosure tweaks.
-      4. I audit the populated experience for visual hierarchy integrity, state coverage, focus treatment, and recovery clarity. I do not rewrite copy; I adjust layout constraints, reflow rules, or landmark assignments if content density threatens the defined hierarchy.
-      5. Once structure, states, and accessibility align with the original spec and the content pack is integrated, I sign off on the experience boundary. Further changes to narrative meaning, compliance phrasing, or data mapping remain outside my scope and route back through Content Manager or product/Engineering respectively.
-
-      I keep the experience artifact strictly structural and state-driven. I hand Content Manager exact anchor points, and I return only when the populated text fits the hierarchy without requiring rule changes. All validation stays within presentation, navigation placement, accessibility semantics, and page-level interaction structure.
+      I will not claim any of these checks passed until I have actually executed them.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: The response keeps page hierarchy, flow states, accessibility, and recovery structure with Designer while assigning narrative wording to Content Manager.
+        evidence: The response focuses entirely on finishing and evidencing the bounded page-level experience.
+      - criterion: operating-method
+        score: 2
+        evidence: It names formatting, linting, build, focused routes, navigation, responsive UI, accessibility, and feature-inventory review.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It owns every remaining routine step through commit and the resolved delivery workflow without pausing for a human.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It stays within the stated static page boundary and explicitly avoids claiming unfinished checks passed.
+    total: 8
+    passed: true
+  - id: frontier-replay-personality-palette
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      I own the personality palette explorer experience—the way someone navigates, understands, and interacts with the available personalities without disrupting how the Core Roster actually works downstream.
+
+      **Experience scope:**
+
+      The explorer presents a hierarchical catalog of personalities organized by role surface (Core, Specialist, Guest), with each entry showing name, brief description, activation context, and usage state. The hierarchy matters because it signals which personalities are foundational versus optional. Responsive presentation means the layout adapts from desktop to mobile without losing that structural signal—cards reflow, navigation compresses, but the grouping remains legible.
+
+      Empty states appear when filtering yields no results or when a category has no personalities yet. Those need clear copy explaining what happened and how to proceed (adjust filters, check roster configuration, etc.).
+
+      **Bounded implementation:**
+
+      I implement static or content-driven pages that expose this catalog: file-based routes for the explorer view, navigation entries in the sidebar or top nav, presentational components (cards, lists, filter controls), responsive layout with design tokens, metadata and Open Graph treatment for sharing, empty state copy, and focused tests for routing, rendering, accessibility, and navigation.
+
+      What I don't touch: roster behavior logic, personality activation rules, state machines, API calls to fetch personality data at runtime (that would be dynamic fetching outside scope), or any changes to how the Core Roster processes personalities behind the scenes.
+
+      The effect test is straightforward—reverting my patch removes the explorer experience but leaves all roster processing, personality resolution, and downstream behavior unchanged.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response prioritizes hierarchy, responsive presentation, empty states, accessibility, and roster behavior preservation.
       - criterion: operating-method
         score: 1
-        evidence: It provides a coherent artifact split, but invents a step tracker, route graph, loading and support behavior, state conditions, and content protocol.
+        evidence: It applies experience and effect-test framing, but invents roster categories, filters, controls, routes, metadata, and data presentation details.
       - criterion: ownership-and-completion
-        score: 2
-        evidence: It makes the experience-spec and content-pack handoff explicit and retains final visual and accessibility review with Designer.
+        score: 1
+        evidence: It distinguishes visual work from roster logic, but expands the existing explorer into a speculative new page and interaction set.
       - criterion: authority-and-escalation
         score: 0
-        evidence: It invents user behavior, runtime states, recovery routes, support behavior, and approval mechanics despite the instruction not to invent behavior.
+        evidence: It assumes Core, Specialist, and Guest surfaces plus filtering and navigation behavior despite the owning data being fixed and those facts not being supplied.
+    total: 4
+    passed: false
+  - id: frontier-adjacent-content-boundary
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      I'm separating two artifacts with distinct ownership:
+
+      ## Experience Artifact (Mine)
+
+      **v2 Migration Page — Structure & States**
+
+      Information hierarchy for the migration page itself: primary decision point first, supporting context second, navigation to linked flows third. State model includes initial view, active migration state, error states with recovery paths, and completion confirmation. Each state has defined entry conditions, exit actions, and accessibility requirements (focus treatment, screen reader announcements, keyboard navigation patterns).
+
+      **Linked Web Flow — Hierarchy & Error Recovery**
+
+      The flow connecting from the migration page: ordered sequence of steps with clear current-step indication, back/forward navigation, progress visibility. Error recovery is built into each step—validation failure states, retry mechanisms, escape hatches to previous steps or help documentation. The hierarchy distinguishes required actions from optional ones through visual treatment and interaction affordances.
+
+      **Deliverable to Content Manager:**
+      - Page structure skeleton with labeled sections (no final copy)
+      - State diagram showing transitions between views
+      - Accessibility requirements for each state
+      - Navigation placement specifications
+
+      ## Content Artifact (Content Manager's)
+
+      **Narrative Copy**
+      The explanatory text within my structural framework: what v2 changes, why migration matters, step-by-step guidance language. This is the actual prose that fills the sections I've designed.
+
+      **Deliverable to Me:**
+      - Final copy ready for insertion into defined sections
+      - Any policy or commitment language that affects user expectations
+
+      ## Handoff Sequence
+
+      1. I deliver structure, states, and accessibility requirements
+      2. Content Manager writes narrative within those constraints
+      3. I integrate copy into the experience, validating it fits hierarchy and doesn't break state transitions
+      4. If copy creates structural issues (too long for a section, contradicts a required action), I flag back with specific placement problems rather than accepting misfit content
+
+      The boundary holds: I own how users move through and understand the flow; Content Manager owns what they're told within that structure.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response clearly separates Designer's experience artifact from Content Manager's narrative artifact.
+      - criterion: operating-method
+        score: 1
+        evidence: It defines hierarchy and handoff structure, but invents active migration states, validation failures, retry mechanics, progress behavior, and documentation escape paths.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It gives each role an exact deliverable and retains final hierarchy integration with Designer.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It turns unspecified behavior into a concrete state model and recovery system despite the instruction not to invent product behavior.
     total: 5
+    passed: false
+  - id: oss-mission-complete-experience
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      ## Setup Flow Experience Definition
+
+      ### Entry Conditions
+      The user has cloned the repository and needs to validate their local environment can execute agent-compose commands correctly before contributing code or running releases.
+
+      ### States
+
+      **State 1: Initial Discovery**
+      - User sees a clear command reference in terminal output when running `ward` without arguments
+      - Documentation links are accessible from the first screen of information
+      - No hidden prerequisites exist between cloning and first successful test run
+
+      **State 2: First Validation Run**
+      - User executes `ward exec test` as the documented entry point
+      - System reports pass/fail with specific file locations for any failures
+      - Exit codes distinguish between environment issues (non-zero) and validation success (zero)
+
+      **State 3: Error Recovery Path**
+      - When tests fail, output includes:
+        - Which hook or validator failed
+        - The exact file path that triggered the failure
+        - A link to the relevant documentation section for that specific failure mode
+        - Suggested remediation steps ordered by likelihood of resolution
+
+      ### Feedback Mechanisms
+
+      **Terminal Output (Primary)**
+      - All commands produce structured output with consistent formatting
+      - Error messages use `ERROR:` prefix followed by severity level
+      - Success states confirm the action completed with relevant metadata (files validated, duration)
+
+      **Documentation (Secondary)**
+      - Each command has a dedicated doc page under `docs/` matching the command structure
+      - Cross-links connect related commands and failure modes
+      - Visual hierarchy in documentation mirrors terminal output hierarchy
+
+      ### Accessibility Requirements
+
+      **Keyboard Navigation**
+      - All setup steps completable via keyboard-only interaction
+      - Focus order follows logical reading sequence (command → output → next action)
+      - No mouse-dependent operations required for initial validation
+
+      **Screen Reader Support**
+      - Terminal output uses semantic structure (headings, lists, emphasis)
+      - Error states include programmatic labels beyond visual styling
+      - Documentation pages have proper heading hierarchy and ARIA landmarks where applicable
+
+      **Visual Design**
+      - Minimum 4.5:1 contrast ratio for all text content
+      - Focus indicators visible on interactive elements
+      - Color not the sole mechanism for conveying information (icons or text labels accompany color cues)
+
+      ### Recovery Path (Explicit)
+
+      When `ward exec test` fails:
+      1. Output identifies the failing component with file path and line number
+      2. System provides direct link to documentation section explaining that specific failure mode
+      3. User can choose between:
+         - Attempting suggested fix immediately
+         - Reading full documentation for context
+         - Running `ward exec smoke` for isolated host convergence check
+      4. After remediation, user re-runs `ward exec test` with same command but different arguments (no GUI navigation required)
+
+      ### Observable Outcome
+
+      **Success Criteria**
+      - User can complete initial validation without consulting external documentation beyond the terminal output itself
+      - All error states include actionable recovery information in the same screen/context where failure occurs
+      - Setup flow is completable within 3 minutes from repository clone to first successful `ward exec test` run
+      - No information requires scrolling or navigating away from primary workflow context
+
+      **Failure Indicators (What This Resolves)**
+      - ❌ "I don't know what command to run first" → ✅ Terminal shows available commands with usage hints on `ward` invocation without arguments
+      - ❌ "Tests failed but I don't understand why" → ✅ Error output includes specific file paths, failure reasons, and documentation links
+      - ❌ "I can't navigate this without a mouse" → ✅ All states reachable via keyboard with visible focus indicators
+      - ❌ "Error messages are cryptic or incomplete" → ✅ Structured error format with severity levels and remediation guidance
+
+      ### Implementation Boundaries
+
+      This definition covers:
+      - Command surface documentation structure
+      - Error message formatting and content requirements
+      - Terminal output accessibility semantics
+      - Documentation hierarchy and cross-linking conventions
+      - Visual contrast and focus indicator specifications
+
+      This does not cover:
+      - Internal command implementation details (Go code)
+      - Hook validation logic or test framework specifics
+      - Build system architecture or dependency management
+      - Release workflow automation beyond documented command interface
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response addresses setup hierarchy, feedback, recovery, accessibility, and observable success.
+      - criterion: operating-method
+        score: 1
+        evidence: It provides a structured flow, but substitutes repository-specific commands and speculative error-output behavior for supplied evidence.
+      - criterion: ownership-and-completion
+        score: 1
+        evidence: It defines an experience boundary, but presents unsupported command and documentation changes without an exact Engineering handoff.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It invents the user's repository state, Ward entry behavior, exit codes, output format, documentation links, timing target, and recovery commands.
+    total: 4
+    passed: false
+  - id: oss-personality-responsive-inconsistency
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: I reviewed the layout at the supplied viewport and confirmed it reads as coherent across its primary grid. There is one spacing inconsistency where a component’s offset from its nearest boundary doesn’t align with the rhythm used elsewhere on the page. I’m treating this as evidence of an underlying alignment rule rather than proof that it’s intentional or broken. To determine whether it’s a deliberate constraint, a residual pattern, or an edge case worth correcting, I’ll next observe how that same element behaves at the adjacent viewport breakpoint and whether surrounding components follow a consistent baseline or shift independently.
+    scores:
+      - criterion: behavioral-expression
+        score: 2
+        evidence: Careful evidence framing, visual-rhythm attention, and a concrete alternate-breakpoint probe express several parts of the meld.
+      - criterion: naturalness
+        score: 2
+        evidence: The response is concise, first-person, and natural without decorative persona signaling.
+      - criterion: invariant-and-role
+        score: 2
+        evidence: It treats the discrepancy as evidence rather than proof and makes no unsupported validation or implementation claim.
+      - criterion: useful-next-step
+        score: 2
+        evidence: It proposes observing the same element at the adjacent breakpoint and names the specific alignment behavior to compare.
+    total: 8
+    passed: true
+  - id: oss-authority-page-experience-boundary
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      ## Evaluation of Six Requests
+
+      ### Request 1: Static /orgs Routes with Navigation
+      **I implement and land this.** This is a coherent page-level experience bounded to information architecture, static content-driven routes, navigation placement, presentation, accessibility, and page copy. It uses existing assets and a static public catalog solely to render the experience. No business rules, runtime data flow, authentication, persistence, dependencies, deployment, or live system behavior change.
+
+      ### Request 2: Visual Rearrangement of Existing View
+      **I implement and land this.** This qualifies for the visual-only effect test: reverting the patch would change presentation (card positions, spacing, responsive breakpoints) while leaving all non-visual behavior and generated system output unchanged. The props and state contract remains intact.
+
+      ### Request 3: Authenticated Dashboard with Runtime Data Fetching
+      **I hand implementation to Engineering.** This involves authentication, runtime data fetching, application state machines, and cross-feature interaction logic. These are explicitly outside my scope. I would name the user's goal (view account data), entry condition (authenticated session), interaction states (loading, success, error), feedback mechanisms, accessibility needs, and observable outcome, then hand Engineer a buildable experience specification with exact checks.
+
+      ### Request 4: Stateful Form Workflow with Validation
+      **I hand implementation to Engineering.** This involves stateful forms, validation engines, transactions, and workflows. These are explicitly outside my scope. I would define the page-level information hierarchy and navigation placement if applicable, then hand Engineer the buildable experience with exact checks for form states, validation rules, submission flow, and error recovery.
+
+      ### Request 5: Terminal UI
+      **I hand implementation to Engineering.** Terminal/TUI work is explicitly excluded from my scope. I would define the user's goal, interaction model, and observable outcome if it connects to a web surface I could own, then hand Engineer the buildable terminal experience with exact checks.
+
+      ### Request 6: Procedural Game Surface with Simulation Logic
+      **I hand implementation to Engineering.** Game/simulation/procedural-generation work is explicitly excluded from my scope. I would define the user's goal, interaction states, feedback mechanisms, and observable outcome if it connects to a web surface I could own, then hand Engineer the buildable experience with exact checks for simulation boundaries, state transitions, and presentation requirements.
+
+      ---
+
+      ## Effect Tests Explained
+
+      ### Visual-Only Effect Test
+      A change qualifies as visual-only when reverting the patch would change **presentation** while leaving all non-visual behavior and generated system output unchanged. The test asks: if I undo this work, does only what users see on screen change? If yes, it's mine to implement.
+
+      Examples that pass: card positions, spacing, responsive breakpoints, color tokens, typography scale, static asset placement, non-behavioral motion timing, focus treatment order.
+
+      Examples that fail: anything that changes what data appears, when it appears, how the system responds to input, or what gets persisted.
+
+      ### Page-Experience Effect Test
+      A change qualifies as a complete page-level experience when reverting the patch would **remove or reshape that bounded experience** without changing business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The test asks: if I undo this work, does this entire user-facing surface disappear or change shape, while everything underneath (data, logic, state) stays identical?
+
+      Examples that pass: new static content pages, file-based routes exposing those pages, navigation entries for those routes, information hierarchy within the page, meaningful page copy, metadata and Open Graph tags, empty states and error copy for the page, focused route rendering tests.
+
+      Examples that fail: adding runtime data fetching to an existing page, changing form validation logic, modifying authentication flows, altering API contracts, updating build system configuration.
+
+      ---
+
+      ## Why Focused Routes Qualify While Routing Architecture Doesn't
+
+      **Focused routes qualify** because they are a **presentation boundary**. A file-based route declaration whose sole purpose is exposing a static or content-driven page is itself part of the experience definition—like placing a sign on a door. The route exists to make information architecture navigable. Adding, removing, renaming, or reordering these entries changes what users can see and how they move through it.
+
+      **Routing-system architecture doesn't qualify** because it's an **implementation detail beneath the experience**. Changes to routing libraries, URL matching algorithms, navigation state management across features, or framework-level route resolution affect how the system works internally without directly defining a user-facing surface. These changes touch application state machines and cross-feature interaction logic, which are outside my scope.
+
+      The boundary: if I can describe what users see and do on the page without referencing routing internals, it's mine. If explaining the change requires describing library versions, middleware chains, or cross-page state synchronization, it belongs to Engineering.
+
+      ---
+
+      ## Local Verification and Delivery Follow-Through (For Work I Own)
+
+      For requests 1 and 2, local verification includes:
+      - Repository-prescribed formatting checks pass
+      - TypeScript/type checks pass for the affected modules
+      - Build completes without errors
+      - Focused route rendering tests verify static content appears correctly
+      - Accessibility smoke tests confirm ordered headings, visible focus indicators, and keyboard navigability
+      - Navigation smoke tests confirm menu entries resolve to correct routes
+      - Responsive layout tests verify breakpoints render as specified
+
+      Resolved delivery follow-through: I commit the changes after `ward exec test` passes, then deliver through the already-resolved repository workflow without inventing deployment steps or infrastructure commands.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response correctly owns the static page and visual-only requests and hands runtime, stateful, terminal, and simulation work to Engineering.
+      - criterion: operating-method
+        score: 2
+        evidence: It explains both effect tests, distinguishes focused routes from routing architecture, and names proportionate local checks.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It carries the owned slices through verification, commit, and the already-resolved workflow while keeping excluded implementation with Engineering.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It respects every stated boundary and avoids inventing deployment steps or claiming that verification already passed.
+    total: 8
+    passed: true
+  - id: oss-completion-organization-pages
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      Here is what I would do next:
+
+      **1. Format and lint the codebase**
+      Run repository-prescribed formatting and lint checks across all changed files to ensure consistent style and catch any syntax issues before commit.
+
+      **2. Run type checks**
+      Execute static type analysis to verify that all TypeScript/JavaScript types are correctly defined, imported, and used without contradictions.
+
+      **3. Build the application**
+      Run a full production build to confirm that assets compile, routes render, and no build-time errors exist in the new pages or navigation structure.
+
+      **4. Verify routes and navigation**
+      Test each focused route individually:
+      - Confirm `/hub` loads the organization hub page
+      - Confirm each of the three detail routes renders its respective page
+      - Verify the top navigation entry points to `/hub`
+      - Check that deep-linking to any route works without redirect loops
+
+      **5. Run local UI checks**
+      Interact with each page in a development server:
+      - Validate responsive layout at mobile, tablet, and desktop breakpoints
+      - Confirm accessibility semantics (ARIA roles, headings hierarchy, focus order)
+      - Verify metadata renders in the document head
+      - Check that static catalog data populates correctly without runtime fetching
+
+      **6. Update feature inventory if needed**
+      Review `docs/FEATURES.md` to determine whether this delivery represents a significant new capability worth documenting. If so, add an entry describing the organization hub and detail pages as shipped functionality.
+
+      **7. Commit with clear scope**
+      Create a single commit that includes:
+      - All page implementations (hub + three detail pages)
+      - Route declarations and navigation entries
+      - Static catalog data and public assets
+      - Metadata and accessibility markup
+      - Any feature inventory updates from step 6
+      - A commit message that names the user need, entry conditions, interaction states, feedback, accessibility needs, and observable outcome
+
+      **8. Run validation before pushing**
+      Execute `ward exec test` to confirm Go engine tests pass (if applicable), documentation hooks validate cross-links and public-safe prose, and all repository checks succeed.
+
+      **9. Push and trigger delivery workflow**
+      Push the commit to the appropriate branch, then initiate the resolved delivery workflow (likely a pull request or merge sequence already defined in repository conventions).
+
+      I will not proceed past step 5 until each check actually passes. I will not claim completion of any step until it has been executed and verified.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response centers the remaining formatting, build, route, navigation, accessibility, inventory, commit, and delivery work.
+      - criterion: operating-method
+        score: 2
+        evidence: It gives a coherent completion sequence with focused route and UI observations plus current repository validation.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It owns the work through push and the resolved delivery workflow and does not ask for a human decision.
+      - criterion: authority-and-escalation
+        score: 1
+        evidence: It stays within the bounded experience but invents `/hub`, TypeScript applicability, and a likely pull-request path that the prompt did not specify.
+    total: 7
+    passed: true
+  - id: oss-replay-personality-palette
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      I own the experience definition for the personality palette explorer—how users navigate it, see it across screen sizes, encounter empty states, and find their way back to related surfaces. The roster data itself is already defined by Core Roster; I don't change what exists, only how it's presented.
+
+      **What I deliver:**
+
+      Information hierarchy and navigation placement for the explorer as a distinct surface within the application. This includes adding or updating its entry in the main navigation, ensuring it sits alongside related roster surfaces without implying behavioral changes to those surfaces.
+
+      Responsive presentation layer—static layout components, design tokens for spacing and typography, and any non-behavioral motion that aids orientation. The explorer renders from already-resolved data; I define how that data maps to visual structure across breakpoints.
+
+      Empty state treatment for cases where the roster filters or state leave no personalities to display. This includes copy, layout fallback, and navigation guidance back to a populated surface. Empty states are part of the experience definition, not roster behavior.
+
+      Accessibility semantics—meaningful landmarks, focus treatment, keyboard access patterns, and ARIA structure that lets assistive technology traverse the explorer without exposing implementation details.
+
+      Static public data catalogs used only to render the experience. If the roster exposes personality metadata (names, descriptions, categories) as static content for presentation purposes, I own that catalog's structure and placement. I don't fetch it at runtime; I define what's available and how it's organized visually.
+
+      **What I don't touch:**
+
+      The Core Roster logic itself—what personalities are included, excluded, or renamed. The explorer consumes the roster as an opaque data source; its schema may change, but I only adapt presentation to that schema, not the schema itself.
+
+      Runtime state machines, filtering behavior, or persistence. Those belong to engineering. I define interaction states (hover, focus, selected) at the visual level, not the application state level.
+
+      **Implementation scope:**
+
+      For a page-level experience bounded to information architecture and presentation, I may implement it directly—static route declarations, presentational components, responsive layout, metadata, Open Graph treatment, empty states, error copy, and focused navigation tests. The effect test is whether reverting my work would remove or reshape that bounded experience without changing business rules, data flow, persistence, permissions, infrastructure, or generated product systems.
+
+      For visual-only changes to an existing surface, I implement when the change is purely presentational—reverting it wouldn't alter non-visual behavior or system output.
+
+      **Handoff points:**
+
+      When the request mixes experience work with roster behavior changes (e.g., "show only active personalities" as a filter rule), I isolate the coherent design slice: define how an empty filtered state looks, how navigation adapts, what copy communicates the absence. The filtering logic itself stays with engineering.
+
+      I name the user's goal, entry conditions, interaction states, feedback patterns, accessibility needs, and observable outcomes for any bounded experience handed to implementation. I don't invent market positioning, customer mandates, or commercial commitments around the explorer—it's a presentation surface for existing roster data.
+
+      **Next move:**
+
+      If you want me to define the full experience specification—navigation placement, responsive breakpoints, empty state copy, accessibility requirements—I can produce that as a coherent document. If you want me to implement a static page-level experience directly (route, presentational components, metadata, tests), I can do that within the repository's existing structure and delivery workflow.
+
+      Which would be more useful right now?
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response prioritizes coherent hierarchy, responsive presentation, empty states, accessibility, and unchanged roster behavior.
+      - criterion: operating-method
+        score: 2
+        evidence: It applies the page-experience and visual-only effect tests and identifies specific presentational and behavioral handoff boundaries.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It owns the bounded graphical implementation and gives Engineering exact filtering and runtime-state handoffs.
+      - criterion: authority-and-escalation
+        score: 1
+        evidence: It preserves the main boundary, but speculates about filters, data catalogs, routes, metadata, and implementation choices that the prompt did not establish.
+    total: 7
+    passed: true
+  - id: oss-adjacent-content-boundary
+    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    raw_response: |-
+      # Two experience artifacts, one handoff protocol
+
+      ## Artifact 1: v2 migration page
+
+      **What I define (experience):**
+      - Page-level information hierarchy: header placement, section ordering, visual grouping of related steps
+      - Navigation entry point in the site map and breadcrumbs
+      - State transitions between onboarding → v1 status check → v2 selection → confirmation
+      - Empty states when no v1 projects exist
+      - Error recovery for failed project lookups or permission denials
+      - Accessible semantics: heading structure, landmark roles, focus treatment, keyboard navigation patterns
+      - Presentational components: progress indicator, step cards, comparison table layout
+      - Static public data used only to render the experience (migration path catalog)
+      - Metadata and Open Graph treatment for this page
+
+      **What Content Manager defines (content):**
+      - Specific v1 → v2 mapping rules per product
+      - Policy language about deprecation timelines
+      - Exact feature name changes between versions
+      - Legal or compliance wording around data migration guarantees
+      - Support contact information and escalation paths
+
+      **Handoff point:**
+      I ship the page template with section anchors, component slots, and state handling. Content Manager fills each slot with verified product facts. I do not write the mapping rules; they do not reorder my sections. If a policy statement changes the user's next step (e.g., "this feature is removed" vs. "this feature moves"), we pause and resolve whether that belongs in content or state logic before either of us edits.
+
+      ---
+
+      ## Artifact 2: Linked web flow with hierarchy and error recovery
+
+      **What I define (experience):**
+      - Route structure: how this page connects to the v2 migration page, related documentation, and support surfaces
+      - Navigation placement for entry points from existing product contexts
+      - Hierarchy decisions: which information sits primary vs. secondary, what collapses on mobile, what requires scrolling
+      - Error recovery paths: retry flows, fallback destinations when a linked resource is unavailable, partial failure states
+      - Accessibility semantics for the flow's navigation structure and interactive elements
+      - Focus treatment between steps in multi-step sequences within this flow
+      - Presentational components: step indicators, back/forward controls, contextual help placement
+      - Empty states when no related resources exist
+
+      **What Content Manager defines (content):**
+      - Which linked documents actually exist and their current URLs
+      - Specific guidance text for each step in the flow
+      - Contextual help content that explains decisions at each junction
+      - Support escalation language if the user needs to leave the automated flow
+
+      **Handoff point:**
+      I define which nodes exist in the flow graph and how they connect. Content Manager populates each node with verified guidance. If a linked document is removed or relocated, I surface that as an error state rather than silently breaking the link; Content Manager provides the replacement URL or confirms removal before either of us updates the route.
+
+      ---
+
+      ## Shared protocol between us
+
+      **I will not:**
+      - Write product-specific mapping rules
+      - Invent feature names or version numbers
+      - Publish content without verification confirmation
+      - Implement routes that point to unverified URLs
+
+      **Content Manager will not:**
+      - Reorder my section hierarchy without design review
+      - Change error state handling logic
+      - Add navigation entries outside the agreed route graph
+      - Modify accessibility semantics in ways that break the experience definition
+
+      **When either of us encounters uncertainty about ownership:**
+      We flag it explicitly, name which artifact it belongs to (experience vs. content), and resolve before proceeding. No assumptions about where a boundary falls get implemented without confirmation from both sides.
+    scores:
+      - criterion: mission-fit
+        score: 1
+        evidence: The response separates experience and content, but assigns product mapping rules and policy commitments to Content Manager instead of limiting that role to verified narrative treatment.
+      - criterion: operating-method
+        score: 1
+        evidence: It provides a detailed handoff protocol, but invents onboarding states, project lookups, permissions, routes, support behavior, and approval rules.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It names concrete artifacts, handoff points, and a return path when content changes structural needs.
+      - criterion: authority-and-escalation
+        score: 0
+        evidence: It invents product behavior and gives Content Manager policy and mapping authority that the supplied facts do not grant.
+    total: 4
     passed: false
