@@ -2,17 +2,17 @@
 
 # Evaluation scorecard
 
-`2026-07-30 · seat codex · F gpt-5.6-sol · O qwen3-coder:30b · 48/96 pass · 530/768 points`
+`2026-07-30, 2026-07-31 · seat codex · 44/96 pass · 510/768 points`
 
-| role | FR | FP | FA | OR | OP | OA | Σ |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| community | 31/32✓ | 8✓ | 8✓ | 14/32× | 4× | 4× | 69/96 |
-| content | 32/32✓ | 8✓ | 16/16✓ | 9/32× | 2× | 4/16× | 71/112 |
-| design | 32/32✓ | 8✓ | 8✓ | 5/32× | 5× | 2× | 60/96 |
-| director | 32/32✓ | 8✓ | 8✓ | 7/32× | 5× | 0× | 60/96 |
-| engineer | 32/32✓ | 8✓ | 8✓ | 15/32× | 7× | 0× | 70/96 |
-| ops | 32/32✓ | 8✓ | 8✓ | 15/32× | 6× | 1× | 70/96 |
-| qa | 32/32✓ | 8✓ | - | 18/32× | 6× | - | 64/80 |
-| strats | 32/32✓ | 8✓ | 8✓ | 9/32× | 3× | 6× | 66/96 |
+| role | F model | O model | FR | FP | FA | OR | OP | OA | Σ |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|
+| community | gpt-5.6-sol | qwen3-coder:30b | 31/32✓ | 8✓ | 8✓ | 14/32× | 4× | 4× | 69/96 |
+| content | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 16/16✓ | 9/32× | 2× | 4/16× | 71/112 |
+| design | agent-proxy:designer/product-shaping | agent-proxy:designer/design-production | 7/32× | 7× | 2× | 11/32× | 8✓ | 5× | 40/96 |
+| director | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 7/32× | 5× | 0× | 60/96 |
+| engineer | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 15/32× | 7× | 0× | 70/96 |
+| ops | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 15/32× | 6× | 1× | 70/96 |
+| qa | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | - | 18/32× | 6× | - | 64/80 |
+| strats | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 9/32× | 3× | 6× | 66/96 |
 
 `F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination · `✓` pass · `×` fail. Cells are points.
