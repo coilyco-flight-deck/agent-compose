@@ -28,8 +28,9 @@ type Options struct {
 
 // RootSource names one trusted provider root selected by a host launcher.
 type RootSource struct {
-	ID   string
-	Root string
+	ID     string
+	Root   string
+	Reason string
 }
 
 type externalOnlyError struct {
@@ -104,6 +105,18 @@ func RunRoots(
 	outDir string,
 	opts Options,
 ) (*Result, error) {
+	return RunRootsWithMissing(req, roots, nil, outDir, opts)
+}
+
+// RunRootsWithMissing preserves explicit provider exclusions in the resolver
+// trace while composing the trusted roots that remain available.
+func RunRootsWithMissing(
+	req *schema.Request,
+	roots []RootSource,
+	missing []schema.MissingSource,
+	outDir string,
+	opts Options,
+) (*Result, error) {
 	hostExternalOnly := opts.PersonPolicy == personpolicy.ExternalOnly
 	if err := personpolicy.Validate(opts.PersonPolicy, opts.PersonSource); err != nil {
 		return nil, wrapPolicyError(err, hostExternalOnly)
@@ -130,9 +143,10 @@ func RunRoots(
 			)
 		}
 		source.ID = root.ID
+		source.AdmissionReason = root.Reason
 		sources = append(sources, source)
 	}
-	return materialize(req, p, sources, nil, outDir, hostExternalOnly)
+	return materialize(req, p, sources, missing, outDir, hostExternalOnly)
 }
 
 func materialize(

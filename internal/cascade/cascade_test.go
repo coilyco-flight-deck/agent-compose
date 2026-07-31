@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 type env struct {
@@ -117,6 +119,39 @@ func TestLoadConfigRejectsRemovedV1IntegrationKeys(t *testing.T) {
 				t.Fatal("removed v1 key passed strict config loading")
 			}
 		})
+	}
+}
+
+func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
+	e := newEnv(t)
+	source := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	e.config(t, "sources:\n  - "+source+"\nrole_providers:\n  ops:\n    - path: org/infrastructure\n      required: true\n    - path: org/deploy\n      required: false\n")
+
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	manifest, err := skillmount.LoadEligibility(manifestPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	providers := manifest.RoleProviders["ops"]
+	if len(providers) != 2 ||
+		providers[0].Path != filepath.Join(e.projects, "org", "infrastructure") ||
+		!providers[0].Required || providers[1].Required {
+		t.Fatalf("role providers did not round-trip: %+v", providers)
+	}
+	for _, roleOnly := range providers {
+		for _, bare := range manifest.Repositories("codex") {
+			if bare == roleOnly.Path {
+				t.Fatalf("bare eligibility leaked role provider %s", roleOnly.Path)
+			}
+		}
+	}
+
+	bad := e.write(t, "bad-role-provider.yaml", "role_providers:\n  ops:\n    - path: org/infrastructure\n      surprise: true\n")
+	if _, err := LoadConfig(bad); err == nil || !strings.Contains(err.Error(), "field surprise") {
+		t.Fatalf("nested unknown field passed strict config loading: %v", err)
 	}
 }
 

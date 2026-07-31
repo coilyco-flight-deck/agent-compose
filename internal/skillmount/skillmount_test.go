@@ -35,6 +35,81 @@ func writeEligibility(t *testing.T, path string, defaults []string, harnesses ma
 	}
 }
 
+func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
+	dir := t.TempDir()
+	defaultProvider := filepath.Join(dir, "default")
+	harnessProvider := filepath.Join(dir, "harness")
+	roleOne := filepath.Join(dir, "role-one")
+	roleTwo := filepath.Join(dir, "role-two")
+	manifestPath := filepath.Join(dir, "mount-eligibility.json")
+	raw, err := json.Marshal(Eligibility{
+		ProjectsRoot: dir,
+		Defaults:     []string{defaultProvider},
+		Harnesses:    map[string][]string{"codex": {harnessProvider}},
+		RoleProviders: map[string][]RoleProvider{
+			"ops": {
+				{Path: roleOne, Required: true},
+				{Path: roleTwo},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manifestPath, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := LoadEligibility(manifestPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	providers := manifest.Providers("codex", "ops")
+	want := []string{defaultProvider, harnessProvider, roleOne, roleTwo}
+	if len(providers) != len(want) {
+		t.Fatalf("providers = %+v, want %v", providers, want)
+	}
+	for index, path := range want {
+		if providers[index].Path != path {
+			t.Fatalf("provider order = %+v, want %v", providers, want)
+		}
+	}
+	if got := manifest.Repositories("codex"); len(got) != 2 || got[0] != defaultProvider || got[1] != harnessProvider {
+		t.Fatalf("bare repositories leaked role providers: %v", got)
+	}
+	makeSkill(t, defaultProvider, "global")
+	makeSkill(t, roleOne, "role-only")
+	destination := filepath.Join(dir, "native-skills")
+	if _, err := Apply(
+		manifestPath,
+		map[string]string{"codex": destination},
+		filepath.Join(dir, "state"),
+	); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(destination, "global")); err != nil {
+		t.Fatalf("bare convergence omitted global skill: %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(destination, "role-only")); !os.IsNotExist(err) {
+		t.Fatalf("bare convergence leaked role-only skill: %v", err)
+	}
+
+	for name, body := range map[string]string{
+		"top-level": `{"projects_root":"/tmp","defaults":[],"harnesses":{},"extra":true}`,
+		"nested":    `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","required":true,"extra":true}]}}`,
+		"trailing":  `{"projects_root":"/tmp","defaults":[],"harnesses":{}} {}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "manifest.json")
+			if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := LoadEligibility(path); err == nil {
+				t.Fatal("invalid eligibility passed strict loading")
+			}
+		})
+	}
+}
+
 func TestApplyOverlaysAndMultipleLoadPoints(t *testing.T) {
 	dir := t.TempDir()
 	public := filepath.Join(dir, "public")

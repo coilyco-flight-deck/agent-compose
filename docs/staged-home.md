@@ -35,6 +35,10 @@ a tool, or invokes a launch consumer.
 The role in the source bundle selects context. A matching role slug in another
 system does not transfer permissions or merge authority into the projected
 home.
+When the bundle was composed from
+[role-scoped providers](role-scoped-providers.md), home projection preserves
+the same selected skill inventory as native projection. Projection does not
+re-resolve providers or mutate the immutable input bundle.
 
 The generic projection remains useful on its own through `agent-compose` and
 the `acompose` host entrypoint. No composition root is required for native use.
@@ -49,3 +53,4 @@ producer-side boundary is tracked in
 * [projection.md](projection.md) - transactional ownership and load points.
 * [bundle-protocol.md](bundle-protocol.md) - immutable source bundle.
 * [integration.md](integration.md) - native and isolated delivery tiers.
+* [role-scoped-providers.md](role-scoped-providers.md) - shared native and staged selection.

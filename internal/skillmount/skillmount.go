@@ -3,9 +3,11 @@
 package skillmount
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -25,9 +27,26 @@ type sidecar struct {
 }
 
 type Eligibility struct {
-	ProjectsRoot string              `json:"projects_root"`
-	Defaults     []string            `json:"defaults"`
-	Harnesses    map[string][]string `json:"harnesses"`
+	Banner        string                    `json:"banner,omitempty"`
+	ProjectsRoot  string                    `json:"projects_root"`
+	Defaults      []string                  `json:"defaults"`
+	Harnesses     map[string][]string       `json:"harnesses"`
+	RoleProviders map[string][]RoleProvider `json:"role_providers,omitempty"`
+}
+
+// RoleProvider is one local provider admitted only when its role is selected.
+// Paths are canonical repository roots in generated eligibility manifests.
+type RoleProvider struct {
+	Path     string `json:"path" yaml:"path"`
+	Required bool   `json:"required" yaml:"required"`
+}
+
+// Provider records one selected repository and why it entered the ordered
+// defaults, harness, and role union.
+type Provider struct {
+	Path     string
+	Scope    string
+	Required bool
 }
 
 // Catalog is a verified skill root projected to every configured load point.
@@ -64,21 +83,44 @@ func linkKey(destination, name string) string {
 }
 
 func (manifest Eligibility) Repositories(harness string) []string {
+	providers := manifest.Providers(harness, "")
+	repos := make([]string, 0, len(providers))
+	for _, provider := range providers {
+		repos = append(repos, provider.Path)
+	}
+	return repos
+}
+
+// Providers returns defaults, harness providers, then role providers. An empty
+// role excludes every role-only provider from bare host convergence.
+func (manifest Eligibility) Providers(harness, role string) []Provider {
 	seen := map[string]bool{}
-	repos := make([]string, 0, len(manifest.Defaults)+len(manifest.Harnesses[harness]))
+	providers := make([]Provider, 0, len(manifest.Defaults)+len(manifest.Harnesses[harness]))
+	add := func(provider Provider) {
+		if seen[provider.Path] {
+			return
+		}
+		seen[provider.Path] = true
+		providers = append(providers, provider)
+	}
 	for _, repo := range manifest.Defaults {
-		repos = append(repos, repo)
-		seen[repo] = true
+		add(Provider{Path: repo, Scope: "default"})
 	}
 	extra := append([]string(nil), manifest.Harnesses[harness]...)
 	sort.Strings(extra)
 	for _, repo := range extra {
-		if !seen[repo] {
-			repos = append(repos, repo)
-			seen[repo] = true
+		add(Provider{Path: repo, Scope: "harness"})
+	}
+	if role != "" {
+		for _, provider := range manifest.RoleProviders[role] {
+			add(Provider{
+				Path:     provider.Path,
+				Scope:    "role",
+				Required: provider.Required,
+			})
 		}
 	}
-	return repos
+	return providers
 }
 
 func LoadEligibility(path string) (Eligibility, error) {
@@ -87,11 +129,34 @@ func LoadEligibility(path string) (Eligibility, error) {
 		return Eligibility{}, fmt.Errorf("read mount eligibility %s: %w", path, err)
 	}
 	var manifest Eligibility
-	if err := json.Unmarshal(raw, &manifest); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&manifest); err != nil {
+		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: %w", path, err)
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); err == nil {
+		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: trailing JSON value", path)
+	} else if !errors.Is(err, io.EOF) {
 		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: %w", path, err)
 	}
 	if strings.TrimSpace(manifest.ProjectsRoot) == "" {
 		return Eligibility{}, fmt.Errorf("mount eligibility %s names no projects_root", path)
+	}
+	for role, providers := range manifest.RoleProviders {
+		if strings.TrimSpace(role) == "" {
+			return Eligibility{}, fmt.Errorf("mount eligibility %s names an empty role", path)
+		}
+		for index, provider := range providers {
+			if strings.TrimSpace(provider.Path) == "" {
+				return Eligibility{}, fmt.Errorf(
+					"mount eligibility %s role %q provider %d names no path",
+					path,
+					role,
+					index,
+				)
+			}
+		}
 	}
 	return manifest, nil
 }

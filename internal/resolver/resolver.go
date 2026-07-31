@@ -146,6 +146,21 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Subject: "source:" + m.ID, Kind: "source", Source: m.ID,
 			Outcome: OutcomeExcluded, Reason: m.Reason,
 		})
+		for _, skill := range m.Skills {
+			res.decide(Decision{
+				Subject: "skill:" + skill, Kind: "skill", Source: m.ID,
+				Outcome: OutcomeExcluded, Reason: m.Reason,
+			})
+		}
+	}
+	for _, src := range sources {
+		if src.AdmissionReason == "" {
+			continue
+		}
+		res.decide(Decision{
+			Subject: "source:" + src.ID, Kind: "source", Source: src.ID,
+			Outcome: OutcomeSelected, Reason: src.AdmissionReason,
+		})
 	}
 
 	instructionBytes := map[string][]byte{}
@@ -232,6 +247,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 				continue
 			}
 			reason := "ordinary provider skills are discoverable for every role"
+			if src.AdmissionReason != "" {
+				reason = src.AdmissionReason + ". Ordinary skills from the admitted provider are discoverable"
+			}
 			if isPersonality {
 				reason = fmt.Sprintf("active personality %q binds this skill", activePersonality)
 			}

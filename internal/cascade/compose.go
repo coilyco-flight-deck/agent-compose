@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 var headingRe = regexp.MustCompile(`^(#{1,6}) +\S`)
@@ -289,15 +291,20 @@ func canonicalPath(path string) (string, error) {
 }
 
 type manifestPayload struct {
-	Banner       string              `json:"banner"`
-	ProjectsRoot string              `json:"projects_root"`
-	Defaults     []string            `json:"defaults"`
-	Harnesses    map[string][]string `json:"harnesses"`
+	Banner        string                               `json:"banner"`
+	ProjectsRoot  string                               `json:"projects_root"`
+	Defaults      []string                             `json:"defaults"`
+	Harnesses     map[string][]string                  `json:"harnesses"`
+	RoleProviders map[string][]skillmount.RoleProvider `json:"role_providers,omitempty"`
 }
 
-// RenderManifest emits deterministic mount-eligibility JSON for consumers:
-// per harness, its source-backed repos unioned with the default mount set.
-func RenderManifest(slices map[string][]string, projects string) (string, error) {
+// RenderManifest emits deterministic default, harness, and role-only mount
+// eligibility without adding role providers to bare host convergence.
+func RenderManifest(
+	slices map[string][]string,
+	roleProviders map[string][]skillmount.RoleProvider,
+	projects string,
+) (string, error) {
 	canonicalProjects, err := canonicalPath(projects)
 	if err != nil {
 		return "", err
@@ -325,11 +332,45 @@ func RenderManifest(slices map[string][]string, projects string) (string, error)
 		sort.Strings(sorted)
 		harnesses[harness] = sorted
 	}
+	roles := map[string][]skillmount.RoleProvider{}
+	for role, configured := range roleProviders {
+		seen := map[string]bool{}
+		for index, provider := range configured {
+			resolved := strings.TrimSpace(provider.Path)
+			if !filepath.IsAbs(resolved) {
+				resolved = filepath.Join(projects, resolved)
+			}
+			resolved, err = canonicalPath(resolved)
+			if err != nil {
+				return "", fmt.Errorf("resolve role provider %q entry %d: %w", role, index, err)
+			}
+			rel, err := filepath.Rel(projects, resolved)
+			if err != nil || rel == "." || rel == ".." ||
+				strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+				return "", fmt.Errorf(
+					"role provider %q entry %d path %s is outside projects_root %s",
+					role,
+					index,
+					resolved,
+					projects,
+				)
+			}
+			if seen[resolved] {
+				return "", fmt.Errorf("role provider %q repeats path %s", role, resolved)
+			}
+			seen[resolved] = true
+			roles[role] = append(roles[role], skillmount.RoleProvider{
+				Path:     resolved,
+				Required: provider.Required,
+			})
+		}
+	}
 	raw, err := json.MarshalIndent(manifestPayload{
-		Banner:       manifestBanner,
-		ProjectsRoot: projects,
-		Defaults:     defaults,
-		Harnesses:    harnesses,
+		Banner:        manifestBanner,
+		ProjectsRoot:  projects,
+		Defaults:      defaults,
+		Harnesses:     harnesses,
+		RoleProviders: roles,
 	}, "", "  ")
 	if err != nil {
 		return "", err

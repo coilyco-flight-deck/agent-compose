@@ -10,8 +10,8 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
-* AOS roots expose ordinary skills. `.agents/roles.kdl` owns composed admission.
-  `low-context: optional` prunes optional skills.
+* AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md).
+  `.agents/roles.kdl` owns admission and pruning.
 * Role compatibility fails closed. Portfolio Strategist supports only
   `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.

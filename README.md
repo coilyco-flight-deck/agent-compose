@@ -36,6 +36,7 @@ Roster:
 * fail-closed per-role model-class compatibility
 * native-skill and compiled-context delivery with source entry-point promotion
 * local ordinary-skill catalogues projected through one native path
+* [role-scoped providers](docs/role-scoped-providers.md) for assigned bundles
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * host doctrine convergence and native skill installation

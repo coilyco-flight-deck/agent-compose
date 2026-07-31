@@ -55,6 +55,7 @@ instructions keep the caller-selected role fixed under the
 [same contract](role-selection.md). A switch requires a new bundle. A
 composition adapter can use an empty private target under the
 [staged-home contract](staged-home.md).
+[Role-scoped bundles](role-scoped-providers.md) project unchanged in either tier.
 
 ## Migration state
 

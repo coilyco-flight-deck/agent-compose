@@ -122,7 +122,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	}
 	stale := staleGeneratedOutputs(paths.Composed, active)
 	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
-	manifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	manifest, err := RenderManifest(p.slices, cfg.RoleProviders, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
@@ -276,7 +276,7 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 		writeDiff(stderr, actual, expected, target)
 	}
 	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
-	expectedManifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	expectedManifest, err := RenderManifest(p.slices, cfg.RoleProviders, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1

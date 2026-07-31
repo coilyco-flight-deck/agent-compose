@@ -50,7 +50,16 @@ func Bundle(dir string, opts Options) (string, error) {
 		var lines []string
 		var excludedSkills []resolver.Decision
 		if section.title == "sources" {
+			traced := map[string]bool{}
+			for _, decision := range trace.Decisions {
+				if decision.Kind == "source" {
+					traced[strings.TrimPrefix(decision.Subject, "source:")] = true
+				}
+			}
 			for _, id := range manifest.Sources {
+				if traced[id] {
+					continue
+				}
 				lines = append(lines, fmt.Sprintf("  %s %-36s %-14s %s",
 					symbol(resolver.OutcomeSelected, opts), id, "", "composed"))
 			}

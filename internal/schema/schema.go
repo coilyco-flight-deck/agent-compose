@@ -57,14 +57,15 @@ type IntentRoute struct {
 }
 
 type Source struct {
-	ID           string
-	Root         string
-	Files        fs.FS
-	Declaration  []byte
-	Instructions []ContentRef
-	Skills       []ContentRef
-	RoleSkills   map[string][]ContentRef
-	RoleIntents  map[string][]IntentRoute
+	ID              string
+	Root            string
+	Files           fs.FS
+	Declaration     []byte
+	Instructions    []ContentRef
+	Skills          []ContentRef
+	RoleSkills      map[string][]ContentRef
+	RoleIntents     map[string][]IntentRoute
+	AdmissionReason string
 }
 
 // FileSystem returns embedded content for shipped sources and disk content for
@@ -130,6 +131,7 @@ func (s *Source) LowContextPolicy(ref ContentRef) (string, error) {
 type MissingSource struct {
 	ID     string
 	Reason string
+	Skills []string
 }
 
 func ParseRequest(path string) (*Request, error) {

@@ -16,6 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 const (
@@ -33,16 +34,17 @@ var defaultMountSet = []string{
 }
 
 type Config struct {
-	Scopes               *scopeList          `yaml:"scopes"`
-	Sources              []string            `yaml:"sources"`
-	Roots                []string            `yaml:"roots"`
-	LoadPoints           map[string]RawValue `yaml:"load_points"`
-	PersonPolicy         string              `yaml:"person_policy"`
-	PersonSource         string              `yaml:"person_source"`
-	PersonalityLibraries []string            `yaml:"personality_libraries"`
-	RosterSources        []string            `yaml:"roster_sources"`
-	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
-	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
+	Scopes               *scopeList                           `yaml:"scopes"`
+	Sources              []string                             `yaml:"sources"`
+	Roots                []string                             `yaml:"roots"`
+	LoadPoints           map[string]RawValue                  `yaml:"load_points"`
+	PersonPolicy         string                               `yaml:"person_policy"`
+	PersonSource         string                               `yaml:"person_source"`
+	PersonalityLibraries []string                             `yaml:"personality_libraries"`
+	RosterSources        []string                             `yaml:"roster_sources"`
+	SkillLoadPoints      map[string]string                    `yaml:"skill_load_points"`
+	SkillCatalogManifest string                               `yaml:"skill_catalog_manifest"`
+	RoleProviders        map[string][]skillmount.RoleProvider `yaml:"role_providers"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its
@@ -101,6 +103,21 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if err := personpolicy.Validate(cfg.PersonPolicy, cfg.PersonSource); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	for role, providers := range cfg.RoleProviders {
+		if strings.TrimSpace(role) == "" {
+			return nil, fmt.Errorf("%s: role_providers names an empty role", path)
+		}
+		for index, provider := range providers {
+			if strings.TrimSpace(provider.Path) == "" {
+				return nil, fmt.Errorf(
+					"%s: role_providers.%s entry %d names no path",
+					path,
+					role,
+					index,
+				)
+			}
+		}
 	}
 	return &cfg, nil
 }

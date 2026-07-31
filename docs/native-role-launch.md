@@ -16,10 +16,9 @@ Arguments after the harness pass through unchanged. The long form is
 ## Selection
 
 The launcher converges the host first, then reads the generated
-`mount-eligibility.json`. It admits the selected harness's eligible local
-providers and requires at least one provider with role-composed bindings.
-When a launch consumer has reproduced the configured repositories in an
-isolated workspace, Agent Compose remaps the provider paths to that workspace.
+`mount-eligibility.json`. It admits ordered default, harness, and
+[role-scoped providers](role-scoped-providers.md). Required providers fail when
+missing. Optional exclusions stay traced. Isolated workspaces remap the same set.
 
 Model class is a launch-consumer runtime fact. Agent Compose defaults to the
 full `frontier` bundle. A launch consumer may set

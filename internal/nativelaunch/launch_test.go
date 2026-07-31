@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
+	"sort"
 	"strings"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
@@ -41,6 +45,40 @@ func writeProvider(t *testing.T, root string, withRole bool) {
 		filepath.Join(root, ".agents", "roles.kdl"),
 		"roles {\n    role design {\n        composed-skill design-method\n    }\n}\n",
 	)
+}
+
+func writeOrdinarySkill(t *testing.T, root, name string) {
+	t.Helper()
+	writeFile(
+		t,
+		filepath.Join(root, ".agents", "skills", name, "SKILL.md"),
+		"---\nname: "+name+"\ndescription: Role-only fixture skill.\n---\n\n# "+name+"\n",
+	)
+}
+
+func writeEligibilityManifest(t *testing.T, path string, manifest skillmount.Eligibility) {
+	t.Helper()
+	raw, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, path, string(raw))
+}
+
+func skillNames(t *testing.T, root string) []string {
+	t.Helper()
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			names = append(names, entry.Name())
+		}
+	}
+	sort.Strings(names)
+	return names
 }
 
 func writeManifest(t *testing.T, path, projectsRoot, provider string) {
@@ -173,5 +211,112 @@ func TestRefreshRequiresRoleComposedProvider(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "needs an eligible provider") {
 		t.Fatalf("role-provider error = %v", err)
+	}
+}
+
+func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	base := filepath.Join(projects, "example", "base")
+	infrastructure := filepath.Join(projects, "example", "infrastructure")
+	deploy := filepath.Join(projects, "example", "deploy")
+	missingOptional := filepath.Join(projects, "example", "optional")
+	writeProvider(t, base, true)
+	writeOrdinarySkill(t, infrastructure, "infrastructure-ops")
+	writeOrdinarySkill(t, deploy, "deploy-ops")
+	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+		ProjectsRoot: projects,
+		Defaults:     []string{base},
+		Harnesses:    map[string][]string{},
+		RoleProviders: map[string][]skillmount.RoleProvider{
+			"ops": {
+				{Path: infrastructure, Required: true},
+				{Path: deploy, Required: true},
+				{Path: missingOptional},
+			},
+		},
+	})
+	out := filepath.Join(t.TempDir(), "bundles")
+	results := map[string]*Result{}
+	targets := map[string]string{}
+	for _, role := range []string{"ops", "engineer"} {
+		target := t.TempDir()
+		targets[role] = target
+		result, err := Refresh(Options{
+			Role:         role,
+			Harness:      "codex",
+			CWD:          projects,
+			TargetDir:    target,
+			ManifestPath: manifestPath,
+			OutDir:       out,
+		})
+		if err != nil {
+			t.Fatalf("refresh %s: %v", role, err)
+		}
+		results[role] = result
+		for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
+			_, err := os.Stat(filepath.Join(target, ".agents", "skills", skill, "SKILL.md"))
+			if role == "ops" && err != nil {
+				t.Errorf("ops native bundle omitted %s: %v", skill, err)
+			}
+			if role == "engineer" && !os.IsNotExist(err) {
+				t.Errorf("engineer native bundle leaked %s: %v", skill, err)
+			}
+		}
+	}
+
+	staged := t.TempDir()
+	if _, err := project.ProjectScoped(results["ops"].BundleDir, "claude", staged, project.ScopeHome); err != nil {
+		t.Fatal(err)
+	}
+	for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
+		if _, err := os.Stat(filepath.Join(staged, ".claude", "skills", skill, "SKILL.md")); err != nil {
+			t.Errorf("staged Ops home omitted %s: %v", skill, err)
+		}
+	}
+	nativeSkills := skillNames(t, filepath.Join(targets["ops"], ".agents", "skills"))
+	stagedSkills := skillNames(t, filepath.Join(staged, ".claude", "skills"))
+	if !slices.Equal(nativeSkills, stagedSkills) {
+		t.Fatalf("native and staged Ops skills differ: native=%v staged=%v", nativeSkills, stagedSkills)
+	}
+
+	selectedWhy, err := describe.Why(results["ops"].BundleDir, "skill:infrastructure-ops", describe.Options{})
+	if err != nil || !strings.Contains(selectedWhy, "role provider selected because role \"ops\" requests it") {
+		t.Fatalf("selected role-provider why = %q, err=%v", selectedWhy, err)
+	}
+	excludedWhy, err := describe.Why(results["engineer"].BundleDir, "skill:infrastructure-ops", describe.Options{})
+	if err != nil || !strings.Contains(excludedWhy, "not selected role \"engineer\"") {
+		t.Fatalf("excluded role-provider why = %q, err=%v", excludedWhy, err)
+	}
+	optionalWhy, err := describe.Why(results["ops"].BundleDir, "source:example--optional", describe.Options{})
+	if err != nil || !strings.Contains(optionalWhy, "optional role provider") {
+		t.Fatalf("optional missing provider why = %q, err=%v", optionalWhy, err)
+	}
+}
+
+func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	base := filepath.Join(projects, "example", "base")
+	missing := filepath.Join(projects, "example", "required")
+	writeProvider(t, base, true)
+	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+		ProjectsRoot: projects,
+		Defaults:     []string{base},
+		Harnesses:    map[string][]string{},
+		RoleProviders: map[string][]skillmount.RoleProvider{
+			"ops": {{Path: missing, Required: true}},
+		},
+	})
+	_, err := Refresh(Options{
+		Role:         "ops",
+		Harness:      "codex",
+		CWD:          projects,
+		TargetDir:    t.TempDir(),
+		ManifestPath: manifestPath,
+		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "required role provider example/required") {
+		t.Fatalf("required missing provider error = %v", err)
 	}
 }

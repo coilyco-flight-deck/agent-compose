@@ -45,7 +45,8 @@ Each configured load point (claude and codex by default, others via
 file, backing up any pre-existing regular file to `.bak`. The
 mount-eligibility manifest is emitted beside the composed output:
 per harness, the repos backing its selected sources unioned with the default
-mount set, as deterministic JSON.
+mount set as JSON. [Role-scoped providers](role-scoped-providers.md) stay out
+of bare convergence.
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
