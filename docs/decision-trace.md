@@ -14,6 +14,19 @@ outcomes are:
 * `shadowed` - an identical higher-precedence copy already filled the slot.
 * `delivered` - the adapter placed selected content at a bundle entry point.
 
+The trace also retains one provider report for every selected provider and
+every configured provider excluded from the active role. Reports classify the
+selected person package, ordinary catalogues, and role-only providers, then
+record their configuration scope, outcome, and reason.
+
+Each provider report carries a context-budget contribution. `skills` counts
+canonical selected skill trees attributed to that provider. `context_bytes`
+is their exact retained byte count, and `approximate_tokens` uses
+`ceil(context_bytes / 4)`. Shadowed copies do not contribute twice. Excluded
+providers record explicit zero values for all three fields. Native and staged
+projection preserve the same trace, so the budget does not depend on the
+consumer layout.
+
 Invalid input fails composition with diagnostics from the in-progress trace,
 and no bundle is produced.
 
@@ -22,7 +35,8 @@ public bundle. A private overlay is referenced by its source id; its content
 never appears in a reason. Runtime noise - durations, cache hits, terminal
 styling - stays out of the trace.
 
-`agent-compose describe` renders the stored decisions in scannable sections,
+`agent-compose describe` renders provider outcomes, context budgets, and the
+stored decisions in scannable sections,
 `describe --why <item>` follows one item to its outcome, and `diff` compares
 two bundles by decision subject plus manifest logical content ID and digest.
 Artifact-level changes remain visible beside logical changes. These commands

@@ -131,6 +131,20 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 		}
 	})
 
+	t.Run("provider context budget mismatch", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
+		trace, err := bundle.ReadTrace(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		trace.Providers[0].ContextBytes++
+		trace.Providers[0].ApproximateTokens = (trace.Providers[0].ContextBytes + 3) / 4
+		writeJSON(t, filepath.Join(dir, "trace.json"), trace)
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "budget is") {
+			t.Fatalf("expected provider-budget failure, got %v", err)
+		}
+	})
+
 	t.Run("missing identity document", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		skillDoc := filepath.Join(dir, "content", "skills", "roster%3Acore", "personality-curious", "SKILL.md")

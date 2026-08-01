@@ -12,6 +12,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
@@ -79,6 +80,17 @@ func skillNames(t *testing.T, root string) []string {
 	}
 	sort.Strings(names)
 	return names
+}
+
+func providerReport(t *testing.T, result *Result, source string) resolver.ProviderReport {
+	t.Helper()
+	for _, provider := range result.Composition.Resolution.Providers {
+		if provider.Source == source {
+			return provider
+		}
+	}
+	t.Fatalf("provider report omitted %s: %+v", source, result.Composition.Resolution.Providers)
+	return resolver.ProviderReport{}
 }
 
 func writeManifest(t *testing.T, path, projectsRoot, provider string) {
@@ -221,8 +233,12 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	deploy := filepath.Join(projects, "example", "deploy")
 	missingOptional := filepath.Join(projects, "example", "optional")
 	writeProvider(t, base, true)
+	writeOrdinarySkill(t, base, "repo-infrastructure")
+	writeOrdinarySkill(t, base, "repo-deploy")
 	writeOrdinarySkill(t, infrastructure, "infrastructure-ops")
+	writeOrdinarySkill(t, infrastructure, "repo-infrastructure")
 	writeOrdinarySkill(t, deploy, "deploy-ops")
+	writeOrdinarySkill(t, deploy, "repo-deploy")
 	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
 	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
 		ProjectsRoot: projects,
@@ -265,19 +281,51 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		}
 	}
 
-	staged := t.TempDir()
-	if _, err := project.ProjectScoped(results["ops"].BundleDir, "claude", staged, project.ScopeHome); err != nil {
-		t.Fatal(err)
-	}
-	for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
-		if _, err := os.Stat(filepath.Join(staged, ".claude", "skills", skill, "SKILL.md")); err != nil {
-			t.Errorf("staged Ops home omitted %s: %v", skill, err)
+	for _, role := range []string{"ops", "engineer"} {
+		staged := t.TempDir()
+		if _, err := project.ProjectScoped(results[role].BundleDir, "claude", staged, project.ScopeHome); err != nil {
+			t.Fatal(err)
+		}
+		for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
+			_, err := os.Stat(filepath.Join(staged, ".claude", "skills", skill, "SKILL.md"))
+			if role == "ops" && err != nil {
+				t.Errorf("staged Ops home omitted %s: %v", skill, err)
+			}
+			if role == "engineer" && !os.IsNotExist(err) {
+				t.Errorf("staged Engineer home leaked %s: %v", skill, err)
+			}
+		}
+		nativeSkills := skillNames(t, filepath.Join(targets[role], ".agents", "skills"))
+		stagedSkills := skillNames(t, filepath.Join(staged, ".claude", "skills"))
+		if !slices.Equal(nativeSkills, stagedSkills) {
+			t.Fatalf("native and staged %s skills differ: native=%v staged=%v", role, nativeSkills, stagedSkills)
 		}
 	}
-	nativeSkills := skillNames(t, filepath.Join(targets["ops"], ".agents", "skills"))
-	stagedSkills := skillNames(t, filepath.Join(staged, ".claude", "skills"))
-	if !slices.Equal(nativeSkills, stagedSkills) {
-		t.Fatalf("native and staged Ops skills differ: native=%v staged=%v", nativeSkills, stagedSkills)
+
+	for _, result := range results {
+		baseReport := providerReport(t, result, "example--base")
+		if baseReport.Category != resolver.ProviderCategoryCatalogue ||
+			baseReport.Scope != "default" ||
+			baseReport.Outcome != resolver.OutcomeSelected ||
+			baseReport.Skills == 0 || baseReport.ContextBytes == 0 {
+			t.Fatalf("ordinary catalogue report = %+v", baseReport)
+		}
+	}
+	for _, source := range []string{"example--infrastructure", "example--deploy"} {
+		selected := providerReport(t, results["ops"], source)
+		if selected.Category != resolver.ProviderCategoryRole ||
+			selected.Scope != "role" ||
+			selected.Outcome != resolver.OutcomeSelected ||
+			selected.Skills != 1 || selected.ContextBytes == 0 || selected.ApproximateTokens == 0 {
+			t.Fatalf("selected role provider %s report = %+v", source, selected)
+		}
+		excluded := providerReport(t, results["engineer"], source)
+		if excluded.Category != resolver.ProviderCategoryRole ||
+			excluded.Scope != "role" ||
+			excluded.Outcome != resolver.OutcomeExcluded ||
+			excluded.Skills != 0 || excluded.ContextBytes != 0 || excluded.ApproximateTokens != 0 {
+			t.Fatalf("excluded role provider %s report = %+v", source, excluded)
+		}
 	}
 
 	selectedWhy, err := describe.Why(results["ops"].BundleDir, "skill:infrastructure-ops", describe.Options{})
@@ -288,9 +336,31 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	if err != nil || !strings.Contains(excludedWhy, "not selected role \"engineer\"") {
 		t.Fatalf("excluded role-provider why = %q, err=%v", excludedWhy, err)
 	}
+	if !strings.Contains(excludedWhy, "provider: role-provider/role") ||
+		!strings.Contains(excludedWhy, "context: 0 skills, 0 bytes, approximately 0 tokens") {
+		t.Fatalf("excluded role-provider budget missing from why output: %q", excludedWhy)
+	}
 	optionalWhy, err := describe.Why(results["ops"].BundleDir, "source:example--optional", describe.Options{})
 	if err != nil || !strings.Contains(optionalWhy, "optional role provider") {
 		t.Fatalf("optional missing provider why = %q, err=%v", optionalWhy, err)
+	}
+	pointerWhy, err := describe.Why(
+		results["ops"].BundleDir,
+		"skill:repo-infrastructure",
+		describe.Options{},
+	)
+	if err != nil ||
+		!strings.Contains(pointerWhy, "provider: catalogue/default") ||
+		!strings.Contains(pointerWhy, "provider: role-provider/role") ||
+		!strings.Contains(pointerWhy, "outcome: shadowed") {
+		t.Fatalf("ordinary pointer and role-provider provenance = %q, err=%v", pointerWhy, err)
+	}
+	described, err := describe.Bundle(results["engineer"].BundleDir, describe.Options{All: true})
+	if err != nil ||
+		!strings.Contains(described, "example--infrastructure") ||
+		!strings.Contains(described, "(role-provider/role)") ||
+		!strings.Contains(described, "0 skills · 0 bytes · ~0 tokens") {
+		t.Fatalf("provider-aware describe output = %q, err=%v", described, err)
 	}
 }
 

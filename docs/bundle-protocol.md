@@ -8,7 +8,8 @@ through `manifest.json` and otherwise treat the tree as opaque.
 The v0.1 tree contains:
 
 * `manifest.json` - what was composed and the delivery entry points.
-* `trace.json` - the plain-language decision trace.
+* `trace.json` - the plain-language decision trace, provider outcomes, and
+  provider context-budget contributions.
 * `content/instructions.md` - selected instructions and compact role metadata.
 * `content/skills/<source-id>/<skill>/...` - canonical selected skill trees.
 * `delivery/compiled.md` - present only when the adapter compiles selected

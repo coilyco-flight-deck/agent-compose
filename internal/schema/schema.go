@@ -28,6 +28,12 @@ const (
 	providerRolesPath     = ".agents/roles.kdl"
 	providerInvariantID   = "personality-invariant"
 	providerInvariantPath = ".agents/skills/personality-shared/INVARIANT.md"
+
+	ProviderScopePerson  = "person"
+	ProviderScopeRequest = "request"
+	ProviderScopeDefault = "default"
+	ProviderScopeHarness = "harness"
+	ProviderScopeRole    = "role"
 )
 
 type Request struct {
@@ -68,6 +74,7 @@ type Source struct {
 	RoleSkills      map[string][]ContentRef
 	RoleIntents     map[string][]IntentRoute
 	AdmissionReason string
+	ProviderScope   string
 }
 
 // FileSystem returns embedded content for shipped sources and disk content for
@@ -131,9 +138,10 @@ func (s *Source) LowContextPolicy(ref ContentRef) (string, error) {
 // MissingSource records an optional source whose declaration was absent, so
 // the resolver can note the exclusion in the trace.
 type MissingSource struct {
-	ID     string
-	Reason string
-	Skills []string
+	ID            string
+	Reason        string
+	Skills        []string
+	ProviderScope string
 }
 
 func ParseRequest(path string) (*Request, error) {

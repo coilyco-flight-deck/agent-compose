@@ -15,7 +15,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * Role compatibility fails closed. Portfolio Strategist supports only
   `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
-* Resolver traces selected, excluded, shadowed, and delivered outcomes.
+* Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use compact identity cards and compiled fallback. Designer
   may land bounded page-level web experiences. Content may land content-only

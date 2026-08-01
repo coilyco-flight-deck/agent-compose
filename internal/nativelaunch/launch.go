@@ -183,7 +183,9 @@ func resolveRoots(
 							projectsRoot,
 						)
 					}
-					missing = append(missing, schema.MissingSource{ID: id, Reason: reason})
+					missing = append(missing, schema.MissingSource{
+						ID: id, Reason: reason, ProviderScope: schema.ProviderScopeRole,
+					})
 				}
 				continue
 			}
@@ -202,7 +204,9 @@ func resolveRoots(
 						role,
 					)
 				}
-				missing = append(missing, schema.MissingSource{ID: id, Reason: reason})
+				missing = append(missing, schema.MissingSource{
+					ID: id, Reason: reason, ProviderScope: schema.ProviderScopeRole,
+				})
 			}
 			continue
 		}
@@ -223,6 +227,7 @@ func resolveRoots(
 			ID:     id,
 			Root:   root,
 			Reason: providerReason(repo.provider.Scope, harness, role),
+			Scope:  repo.provider.Scope,
 		})
 	}
 	if len(roots) == 0 {
@@ -299,7 +304,9 @@ func excludedRoleProviders(
 			strings.Join(providerRoles, ", "),
 			selectedRole,
 		)
-		entry := schema.MissingSource{ID: sourceID(rel), Reason: reason}
+		entry := schema.MissingSource{
+			ID: sourceID(rel), Reason: reason, ProviderScope: schema.ProviderScopeRole,
+		}
 		if source, err := schema.LoadSource(filepath.Join(projectsRoot, rel)); err == nil {
 			seen := map[string]bool{}
 			for _, skill := range source.Skills {

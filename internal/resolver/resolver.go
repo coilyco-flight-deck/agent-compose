@@ -18,6 +18,10 @@ const (
 	OutcomeExcluded  = "excluded"
 	OutcomeShadowed  = "shadowed"
 	OutcomeDelivered = "delivered"
+
+	ProviderCategoryPerson    = "person-package"
+	ProviderCategoryCatalogue = "catalogue"
+	ProviderCategoryRole      = "role-provider"
 )
 
 type Decision struct {
@@ -36,6 +40,19 @@ type Selected struct {
 	EntryPoint string
 }
 
+// ProviderReport retains one provider outcome and its canonical selected-skill
+// byte budget, which stays deterministic across native and staged projection.
+type ProviderReport struct {
+	Source            string `json:"source"`
+	Category          string `json:"category"`
+	Scope             string `json:"scope"`
+	Outcome           string `json:"outcome"`
+	Reason            string `json:"reason"`
+	Skills            int    `json:"skills"`
+	ContextBytes      int64  `json:"context_bytes"`
+	ApproximateTokens int64  `json:"approximate_tokens"`
+}
+
 // Resolution is the full composition plan: what was selected, how it is
 // delivered, and the trace built while those choices were made.
 type Resolution struct {
@@ -49,6 +66,7 @@ type Resolution struct {
 	CompiledBodies []Selected
 	FavoriteColor  string
 	Decisions      []Decision
+	Providers      []ProviderReport
 	SourceIDs      []string
 }
 
@@ -62,6 +80,12 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	personSource, err := person.Source(p)
 	if err != nil {
 		return nil, err
+	}
+	personSource.ProviderScope = schema.ProviderScopePerson
+	for _, src := range sources {
+		if src.ProviderScope == "" {
+			src.ProviderScope = schema.ProviderScopeRequest
+		}
 	}
 	sources = append([]*schema.Source{personSource}, sources...)
 
@@ -142,6 +166,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		})
 	}
 	for _, m := range missing {
+		if m.ProviderScope == "" {
+			m.ProviderScope = schema.ProviderScopeRequest
+		}
 		res.decide(Decision{
 			Subject: "source:" + m.ID, Kind: "source", Source: m.ID,
 			Outcome: OutcomeExcluded, Reason: m.Reason,
@@ -154,12 +181,10 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		}
 	}
 	for _, src := range sources {
-		if src.AdmissionReason == "" {
-			continue
-		}
+		reason := providerAdmissionReason(src, req.Role)
 		res.decide(Decision{
 			Subject: "source:" + src.ID, Kind: "source", Source: src.ID,
-			Outcome: OutcomeSelected, Reason: src.AdmissionReason,
+			Outcome: OutcomeSelected, Reason: reason,
 		})
 	}
 
@@ -299,11 +324,83 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			added[ref.ID] = true
 		}
 	}
+	if err := res.buildProviderReports(sources, missing); err != nil {
+		return nil, err
+	}
 
 	if err := res.planDelivery(); err != nil {
 		return nil, err
 	}
 	return res, nil
+}
+
+func providerAdmissionReason(src *schema.Source, role string) string {
+	if src.AdmissionReason != "" {
+		return src.AdmissionReason
+	}
+	if src.ProviderScope == schema.ProviderScopePerson {
+		return fmt.Sprintf("selected person package defines role %q and its active personalities", role)
+	}
+	return "capability provider admitted by the compose request"
+}
+
+func providerCategory(scope string) string {
+	switch scope {
+	case schema.ProviderScopePerson:
+		return ProviderCategoryPerson
+	case schema.ProviderScopeRole:
+		return ProviderCategoryRole
+	default:
+		return ProviderCategoryCatalogue
+	}
+}
+
+func (r *Resolution) buildProviderReports(
+	sources []*schema.Source,
+	missing []schema.MissingSource,
+) error {
+	type contribution struct {
+		skills int
+		bytes  int64
+	}
+	contributions := map[string]contribution{}
+	for _, skill := range r.Skills {
+		bytes, err := treeBytes(skill.Files, skill.Path)
+		if err != nil {
+			return fmt.Errorf("measure source %q skill %q context: %w", skill.Source, skill.ID, err)
+		}
+		current := contributions[skill.Source]
+		current.skills++
+		current.bytes += bytes
+		contributions[skill.Source] = current
+	}
+	for _, src := range sources {
+		contribution := contributions[src.ID]
+		r.Providers = append(r.Providers, ProviderReport{
+			Source:            src.ID,
+			Category:          providerCategory(src.ProviderScope),
+			Scope:             src.ProviderScope,
+			Outcome:           OutcomeSelected,
+			Reason:            providerAdmissionReason(src, r.Request.Role),
+			Skills:            contribution.skills,
+			ContextBytes:      contribution.bytes,
+			ApproximateTokens: (contribution.bytes + 3) / 4,
+		})
+	}
+	for _, source := range missing {
+		scope := source.ProviderScope
+		if scope == "" {
+			scope = schema.ProviderScopeRequest
+		}
+		r.Providers = append(r.Providers, ProviderReport{
+			Source:   source.ID,
+			Category: providerCategory(scope),
+			Scope:    scope,
+			Outcome:  OutcomeExcluded,
+			Reason:   source.Reason,
+		})
+	}
+	return nil
 }
 
 // planDelivery chooses the compiled body for each skill.
@@ -372,6 +469,28 @@ func treeDigest(files fs.FS, root string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func treeBytes(files fs.FS, root string) (int64, error) {
+	var total int64
+	err := fs.WalkDir(files, root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.Type()&fs.ModeSymlink != 0 {
+			return fmt.Errorf("%s: symlinks are invalid inside a source", p)
+		}
+		if d.IsDir() {
+			return nil
+		}
+		raw, err := fs.ReadFile(files, p)
+		if err != nil {
+			return err
+		}
+		total += int64(len(raw))
+		return nil
+	})
+	return total, err
 }
 
 func sortedKeys[V any](m map[string]V) []string {

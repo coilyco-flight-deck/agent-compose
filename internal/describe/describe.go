@@ -42,14 +42,23 @@ func Bundle(dir string, opts Options) (string, error) {
 		kinds []string
 	}{
 		{"profile", []string{"profile"}},
-		{"sources", []string{"source"}},
+		{"providers", []string{"source"}},
+		{"context budget", nil},
 		{"selection", []string{"instruction", "skill"}},
 		{"delivery", []string{"delivery"}},
 	}
 	for _, section := range sections {
 		var lines []string
 		var excludedSkills []resolver.Decision
-		if section.title == "sources" {
+		if section.title == "providers" && len(trace.Providers) > 0 {
+			for _, provider := range trace.Providers {
+				lines = append(lines, renderProviderLine(provider, opts))
+			}
+		} else if section.title == "context budget" {
+			for _, provider := range trace.Providers {
+				lines = append(lines, renderBudgetLine(provider))
+			}
+		} else if section.title == "providers" {
 			traced := map[string]bool{}
 			for _, decision := range trace.Decisions {
 				if decision.Kind == "source" {
@@ -64,15 +73,17 @@ func Bundle(dir string, opts Options) (string, error) {
 					symbol(resolver.OutcomeSelected, opts), id, "", "composed"))
 			}
 		}
-		for _, d := range trace.Decisions {
-			if !contains(section.kinds, d.Kind) {
-				continue
+		if section.title != "context budget" && !(section.title == "providers" && len(trace.Providers) > 0) {
+			for _, d := range trace.Decisions {
+				if !contains(section.kinds, d.Kind) {
+					continue
+				}
+				if section.title == "selection" && d.Kind == "skill" && d.Outcome == resolver.OutcomeExcluded && !opts.All {
+					excludedSkills = append(excludedSkills, d)
+					continue
+				}
+				lines = append(lines, renderLine(d, opts))
 			}
-			if section.title == "selection" && d.Kind == "skill" && d.Outcome == resolver.OutcomeExcluded && !opts.All {
-				excludedSkills = append(excludedSkills, d)
-				continue
-			}
-			lines = append(lines, renderLine(d, opts))
 		}
 		lines = append(lines, collapse(excludedSkills, opts)...)
 		if len(lines) == 0 {
@@ -116,6 +127,16 @@ func Why(dir, subject string, opts Options) (string, error) {
 		}
 		fmt.Fprintf(&b, "  outcome: %s\n", d.Outcome)
 		fmt.Fprintf(&b, "  reason: %s\n", d.Reason)
+		if provider, ok := providerBySource(trace, d.Source); ok {
+			fmt.Fprintf(&b, "  provider: %s/%s\n", provider.Category, provider.Scope)
+			fmt.Fprintf(
+				&b,
+				"  context: %d skills, %d bytes, approximately %d tokens\n",
+				provider.Skills,
+				provider.ContextBytes,
+				provider.ApproximateTokens,
+			)
+		}
 		if hint := selectionHint(d, manifest); hint != "" {
 			fmt.Fprintf(&b, "  %s\n", hint)
 		}
@@ -282,6 +303,36 @@ func renderLine(d resolver.Decision, opts Options) string {
 		source = "(" + d.Source + ")"
 	}
 	return fmt.Sprintf("  %s %-36s %-14s %s", symbol(d.Outcome, opts), label, source, d.Reason)
+}
+
+func renderProviderLine(provider resolver.ProviderReport, opts Options) string {
+	return fmt.Sprintf(
+		"  %s %-36s %-22s %s",
+		symbol(provider.Outcome, opts),
+		provider.Source,
+		"("+provider.Category+"/"+provider.Scope+")",
+		provider.Reason,
+	)
+}
+
+func renderBudgetLine(provider resolver.ProviderReport) string {
+	return fmt.Sprintf(
+		"  %-36s %-22s %d skills · %d bytes · ~%d tokens",
+		provider.Source,
+		"("+provider.Category+"/"+provider.Scope+")",
+		provider.Skills,
+		provider.ContextBytes,
+		provider.ApproximateTokens,
+	)
+}
+
+func providerBySource(trace *bundle.Trace, source string) (resolver.ProviderReport, bool) {
+	for _, provider := range trace.Providers {
+		if provider.Source == source {
+			return provider, true
+		}
+	}
+	return resolver.ProviderReport{}, false
 }
 
 func collapse(excluded []resolver.Decision, opts Options) []string {

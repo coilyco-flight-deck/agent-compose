@@ -58,11 +58,127 @@ func Verify(dir string) (*Verification, error) {
 	if err := verifyIdentityTree(dir, identities); err != nil {
 		return nil, err
 	}
+	if len(trace.Providers) > 0 {
+		if err := verifyProviderReports(dir, trace, manifest, identities); err != nil {
+			return nil, err
+		}
+	}
 	return &Verification{
 		Manifest:   manifest,
 		Files:      files,
 		Identities: identities,
 	}, nil
+}
+
+func verifyProviderReports(
+	dir string,
+	trace *Trace,
+	manifest *Manifest,
+	identities []Identity,
+) error {
+	type contribution struct {
+		skills int
+		bytes  int64
+	}
+	expected := map[string]contribution{}
+	for _, identity := range identities {
+		root := filepath.Join(
+			dir,
+			"content",
+			"skills",
+			sourceSegment(identity.Source),
+			identity.Skill,
+		)
+		var bytes int64
+		if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if entry.IsDir() {
+				return nil
+			}
+			info, err := entry.Info()
+			if err != nil {
+				return err
+			}
+			bytes += info.Size()
+			return nil
+		}); err != nil {
+			return fmt.Errorf("measure provider %q skill %q: %w", identity.Source, identity.Skill, err)
+		}
+		current := expected[identity.Source]
+		current.skills++
+		current.bytes += bytes
+		expected[identity.Source] = current
+	}
+
+	selectedSources := map[string]bool{}
+	for _, source := range manifest.Sources {
+		selectedSources[source] = true
+	}
+	seen := map[string]bool{}
+	for _, provider := range trace.Providers {
+		if provider.Source == "" || seen[provider.Source] {
+			return fmt.Errorf("bundle trace has empty or duplicate provider %q", provider.Source)
+		}
+		seen[provider.Source] = true
+		if provider.Reason == "" {
+			return fmt.Errorf("bundle trace provider %q has no reason", provider.Source)
+		}
+		wantCategory := resolver.ProviderCategoryCatalogue
+		switch provider.Scope {
+		case schema.ProviderScopePerson:
+			wantCategory = resolver.ProviderCategoryPerson
+		case schema.ProviderScopeRole:
+			wantCategory = resolver.ProviderCategoryRole
+		case schema.ProviderScopeRequest, schema.ProviderScopeDefault, schema.ProviderScopeHarness:
+		default:
+			return fmt.Errorf("bundle trace provider %q has unknown scope %q", provider.Source, provider.Scope)
+		}
+		if provider.Category != wantCategory {
+			return fmt.Errorf(
+				"bundle trace provider %q category %q does not match scope %q",
+				provider.Source,
+				provider.Category,
+				provider.Scope,
+			)
+		}
+		if provider.ApproximateTokens != (provider.ContextBytes+3)/4 {
+			return fmt.Errorf("bundle trace provider %q has an invalid token estimate", provider.Source)
+		}
+		switch provider.Outcome {
+		case resolver.OutcomeSelected:
+			if !selectedSources[provider.Source] {
+				return fmt.Errorf("selected provider %q is absent from manifest sources", provider.Source)
+			}
+			contribution := expected[provider.Source]
+			if provider.Skills != contribution.skills || provider.ContextBytes != contribution.bytes {
+				return fmt.Errorf(
+					"provider %q budget is %d skills and %d bytes, expected %d skills and %d bytes",
+					provider.Source,
+					provider.Skills,
+					provider.ContextBytes,
+					contribution.skills,
+					contribution.bytes,
+				)
+			}
+		case resolver.OutcomeExcluded:
+			if selectedSources[provider.Source] {
+				return fmt.Errorf("excluded provider %q appears in manifest sources", provider.Source)
+			}
+			if provider.Skills != 0 || provider.ContextBytes != 0 || provider.ApproximateTokens != 0 {
+				return fmt.Errorf("excluded provider %q must contribute zero context", provider.Source)
+			}
+		default:
+			return fmt.Errorf("bundle trace provider %q has invalid outcome %q", provider.Source, provider.Outcome)
+		}
+	}
+	for source := range selectedSources {
+		if !seen[source] {
+			return fmt.Errorf("bundle trace omits selected provider %q", source)
+		}
+	}
+	return nil
 }
 
 func verifyTree(dir string) (int, error) {

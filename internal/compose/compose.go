@@ -31,6 +31,7 @@ type RootSource struct {
 	ID     string
 	Root   string
 	Reason string
+	Scope  string
 }
 
 type externalOnlyError struct {
@@ -144,6 +145,7 @@ func RunRootsWithMissing(
 		}
 		source.ID = root.ID
 		source.AdmissionReason = root.Reason
+		source.ProviderScope = root.Scope
 		sources = append(sources, source)
 	}
 	return materialize(req, p, sources, missing, outDir, hostExternalOnly)

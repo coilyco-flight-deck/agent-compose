@@ -44,8 +44,9 @@ type ContentDigest struct {
 }
 
 type Trace struct {
-	Format    string              `json:"format"`
-	Decisions []resolver.Decision `json:"decisions"`
+	Format    string                    `json:"format"`
+	Decisions []resolver.Decision       `json:"decisions"`
+	Providers []resolver.ProviderReport `json:"providers,omitempty"`
 }
 
 type Result struct {
@@ -181,7 +182,9 @@ func write(res *resolver.Resolution, root string) error {
 		delivery.CompiledContext = "delivery/compiled.md"
 	}
 
-	trace, err := json.MarshalIndent(Trace{Format: "agent-compose.trace", Decisions: res.Decisions}, "", "  ")
+	trace, err := json.MarshalIndent(Trace{
+		Format: "agent-compose.trace", Decisions: res.Decisions, Providers: res.Providers,
+	}, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -271,7 +274,20 @@ func cacheKey(res *resolver.Resolution) (string, error) {
 		fmt.Fprintf(h, "logical-content\x00%s\x00%s\x00", entry.ID, entry.Digest)
 	}
 	for _, d := range res.Decisions {
-		fmt.Fprintf(h, "decision\x00%s\x00%s\x00%s\x00%s\x00", d.Subject, d.Source, d.Outcome, d.Reason)
+		fmt.Fprintf(h, "decision\x00%s\x00%s\x00%s\x00%s\x00%s\x00",
+			d.Subject, d.Kind, d.Source, d.Outcome, d.Reason)
+	}
+	for _, provider := range res.Providers {
+		fmt.Fprintf(h, "provider\x00%s\x00%s\x00%s\x00%s\x00%s\x00%d\x00%d\x00%d\x00",
+			provider.Source,
+			provider.Category,
+			provider.Scope,
+			provider.Outcome,
+			provider.Reason,
+			provider.Skills,
+			provider.ContextBytes,
+			provider.ApproximateTokens,
+		)
 	}
 	for _, sel := range res.Instructions {
 		raw, err := fs.ReadFile(sel.Files, sel.Path)

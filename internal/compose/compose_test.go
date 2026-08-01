@@ -500,7 +500,7 @@ func TestTraceRecordsDecisions(t *testing.T) {
 	if err := json.Unmarshal(raw, &trace); err != nil {
 		t.Fatal(err)
 	}
-	if trace.Format != "agent-compose.trace" || len(trace.Decisions) == 0 {
+	if trace.Format != "agent-compose.trace" || len(trace.Decisions) == 0 || len(trace.Providers) == 0 {
 		t.Fatalf("unexpected trace: %+v", trace)
 	}
 	outcomes := map[string]bool{}
@@ -513,6 +513,15 @@ func TestTraceRecordsDecisions(t *testing.T) {
 	for _, want := range []string{"selected", "delivered"} {
 		if !outcomes[want] {
 			t.Fatalf("trace missing %q outcome: %+v", want, trace.Decisions)
+		}
+	}
+	for _, provider := range trace.Providers {
+		if provider.Reason == "" || provider.Category == "" || provider.Scope == "" {
+			t.Fatalf("provider report is incomplete: %+v", provider)
+		}
+		if provider.Outcome == resolver.OutcomeExcluded &&
+			(provider.Skills != 0 || provider.ContextBytes != 0 || provider.ApproximateTokens != 0) {
+			t.Fatalf("excluded provider contributes context: %+v", provider)
 		}
 	}
 }

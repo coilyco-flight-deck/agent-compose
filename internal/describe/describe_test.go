@@ -36,11 +36,12 @@ func TestBundleRendersSections(t *testing.T) {
 	for _, want := range []string{
 		"engineer/" + personalitySet,
 		"melded #",
-		"\nprofile\n", "\nsources\n", "\nselection\n", "\ndelivery\n",
+		"\nprofile\n", "\nproviders\n", "\ncontext budget\n", "\nselection\n", "\ndelivery\n",
 		"role engineer", "roster:core defines this role",
 		"personality curious", "activates its full personality set",
-		"✓ roster:core",
-		"✓ aos-public",
+		"✓ roster:core", "(person-package/person)",
+		"✓ aos-public", "(catalogue/request)",
+		"skills ·", "bytes · ~", "tokens",
 		"✓ skill personality-curious",
 		"✓ skill personality-grounded",
 		"✓ skill personality-meticulous",
@@ -84,6 +85,7 @@ func TestWhyFollowsOneItem(t *testing.T) {
 	for _, want := range []string{
 		"outcome: selected",
 		"considered: declared by aos-public",
+		"provider: catalogue/request",
 		"ordinary provider skills are discoverable for every role",
 	} {
 		if !strings.Contains(out, want) {

@@ -53,7 +53,12 @@ immutable role bundle from that set. Native projection and `project --scope
 home` consume that same bundle, so a staged home receives the same selected
 skill inventory without changing bundle ownership or launch authority.
 
-`agent-compose describe <bundle>` shows selected and excluded providers.
+`agent-compose describe <bundle>` shows selected and excluded providers in a
+dedicated provider section. It classifies default and harness roots as ordinary
+catalogues, role roots as role providers, and the selected roster as a person
+package. Its context-budget section names each provider's selected skill count,
+retained bytes, and approximate tokens. Excluded providers contribute explicit
+zeroes.
 `agent-compose describe <bundle> --why source:<provider-id>` explains provider
 admission, and `--why skill:<skill-name>` follows a provider skill to its
 selected, excluded, or shadowed outcome.
