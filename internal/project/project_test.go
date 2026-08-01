@@ -127,6 +127,54 @@ func TestProjectRefusesForeignFiles(t *testing.T) {
 	}
 }
 
+func TestApplyOwnedAcceptsIdenticalForeignFilesWithoutClaimingThem(t *testing.T) {
+	target := t.TempDir()
+	path := filepath.Join(target, "AGENTS.md")
+	content := []byte("canonical\n")
+	if err := os.WriteFile(path, content, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := ApplyOwned(target, map[string][]byte{"AGENTS.md": content}, "fixture", "bundle")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Files) != 0 {
+		t.Fatalf("identical foreign file was claimed: %v", result.Files)
+	}
+	if got := readTarget(t, target, "AGENTS.md"); got != string(content) {
+		t.Fatalf("canonical file changed: %q", got)
+	}
+	if err := Validate(target); err == nil {
+		t.Fatal("empty sidecar unexpectedly validated as a complete projection")
+	}
+}
+
+func TestApplyOwnedAcceptsIdenticalForeignSymlinkWithoutReplacingIt(t *testing.T) {
+	target := t.TempDir()
+	source := filepath.Join(t.TempDir(), "SKILL.md")
+	content := []byte("canonical skill\n")
+	if err := os.WriteFile(source, content, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(target, "SKILL.md")
+	if err := os.Symlink(source, path); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	result, err := ApplyOwned(target, map[string][]byte{"SKILL.md": content}, "fixture", "bundle")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Files) != 0 {
+		t.Fatalf("identical foreign symlink was claimed: %v", result.Files)
+	}
+	resolved, err := os.Readlink(path)
+	if err != nil || resolved != source {
+		t.Fatalf("canonical symlink was replaced: %q, %v", resolved, err)
+	}
+}
+
 func TestHomeScopeProjection(t *testing.T) {
 	native := composeFixture(t, "native.kdl")
 	compiled := composeFixture(t, "compiled.kdl")

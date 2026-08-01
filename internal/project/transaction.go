@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -33,8 +34,8 @@ func applyOwnedWithWriter(
 		}
 		owned[rel] = true
 	}
-	written := sortedPaths(files)
-	for _, rel := range written {
+	effective := make(map[string][]byte, len(files))
+	for rel, content := range files {
 		if err := validTargetPath(rel); err != nil {
 			return nil, err
 		}
@@ -44,6 +45,9 @@ func applyOwnedWithWriter(
 		abs := filepath.Join(targetDir, filepath.FromSlash(rel))
 		info, err := os.Lstat(abs)
 		if err == nil && !owned[rel] {
+			if projectionFileMatches(abs, content) {
+				continue
+			}
 			return nil, fmt.Errorf("refusing to overwrite %s: it exists and was not written by a previous projection", abs)
 		}
 		if err == nil && !info.Mode().IsRegular() {
@@ -52,7 +56,9 @@ func applyOwnedWithWriter(
 		if err != nil && !os.IsNotExist(err) {
 			return nil, fmt.Errorf("inspect projection path %s: %w", abs, err)
 		}
+		effective[rel] = content
 	}
+	written := sortedPaths(effective)
 	next := sidecar{Layout: label, Bundle: origin, Files: written}
 	raw, err := json.MarshalIndent(next, "", "  ")
 	if err != nil {
@@ -67,7 +73,7 @@ func applyOwnedWithWriter(
 	if err != nil {
 		return nil, err
 	}
-	if err := writeProjection(targetDir, files, previous.Files, append(raw, '\n'), writeFile); err != nil {
+	if err := writeProjection(targetDir, effective, previous.Files, append(raw, '\n'), writeFile); err != nil {
 		rollbackErr := rollbackProjection(targetDir, snapshots, sidecarSnapshot)
 		if rollbackErr != nil {
 			return nil, fmt.Errorf("apply projection: %w; rollback failed: %v", err, rollbackErr)
@@ -75,6 +81,17 @@ func applyOwnedWithWriter(
 		return nil, fmt.Errorf("apply projection: %w; previous projection restored", err)
 	}
 	return &Result{Layout: label, Files: written}, nil
+}
+
+// projectionFileMatches recognizes an identical canonical file already at a
+// load point, leaving the sidecar to track only Agent Compose-owned files.
+func projectionFileMatches(path string, want []byte) bool {
+	info, err := os.Stat(path)
+	if err != nil || !info.Mode().IsRegular() {
+		return false
+	}
+	got, err := os.ReadFile(path)
+	return err == nil && bytes.Equal(got, want)
 }
 
 type fileSnapshot struct {
