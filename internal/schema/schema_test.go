@@ -245,7 +245,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(shared, "INVARIANT.md"), []byte("# Invariant\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"coding-shape-cli", "design-system"} {
+	for _, name := range []string{"coding-aws", "coding-shape-cli", "design-system"} {
 		dir := filepath.Join(root, ".agents", "composed", name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
@@ -256,7 +256,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	}
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
     role engineer {
-        composed-skill coding-shape-cli
+        composed-skill "coding-*"
         intent autonomous-coding {
             harness openhands
         }
@@ -301,8 +301,9 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		src.Skills[2].ID != "personality-calm" {
 		t.Fatalf("inferred ordinary skills must be sorted: %+v", src.Skills)
 	}
-	if len(src.RoleSkills["engineer"]) != 1 ||
-		src.RoleSkills["engineer"][0].ID != "coding-shape-cli" ||
+	if len(src.RoleSkills["engineer"]) != 2 ||
+		src.RoleSkills["engineer"][0].ID != "coding-aws" ||
+		src.RoleSkills["engineer"][1].ID != "coding-shape-cli" ||
 		src.RoleSkills["engineer"][0].EntryPoint != "COMPOSED.md" ||
 		len(src.RoleSkills["designer"]) != 1 ||
 		src.RoleSkills["designer"][0].ID != "design-system" {
@@ -408,6 +409,69 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 		}
 		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "missing composed skill") {
 			t.Fatalf("missing composed binding targets must fail closed, got %v", err)
+		}
+	})
+
+	t.Run("unmatched role binding wildcard", func(t *testing.T) {
+		root := makeProvider(t)
+		if err := os.MkdirAll(filepath.Join(root, ".agents", "composed"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role "engineer" {
+        composed-skill "coding-*"
+    }
+}
+`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "matches no skills") {
+			t.Fatalf("unmatched composed-skill wildcard must fail closed, got %v", err)
+		}
+	})
+
+	t.Run("malformed role binding wildcard", func(t *testing.T) {
+		root := makeProvider(t)
+		composed := filepath.Join(root, ".agents", "composed", "coding-shape-cli")
+		if err := os.MkdirAll(composed, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(composed, "COMPOSED.md"), []byte("# CLI\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role "engineer" {
+        composed-skill "coding-["
+    }
+}
+`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "pattern \"coding-[\" is invalid") {
+			t.Fatalf("malformed composed-skill wildcard must fail closed, got %v", err)
+		}
+	})
+
+	t.Run("overlapping role binding patterns", func(t *testing.T) {
+		root := makeProvider(t)
+		composed := filepath.Join(root, ".agents", "composed", "coding-shape-cli")
+		if err := os.MkdirAll(composed, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(composed, "COMPOSED.md"), []byte("# CLI\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
+    role "engineer" {
+        composed-skill "coding-*"
+        composed-skill "coding-shape-cli"
+    }
+}
+`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "repeats composed skill") {
+			t.Fatalf("overlapping composed-skill patterns must fail closed, got %v", err)
 		}
 	})
 

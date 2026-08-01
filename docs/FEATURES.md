@@ -11,7 +11,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
 * AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md).
-  `.agents/roles.kdl` owns admission and pruning.
+  `.agents/roles.kdl` owns wildcard admission.
 * Role compatibility fails closed. Portfolio Strategist supports only
   `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.

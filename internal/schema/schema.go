@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	pathpkg "path"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	kdl "github.com/calico32/kdl-go"
@@ -489,23 +491,25 @@ func parseRoleBindings(path string, composed map[string]string) (map[string][]Co
 		for _, child := range roleNode.Children().Nodes {
 			switch child.Name() {
 			case "composed-skill":
-				skill, err := oneStringArg(child)
+				pattern, err := oneStringArg(child)
 				if err != nil {
 					return nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
-				if seenSkills[skill] {
-					return nil, nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
+				skills, err := expandComposedSkillPattern(pattern, composed)
+				if err != nil {
+					return nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
-				seenSkills[skill] = true
-				skillPath, ok := composed[skill]
-				if !ok {
-					return nil, nil, fmt.Errorf("provider role %q names missing composed skill %q", role, skill)
+				for _, skill := range skills {
+					if seenSkills[skill] {
+						return nil, nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
+					}
+					seenSkills[skill] = true
+					refs[role] = append(refs[role], ContentRef{
+						ID:         skill,
+						Path:       composed[skill],
+						EntryPoint: "COMPOSED.md",
+					})
 				}
-				refs[role] = append(refs[role], ContentRef{
-					ID:         skill,
-					Path:       skillPath,
-					EntryPoint: "COMPOSED.md",
-				})
 			case "intent":
 				route, err := parseIntentRoute(child)
 				if err != nil {
@@ -522,6 +526,32 @@ func parseRoleBindings(path string, composed map[string]string) (map[string][]Co
 		}
 	}
 	return refs, routes, nil
+}
+
+func expandComposedSkillPattern(pattern string, composed map[string]string) ([]string, error) {
+	if _, err := pathpkg.Match(pattern, ""); err != nil {
+		return nil, fmt.Errorf("composed skill pattern %q is invalid: %w", pattern, err)
+	}
+	names := make([]string, 0, len(composed))
+	for name := range composed {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	matches := make([]string, 0, len(names))
+	for _, name := range names {
+		matched, _ := pathpkg.Match(pattern, name)
+		if matched {
+			matches = append(matches, name)
+		}
+	}
+	if len(matches) == 0 {
+		if strings.ContainsAny(pattern, "*?[") {
+			return nil, fmt.Errorf("composed skill pattern %q matches no skills", pattern)
+		}
+		return nil, fmt.Errorf("names missing composed skill %q", pattern)
+	}
+	return matches, nil
 }
 
 func parseIntentRoute(n *kdl.Node) (IntentRoute, error) {

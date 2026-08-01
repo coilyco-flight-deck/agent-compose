@@ -40,13 +40,13 @@ ordinary skill under `.agents/skills` in lexical order. It also reads
 ```kdl
 roles {
     role "engineer" {
-        composed-skill "coding-shape-cli"
+        composed-skill "coding-*"
     }
 }
 ```
 
-Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` for that
-role. Each `intent` records one model-opaque default harness route.
+Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or a `coding-*` glob. Globs expand lexically.
+Invalid, unmatched, and overlapping selections fail closed. Each `intent` records one model-opaque default harness route.
 Materialization renames the admitted entry point to `SKILL.md`. Nested
 `SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
