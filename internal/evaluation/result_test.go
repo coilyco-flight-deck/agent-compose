@@ -42,8 +42,12 @@ func TestV1ScoredResultsRemainReadableHistoricalEvidence(t *testing.T) {
 				t.Fatalf("historical result lost identity or evidence: %+v", result)
 			}
 			for _, scoredCase := range result.Cases {
-				if strings.TrimSpace(scoredCase.RawResponse) == "" {
-					t.Fatalf("historical case %q lost raw response", scoredCase.ID)
+				if strings.TrimSpace(scoredCase.RawResponse) == "" &&
+					strings.TrimSpace(scoredCase.FinishReason) == "" {
+					t.Fatalf(
+						"historical case %q lost response evidence",
+						scoredCase.ID,
+					)
 				}
 			}
 		})
@@ -210,6 +214,40 @@ func TestValidateResultDerivesTotalsAndVerdictsFromPack(t *testing.T) {
 	result.Cases[0].Passed = false
 	if err := ValidateResult(result, pack); err == nil {
 		t.Fatal("inconsistent verdict passed validation")
+	}
+}
+
+func TestValidateResultAcceptsExplicitEmptyFailedResponse(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	failed := &result.Cases[0]
+	failed.RawResponse = ""
+	failed.FinishReason = "length"
+	failed.Total = 0
+	failed.Passed = false
+	for index := range failed.Scores {
+		failed.Scores[index].Score = 0
+		failed.Scores[index].Evidence = "The model returned no content."
+	}
+	if err := ValidateResult(result, pack); err != nil {
+		t.Fatalf("explicit empty response failure was rejected: %v", err)
+	}
+
+	failed.FinishReason = "stop"
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "non-success finish reason") {
+		t.Fatalf("successful empty response error = %v", err)
+	}
+	failed.FinishReason = "length"
+	failed.Scores[0].Score = 1
+	failed.Total = 1
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "score zero") {
+		t.Fatalf("nonzero empty response error = %v", err)
 	}
 }
 

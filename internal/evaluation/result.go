@@ -49,12 +49,13 @@ type CriterionScore struct {
 }
 
 type ScoredCase struct {
-	ID          string           `yaml:"id"`
-	Model       string           `yaml:"model"`
-	RawResponse string           `yaml:"raw_response"`
-	Scores      []CriterionScore `yaml:"scores"`
-	Total       int              `yaml:"total"`
-	Passed      bool             `yaml:"passed"`
+	ID           string           `yaml:"id"`
+	Model        string           `yaml:"model"`
+	RawResponse  string           `yaml:"raw_response"`
+	FinishReason string           `yaml:"finish_reason,omitempty"`
+	Scores       []CriterionScore `yaml:"scores"`
+	Total        int              `yaml:"total"`
+	Passed       bool             `yaml:"passed"`
 }
 
 type ScoredResult struct {
@@ -252,8 +253,17 @@ func PackDigest(pack *Pack) (string, error) {
 }
 
 func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule) error {
-	if strings.TrimSpace(scored.Model) == "" || strings.TrimSpace(scored.RawResponse) == "" {
-		return fmt.Errorf("model and raw response are required")
+	if strings.TrimSpace(scored.Model) == "" {
+		return fmt.Errorf("model is required")
+	}
+	emptyResponse := strings.TrimSpace(scored.RawResponse) == ""
+	if emptyResponse {
+		finishReason := strings.TrimSpace(scored.FinishReason)
+		if finishReason == "" || strings.EqualFold(finishReason, "stop") {
+			return fmt.Errorf(
+				"empty raw response requires a non-success finish reason",
+			)
+		}
 	}
 	if len(scored.Scores) != len(evalCase.Rubric) {
 		return fmt.Errorf("has %d scores, want %d", len(scored.Scores), len(evalCase.Rubric))
@@ -279,6 +289,9 @@ func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule) error
 		}
 		values[score.Criterion] = score.Score
 		total += score.Score
+	}
+	if emptyResponse && total != 0 {
+		return fmt.Errorf("empty raw response must score zero on every criterion")
 	}
 	if total != scored.Total {
 		return fmt.Errorf("total %d, want %d from criterion scores", scored.Total, total)

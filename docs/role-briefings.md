@@ -64,7 +64,7 @@ ordinary accessibility, and focused tests qualify when business rules and
 application data flow stay unchanged. Routing-system architecture, runtime
 data, stateful workflows, terminal experiences, procedural games,
 infrastructure, deployment, release, and live operations remain outside that
-boundary.
+boundary. Definition separates sourced facts from unresolved decisions, keeps mechanics pending, and distinguishes implemented, verified, and delivered work. Content Manager owns verified copy, while Designer owns hierarchy, accessibility, and integration.
 
 Content Manager (`content`) may implement and land content-only repository
 changes, including human-facing literals embedded in code. The exception
