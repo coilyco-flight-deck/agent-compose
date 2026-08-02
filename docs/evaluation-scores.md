@@ -2,13 +2,13 @@
 
 # Evaluation scorecard
 
-`2026-07-30, 2026-07-31 · seat codex · 48/96 pass · 543/768 points`
+`2026-07-30, 2026-08-02 · seat codex · 53/96 pass · 556/768 points`
 
 | role | F model | O model | FR | FP | FA | OR | OP | OA | Σ |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|
 | community | gpt-5.6-sol | qwen3-coder:30b | 31/32✓ | 8✓ | 8✓ | 14/32× | 4× | 4× | 69/96 |
 | content | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 16/16✓ | 9/32× | 2× | 4/16× | 71/112 |
-| design | ornith:35b via agent-proxy:community/knowledge-retrieval | ornith:35b via agent-proxy:community/knowledge-retrieval | 23/32× | 7× | 5× | 26/32× | 8✓ | 4× | 73/96 |
+| design | ornith:35b via agent-proxy:community/knowledge-retrieval | ornith:35b via agent-proxy:community/knowledge-retrieval | 31/32✓ | 8✓ | 8✓ | 23/32× | 8✓ | 8✓ | 86/96 |
 | director | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 7/32× | 5× | 0× | 60/96 |
 | engineer | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 15/32× | 7× | 0× | 70/96 |
 | ops | gpt-5.6-sol | qwen3-coder:30b | 32/32✓ | 8✓ | 8✓ | 15/32× | 6× | 1× | 70/96 |
