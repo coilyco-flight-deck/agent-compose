@@ -1,4 +1,0 @@
-v2.0.0
-
-This tracked hold keeps automatic main-push publication paused while the v2
-stack lands. Remove it only after the explicit v2.0.0 manual release succeeds.
