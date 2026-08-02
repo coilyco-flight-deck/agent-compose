@@ -47,10 +47,10 @@ behavioral expression and invariant and role at 2. Authority and escalation
 remain the role hard fail. The personality invariant and role obligations
 remain the personality hard fail.
 
-The runner starts a fresh session per case, submits the prompt verbatim, records
-the exact model identity, and preserves the raw response before discussion.
-Transport or runner retries record case, attempt number, outcome, and reason.
-Failures remain evidence and are never replaced by a cleaner response.
+The runner starts a fresh session per case, submits the prompt verbatim, and
+records the model, raw response, and any terminal finish reason. Empty content
+requires a non-success finish reason, zero scores, and a failing verdict.
+Retries record case, attempt, outcome, and reason. Failures remain evidence.
 
 An independent reviewer scores every criterion and writes one evidence sentence
 per score. The author of a roster, prompt, or rubric change cannot be the sole
@@ -65,11 +65,11 @@ do not follow the rubric.
 reviewed v2 baseline. Historical mode renders archived records without
 rebinding their pack digests.
 
-V2 records keep exact models, raw responses, scores, evidence, verdicts, pack
-digests, source revisions, reviewers, and retries. Runner-local paths become
-`<evaluation-worktree>` before commit. Every model completes its tier. Frontier
-role, personality, and adjacent-role cases gate release. OSS failures remain
-visible and keep that role and model class unsupported.
+V2 records keep models, responses, scores, evidence, verdicts, pack digests,
+source revisions, reviewers, finish reasons, and retries. Runner-local paths
+become `<evaluation-worktree>` before commit. Every model completes its tier.
+Frontier cases gate release. OSS failures remain visible and keep that role and
+model class unsupported.
 
 ## See also
 
