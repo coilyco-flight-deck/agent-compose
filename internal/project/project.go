@@ -76,7 +76,8 @@ var Registry = map[string]Layout{
 
 const sidecarRel = ".agent-compose/projection.json"
 
-type sidecar struct {
+// Projection records the immutable bundle and files owned at one target.
+type Projection struct {
 	Layout string   `json:"layout"`
 	Bundle string   `json:"bundle"`
 	Files  []string `json:"files"`
@@ -203,7 +204,7 @@ func buildPlan(bundleDir string, manifest *bundle.Manifest, points LoadPoints) (
 // Validate reports whether the target holds a complete previous projection,
 // so a failed refresh can fall back to it as last-known-good.
 func Validate(targetDir string) error {
-	s := readSidecar(targetDir)
+	s := ReadProjection(targetDir)
 	if len(s.Files) == 0 {
 		return fmt.Errorf("no projection recorded under %s", targetDir)
 	}
@@ -215,16 +216,41 @@ func Validate(targetDir string) error {
 	return nil
 }
 
-func readSidecar(targetDir string) sidecar {
-	var s sidecar
+// ReadProjection loads the ownership sidecar at targetDir. An absent or
+// malformed sidecar returns an empty projection for existing callers.
+func ReadProjection(targetDir string) Projection {
+	var s Projection
 	raw, err := os.ReadFile(filepath.Join(targetDir, filepath.FromSlash(sidecarRel)))
 	if err != nil {
 		return s
 	}
 	if json.Unmarshal(raw, &s) != nil {
-		return sidecar{}
+		return Projection{}
 	}
 	return s
+}
+
+// FindProjection walks from start toward the filesystem root and returns the
+// nearest recorded projection plus the target directory that owns it.
+func FindProjection(start string) (Projection, string) {
+	candidate, err := filepath.Abs(start)
+	if err != nil {
+		return Projection{}, ""
+	}
+	if info, statErr := os.Stat(candidate); statErr == nil && !info.IsDir() {
+		candidate = filepath.Dir(candidate)
+	}
+	for {
+		projection := ReadProjection(candidate)
+		if projection.Bundle != "" && projection.Layout != "" {
+			return projection, candidate
+		}
+		parent := filepath.Dir(candidate)
+		if parent == candidate {
+			return Projection{}, ""
+		}
+		candidate = parent
+	}
 }
 
 func pruneEmptyDirs(dir, stop string) {

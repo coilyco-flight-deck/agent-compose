@@ -31,6 +31,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/statusline"
 )
 
 // version is stamped by the release build via -ldflags; dev builds say dev.
@@ -46,6 +47,9 @@ func dispatchArgs(args []string) []string {
 		base = base[i+1:]
 	}
 	if strings.TrimSuffix(base, ".exe") != "acompose" {
+		return args
+	}
+	if len(args) >= 2 && args[1] == "statusline" {
 		return args
 	}
 	if len(args) >= 3 && !strings.HasPrefix(args[1], "-") &&
@@ -120,6 +124,23 @@ func main() {
 					},
 				},
 				Action: runCompose,
+			},
+			{
+				Name:      "statusline",
+				Usage:     "render the nearest projected role identity and composition health",
+				ArgsUsage: "",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "target",
+						Value: ".",
+						Usage: "file or directory used to find the nearest projection",
+					},
+					&cli.BoolFlag{
+						Name:  "color",
+						Usage: "emit ANSI identity colors even when stdout is not a terminal",
+					},
+				},
+				Action: runStatusline,
 			},
 			{
 				Name:            "launch",
@@ -868,6 +889,21 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
 	return execReal(nativeHarnessCommand(harness, args[2:]))
+}
+
+func runStatusline(_ context.Context, cmd *cli.Command) error {
+	rendered, err := statusline.Render(statusline.Options{
+		Target:    cmd.String("target"),
+		Color:     cmd.Bool("color") || colorEnabled(),
+		TrueColor: trueColorTerminal(),
+	})
+	if err != nil {
+		return err
+	}
+	if rendered != "" {
+		fmt.Fprintln(cmd.Root().Writer, rendered)
+	}
+	return nil
 }
 
 func nativeLaunchInteractive(input, output *os.File) bool {

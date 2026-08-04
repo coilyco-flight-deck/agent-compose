@@ -185,6 +185,7 @@ func resolveRoots(
 					}
 					missing = append(missing, schema.MissingSource{
 						ID: id, Reason: reason, ProviderScope: schema.ProviderScopeRole,
+						Warning: true,
 					})
 				}
 				continue
@@ -206,6 +207,7 @@ func resolveRoots(
 				}
 				missing = append(missing, schema.MissingSource{
 					ID: id, Reason: reason, ProviderScope: schema.ProviderScopeRole,
+					Warning: true,
 				})
 			}
 			continue

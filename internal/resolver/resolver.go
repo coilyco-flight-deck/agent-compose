@@ -48,6 +48,7 @@ type ProviderReport struct {
 	Scope             string `json:"scope"`
 	Outcome           string `json:"outcome"`
 	Reason            string `json:"reason"`
+	Warning           bool   `json:"warning,omitempty"`
 	Skills            int    `json:"skills"`
 	ContextBytes      int64  `json:"context_bytes"`
 	ApproximateTokens int64  `json:"approximate_tokens"`
@@ -412,6 +413,7 @@ func (r *Resolution) buildProviderReports(
 			Scope:    scope,
 			Outcome:  OutcomeExcluded,
 			Reason:   source.Reason,
+			Warning:  source.Warning,
 		})
 	}
 	return nil

@@ -177,6 +177,7 @@ type MissingSource struct {
 	Reason        string
 	Skills        []string
 	ProviderScope string
+	Warning       bool
 }
 
 func ParseRequest(path string) (*Request, error) {
@@ -338,8 +339,9 @@ func LoadSources(req *Request, requestPath string) ([]*Source, []MissingSource, 
 			_, rootErr := os.Stat(resolvedPath)
 			if os.IsNotExist(rootErr) && !loc.Required {
 				missing = append(missing, MissingSource{
-					ID:     loc.ID,
-					Reason: fmt.Sprintf("optional source %s %s is absent", kind, sourcePath),
+					ID:      loc.ID,
+					Reason:  fmt.Sprintf("optional source %s %s is absent", kind, sourcePath),
+					Warning: true,
 				})
 				continue
 			}

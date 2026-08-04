@@ -23,7 +23,7 @@ func applyOwnedWithWriter(
 	origin string,
 	writeFile func(string, []byte, fs.FileMode) error,
 ) (*Result, error) {
-	previous := readSidecar(targetDir)
+	previous := ReadProjection(targetDir)
 	owned := map[string]bool{}
 	for _, rel := range previous.Files {
 		if err := validTargetPath(rel); err != nil {
@@ -59,7 +59,7 @@ func applyOwnedWithWriter(
 		effective[rel] = content
 	}
 	written := sortedPaths(effective)
-	next := sidecar{Layout: label, Bundle: origin, Files: written}
+	next := Projection{Layout: label, Bundle: origin, Files: written}
 	raw, err := json.MarshalIndent(next, "", "  ")
 	if err != nil {
 		return nil, err

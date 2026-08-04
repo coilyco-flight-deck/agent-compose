@@ -293,6 +293,10 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
 			[]string{"acompose", "compose", "--layout", "codex", "request.kdl", "--", "codex"},
 		},
+		"acompose exposes statusline directly": {
+			[]string{"acompose", "statusline", "--target", "/workspace"},
+			[]string{"acompose", "statusline", "--target", "/workspace"},
+		},
 		"windows exe suffix": {
 			[]string{`C:\shims\acompose.exe`, "req.kdl"},
 			[]string{`C:\shims\acompose.exe`, "compose", "req.kdl"},

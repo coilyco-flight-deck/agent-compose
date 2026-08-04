@@ -24,6 +24,21 @@ type Delivery struct {
 	CompiledContext string `json:"compiled_context,omitempty"`
 }
 
+// RoleIdentity keeps renderer metadata in the immutable bundle so consumers
+// never reload a mutable person source after composition.
+type RoleIdentity struct {
+	Person        string                `json:"person"`
+	Purpose       string                `json:"purpose"`
+	Seats         []person.Seat         `json:"seats"`
+	Personalities []IdentityPersonality `json:"personalities"`
+}
+
+type IdentityPersonality struct {
+	Name   string        `json:"name"`
+	Color  string        `json:"color"`
+	Emblem person.Emblem `json:"emblem"`
+}
+
 type Manifest struct {
 	Format          string          `json:"format"`
 	Role            string          `json:"role"`
@@ -33,6 +48,7 @@ type Manifest struct {
 	ModelClass      string          `json:"model_class"`
 	Personalities   []string        `json:"personalities"`
 	Color           string          `json:"color"`
+	Identity        RoleIdentity    `json:"identity,omitempty"`
 	Sources         []string        `json:"sources"`
 	Content         []ContentDigest `json:"content"`
 	Delivery        Delivery        `json:"delivery"`
@@ -197,6 +213,17 @@ func write(res *resolver.Resolution, root string) error {
 	if err != nil {
 		return err
 	}
+	identity := RoleIdentity{
+		Person:  res.Person.Name,
+		Purpose: role.Purpose,
+		Seats:   append([]person.Seat(nil), role.Seats...),
+	}
+	for _, name := range res.Personalities {
+		personality := res.Person.Personalities[name]
+		identity.Personalities = append(identity.Personalities, IdentityPersonality{
+			Name: name, Color: personality.Color, Emblem: personality.Emblem,
+		})
+	}
 	manifest, err := json.MarshalIndent(Manifest{
 		Format:          "agent-compose.bundle",
 		Role:            res.Request.Role,
@@ -206,6 +233,7 @@ func write(res *resolver.Resolution, root string) error {
 		ModelClass:      res.Request.ModelClass,
 		Personalities:   res.Personalities,
 		Color:           res.FavoriteColor,
+		Identity:        identity,
 		Sources:         res.SourceIDs,
 		Content:         content,
 		Delivery:        delivery,
@@ -334,6 +362,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		Purpose               string
 		Skill                 string
 		Personalities         []string
+		PersonalityMetadata   []IdentityPersonality
 		Seats                 []person.Seat
 		Inspiration           person.InspirationRef
 		SupportedModelClasses []string
@@ -342,6 +371,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		Purpose:               role.Purpose,
 		Skill:                 role.Skill,
 		Personalities:         role.Personalities,
+		PersonalityMetadata:   selectedIdentityPersonalities(res),
 		Seats:                 role.Seats,
 		Inspiration:           role.Inspiration,
 		SupportedModelClasses: role.SupportedModelClasses,
@@ -405,6 +435,17 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		return strings.Compare(left.ID, right.ID)
 	})
 	return content, nil
+}
+
+func selectedIdentityPersonalities(res *resolver.Resolution) []IdentityPersonality {
+	selected := make([]IdentityPersonality, 0, len(res.Personalities))
+	for _, name := range res.Personalities {
+		personality := res.Person.Personalities[name]
+		selected = append(selected, IdentityPersonality{
+			Name: name, Color: personality.Color, Emblem: personality.Emblem,
+		})
+	}
+	return selected
 }
 
 func validateSelectedSkills(skills []resolver.Selected) error {

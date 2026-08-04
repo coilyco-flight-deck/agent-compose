@@ -7,9 +7,8 @@ import (
 	"strings"
 )
 
-// Validate checks selector syntax without requiring a provider catalogue.
-// A nil selector preserves the whole provider. An explicit empty selector is
-// invalid so configuration cannot silently admit nothing.
+// Validate checks selector syntax without a provider catalogue. Nil preserves
+// the whole provider, while an explicit empty selector is invalid.
 func Validate(patterns []string) error {
 	if patterns == nil {
 		return nil

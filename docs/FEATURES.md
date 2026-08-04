@@ -50,8 +50,8 @@ Inventory of what ships today.
 
 ## Identity surfaces
 
-* The local [palette](personality-palette.md) shows melds and identity primitives.
-  `agent-compose overlay` emits text or JSON for one selected member. See [overlay.md](overlay.md).
+* [Identity renderers](statusline.md) include the local palette, text or JSON
+  overlays, and an `acompose statusline` row for active bundle identity and health.
 
 ## Roster artifact and cascade
 
