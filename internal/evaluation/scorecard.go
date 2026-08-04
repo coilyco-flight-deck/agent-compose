@@ -25,8 +25,9 @@ type scorecardCell struct {
 }
 
 type scorecardModel struct {
-	name  string
-	cells map[string]*scorecardCell
+	name     string
+	disabled bool
+	cells    map[string]*scorecardCell
 }
 
 type scorecardResult struct {
@@ -92,6 +93,7 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 			)
 		}
 		var packCases []Case
+		disabledTiers := make(map[string]bool)
 		if historical {
 			packCases, err = historicalScorecardCases(result)
 			if err != nil {
@@ -106,6 +108,9 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 				return nil, fmt.Errorf("validate scorecard result %q: %w", entry.Name(), err)
 			}
 			packCases = pack.Cases
+			for _, tier := range pack.DisabledModelTiers {
+				disabledTiers[tier] = true
+			}
 		}
 
 		models := map[string]map[string]*scorecardModel{
@@ -155,10 +160,18 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 			}
 		}
 
+		frontier := sortedScorecardModels(models[frontierTier])
+		oss := sortedScorecardModels(models[ossTier])
+		if disabledTiers[frontierTier] && len(frontier) == 0 {
+			frontier = disabledScorecardModels()
+		}
+		if disabledTiers[ossTier] && len(oss) == 0 {
+			oss = disabledScorecardModels()
+		}
 		card := scorecardResult{
 			role:     result.Role,
-			frontier: sortedScorecardModels(models[frontierTier]),
-			oss:      sortedScorecardModels(models[ossTier]),
+			frontier: frontier,
+			oss:      oss,
 		}
 		if err := validateScorecardResult(card); err != nil {
 			return nil, fmt.Errorf("scorecard result %q: %w", entry.Name(), err)
@@ -403,12 +416,23 @@ func sortedScorecardModels(models map[string]*scorecardModel) []*scorecardModel 
 	return out
 }
 
+func disabledScorecardModels() []*scorecardModel {
+	return []*scorecardModel{{
+		name:     "disabled",
+		disabled: true,
+		cells:    make(map[string]*scorecardCell),
+	}}
+}
+
 func validateScorecardResult(result scorecardResult) error {
 	if len(result.frontier) == 0 || len(result.oss) == 0 {
 		return fmt.Errorf("frontier and OSS models are required")
 	}
 	for _, models := range [][]*scorecardModel{result.frontier, result.oss} {
 		for _, model := range models {
+			if model.disabled {
+				continue
+			}
 			for _, dimension := range []string{roleDimension, personalityDimension} {
 				if model.cells[dimension] == nil {
 					return fmt.Errorf(

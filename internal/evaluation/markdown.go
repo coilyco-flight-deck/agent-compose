@@ -13,6 +13,9 @@ func Markdown(pack *Pack) []byte {
 	fmt.Fprintf(&out, "* Role: `%s` - %s\n", pack.Role, pack.Purpose)
 	fmt.Fprintf(&out, "* Seat: `%s` - `%s` (pronouns: `%s`)\n", pack.Seat.Selector(), pack.Seat.Name, pack.Seat.Pronouns)
 	fmt.Fprintf(&out, "* Personalities: `%s`\n", personalityNames(pack.Personalities))
+	if len(pack.DisabledModelTiers) > 0 {
+		fmt.Fprintf(&out, "* Disabled model tiers: `%s`\n", strings.Join(pack.DisabledModelTiers, "`, `"))
+	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n\n", pack.MeldedFavoriteColor)
 
 	out.WriteString("## Role briefing\n\n")

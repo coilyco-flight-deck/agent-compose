@@ -22,7 +22,6 @@ Inventory of what ships today.
 * Canonical skills use compact identity cards and compiled fallback. Designer
   may land bounded page-level web experiences. Content may land content-only
   code changes.
-* Historical scorecard mode renders preserved v1 results without rebinding.
 
 ## Load-point projection
 
@@ -46,8 +45,9 @@ Inventory of what ships today.
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
 * [Evaluation](evaluation.md) has paired Core Roster matrices, explicit
-  human-communication hard fails, fail-closed independent-review evidence, and
-  [scorecards](evaluation-scorecard.md).
+  communication hard fails, independent-review evidence, and
+  [scorecards](evaluation-scorecard.md). `disabled_model_tiers` pauses a lane
+  without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
@@ -62,18 +62,14 @@ Inventory of what ships today.
 * `agent-compose roster --out <dir>` renders lazy-loaded role and personality
   skills plus [native adaptation](native-adaptation.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md).
-* `agent-compose cascade` is the absorbed v1 composer: doctrine sources into
-  per-harness files, symlinks, filtering, overrides, a mount manifest,
-  and dry-run/check behavior compatible with the Python outputs.
+* `agent-compose cascade` composes doctrine into per-harness files and a mount
+  manifest with v1-compatible dry-run and check behavior.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
 
-## Release
-
-* [Release](release.md) publishes product-impacting main pushes. Docs and
-  results only validate. A tracked hold reserves major versions for dispatch.
+* [Release](release.md) publishes product-impacting main pushes under a major-version hold.
 
 ## See also
 

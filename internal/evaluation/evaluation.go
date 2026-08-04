@@ -20,6 +20,10 @@ var genericMatrixAsset []byte
 
 const Format = "agent-compose.evaluation-pack.v2"
 
+// lowContextEvaluationsEnabled is the temporary shared-GPU evaluation switch.
+// Keep the OSS cases in each pack so reactivation remains a one-line change.
+const lowContextEvaluationsEnabled = false
+
 const (
 	ScenarioMissionFit          = "mission-fit"
 	ScenarioPersonality         = "personality-expression"
@@ -94,6 +98,7 @@ type Pack struct {
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
 	Invariant           string               `yaml:"invariant"`
+	DisabledModelTiers  []string             `yaml:"disabled_model_tiers,omitempty"`
 	RunProtocol         []string             `yaml:"run_protocol"`
 	ReviewRule          ReviewRule           `yaml:"review_rule"`
 	Cases               []Case               `yaml:"cases"`
@@ -237,6 +242,9 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		ReviewRule:          generic.ReviewRule,
 		Cases:               generic.Cases,
 	}
+	if !lowContextEvaluationsEnabled {
+		pack.DisabledModelTiers = []string{ossTier}
+	}
 	pack.Cases, err = casesForProfile(generic, generic, roleName)
 	if err != nil {
 		return nil, fmt.Errorf("generic evaluation matrix: %w", err)
@@ -265,6 +273,18 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		}
 	}
 	return pack, nil
+}
+
+func (pack *Pack) modelTierDisabled(tier string) bool {
+	if pack == nil {
+		return false
+	}
+	for _, disabled := range pack.DisabledModelTiers {
+		if disabled == tier {
+			return true
+		}
+	}
+	return false
 }
 
 func parseGenericMatrix(raw []byte) (profileMatrix, error) {

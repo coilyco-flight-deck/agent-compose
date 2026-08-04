@@ -270,6 +270,31 @@ func TestValidateResultAcceptsCompleteMultipleModelsPerTier(t *testing.T) {
 	}
 }
 
+func TestValidateResultAllowsDisabledTierToBeOmitted(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	kept := result.Cases[:0]
+	for _, scored := range result.Cases {
+		if !strings.HasPrefix(scored.ID, ossTier+"-") {
+			kept = append(kept, scored)
+		}
+	}
+	result.Cases = kept
+	if err := ValidateResult(result, pack); err != nil {
+		t.Fatalf("frontier-only result failed while OSS is disabled: %v", err)
+	}
+
+	result.Cases = result.Cases[1:]
+	if err := ValidateResult(result, pack); err == nil ||
+		!strings.Contains(err.Error(), "missing frontier case") {
+		t.Fatalf("incomplete active tier error = %v", err)
+	}
+}
+
 func TestValidateResultRejectsIncompleteOrRepeatedModelCases(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("community", "discord")

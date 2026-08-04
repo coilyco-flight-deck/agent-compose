@@ -23,6 +23,9 @@ func TestBuildEmitsCoreV2FrontierOSSMatrix(t *testing.T) {
 	if len(pack.Cases) != 14 {
 		t.Fatalf("evaluation cases = %d, want 14", len(pack.Cases))
 	}
+	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{ossTier}) {
+		t.Fatalf("disabled model tiers = %v, want [%s]", pack.DisabledModelTiers, ossTier)
+	}
 	if err := ValidateCorePack(pack); err != nil {
 		t.Fatal(err)
 	}
@@ -360,6 +363,7 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	markdown := string(Markdown(pack))
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
+		"Disabled model tiers: `oss`",
 		"## Scenario matrix (14 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",

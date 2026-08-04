@@ -14,10 +14,13 @@ Supported Core Roster scenario kinds are:
 * `completion-ownership`
 * `portfolio-replay`
 * `adjacent-role-discrimination`
+* `human-communication-ownership`
 
 The engine expands each scenario into paired frontier and OSS cases. Keeping
 lanes and rubrics in the engine prevents eight role assets from restating the
-same evaluation configuration.
+same evaluation configuration. A pack-level `disabled_model_tiers` marker
+temporarily pauses a lane without deleting its cases or changing role-owned
+scenario files.
 
 External roster packages may instead provide a complete custom matrix with
 `run_protocol`, `review_rule`, and arbitrary `cases`. A complete matrix replaces

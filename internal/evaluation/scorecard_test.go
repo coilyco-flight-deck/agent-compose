@@ -69,6 +69,46 @@ func TestMarkdownScorecardRequiresSelectedResults(t *testing.T) {
 	}
 }
 
+func TestMarkdownScorecardMarksDisabledOSSTier(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Provenance.EvaluatedAt = "2026-08-04"
+	kept := result.Cases[:0]
+	for _, scored := range result.Cases {
+		if strings.HasPrefix(scored.ID, ossTier+"-") {
+			continue
+		}
+		scored.Model = "frontier-test"
+		kept = append(kept, scored)
+	}
+	result.Cases = kept
+	raw, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "engineer-codex.yaml"), raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	scorecard, err := MarkdownScorecard(root, "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"F frontier-test · O disabled · 7/7 pass · 58/58 points",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | 58/58 |",
+	} {
+		if !strings.Contains(string(scorecard), want) {
+			t.Errorf("disabled-tier scorecard omitted %q:\n%s", want, scorecard)
+		}
+	}
+}
+
 func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("engineer", "codex")

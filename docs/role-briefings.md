@@ -1,9 +1,7 @@
 # Role skills
 
-The selected person profile owns one ordinary role skill for every role.
-Structured KDL chooses the skill and retains compact identity data. The skill
-body is the sole canonical long-form mission, operating loop, ownership,
-completion, handoff, and escalation doctrine.
+Each person profile owns one ordinary skill per role. KDL selects it and keeps
+compact identity data. Its body is the canonical long-form role doctrine.
 
 ## Profile layout
 
@@ -35,10 +33,9 @@ role bootstrap and a compact identity card. The card retains purpose, seats,
 pronouns, personality emblems, glyphs, motifs, colors, one-sentence cues, the
 melded favorite color, and exact skill ids. Compact fields use ` // `.
 
-The native roster installs all role and personality skills for discovery but
-does not import their full bodies into global startup context. After inference
-or an allowed role switch, the agent reads the selected role skill and its
-complete meld before acting.
+The native roster installs role and personality skills for discovery without
+loading their bodies globally. After role selection, the agent reads that role
+skill and its complete meld before acting.
 
 Compiled delivery has no native skill loader. It appends the selected role
 skill first, then the active personality skills and capability skills, so its
@@ -50,14 +47,11 @@ Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
 executable authority.
 
-Content Manager exclusively owns every recommendation about communication to a
-human, including wording, tone, framing, timing, channel, reply strategy, and
-editorial fitness. Every other Core Roster role stops before drafting or
-advising and gives Content only a bounded factual handoff. Community Manager
-owns community state, moderation context, durable feedback, and authorized
-operational interaction, while Content owns the words and communication
-strategy. An approved artifact still requires separate runtime and human
-authorization before any role sends or publishes it.
+Content exclusively owns recommendations about human communication, including
+wording, tone, framing, timing, channel, reply strategy, and editorial fitness.
+Other roles stop at a factual handoff. Community owns community state,
+moderation context, durable feedback, and authorized interaction. Sending or
+publishing an approved artifact still requires separate authorization.
 
 The Engineer role owns repository-proven reusable software. Ops owns controlled
 running-system change, live verification, and rollback. QA remains read-only
@@ -65,15 +59,13 @@ unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
 
-Designer (`design`) owns experience definition everywhere and may implement and
-land an effect-tested, bounded page-level experience in an existing graphical
-web application. Static or content-driven pages, focused routes, navigation
-placement, page copy, static public display data, presentation, metadata,
-ordinary accessibility, and focused tests qualify when business rules and
-application data flow stay unchanged. Routing-system architecture, runtime
-data, stateful workflows, terminal experiences, procedural games,
-infrastructure, deployment, release, and live operations remain outside that
-boundary. Definition separates sourced facts from unresolved decisions, keeps mechanics pending, and distinguishes implemented, verified, and delivered work. Content Manager owns verified copy, while Designer owns hierarchy, accessibility, and integration.
+Designer (`design`) owns experience definition and bounded, effect-tested
+page-level work in existing graphical web apps. Static pages, focused routes,
+navigation, presentation, metadata, accessibility, and tests qualify when
+business rules and data flow stay unchanged. System routing, runtime data,
+stateful workflows, terminal or procedural experiences, infrastructure,
+release, and live operations do not. Content owns verified copy. Designer owns
+hierarchy, accessibility, and integration.
 
 Content Manager (`content`) may implement and land content-only repository
 changes, including human-facing literals embedded in code. The exception
@@ -86,6 +78,3 @@ externally.
 ## See also
 
 * [native-adaptation.md](native-adaptation.md) - inference and switching rules.
-* [personality-libraries.md](personality-libraries.md) - profile and library boundaries.
-* [person-snapshot.md](person-snapshot.md) - role skill provenance projections.
-* [role-skill-context-budget.md](role-skill-context-budget.md) - measured startup reduction.
