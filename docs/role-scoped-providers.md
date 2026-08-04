@@ -6,8 +6,8 @@ consumer owns the mapping. Role slugs and paths are opaque configuration.
 
 ## Configuration
 
-`role_providers` belongs in `agent-compose.yaml` beside the existing source and
-load-point settings:
+Small deployments may keep `role_providers` in `agent-compose.yaml` beside the
+existing source and load-point settings:
 
 ```yaml
 role_providers:
@@ -18,9 +18,7 @@ role_providers:
       required: false
 ```
 
-A relative `path` identifies a repository beneath `projects_root`. An absolute
-path must also remain beneath that root. Configuration and generated manifests
-reject unknown fields.
+Canonical declarations can enter through a [symlinked strict file](external-role-provider-config.md).
 
 Optional `skills` entries select a bounded ordinary-skill slice. See
 [Ordinary-skill selectors](ordinary-skill-selectors.md). Omission preserves
@@ -68,13 +66,15 @@ selected, selector-excluded, role-excluded, or shadowed outcome.
 ## Ownership
 
 AOS or another launch consumer hydrates and verifies local catalogue roots.
-Agent Compose performs offline selection, composition, collision checking, and
-read-only bundle projection. Agent Compose does not fetch provider content,
-choose operational authority, or add repository-specific mappings to the Core
-Roster.
+Deployment tooling owns any conventional symlink and host-wrapper path. Agent
+Compose strictly loads the referenced document, performs offline selection,
+composition, collision checking, and read-only bundle projection. Agent
+Compose does not fetch provider content, choose operational authority, or add
+repository-specific mappings to the Core Roster.
 
 ## See also
 
 * [Cascade](cascade.md) - generated mount eligibility and bare convergence.
+* [External configuration](external-role-provider-config.md) - canonical-file loading and path hydration.
 * [Ordinary-skill selectors](ordinary-skill-selectors.md) - bounded catalogue slices.
 * [Integration](integration.md) - host and isolated ownership tiers.

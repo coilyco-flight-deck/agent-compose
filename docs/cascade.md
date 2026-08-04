@@ -51,7 +51,8 @@ survive strict YAML into the generated JSON manifest.
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
 on change, so a converged host recomposes silently.
-`agent-compose config validate <path>` checks a staged file without writes.
+`agent-compose config validate <path>` checks staged host configuration and a
+linked strict provider document without writes.
 
 ## Native skill roots
 
