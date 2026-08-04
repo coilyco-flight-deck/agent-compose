@@ -9,8 +9,8 @@ Inventory of what ships today.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
-* AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md).
-  [Selectors](ordinary-skill-selectors.md) bound validated ordinary slices.
+* AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md)
+  with [selectors](ordinary-skill-selectors.md) and canonical external files.
 * Role compatibility fails closed. Portfolio Strategist supports only
   `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.

@@ -174,6 +174,81 @@ func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
 	}
 }
 
+func TestRoleProvidersFileLoadsThroughRelativeSymlink(t *testing.T) {
+	e := newEnv(t)
+	source := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	e.write(
+		t,
+		"aosk/role-providers.yaml",
+		"role_providers:\n  engineer:\n    - path: example/hardware\n      required: true\n      skills:\n        - compute-stack\n        - machine-*\n",
+	)
+	if err := os.Symlink(
+		filepath.Join("aosk", "role-providers.yaml"),
+		filepath.Join(e.dir, "role-providers.yaml"),
+	); err != nil {
+		t.Fatal(err)
+	}
+	e.config(
+		t,
+		"sources:\n  - "+source+"\nrole_providers_file: role-providers.yaml\n",
+	)
+
+	cfg, err := LoadConfig(e.paths.Config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	provider := cfg.RoleProviders["engineer"][0]
+	if provider.Path != "example/hardware" ||
+		!provider.Required ||
+		!slices.Equal(provider.Skills, []string{"compute-stack", "machine-*"}) {
+		t.Fatalf("external role provider = %+v", provider)
+	}
+
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	manifest, err := skillmount.LoadEligibility(manifestPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolved := manifest.RoleProviders["engineer"][0]
+	if resolved.Path != filepath.Join(e.projects, "example", "hardware") {
+		t.Fatalf("provider path was not hydrated against projects_root: %+v", resolved)
+	}
+}
+
+func TestRoleProvidersFileFailsClosed(t *testing.T) {
+	e := newEnv(t)
+	e.write(
+		t,
+		"strict/unknown.yaml",
+		"role_providers:\n  engineer:\n    - path: example/hardware\nsurprise: true\n",
+	)
+	e.write(t, "strict/missing-role-providers.yaml", "{}\n")
+	e.write(
+		t,
+		"strict/invalid-selector.yaml",
+		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: ['[']\n",
+	)
+
+	for name, body := range map[string]string{
+		"blank path":       "role_providers_file: ''\n",
+		"missing file":     "role_providers_file: absent.yaml\n",
+		"inline conflict":  "role_providers: {}\nrole_providers_file: strict/unknown.yaml\n",
+		"unknown field":    "role_providers_file: strict/unknown.yaml\n",
+		"missing root key": "role_providers_file: strict/missing-role-providers.yaml\n",
+		"invalid selector": "role_providers_file: strict/invalid-selector.yaml\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			path := e.write(t, "bad-external-"+strings.ReplaceAll(name, " ", "-")+".yaml", body)
+			if _, err := LoadConfig(path); err == nil {
+				t.Fatal("invalid external role-provider configuration passed")
+			}
+		})
+	}
+}
+
 func TestComposeBasicsAndSilentRecompose(t *testing.T) {
 	e := newEnv(t)
 	a := e.write(t, "src/a/AGENTS.COMPOSE.md", "# Alpha\n\nalpha doctrine\n")
