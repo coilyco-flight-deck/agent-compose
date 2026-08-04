@@ -32,6 +32,7 @@ type RootSource struct {
 	Root   string
 	Reason string
 	Scope  string
+	Skills []string
 }
 
 type externalOnlyError struct {
@@ -146,6 +147,12 @@ func RunRootsWithMissing(
 		source.ID = root.ID
 		source.AdmissionReason = root.Reason
 		source.ProviderScope = root.Scope
+		if err := schema.SelectOrdinarySkills(source, root.Skills); err != nil {
+			return nil, wrapPolicyError(
+				fmt.Errorf("source %q: %w", root.ID, err),
+				hostExternalOnly,
+			)
+		}
 		sources = append(sources, source)
 	}
 	return materialize(req, p, sources, missing, outDir, hostExternalOnly)

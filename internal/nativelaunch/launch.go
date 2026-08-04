@@ -228,6 +228,7 @@ func resolveRoots(
 			Root:   root,
 			Reason: providerReason(repo.provider.Scope, harness, role),
 			Scope:  repo.provider.Scope,
+			Skills: append([]string(nil), repo.provider.Skills...),
 		})
 	}
 	if len(roots) == 0 {

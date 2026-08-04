@@ -16,10 +16,9 @@ All state lives under `~/.agent-compose`: config, outputs, manifest, roster,
 and cache. A legacy `~/.config/agent-compose` migrates on first use and leaves
 a compatibility symlink through the cutover tracked in agentic-os#618.
 
-Explicit `sources` compose first in listed order, then each `roots` entry is
-walked for `AGENTS.COMPOSE.md` files, appended sorted. That filename is the
-disjoint-source convention: always-global doctrine that no harness's own
-AGENTS.md/CLAUDE.md cascade loads, so composing it in never double-loads.
+Explicit `sources` compose first in listed order. Each `roots` entry then adds
+sorted `AGENTS.COMPOSE.md` files. That filename marks always-global doctrine
+that harness context does not also load.
 
 ## Selection and rewrites
 
@@ -46,23 +45,24 @@ file, backing up any pre-existing regular file to `.bak`. The
 mount-eligibility manifest is emitted beside the composed output:
 per harness, the repos backing its selected sources unioned with the default
 mount set as JSON. [Role-scoped providers](role-scoped-providers.md) stay out
-of bare convergence.
+of bare convergence. Optional [ordinary-skill selectors](ordinary-skill-selectors.md)
+survive strict YAML into the generated JSON manifest.
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
 on change, so a converged host recomposes silently.
+`agent-compose config validate <path>` checks a staged file without writes.
 
 ## Native skill roots
 
 Bare compose can also link authored skill catalogs into harness-native skill
 directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
 
-Each harness uses the eligible repository paths already recorded in
-`mount-eligibility.json`, including the default AOS and AOSK roots. A repository
-contributes skills when it contains `.agents/skills`. Defaults compose first,
-then additional eligible repositories and AOS-verified local catalogue roots
-in stable order. Existing unowned entries at a load point win. Unavailable
-entries warn and skip. Other inspection failures remain fatal. Agent-compose records its links in
+Each harness uses eligible repositories from `mount-eligibility.json`,
+including default AOS and AOSK roots. Repositories contribute
+`.agents/skills`. Defaults precede added repositories and verified local
+catalogues. Existing unowned entries win. Missing entries warn and skip, while
+other inspection failures remain fatal. Agent-compose records links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still
 match that ownership record. Fleet pointer aggregation, conditional category
 gating, and per-repo capability pulls remain rollout policy outside this

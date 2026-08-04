@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
 )
 
 const sidecarName = "skill-mounts.json"
@@ -37,8 +39,9 @@ type Eligibility struct {
 // RoleProvider is one local provider admitted only when its role is selected.
 // Paths are canonical repository roots in generated eligibility manifests.
 type RoleProvider struct {
-	Path     string `json:"path" yaml:"path"`
-	Required bool   `json:"required" yaml:"required"`
+	Path     string   `json:"path" yaml:"path"`
+	Required bool     `json:"required" yaml:"required"`
+	Skills   []string `json:"skills,omitempty" yaml:"skills,omitempty"`
 }
 
 // Provider records one selected repository and why it entered the ordered
@@ -47,6 +50,7 @@ type Provider struct {
 	Path     string
 	Scope    string
 	Required bool
+	Skills   []string
 }
 
 // Catalog is a verified skill root projected to every configured load point.
@@ -117,6 +121,7 @@ func (manifest Eligibility) Providers(harness, role string) []Provider {
 				Path:     provider.Path,
 				Scope:    "role",
 				Required: provider.Required,
+				Skills:   append([]string(nil), provider.Skills...),
 			})
 		}
 	}
@@ -154,6 +159,15 @@ func LoadEligibility(path string) (Eligibility, error) {
 					path,
 					role,
 					index,
+				)
+			}
+			if err := skillselector.Validate(provider.Skills); err != nil {
+				return Eligibility{}, fmt.Errorf(
+					"mount eligibility %s role %q provider %d: %w",
+					path,
+					role,
+					index,
+					err,
 				)
 			}
 		}

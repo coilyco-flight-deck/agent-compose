@@ -129,6 +129,9 @@ func Why(dir, subject string, opts Options) (string, error) {
 		fmt.Fprintf(&b, "  reason: %s\n", d.Reason)
 		if provider, ok := providerBySource(trace, d.Source); ok {
 			fmt.Fprintf(&b, "  provider: %s/%s\n", provider.Category, provider.Scope)
+			if provider.SelectorReason != "" {
+				fmt.Fprintf(&b, "  selector: %s\n", provider.SelectorReason)
+			}
 			fmt.Fprintf(
 				&b,
 				"  context: %d skills, %d bytes, approximately %d tokens\n",
@@ -306,23 +309,32 @@ func renderLine(d resolver.Decision, opts Options) string {
 }
 
 func renderProviderLine(provider resolver.ProviderReport, opts Options) string {
+	reason := provider.Reason
+	if provider.SelectorReason != "" {
+		reason += ". " + provider.SelectorReason
+	}
 	return fmt.Sprintf(
 		"  %s %-36s %-22s %s",
 		symbol(provider.Outcome, opts),
 		provider.Source,
 		"("+provider.Category+"/"+provider.Scope+")",
-		provider.Reason,
+		reason,
 	)
 }
 
 func renderBudgetLine(provider resolver.ProviderReport) string {
+	selector := ""
+	if provider.SelectorReason != "" {
+		selector = " · selected slice"
+	}
 	return fmt.Sprintf(
-		"  %-36s %-22s %d skills · %d bytes · ~%d tokens",
+		"  %-36s %-22s %d skills · %d bytes · ~%d tokens%s",
 		provider.Source,
 		"("+provider.Category+"/"+provider.Scope+")",
 		provider.Skills,
 		provider.ContextBytes,
 		provider.ApproximateTokens,
+		selector,
 	)
 }
 

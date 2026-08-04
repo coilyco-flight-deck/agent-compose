@@ -79,6 +79,16 @@ func main() {
 				},
 			},
 			{
+				Name:  "config",
+				Usage: "inspect host configuration",
+				Commands: []*cli.Command{{
+					Name:      "validate",
+					Usage:     "strictly validate one agent-compose.yaml without converging",
+					ArgsUsage: "<agent-compose.yaml>",
+					Action:    runConfigValidate,
+				}},
+			},
+			{
 				Name:      "compose",
 				Usage:     "converge the host, compose a bundle, or refresh then exec after --",
 				ArgsUsage: "[request.kdl] [-- <command> [args...]]",
@@ -385,6 +395,14 @@ func personCatalogFlags(includeQuery bool) []cli.Flag {
 		flags = append(flags, &cli.StringFlag{Name: "query", Usage: "personality slug or declared cue"})
 	}
 	return flags
+}
+
+func runConfigValidate(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		return fmt.Errorf("config validate needs exactly one agent-compose.yaml path")
+	}
+	_, err := cascade.LoadConfig(cmd.Args().First())
+	return err
 }
 
 func runBundleExport(_ context.Context, cmd *cli.Command) error {

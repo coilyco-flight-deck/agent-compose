@@ -51,6 +51,7 @@ type ProviderReport struct {
 	Skills            int    `json:"skills"`
 	ContextBytes      int64  `json:"context_bytes"`
 	ApproximateTokens int64  `json:"approximate_tokens"`
+	SelectorReason    string `json:"selector_reason,omitempty"`
 }
 
 // Resolution is the full composition plan: what was selected, how it is
@@ -187,6 +188,15 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Outcome: OutcomeSelected, Reason: reason,
 		})
 	}
+	for _, src := range sources {
+		for _, ref := range src.ExcludedSkills {
+			res.decide(Decision{
+				Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
+				Outcome: OutcomeExcluded,
+				Reason:  src.SelectorReason + "; this skill matched no configured selector pattern",
+			})
+		}
+	}
 
 	instructionBytes := map[string][]byte{}
 	instructionOwner := map[string]string{}
@@ -274,6 +284,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			reason := "ordinary provider skills are discoverable for every role"
 			if src.AdmissionReason != "" {
 				reason = src.AdmissionReason + ". Ordinary skills from the admitted provider are discoverable"
+			}
+			if src.SelectorReason != "" {
+				reason += ". " + src.SelectorReason
 			}
 			if isPersonality {
 				reason = fmt.Sprintf("active personality %q binds this skill", activePersonality)
@@ -385,6 +398,7 @@ func (r *Resolution) buildProviderReports(
 			Skills:            contribution.skills,
 			ContextBytes:      contribution.bytes,
 			ApproximateTokens: (contribution.bytes + 3) / 4,
+			SelectorReason:    src.SelectorReason,
 		})
 	}
 	for _, source := range missing {

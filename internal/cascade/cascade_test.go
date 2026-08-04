@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -125,7 +126,7 @@ func TestLoadConfigRejectsRemovedV1IntegrationKeys(t *testing.T) {
 func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
 	e := newEnv(t)
 	source := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
-	e.config(t, "sources:\n  - "+source+"\nrole_providers:\n  ops:\n    - path: org/infrastructure\n      required: true\n    - path: org/deploy\n      required: false\n")
+	e.config(t, "sources:\n  - "+source+"\nrole_providers:\n  ops:\n    - path: org/infrastructure\n      required: true\n      skills:\n        - compute-stack\n        - machine-*\n    - path: org/deploy\n      required: false\n")
 
 	if code, out, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("run failed: %s %s", out, errOut)
@@ -138,7 +139,9 @@ func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
 	providers := manifest.RoleProviders["ops"]
 	if len(providers) != 2 ||
 		providers[0].Path != filepath.Join(e.projects, "org", "infrastructure") ||
-		!providers[0].Required || providers[1].Required {
+		!providers[0].Required || providers[1].Required ||
+		!slices.Equal(providers[0].Skills, []string{"compute-stack", "machine-*"}) ||
+		providers[1].Skills != nil {
 		t.Fatalf("role providers did not round-trip: %+v", providers)
 	}
 	for _, roleOnly := range providers {
@@ -152,6 +155,22 @@ func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
 	bad := e.write(t, "bad-role-provider.yaml", "role_providers:\n  ops:\n    - path: org/infrastructure\n      surprise: true\n")
 	if _, err := LoadConfig(bad); err == nil || !strings.Contains(err.Error(), "field surprise") {
 		t.Fatalf("nested unknown field passed strict config loading: %v", err)
+	}
+	for name, selector := range map[string]string{
+		"empty":   "skills: []",
+		"blank":   "skills: ['']",
+		"invalid": "skills: ['[']",
+	} {
+		t.Run(name, func(t *testing.T) {
+			path := e.write(
+				t,
+				"bad-selector-"+name+".yaml",
+				"role_providers:\n  ops:\n    - path: org/infrastructure\n      "+selector+"\n",
+			)
+			if _, err := LoadConfig(path); err == nil || !strings.Contains(err.Error(), "skills selector") {
+				t.Fatalf("invalid selector passed strict config loading: %v", err)
+			}
+		})
 	}
 }
 

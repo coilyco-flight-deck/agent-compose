@@ -362,6 +362,7 @@ func RenderManifest(
 			roles[role] = append(roles[role], skillmount.RoleProvider{
 				Path:     resolved,
 				Required: provider.Required,
+				Skills:   append([]string(nil), provider.Skills...),
 			})
 		}
 	}

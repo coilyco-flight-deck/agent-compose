@@ -48,7 +48,7 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 		Harnesses:    map[string][]string{"codex": {harnessProvider}},
 		RoleProviders: map[string][]RoleProvider{
 			"ops": {
-				{Path: roleOne, Required: true},
+				{Path: roleOne, Required: true, Skills: []string{"compute-stack", "machine-*"}},
 				{Path: roleTwo},
 			},
 		},
@@ -72,6 +72,9 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 		if providers[index].Path != path {
 			t.Fatalf("provider order = %+v, want %v", providers, want)
 		}
+	}
+	if got := providers[2].Skills; len(got) != 2 || got[0] != "compute-stack" || got[1] != "machine-*" {
+		t.Fatalf("role provider selector = %v", got)
 	}
 	if got := manifest.Repositories("codex"); len(got) != 2 || got[0] != defaultProvider || got[1] != harnessProvider {
 		t.Fatalf("bare repositories leaked role providers: %v", got)
@@ -97,6 +100,7 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 		"top-level": `{"projects_root":"/tmp","defaults":[],"harnesses":{},"extra":true}`,
 		"nested":    `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","required":true,"extra":true}]}}`,
 		"trailing":  `{"projects_root":"/tmp","defaults":[],"harnesses":{}} {}`,
+		"selector":  `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","skills":["["]}]}}`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "manifest.json")

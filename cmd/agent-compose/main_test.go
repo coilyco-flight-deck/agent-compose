@@ -42,6 +42,28 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	}
 }
 
+func TestConfigValidateUsesStrictOwningLoader(t *testing.T) {
+	valid := filepath.Join(t.TempDir(), "agent-compose.yaml")
+	if err := os.WriteFile(valid, []byte(
+		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: [compute-stack, 'machine-*']\n",
+	), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cascade.LoadConfig(valid); err != nil {
+		t.Fatalf("valid selector config: %v", err)
+	}
+
+	invalid := filepath.Join(t.TempDir(), "agent-compose.yaml")
+	if err := os.WriteFile(invalid, []byte(
+		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: ['[']\n",
+	), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cascade.LoadConfig(invalid); err == nil || !strings.Contains(err.Error(), "skills selector") {
+		t.Fatalf("invalid selector config passed: %v", err)
+	}
+}
+
 func TestWriteEvaluationPacksEmitsCompleteDigestIndex(t *testing.T) {
 	t.Parallel()
 	packs, err := evaluation.BuildCorePacks("codex")

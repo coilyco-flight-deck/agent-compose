@@ -12,6 +12,7 @@ import (
 	kdl "github.com/calico32/kdl-go"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
 )
 
 const (
@@ -75,6 +76,40 @@ type Source struct {
 	RoleIntents     map[string][]IntentRoute
 	AdmissionReason string
 	ProviderScope   string
+	ExcludedSkills  []ContentRef
+	SelectorReason  string
+}
+
+// SelectOrdinarySkills applies a role-provider selector after LoadSource has
+// validated the provider's complete ordinary and composed catalogues.
+func SelectOrdinarySkills(source *Source, patterns []string) error {
+	if patterns == nil {
+		return nil
+	}
+	ids := make([]string, 0, len(source.Skills))
+	refs := make(map[string]ContentRef, len(source.Skills))
+	for _, ref := range source.Skills {
+		ids = append(ids, ref.ID)
+		refs[ref.ID] = ref
+	}
+	selected, excluded, err := skillselector.Select(patterns, ids)
+	if err != nil {
+		return err
+	}
+	source.Skills = source.Skills[:0]
+	for _, id := range selected {
+		source.Skills = append(source.Skills, refs[id])
+	}
+	for _, id := range excluded {
+		source.ExcludedSkills = append(source.ExcludedSkills, refs[id])
+	}
+	source.SelectorReason = fmt.Sprintf(
+		"ordinary skill selector %s admitted %d of %d catalogue skills",
+		strings.Join(patterns, ", "),
+		len(selected),
+		len(ids),
+	)
+	return nil
 }
 
 // FileSystem returns embedded content for shipped sources and disk content for

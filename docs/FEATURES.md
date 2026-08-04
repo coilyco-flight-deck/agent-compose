@@ -1,17 +1,16 @@
 # agent-compose features
 
-Inventory of what ships today. Planned behavior lives in the issue tracker.
+Inventory of what ships today.
 
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eight roles, sixteen referenced personalities, display
-  names, melds, and seats grounded in Kai's real projects.
+* `roster:core` carries eight roles, sixteen personalities, melds, and seats.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
 * AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md).
-  `.agents/roles.kdl` owns wildcard admission.
+  [Selectors](ordinary-skill-selectors.md) bound validated ordinary slices.
 * Role compatibility fails closed. Portfolio Strategist supports only
   `frontier` until the v2 OSS evaluation admits it.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
@@ -35,6 +34,7 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 
 ## Inspection
 
+* `config validate` strictly checks staged host configuration without writes.
 * `agent-compose describe` renders a collapsible decision tree. `--why`
   follows one item from consideration to outcome.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
@@ -76,4 +76,4 @@ Inventory of what ships today. Planned behavior lives in the issue tracker.
 * [../README.md](../README.md) - product boundary and current status.
 * [../AGENTS.md](../AGENTS.md) - repo-specific operating rules.
 * [../.ward/ward.yaml](../.ward/ward.yaml) - allowlisted development commands.
-* [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared structure.
+* [Catalog trifecta](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared structure.

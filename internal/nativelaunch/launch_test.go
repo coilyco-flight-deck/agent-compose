@@ -364,6 +364,93 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	}
 }
 
+func TestRoleProviderSelectorsMatchAcrossNativeAndStagedHarnesses(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	base := filepath.Join(projects, "example", "base")
+	hardware := filepath.Join(projects, "example", "hardware")
+	writeProvider(t, base, true)
+	writeProvider(t, hardware, false)
+	for _, skill := range []string{
+		"compute-stack",
+		"home-power-strip",
+		"machine-alpha",
+		"machine-beta",
+	} {
+		writeOrdinarySkill(t, hardware, skill)
+	}
+	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+		ProjectsRoot: projects,
+		Defaults:     []string{base},
+		Harnesses:    map[string][]string{},
+		RoleProviders: map[string][]skillmount.RoleProvider{
+			"design": {{
+				Path:     hardware,
+				Required: true,
+				Skills:   []string{"compute-stack", "machine-*"},
+			}},
+		},
+	})
+
+	cases := map[string]struct {
+		modelClass   string
+		nativeSkills string
+		stagedSkills string
+	}{
+		"claude":   {"frontier", ".claude/skills", ".claude/skills"},
+		"codex":    {"frontier", ".agents/skills", ".agents/skills"},
+		"goose":    {"low-context", ".agents/skills", ".agents/skills"},
+		"opencode": {"low-context", ".agents/skills", ".agents/skills"},
+	}
+	for harness, tc := range cases {
+		t.Run(harness, func(t *testing.T) {
+			target := t.TempDir()
+			result, err := Refresh(Options{
+				Role:         "design",
+				Harness:      harness,
+				ModelClass:   tc.modelClass,
+				CWD:          projects,
+				TargetDir:    target,
+				ManifestPath: manifestPath,
+				OutDir:       filepath.Join(t.TempDir(), "bundles"),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			staged := t.TempDir()
+			if _, err := project.ProjectScoped(result.BundleDir, harness, staged, project.ScopeHome); err != nil {
+				t.Fatal(err)
+			}
+			for _, root := range []string{
+				filepath.Join(target, tc.nativeSkills),
+				filepath.Join(staged, tc.stagedSkills),
+			} {
+				for _, skill := range []string{"compute-stack", "machine-alpha", "machine-beta"} {
+					if _, err := os.Stat(filepath.Join(root, skill, "SKILL.md")); err != nil {
+						t.Errorf("%s omitted selected %s: %v", root, skill, err)
+					}
+				}
+				for _, skill := range []string{"home-power-strip"} {
+					if _, err := os.Stat(filepath.Join(root, skill, "SKILL.md")); !os.IsNotExist(err) {
+						t.Errorf("%s leaked excluded %s: %v", root, skill, err)
+					}
+				}
+			}
+			report := providerReport(t, result, "example--hardware")
+			if report.Skills != 3 || report.ContextBytes == 0 ||
+				!strings.Contains(report.SelectorReason, "admitted 3 of 5 catalogue skills") {
+				t.Fatalf("selected-slice provider report = %+v", report)
+			}
+			why, err := describe.Why(result.BundleDir, "skill:home-power-strip", describe.Options{})
+			if err != nil || !strings.Contains(why, "matched no configured selector pattern") ||
+				!strings.Contains(why, "selector: ordinary skill selector") ||
+				!strings.Contains(why, "context: 3 skills") {
+				t.Fatalf("selector exclusion why = %q, err=%v", why, err)
+			}
+		})
+	}
+}
+
 func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	base := filepath.Join(projects, "example", "base")

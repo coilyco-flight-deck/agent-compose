@@ -17,6 +17,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
 )
 
 const (
@@ -115,6 +116,15 @@ func LoadConfig(path string) (*Config, error) {
 					path,
 					role,
 					index,
+				)
+			}
+			if err := skillselector.Validate(provider.Skills); err != nil {
+				return nil, fmt.Errorf(
+					"%s: role_providers.%s entry %d: %w",
+					path,
+					role,
+					index,
+					err,
 				)
 			}
 		}
