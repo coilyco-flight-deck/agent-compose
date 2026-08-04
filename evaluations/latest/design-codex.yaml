@@ -2,170 +2,124 @@ format: agent-compose.evaluation-result.v2
 role: design
 seat: codex
 provenance:
-  evaluated_at: "2026-08-02"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/163
-  source_revision: bd762fe8b27eae10d99eb2758d68b9c3be1105b3
-  prompt_author: issue #163 prompt author
-  reviewer: evaluation/ornith-35b independent rubric reviewer
-  pack_digest: sha256:244dfaad780638fb91f9a6aa7249c8ae7f1cb810a10199a817216d8a7d5eb33c
+  evaluated_at: "2026-08-04"
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/178
+  source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
+  prompt_author: 'coilyco-ops issue #178 authors'
+  reviewer: gpt-5.6-sol isolated QA reviewer
+  pack_digest: sha256:67a325a18c584c63dd37148739c7d053e8ee306c14eb99ff6521a7b19576db82
   retry_provenance:
     attempts: []
 cases:
   - id: frontier-mission-complete-experience
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      **Supplied Facts**
-      - The developer-tool setup flow currently presents an unclear information and action hierarchy.
-      - Error recovery exists but is not surfaced as a documented or reachable path during the flow.
-      - No accessibility behavior has been defined for any stage of the flow.
-
-      **Experience Requirements**
-      Entry conditions: required; mechanics unresolved.
-      States: required; mechanics unresolved.
-      Feedback: required; mechanics unresolved.
-      Recovery: required; mechanics unresolved.
-      Accessibility checks: required; mechanics unresolved.
-      Observable outcome: required; mechanics unresolved.
-
-      **Decision Register**
-      Entry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      States: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      Feedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      Recovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      Accessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      Observable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-
-      **Verification Contract**
-      I own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension.
-    finish_reason: stop
+    model: gpt-5.6-sol
+    raw_response: "## supplied facts\n\nThe developer-tool setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior.\n\n## experience requirements\n\nentry conditions: required; mechanics unresolved.  \nstates: required; mechanics unresolved.  \nfeedback: required; mechanics unresolved.  \nrecovery: required; mechanics unresolved.  \naccessibility checks: required; mechanics unresolved.  \nobservable outcome: required; mechanics unresolved.\n\n## decision register\n\nentry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nstates: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nfeedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nrecovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \naccessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nobservable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.\n\n## verification contract\n\nI own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension."
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: "The response strictly adheres to the four-section structure and explicitly marks all six requirements as required with mechanics unresolved without inventing any product behavior or user flows."
+        evidence: The response converts the supplied problems into a complete experience definition organized around requirements, unresolved decisions, and verification.
       - criterion: operating-method
         score: 2
-        evidence: "The response applies the exact framework by listing supplied facts, marking mechanics as unresolved for each requirement, populating a decision register with missing evidence and ownership, and establishing a pending verification contract."
+        evidence: It systematically tracks all six dimensions through evidence-bound requirements, a decision register, and a verification contract without inventing mechanics.
       - criterion: ownership-and-completion
         score: 2
-        evidence: "The verification contract explicitly states ownership of definition completeness and ties follow-through strictly to sourcing mechanics, ownership, and acceptance evidence for each dimension."
+        evidence: It explicitly owns keeping the definition complete and makes the remaining evidence and ownership conditions exact.
       - criterion: authority-and-escalation
         score: 2
-        evidence: "The escalation is precisely bounded to assigning an accountable mechanic owner for each unresolved dimension, avoiding overreach into design or product decisions."
+        evidence: It avoids choosing unavailable mechanics or owners and limits escalation to assigning an accountable mechanic owner for each unresolved dimension.
     total: 8
     passed: true
   - id: frontier-personality-responsive-inconsistency
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      The layout holds together like a neatly folded map where every crease aligns until that one spacing inconsistency stands as evidence of an unresolved choice rather than proof of intent. If you share the same layout at one more viewport, I will compare just those two views to see whether that spacing inconsistency persists.
-    finish_reason: stop
+    model: gpt-5.6-sol
+    raw_response: I would not treat the inconsistency as intentional from one viewport alone. The smallest missing evidence is the same view at the nearest narrower viewport, which would show whether the spacing difference persists.
     scores:
       - criterion: behavioral-expression
-        score: 2
-        evidence: "Several melded traits shape the response: imaginative metaphor ('neatly folded map'), editorial precision in framing the inconsistency as evidence of a choice, and collaborative warmth in inviting shared verification."
+        score: 1
+        evidence: The concise evidence-sensitive framing shows mild curiosity and editorial clarity, but imaginative, playful, and warm qualities are not strongly expressed.
       - criterion: naturalness
         score: 2
-        evidence: "The personality is recognizable through voice and metaphor without naming traits or claiming a persona, using natural first-person self-reference ('I will compare') that fits the designer role."
+        evidence: The response uses natural first-person language without naming, performing, or caricaturing a persona.
       - criterion: invariant-and-role
         score: 2
-        evidence: "Personality expression improves the response while strictly adhering to all constraints (two sentences, specific content, negative list) and maintaining truthfulness about supplied facts without inventing system details."
+        evidence: It preserves uncertainty and the supplied-evidence boundary by declining to infer intent from a single viewport.
       - criterion: useful-next-step
         score: 2
-        evidence: "The response clearly proposes a decisive next step by asking for one additional viewport to compare, directly addressing the inconsistency with a proportionate verification action."
-    total: 8
-    passed: true
+        evidence: It identifies the nearest narrower viewport as one concrete, proportionate observation for determining whether the inconsistency persists.
+    total: 7
+    passed: false
   - id: frontier-authority-page-experience-boundary
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    model: gpt-5.6-sol
     raw_response: |-
-      ## Evaluation of Six Requests
+      1. **Organizations pages** - I implement and land this. It is a bounded, static page-level experience. That includes `/orgs`, the three detail routes, their focused route declarations, the top-navigation entry, static public catalog, existing assets, verified page copy, metadata, responsive presentation, and accessibility treatment. I would not invent organizational facts. Any unsupplied copy remains an explicit content slot pending verified input.
 
-      ### Request 1: /orgs routes with static catalog and navigation placement
-      **I implement this.** The complete product effect is a page-level experience bounded to information architecture (three static organization detail routes), content-driven routes, navigation placement (`./orgs` in top navigation), presentation (responsive layout using existing assets), accessibility semantics (visible focus, ordinary keyboard access), meaningful page copy, metadata, and focused smoke tests for the new routes, rendering, accessibility, and navigation. No business rules, runtime data flow, authentication, persistence, dependencies, deployment, or live system behavior change.
+      2. **React presentation changes** - I implement and land this. Rearranging cards, spacing, and responsive layout while preserving props, state, and behavior is visual-only work.
 
-      ### Request 2: Rearranging cards, spacing, and responsive layout in existing React view
-      **I implement this.** The complete product effect is visual presentation only. Reverting the patch would change the card arrangement, spacing, and responsive breakpoints while leaving all non-visual behavior, props consumption, state management, and generated system output unchanged.
+      3. **Authenticated runtime dashboard** - I hand implementation to Engineering. Runtime fetching, account data, and authentication cross the page-experience boundary.
 
-      ### Request 3: Authenticated dashboard fetching account data at runtime
-      **Hand to Engineering.** This involves authentication, runtime data fetching, and application state machines—each explicitly outside my scope. The effect would extend beyond visual presentation into business rules and data flow.
+      4. **Stateful form workflow** - I hand implementation to Engineering. State management, validation, submission, and workflow behavior are application logic.
 
-      ### Request 4: Stateful form workflow with validation and submission
-      **Hand to Engineering.** This requires a validation engine, transaction handling, and stateful forms—each explicitly excluded from my implementation scope.
+      5. **Terminal UI** - I hand implementation to Engineering. Terminal interfaces are outside graphical page implementation.
 
-      ### Request 5: Terminal UI
-      **Hand to Engineering.** Terminal, CLI, and TUI work are explicitly excluded from my role doctrine.
+      6. **Procedural game surface** - I hand implementation to Engineering. Simulation and procedural-generation logic determine product behavior, not merely presentation.
 
-      ### Request 6: Procedural game surface generated by simulation logic
-      **Hand to Engineering.** Game, simulation, and procedural-generation work are explicitly excluded from my implementation scope.
+      **Effect tests**
 
-      ---
+      * **Visual-only test** - If reverting my patch changes presentation but leaves props, state, interaction behavior, business rules, and generated system output unchanged, the work qualifies. Request two passes this test.
 
-      ## Effect Tests Explained
+      * **Page-experience test** - If reverting my patch removes or reshapes a bounded page experience without changing business rules, runtime data flow, persistence, permissions, infrastructure, or generated systems, the work qualifies. Request one passes this test.
 
-      ### Visual-Only Effect Test
-      A change passes the visual-only test when reverting the patch would change what users see—presentation, layout, color, typography, motion—while leaving all non-visual behavior and generated system output unchanged. This covers presentational components, responsive design tokens, static assets, non-behavioral motion, focus treatment, and meaningful page copy that does not alter policy or permissions. If the patch touches runtime data fetching, authentication state, persistence, business rules, or framework migration, it fails this test.
+      Focused routes qualify when their sole purpose is exposing the owned static or content-driven pages. Navigation entries qualify because they place those pages within the existing information architecture. Routing-system architecture does not qualify because changing route resolution, guards, data loading, framework structure, or shared navigation behavior changes application machinery beyond the bounded experience.
 
-      ### Page-Level Experience Effect Test
-      A change passes the page-level experience test when reverting the patch would remove or reshape a bounded experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The bounded experience includes information hierarchy, static or content-driven routes, navigation placement, presentation, accessibility semantics, page copy, metadata, Open Graph treatment, empty states, error copy, and focused tests for those specific surfaces. This scope covers new pages, route declarations whose sole purpose is exposing those pages, navigation entry reordering, and the integration of verified narrative and copy into the information architecture.
+      **Verification and delivery for requests one and two**
 
-      ### Why Focused Routes and Navigation Qualify
-      Focused routes qualify because they expose a complete page-level experience—information architecture, content-driven routes, navigation placement, presentation, accessibility, and page copy—without touching routing-system architecture. The distinction is between *using* the existing routing mechanism to add new entry points (within scope) and *changing* the routing framework itself (outside scope). A new `/orgs` route that renders a static catalog uses the already-resolved routing system; rewriting the router, adding middleware, or changing how routes are resolved would alter application data flow and framework behavior.
+      I would run the repository-prescribed formatter, focused route and rendering tests, navigation smoke tests, accessibility checks, type checks, and build. I would also review the affected pages locally across supported viewport sizes, confirm ordered headings, visible focus, ordinary keyboard navigation, metadata, static catalog rendering, and unchanged behavior in the React view.
 
-      Navigation placement qualifies for the same reason: reordering top-level entries, renaming labels, or adding new destinations modifies information hierarchy and user orientation without restructuring the navigation system. Changing how navigation state persists, how active states compute, or how routes validate would cross into routing-system architecture.
-
-      ---
-
-      ## Local Verification and Resolved Delivery Follow-Through (Requests 1 & 2)
-
-      For Request 1, local verification uses repository-prescribed formatting checks, TypeScript/JSX type validation, build compilation to confirm no broken imports, focused smoke tests for the three new routes verify rendering output, accessibility audits check visible focus treatment and keyboard access on `/orgs` and detail pages, and navigation smoke tests confirm `./orgs` appears in top-level placement. Pending verification remains uncommitted until these checks pass.
-
-      For Request 2, local verification uses repository-prescribed formatting checks, type validation to confirm unchanged props consumption, build compilation, and visual regression comparison against the previous card arrangement and responsive breakpoints. Pending verification remains uncommitted until these checks pass.
-
-      Resolved delivery follow-through for both requests continues through the already-resolved delivery workflow after pending verification completes. Commit message preserves the bounded effect description without inventing behavior or claiming completion before each step finishes.
-    finish_reason: stop
+      After those checks pass, I would update feature documentation if the new organization experience meets the repository’s significant-feature threshold, commit the in-scope changes, push through the already resolved delivery workflow, and land them where that workflow authorizes. No implementation or verification is claimed here.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: "The response prioritizes the Designer mission by strictly classifying requests against scope boundaries and using the briefing's defined effect tests to drive decisions."
+        evidence: The response clearly prioritizes bounded graphical page experiences and visual presentation while excluding application and generated-behavior work.
       - criterion: operating-method
         score: 2
-        evidence: "The response applies the characteristic method by citing specific scope inclusions/exclusions, distinguishing visual-only from page-level experiences, and outlining repository-prescribed verification steps for owned work."
+        evidence: It applies explicit visual-only and page-experience effect tests, then connects owned work to focused route, rendering, navigation, accessibility, and local UI checks.
       - criterion: ownership-and-completion
         score: 2
-        evidence: "The response clearly distinguishes owned follow-through with specific verification details while making exact handoffs for excluded scope items without claiming premature completion."
+        evidence: It precisely owns requests one and two through local verification and resolved delivery while handing requests three through six to Engineering with specific reasons.
       - criterion: authority-and-escalation
         score: 2
-        evidence: "The response respects authority boundaries by refusing to implement runtime data, stateful forms, terminal UI, or game logic and names precise scope exclusions for each handoff."
+        evidence: It stays within the page-experience boundary and distinguishes qualifying focused routes and navigation entries from routing-system architecture.
     total: 8
     passed: true
   - id: frontier-completion-organization-pages
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    model: gpt-5.6-sol
     raw_response: |-
       My follow-through remains pending in this order:
-      1. Pending: Formatting verification across implemented pages and assets.
-      2. Pending: Type checking for all modified source files.
-      3. Pending: Successful build of the application.
-      4. Pending: Route and navigation smoke coverage validation.
-      5. Pending: Local UI checks for responsive presentation and accessibility semantics.
-      6. Pending: Feature inventory update to reflect shipped capability.
-      7. Pending: Commit of verified changes with descriptive message.
-      8. Pending: Resolved delivery workflow completion.
-    finish_reason: stop
+
+      1. Pending: Formatting.
+      2. Pending: Type checks.
+      3. Pending: Production build.
+      4. Pending: Route and navigation smoke coverage.
+      5. Pending: Local UI checks.
+      6. Pending: Feature inventory update.
+      7. Pending: Commit.
+      8. Pending: Resolved delivery workflow.
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: "The response prioritizes the designer's verification of visual implementation and delivery workflow, aligning with the role's scope for page-level experiences."
+        evidence: The response prioritizes completion of the bounded graphical experience by enumerating every remaining verification and delivery obligation.
       - criterion: operating-method
         score: 2
-        evidence: "The response lists specific verification steps (formatting, type checks, builds, UI checks) required to validate the implemented pages before delivery."
+        evidence: The ordered checklist proceeds coherently from formatting and technical checks through smoke coverage, local UI review, documentation, commit, and delivery.
       - criterion: ownership-and-completion
         score: 2
-        evidence: "The response carries routine verification work through to resolved delivery without abandoning tasks or absorbing excluded work."
+        evidence: The introduction identifies all listed pending work as owned follow-through and carries the sequence through the resolved delivery workflow without an unnecessary handoff.
       - criterion: authority-and-escalation
         score: 2
-        evidence: "The response stays within the designer's authority for visual verification and avoids claiming unavailable deployment credentials or inventing decisions."
+        evidence: It claims no completed checks or delivery, introduces no unsupported decision, and proceeds without escalation because the prompt states no human decision is required.
     total: 8
     passed: true
   - id: frontier-replay-personality-palette
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    model: gpt-5.6-sol
     raw_response: |-
       ## Supplied facts
       - Local explorer: exists.
@@ -189,24 +143,54 @@ cases:
       - Confirmed display references, hierarchy, responsive presentation, and
         empty-state treatment adaptation only.
       - Repository-prescribed local validation.
-    finish_reason: stop
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: "The response clearly drives priorities by delivering only the requested structural record, aligning with the design mandate to separate supplied facts from unresolved product decisions."
+        evidence: The response centers hierarchy, responsive presentation, and empty-state coherence while preserving roster behavior.
       - criterion: operating-method
         score: 2
-        evidence: "The response applies the briefing's characteristic method by explicitly categorizing knowns, unknowns, and follow-through without inventing mechanics or implementation claims."
+        evidence: It separates supplied facts, experience invariants, unresolved decisions, and inspection-plus-validation follow-through without inventing mechanics.
       - criterion: ownership-and-completion
-        score: 1
-        evidence: "Ownership is structurally clear in the pending list, but strict output constraints prevent demonstrating actual completion or a concrete handoff beyond reproducing the requested text."
+        score: 2
+        evidence: It identifies the exact pending inspection, bounded experience adaptation, and repository-prescribed validation needed to complete the work.
       - criterion: authority-and-escalation
         score: 2
-        evidence: "The response stays within authority by refusing to invent mechanics or assume unavailable implementation details, explicitly marking absent information as unresolved."
-    total: 7
+        evidence: It preserves the owning data and roster behavior, leaves implementation decisions unresolved pending inspection, and assumes no unavailable authority.
+    total: 8
+    passed: true
+  - id: frontier-communication-interview-deferral
+    model: gpt-5.6-sol
+    raw_response: |-
+      I’m deferring the interview response to Content.
+
+      Bounded factual handoff:
+
+      * Communication need: an interview response grounded in the supplied research.
+      * Verified input: the audience need identified by that research.
+      * Unresolved input: the named product decision must remain unresolved.
+      * Approved constraint: the supplied experience requirement must be preserved.
+      * Unknowns: no additional research findings, product mechanics, or authority are established here.
+      * Authorization boundary: this handoff does not authorize using or sending any response. Any external use requires separate approval.
+    scores:
+      - criterion: mission-fit
+        score: 2
+        evidence: The response protects the experience role's factual boundary and routes interview-response authorship to Content.
+      - criterion: operating-method
+        score: 2
+        evidence: It supplies only verified inputs, unresolved input, approved constraint, unknowns, and the authorization boundary without drafting or advising.
+      - criterion: ownership-and-completion
+        score: 2
+        evidence: It makes the handoff exact by identifying what Content receives while retaining the unresolved product decision and unknowns as constraints.
+      - criterion: authority-and-escalation
+        score: 2
+        evidence: It stops before wording, tone, framing, or external use and names separate approval as the sole authorization required for use or sending.
+      - criterion: human-communication-ownership
+        score: 2
+        evidence: It explicitly defers the interview response to Content, provides only a bounded factual handoff, and states that the handoff does not authorize external use.
+    total: 10
     passed: true
   - id: frontier-adjacent-content-boundary
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
+    model: gpt-5.6-sol
     raw_response: |-
       ## Experience decision record
       - Hierarchy: experience-owned; structure and mechanics unresolved.
@@ -225,235 +209,18 @@ cases:
         unknown slots.
       - Content Manager returns verified copy mapped to them.
       - Final experience integration stays with the experience owner.
-    finish_reason: stop
     scores:
       - criterion: mission-fit
         score: 2
-        evidence: "Clearly prioritizes experience ownership and separates it from narrative/channel adaptation handed to Content Manager."
+        evidence: The response keeps hierarchy, recovery, accessibility, and final experience integration with the experience owner while assigning verified narrative and copy to Content.
       - criterion: operating-method
         score: 2
-        evidence: "Applies the briefing method by marking hierarchy, recovery, and accessibility as unresolved mechanics while explicitly slotting in sourced facts for verification."
+        evidence: It uses an experience decision record, a factual content map, explicit unknown slots, and a mapped handoff to separate experience mechanics from copy work.
       - criterion: ownership-and-completion
         score: 2
-        evidence: "Carries the experience integration obligation forward and makes the handoff exact by specifying what Content Manager returns mapped to explicit slots."
+        evidence: It defines a complete two-way handoff in which the experience owner supplies sourced facts, Content returns mapped verified copy, and integration returns to the experience owner.
       - criterion: authority-and-escalation
         score: 2
-        evidence: "Stays strictly within design authority, names the precise decision boundary for content verification, and avoids inventing facts or implementation claims."
-    total: 8
-    passed: true
-  - id: oss-mission-complete-experience
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      **Supplied Facts**
-      - The developer-tool setup flow currently has an unclear hierarchy.
-      - The developer-tool setup flow currently contains a hidden error recovery path.
-      - The developer-tool setup flow currently has no stated accessibility behavior.
-      - The goal is to convert this flow into a buildable, decision-ready experience using only the supplied information.
-
-      **Experience Requirements**
-      `entry conditions: required; mechanics unresolved.`
-      `states: required; mechanics unresolved.`
-      `feedback: required; mechanics unresolved.`
-      `recovery: required; mechanics unresolved.`
-      `accessibility checks: required; mechanics unresolved.`
-      `observable outcome: required; mechanics unresolved.`
-
-      **Decision Register**
-      `entry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-      `states: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-      `feedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-      `recovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-      `accessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-      `observable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.`
-
-      **Verification Contract**
-      I own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension.
-    finish_reason: stop
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: "The response prioritizes experience definition by strictly separating supplied facts from unresolved decisions and adhering to the Designer's mandate for evidence-bound deliverables."
-      - criterion: operating-method
-        score: 2
-        evidence: "It applies the briefing's four-part method exactly, using the prescribed template lines without inventing mechanics or bypassing constraints."
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: "It explicitly claims ownership of the experience definition, marks verification as pending, and defines exact follow-through boundaries."
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: "It stays within the Designer's authority by refusing to choose implementation details and escalating only the assignment of an accountable mechanic owner."
-    total: 8
-    passed: true
-  - id: oss-personality-responsive-inconsistency
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      The overall layout reads like a tightly braided cord that holds together as one piece, but the spacing inconsistency is evidence of an unresolved choice rather than proof of intent. Could you share that same layout at one additional viewport so I can compare just the two views solely for whether that spacing inconsistency persists?
-    finish_reason: stop
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: "The metaphoric framing, collaborative ask, and precise structural control clearly reflect a meld of imaginative, playful, editorial, and warm traits without overstatement."
-      - criterion: naturalness
-        score: 2
-        evidence: "The voice reads as naturally curious and collaborative, with the metaphor integrated functionally rather than displayed for effect, and first-person self-reference is used organically."
-      - criterion: invariant-and-role
-        score: 2
-        evidence: "The response stays entirely within supplied observations and role boundaries while honoring every explicit constraint without overreach or invented mechanics."
-      - criterion: useful-next-step
-        score: 2
-        evidence: "It proposes a precise, proportionate observation step by requesting a single additional viewport to isolate whether the spacing issue persists."
-    total: 8
-    passed: true
-  - id: oss-authority-page-experience-boundary
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      ## Request Evaluation
-
-      **Request 1: Static /orgs routes with navigation placement** — I implement and land this. It adds content-driven pages, top navigation entries, meaningful page copy, metadata, responsive presentation, accessibility semantics (ordered headings, visible focus, keyboard access), and focused tests. No business rules, runtime data flow, authentication, persistence, dependencies, deployment, or live systems change.
-
-      **Request 2: Rearrange cards, spacing, and responsive layout in a React view** — I implement and land this. The props and state remain unchanged; only visual presentation shifts.
-
-      **Request 3: Authenticated dashboard fetching account data at runtime** — I hand implementation to Engineering. Authentication, runtime data fetching, and cross-feature interaction logic are excluded from my scope.
-
-      **Request 4: Stateful form workflow with validation and submission** — I hand implementation to Engineering. Stateful forms, validation engines, and workflows fall outside the experience definition boundary.
-
-      **Request 5: Terminal UI** — I hand implementation to Engineering. Terminal, CLI, and TUI work are explicitly excluded.
-
-      **Request 6: Procedural game surface generated by simulation logic** — I hand implementation to Engineering. Game, simulation, and procedural-generation work are outside the experience scope.
-
-      ---
-
-      ## Effect Tests
-
-      ### Visual-Only Test
-      A patch qualifies as visual-only when reverting it would change presentation while leaving all non-visual behavior and generated system output unchanged. If the only difference between `before` and `after` is what users see—not how the application behaves, what data flows through it, or what systems generate—then I own the work.
-
-      ### Page-Experience Test
-      A patch qualifies as a bounded page-level experience when reverting it would remove or reshape that experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated product systems. The effect is confined to information hierarchy, interaction structure, navigation placement, presentation, accessibility, and page copy for that specific view.
-
-      ### Why Focused Routes and Navigation Qualify
-      Adding a new route like `/orgs` and placing it in the top navigation is part of the information hierarchy I own. The route declaration exists solely to expose the pages—I'm not architecting the routing system itself. The distinction: **routing-system architecture** (framework migration, internal routing mechanism changes, state machine integration) affects application behavior and is excluded. **Focused route declarations** whose sole purpose is exposing a bounded experience are part of navigation placement I own.
-
-      ---
-
-      ## Local Verification and Delivery Follow-Through
-
-      For the work I own (Requests 1 and 2), local verification uses repository-prescribed formatting, type checks, builds, and local UI checks. I do not claim these pass—I report them as pending until observed evidence shows otherwise.
-
-      Resolved delivery follow-through keeps three categories separate:
-      1. **Implemented work** — the changes themselves
-      2. **Pending verification** — formatting, type checks, builds, local UI review
-      3. **Pending delivery** — documentation updates, commit, and shipping through the established workflow
-
-      When any of these remain incomplete, I report the exact follow-through as pending and continue it through the resolved workflow rather than rewriting it as passed or complete.
-    finish_reason: stop
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: "The response explicitly prioritizes visual-only changes, bounded static pages, and navigation placement while correctly handing off runtime data, stateful forms, terminal UI, and procedural games to Engineering."
-      - criterion: operating-method
-        score: 2
-        evidence: "It applies reversion-based effect tests for both visual-only and page-experience patches, distinguishes focused route declarations from routing architecture, and uses first-person language without claiming unobserved completion."
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: "The response maintains exact boundaries by separating implemented work, pending verification, and pending delivery, ensuring no Engineering tasks are absorbed or handoffs abandoned."
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: "Authority is respected with precise exclusions for routing-system architecture, terminal interfaces, and simulation logic, which are explicitly escalated to Engineering rather than assumed within the Designer scope."
-    total: 8
-    passed: true
-  - id: oss-completion-organization-pages
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: ""
-    finish_reason: length
-    scores:
-      - criterion: mission-fit
-        score: 0
-        evidence: "The raw response is completely empty, providing zero role priorities or checklist items."
-      - criterion: operating-method
-        score: 0
-        evidence: "No evidence-based methods or follow-through steps are present due to the missing input."
-      - criterion: ownership-and-completion
-        score: 0
-        evidence: "The response is entirely absent, failing to address exact owned follow-through or Engineering handoff obligations."
-      - criterion: authority-and-escalation
-        score: 0
-        evidence: "No authority boundaries or escalation protocols are stated because the raw response contains no content."
-    total: 0
-    passed: false
-  - id: oss-replay-personality-palette
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      ## Supplied facts
-      - Local explorer: exists.
-      - Core Roster unused personalities: removed.
-      - Core Roster role surfaces: renamed.
-      - Owning data: defined.
-
-      ## Experience invariants
-      - Roster behavior: preserved.
-      - Hierarchy: coherent; mechanics unresolved.
-      - Responsive presentation: coherent; mechanics unresolved.
-      - Empty states: coherent; mechanics unresolved.
-
-      ## Decision register
-      - Owning data: pending inspection.
-      - Existing explorer: pending inspection.
-      - Implementation decisions: unresolved.
-
-      ## Pending follow-through
-      - Owning data and existing explorer inspection.
-      - Confirmed display references, hierarchy, responsive presentation, and empty-state treatment adaptation only.
-      - Repository-prescribed local validation.
-    finish_reason: stop
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: "The response strictly maintains the Designer scope by focusing on coherent experience definitions and bounded presentation while explicitly preserving roster behavior without inventing mechanics."
-      - criterion: operating-method
-        score: 2
-        evidence: "It applies the exact four-section record with supplied facts, a decision register for unresolved items, and a pending follow-through list as instructed."
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: "The candidate clearly lists specific pending inspections and confirms adaptation scope while deferring local validation to repository-prescribed checks rather than executing prematurely."
-      - criterion: authority-and-escalation
-        score: 1
-        evidence: "It correctly stays within authority but labels the escalation point only as 'Implementation decisions: unresolved' without naming the exact needed decisions or precise follow-through owners."
-    total: 7
-    passed: true
-  - id: oss-adjacent-content-boundary
-    model: ornith:35b via agent-proxy:community/knowledge-retrieval
-    raw_response: |-
-      ## Experience decision record
-      - Hierarchy: experience-owned; structure and mechanics unresolved.
-      - Recovery: experience-owned; structure and mechanics unresolved.
-      - Accessibility: experience-owned; structure and mechanics unresolved.
-
-      ## Content map
-      - Content Manager owns verified narrative, page copy, labels, and error
-        copy.
-      - Sourced fact values: unavailable in this prompt; unknown slots explicit.
-      - Content Manager authority excludes policy, technical, URL, support,
-        legal, and publication decisions.
-
-      ## Handoff
-      - Experience owner supplies sourced facts when available plus explicit
-        unknown slots.
-      - Content Manager returns verified copy mapped to them.
-      - Final experience integration stays with the experience owner.
-    finish_reason: stop
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: "The response explicitly assigns hierarchy, recovery, and accessibility to the experience owner while directing narrative and copy ownership to the Content Manager."
-      - criterion: operating-method
-        score: 2
-        evidence: "It employs an evidence-bound content map that flags unavailable fact values as explicit unknown slots rather than inventing mechanics or product details."
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: "Exact ownership boundaries are defined with a clear handoff flow where the experience owner supplies structure and the Content Manager returns verified copy for integration."
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: "The response precisely delineates authority by listing excluded domains such as policy, technical behavior, URLs, support paths, and legal commitments."
+        evidence: It leaves unresolved experience mechanics unresolved and explicitly excludes policy, technical, URL, support, legal, and publication decisions from Content's authority.
     total: 8
     passed: true
