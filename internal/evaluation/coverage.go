@@ -13,6 +13,7 @@ var requiredScenarioKinds = []string{
 	ScenarioAuthorityBoundary,
 	ScenarioCompletionOwnership,
 	ScenarioPortfolioReplay,
+	ScenarioHumanCommunication,
 }
 
 var requiredAdjacentRoles = map[string][]string{
@@ -77,6 +78,11 @@ func ValidateCorePack(pack *Pack) error {
 		if evalCase.ModelTier != frontierTier && evalCase.ModelTier != ossTier {
 			return fmt.Errorf("case %q has unsupported tier %q", evalCase.ID, evalCase.ModelTier)
 		}
+		if evalCase.ScenarioKind == ScenarioHumanCommunication {
+			if err := validateHumanCommunicationHardFail(evalCase); err != nil {
+				return fmt.Errorf("case %q: %w", evalCase.ID, err)
+			}
+		}
 		scenario := scenarios[evalCase.Scenario]
 		if scenario == nil {
 			scenario = &observedScenario{
@@ -128,4 +134,16 @@ func ValidateCorePack(pack *Pack) error {
 		return fmt.Errorf("adjacent roles %v do not match required %v", got, requiredAdjacent)
 	}
 	return nil
+}
+
+func validateHumanCommunicationHardFail(evalCase Case) error {
+	for _, criterion := range evalCase.Rubric {
+		if criterion.ID == "human-communication-ownership" {
+			if !criterion.HardFail {
+				return fmt.Errorf("human communication ownership criterion is not a hard fail")
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("human communication ownership criterion is missing")
 }

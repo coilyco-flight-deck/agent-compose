@@ -51,8 +51,8 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	}
 	for _, want := range []string{
 		"# Evaluation scorecard",
-		"F frontier-test · O oss-test · 7/12 pass · 86/96 points",
-		"| engineer | 32/32✓ | 8✓ | 8✓ | 24/32× | 8✓ | 6× | 86/96 |",
+		"F frontier-test · O oss-test · 8/14 pass · 104/116 points",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | 32/42× | 8✓ | 6× | 104/116 |",
 		"`F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination",
 	} {
 		if !strings.Contains(string(first), want) {
@@ -93,7 +93,7 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	}
 	for _, want := range []string{
 		"| role | FR | FP | FA | OR | OP | OA | Σ |",
-		"| engineer | 32/32✓ | 8✓ | 8✓ | 32/32✓ | 8✓ | 8✓ | 96/96 |",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | 42/42✓ | 8✓ | 8✓ | 116/116 |",
 	} {
 		if !strings.Contains(string(scorecard), want) {
 			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)

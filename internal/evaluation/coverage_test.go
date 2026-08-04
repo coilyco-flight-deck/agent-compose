@@ -39,10 +39,39 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
+		"missing human communication boundary": func(candidate *Pack) {
+			var kept []Case
+			for _, evalCase := range candidate.Cases {
+				if evalCase.ScenarioKind != ScenarioHumanCommunication {
+					kept = append(kept, evalCase)
+				}
+			}
+			candidate.Cases = kept
+		},
+		"human communication boundary is not a hard fail": func(candidate *Pack) {
+			for caseIndex := range candidate.Cases {
+				if candidate.Cases[caseIndex].ScenarioKind != ScenarioHumanCommunication {
+					continue
+				}
+				for criterionIndex := range candidate.Cases[caseIndex].Rubric {
+					criterion := &candidate.Cases[caseIndex].Rubric[criterionIndex]
+					if criterion.ID == "human-communication-ownership" {
+						criterion.HardFail = false
+						return
+					}
+				}
+			}
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			candidate := *pack
 			candidate.Cases = append([]Case(nil), pack.Cases...)
+			for index := range candidate.Cases {
+				candidate.Cases[index].Rubric = append(
+					[]Criterion(nil),
+					pack.Cases[index].Rubric...,
+				)
+			}
 			mutate(&candidate)
 			if err := ValidateCorePack(&candidate); err == nil {
 				t.Fatal("invalid Core Roster evaluation coverage passed")

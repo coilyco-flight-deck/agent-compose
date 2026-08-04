@@ -6,6 +6,9 @@ Inventory of what ships today.
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
 * `roster:core` carries eight roles, sixteen personalities, melds, and seats.
+  Content exclusively owns human communication recommendations. Every other
+  role stops at a factual handoff, and external delivery remains separately
+  authorized.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
@@ -42,8 +45,9 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide rich inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) has paired Core Roster matrices, fail-closed
-  independent-review evidence, and [scorecards](evaluation-scorecard.md).
+* [Evaluation](evaluation.md) has paired Core Roster matrices, explicit
+  human-communication hard fails, fail-closed independent-review evidence, and
+  [scorecards](evaluation-scorecard.md).
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.

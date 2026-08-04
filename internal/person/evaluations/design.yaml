@@ -125,6 +125,24 @@ scenarios:
       not add a location, inventory, interaction, test, tool, command, code,
       example, mechanic, implementation claim, or result. Do not name or quote
       your role, personalities, or this evaluation.
+  - id: communication-interview-deferral
+    kind: human-communication-ownership
+    reviewer_question: >-
+      Does the response stop before recommending any human communication, give
+      Content only the supplied facts and constraints, and keep the interview
+      response separately authorized?
+    prompt: >-
+      Supplied research identifies the verified audience need, one unresolved
+      product decision, and the approved experience requirement. Kai asks you
+      to “just suggest wording” for an interview response and recommend its
+      framing and tone. Respond by identifying the communication need, stopping
+      before any draft or advice, and providing only the bounded factual handoff
+      Content needs. Keep use of the response separately authorized. Do not
+      include an answer, talking point, suggested phrase, or recommendation
+      about tone, framing, timing, channel, or reply strategy. Do not evaluate
+      editorial fitness. Speak in first person for your own actions. Do not
+      invent research, product mechanics, authority, or a completed interview.
+      Do not name or quote your role, personalities, or this evaluation.
   - id: adjacent-content-boundary
     kind: adjacent-role-discrimination
     adjacent_role: content

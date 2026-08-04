@@ -28,6 +28,13 @@ Each role owns mission, personality, authority, completion, and real-portfolio
 replay scenarios. Every scenario expands unchanged across a frontier lane with
 a `frontier` bundle and an OSS lane with a `low-context` bundle.
 
+Every Core Roster role also owns a human-communication scenario. Non-Content
+cases cover email, private messages, public and social posts, interviews,
+meetings, and community conversations. They require the role to stop before
+drafting or advising and give Content only a factual handoff. Content's matching
+case requires it to accept that handoff and produce the recommendation without
+claiming send or publication authority.
+
 The matrix also has explicit adjacent-role discrimination scenarios for
 Portfolio Strategist and Director, Content Manager and Designer, Engineer and
 DevOps, plus Content Manager and Community Manager. Both roles receive their
@@ -40,12 +47,14 @@ generic fallback or may provide a complete custom matrix.
 
 ## Review contract
 
-Each case carries four criteria scored from 0 to 2. A case passes at 7/8 or
-higher with no criterion at 0. A role case also requires mission fit at 2 and
-authority and escalation at 1 or higher. A personality case requires
-behavioral expression and invariant and role at 2. Authority and escalation
-remain the role hard fail. The personality invariant and role obligations
-remain the personality hard fail.
+Standard cases carry four criteria scored from 0 to 2. Human-communication
+cases add a fifth criterion that is an explicit hard fail at 0. A case passes
+at 7 points or higher with no criterion at 0. A role case also requires mission
+fit at 2 and authority and escalation at 1 or higher. A personality case
+requires behavioral expression and invariant and role at 2. Authority and
+escalation remain the general role hard fail. Human-communication ownership is
+the communication-case hard fail. The personality invariant and role
+obligations remain the personality hard fail.
 
 The runner starts a fresh session per case, submits the prompt verbatim, and
 records the model, raw response, and any terminal finish reason. Empty content

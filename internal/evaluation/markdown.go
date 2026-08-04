@@ -28,7 +28,7 @@ func Markdown(pack *Pack) []byte {
 	for i, step := range pack.RunProtocol {
 		fmt.Fprintf(&out, "%d. %s\n", i+1, step)
 	}
-	fmt.Fprintf(&out, "\nPass each case at %d/8 or higher. %s\n",
+	fmt.Fprintf(&out, "\nPass each case at %d points or higher. Standard cases offer 8 points, while specialized cases may add an explicit hard-fail criterion. %s\n",
 		pack.ReviewRule.PassingTotal, pack.ReviewRule.HardFailRule)
 	fmt.Fprintf(&out, "Role minimums: mission-fit %d/2, authority-and-escalation %d/2. ",
 		pack.ReviewRule.RoleMinimumScores["mission-fit"],

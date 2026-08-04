@@ -24,6 +24,8 @@ Roster:
 
 * canonical role skills plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
+* Content-exclusive recommendations for every human communication, with factual
+  handoffs from other roles and separate authorization for external delivery
 * one selected roster package, with `roster:core` as the zero-config default
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and

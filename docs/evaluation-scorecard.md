@@ -15,6 +15,10 @@ cases. A cell aggregates its cases and carries points plus `✓` or `×`. A miss
 adjacent lane renders `-`, which is expected for QA. The header carries
 aggregate case and point totals.
 
+Human-communication ownership cases remain in the role columns. Their explicit
+fifth hard-fail criterion makes those role-cell maximums larger than standard
+8-point cases, so affected cells render `points/maximum`.
+
 The Ward verb refreshes the committed
 [`evaluation-scores.md`](evaluation-scores.md). Direct CLI use emits
 the page to standard output unless `--out` names a file. `--check` fails when

@@ -146,10 +146,37 @@ func TestContentRoleSkillAllowsOnlyContentImplementation(t *testing.T) {
 		"identifiers, commands, flags, structured output, APIs, data contracts",
 		"agent prompts or instructions that determine system behavior",
 		"isolate and land the content-only slice",
+		"exclusively own every recommendation about communication to a human",
+		"wording, tone, framing, timing, channel, reply strategy, and editorial fitness",
+		"does not authorize you to publish, post, upload, send",
 		"does not grant commands, credentials, mounts, network access",
 	} {
 		if !strings.Contains(briefing, required) {
 			t.Errorf("Content Manager role skill omitted %q", required)
+		}
+	}
+}
+
+func TestCoreRosterDefersHumanCommunicationRecommendationsToContent(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, roleName := range p.RoleOrder {
+		if roleName == "content" {
+			continue
+		}
+		briefing := strings.Join(strings.Fields(p.Roles[roleName].Briefing), " ")
+		for _, required := range []string{
+			"Content Manager is the exclusive owner of every recommendation about communication to a human",
+			"draft, rewrite, suggest, or evaluate wording",
+			"tone, framing, timing, channel, or reply strategy",
+			"bounded factual handoff",
+			"already approved communication artifact",
+		} {
+			if !strings.Contains(briefing, required) {
+				t.Errorf("role %q communication boundary omitted %q", roleName, required)
+			}
 		}
 	}
 }

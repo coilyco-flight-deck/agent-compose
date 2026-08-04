@@ -50,6 +50,15 @@ Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
 executable authority.
 
+Content Manager exclusively owns every recommendation about communication to a
+human, including wording, tone, framing, timing, channel, reply strategy, and
+editorial fitness. Every other Core Roster role stops before drafting or
+advising and gives Content only a bounded factual handoff. Community Manager
+owns community state, moderation context, durable feedback, and authorized
+operational interaction, while Content owns the words and communication
+strategy. An approved artifact still requires separate runtime and human
+authorization before any role sends or publishes it.
+
 The Engineer role owns repository-proven reusable software. Ops owns controlled
 running-system change, live verification, and rollback. QA remains read-only
 unless the runtime explicitly grants an enforced disposable fixture mode. No
@@ -69,7 +78,10 @@ boundary. Definition separates sourced facts from unresolved decisions, keeps me
 Content Manager (`content`) may implement and land content-only repository
 changes, including human-facing literals embedded in code. The exception
 requires unchanged control flow, state, schemas, structured contracts, and
-executable behavior. Mixed content and behavior returns to Engineer.
+executable behavior. Mixed content and behavior returns to Engineer. Content
+also accepts factual handoffs from every other role and returns the recommended
+human-facing artifact or strategy without inferring authority to expose it
+externally.
 
 ## See also
 

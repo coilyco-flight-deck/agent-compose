@@ -20,8 +20,8 @@ func TestBuildEmitsCoreV2FrontierOSSMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 12 {
-		t.Fatalf("evaluation cases = %d, want 12", len(pack.Cases))
+	if len(pack.Cases) != 14 {
+		t.Fatalf("evaluation cases = %d, want 14", len(pack.Cases))
 	}
 	if err := ValidateCorePack(pack); err != nil {
 		t.Fatal(err)
@@ -36,7 +36,11 @@ func TestBuildEmitsCoreV2FrontierOSSMatrix(t *testing.T) {
 			evalCase.ScenarioKind == "" {
 			t.Errorf("case %q has incomplete v2 identity: %+v", evalCase.ID, evalCase)
 		}
-		if len(evalCase.Rubric) != 4 || !strings.Contains(evalCase.Prompt, "Do not name") {
+		wantRubric := 4
+		if evalCase.ScenarioKind == ScenarioHumanCommunication {
+			wantRubric = 5
+		}
+		if len(evalCase.Rubric) != wantRubric || !strings.Contains(evalCase.Prompt, "Do not name") {
 			t.Errorf("case %q is not review-ready: %+v", evalCase.ID, evalCase)
 		}
 	}
@@ -49,6 +53,12 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 	}
 	if len(packs) != 8 {
 		t.Fatalf("Core Roster packs = %d, want 8", len(packs))
+	}
+	for _, pack := range packs {
+		communication := caseForScenarioKind(t, pack, frontierTier, ScenarioHumanCommunication)
+		if err := validateHumanCommunicationHardFail(communication); err != nil {
+			t.Errorf("role %q communication case: %v", pack.Role, err)
+		}
 	}
 }
 
@@ -350,7 +360,7 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	markdown := string(Markdown(pack))
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
-		"## Scenario matrix (12 cases)",
+		"## Scenario matrix (14 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",
 	} {
