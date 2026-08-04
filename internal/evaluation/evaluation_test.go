@@ -225,9 +225,9 @@ func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
 	rolePrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioMissionFit).Prompt
 	for _, want := range []string{
 		"#welcome",
-		"public reply",
-		"private follow-through plan",
 		"verified orientation",
+		"community-state record",
+		"factual handoff",
 	} {
 		if !strings.Contains(rolePrompt, want) {
 			t.Errorf("community role prompt omitted %q: %q", want, rolePrompt)
@@ -237,7 +237,8 @@ func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
 	for _, want := range []string{
 		"welcomed newcomers",
 		"may be outdated",
-		"proposes a check",
+		"smallest verification step",
+		"factual handoff",
 	} {
 		if !strings.Contains(personalityPrompt, want) {
 			t.Errorf("community personality prompt omitted %q: %q", want, personalityPrompt)
