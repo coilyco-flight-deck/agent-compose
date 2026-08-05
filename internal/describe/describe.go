@@ -44,7 +44,7 @@ func Bundle(dir string, opts Options) (string, error) {
 		{"profile", []string{"profile"}},
 		{"providers", []string{"source"}},
 		{"context budget", nil},
-		{"selection", []string{"instruction", "skill"}},
+		{"selection", []string{"instruction", "skill", "selector"}},
 		{"delivery", []string{"delivery"}},
 	}
 	for _, section := range sections {

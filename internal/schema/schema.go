@@ -78,6 +78,15 @@ type ContentRef struct {
 	ID         string
 	Path       string
 	EntryPoint string
+	Selectors  []string
+}
+
+// SelectorOverlap records one composed skill admitted by multiple selectors
+// while retaining their complete diagnostic and trace provenance.
+type SelectorOverlap struct {
+	Role      string
+	Skill     string
+	Selectors []string
 }
 
 // ProviderDefinition names one document-local ordinary-skill provider. Path
@@ -95,19 +104,20 @@ type ProviderUse struct {
 }
 
 type Source struct {
-	ID              string
-	Root            string
-	Files           fs.FS
-	Declaration     []byte
-	Instructions    []ContentRef
-	Skills          []ContentRef
-	RoleSkills      map[string][]ContentRef
-	Providers       map[string]ProviderDefinition
-	RoleProviders   map[string][]ProviderUse
-	AdmissionReason string
-	ProviderScope   string
-	ExcludedSkills  []ContentRef
-	SelectorReason  string
+	ID               string
+	Root             string
+	Files            fs.FS
+	Declaration      []byte
+	Instructions     []ContentRef
+	Skills           []ContentRef
+	RoleSkills       map[string][]ContentRef
+	SelectorOverlaps []SelectorOverlap
+	Providers        map[string]ProviderDefinition
+	RoleProviders    map[string][]ProviderUse
+	AdmissionReason  string
+	ProviderScope    string
+	ExcludedSkills   []ContentRef
+	SelectorReason   string
 }
 
 // SelectOrdinarySkills applies a role-provider selector after LoadSource has
@@ -485,11 +495,12 @@ func inferProvider(id, root string) (*Source, error) {
 
 	rolesPath := filepath.Join(root, filepath.FromSlash(providerRolesPath))
 	if _, err := os.Stat(rolesPath); err == nil {
-		roleSkills, providers, roleProviders, err := parseRoleGraph(rolesPath, composed)
+		roleSkills, overlaps, providers, roleProviders, err := parseRoleGraph(rolesPath, composed)
 		if err != nil {
 			return nil, err
 		}
 		src.RoleSkills = roleSkills
+		src.SelectorOverlaps = overlaps
 		src.Providers = providers
 		src.RoleProviders = roleProviders
 	} else if !os.IsNotExist(err) {
@@ -550,20 +561,21 @@ func inspectComposedSkills(root string, ordinary map[string]bool) (map[string]st
 
 func parseRoleGraph(path string, composed map[string]string) (
 	map[string][]ContentRef,
+	[]SelectorOverlap,
 	map[string]ProviderDefinition,
 	map[string][]ProviderUse,
 	error,
 ) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+		return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
 	}
 	doc, err := kdl.ParseString(string(raw))
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("parse provider role bindings %s: %w", providerRolesPath, err)
+		return nil, nil, nil, nil, fmt.Errorf("parse provider role bindings %s: %w", providerRolesPath, err)
 	}
 	if len(doc.Nodes) == 0 {
-		return nil, nil, nil, fmt.Errorf("provider role bindings %s: expected a top-level roles node", providerRolesPath)
+		return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: expected a top-level roles node", providerRolesPath)
 	}
 
 	var rolesNode *kdl.Node
@@ -574,56 +586,56 @@ func parseRoleGraph(path string, composed map[string]string) (
 		switch node.Name() {
 		case "providers":
 			if seenProvidersNode {
-				return nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate providers node", providerRolesPath)
+				return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate providers node", providerRolesPath)
 			}
 			seenProvidersNode = true
 			if len(node.Arguments()) > 0 || len(node.Properties()) > 0 {
-				return nil, nil, nil, fmt.Errorf("provider role bindings %s: providers node accepts only children", providerRolesPath)
+				return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: providers node accepts only children", providerRolesPath)
 			}
 			for _, providerNode := range node.Children().Nodes {
 				if providerNode.Name() != "provider" {
-					return nil, nil, nil, fmt.Errorf("provider role bindings %s: providers has unknown node %q", providerRolesPath, providerNode.Name())
+					return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: providers has unknown node %q", providerRolesPath, providerNode.Name())
 				}
 				id, err := oneStringArg(providerNode)
 				if err != nil {
-					return nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+					return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
 				}
 				if _, exists := providers[id]; exists {
-					return nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate provider %q", providerRolesPath, id)
+					return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate provider %q", providerRolesPath, id)
 				}
 				for property := range providerNode.Properties() {
 					if property != "path" {
-						return nil, nil, nil, fmt.Errorf("provider %q: unknown property %q", id, property)
+						return nil, nil, nil, nil, fmt.Errorf("provider %q: unknown property %q", id, property)
 					}
 				}
 				pathValue := providerNode.Prop("path")
 				if !pathValue.IsValid() || pathValue.Kind() != kdl.String {
-					return nil, nil, nil, fmt.Errorf("provider %q: path must be a string property", id)
+					return nil, nil, nil, nil, fmt.Errorf("provider %q: path must be a string property", id)
 				}
 				logicalPath := pathValue.String()
 				if err := validateLogicalProviderPath(logicalPath); err != nil {
-					return nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
+					return nil, nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
 				}
 				if previous, exists := paths[logicalPath]; exists {
-					return nil, nil, nil, fmt.Errorf("providers %q and %q name the same repository path %q", previous, id, logicalPath)
+					return nil, nil, nil, nil, fmt.Errorf("providers %q and %q name the same repository path %q", previous, id, logicalPath)
 				}
 				definition := ProviderDefinition{ID: id, Path: logicalPath}
 				for _, skillNode := range providerNode.Children().Nodes {
 					if skillNode.Name() != "skill" {
-						return nil, nil, nil, fmt.Errorf("provider %q: unknown node %q", id, skillNode.Name())
+						return nil, nil, nil, nil, fmt.Errorf("provider %q: unknown node %q", id, skillNode.Name())
 					}
 					if len(skillNode.Properties()) > 0 || len(skillNode.Children().Nodes) > 0 {
-						return nil, nil, nil, fmt.Errorf("provider %q: skill accepts only one pattern argument", id)
+						return nil, nil, nil, nil, fmt.Errorf("provider %q: skill accepts only one pattern argument", id)
 					}
 					pattern, err := oneStringArg(skillNode)
 					if err != nil {
-						return nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
+						return nil, nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
 					}
 					definition.Skills = append(definition.Skills, pattern)
 				}
 				if definition.Skills != nil {
 					if err := skillselector.Validate(definition.Skills); err != nil {
-						return nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
+						return nil, nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
 					}
 				}
 				providers[id] = definition
@@ -631,18 +643,18 @@ func parseRoleGraph(path string, composed map[string]string) (
 			}
 		case "roles":
 			if rolesNode != nil {
-				return nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate roles node", providerRolesPath)
+				return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate roles node", providerRolesPath)
 			}
 			if len(node.Arguments()) > 0 || len(node.Properties()) > 0 {
-				return nil, nil, nil, fmt.Errorf("provider role bindings %s: roles node accepts only children", providerRolesPath)
+				return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: roles node accepts only children", providerRolesPath)
 			}
 			rolesNode = node
 		default:
-			return nil, nil, nil, fmt.Errorf("provider role bindings %s: unknown top-level node %q", providerRolesPath, node.Name())
+			return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: unknown top-level node %q", providerRolesPath, node.Name())
 		}
 	}
 	if rolesNode == nil {
-		return nil, nil, nil, fmt.Errorf("provider role bindings %s: missing top-level roles node", providerRolesPath)
+		return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: missing top-level roles node", providerRolesPath)
 	}
 
 	refs := map[string][]ContentRef{}
@@ -650,81 +662,101 @@ func parseRoleGraph(path string, composed map[string]string) (
 	seenRoles := map[string]bool{}
 	for _, roleNode := range rolesNode.Children().Nodes {
 		if roleNode.Name() != "role" {
-			return nil, nil, nil, fmt.Errorf("provider role bindings %s: unknown node %q", providerRolesPath, roleNode.Name())
+			return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: unknown node %q", providerRolesPath, roleNode.Name())
 		}
 		role, err := oneStringArg(roleNode)
 		if err != nil {
-			return nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
+			return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: %w", providerRolesPath, err)
 		}
 		if len(roleNode.Properties()) > 0 {
-			return nil, nil, nil, fmt.Errorf("provider role %q: role accepts no properties", role)
+			return nil, nil, nil, nil, fmt.Errorf("provider role %q: role accepts no properties", role)
 		}
 		if seenRoles[role] {
-			return nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate role %q", providerRolesPath, role)
+			return nil, nil, nil, nil, fmt.Errorf("provider role bindings %s: duplicate role %q", providerRolesPath, role)
 		}
 		seenRoles[role] = true
-		seenSkills := map[string]bool{}
+		seenSkills := map[string]int{}
 		seenProviders := map[string]bool{}
 		for _, child := range roleNode.Children().Nodes {
 			switch child.Name() {
 			case "composed-skill":
 				if len(child.Properties()) > 0 || len(child.Children().Nodes) > 0 {
-					return nil, nil, nil, fmt.Errorf("provider role %q: composed-skill accepts only one pattern argument", role)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q: composed-skill accepts only one pattern argument", role)
 				}
 				pattern, err := oneStringArg(child)
 				if err != nil {
-					return nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
 				skills, err := expandComposedSkillPattern(pattern, composed)
 				if err != nil {
-					return nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
 				for _, skill := range skills {
-					if seenSkills[skill] {
-						return nil, nil, nil, fmt.Errorf("provider role %q repeats composed skill %q", role, skill)
+					if index, seen := seenSkills[skill]; seen {
+						roleRefs := refs[role]
+						roleRefs[index].Selectors = append(roleRefs[index].Selectors, pattern)
+						refs[role] = roleRefs
+						continue
 					}
-					seenSkills[skill] = true
+					seenSkills[skill] = len(refs[role])
 					refs[role] = append(refs[role], ContentRef{
 						ID:         skill,
 						Path:       composed[skill],
 						EntryPoint: "COMPOSED.md",
+						Selectors:  []string{pattern},
 					})
 				}
 			case "use-provider":
 				providerID, err := oneStringArg(child)
 				if err != nil {
-					return nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
 				_, declared := providers[providerID]
 				if !declared {
-					return nil, nil, nil, fmt.Errorf("provider role %q references undeclared provider %q", role, providerID)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q references undeclared provider %q", role, providerID)
 				}
 				if seenProviders[providerID] {
-					return nil, nil, nil, fmt.Errorf("provider role %q repeats provider %q", role, providerID)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q repeats provider %q", role, providerID)
 				}
 				seenProviders[providerID] = true
 				for property := range child.Properties() {
 					if property != "required" {
-						return nil, nil, nil, fmt.Errorf("provider role %q provider %q: unknown property %q", role, providerID, property)
+						return nil, nil, nil, nil, fmt.Errorf("provider role %q provider %q: unknown property %q", role, providerID, property)
 					}
 				}
 				required := false
 				if value := child.Prop("required"); value.IsValid() {
 					if value.Kind() != kdl.Bool {
-						return nil, nil, nil, fmt.Errorf("provider role %q provider %q: required must be boolean", role, providerID)
+						return nil, nil, nil, nil, fmt.Errorf("provider role %q provider %q: required must be boolean", role, providerID)
 					}
 					required = value.Bool()
 				}
 				if len(child.Children().Nodes) > 0 {
-					return nil, nil, nil, fmt.Errorf("provider role %q provider %q: use-provider accepts no children", role, providerID)
+					return nil, nil, nil, nil, fmt.Errorf("provider role %q provider %q: use-provider accepts no children", role, providerID)
 				}
 				uses[role] = append(uses[role], ProviderUse{Provider: providerID, Required: required})
 			default:
-				return nil, nil, nil, fmt.Errorf("provider role %q: unknown node %q", role, child.Name())
+				return nil, nil, nil, nil, fmt.Errorf("provider role %q: unknown node %q", role, child.Name())
 			}
 		}
 	}
-	return refs, providers, uses, nil
+	var overlaps []SelectorOverlap
+	roles := make([]string, 0, len(refs))
+	for role := range refs {
+		roles = append(roles, role)
+	}
+	sort.Strings(roles)
+	for _, role := range roles {
+		for _, ref := range refs[role] {
+			if len(ref.Selectors) < 2 {
+				continue
+			}
+			overlaps = append(overlaps, SelectorOverlap{
+				Role: role, Skill: ref.ID, Selectors: append([]string(nil), ref.Selectors...),
+			})
+		}
+	}
+	return refs, overlaps, providers, uses, nil
 }
 
 func validateLogicalProviderPath(value string) error {

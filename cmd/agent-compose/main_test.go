@@ -365,6 +365,17 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 }
 
+func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
+	var output strings.Builder
+	printCompositionWarnings(&output, []string{
+		`source "aos" provider role "content" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once`,
+	})
+	want := `agent-compose: warning: source "aos" provider role "content" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once` + "\n"
+	if output.String() != want {
+		t.Fatalf("warning output = %q, want %q", output.String(), want)
+	}
+}
+
 func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 	t.Helper()
 	return &compose.Result{

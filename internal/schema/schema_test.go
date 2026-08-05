@@ -561,8 +561,24 @@ roles {
 `), 0o644); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := LoadSource(root); err == nil || !strings.Contains(err.Error(), "repeats composed skill") {
-			t.Fatalf("overlapping composed-skill patterns must fail closed, got %v", err)
+		source, err := LoadSource(root)
+		if err != nil {
+			t.Fatal(err)
+		}
+		roleSkills := source.RoleSkills["engineer"]
+		if len(roleSkills) != 1 || roleSkills[0].ID != "coding-shape-cli" ||
+			!slices.Equal(roleSkills[0].Selectors, []string{"coding-*", "coding-shape-cli"}) {
+			t.Fatalf("overlapping composed-skill patterns must select one skill with complete provenance, got %+v", roleSkills)
+		}
+		wantOverlap := SelectorOverlap{
+			Role: "engineer", Skill: "coding-shape-cli",
+			Selectors: []string{"coding-*", "coding-shape-cli"},
+		}
+		if len(source.SelectorOverlaps) != 1 ||
+			source.SelectorOverlaps[0].Role != wantOverlap.Role ||
+			source.SelectorOverlaps[0].Skill != wantOverlap.Skill ||
+			!slices.Equal(source.SelectorOverlaps[0].Selectors, wantOverlap.Selectors) {
+			t.Fatalf("overlapping composed-skill warning provenance = %+v, want %+v", source.SelectorOverlaps, wantOverlap)
 		}
 	})
 

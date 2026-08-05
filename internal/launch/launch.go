@@ -29,6 +29,7 @@ type Result struct {
 	Projected    int
 	Fallback     bool
 	Warning      string
+	Warnings     []string
 }
 
 // Refresh composes and projects, falling back to a validated last-known-good
@@ -49,6 +50,7 @@ func Refresh(opts Options) (*Result, error) {
 		BundleDir:    composed.Bundle.Dir,
 		BundleReused: composed.Bundle.Reused,
 		Projected:    len(projected.Files),
+		Warnings:     append([]string(nil), composed.Resolution.Warnings...),
 	}, nil
 }
 

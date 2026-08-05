@@ -782,6 +782,7 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+	printCompositionWarnings(os.Stderr, result.Resolution.Warnings)
 	summaryOpts := person.RoleTranscriptOptions{
 		Color:     colorEnabled(),
 		TrueColor: trueColorTerminal(),
@@ -850,6 +851,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+	printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
 	interactive := nativeLaunchInteractive(os.Stdin, os.Stdout)
 	summaryOpts := person.RoleTranscriptOptions{
 		Color:     colorEnabled(),
@@ -1153,6 +1155,7 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 	if result.Fallback {
 		fmt.Fprintf(os.Stderr, "agent-compose: WARNING: refresh failed (%s); launching with the last-known-good projection\n", result.Warning)
 	} else {
+		printCompositionWarnings(os.Stderr, result.Warnings)
 		state := "new"
 		if result.BundleReused {
 			state = "reused"
@@ -1161,6 +1164,12 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 			state, result.Projected, cmd.String("target"))
 	}
 	return execReal(command)
+}
+
+func printCompositionWarnings(w io.Writer, warnings []string) {
+	for _, warning := range warnings {
+		fmt.Fprintf(w, "agent-compose: warning: %s\n", warning)
+	}
 }
 
 // argvAfterDash finds the raw command after the `--` terminator, independent

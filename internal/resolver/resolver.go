@@ -67,6 +67,7 @@ type Resolution struct {
 	Skills         []Selected
 	CompiledBodies []Selected
 	FavoriteColor  string
+	Warnings       []string
 	Decisions      []Decision
 	Providers      []ProviderReport
 	SourceIDs      []string
@@ -203,6 +204,19 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		})
 	}
 	for _, src := range sources {
+		for _, overlap := range src.SelectorOverlaps {
+			reason := selectorOverlapReason(overlap)
+			res.Warnings = append(res.Warnings, fmt.Sprintf("source %q %s", src.ID, reason))
+			res.decide(Decision{
+				Subject: "selector:" + overlap.Skill,
+				Kind:    "selector",
+				Source:  src.ID,
+				Outcome: OutcomeShadowed,
+				Reason:  reason,
+			})
+		}
+	}
+	for _, src := range sources {
 		for _, ref := range src.ExcludedSkills {
 			res.decide(Decision{
 				Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
@@ -313,7 +327,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			if err := considerSkill(
 				src,
 				ref,
-				fmt.Sprintf("role %q composes this skill", req.Role),
+				roleSkillReason(req.Role, ref),
 			); err != nil {
 				return nil, err
 			}
@@ -359,6 +373,34 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		return nil, err
 	}
 	return res, nil
+}
+
+func roleSkillReason(role string, ref schema.ContentRef) string {
+	if len(ref.Selectors) == 0 {
+		return fmt.Sprintf("role %q composes this skill", role)
+	}
+	return fmt.Sprintf(
+		"role %q composes this skill through selector(s) %s",
+		role,
+		quotedSelectors(ref.Selectors),
+	)
+}
+
+func selectorOverlapReason(overlap schema.SelectorOverlap) string {
+	return fmt.Sprintf(
+		"provider role %q matched composed skill %q through selectors %s, selected once",
+		overlap.Role,
+		overlap.Skill,
+		quotedSelectors(overlap.Selectors),
+	)
+}
+
+func quotedSelectors(selectors []string) string {
+	quoted := make([]string, 0, len(selectors))
+	for _, selector := range selectors {
+		quoted = append(quoted, fmt.Sprintf("%q", selector))
+	}
+	return strings.Join(quoted, ", ")
 }
 
 func providerAdmissionReason(src *schema.Source, role string) string {

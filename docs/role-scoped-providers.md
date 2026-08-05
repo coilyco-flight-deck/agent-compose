@@ -42,6 +42,11 @@ An assigned launch resolves providers in this order:
 Duplicate paths collapse first-wins. Byte-identical skills may shadow the
 earlier copy, while different bodies with the same name fail closed.
 
+Composed-skill selectors within one provider role form a set union. When two
+selectors match the same composed skill, Agent Compose selects that skill once,
+emits a warning, and retains every matching selector in `trace.json`. Overlap
+within one role does not create a content collision. Different skill bodies
+with the same name still fail closed during cross-provider resolution.
 An empty role selects only defaults and harness repositories. Bare `acompose`
 convergence therefore never links role-only providers into host-global skill
 load points.

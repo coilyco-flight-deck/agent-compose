@@ -239,6 +239,57 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 	}
 }
 
+func TestResolveWarnsAndTracesOverlappingComposedSkillSelectors(t *testing.T) {
+	src := makeSource(t, "aos", nil)
+	skill := filepath.Join(src.Root, "writing-kai-voice")
+	if err := os.MkdirAll(skill, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(skill, "COMPOSED.md"), []byte("# Voice\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	selectors := []string{"*writing*", "*voice*"}
+	src.RoleSkills = map[string][]schema.ContentRef{
+		"engineer": {{
+			ID: "writing-kai-voice", Path: "writing-kai-voice",
+			EntryPoint: "COMPOSED.md", Selectors: selectors,
+		}},
+	}
+	src.SelectorOverlaps = []schema.SelectorOverlap{{
+		Role: "engineer", Skill: "writing-kai-voice", Selectors: selectors,
+	}}
+
+	res, err := Resolve(
+		testRequest(schema.DeliveryNativeSkills),
+		testPerson(),
+		[]*schema.Source{src},
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Warnings) != 1 ||
+		!strings.Contains(res.Warnings[0], `selectors "*writing*", "*voice*", selected once`) {
+		t.Fatalf("selector overlap warnings = %q", res.Warnings)
+	}
+	var overlapTraced, selectionTraced bool
+	for _, decision := range res.Decisions {
+		if decision.Subject == "selector:writing-kai-voice" &&
+			decision.Kind == "selector" && decision.Outcome == OutcomeShadowed &&
+			strings.Contains(decision.Reason, `selectors "*writing*", "*voice*", selected once`) {
+			overlapTraced = true
+		}
+		if decision.Subject == "skill:writing-kai-voice" &&
+			decision.Outcome == OutcomeSelected &&
+			strings.Contains(decision.Reason, `selector(s) "*writing*", "*voice*"`) {
+			selectionTraced = true
+		}
+	}
+	if !overlapTraced || !selectionTraced {
+		t.Fatalf("selector overlap provenance missing from decisions: %+v", res.Decisions)
+	}
+}
+
 func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
