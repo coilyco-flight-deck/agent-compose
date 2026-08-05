@@ -14,7 +14,7 @@ Inventory of what ships today.
   across every person-dependent command.
 * AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md)
   with [selectors](ordinary-skill-selectors.md) and canonical external files.
-* Three model tiers fail closed per role. Strategist is frontier-only. Tier stays separate from bundle density.
+* [Three model tiers](model-tiers.md) fail closed through the Core role matrix. Tier stays separate from bundle density.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
