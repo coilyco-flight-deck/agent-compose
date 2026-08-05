@@ -12,9 +12,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-// RenderRepositoryPlan compiles all repository policy from trusted operating
-// context roots. It never infers repository availability from doctrine source
-// paths or harness load points.
+// RenderRepositoryPlan compiles repository policy from trusted operating roots.
+// It never infers availability from doctrine paths or harness load points.
 func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 	canonicalProjects, err := canonicalPath(projects)
 	if err != nil {
