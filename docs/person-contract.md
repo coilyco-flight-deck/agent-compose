@@ -28,8 +28,9 @@ composition, while omission supports all three tiers. Core roles declare the
 list explicitly. Optional `model-class` separately restricts bundle density.
 The [role skill](role-briefings.md) needs valid frontmatter and at least three
 body paragraphs. The loader rejects invalid class names or personality sets.
-The default has eight roles and sixteen personalities. Strategist supports
-only `frontier`. Every other Core role declares all three tiers.
+The default has eight roles and sixteen personalities. Its explicit
+[role-by-tier matrix](model-tiers.md) groups complex, foundational, and
+high-security roles without changing their authority.
 
 A personality entry is a catalog binding from its canonical name to a stable
 skill id (`personality-<name>`). Every role reference needs one or the loader
@@ -72,6 +73,7 @@ one unit. AOS owns no copy of either package or its personality definitions.
 ## See also
 
 * [person-snapshot.md](person-snapshot.md) - complete machine-readable export.
+* [model-tiers.md](model-tiers.md) - Core Roster compatibility matrix.
 * [person-packages.md](person-packages.md) - external layout and selection.
 * [role-briefings.md](role-briefings.md) - role charter and delivery contract.
 * [kdl-contracts.md](kdl-contracts.md) - request and source grammar.

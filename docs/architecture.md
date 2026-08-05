@@ -25,6 +25,8 @@ acceptance stay with the launcher and consumer. Repositories only host
 capability files reached through source locators.
 Consumers map concrete models into the stable tiers. Claude and Codex are
 frontier examples, DeepSeek is commodity, and Ornith or Mistral are OSS.
+The Core Roster applies those tiers through its
+[role compatibility matrix](model-tiers.md).
 
 ## Policy ownership
 

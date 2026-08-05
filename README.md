@@ -34,7 +34,7 @@ Roster:
   seats, inspiration records, appearances, and renderer expressions
 * credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
-* three stable model tiers (`frontier`, `commodity`, and `oss`) with fail-closed per-role compatibility
+* [three stable model tiers](docs/model-tiers.md) with fail-closed per-role compatibility
 * model-class-aware pruning controlled by each skill's own frontmatter
 * native-skill and compiled-context delivery with source entry-point promotion
 * local ordinary-skill catalogues projected through one native path

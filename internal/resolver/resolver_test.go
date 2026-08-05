@@ -246,14 +246,20 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 	}
 	for _, roleName := range p.RoleOrder {
 		t.Run(roleName, func(t *testing.T) {
+			role := p.Roles[roleName]
+			modelTier := schema.ModelTierFrontier
+			if len(role.SupportedModelTiers) > 0 {
+				modelTier = role.SupportedModelTiers[0]
+			}
 			res, err := Resolve(&schema.Request{
-				Role:     roleName,
-				Delivery: schema.DeliveryNativeSkills,
+				Role:      roleName,
+				Delivery:  schema.DeliveryNativeSkills,
+				ModelTier: modelTier,
 			}, p, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
-			rolePersonalities := p.Roles[roleName].Personalities
+			rolePersonalities := role.Personalities
 			if len(res.Skills) != len(rolePersonalities)+1 {
 				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), len(rolePersonalities)+1, res.Skills)
 			}
