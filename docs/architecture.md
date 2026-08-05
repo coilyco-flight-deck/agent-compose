@@ -12,8 +12,10 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
   selects the embedded `roster:core` default.
 * `role` - the caller names it, the selected person source validates it, and the role
   activates every personality it declares.
-* `model class` - the caller names it and embedded role compatibility may
-  reject it before bundle materialization.
+* `model tier` - the caller selects `frontier`, `commodity`, or `oss`, and the
+  role may reject it before bundle materialization.
+* `model class` - the caller independently selects full `frontier` or pruned
+  `low-context` bundle density.
 * `delivery` - native skills or compiled context.
 * `source locators` - where optional capability files live. AOS's knowledge
   inventory is inferred from its provider root.
@@ -21,6 +23,8 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
 Model identity, harness, reasoning effort, interactivity, permissions, and task
 acceptance stay with the launcher and consumer. Repositories only host
 capability files reached through source locators.
+Consumers map concrete models into the stable tiers. Claude and Codex are
+frontier examples, DeepSeek is commodity, and Ornith or Mistral are OSS.
 
 ## Policy ownership
 

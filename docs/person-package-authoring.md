@@ -25,10 +25,10 @@ node slug. Every bound personality needs one definition directory, and the
 definitions directory may not contain extra skills.
 Symlinks are invalid anywhere in the package.
 
-The existing role, personality, identity, inspiration, color, and model-class
-validation applies unchanged. A missing, malformed, or internally inconsistent
-package fails before bundle materialization or host projection. Person packages
-never transport credentials or launcher authority.
+The existing role, personality, identity, inspiration, color, model-tier, and
+model-class validation applies unchanged. A missing, malformed, or internally
+inconsistent package fails before bundle materialization or host projection.
+Person packages never transport credentials or launcher authority.
 
 ## See also
 

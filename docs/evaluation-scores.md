@@ -2,17 +2,17 @@
 
 # Evaluation scorecard
 
-`2026-08-04 · seat codex · F gpt-5.6-sol · O disabled · 54/56 pass · 458/464 points`
+`2026-08-04 · seat codex · F gpt-5.6-sol · C disabled · O disabled · 54/56 pass · 458/464 points`
 
-| role | FR | FP | FA | OR | OP | OA | Σ |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| community | 42/42✓ | 8✓ | 8✓ | - | - | - | 58/58 |
-| content | 40/42× | 8✓ | 15/16✓ | - | - | - | 63/66 |
-| design | 42/42✓ | 7× | 8✓ | - | - | - | 57/58 |
-| director | 41/42✓ | 8✓ | 8✓ | - | - | - | 57/58 |
-| engineer | 41/42✓ | 8✓ | 8✓ | - | - | - | 57/58 |
-| ops | 42/42✓ | 8✓ | 8✓ | - | - | - | 58/58 |
-| qa | 42/42✓ | 8✓ | - | - | - | - | 50/50 |
-| strats | 42/42✓ | 8✓ | 8✓ | - | - | - | 58/58 |
+| role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| community | 42/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 58/58 |
+| content | 40/42× | 8✓ | 15/16✓ | - | - | - | - | - | - | 63/66 |
+| design | 42/42✓ | 7× | 8✓ | - | - | - | - | - | - | 57/58 |
+| director | 41/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 57/58 |
+| engineer | 41/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 57/58 |
+| ops | 42/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 58/58 |
+| qa | 42/42✓ | 8✓ | - | - | - | - | - | - | - | 50/50 |
+| strats | 42/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 58/58 |
 
-`F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination · `✓` pass · `×` fail. Cells are points.
+`F` frontier · `C` commodity · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination · `✓` pass · `×` fail. Cells are points.

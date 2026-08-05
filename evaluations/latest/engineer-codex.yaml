@@ -7,7 +7,7 @@ provenance:
   source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
   prompt_author: 'coilyco-ops issue #178 authors'
   reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:fc8804790d1aa0233952f3177c8b27e09eba2988f5b94293099cf9f3263cab4f
+  pack_digest: sha256:e00f1d07310c56313ca852f0a8ebf8a8f23a2ed71a0e946586e8201a5ce37057
   retry_provenance:
     attempts:
       - case: frontier-communication-email-deferral

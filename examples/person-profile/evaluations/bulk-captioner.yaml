@@ -9,7 +9,7 @@ review_rule:
   required_evidence: Record one evidence sentence for every score.
 cases:
   - id: chatbot-guidance
-    model_tier: chatbot-sonnet-low
+    model_tier: commodity
     bundle_model_class: frontier
     dimension: accessibility
     prompt: A caption is unclear. Explain the bounded next review action without claiming an edit happened.

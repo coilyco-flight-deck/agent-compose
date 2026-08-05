@@ -20,6 +20,7 @@ compose {
     person-policy "external-only"
     person-source "person"
     role "builder"
+    model-tier "commodity"
     model-class "frontier"
     delivery "native-skills"
     source "knowledge" root="knowledge"
@@ -72,9 +73,8 @@ agent-compose evaluation \
 `overlay`, `roster`, and `palette-data` accept the same flag. Under the host
 guard they inherit its source when the flag is absent.
 
-Evaluation packs include the selected person name, canonical role-skill body, seat,
-invariant, and active definitions. External packages use the generic
-frontier and OSS fallback, so they do not inherit Core Roster scenarios
-from `roster:core`. Agent-compose emits the deterministic pack and validates
-scored results. An external runner or human still owns model invocation,
+Evaluation packs include person identity, role-skill body, seat, invariant, and
+active definitions. External packages use the generic frontier, commodity, and
+OSS fallback without inheriting Core Roster scenarios. Agent-compose emits and
+validates the deterministic pack. A runner or human still owns model calls,
 credentials, response capture, and scoring.

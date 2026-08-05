@@ -45,6 +45,7 @@ type Manifest struct {
 	RoleSkill       string          `json:"role_skill"`
 	RoleSkillSource string          `json:"role_skill_source"`
 	RoleSkillDigest string          `json:"role_skill_digest"`
+	ModelTier       string          `json:"model_tier"`
 	ModelClass      string          `json:"model_class"`
 	Personalities   []string        `json:"personalities"`
 	Color           string          `json:"color"`
@@ -230,6 +231,7 @@ func write(res *resolver.Resolution, root string) error {
 		RoleSkill:       res.Person.RoleSkillID(res.Request.Role),
 		RoleSkillSource: role.SkillSource,
 		RoleSkillDigest: role.SkillDigest,
+		ModelTier:       res.Request.ModelTier,
 		ModelClass:      res.Request.ModelClass,
 		Personalities:   res.Personalities,
 		Color:           res.FavoriteColor,
@@ -282,8 +284,8 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 // compiler-authored instruction changes invalidate prior cached bundles.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
-	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
-		res.Request.Role, res.Request.Delivery, res.Request.ModelClass)
+	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00%s\x00",
+		res.Request.Role, res.Request.Delivery, res.Request.ModelTier, res.Request.ModelClass)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
 	fmt.Fprintf(h, "role-briefing\x00%d\x00", len(res.RoleBriefing))
@@ -365,6 +367,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		PersonalityMetadata   []IdentityPersonality
 		Seats                 []person.Seat
 		Inspiration           person.InspirationRef
+		SupportedModelTiers   []string
 		SupportedModelClasses []string
 		FavoriteColor         string
 	}{
@@ -374,6 +377,7 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		PersonalityMetadata:   selectedIdentityPersonalities(res),
 		Seats:                 role.Seats,
 		Inspiration:           role.Inspiration,
+		SupportedModelTiers:   role.SupportedModelTiers,
 		SupportedModelClasses: role.SupportedModelClasses,
 		FavoriteColor:         res.FavoriteColor,
 	}

@@ -1,5 +1,5 @@
 // Package evaluation renders deterministic human-review packs for role and
-// personality behavior across frontier and OSS model tiers.
+// personality behavior across frontier, commodity, and OSS model tiers.
 package evaluation
 
 import (
@@ -12,6 +12,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,9 +21,9 @@ var genericMatrixAsset []byte
 
 const Format = "agent-compose.evaluation-pack.v2"
 
-// lowContextEvaluationsEnabled is the temporary shared-GPU evaluation switch.
-// Keep the OSS cases in each pack so reactivation remains a one-line change.
-const lowContextEvaluationsEnabled = false
+// nonFrontierEvaluationsEnabled preserves disabled commodity and OSS cases
+// until those lanes have evaluation evidence.
+const nonFrontierEvaluationsEnabled = false
 
 const (
 	ScenarioMissionFit          = "mission-fit"
@@ -242,8 +243,11 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		ReviewRule:          generic.ReviewRule,
 		Cases:               generic.Cases,
 	}
-	if !lowContextEvaluationsEnabled {
-		pack.DisabledModelTiers = []string{ossTier}
+	for _, tier := range schema.ModelTiers() {
+		if !role.SupportsModelTier(tier) ||
+			(!nonFrontierEvaluationsEnabled && tier != schema.ModelTierFrontier) {
+			pack.DisabledModelTiers = append(pack.DisabledModelTiers, tier)
+		}
 	}
 	pack.Cases, err = casesForProfile(generic, generic, roleName)
 	if err != nil {
@@ -389,6 +393,9 @@ func validateCompleteCase(evalCase Case) error {
 	if evalCase.BundleModelClass != "frontier" && evalCase.BundleModelClass != "low-context" {
 		return fmt.Errorf("custom case has unsupported bundle model class %q", evalCase.BundleModelClass)
 	}
+	if !schema.IsModelTier(evalCase.ModelTier) {
+		return fmt.Errorf("custom case has unsupported model tier %q", evalCase.ModelTier)
+	}
 	for _, criterion := range evalCase.Rubric {
 		if strings.TrimSpace(criterion.ID) == "" ||
 			strings.TrimSpace(criterion.Question) == "" ||
@@ -453,8 +460,9 @@ func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, err
 		modelClass string
 	}
 	lanes := []lane{
-		{tier: frontierTier, modelClass: "frontier"},
-		{tier: ossTier, modelClass: "low-context"},
+		{tier: schema.ModelTierFrontier, modelClass: schema.ModelClassFrontier},
+		{tier: schema.ModelTierCommodity, modelClass: schema.ModelClassFrontier},
+		{tier: schema.ModelTierOSS, modelClass: schema.ModelClassLowContext},
 	}
 	cases := make([]Case, 0, len(lanes)*len(scenarios))
 	for _, currentLane := range lanes {

@@ -18,6 +18,9 @@ import (
 const (
 	DeliveryNativeSkills = "native-skills"
 	DeliveryCompiled     = "compiled"
+	ModelTierFrontier    = "frontier"
+	ModelTierCommodity   = "commodity"
+	ModelTierOSS         = "oss"
 	ModelClassFrontier   = "frontier"
 	ModelClassLowContext = "low-context"
 	LowContextRequired   = "required"
@@ -43,8 +46,25 @@ type Request struct {
 	PersonalityLibraries []string
 	Role                 string
 	Delivery             string
+	ModelTier            string
 	ModelClass           string
 	Sources              []SourceLocator
+}
+
+// IsModelTier reports whether value belongs to the complete stable model-tier
+// vocabulary. Model identity and provider routing remain caller-owned facts.
+func IsModelTier(value string) bool {
+	switch value {
+	case ModelTierFrontier, ModelTierCommodity, ModelTierOSS:
+		return true
+	default:
+		return false
+	}
+}
+
+// ModelTiers returns the canonical presentation order for model tiers.
+func ModelTiers() []string {
+	return []string{ModelTierFrontier, ModelTierCommodity, ModelTierOSS}
 }
 
 type SourceLocator struct {
@@ -206,7 +226,7 @@ func ParseRequest(path string) (*Request, error) {
 				return nil, fmt.Errorf("request %s: personality-library path %q must be relative and clean", path, v)
 			}
 			req.PersonalityLibraries = append(req.PersonalityLibraries, v)
-		case "person-policy", "person-source", "role", "delivery", "model-class":
+		case "person-policy", "person-source", "role", "delivery", "model-tier", "model-class":
 			if seen[n.Name()] {
 				return nil, fmt.Errorf("request %s: duplicate %s node", path, n.Name())
 			}
@@ -232,6 +252,8 @@ func ParseRequest(path string) (*Request, error) {
 				req.Role = v
 			case "delivery":
 				req.Delivery = v
+			case "model-tier":
+				req.ModelTier = v
 			case "model-class":
 				req.ModelClass = v
 			}
@@ -300,6 +322,19 @@ func ParseRequest(path string) (*Request, error) {
 	}
 	if req.ModelClass == "" {
 		req.ModelClass = ModelClassFrontier
+	}
+	if req.ModelTier == "" {
+		req.ModelTier = ModelTierFrontier
+	}
+	if !IsModelTier(req.ModelTier) {
+		return nil, fmt.Errorf(
+			"request %s: model-tier must be %q, %q, or %q, got %q",
+			path,
+			ModelTierFrontier,
+			ModelTierCommodity,
+			ModelTierOSS,
+			req.ModelTier,
+		)
 	}
 	if req.ModelClass != ModelClassFrontier && req.ModelClass != ModelClassLowContext {
 		return nil, fmt.Errorf("request %s: model-class must be %q or %q, got %q",

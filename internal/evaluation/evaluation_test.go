@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestBuildEmitsCoreV2FrontierOSSMatrix(t *testing.T) {
+func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
@@ -20,11 +20,11 @@ func TestBuildEmitsCoreV2FrontierOSSMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 14 {
-		t.Fatalf("evaluation cases = %d, want 14", len(pack.Cases))
+	if len(pack.Cases) != 21 {
+		t.Fatalf("evaluation cases = %d, want 21", len(pack.Cases))
 	}
-	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{ossTier}) {
-		t.Fatalf("disabled model tiers = %v, want [%s]", pack.DisabledModelTiers, ossTier)
+	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{commodityTier, ossTier}) {
+		t.Fatalf("disabled model tiers = %v, want [%s %s]", pack.DisabledModelTiers, commodityTier, ossTier)
 	}
 	if err := ValidateCorePack(pack); err != nil {
 		t.Fatal(err)
@@ -152,7 +152,7 @@ func TestBuildForCustomRoleReplacesCompleteMatrix(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(generic.Cases) != 4 || generic.Cases[0].ID != "frontier-role-understanding" {
+	if len(generic.Cases) != 6 || generic.Cases[0].ID != "frontier-role-understanding" {
 		t.Fatalf("role without a custom matrix did not receive generic fallback: %+v", generic.Cases)
 	}
 }
@@ -364,8 +364,8 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	markdown := string(Markdown(pack))
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
-		"Disabled model tiers: `oss`",
-		"## Scenario matrix (14 cases)",
+		"Disabled model tiers: `commodity`, `oss`",
+		"## Scenario matrix (21 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",
 	} {

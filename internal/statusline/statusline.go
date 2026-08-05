@@ -46,6 +46,10 @@ func render(
 	trace *bundle.Trace,
 	opts Options,
 ) string {
+	modelTier := manifest.ModelTier
+	if modelTier == "" {
+		modelTier = manifest.ModelClass
+	}
 	seat := selectedSeat(manifest.Identity.Seats, projection.Layout)
 	seatName := manifest.Role
 	if seat.Name != "" {
@@ -78,7 +82,7 @@ func render(
 		seatText,
 		manifest.Role,
 		projection.Layout,
-		manifest.ModelClass,
+		modelTier,
 		skills,
 		compact(tokens),
 		health,

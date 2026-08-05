@@ -17,6 +17,8 @@ import (
 )
 
 const (
+	// EnvModelTier carries the launch consumer's runtime model-tier selection.
+	EnvModelTier = "AGENT_COMPOSE_MODEL_TIER"
 	// EnvModelClass carries the launch consumer's runtime model-class selection.
 	EnvModelClass = "AGENT_COMPOSE_MODEL_CLASS"
 	// EnvRuntimeHome selects a session-scoped home for the harness process.
@@ -28,6 +30,7 @@ const (
 type Options struct {
 	Role            string
 	Harness         string
+	ModelTier       string
 	ModelClass      string
 	CWD             string
 	TargetDir       string
@@ -43,6 +46,7 @@ type Result struct {
 	BundleDir    string
 	BundleReused bool
 	Projected    int
+	ModelTier    string
 	ModelClass   string
 	Sources      []compose.RootSource
 }
@@ -56,6 +60,10 @@ type repository struct {
 // transactionally projects the result at the selected harness load points.
 func Refresh(opts Options) (*Result, error) {
 	if err := validateHarness(opts.Harness); err != nil {
+		return nil, err
+	}
+	modelTier, err := normalizeModelTier(opts.ModelTier)
+	if err != nil {
 		return nil, err
 	}
 	modelClass, err := normalizeModelClass(opts.ModelClass)
@@ -73,6 +81,7 @@ func Refresh(opts Options) (*Result, error) {
 	request := &schema.Request{
 		Role:       strings.TrimSpace(opts.Role),
 		Delivery:   schema.DeliveryNativeSkills,
+		ModelTier:  modelTier,
 		ModelClass: modelClass,
 	}
 	composed, err := compose.RunRootsWithMissing(
@@ -104,6 +113,7 @@ func Refresh(opts Options) (*Result, error) {
 		BundleDir:    composed.Bundle.Dir,
 		BundleReused: composed.Bundle.Reused,
 		Projected:    len(projected.Files),
+		ModelTier:    modelTier,
 		ModelClass:   modelClass,
 		Sources:      roots,
 	}, nil
@@ -119,6 +129,17 @@ func validateHarness(harness string) error {
 			harness,
 		)
 	}
+}
+
+func normalizeModelTier(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return schema.ModelTierFrontier, nil
+	}
+	if schema.IsModelTier(value) {
+		return value, nil
+	}
+	return "", fmt.Errorf("unsupported native model tier %q", value)
 }
 
 func normalizeModelClass(value string) (string, error) {

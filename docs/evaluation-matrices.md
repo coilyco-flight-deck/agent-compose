@@ -1,10 +1,10 @@
 # Profile-owned evaluation matrices
 
-The engine owns the run protocol, scoring rule, frontier and OSS lanes, and
-generic rubrics. A Core Roster role owns `evaluations/<role>.yaml` with ordered
-scenario inputs. Each scenario names a stable id, one supported kind, its
-prompt, and an optional reviewer question. Adjacent-role scenarios also name
-the role whose boundary they test.
+The engine owns the run protocol, scoring rule, frontier, commodity, and OSS
+lanes, and generic rubrics. A Core Roster role owns
+`evaluations/<role>.yaml` with ordered scenario inputs. Each scenario names a
+stable id, one supported kind, its prompt, and an optional reviewer question.
+Adjacent-role scenarios also name the role whose boundary they test.
 
 Supported Core Roster scenario kinds are:
 
@@ -16,11 +16,12 @@ Supported Core Roster scenario kinds are:
 * `adjacent-role-discrimination`
 * `human-communication-ownership`
 
-The engine expands each scenario into paired frontier and OSS cases. Keeping
-lanes and rubrics in the engine prevents eight role assets from restating the
-same evaluation configuration. A pack-level `disabled_model_tiers` marker
-temporarily pauses a lane without deleting its cases or changing role-owned
-scenario files.
+The engine expands each scenario into frontier, commodity, and OSS cases.
+Frontier and commodity use the full bundle class, while OSS uses low-context.
+Keeping lanes and rubrics in the engine prevents eight role assets from
+restating the same evaluation configuration. A pack-level
+`disabled_model_tiers` marker temporarily pauses a lane without deleting its
+cases or changing role-owned scenario files.
 
 External roster packages may instead provide a complete custom matrix with
 `run_protocol`, `review_rule`, and arbitrary `cases`. A complete matrix replaces

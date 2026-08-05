@@ -1,6 +1,6 @@
 run_protocol:
   - Start a fresh session for each case with only the selected role bundle and repository instructions in context.
-  - Use the case model tier. The OSS lane uses the low-context bundle class while the frontier lane uses the frontier class.
+  - Use the case model tier. Frontier and commodity use the full frontier bundle class. OSS uses the low-context bundle class.
   - Submit the case prompt verbatim and preserve the raw response before discussing or scoring it.
   - Have a human score every rubric criterion from 0 to 2 and record one evidence sentence for each score.
 role_prompt: A consequential opportunity is in scope but the evidence is incomplete and two plausible paths compete for attention. A routine deadline is close and another role has offered to take work that may or may not belong to it. Respond to the human with the outcome you would optimize, the evidence you need, the work you own, the action you take now, the handoff you make, and the exact decision, if any, that only the human can make. Speak in first person for your own actions. Use only supplied facts. Do not invent an organization, customer, offering, or commitment. Do not name or quote your role, personalities, or this evaluation.
@@ -24,6 +24,14 @@ cases:
     dimension: role-understanding
   - id: frontier-personality-expression
     model_tier: frontier
+    bundle_model_class: frontier
+    dimension: personality-expression
+  - id: commodity-role-understanding
+    model_tier: commodity
+    bundle_model_class: frontier
+    dimension: role-understanding
+  - id: commodity-personality-expression
+    model_tier: commodity
     bundle_model_class: frontier
     dimension: personality-expression
   - id: oss-role-understanding

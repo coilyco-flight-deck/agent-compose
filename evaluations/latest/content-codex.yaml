@@ -7,7 +7,7 @@ provenance:
   source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
   prompt_author: 'coilyco-ops issue #178 authors'
   reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:7b60ccbe87e8ccb0c06e8fc4f3ac1118e02e525ca65f844ecb2d8e29a22b228b
+  pack_digest: sha256:85d9fc5c434615aad2f2c71b2a2a5986b8cfcd3fe3971d8a3108c517d7795448
   retry_provenance:
     attempts: []
 cases:

@@ -213,7 +213,7 @@ func main() {
 			},
 			{
 				Name:  "evaluation",
-				Usage: "emit deterministic frontier and OSS human-review packs",
+				Usage: "emit deterministic frontier, commodity, and OSS human-review packs",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "role",
@@ -839,6 +839,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	result, err := nativelaunch.Refresh(nativelaunch.Options{
 		Role:            role,
 		Harness:         harness,
+		ModelTier:       os.Getenv(nativelaunch.EnvModelTier),
 		ModelClass:      os.Getenv(nativelaunch.EnvModelClass),
 		CWD:             cwd,
 		TargetDir:       cwd,
@@ -918,9 +919,10 @@ func printNativeLaunchStatus(
 ) {
 	fmt.Fprintf(
 		w,
-		"agent-compose: assigned %s to %s (%s %s bundle, %d files)\n",
+		"agent-compose: assigned %s to %s (%s tier, %s %s bundle, %d files)\n",
 		role,
 		harness,
+		result.ModelTier,
 		result.ModelClass,
 		state,
 		result.Projected,
@@ -1008,6 +1010,7 @@ func codexAcceptsInitialPrompt(args []string) bool {
 
 func clearNativeLaunchEnvironment() error {
 	for _, name := range []string{
+		nativelaunch.EnvModelTier,
 		nativelaunch.EnvModelClass,
 		nativelaunch.EnvRuntimeHome,
 	} {
@@ -1387,8 +1390,8 @@ func printNativeLaunchSummary(
 	}
 	req := r.Resolution.Request
 	intro := fmt.Sprintf(
-		"bundle %s (%s)\nrequest: model class %s // delivery %s\n",
-		r.Bundle.Key, state, req.ModelClass, req.Delivery,
+		"bundle %s (%s)\nrequest: model tier %s // model class %s // delivery %s\n",
+		r.Bundle.Key, state, req.ModelTier, req.ModelClass, req.Delivery,
 	)
 	if opts.Color {
 		intro = color.ANSI(r.Resolution.FavoriteColor, intro, opts.TrueColor)

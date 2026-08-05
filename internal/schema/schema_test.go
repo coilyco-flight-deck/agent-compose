@@ -28,8 +28,30 @@ func TestParseRequestFixture(t *testing.T) {
 	if req.ModelClass != ModelClassFrontier {
 		t.Fatalf("unexpected default model class: %+v", req)
 	}
+	if req.ModelTier != ModelTierFrontier {
+		t.Fatalf("unexpected default model tier: %+v", req)
+	}
 	if len(req.Sources) != 1 || req.Sources[0].ID != "aos-public" || !req.Sources[0].Required {
 		t.Fatalf("unexpected sources: %+v", req.Sources)
+	}
+}
+
+func TestParseRequestAcceptsCanonicalModelTiers(t *testing.T) {
+	for _, tier := range ModelTiers() {
+		t.Run(tier, func(t *testing.T) {
+			path := writeRequest(t, `compose {
+    role "engineer"
+    delivery "compiled"
+    model-tier "`+tier+`"
+}`)
+			req, err := ParseRequest(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if req.ModelTier != tier {
+				t.Fatalf("model tier = %q, want %q", req.ModelTier, tier)
+			}
+		})
 	}
 }
 
@@ -105,6 +127,11 @@ func TestParseRequestFailsClosed(t *testing.T) {
     role "engineer"
     delivery "native-skills"
     model-class "tiny"
+}`,
+		"bad model tier": `compose {
+    role "engineer"
+    delivery "native-skills"
+    model-tier "premium"
 }`,
 		"retired brief density": `compose {
     role "engineer"

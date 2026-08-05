@@ -19,7 +19,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 		Layout: "codex", Bundle: bundleDir, Files: []string{"AGENTS.md"},
 	})
 	writeJSON(t, filepath.Join(bundleDir, "manifest.json"), bundle.Manifest{
-		Format: "agent-compose.bundle", Role: "engineer", ModelClass: "frontier",
+		Format: "agent-compose.bundle", Role: "engineer", ModelTier: "frontier", ModelClass: "frontier",
 		Color: "#959e5f",
 		Identity: bundle.RoleIdentity{
 			Person: "core", Seats: []person.Seat{{Key: "codex", Name: "terran engineer"}},

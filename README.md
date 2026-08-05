@@ -9,9 +9,9 @@ and evaluation context. An independent deployment can select one complete
 external package instead, with no role or definition inheritance from that
 default.
 
-The intended product accepts a role, a model class, a delivery mode, and
-optional capability sources. The role activates its complete ordered default
-personality set.
+The intended product accepts a role, a model tier, a bundle model class, a
+delivery mode, and optional capability sources. The role activates its
+complete ordered default personality set.
 Agent-compose resolves the selected role skill and every bound personality
 skill from the selected person package, tells the agent every component and
 melded favorite color through a compact identity card, and emits an immutable
@@ -34,8 +34,8 @@ Roster:
   seats, inspiration records, appearances, and renderer expressions
 * credited role and personality inspirations with sourced public appearances
 * ordinary and role-composed skill selection
+* three stable model tiers (`frontier`, `commodity`, and `oss`) with fail-closed per-role compatibility
 * model-class-aware pruning controlled by each skill's own frontmatter
-* fail-closed per-role model-class compatibility
 * native-skill and compiled-context delivery with source entry-point promotion
 * local ordinary-skill catalogues projected through one native path
 * [role-scoped providers](docs/role-scoped-providers.md) for assigned bundles

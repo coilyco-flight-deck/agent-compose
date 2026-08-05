@@ -232,6 +232,11 @@ func verifyManifest(dir string, manifest *Manifest) error {
 		manifest.ModelClass != schema.ModelClassLowContext {
 		return fmt.Errorf("bundle manifest has unknown model class %q", manifest.ModelClass)
 	}
+	if manifest.ModelTier == "" {
+		manifest.ModelTier = schema.ModelTierFrontier
+	} else if !schema.IsModelTier(manifest.ModelTier) {
+		return fmt.Errorf("bundle manifest has unknown model tier %q", manifest.ModelTier)
+	}
 	seenPersonalities := map[string]bool{}
 	for _, personality := range manifest.Personalities {
 		if !safeSegment(personality) {

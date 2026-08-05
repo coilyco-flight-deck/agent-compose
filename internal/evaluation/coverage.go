@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 var requiredScenarioKinds = []string{
@@ -75,7 +76,7 @@ func ValidateCorePack(pack *Pack) error {
 		if evalCase.Scenario == "" || evalCase.ScenarioKind == "" {
 			return fmt.Errorf("case %q has no v2 scenario identity", evalCase.ID)
 		}
-		if evalCase.ModelTier != frontierTier && evalCase.ModelTier != ossTier {
+		if !schema.IsModelTier(evalCase.ModelTier) {
 			return fmt.Errorf("case %q has unsupported tier %q", evalCase.ID, evalCase.ModelTier)
 		}
 		if evalCase.ScenarioKind == ScenarioHumanCommunication {
@@ -107,8 +108,10 @@ func ValidateCorePack(pack *Pack) error {
 	kinds := make(map[string]int)
 	adjacent := make(map[string]int)
 	for id, scenario := range scenarios {
-		if !scenario.tiers[frontierTier] || !scenario.tiers[ossTier] {
-			return fmt.Errorf("scenario %q does not cover frontier and OSS", id)
+		for _, tier := range schema.ModelTiers() {
+			if !scenario.tiers[tier] {
+				return fmt.Errorf("scenario %q does not cover model tier %q", id, tier)
+			}
 		}
 		kinds[scenario.kind]++
 		if scenario.kind == ScenarioAdjacentRole {

@@ -20,11 +20,12 @@ The launcher converges the host first, then reads the generated
 [role-scoped providers](role-scoped-providers.md). Required providers fail when
 missing. Optional exclusions stay traced. Isolated workspaces remap the same set.
 
-Model class is a launch-consumer runtime fact. Agent Compose defaults to the
-full `frontier` bundle. A launch consumer may set
-`AGENT_COMPOSE_MODEL_CLASS=frontier` or `low-context` before exec. AOS supplies
-that value from its own layout registry. All four harnesses receive
-native-skills delivery through their existing projection layout.
+Model tier and bundle model class are separate launch-consumer runtime facts.
+Agent Compose defaults both to `frontier`. A launch consumer may set
+`AGENT_COMPOSE_MODEL_TIER=frontier`, `commodity`, or `oss` to select the role
+compatibility lane, and `AGENT_COMPOSE_MODEL_CLASS=frontier` or `low-context`
+for context density. AOS owns the runtime registry for both. All harnesses
+receive native skills through their existing projection layout.
 
 The resulting bundle contains only the assigned role skill, its complete
 ordered personality meld, ordinary admitted skills, and role-composed skills

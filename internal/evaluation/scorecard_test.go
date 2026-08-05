@@ -18,9 +18,12 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	result.Provenance.EvaluatedAt = "2026-07-30"
 	for index := range result.Cases {
 		evalCase := pack.Cases[index]
-		if evalCase.ModelTier == frontierTier {
+		switch evalCase.ModelTier {
+		case frontierTier:
 			result.Cases[index].Model = "frontier-test"
-		} else {
+		case commodityTier:
+			result.Cases[index].Model = "commodity-test"
+		case ossTier:
 			result.Cases[index].Model = "oss-test"
 		}
 		if evalCase.ModelTier == ossTier && evalCase.Dimension == roleDimension {
@@ -51,9 +54,9 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	}
 	for _, want := range []string{
 		"# Evaluation scorecard",
-		"F frontier-test · O oss-test · 8/14 pass · 104/116 points",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | 32/42× | 8✓ | 6× | 104/116 |",
-		"`F` frontier · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination",
+		"F frontier-test · C commodity-test · O oss-test · 15/21 pass · 162/174 points",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | 42/42✓ | 8✓ | 8✓ | 32/42× | 8✓ | 6× | 162/174 |",
+		"`F` frontier · `C` commodity · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination",
 	} {
 		if !strings.Contains(string(first), want) {
 			t.Errorf("scorecard omitted %q:\n%s", want, first)
@@ -69,7 +72,7 @@ func TestMarkdownScorecardRequiresSelectedResults(t *testing.T) {
 	}
 }
 
-func TestMarkdownScorecardMarksDisabledOSSTier(t *testing.T) {
+func TestMarkdownScorecardMarksDisabledNonFrontierTiers(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("engineer", "codex")
 	if err != nil {
@@ -79,7 +82,7 @@ func TestMarkdownScorecardMarksDisabledOSSTier(t *testing.T) {
 	result.Provenance.EvaluatedAt = "2026-08-04"
 	kept := result.Cases[:0]
 	for _, scored := range result.Cases {
-		if strings.HasPrefix(scored.ID, ossTier+"-") {
+		if !strings.HasPrefix(scored.ID, frontierTier+"-") {
 			continue
 		}
 		scored.Model = "frontier-test"
@@ -100,8 +103,8 @@ func TestMarkdownScorecardMarksDisabledOSSTier(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"F frontier-test · O disabled · 7/7 pass · 58/58 points",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | 58/58 |",
+		"F frontier-test · C disabled · O disabled · 7/7 pass · 58/58 points",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 58/58 |",
 	} {
 		if !strings.Contains(string(scorecard), want) {
 			t.Errorf("disabled-tier scorecard omitted %q:\n%s", want, scorecard)
@@ -118,6 +121,14 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	result := passingResult(pack)
 	result.Format = ResultFormatV2
 	result.Provenance.PackDigest = "sha256:historical-fixture"
+	kept := result.Cases[:0]
+	for _, scored := range result.Cases {
+		if strings.HasPrefix(scored.ID, commodityTier+"-") {
+			continue
+		}
+		kept = append(kept, scored)
+	}
+	result.Cases = kept
 	raw, err := marshalYAML(result)
 	if err != nil {
 		t.Fatal(err)
@@ -132,8 +143,9 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"| role | FR | FP | FA | OR | OP | OA | Σ |",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | 42/42✓ | 8✓ | 8✓ | 116/116 |",
+		"F fixture-model · C disabled · O fixture-model · 14/14 pass · 116/116 points",
+		"| role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |",
+		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | 42/42✓ | 8✓ | 8✓ | 116/116 |",
 	} {
 		if !strings.Contains(string(scorecard), want) {
 			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)

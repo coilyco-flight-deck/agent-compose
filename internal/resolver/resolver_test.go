@@ -165,25 +165,26 @@ low-context: optional
 	}
 }
 
-func TestResolveRejectsUnsupportedRoleModelClass(t *testing.T) {
+func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	lowContext := &schema.Request{
+	oss := &schema.Request{
 		Role:       "strats",
 		Delivery:   schema.DeliveryNativeSkills,
+		ModelTier:  schema.ModelTierOSS,
 		ModelClass: schema.ModelClassLowContext,
 	}
-	if _, err := Resolve(lowContext, p, nil, nil); err == nil ||
-		err.Error() != `role "strats" requires a frontier model` {
-		t.Fatalf("low-context Portfolio Strategist error = %v", err)
+	if _, err := Resolve(oss, p, nil, nil); err == nil ||
+		err.Error() != `role "strats" does not support model tier "oss"` {
+		t.Fatalf("OSS Portfolio Strategist error = %v", err)
 	}
 
-	frontier := *lowContext
-	frontier.ModelClass = schema.ModelClassFrontier
+	frontier := *oss
+	frontier.ModelTier = schema.ModelTierFrontier
 	if _, err := Resolve(&frontier, p, nil, nil); err != nil {
-		t.Fatalf("frontier Portfolio Strategist failed: %v", err)
+		t.Fatalf("frontier low-context Portfolio Strategist failed: %v", err)
 	}
 }
 
