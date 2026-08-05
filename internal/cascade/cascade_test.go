@@ -111,139 +111,15 @@ func TestLoadConfigValidatesPersonPolicy(t *testing.T) {
 func TestLoadConfigRejectsRemovedV1IntegrationKeys(t *testing.T) {
 	e := newEnv(t)
 	for name, body := range map[string]string{
-		"remote sources": "remote_skill_sources:\n  - owner/catalog/skills@v1\n",
-		"remote ttl":     "remote_skill_cache_ttl: 45m\n",
-		"mcp inventory":  "mcp_inventory: /tmp/mcporter.json\n",
+		"remote sources":        "remote_skill_sources:\n  - owner/catalog/skills@v1\n",
+		"remote ttl":            "remote_skill_cache_ttl: 45m\n",
+		"mcp inventory":         "mcp_inventory: /tmp/mcporter.json\n",
+		"inline role providers": "role_providers: {}\n",
+		"role providers file":   "role_providers_file: role-providers.yaml\n",
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := LoadConfig(e.write(t, name+".yaml", body)); err == nil {
 				t.Fatal("removed v1 key passed strict config loading")
-			}
-		})
-	}
-}
-
-func TestRoleProvidersRoundTripIntoStrictEligibility(t *testing.T) {
-	e := newEnv(t)
-	source := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
-	e.config(t, "sources:\n  - "+source+"\nrole_providers:\n  ops:\n    - path: org/infrastructure\n      required: true\n      skills:\n        - compute-stack\n        - machine-*\n    - path: org/deploy\n      required: false\n")
-
-	if code, out, errOut := e.run(t, false); code != 0 {
-		t.Fatalf("run failed: %s %s", out, errOut)
-	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
-	manifest, err := skillmount.LoadEligibility(manifestPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	providers := manifest.RoleProviders["ops"]
-	if len(providers) != 2 ||
-		providers[0].Path != filepath.Join(e.projects, "org", "infrastructure") ||
-		!providers[0].Required || providers[1].Required ||
-		!slices.Equal(providers[0].Skills, []string{"compute-stack", "machine-*"}) ||
-		providers[1].Skills != nil {
-		t.Fatalf("role providers did not round-trip: %+v", providers)
-	}
-	for _, roleOnly := range providers {
-		for _, bare := range manifest.Repositories("codex") {
-			if bare == roleOnly.Path {
-				t.Fatalf("bare eligibility leaked role provider %s", roleOnly.Path)
-			}
-		}
-	}
-
-	bad := e.write(t, "bad-role-provider.yaml", "role_providers:\n  ops:\n    - path: org/infrastructure\n      surprise: true\n")
-	if _, err := LoadConfig(bad); err == nil || !strings.Contains(err.Error(), "field surprise") {
-		t.Fatalf("nested unknown field passed strict config loading: %v", err)
-	}
-	for name, selector := range map[string]string{
-		"empty":   "skills: []",
-		"blank":   "skills: ['']",
-		"invalid": "skills: ['[']",
-	} {
-		t.Run(name, func(t *testing.T) {
-			path := e.write(
-				t,
-				"bad-selector-"+name+".yaml",
-				"role_providers:\n  ops:\n    - path: org/infrastructure\n      "+selector+"\n",
-			)
-			if _, err := LoadConfig(path); err == nil || !strings.Contains(err.Error(), "skills selector") {
-				t.Fatalf("invalid selector passed strict config loading: %v", err)
-			}
-		})
-	}
-}
-
-func TestRoleProvidersFileLoadsThroughRelativeSymlink(t *testing.T) {
-	e := newEnv(t)
-	source := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
-	e.write(
-		t,
-		"aosk/role-providers.yaml",
-		"role_providers:\n  engineer:\n    - path: example/hardware\n      required: true\n      skills:\n        - compute-stack\n        - machine-*\n",
-	)
-	if err := os.Symlink(
-		filepath.Join("aosk", "role-providers.yaml"),
-		filepath.Join(e.dir, "role-providers.yaml"),
-	); err != nil {
-		t.Fatal(err)
-	}
-	e.config(
-		t,
-		"sources:\n  - "+source+"\nrole_providers_file: role-providers.yaml\n",
-	)
-
-	cfg, err := LoadConfig(e.paths.Config)
-	if err != nil {
-		t.Fatal(err)
-	}
-	provider := cfg.RoleProviders["engineer"][0]
-	if provider.Path != "example/hardware" ||
-		!provider.Required ||
-		!slices.Equal(provider.Skills, []string{"compute-stack", "machine-*"}) {
-		t.Fatalf("external role provider = %+v", provider)
-	}
-
-	if code, out, errOut := e.run(t, false); code != 0 {
-		t.Fatalf("run failed: %s %s", out, errOut)
-	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
-	manifest, err := skillmount.LoadEligibility(manifestPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	resolved := manifest.RoleProviders["engineer"][0]
-	if resolved.Path != filepath.Join(e.projects, "example", "hardware") {
-		t.Fatalf("provider path was not hydrated against projects_root: %+v", resolved)
-	}
-}
-
-func TestRoleProvidersFileFailsClosed(t *testing.T) {
-	e := newEnv(t)
-	e.write(
-		t,
-		"strict/unknown.yaml",
-		"role_providers:\n  engineer:\n    - path: example/hardware\nsurprise: true\n",
-	)
-	e.write(t, "strict/missing-role-providers.yaml", "{}\n")
-	e.write(
-		t,
-		"strict/invalid-selector.yaml",
-		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: ['[']\n",
-	)
-
-	for name, body := range map[string]string{
-		"blank path":       "role_providers_file: ''\n",
-		"missing file":     "role_providers_file: absent.yaml\n",
-		"inline conflict":  "role_providers: {}\nrole_providers_file: strict/unknown.yaml\n",
-		"unknown field":    "role_providers_file: strict/unknown.yaml\n",
-		"missing root key": "role_providers_file: strict/missing-role-providers.yaml\n",
-		"invalid selector": "role_providers_file: strict/invalid-selector.yaml\n",
-	} {
-		t.Run(name, func(t *testing.T) {
-			path := e.write(t, "bad-external-"+strings.ReplaceAll(name, " ", "-")+".yaml", body)
-			if _, err := LoadConfig(path); err == nil {
-				t.Fatal("invalid external role-provider configuration passed")
 			}
 		})
 	}
@@ -303,11 +179,6 @@ roles {
 		providers[0].Name != "hardware" || providers[0].DeclaredBy != "example/aosk" ||
 		!slices.Equal(providers[0].Skills, []string{"compute-stack", "machine-*"}) {
 		t.Fatalf("unified role provider = %+v", providers)
-	}
-
-	e.config(t, "sources:\n  - "+source+"\nrole_providers: {}\n")
-	if code, _, errOut := e.run(t, true); code == 0 || !strings.Contains(errOut, "cannot both be active") {
-		t.Fatalf("legacy and KDL conflict must fail, code=%d stderr=%q", code, errOut)
 	}
 }
 

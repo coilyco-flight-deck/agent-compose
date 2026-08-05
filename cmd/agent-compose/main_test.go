@@ -43,25 +43,30 @@ func TestEvaluationOutputUsesYAML(t *testing.T) {
 	}
 }
 
-func TestConfigValidateUsesStrictOwningLoader(t *testing.T) {
+func TestConfigValidateRejectsRemovedRoleProviderKeys(t *testing.T) {
 	valid := filepath.Join(t.TempDir(), "agent-compose.yaml")
 	if err := os.WriteFile(valid, []byte(
-		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: [compute-stack, 'machine-*']\n",
+		"person_policy: external-only\nperson_source: ./person\n",
 	), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := cascade.LoadConfig(valid); err != nil {
-		t.Fatalf("valid selector config: %v", err)
+		t.Fatalf("valid strict config: %v", err)
 	}
 
-	invalid := filepath.Join(t.TempDir(), "agent-compose.yaml")
-	if err := os.WriteFile(invalid, []byte(
-		"role_providers:\n  engineer:\n    - path: example/hardware\n      skills: ['[']\n",
-	), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := cascade.LoadConfig(invalid); err == nil || !strings.Contains(err.Error(), "skills selector") {
-		t.Fatalf("invalid selector config passed: %v", err)
+	for name, body := range map[string]string{
+		"inline": "role_providers: {}\n",
+		"file":   "role_providers_file: role-providers.yaml\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			invalid := filepath.Join(t.TempDir(), "agent-compose.yaml")
+			if err := os.WriteFile(invalid, []byte(body), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := cascade.LoadConfig(invalid); err == nil || !strings.Contains(err.Error(), "field role_providers") {
+				t.Fatalf("removed role-provider config passed: %v", err)
+			}
+		})
 	}
 }
 

@@ -311,7 +311,7 @@ type trustedRoleGraph struct {
 func compileRoleProviderGraph(
 	slices map[string][]string,
 	projects string,
-) (map[string][]skillmount.RoleProvider, bool, error) {
+) (map[string][]skillmount.RoleProvider, error) {
 	trusted := map[string]bool{}
 	for _, slug := range defaultMountSet {
 		trusted[filepath.Join(projects, slug)] = true
@@ -337,29 +337,25 @@ func compileRoleProviderGraph(
 			continue
 		}
 		if err != nil {
-			return nil, false, fmt.Errorf("inspect trusted role graph %s: %w", rolesPath, err)
+			return nil, fmt.Errorf("inspect trusted role graph %s: %w", rolesPath, err)
 		}
 		if !info.Mode().IsRegular() {
-			return nil, false, fmt.Errorf("trusted role graph %s is not a regular file", rolesPath)
+			return nil, fmt.Errorf("trusted role graph %s is not a regular file", rolesPath)
 		}
 		source, err := schema.LoadSource(root)
 		if err != nil {
-			return nil, false, fmt.Errorf("load trusted role graph %s: %w", rolesPath, err)
+			return nil, fmt.Errorf("load trusted role graph %s: %w", rolesPath, err)
 		}
 		relative, err := filepath.Rel(projects, root)
 		if err != nil {
-			return nil, false, fmt.Errorf("resolve trusted role graph %s: %w", root, err)
+			return nil, fmt.Errorf("resolve trusted role graph %s: %w", root, err)
 		}
 		graphs = append(graphs, trustedRoleGraph{root: root, relative: filepath.ToSlash(relative), source: source})
 	}
 
-	active := false
 	definitions := map[string]string{}
 	definitionsByRoot := map[string]map[string]string{}
 	for _, graph := range graphs {
-		if len(graph.source.Providers) > 0 || len(graph.source.RoleProviders) > 0 {
-			active = true
-		}
 		ids := make([]string, 0, len(graph.source.Providers))
 		for id := range graph.source.Providers {
 			ids = append(ids, id)
@@ -370,10 +366,10 @@ func compileRoleProviderGraph(
 			definition := graph.source.Providers[id]
 			resolved, err := resolveProviderPath(projects, definition.Path)
 			if err != nil {
-				return nil, false, fmt.Errorf("provider %q declared by %s: %w", id, graph.relative, err)
+				return nil, fmt.Errorf("provider %q declared by %s: %w", id, graph.relative, err)
 			}
 			if previous, exists := definitions[resolved]; exists {
-				return nil, false, fmt.Errorf(
+				return nil, fmt.Errorf(
 					"provider %q declared by %s conflicts at resolved repository path %s with %s",
 					id,
 					graph.relative,
@@ -385,11 +381,8 @@ func compileRoleProviderGraph(
 			definitionsByRoot[graph.root][id] = resolved
 		}
 	}
-	if !active {
-		return nil, false, nil
-	}
 	if err := rejectProviderCycles(graphs, definitionsByRoot); err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
 	roles := map[string][]skillmount.RoleProvider{}
@@ -405,19 +398,19 @@ func compileRoleProviderGraph(
 				resolved := definitionsByRoot[graph.root][use.Provider]
 				if info, err := os.Stat(resolved); err == nil {
 					if !info.IsDir() {
-						return nil, false, fmt.Errorf("provider %q repository path %s is not a directory", use.Provider, resolved)
+						return nil, fmt.Errorf("provider %q repository path %s is not a directory", use.Provider, resolved)
 					}
 					providerSource, err := schema.LoadSource(resolved)
 					if err != nil {
-						return nil, false, fmt.Errorf("load provider %q declared by %s: %w", use.Provider, graph.relative, err)
+						return nil, fmt.Errorf("load provider %q declared by %s: %w", use.Provider, graph.relative, err)
 					}
 					if err := schema.SelectOrdinarySkills(providerSource, definition.Skills); err != nil {
-						return nil, false, fmt.Errorf("select provider %q declared by %s: %w", use.Provider, graph.relative, err)
+						return nil, fmt.Errorf("select provider %q declared by %s: %w", use.Provider, graph.relative, err)
 					}
 				} else if !errors.Is(err, os.ErrNotExist) {
-					return nil, false, fmt.Errorf("inspect provider %q path %s: %w", use.Provider, resolved, err)
+					return nil, fmt.Errorf("inspect provider %q path %s: %w", use.Provider, resolved, err)
 				} else if use.Required {
-					return nil, false, fmt.Errorf(
+					return nil, fmt.Errorf(
 						"required provider %q for role %q is unavailable at %s",
 						use.Provider,
 						role,
@@ -434,7 +427,7 @@ func compileRoleProviderGraph(
 			}
 		}
 	}
-	return roles, true, nil
+	return roles, nil
 }
 
 func resolveProviderPath(projects, logical string) (string, error) {
@@ -500,7 +493,6 @@ func rejectProviderCycles(graphs []trustedRoleGraph, definitions map[string]map[
 // eligibility without adding role providers to bare host convergence.
 func RenderManifest(
 	slices map[string][]string,
-	roleProviders map[string][]skillmount.RoleProvider,
 	projects string,
 ) (string, error) {
 	canonicalProjects, err := canonicalPath(projects)
@@ -508,15 +500,9 @@ func RenderManifest(
 		return "", err
 	}
 	projects = canonicalProjects
-	graphRoleProviders, graphActive, err := compileRoleProviderGraph(slices, projects)
+	roleProviders, err := compileRoleProviderGraph(slices, projects)
 	if err != nil {
 		return "", err
-	}
-	if graphActive && roleProviders != nil {
-		return "", fmt.Errorf("roles.kdl provider graph and legacy role_providers configuration cannot both be active")
-	}
-	if graphActive {
-		roleProviders = graphRoleProviders
 	}
 	defaults := make([]string, 0, len(defaultMountSet))
 	for _, slug := range defaultMountSet {

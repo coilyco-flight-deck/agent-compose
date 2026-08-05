@@ -46,7 +46,6 @@ mount-eligibility manifest is emitted beside the composed output:
 per harness, the repos backing its selected sources unioned with the default
 mount set as JSON. [Role-scoped providers](role-scoped-providers.md) compile
 from trusted KDL, stay out of bare convergence, and retain provenance.
-Legacy YAML remains readable but cannot coexist with an active KDL graph.
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only

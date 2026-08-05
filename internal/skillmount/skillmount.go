@@ -39,11 +39,11 @@ type Eligibility struct {
 // RoleProvider is one local provider admitted only when its role is selected.
 // Paths are canonical repository roots in generated eligibility manifests.
 type RoleProvider struct {
-	Path       string   `json:"path" yaml:"path"`
-	Required   bool     `json:"required" yaml:"required"`
-	Skills     []string `json:"skills,omitempty" yaml:"skills,omitempty"`
-	Name       string   `json:"name,omitempty" yaml:"-"`
-	DeclaredBy string   `json:"declared_by,omitempty" yaml:"-"`
+	Path       string   `json:"path"`
+	Required   bool     `json:"required"`
+	Skills     []string `json:"skills,omitempty"`
+	Name       string   `json:"name,omitempty"`
+	DeclaredBy string   `json:"declared_by,omitempty"`
 }
 
 // Provider records one selected repository and why it entered the ordered
