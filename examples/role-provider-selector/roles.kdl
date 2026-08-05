@@ -1,0 +1,12 @@
+providers {
+    provider hardware path="example/hardware-knowledge" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
+}
+
+roles {
+    role engineer {
+        use-provider hardware required=#true
+    }
+}

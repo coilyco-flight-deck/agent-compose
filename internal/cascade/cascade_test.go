@@ -249,6 +249,178 @@ func TestRoleProvidersFileFailsClosed(t *testing.T) {
 	}
 }
 
+func TestUnifiedRoleProviderGraphRendersStrictEligibility(t *testing.T) {
+	e := newEnv(t)
+	aosk := filepath.Join(e.projects, "example", "aosk")
+	hardware := filepath.Join(e.projects, "example", "hardware")
+	for root, skills := range map[string][]string{
+		aosk:     {"repo-aosk"},
+		hardware: {"compute-stack", "machine-alpha", "unselected"},
+	} {
+		for _, skill := range skills {
+			dir := filepath.Join(root, ".agents", "skills", skill)
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+skill+"\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	source := filepath.Join(aosk, "AGENTS.COMPOSE.md")
+	if err := os.WriteFile(source, []byte("# AOSK\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(aosk, ".agents", "roles.kdl"), []byte(`providers {
+    provider hardware path="example/hardware" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
+}
+roles {
+    role engineer {
+        use-provider hardware required=#true
+    }
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	e.config(t, "sources:\n  - "+source+"\n")
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifest, err := skillmount.LoadEligibility(filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	providers := manifest.RoleProviders["engineer"]
+	canonicalHardware, err := canonicalPath(hardware)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(providers) != 1 || providers[0].Path != canonicalHardware || !providers[0].Required ||
+		providers[0].Name != "hardware" || providers[0].DeclaredBy != "example/aosk" ||
+		!slices.Equal(providers[0].Skills, []string{"compute-stack", "machine-*"}) {
+		t.Fatalf("unified role provider = %+v", providers)
+	}
+
+	e.config(t, "sources:\n  - "+source+"\nrole_providers: {}\n")
+	if code, _, errOut := e.run(t, true); code == 0 || !strings.Contains(errOut, "cannot both be active") {
+		t.Fatalf("legacy and KDL conflict must fail, code=%d stderr=%q", code, errOut)
+	}
+}
+
+func TestUnifiedRoleProviderGraphFailsClosed(t *testing.T) {
+	for name, setup := range map[string]func(t *testing.T, e env) string{
+		"missing required": func(t *testing.T, e env) string {
+			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
+    provider missing path="example/missing"
+}
+roles { role engineer { use-provider missing required=#true } }
+`)
+		},
+		"unmatched selector": func(t *testing.T, e env) string {
+			writeOrdinaryProvider(t, filepath.Join(e.projects, "example", "hardware"), "compute-stack")
+			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
+    provider hardware path="example/hardware" { skill "machine-*" }
+}
+roles { role engineer { use-provider hardware required=#true } }
+`)
+		},
+		"provider cycle": func(t *testing.T, e env) string {
+			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
+    provider self path="example/aosk"
+}
+roles { role engineer { use-provider self required=#true } }
+`)
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			e := newEnv(t)
+			source := setup(t, e)
+			e.config(t, "sources:\n  - "+source+"\n")
+			if code, _, errOut := e.run(t, true); code == 0 {
+				t.Fatalf("invalid graph passed: %s", errOut)
+			}
+		})
+	}
+}
+
+func TestImportedProviderGraphDoesNotRecursivelyWidenEligibility(t *testing.T) {
+	e := newEnv(t)
+	hardware := filepath.Join(e.projects, "example", "hardware")
+	writeOrdinaryProvider(t, hardware, "compute-stack")
+	if err := os.WriteFile(filepath.Join(hardware, ".agents", "roles.kdl"), []byte(`providers {
+    provider recursive path="example/recursive"
+}
+roles { role engineer { use-provider recursive required=#true } }
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	source := writeTrustedRoleGraph(t, e, "example/aosk", `providers {
+    provider hardware path="example/hardware" { skill compute-stack }
+}
+roles { role engineer { use-provider hardware required=#true } }
+`)
+	e.config(t, "sources:\n  - "+source+"\n")
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifest, err := skillmount.LoadEligibility(filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if providers := manifest.RoleProviders["engineer"]; len(providers) != 1 || providers[0].Name != "hardware" {
+		t.Fatalf("imported graph widened eligibility: %+v", providers)
+	}
+}
+
+func TestTrustedRoleGraphsRejectConflictingResolvedProviderPaths(t *testing.T) {
+	e := newEnv(t)
+	one := writeTrustedRoleGraph(t, e, "example/one", `providers {
+    provider hardware path="example/shared"
+}
+roles {}
+`)
+	two := writeTrustedRoleGraph(t, e, "example/two", `providers {
+    provider duplicate path="example/shared"
+}
+roles {}
+`)
+	e.config(t, "sources:\n  - "+one+"\n  - "+two+"\n")
+	if code, _, errOut := e.run(t, true); code == 0 || !strings.Contains(errOut, "conflicts at resolved repository path") {
+		t.Fatalf("conflicting trusted definitions must fail, code=%d stderr=%q", code, errOut)
+	}
+}
+
+func writeOrdinaryProvider(t *testing.T, root string, skills ...string) {
+	t.Helper()
+	for _, skill := range skills {
+		dir := filepath.Join(root, ".agents", "skills", skill)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+skill+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func writeTrustedRoleGraph(t *testing.T, e env, repository, graph string) string {
+	t.Helper()
+	root := filepath.Join(e.projects, filepath.FromSlash(repository))
+	writeOrdinaryProvider(t, root, "repo-root")
+	source := filepath.Join(root, "AGENTS.COMPOSE.md")
+	if err := os.WriteFile(source, []byte("# Trusted root\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(graph), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return source
+}
+
 func TestComposeBasicsAndSilentRecompose(t *testing.T) {
 	e := newEnv(t)
 	a := e.write(t, "src/a/AGENTS.COMPOSE.md", "# Alpha\n\nalpha doctrine\n")

@@ -1,7 +1,0 @@
-role_providers:
-  engineer:
-    - path: example/hardware-knowledge
-      required: true
-      skills:
-        - compute-stack
-        - machine-*

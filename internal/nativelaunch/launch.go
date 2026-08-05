@@ -249,7 +249,7 @@ func resolveRoots(
 		roots = append(roots, compose.RootSource{
 			ID:     id,
 			Root:   root,
-			Reason: providerReason(repo.provider.Scope, harness, role),
+			Reason: providerReason(repo.provider, harness, role),
 			Scope:  repo.provider.Scope,
 			Skills: append([]string(nil), repo.provider.Skills...),
 		})
@@ -275,11 +275,19 @@ func resolveRoots(
 	return roots, missing, nil
 }
 
-func providerReason(scope, harness, role string) string {
-	switch scope {
+func providerReason(provider skillmount.Provider, harness, role string) string {
+	switch provider.Scope {
 	case "harness":
 		return fmt.Sprintf("provider selected for harness %q", harness)
 	case "role":
+		if provider.Name != "" && provider.DeclaredBy != "" {
+			return fmt.Sprintf(
+				"role %q -> provider %q declared by %s -> selected catalogue",
+				role,
+				provider.Name,
+				provider.DeclaredBy,
+			)
+		}
 		return fmt.Sprintf("role provider selected because role %q requests it", role)
 	default:
 		return "default provider selected for every assigned role"

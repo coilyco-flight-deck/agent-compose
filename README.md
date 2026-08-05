@@ -77,8 +77,8 @@ See [person packages](docs/person-packages.md).
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. Provider roots contribute ordinary skills for
-every role plus `COMPOSED.md` sources selected by `.agents/roles.kdl`. The
+package-manager distribution. Trusted roots use `.agents/roles.kdl` for
+role-only providers and composed skills. Imported graphs do not recurse. The
 default `roster:core` provider supplies the personality invariant and all 16
 canonical definitions, so its host roster convergence needs no external
 personality source. A configured external person package replaces that provider

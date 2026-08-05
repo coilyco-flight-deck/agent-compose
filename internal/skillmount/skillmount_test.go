@@ -48,7 +48,7 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 		Harnesses:    map[string][]string{"codex": {harnessProvider}},
 		RoleProviders: map[string][]RoleProvider{
 			"ops": {
-				{Path: roleOne, Required: true, Skills: []string{"compute-stack", "machine-*"}},
+				{Path: roleOne, Required: true, Skills: []string{"compute-stack", "machine-*"}, Name: "hardware", DeclaredBy: "example/aosk"},
 				{Path: roleTwo},
 			},
 		},
@@ -76,6 +76,9 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 	if got := providers[2].Skills; len(got) != 2 || got[0] != "compute-stack" || got[1] != "machine-*" {
 		t.Fatalf("role provider selector = %v", got)
 	}
+	if providers[2].Name != "hardware" || providers[2].DeclaredBy != "example/aosk" {
+		t.Fatalf("role provider provenance = %+v", providers[2])
+	}
 	if got := manifest.Repositories("codex"); len(got) != 2 || got[0] != defaultProvider || got[1] != harnessProvider {
 		t.Fatalf("bare repositories leaked role providers: %v", got)
 	}
@@ -97,10 +100,11 @@ func TestEligibilityRoleProviderOrderingAndStrictLoading(t *testing.T) {
 	}
 
 	for name, body := range map[string]string{
-		"top-level": `{"projects_root":"/tmp","defaults":[],"harnesses":{},"extra":true}`,
-		"nested":    `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","required":true,"extra":true}]}}`,
-		"trailing":  `{"projects_root":"/tmp","defaults":[],"harnesses":{}} {}`,
-		"selector":  `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","skills":["["]}]}}`,
+		"top-level":  `{"projects_root":"/tmp","defaults":[],"harnesses":{},"extra":true}`,
+		"nested":     `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","required":true,"extra":true}]}}`,
+		"trailing":   `{"projects_root":"/tmp","defaults":[],"harnesses":{}} {}`,
+		"selector":   `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","skills":["["]}]}}`,
+		"provenance": `{"projects_root":"/tmp","defaults":[],"harnesses":{},"role_providers":{"ops":[{"path":"/tmp/provider","name":"hardware"}]}}`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "manifest.json")
