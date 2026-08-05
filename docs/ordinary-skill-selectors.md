@@ -1,16 +1,20 @@
 # Ordinary-skill selectors
 
-A `role_providers` entry may bound its ordinary `.agents/skills` catalogue
-with `skills`:
+A provider declaration in `.agents/roles.kdl` may bound its ordinary
+`.agents/skills` catalogue with `skill` children:
 
-```yaml
-role_providers:
-  engineer:
-    - path: example/hardware-knowledge
-      required: true
-      skills:
-        - compute-stack
-        - machine-*
+```kdl
+providers {
+    provider hardware path="example/hardware-knowledge" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
+}
+roles {
+    role engineer {
+        use-provider hardware required=#true
+    }
+}
 ```
 
 Patterns use Go path-match syntax. A literal is exact and `*`, `?`, or bracket
@@ -19,8 +23,9 @@ whole provider.
 
 ## Fail-closed validation
 
-The strict YAML and generated-JSON loaders reject an explicit empty selector,
-empty pattern, or malformed glob. At composition time, every pattern must
+The KDL and generated-JSON loaders reject an empty pattern or malformed glob.
+The transitional YAML loader also rejects an explicit empty selector. At
+composition time, every pattern must
 match at least one ordinary skill. No skill may match two configured patterns.
 Unmatched or overlapping patterns fail without producing a bundle.
 

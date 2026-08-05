@@ -44,9 +44,9 @@ Each configured load point (claude and codex by default, others via
 file, backing up any pre-existing regular file to `.bak`. The
 mount-eligibility manifest is emitted beside the composed output:
 per harness, the repos backing its selected sources unioned with the default
-mount set as JSON. [Role-scoped providers](role-scoped-providers.md) stay out
-of bare convergence. Optional [ordinary-skill selectors](ordinary-skill-selectors.md)
-survive strict YAML into the generated JSON manifest.
+mount set as JSON. [Role-scoped providers](role-scoped-providers.md) compile
+from trusted KDL, stay out of bare convergence, and retain provenance.
+Legacy YAML remains readable but cannot coexist with an active KDL graph.
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only

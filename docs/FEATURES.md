@@ -12,8 +12,8 @@ Inventory of what ships today.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
-* AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md)
-  with [selectors](ordinary-skill-selectors.md) and canonical external files.
+* Trusted AOS roots use one `.agents/roles.kdl` graph for
+  [role providers](role-scoped-providers.md), selectors, and composed skills.
 * [Three model tiers](model-tiers.md) fail closed through the Core role matrix. Tier stays separate from bundle density.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.

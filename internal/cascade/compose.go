@@ -2,6 +2,7 @@ package cascade
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
@@ -298,6 +300,202 @@ type manifestPayload struct {
 	RoleProviders map[string][]skillmount.RoleProvider `json:"role_providers,omitempty"`
 }
 
+type trustedRoleGraph struct {
+	root     string
+	relative string
+	source   *schema.Source
+}
+
+// compileRoleProviderGraph reads only already trusted role graphs. Imported
+// providers validate completely without recursively widening eligibility.
+func compileRoleProviderGraph(
+	slices map[string][]string,
+	projects string,
+) (map[string][]skillmount.RoleProvider, bool, error) {
+	trusted := map[string]bool{}
+	for _, slug := range defaultMountSet {
+		trusted[filepath.Join(projects, slug)] = true
+	}
+	for _, selected := range slices {
+		for _, source := range selected {
+			if repo := repoForSource(source, projects); repo != "" {
+				trusted[repo] = true
+			}
+		}
+	}
+	roots := make([]string, 0, len(trusted))
+	for root := range trusted {
+		roots = append(roots, root)
+	}
+	sort.Strings(roots)
+
+	graphs := make([]trustedRoleGraph, 0, len(roots))
+	for _, root := range roots {
+		rolesPath := filepath.Join(root, ".agents", "roles.kdl")
+		info, err := os.Stat(rolesPath)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			return nil, false, fmt.Errorf("inspect trusted role graph %s: %w", rolesPath, err)
+		}
+		if !info.Mode().IsRegular() {
+			return nil, false, fmt.Errorf("trusted role graph %s is not a regular file", rolesPath)
+		}
+		source, err := schema.LoadSource(root)
+		if err != nil {
+			return nil, false, fmt.Errorf("load trusted role graph %s: %w", rolesPath, err)
+		}
+		relative, err := filepath.Rel(projects, root)
+		if err != nil {
+			return nil, false, fmt.Errorf("resolve trusted role graph %s: %w", root, err)
+		}
+		graphs = append(graphs, trustedRoleGraph{root: root, relative: filepath.ToSlash(relative), source: source})
+	}
+
+	active := false
+	definitions := map[string]string{}
+	definitionsByRoot := map[string]map[string]string{}
+	for _, graph := range graphs {
+		if len(graph.source.Providers) > 0 || len(graph.source.RoleProviders) > 0 {
+			active = true
+		}
+		ids := make([]string, 0, len(graph.source.Providers))
+		for id := range graph.source.Providers {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		definitionsByRoot[graph.root] = map[string]string{}
+		for _, id := range ids {
+			definition := graph.source.Providers[id]
+			resolved, err := resolveProviderPath(projects, definition.Path)
+			if err != nil {
+				return nil, false, fmt.Errorf("provider %q declared by %s: %w", id, graph.relative, err)
+			}
+			if previous, exists := definitions[resolved]; exists {
+				return nil, false, fmt.Errorf(
+					"provider %q declared by %s conflicts at resolved repository path %s with %s",
+					id,
+					graph.relative,
+					resolved,
+					previous,
+				)
+			}
+			definitions[resolved] = fmt.Sprintf("provider %q declared by %s", id, graph.relative)
+			definitionsByRoot[graph.root][id] = resolved
+		}
+	}
+	if !active {
+		return nil, false, nil
+	}
+	if err := rejectProviderCycles(graphs, definitionsByRoot); err != nil {
+		return nil, false, err
+	}
+
+	roles := map[string][]skillmount.RoleProvider{}
+	for _, graph := range graphs {
+		roleNames := make([]string, 0, len(graph.source.RoleProviders))
+		for role := range graph.source.RoleProviders {
+			roleNames = append(roleNames, role)
+		}
+		sort.Strings(roleNames)
+		for _, role := range roleNames {
+			for _, use := range graph.source.RoleProviders[role] {
+				definition := graph.source.Providers[use.Provider]
+				resolved := definitionsByRoot[graph.root][use.Provider]
+				if info, err := os.Stat(resolved); err == nil {
+					if !info.IsDir() {
+						return nil, false, fmt.Errorf("provider %q repository path %s is not a directory", use.Provider, resolved)
+					}
+					providerSource, err := schema.LoadSource(resolved)
+					if err != nil {
+						return nil, false, fmt.Errorf("load provider %q declared by %s: %w", use.Provider, graph.relative, err)
+					}
+					if err := schema.SelectOrdinarySkills(providerSource, definition.Skills); err != nil {
+						return nil, false, fmt.Errorf("select provider %q declared by %s: %w", use.Provider, graph.relative, err)
+					}
+				} else if !errors.Is(err, os.ErrNotExist) {
+					return nil, false, fmt.Errorf("inspect provider %q path %s: %w", use.Provider, resolved, err)
+				} else if use.Required {
+					return nil, false, fmt.Errorf(
+						"required provider %q for role %q is unavailable at %s",
+						use.Provider,
+						role,
+						resolved,
+					)
+				}
+				roles[role] = append(roles[role], skillmount.RoleProvider{
+					Path:       resolved,
+					Required:   use.Required,
+					Skills:     append([]string(nil), definition.Skills...),
+					Name:       use.Provider,
+					DeclaredBy: graph.relative,
+				})
+			}
+		}
+	}
+	return roles, true, nil
+}
+
+func resolveProviderPath(projects, logical string) (string, error) {
+	resolved, err := canonicalPath(filepath.Join(projects, filepath.FromSlash(logical)))
+	if err != nil {
+		return "", err
+	}
+	relative, err := filepath.Rel(projects, resolved)
+	if err != nil || relative == "." || relative == ".." ||
+		strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("resolved path %s is outside projects_root %s", resolved, projects)
+	}
+	return resolved, nil
+}
+
+func rejectProviderCycles(graphs []trustedRoleGraph, definitions map[string]map[string]string) error {
+	graphRoots := map[string]trustedRoleGraph{}
+	for _, graph := range graphs {
+		graphRoots[graph.root] = graph
+	}
+	adjacency := map[string][]string{}
+	for _, graph := range graphs {
+		seen := map[string]bool{}
+		for _, uses := range graph.source.RoleProviders {
+			for _, use := range uses {
+				target := definitions[graph.root][use.Provider]
+				if _, isGraph := graphRoots[target]; isGraph && !seen[target] {
+					adjacency[graph.root] = append(adjacency[graph.root], target)
+					seen[target] = true
+				}
+			}
+		}
+		sort.Strings(adjacency[graph.root])
+	}
+	state := map[string]int{}
+	var visit func(string, []string) error
+	visit = func(root string, stack []string) error {
+		if state[root] == 1 {
+			cycle := append(stack, graphRoots[root].relative)
+			return fmt.Errorf("role provider cycle: %s", strings.Join(cycle, " -> "))
+		}
+		if state[root] == 2 {
+			return nil
+		}
+		state[root] = 1
+		for _, target := range adjacency[root] {
+			if err := visit(target, append(stack, graphRoots[root].relative)); err != nil {
+				return err
+			}
+		}
+		state[root] = 2
+		return nil
+	}
+	for _, graph := range graphs {
+		if err := visit(graph.root, nil); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // RenderManifest emits deterministic default, harness, and role-only mount
 // eligibility without adding role providers to bare host convergence.
 func RenderManifest(
@@ -310,6 +508,16 @@ func RenderManifest(
 		return "", err
 	}
 	projects = canonicalProjects
+	graphRoleProviders, graphActive, err := compileRoleProviderGraph(slices, projects)
+	if err != nil {
+		return "", err
+	}
+	if graphActive && roleProviders != nil {
+		return "", fmt.Errorf("roles.kdl provider graph and legacy role_providers configuration cannot both be active")
+	}
+	if graphActive {
+		roleProviders = graphRoleProviders
+	}
 	defaults := make([]string, 0, len(defaultMountSet))
 	for _, slug := range defaultMountSet {
 		defaults = append(defaults, filepath.Join(projects, slug))
@@ -360,9 +568,11 @@ func RenderManifest(
 			}
 			seen[resolved] = true
 			roles[role] = append(roles[role], skillmount.RoleProvider{
-				Path:     resolved,
-				Required: provider.Required,
-				Skills:   append([]string(nil), provider.Skills...),
+				Path:       resolved,
+				Required:   provider.Required,
+				Skills:     append([]string(nil), provider.Skills...),
+				Name:       provider.Name,
+				DeclaredBy: provider.DeclaredBy,
 			})
 		}
 	}

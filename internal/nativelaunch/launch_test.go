@@ -285,9 +285,9 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		Harnesses:    map[string][]string{},
 		RoleProviders: map[string][]skillmount.RoleProvider{
 			"ops": {
-				{Path: infrastructure, Required: true},
-				{Path: deploy, Required: true},
-				{Path: missingOptional},
+				{Path: infrastructure, Required: true, Name: "infrastructure", DeclaredBy: "example/aosk"},
+				{Path: deploy, Required: true, Name: "deploy", DeclaredBy: "example/aosk"},
+				{Path: missingOptional, Name: "optional", DeclaredBy: "example/aosk"},
 			},
 		},
 	})
@@ -368,7 +368,10 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	}
 
 	selectedWhy, err := describe.Why(results["ops"].BundleDir, "skill:infrastructure-ops", describe.Options{})
-	if err != nil || !strings.Contains(selectedWhy, "role provider selected because role \"ops\" requests it") {
+	if err != nil || !strings.Contains(
+		selectedWhy,
+		"role \"ops\" -> provider \"infrastructure\" declared by example/aosk -> selected catalogue",
+	) {
 		t.Fatalf("selected role-provider why = %q, err=%v", selectedWhy, err)
 	}
 	excludedWhy, err := describe.Why(results["engineer"].BundleDir, "skill:infrastructure-ops", describe.Options{})

@@ -3,6 +3,7 @@ package schema
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -344,6 +345,52 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	}
 }
 
+func TestLoadInferredProviderParsesUnifiedRoleProviderGraph(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "aosk")
+	skill := filepath.Join(root, ".agents", "skills", "repo-aosk")
+	if err := os.MkdirAll(skill, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(skill, "SKILL.md"), []byte("# AOSK\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`providers {
+    provider hardware path="coilyco-bridge/agentic-os-hardware" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
+    provider infrastructure path="coilyco-flight-deck/infrastructure"
+}
+
+roles {
+    role engineer {
+        use-provider hardware required=#true
+    }
+    role ops {
+        use-provider hardware required=#true
+        use-provider infrastructure required=#true
+    }
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	source, err := LoadSource(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hardware := source.Providers["hardware"]
+	if hardware.Path != "coilyco-bridge/agentic-os-hardware" ||
+		!slices.Equal(hardware.Skills, []string{"compute-stack", "machine-*"}) {
+		t.Fatalf("hardware provider = %+v", hardware)
+	}
+	if got := source.RoleProviders["ops"]; len(got) != 2 ||
+		got[0].Provider != "hardware" || !got[0].Required ||
+		got[1].Provider != "infrastructure" || !got[1].Required {
+		t.Fatalf("ops provider uses = %+v", got)
+	}
+}
+
 func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 	makeProvider := func(t *testing.T) string {
 		t.Helper()
@@ -365,20 +412,47 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 		return root
 	}
 
-	t.Run("role bindings without composed root", func(t *testing.T) {
+	t.Run("provider graph without composed root", func(t *testing.T) {
 		root := makeProvider(t)
 		if err := os.WriteFile(
 			filepath.Join(root, ".agents", "roles.kdl"),
-			[]byte("roles {}\n"),
+			[]byte(`providers {
+    provider hardware path="example/hardware" {
+        skill "machine-*"
+    }
+}
+roles {
+    role engineer {
+        use-provider hardware required=#true
+    }
+}
+`),
 			0o644,
 		); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := LoadSource(root); err == nil ||
-			!strings.Contains(err.Error(), "exist without composed skills") {
-			t.Fatalf("orphan role bindings must fail closed, got %v", err)
+		if source, err := LoadSource(root); err != nil || len(source.RoleProviders["engineer"]) != 1 {
+			t.Fatalf("provider-only graph must load, source=%+v err=%v", source, err)
 		}
 	})
+
+	for name, graph := range map[string]string{
+		"undeclared provider": `roles { role engineer { use-provider missing required=#true } }`,
+		"invalid selector":    `providers { provider hardware path="example/hardware" { skill "[" } } roles {}`,
+		"duplicate path":      `providers { provider one path="example/hardware"; provider two path="example/hardware" } roles {}`,
+		"unsafe path":         `providers { provider hardware path="../hardware" } roles {}`,
+		"wrong required type": `providers { provider hardware path="example/hardware" } roles { role engineer { use-provider hardware required="yes" } }`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := makeProvider(t)
+			if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(graph+"\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := LoadSource(root); err == nil {
+				t.Fatalf("invalid unified graph passed: %s", graph)
+			}
+		})
+	}
 
 	t.Run("SKILL.md under composed", func(t *testing.T) {
 		root := makeProvider(t)

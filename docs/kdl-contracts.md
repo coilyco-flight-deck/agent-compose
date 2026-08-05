@@ -33,22 +33,27 @@ request order. `root` and `declaration` only locate files.
 
 ## Capability sources
 
-The public AOS provider needs only its root. Agent-compose discovers every
-ordinary skill under `.agents/skills` in lexical order. It also reads
-`.agents/roles.kdl`:
+The public AOS provider needs only its root. Agent-compose discovers ordinary skills and reads one `.agents/roles.kdl` graph:
 
 ```kdl
+providers {
+    provider hardware path="example/hardware-knowledge" {
+        skill "machine-*"
+    }
+}
 roles {
     role "engineer" {
+        use-provider hardware required=#true
         composed-skill "coding-*"
     }
 }
 ```
 
-Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or a `coding-*` glob. Globs expand lexically.
-Invalid, unmatched, and overlapping selections fail closed.
-Materialization renames the admitted entry point to `SKILL.md`. Nested
-`SKILL.md` files and ordinary/composed name collisions fail.
+Provider IDs are document-local, paths use `owner/repository`, `skill` bounds the ordinary catalogue, and `required` controls missing checkouts.
+Only trusted roots widen eligibility. Imported graphs do not recurse. See [role-scoped providers](role-scoped-providers.md) for resolution and provenance.
+
+Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or glob. Globs expand lexically. Invalid or overlapping selections fail.
+Materialization renames admitted entry points to `SKILL.md`. Nested `SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
 Roster sources are optional overlays. The selected person source always
 supplies the invariant and bound personality bodies.
@@ -62,17 +67,12 @@ source "aos-public" {
 }
 ```
 
-The request admits that file with
-`source "aos-public" declaration="source-public.kdl"`. Paths inside the
-declaration are relative to the declaration and must stay beneath its source
-root. Request locator paths are relative to the request. Symlinks and escaping
-paths fail validation. A required missing source fails composition. An optional
-missing source is skipped with a note in the trace.
+The request admits it with `source "aos-public" declaration="source-public.kdl"`. Paths stay beneath the declaration root.
+Symlinks and escaping paths fail. Required missing sources fail, while optional
+ones produce trace decisions.
 
-For rolling upgrades, inferred providers may still contain the former
-`personality-shared/INVARIANT.md` and `personality-*` trees. Identical copies
-shadow behind the selected person source. A different copy conflicts and stops
-composition.
+During rolling upgrades, identical legacy invariant and personality copies
+shadow behind the person source. Different copies conflict.
 
 ## See also
 

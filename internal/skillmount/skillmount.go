@@ -39,18 +39,22 @@ type Eligibility struct {
 // RoleProvider is one local provider admitted only when its role is selected.
 // Paths are canonical repository roots in generated eligibility manifests.
 type RoleProvider struct {
-	Path     string   `json:"path" yaml:"path"`
-	Required bool     `json:"required" yaml:"required"`
-	Skills   []string `json:"skills,omitempty" yaml:"skills,omitempty"`
+	Path       string   `json:"path" yaml:"path"`
+	Required   bool     `json:"required" yaml:"required"`
+	Skills     []string `json:"skills,omitempty" yaml:"skills,omitempty"`
+	Name       string   `json:"name,omitempty" yaml:"-"`
+	DeclaredBy string   `json:"declared_by,omitempty" yaml:"-"`
 }
 
 // Provider records one selected repository and why it entered the ordered
 // defaults, harness, and role union.
 type Provider struct {
-	Path     string
-	Scope    string
-	Required bool
-	Skills   []string
+	Path       string
+	Scope      string
+	Required   bool
+	Skills     []string
+	Name       string
+	DeclaredBy string
 }
 
 // Catalog is a verified skill root projected to every configured load point.
@@ -118,10 +122,12 @@ func (manifest Eligibility) Providers(harness, role string) []Provider {
 	if role != "" {
 		for _, provider := range manifest.RoleProviders[role] {
 			add(Provider{
-				Path:     provider.Path,
-				Scope:    "role",
-				Required: provider.Required,
-				Skills:   append([]string(nil), provider.Skills...),
+				Path:       provider.Path,
+				Scope:      "role",
+				Required:   provider.Required,
+				Skills:     append([]string(nil), provider.Skills...),
+				Name:       provider.Name,
+				DeclaredBy: provider.DeclaredBy,
 			})
 		}
 	}
@@ -168,6 +174,14 @@ func LoadEligibility(path string) (Eligibility, error) {
 					role,
 					index,
 					err,
+				)
+			}
+			if (strings.TrimSpace(provider.Name) == "") != (strings.TrimSpace(provider.DeclaredBy) == "") {
+				return Eligibility{}, fmt.Errorf(
+					"mount eligibility %s role %q provider %d needs both name and declared_by provenance",
+					path,
+					role,
+					index,
 				)
 			}
 		}

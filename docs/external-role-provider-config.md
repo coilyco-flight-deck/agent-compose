@@ -1,4 +1,8 @@
-# External role-provider configuration
+# Legacy external role-provider configuration
+
+This surface exists only for the rolling migration to unified
+`.agents/roles.kdl` provider graphs. New declarations belong in the trusted
+knowledge root's KDL document.
 
 A deployment can keep role-provider selection in a separately owned canonical
 file without copying it into a rendered host wrapper.
@@ -41,6 +45,10 @@ The external document accepts only the `role_providers` key. Inline
 `role_providers` and `role_providers_file` are mutually exclusive. The same
 strict provider, selector, unknown-field, and trailing-document validation
 applies before the mount manifest or a bundle can be written.
+
+If an admitted trusted root declares any KDL providers, Agent Compose rejects
+either legacy YAML form. This prevents two authored graphs from silently
+merging during rollout.
 
 ## Ownership
 
