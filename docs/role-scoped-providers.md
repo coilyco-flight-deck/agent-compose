@@ -21,9 +21,6 @@ roles {
 }
 ```
 
-Legacy YAML remains readable during migration, but cannot coexist with an
-active KDL provider graph.
-
 Optional `skill` children select a bounded ordinary-skill slice. See
 [Ordinary-skill selectors](ordinary-skill-selectors.md). Omission preserves
 the whole provider.
@@ -74,6 +71,5 @@ choose authority, or add mappings to the Core Roster.
 ## See also
 
 * [Cascade](cascade.md) - generated mount eligibility and bare convergence.
-* [Legacy external configuration](external-role-provider-config.md) - transitional YAML compatibility.
 * [Ordinary-skill selectors](ordinary-skill-selectors.md) - bounded catalogue slices.
 * [Integration](integration.md) - host and isolated ownership tiers.

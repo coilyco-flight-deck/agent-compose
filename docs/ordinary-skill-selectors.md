@@ -18,14 +18,13 @@ roles {
 ```
 
 Patterns use Go path-match syntax. A literal is exact and `*`, `?`, or bracket
-forms provide glob matching within one skill ID. Omitting `skills` admits the
-whole provider.
+forms provide glob matching within one skill ID. Omitting `skill` children
+admits the whole provider.
 
 ## Fail-closed validation
 
 The KDL and generated-JSON loaders reject an empty pattern or malformed glob.
-The transitional YAML loader also rejects an explicit empty selector. At
-composition time, every pattern must
+At composition time, every pattern must
 match at least one ordinary skill. No skill may match two configured patterns.
 Unmatched or overlapping patterns fail without producing a bundle.
 

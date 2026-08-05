@@ -16,8 +16,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
 )
 
 const (
@@ -35,22 +33,16 @@ var defaultMountSet = []string{
 }
 
 type Config struct {
-	Scopes               *scopeList                           `yaml:"scopes"`
-	Sources              []string                             `yaml:"sources"`
-	Roots                []string                             `yaml:"roots"`
-	LoadPoints           map[string]RawValue                  `yaml:"load_points"`
-	PersonPolicy         string                               `yaml:"person_policy"`
-	PersonSource         string                               `yaml:"person_source"`
-	PersonalityLibraries []string                             `yaml:"personality_libraries"`
-	RosterSources        []string                             `yaml:"roster_sources"`
-	SkillLoadPoints      map[string]string                    `yaml:"skill_load_points"`
-	SkillCatalogManifest string                               `yaml:"skill_catalog_manifest"`
-	RoleProviders        map[string][]skillmount.RoleProvider `yaml:"role_providers"`
-	RoleProvidersFile    *string                              `yaml:"role_providers_file"`
-}
-
-type roleProvidersConfig struct {
-	RoleProviders map[string][]skillmount.RoleProvider `yaml:"role_providers"`
+	Scopes               *scopeList          `yaml:"scopes"`
+	Sources              []string            `yaml:"sources"`
+	Roots                []string            `yaml:"roots"`
+	LoadPoints           map[string]RawValue `yaml:"load_points"`
+	PersonPolicy         string              `yaml:"person_policy"`
+	PersonSource         string              `yaml:"person_source"`
+	PersonalityLibraries []string            `yaml:"personality_libraries"`
+	RosterSources        []string            `yaml:"roster_sources"`
+	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
+	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its
@@ -101,41 +93,8 @@ func LoadConfig(path string) (*Config, error) {
 	if err := decodeStrictYAML(raw, path, &cfg); err != nil {
 		return nil, err
 	}
-	providersSource := path
-	if cfg.RoleProvidersFile != nil {
-		if cfg.RoleProviders != nil {
-			return nil, fmt.Errorf(
-				"%s: role_providers and role_providers_file are mutually exclusive",
-				path,
-			)
-		}
-		providersPath := strings.TrimSpace(*cfg.RoleProvidersFile)
-		if providersPath == "" {
-			return nil, fmt.Errorf("%s: role_providers_file names no path", path)
-		}
-		resolved, err := resolveExternalConfigPath(providersPath, path)
-		if err != nil {
-			return nil, fmt.Errorf("%s: resolve role_providers_file %q: %w", path, providersPath, err)
-		}
-		providersRaw, err := os.ReadFile(resolved)
-		if err != nil {
-			return nil, fmt.Errorf("%s: read role_providers_file %s: %w", path, resolved, err)
-		}
-		var external roleProvidersConfig
-		if err := decodeStrictYAML(providersRaw, resolved, &external); err != nil {
-			return nil, err
-		}
-		if external.RoleProviders == nil {
-			return nil, fmt.Errorf("%s: external config must define role_providers", resolved)
-		}
-		cfg.RoleProviders = external.RoleProviders
-		providersSource = resolved
-	}
 	if err := personpolicy.Validate(cfg.PersonPolicy, cfg.PersonSource); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
-	}
-	if err := validateRoleProviders(providersSource, cfg.RoleProviders); err != nil {
-		return nil, err
 	}
 	return &cfg, nil
 }
@@ -149,46 +108,6 @@ func decodeStrictYAML(raw []byte, path string, value any) error {
 	var trailing any
 	if err := decoder.Decode(&trailing); err != io.EOF {
 		return fmt.Errorf("%s: trailing YAML document", path)
-	}
-	return nil
-}
-
-func resolveExternalConfigPath(value, configPath string) (string, error) {
-	resolved := expand(value)
-	if !filepath.IsAbs(resolved) {
-		resolved = filepath.Join(filepath.Dir(configPath), resolved)
-	}
-	absolute, err := filepath.Abs(resolved)
-	if err != nil {
-		return "", err
-	}
-	return filepath.EvalSymlinks(absolute)
-}
-
-func validateRoleProviders(path string, roleProviders map[string][]skillmount.RoleProvider) error {
-	for role, providers := range roleProviders {
-		if strings.TrimSpace(role) == "" {
-			return fmt.Errorf("%s: role_providers names an empty role", path)
-		}
-		for index, provider := range providers {
-			if strings.TrimSpace(provider.Path) == "" {
-				return fmt.Errorf(
-					"%s: role_providers.%s entry %d names no path",
-					path,
-					role,
-					index,
-				)
-			}
-			if err := skillselector.Validate(provider.Skills); err != nil {
-				return fmt.Errorf(
-					"%s: role_providers.%s entry %d: %w",
-					path,
-					role,
-					index,
-					err,
-				)
-			}
-		}
 	}
 	return nil
 }
