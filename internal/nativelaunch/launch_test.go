@@ -1,7 +1,6 @@
 package nativelaunch
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -76,6 +75,7 @@ func writeOrdinarySkill(t *testing.T, root, name string) {
 
 func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPlan) {
 	t.Helper()
+	const defaultSource = "test/policy"
 	basePaths := append([]string(nil), input.Defaults...)
 	for _, paths := range input.Harnesses {
 		basePaths = append(basePaths, paths...)
@@ -90,21 +90,31 @@ func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPla
 			Source: source, Scope: scope, Reason: reason,
 		}
 	}
+	inputs := map[string]bool{defaultSource: true}
 	roles := map[string][]repositoryplan.Selection{}
 	for _, role := range []string{"community", "content", "design", "director", "engineer", "ops", "qa", "strats"} {
 		for _, path := range basePaths {
-			roles[role] = append(roles[role], selection(path, "operating-context", "test", "test operating context"))
+			roles[role] = append(roles[role], selection(path, "operating-context", defaultSource, "test operating context"))
 		}
 		for _, provider := range input.RoleProviders[role] {
-			reason := fmt.Sprintf("role %q uses a role provider", role)
-			if provider.Name != "" && provider.DeclaredBy != "" {
-				reason = fmt.Sprintf("role %q -> provider %q declared by %s -> selected catalogue", role, provider.Name, provider.DeclaredBy)
+			source := provider.DeclaredBy
+			if source == "" {
+				source = defaultSource
 			}
-			item := selection(provider.Path, "provider", "test", reason)
+			inputs[source] = true
+			name := provider.Name
+			if name == "" {
+				name = filepath.Base(provider.Path)
+			}
+			reason := fmt.Sprintf("role %q uses a role provider", role)
+			if provider.Name != "" && source != "" {
+				reason = fmt.Sprintf("role %q -> provider %q declared by %s -> selected catalogue", role, provider.Name, source)
+			}
+			item := selection(provider.Path, "provider", source, reason)
 			item.Required = provider.Required
 			item.Skills = append([]string(nil), provider.Skills...)
-			item.Name = provider.Name
-			item.DeclaredBy = provider.DeclaredBy
+			item.Name = name
+			item.DeclaredBy = source
 			roles[role] = append(roles[role], item)
 		}
 		sort.Slice(roles[role], func(i, j int) bool { return roles[role][i].Identity < roles[role][j].Identity })
@@ -126,14 +136,35 @@ func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPla
 	for _, identity := range identities {
 		residency = append(residency, resident[identity])
 	}
-	raw, err := json.Marshal(repositoryplan.Plan{
+	raw, err := repositoryplan.Marshal(repositoryplan.Plan{
 		Format: repositoryplan.Format, ProjectsRoot: input.ProjectsRoot,
-		Roles: roles, Residency: residency,
+		Inputs: testPolicyInputs(inputs),
+		Roles:  roles, Residency: residency,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	writeFile(t, path, string(raw))
+}
+
+func testPolicyInputs(sources map[string]bool) []repositoryplan.Input {
+	identities := make([]string, 0, len(sources))
+	for identity := range sources {
+		identities = append(identities, identity)
+	}
+	sort.Strings(identities)
+	inputs := make([]repositoryplan.Input, 0, len(identities))
+	for _, identity := range identities {
+		inputs = append(inputs, repositoryplan.Input{
+			Identity: identity,
+			Revision: "0123456789012345678901234567890123456789",
+			Policy: repositoryplan.PolicyInput{
+				Path:   repositoryplan.PolicyPath,
+				SHA256: "sha256:0123456789012345678901234567890123456789012345678901234567890123",
+			},
+		})
+	}
+	return inputs
 }
 
 func skillNames(t *testing.T, root string) []string {
@@ -176,7 +207,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeManifest(t, manifest, projects, provider)
 	out := filepath.Join(t.TempDir(), "bundles")
 	profile, err := person.Load()
@@ -256,7 +287,7 @@ func TestRefreshDefaultsToFrontierModelTierAndClass(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeManifest(t, manifest, projects, provider)
 
 	result, err := Refresh(Options{
@@ -282,7 +313,7 @@ func TestRefreshAcceptsCanonicalModelTierAndRejectsUnknownTier(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeManifest(t, manifest, projects, provider)
 	options := Options{
 		Role:      "design",
@@ -314,7 +345,7 @@ func TestRefreshRequiresRoleComposedProvider(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "ordinary")
 	writeProvider(t, provider, false)
-	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeManifest(t, manifest, projects, provider)
 
 	_, err := Refresh(Options{
@@ -343,7 +374,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	writeOrdinarySkill(t, infrastructure, "repo-infrastructure")
 	writeOrdinarySkill(t, deploy, "deploy-ops")
 	writeOrdinarySkill(t, deploy, "repo-deploy")
-	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},
@@ -485,7 +516,7 @@ func TestRoleProviderSelectorsMatchAcrossNativeAndStagedHarnesses(t *testing.T) 
 	} {
 		writeOrdinarySkill(t, hardware, skill)
 	}
-	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},
@@ -563,7 +594,7 @@ func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
 	base := filepath.Join(projects, "example", "base")
 	missing := filepath.Join(projects, "example", "required")
 	writeProvider(t, base, true)
-	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.yaml")
 	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},

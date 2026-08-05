@@ -1,9 +1,10 @@
 package cascade
 
 import (
-	"encoding/json"
+	"crypto/sha256"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -37,11 +38,28 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 		if !info.Mode().IsRegular() {
 			return "", fmt.Errorf("operating context role graph %s is not a regular file", rolesPath)
 		}
+		revision, err := sourceRevision(root)
+		if err != nil {
+			return "", fmt.Errorf("operating context %q: %w", identity, err)
+		}
+		digest, err := fileSHA256(rolesPath)
+		if err != nil {
+			return "", fmt.Errorf("operating context %q: %w", identity, err)
+		}
 		source, err := schema.LoadSource(root)
 		if err != nil {
 			return "", fmt.Errorf("load operating context %q: %w", identity, err)
 		}
-		graphs = append(graphs, trustedRoleGraph{root: root, relative: identity, source: source})
+		graphs = append(graphs, trustedRoleGraph{
+			root: root, relative: identity, source: source,
+			input: repositoryplan.Input{
+				Identity: identity,
+				Revision: revision,
+				Policy: repositoryplan.PolicyInput{
+					Path: repositoryplan.PolicyPath, SHA256: digest,
+				},
+			},
+		})
 	}
 
 	providerDefinitions := map[string]map[string]string{}
@@ -111,7 +129,8 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 
 	plan := repositoryplan.Plan{
 		Format: repositoryplan.Format, ProjectsRoot: canonicalProjects,
-		Roles: map[string][]repositoryplan.Selection{},
+		Inputs: sortedInputs(graphs),
+		Roles:  map[string][]repositoryplan.Selection{},
 	}
 	for _, role := range sortedBoolKeys(roles) {
 		selected := map[string]repositoryplan.Selection{}
@@ -126,7 +145,7 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 			if err := add(repositoryplan.Selection{
 				Identity: identity,
 				Path:     filepath.Join(canonicalProjects, filepath.FromSlash(identity)),
-				Source:   "agent-compose.yaml", Scope: "operating-context",
+				Source:   identity, Scope: "operating-context",
 				Reason: "host configuration selects this repository as role operating context",
 			}); err != nil {
 				return "", err
@@ -189,14 +208,11 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 		}
 	}
 	plan.Residency = sortedSelections(residency)
-	if err := plan.Validate(); err != nil {
-		return "", err
-	}
-	raw, err := json.MarshalIndent(plan, "", "  ")
+	raw, err := repositoryplan.Marshal(plan)
 	if err != nil {
 		return "", err
 	}
-	return string(raw) + "\n", nil
+	return string(raw), nil
 }
 
 func repositorySelection(identity, resolved, source, scope, reason string) repositoryplan.Selection {
@@ -218,6 +234,17 @@ func sortedSelections(values map[string]repositoryplan.Selection) []repositorypl
 	return result
 }
 
+func sortedInputs(graphs []trustedRoleGraph) []repositoryplan.Input {
+	inputs := make([]repositoryplan.Input, 0, len(graphs))
+	for _, graph := range graphs {
+		inputs = append(inputs, graph.input)
+	}
+	sort.Slice(inputs, func(i, j int) bool {
+		return inputs[i].Identity < inputs[j].Identity
+	})
+	return inputs
+}
+
 func sortedBoolKeys(values map[string]bool) []string {
 	keys := make([]string, 0, len(values))
 	for key := range values {
@@ -237,5 +264,22 @@ func sortedMapKeys[T any](values map[string]T) []string {
 }
 
 func planPath(stateDir string) string {
-	return filepath.Join(strings.TrimSpace(stateDir), "repository-plan.json")
+	return filepath.Join(strings.TrimSpace(stateDir), "repository-plan.yaml")
+}
+
+func fileSHA256(filename string) (string, error) {
+	raw, err := os.ReadFile(filename)
+	if err != nil {
+		return "", fmt.Errorf("read policy %s: %w", filename, err)
+	}
+	sum := sha256.Sum256(raw)
+	return fmt.Sprintf("sha256:%x", sum), nil
+}
+
+func sourceRevision(root string) (string, error) {
+	output, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+	if err != nil {
+		return "", fmt.Errorf("read git revision for %s: %w", root, err)
+	}
+	return strings.TrimSpace(string(output)), nil
 }

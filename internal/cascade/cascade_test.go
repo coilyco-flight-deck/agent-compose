@@ -3,6 +3,7 @@ package cascade
 import (
 	"bytes"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -71,6 +72,7 @@ func (e env) config(t *testing.T, body string) {
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
 			t.Fatal(err)
 		}
+		ensureGitRepository(t, root)
 		body += "operating_context:\n  - test/fixture\n"
 	}
 	base := "load_points:\n  claude: " + e.claude + "\n  codex: " + e.codex + "\n"
@@ -185,12 +187,13 @@ roles {
 `), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	ensureGitRepository(t, aosk)
 
 	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 	if code, out, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("run failed: %s %s", out, errOut)
 	}
-	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,6 +207,53 @@ roles {
 		!slices.Equal(providers[1].Skills, []string{"compute-stack", "machine-*"}) {
 		t.Fatalf("unified role provider = %+v", providers)
 	}
+	if len(manifest.Inputs) != 1 ||
+		manifest.Inputs[0].Identity != "example/aosk" ||
+		len(manifest.Inputs[0].Revision) != 40 ||
+		manifest.Inputs[0].Policy.Path != repositoryplan.PolicyPath ||
+		!strings.HasPrefix(manifest.Inputs[0].Policy.SHA256, "sha256:") ||
+		providers[0].Source != "example/aosk" ||
+		providers[1].Source != "example/aosk" {
+		t.Fatalf("repository plan provenance = %+v selections=%+v", manifest.Inputs, providers)
+	}
+}
+
+func TestGlobalRepositoryAppearsInEveryRoleAndResidency(t *testing.T) {
+	e := newEnv(t)
+	source := writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
+    repository lore path="example/lore"
+    global lore
+}
+roles {
+    role engineer {}
+    role qa {}
+}
+`)
+	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, role := range []string{"engineer", "qa"} {
+		if !containsSelection(manifest.Roles[role], "example/lore") {
+			t.Fatalf("global repository missing from %s selections: %+v", role, manifest.Roles[role])
+		}
+	}
+	if !containsSelection(manifest.Residency, "example/lore") {
+		t.Fatalf("global repository missing from residency: %+v", manifest.Residency)
+	}
+}
+
+func containsSelection(selections []repositoryplan.Selection, identity string) bool {
+	for _, selection := range selections {
+		if selection.Identity == identity {
+			return true
+		}
+	}
+	return false
 }
 
 func TestUnifiedRoleProviderGraphFailsClosed(t *testing.T) {
@@ -255,7 +305,7 @@ roles { role engineer { use-provider hardware required=#true } }
 	if code, out, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("run failed: %s %s", out, errOut)
 	}
-	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +356,26 @@ func writeTrustedRoleGraph(t *testing.T, e env, repository, graph string) string
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(graph), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	ensureGitRepository(t, root)
 	return source
+}
+
+func ensureGitRepository(t *testing.T, root string) {
+	t.Helper()
+	if _, err := os.Stat(filepath.Join(root, ".git")); err == nil {
+		return
+	}
+	for _, args := range [][]string{
+		{"init", "-q"},
+		{"add", "."},
+		{"-c", "user.name=Agent Compose Tests", "-c", "user.email=agent-compose-tests@example.invalid", "commit", "-q", "-m", "fixture"},
+	} {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v in %s: %v\n%s", args, root, err, output)
+		}
+	}
 }
 
 func TestComposeBasicsAndSilentRecompose(t *testing.T) {
@@ -355,7 +424,7 @@ func TestReapplyRewritesCurrentLayout(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("reapply failed: %s %s", out, errOut)
 	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json")
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml")
 	for _, want := range []string{
 		"wrote   " + e.paths.Composed,
 		"wrote   " + manifestPath,
@@ -366,6 +435,29 @@ func TestReapplyRewritesCurrentLayout(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("reapply output missing %q:\n%s", want, out)
 		}
+	}
+}
+
+func TestCascadeRemovesLegacyJSONRepositoryPlan(t *testing.T) {
+	e := newEnv(t)
+	src := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	e.config(t, "sources:\n  - "+src+"\n")
+	legacy := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json")
+	if err := os.MkdirAll(filepath.Dir(legacy), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(legacy, []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, out, errOut := e.run(t, false)
+	if code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+		t.Fatalf("legacy JSON plan still exists: %v", err)
+	}
+	if !strings.Contains(out, "removed "+legacy+" (obsolete repository plan)") {
+		t.Fatalf("legacy removal not reported:\n%s", out)
 	}
 }
 
@@ -380,7 +472,7 @@ func TestVerbosePrintsEveryLayoutMapping(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("verbose run failed: %s %s", out, errOut)
 	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json")
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml")
 	claudeOut := harnessOutputPath(e.paths.Composed, "claude")
 	codexOut := harnessOutputPath(e.paths.Composed, "codex")
 	for _, want := range []string{
@@ -534,7 +626,7 @@ func TestRepositoryPlanNeverInfersDoctrineSourceRepositories(t *testing.T) {
 	if code, _, errOut := e.run(t, false); code != 0 {
 		t.Fatal(errOut)
 	}
-	manifest := readFile(t, filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
+	manifest := readFile(t, filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml"))
 	projects, err := filepath.EvalSymlinks(e.projects)
 	if err != nil {
 		t.Fatal(err)

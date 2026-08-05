@@ -48,7 +48,7 @@ Inventory of what ships today.
   without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
-* Colors pass an OKLab legibility gate. Each role carries the chroma-restored centroid.
+* Colors pass an OKLab legibility gate.
 
 ## Identity surfaces
 
@@ -60,7 +60,8 @@ Inventory of what ships today.
 * `agent-compose roster --out <dir>` renders lazy-loaded role and personality
   skills plus [native adaptation](native-adaptation.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md).
-* `cascade` emits harness doctrine and the role/residency `repository-plan.json`.
+* `cascade` emits harness doctrine and the role/residency `repository-plan.yaml`
+  with sealed policy-source provenance.
 * `bundle materialize` returns a verified role/harness bundle with provenance.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.

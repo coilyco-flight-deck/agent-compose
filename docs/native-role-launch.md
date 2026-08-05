@@ -15,7 +15,7 @@ Arguments pass through. Long form: `agent-compose launch <role> <harness>`.
 ## Selection
 
 Launch reads the selected role from
-[`repository-plan.json`](repository-policy.md). It admits operating context,
+[`repository-plan.yaml`](repository-policy.md). It admits operating context,
 global repositories, role repositories, and [role-scoped providers](role-scoped-providers.md).
 Required providers fail closed. Optional exclusions stay traced.
 

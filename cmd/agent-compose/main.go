@@ -472,7 +472,7 @@ func runBundleMaterialize(_ context.Context, cmd *cli.Command) error {
 	}
 	result, err := nativelaunch.Refresh(nativelaunch.Options{
 		Role: role, Harness: harness, CWD: cwd, TargetDir: cwd,
-		PlanPath: filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json"),
+		PlanPath: filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
 		OutDir:   outDir, PersonSelection: personSelection, SkipProjection: true,
 	})
 	if err != nil {
@@ -897,7 +897,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		ModelClass:      os.Getenv(nativelaunch.EnvModelClass),
 		CWD:             cwd,
 		TargetDir:       cwd,
-		PlanPath:        filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json"),
+		PlanPath:        filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
 		OutDir:          filepath.Join(stateDir, "bundles"),
 		PersonSelection: personSelection,
 	})

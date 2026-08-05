@@ -1,7 +1,6 @@
 package skillmount
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -33,16 +32,14 @@ func writeEligibility(t *testing.T, path string, defaults []string, harnesses ma
 	for index, repository := range all {
 		selections = append(selections, repositoryplan.Selection{
 			Identity: fmt.Sprintf("test/repository-%03d", index), Path: repository,
-			Source: "test", Scope: "role-union", Reason: "test repository",
+			Source: "test/policy", Scope: "role-union", Reason: "test repository",
 		})
 	}
-	raw, err := json.Marshal(repositoryplan.Plan{
+	raw := marshalPlan(t, repositoryplan.Plan{
 		Format: repositoryplan.Format, ProjectsRoot: filepath.Dir(path),
-		Roles: map[string][]repositoryplan.Selection{}, Residency: selections,
+		Inputs: testInputs("test/policy"),
+		Roles:  map[string][]repositoryplan.Selection{"ops": selections}, Residency: selections,
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	if err := os.WriteFile(path, raw, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -54,25 +51,23 @@ func TestRepositoryPlanRoleProviderOrderingAndStrictLoading(t *testing.T) {
 	harnessProvider := filepath.Join(dir, "harness")
 	roleOne := filepath.Join(dir, "role-one")
 	roleTwo := filepath.Join(dir, "role-two")
-	manifestPath := filepath.Join(dir, "repository-plan.json")
-	raw, err := json.Marshal(repositoryplan.Plan{
+	manifestPath := filepath.Join(dir, "repository-plan.yaml")
+	raw := marshalPlan(t, repositoryplan.Plan{
 		Format: repositoryplan.Format, ProjectsRoot: dir,
+		Inputs: testInputs("example/aosk"),
 		Roles: map[string][]repositoryplan.Selection{
 			"ops": {
-				{Identity: "example/default", Path: defaultProvider, Source: "test", Scope: "operating-context", Reason: "test"},
-				{Identity: "example/harness", Path: harnessProvider, Source: "test", Scope: "global", Reason: "test"},
+				{Identity: "example/default", Path: defaultProvider, Source: "example/aosk", Scope: "operating-context", Reason: "test"},
+				{Identity: "example/harness", Path: harnessProvider, Source: "example/aosk", Scope: "global", Reason: "test"},
 				{Identity: "example/role-one", Path: roleOne, Source: "example/aosk", Scope: "provider", Reason: "test", Required: true, Skills: []string{"compute-stack", "machine-*"}, Name: "hardware", DeclaredBy: "example/aosk"},
-				{Identity: "example/role-two", Path: roleTwo, Source: "example/aosk", Scope: "provider", Reason: "test"},
+				{Identity: "example/role-two", Path: roleTwo, Source: "example/aosk", Scope: "provider", Reason: "test", Name: "software", DeclaredBy: "example/aosk"},
 			},
 		},
 		Residency: []repositoryplan.Selection{
-			{Identity: "example/default", Path: defaultProvider, Source: "test", Scope: "role-union", Reason: "test"},
-			{Identity: "example/harness", Path: harnessProvider, Source: "test", Scope: "role-union", Reason: "test"},
+			{Identity: "example/default", Path: defaultProvider, Source: "example/aosk", Scope: "role-union", Reason: "test"},
+			{Identity: "example/harness", Path: harnessProvider, Source: "example/aosk", Scope: "role-union", Reason: "test"},
 		},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	if err := os.WriteFile(manifestPath, raw, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -117,13 +112,13 @@ func TestRepositoryPlanRoleProviderOrderingAndStrictLoading(t *testing.T) {
 	}
 
 	for name, body := range map[string]string{
-		"top-level":  `{"format":"agent-compose.repositories.v1","projects_root":"/tmp","roles":{},"residency":[],"extra":true}`,
-		"nested":     `{"format":"agent-compose.repositories.v1","projects_root":"/tmp","roles":{"ops":[{"identity":"example/provider","path":"/tmp/provider","source":"test","scope":"provider","reason":"test","extra":true}]},"residency":[]}`,
-		"trailing":   `{"format":"agent-compose.repositories.v1","projects_root":"/tmp","roles":{},"residency":[]} {}`,
-		"provenance": `{"format":"agent-compose.repositories.v1","projects_root":"/tmp","roles":{"ops":[{"identity":"example/provider","path":"/tmp/provider","source":"test","scope":"provider","reason":"test","name":"hardware"}]},"residency":[]}`,
+		"top-level":  "format: agent-compose.repositories.v2\nprojects_root: /tmp\ninputs: []\nroles: {}\nresidency: []\nextra: true\n",
+		"nested":     "format: agent-compose.repositories.v2\nprojects_root: /tmp\ninputs:\n  - identity: example/aosk\n    revision: 0123456789012345678901234567890123456789\n    policy:\n      path: .agents/roles.kdl\n      sha256: sha256:0123456789012345678901234567890123456789012345678901234567890123\nroles:\n  ops:\n    - identity: example/provider\n      path: /tmp/provider\n      source: example/aosk\n      scope: provider\n      reason: test\n      name: hardware\n      declared_by: example/aosk\n      extra: true\nresidency: []\n",
+		"trailing":   "format: agent-compose.repositories.v2\nprojects_root: /tmp\ninputs: []\nroles: {}\nresidency: []\n---\nextra: true\n",
+		"provenance": "format: agent-compose.repositories.v2\nprojects_root: /tmp\ninputs:\n  - identity: example/aosk\n    revision: 0123456789012345678901234567890123456789\n    policy:\n      path: .agents/roles.kdl\n      sha256: sha256:0123456789012345678901234567890123456789012345678901234567890123\nroles:\n  ops:\n    - identity: example/provider\n      path: /tmp/provider\n      source: example/aosk\n      scope: provider\n      reason: test\n      name: hardware\nresidency: []\n",
 	} {
 		t.Run(name, func(t *testing.T) {
-			path := filepath.Join(t.TempDir(), "manifest.json")
+			path := filepath.Join(t.TempDir(), "manifest.yaml")
 			if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
 				t.Fatal(err)
 			}
@@ -132,6 +127,30 @@ func TestRepositoryPlanRoleProviderOrderingAndStrictLoading(t *testing.T) {
 			}
 		})
 	}
+}
+
+func marshalPlan(t *testing.T, plan repositoryplan.Plan) []byte {
+	t.Helper()
+	raw, err := repositoryplan.Marshal(plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return raw
+}
+
+func testInputs(identities ...string) []repositoryplan.Input {
+	inputs := make([]repositoryplan.Input, 0, len(identities))
+	for _, identity := range identities {
+		inputs = append(inputs, repositoryplan.Input{
+			Identity: identity,
+			Revision: "0123456789012345678901234567890123456789",
+			Policy: repositoryplan.PolicyInput{
+				Path:   repositoryplan.PolicyPath,
+				SHA256: "sha256:0123456789012345678901234567890123456789012345678901234567890123",
+			},
+		})
+	}
+	return inputs
 }
 
 func TestApplyOverlaysAndMultipleLoadPoints(t *testing.T) {
@@ -146,7 +165,7 @@ func TestApplyOverlaysAndMultipleLoadPoints(t *testing.T) {
 		"claude": filepath.Join(dir, "claude"),
 		"codex":  filepath.Join(dir, "codex"),
 	}
-	manifest := filepath.Join(dir, "repository-plan.json")
+	manifest := filepath.Join(dir, "repository-plan.yaml")
 	writeEligibility(t, manifest, []string{public, private}, map[string][]string{})
 
 	result, err := Apply(manifest, loadPoints, filepath.Join(dir, "state"))
@@ -175,7 +194,7 @@ func TestApplyRemovesStaleOwnedLinksAndPreservesForeignEntries(t *testing.T) {
 	destination := filepath.Join(dir, "skills")
 	state := filepath.Join(dir, "state")
 	points := map[string]string{"codex": destination}
-	manifest := filepath.Join(dir, "repository-plan.json")
+	manifest := filepath.Join(dir, "repository-plan.yaml")
 	writeEligibility(t, manifest, []string{root}, map[string][]string{})
 	if _, err := Apply(manifest, points, state); err != nil {
 		t.Fatal(err)
@@ -219,7 +238,7 @@ func TestApplyWarnsAndRemovesOwnedLinkWhenSkillTargetDisappears(t *testing.T) {
 	destination := filepath.Join(dir, "skills")
 	state := filepath.Join(dir, "state")
 	points := map[string]string{"codex": destination}
-	manifest := filepath.Join(dir, "repository-plan.json")
+	manifest := filepath.Join(dir, "repository-plan.yaml")
 	writeEligibility(t, manifest, []string{root}, map[string][]string{})
 
 	if _, err := Apply(manifest, points, state); err != nil {
@@ -260,7 +279,7 @@ func TestApplyStillFailsOnNonMissingSkillInspectionError(t *testing.T) {
 	if err := os.Symlink(loop, loop); err != nil {
 		t.Fatal(err)
 	}
-	manifest := filepath.Join(dir, "repository-plan.json")
+	manifest := filepath.Join(dir, "repository-plan.yaml")
 	writeEligibility(t, manifest, []string{root}, map[string][]string{})
 
 	_, err := Apply(
@@ -283,7 +302,7 @@ func TestApplyDoesNotMutateWhenManifestIsMissing(t *testing.T) {
 	if err := os.WriteFile(foreign, []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	_, err := Apply(filepath.Join(dir, "missing.json"), map[string]string{"codex": destination}, filepath.Join(dir, "state"))
+	_, err := Apply(filepath.Join(dir, "missing.yaml"), map[string]string{"codex": destination}, filepath.Join(dir, "state"))
 	if err == nil {
 		t.Fatal("missing root must fail")
 	}
@@ -317,7 +336,7 @@ func TestApplyWithCatalogsOverlaysLocalSkillsForEveryLoadPoint(t *testing.T) {
 		"claude": filepath.Join(dir, "claude"),
 		"codex":  filepath.Join(dir, "codex"),
 	}
-	manifest := filepath.Join(dir, "repository-plan.json")
+	manifest := filepath.Join(dir, "repository-plan.yaml")
 	writeEligibility(t, manifest, []string{local}, map[string][]string{})
 	result, err := ApplyWithCatalogs(
 		manifest,

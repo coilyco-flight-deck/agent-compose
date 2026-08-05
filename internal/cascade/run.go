@@ -121,7 +121,8 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 		active[target] = true
 	}
 	stale := staleGeneratedOutputs(paths.Composed, active)
-	planPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
+	manifestPath := planPath(filepath.Dir(paths.Composed))
+	legacyPlanPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
 	repositoryPlan, err := RenderRepositoryPlan(cfg, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
@@ -129,7 +130,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	}
 
 	if opts.Verbose {
-		printLayout(stdout, paths.Config, planPath, byTarget, p, loadPoints)
+		printLayout(stdout, paths.Config, manifestPath, byTarget, p, loadPoints)
 	}
 
 	if opts.DryRun {
@@ -144,8 +145,11 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stdout, "would write %s (%d source(s))%s\n", target, len(entry.sources), tail)
 			}
 		}
-		if opts.Reapply || readOr(planPath, "\x00") != repositoryPlan {
-			fmt.Fprintf(stdout, "would write %s (repository plan)\n", planPath)
+		if opts.Reapply || readOr(manifestPath, "\x00") != repositoryPlan {
+			fmt.Fprintf(stdout, "would write %s (repository plan)\n", manifestPath)
+		}
+		if _, err := os.Stat(legacyPlanPath); err == nil {
+			fmt.Fprintf(stdout, "would remove %s (obsolete repository plan)\n", legacyPlanPath)
 		}
 		for _, target := range stale {
 			fmt.Fprintf(stdout, "would remove %s (obsolete generated output)\n", target)
@@ -168,6 +172,14 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "removed %s (obsolete generated output)\n", target)
 		changed++
 	}
+	if _, err := os.Stat(legacyPlanPath); err == nil {
+		if err := os.Remove(legacyPlanPath); err != nil {
+			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "removed %s (obsolete repository plan)\n", legacyPlanPath)
+		changed++
+	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
 		body, err := Compose(entry.sources, entry.overrides)
@@ -185,12 +197,12 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
 		changed++
 	}
-	if opts.Reapply || readOr(planPath, "\x00") != repositoryPlan {
-		if err := os.WriteFile(planPath, []byte(repositoryPlan), 0o644); err != nil {
+	if opts.Reapply || readOr(manifestPath, "\x00") != repositoryPlan {
+		if err := writeFileAtomic(manifestPath, []byte(repositoryPlan)); err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
 		}
-		fmt.Fprintf(stdout, "wrote   %s (repository plan)\n", planPath)
+		fmt.Fprintf(stdout, "wrote   %s (repository plan)\n", manifestPath)
 		changed++
 	}
 	for _, harness := range sortedKeys2(loadPoints) {
@@ -275,18 +287,23 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: drift - %s is missing, stale, or hand-edited. Run `agent-compose cascade` to regenerate.\n", target)
 		writeDiff(stderr, actual, expected, target)
 	}
-	planPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
+	manifestPath := planPath(filepath.Dir(paths.Composed))
+	legacyPlanPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
 	expectedPlan, err := RenderRepositoryPlan(cfg, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	if actual := readOr(planPath, ""); actual == expectedPlan {
-		fmt.Fprintf(stdout, "agent-compose: %s in sync\n", planPath)
+	if actual := readOr(manifestPath, ""); actual == expectedPlan {
+		fmt.Fprintf(stdout, "agent-compose: %s in sync\n", manifestPath)
 	} else {
 		drifted = true
-		fmt.Fprintf(stderr, "agent-compose: drift - %s (repository plan) is missing, stale, or hand-edited. Run `agent-compose compose` to regenerate.\n", planPath)
-		writeDiff(stderr, actual, expectedPlan, planPath)
+		fmt.Fprintf(stderr, "agent-compose: drift - %s (repository plan) is missing, stale, or hand-edited. Run `agent-compose compose` to regenerate.\n", manifestPath)
+		writeDiff(stderr, actual, expectedPlan, manifestPath)
+	}
+	if _, err := os.Stat(legacyPlanPath); err == nil {
+		drifted = true
+		fmt.Fprintf(stderr, "agent-compose: drift - obsolete repository plan remains at %s. Run `agent-compose cascade` to remove it.\n", legacyPlanPath)
 	}
 	if drifted {
 		return 1
@@ -329,6 +346,26 @@ func readOr(path, fallback string) string {
 		return fallback
 	}
 	return string(raw)
+}
+
+func writeFileAtomic(path string, raw []byte) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	temp, err := os.CreateTemp(filepath.Dir(path), ".repository-plan-*.tmp")
+	if err != nil {
+		return err
+	}
+	tempPath := temp.Name()
+	defer os.Remove(tempPath)
+	if _, err := temp.Write(raw); err != nil {
+		temp.Close()
+		return err
+	}
+	if err := temp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tempPath, path)
 }
 
 func sortedKeys(m map[string]planned) []string {

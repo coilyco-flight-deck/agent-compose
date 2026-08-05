@@ -42,9 +42,10 @@ removed on convergence.
 Each configured load point (claude and codex by default, others via
 `load_points`, `null` to opt out) is symlinked at its harness's composed
 file, backing up any pre-existing regular file to `.bak`. The strict
-[`repository-plan.json`](repository-policy.md) is emitted beside the composed
+[`repository-plan.yaml`](repository-policy.md) is emitted beside the composed
 output. It compiles operating context, global policy, role policy, provider
-uses, and resident-only pins from trusted KDL with complete provenance.
+uses, and resident-only pins from trusted KDL with sealed input provenance.
+See [Repository plan](repository-plan.md).
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
@@ -58,7 +59,7 @@ Bare compose can also link authored skill catalogs into harness-native skill
 directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
 
 Native skill linking uses the compiled residency set from
-`repository-plan.json`. Repositories contribute `.agents/skills`. The compiled
+`repository-plan.yaml`. Repositories contribute `.agents/skills`. The compiled
 set precedes verified local catalogues. Existing unowned entries win. Missing entries warn and skip, while
 other inspection failures remain fatal. Agent-compose records links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still

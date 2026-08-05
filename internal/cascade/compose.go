@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
@@ -293,6 +294,7 @@ type trustedRoleGraph struct {
 	root     string
 	relative string
 	source   *schema.Source
+	input    repositoryplan.Input
 }
 
 func resolveProviderPath(projects, logical string) (string, error) {

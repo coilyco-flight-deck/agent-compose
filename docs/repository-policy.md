@@ -41,17 +41,17 @@ paths, conflicting trusted definitions, and provider cycles.
 ## Compiled plan
 
 `agent-compose cascade` writes
-`~/.agent-compose/repository-plan.json` in
-`agent-compose.repositories.v1` format. It contains:
+`~/.agent-compose/repository-plan.yaml` in
+`agent-compose.repositories.v2` format. The file is machine-owned but
+intentionally reviewable. It records each trusted policy source identity, full
+Git revision, `.agents/roles.kdl` path, and SHA-256 digest before the role and
+residency selections.
 
-* `roles` - the exact sorted selection for every canonical role.
-* `residency` - the union of every role selection plus resident-only pins.
-* provenance - source, scope, reason, and provider selector details for every
-  selection.
-
-The plan uses absolute paths beneath one `projects_root`. Consumers validate
-the strict format and never parse `roles.kdl` themselves. Native skill linking
-uses the residency projection. A role launch reads only its role selection.
+The plan uses a bounded safe-YAML subset and absolute paths beneath one
+`projects_root`. Consumers reject unsafe YAML, unsafe paths, unsorted
+identities, and incomplete provenance. Consumers never parse `roles.kdl`
+themselves. Native skill linking uses the residency projection. A role launch
+reads only its role selection. See [Repository plan](repository-plan.md).
 
 ## Verified bundle handoff
 
@@ -69,6 +69,7 @@ authority, network access, credentials, or mutation permission.
 ## See also
 
 * [Cascade](cascade.md) - host convergence and plan emission.
+* [Repository plan](repository-plan.md) - YAML v2 contract and provenance.
 * [Native role launch](native-role-launch.md) - role selection and launch.
 * [Bundle protocol](bundle-protocol.md) - immutable consumer contract.
 * [Role-scoped providers](role-scoped-providers.md) - provider selection.

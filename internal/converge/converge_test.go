@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -26,6 +27,7 @@ func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
 			t.Fatal(err)
 		}
+		ensureGitRepository(t, root)
 		raw = append(raw, []byte("operating_context:\n  - test/context\n")...)
 		if err := os.WriteFile(paths.Config, raw, 0o644); err != nil {
 			t.Fatal(err)
@@ -67,6 +69,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(providerRoot, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	ensureGitRepository(t, providerRoot)
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
 		"operating_context:\n  - coilyco-flight-deck/agentic-os\n" +
 		"roster_sources:\n  - " + providerRoot + "\n" +
@@ -367,5 +370,23 @@ func writeTestSkill(t *testing.T, root, name, body string) {
 	}
 	if err := os.WriteFile(filepath.Join(path, "SKILL.md"), []byte(body), 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func ensureGitRepository(t *testing.T, root string) {
+	t.Helper()
+	if _, err := os.Stat(filepath.Join(root, ".git")); err == nil {
+		return
+	}
+	for _, args := range [][]string{
+		{"init", "-q"},
+		{"add", "."},
+		{"-c", "user.name=Agent Compose Tests", "-c", "user.email=agent-compose-tests@example.invalid", "commit", "-q", "-m", "fixture"},
+	} {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v in %s: %v\n%s", args, root, err, output)
+		}
 	}
 }
