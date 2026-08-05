@@ -77,7 +77,7 @@ See [person packages](docs/person-packages.md).
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. Trusted roots use `.agents/roles.kdl` for role-only providers, composed skills, and strict [repository policy](docs/repository-policy.md).
+package-manager distribution. Trusted roots use `.agents/roles.kdl` for skill-provider repositories, composed skills, and strict [repository policy](docs/repository-policy.md).
 Cascade compiles one availability and residency plan. Verified bundles retain repository provenance for launch consumers. Imported graphs do not recurse. The
 default `roster:core` provider supplies the personality invariant and all 16
 canonical definitions, so its host roster convergence needs no external

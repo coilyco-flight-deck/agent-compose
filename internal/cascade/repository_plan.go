@@ -101,9 +101,14 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 				return "", fmt.Errorf("repository %q declared by %s: %w", id, graph.relative, err)
 			}
 			if previous, exists := claimedPaths[definition.Path]; exists {
-				return "", fmt.Errorf("repository path %q is declared by both %s and repository %q in %s", definition.Path, previous, id, graph.relative)
+				unifiedProvider := definition.Skills != nil &&
+					previous == fmt.Sprintf("provider %q in %s", id, graph.relative)
+				if !unifiedProvider {
+					return "", fmt.Errorf("repository path %q is declared by both %s and repository %q in %s", definition.Path, previous, id, graph.relative)
+				}
+			} else {
+				claimedPaths[definition.Path] = fmt.Sprintf("repository %q in %s", id, graph.relative)
 			}
-			claimedPaths[definition.Path] = fmt.Sprintf("repository %q in %s", id, graph.relative)
 			repositoryDefinitions[graph.root][id] = resolved
 		}
 	}
@@ -172,7 +177,7 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 					Source:   graph.relative, Scope: "provider", Required: use.Required,
 					Skills: append([]string(nil), definition.Skills...), Name: use.Provider,
 					DeclaredBy: graph.relative,
-					Reason:     fmt.Sprintf("role %q uses provider %q declared by %s", role, use.Provider, graph.relative),
+					Reason:     fmt.Sprintf("role %q uses skill-provider repository %q declared by %s", role, use.Provider, graph.relative),
 				}); err != nil {
 					return "", err
 				}

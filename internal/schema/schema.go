@@ -98,17 +98,18 @@ type ProviderDefinition struct {
 	Skills []string
 }
 
-// ProviderUse binds one document-local provider to a role.
+// ProviderUse binds one document-local skill-provider repository to a role.
 type ProviderUse struct {
 	Provider string
 	Required bool
 }
 
-// RepositoryDefinition names one logical repository policy target, separate
-// from skill-provider admission until the host compiler resolves it.
+// RepositoryDefinition names one logical repository policy target. Optional
+// Skills turns the repository into a bounded ordinary-skill provider.
 type RepositoryDefinition struct {
-	ID   string
-	Path string
+	ID     string
+	Path   string
+	Skills []string
 }
 
 // RepositoryUse is one reference to a document-local repository definition.
@@ -647,9 +648,6 @@ func parseRoleGraph(path string, composed map[string]string) (
 							return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("repository %q: unknown property %q", id, property)
 						}
 					}
-					if len(repositoryNode.Children().Nodes) > 0 {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("repository %q: repository accepts no children", id)
-					}
 					pathValue := repositoryNode.Prop("path")
 					if !pathValue.IsValid() || pathValue.Kind() != kdl.String {
 						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("repository %q: path must be a string property", id)
@@ -661,7 +659,20 @@ func parseRoleGraph(path string, composed map[string]string) (
 					if previous, exists := paths[logicalPath]; exists {
 						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("repository declaration %q duplicates path %q already named by %s", id, logicalPath, previous)
 					}
-					repositories[id] = RepositoryDefinition{ID: id, Path: logicalPath}
+					skills, err := parseSkillSelectorChildren(fmt.Sprintf("repository %q", id), repositoryNode.Children().Nodes)
+					if err != nil {
+						return nil, nil, nil, nil, nil, nil, nil, nil, err
+					}
+					definition := RepositoryDefinition{ID: id, Path: logicalPath, Skills: skills}
+					repositories[id] = definition
+					if definition.Skills != nil {
+						if _, exists := providers[id]; exists {
+							return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("repository %q: skill-provider id duplicates provider %q", id, id)
+						}
+						providers[id] = ProviderDefinition{
+							ID: id, Path: logicalPath, Skills: append([]string(nil), definition.Skills...),
+						}
+					}
 					paths[logicalPath] = fmt.Sprintf("repository %q", id)
 				case "global", "resident-only":
 					id, err := oneStringArg(repositoryNode)
@@ -724,25 +735,11 @@ func parseRoleGraph(path string, composed map[string]string) (
 				if previous, exists := paths[logicalPath]; exists {
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("providers %q and %q name the same repository path %q", previous, id, logicalPath)
 				}
-				definition := ProviderDefinition{ID: id, Path: logicalPath}
-				for _, skillNode := range providerNode.Children().Nodes {
-					if skillNode.Name() != "skill" {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider %q: unknown node %q", id, skillNode.Name())
-					}
-					if len(skillNode.Properties()) > 0 || len(skillNode.Children().Nodes) > 0 {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider %q: skill accepts only one pattern argument", id)
-					}
-					pattern, err := oneStringArg(skillNode)
-					if err != nil {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
-					}
-					definition.Skills = append(definition.Skills, pattern)
+				skills, err := parseSkillSelectorChildren(fmt.Sprintf("provider %q", id), providerNode.Children().Nodes)
+				if err != nil {
+					return nil, nil, nil, nil, nil, nil, nil, nil, err
 				}
-				if definition.Skills != nil {
-					if err := skillselector.Validate(definition.Skills); err != nil {
-						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider %q: %w", id, err)
-					}
-				}
+				definition := ProviderDefinition{ID: id, Path: logicalPath, Skills: skills}
 				providers[id] = definition
 				paths[logicalPath] = fmt.Sprintf("provider %q", id)
 			}
@@ -870,7 +867,8 @@ func parseRoleGraph(path string, composed map[string]string) (
 				if err != nil {
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q: %w", role, err)
 				}
-				if _, declared := repositories[repositoryID]; !declared {
+				definition, declared := repositories[repositoryID]
+				if !declared {
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q references undeclared repository %q", role, repositoryID)
 				}
 				if seenRepositories[repositoryID] {
@@ -880,7 +878,15 @@ func parseRoleGraph(path string, composed map[string]string) (
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q repository %q: use-repository accepts only one argument", role, repositoryID)
 				}
 				seenRepositories[repositoryID] = true
-				roleRepos[role] = append(roleRepos[role], RepositoryUse{Repository: repositoryID})
+				if definition.Skills != nil {
+					if seenProviders[repositoryID] {
+						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q repeats provider %q", role, repositoryID)
+					}
+					seenProviders[repositoryID] = true
+					uses[role] = append(uses[role], ProviderUse{Provider: repositoryID, Required: true})
+				} else {
+					roleRepos[role] = append(roleRepos[role], RepositoryUse{Repository: repositoryID})
+				}
 			default:
 				return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q: unknown node %q", role, child.Name())
 			}
@@ -903,6 +909,29 @@ func parseRoleGraph(path string, composed map[string]string) (
 		}
 	}
 	return refs, overlaps, providers, uses, repositories, globalRepos, roleRepos, residentRepos, nil
+}
+
+func parseSkillSelectorChildren(owner string, nodes []*kdl.Node) ([]string, error) {
+	var skills []string
+	for _, skillNode := range nodes {
+		if skillNode.Name() != "skill" {
+			return nil, fmt.Errorf("%s: unknown node %q", owner, skillNode.Name())
+		}
+		if len(skillNode.Properties()) > 0 || len(skillNode.Children().Nodes) > 0 {
+			return nil, fmt.Errorf("%s: skill accepts only one pattern argument", owner)
+		}
+		pattern, err := oneStringArg(skillNode)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", owner, err)
+		}
+		skills = append(skills, pattern)
+	}
+	if skills != nil {
+		if err := skillselector.Validate(skills); err != nil {
+			return nil, fmt.Errorf("%s: %w", owner, err)
+		}
+	}
+	return skills, nil
 }
 
 func validateLogicalProviderPath(value string) error {

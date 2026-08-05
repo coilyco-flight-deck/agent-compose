@@ -1,5 +1,5 @@
-providers {
-    provider hardware path="example/hardware-knowledge" {
+repositories {
+    repository hardware path="example/hardware-knowledge" {
         skill "compute-stack"
         skill "machine-*"
     }
@@ -7,6 +7,6 @@ providers {
 
 roles {
     role engineer {
-        use-provider hardware required=#true
+        use-repository hardware
     }
 }

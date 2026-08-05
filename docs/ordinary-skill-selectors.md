@@ -1,25 +1,25 @@
 # Ordinary-skill selectors
 
-A provider declaration in `.agents/roles.kdl` may bound its ordinary
+A repository declaration in `.agents/roles.kdl` may bound its ordinary
 `.agents/skills` catalogue with `skill` children:
 
 ```kdl
-providers {
-    provider hardware path="example/hardware-knowledge" {
+repositories {
+    repository hardware path="example/hardware-knowledge" {
         skill "compute-stack"
         skill "machine-*"
     }
 }
 roles {
     role engineer {
-        use-provider hardware required=#true
+        use-repository hardware
     }
 }
 ```
 
 Patterns use Go path-match syntax. A literal is exact and `*`, `?`, or bracket
-forms provide glob matching within one skill ID. Omitting `skill` children
-admits the whole provider.
+forms provide glob matching within one skill ID. Use `skill "*"` to admit a
+provider repository's whole ordinary catalogue.
 
 ## Fail-closed validation
 

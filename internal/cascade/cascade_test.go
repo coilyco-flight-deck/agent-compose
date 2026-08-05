@@ -173,15 +173,15 @@ func TestUnifiedRoleProviderGraphRendersStrictEligibility(t *testing.T) {
 	if err := os.WriteFile(source, []byte("# AOSK\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(aosk, ".agents", "roles.kdl"), []byte(`providers {
-    provider hardware path="example/hardware" {
+	if err := os.WriteFile(filepath.Join(aosk, ".agents", "roles.kdl"), []byte(`repositories {
+    repository hardware path="example/hardware" {
         skill "compute-stack"
         skill "machine-*"
     }
 }
 roles {
     role engineer {
-        use-provider hardware required=#true
+        use-repository hardware
     }
 }
 `), 0o644); err != nil {
@@ -260,17 +260,17 @@ func TestUnifiedRoleProviderGraphFailsClosed(t *testing.T) {
 	for name, setup := range map[string]func(t *testing.T, e env) string{
 		"unmatched selector": func(t *testing.T, e env) string {
 			writeOrdinaryProvider(t, filepath.Join(e.projects, "example", "hardware"), "compute-stack")
-			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
-    provider hardware path="example/hardware" { skill "machine-*" }
+			return writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
+    repository hardware path="example/hardware" { skill "machine-*" }
 }
-roles { role engineer { use-provider hardware required=#true } }
+roles { role engineer { use-repository hardware } }
 `)
 		},
 		"provider cycle": func(t *testing.T, e env) string {
-			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
-    provider self path="example/aosk"
+			return writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
+    repository self path="example/aosk" { skill "*" }
 }
-roles { role engineer { use-provider self required=#true } }
+roles { role engineer { use-repository self } }
 `)
 		},
 	} {
@@ -289,17 +289,17 @@ func TestImportedProviderGraphDoesNotRecursivelyWidenEligibility(t *testing.T) {
 	e := newEnv(t)
 	hardware := filepath.Join(e.projects, "example", "hardware")
 	writeOrdinaryProvider(t, hardware, "compute-stack")
-	if err := os.WriteFile(filepath.Join(hardware, ".agents", "roles.kdl"), []byte(`providers {
-    provider recursive path="example/recursive"
+	if err := os.WriteFile(filepath.Join(hardware, ".agents", "roles.kdl"), []byte(`repositories {
+    repository recursive path="example/recursive" { skill "*" }
 }
-roles { role engineer { use-provider recursive required=#true } }
+roles { role engineer { use-repository recursive } }
 `), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	source := writeTrustedRoleGraph(t, e, "example/aosk", `providers {
-    provider hardware path="example/hardware" { skill compute-stack }
+	source := writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
+    repository hardware path="example/hardware" { skill compute-stack }
 }
-roles { role engineer { use-provider hardware required=#true } }
+roles { role engineer { use-repository hardware } }
 `)
 	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 	if code, out, errOut := e.run(t, false); code != 0 {

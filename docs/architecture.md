@@ -38,8 +38,8 @@ definitions, and inspirations. Capability sources add knowledge but cannot
 redefine those names or bodies.
 
 Personality definitions live inside person-package skills. Agent-compose
-discovers ordinary skills and a trusted `.agents/roles.kdl` graph for
-role-only providers and composed skills. Imported graphs do not recurse. Overlays may use
+discovers ordinary skills and a `.agents/roles.kdl` graph for
+skill-provider repos and composed skills. Imported graphs do not recurse. Overlays may use
 explicit source declarations. An optional legacy AOS invariant and personality
 copy remains readable during rolling upgrades. Byte-identical copies shadow
 behind the selected person source.

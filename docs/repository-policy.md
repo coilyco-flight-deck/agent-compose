@@ -8,14 +8,17 @@ availability.
 
 ## Grammar
 
-The optional top-level `repositories` node declares stable repository ids and
-their `owner/repository` paths:
+The optional top-level `repositories` node declares stable repository ids and their `owner/repository` paths. Optional `skill` children mark a repository as a bounded ordinary-skill provider:
 
 ```kdl
 repositories {
     repository lore path="coilysiren/lore"
     repository voice-corpus path="coilysiren/voice-corpus"
     repository profile path="coilysiren/coilysiren"
+    repository hardware path="coilyco-bridge/agentic-os-hardware" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
 
     global lore
     resident-only profile
@@ -25,6 +28,7 @@ roles {
     role content {
         use-repository voice-corpus
     }
+    role engineer { use-repository hardware }
 }
 ```
 
@@ -34,9 +38,8 @@ Policy has three distinct scopes:
 * `use-repository` makes a repository available only to the containing role.
 * `resident-only` keeps a checkout on the host without granting it to any role.
 
-Role providers remain repository selections with skill-selector provenance.
-Agent Compose rejects unknown ids, duplicate paths, duplicate use, unsafe
-paths, conflicting trusted definitions, and provider cycles.
+Repositories with `skill` children become role skill providers when selected by `use-repository`.
+Agent Compose rejects unknown ids, duplicate paths, duplicate use, unsafe paths, conflicting trusted definitions, and provider cycles.
 
 ## Compiled plan
 

@@ -36,21 +36,22 @@ request order. `root` and `declaration` only locate files.
 The public AOS provider needs only its root. Agent-compose discovers ordinary skills and reads one `.agents/roles.kdl` graph:
 
 ```kdl
-providers {
-    provider hardware path="example/hardware-knowledge" {
+repositories {
+    repository hardware path="example/hardware-knowledge" {
         skill "machine-*"
     }
 }
 roles {
     role "engineer" {
-        use-provider hardware required=#true
+        use-repository hardware
         composed-skill "coding-*"
     }
 }
 ```
 
-Provider IDs are document-local, paths use `owner/repository`, `skill` bounds the ordinary catalogue, and `required` controls missing checkouts.
-Only trusted roots widen eligibility. Imported graphs do not recurse. See [role-scoped providers](role-scoped-providers.md) for resolution and provenance.
+Repository IDs are document-local, paths use `owner/repository`, and `skill` marks a selected repository as an ordinary-skill provider with a bounded catalogue.
+Selected skill-provider repositories fail closed when their checkout or `.agents/skills` catalogue is unavailable. Only trusted roots widen eligibility, and imported graphs do not recurse.
+See [role-scoped providers](role-scoped-providers.md) for resolution and provenance.
 
 Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or glob. Globs expand lexically. Invalid or overlapping selections fail.
 Materialization renames admitted entry points to `SKILL.md`. Nested `SKILL.md` files and ordinary/composed name collisions fail.
@@ -76,5 +77,4 @@ shadow behind the person source. Different copies conflict.
 
 ## See also
 
-* [person-contract.md](person-contract.md) - person-package policy.
 * [person-packages.md](person-packages.md) - external package selection.

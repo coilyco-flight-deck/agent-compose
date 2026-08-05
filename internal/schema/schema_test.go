@@ -345,7 +345,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	}
 }
 
-func TestLoadInferredProviderParsesUnifiedRoleProviderGraph(t *testing.T) {
+func TestLoadInferredProviderParsesRepositorySkillProviderGraph(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "aosk")
 	skill := filepath.Join(root, ".agents", "skills", "repo-aosk")
 	if err := os.MkdirAll(skill, 0o755); err != nil {
@@ -354,21 +354,23 @@ func TestLoadInferredProviderParsesUnifiedRoleProviderGraph(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(skill, "SKILL.md"), []byte("# AOSK\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`providers {
-    provider hardware path="coilyco-bridge/agentic-os-hardware" {
+	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`repositories {
+    repository hardware path="coilyco-bridge/agentic-os-hardware" {
         skill "compute-stack"
         skill "machine-*"
     }
-    provider infrastructure path="coilyco-flight-deck/infrastructure"
+    repository infrastructure path="coilyco-flight-deck/infrastructure" {
+        skill "*"
+    }
 }
 
 roles {
     role engineer {
-        use-provider hardware required=#true
+        use-repository hardware
     }
     role ops {
-        use-provider hardware required=#true
-        use-provider infrastructure required=#true
+        use-repository hardware
+        use-repository infrastructure
     }
 }
 `), 0o644); err != nil {
@@ -416,14 +418,14 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 		root := makeProvider(t)
 		if err := os.WriteFile(
 			filepath.Join(root, ".agents", "roles.kdl"),
-			[]byte(`providers {
-    provider hardware path="example/hardware" {
+			[]byte(`repositories {
+    repository hardware path="example/hardware" {
         skill "machine-*"
     }
 }
 roles {
     role engineer {
-        use-provider hardware required=#true
+        use-repository hardware
     }
 }
 `),
@@ -437,11 +439,11 @@ roles {
 	})
 
 	for name, graph := range map[string]string{
-		"undeclared provider": `roles { role engineer { use-provider missing required=#true } }`,
-		"invalid selector":    `providers { provider hardware path="example/hardware" { skill "[" } } roles {}`,
-		"duplicate path":      `providers { provider one path="example/hardware"; provider two path="example/hardware" } roles {}`,
-		"unsafe path":         `providers { provider hardware path="../hardware" } roles {}`,
-		"wrong required type": `providers { provider hardware path="example/hardware" } roles { role engineer { use-provider hardware required="yes" } }`,
+		"undeclared repository": `roles { role engineer { use-repository missing } }`,
+		"invalid selector":      `repositories { repository hardware path="example/hardware" { skill "[" } } roles {}`,
+		"duplicate path":        `repositories { repository one path="example/hardware"; repository two path="example/hardware" } roles {}`,
+		"unsafe path":           `repositories { repository hardware path="../hardware" } roles {}`,
+		"unknown use property":  `repositories { repository hardware path="example/hardware" { skill "*" } } roles { role engineer { use-repository hardware required=#true } }`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			root := makeProvider(t)

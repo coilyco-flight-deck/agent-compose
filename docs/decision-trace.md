@@ -16,7 +16,7 @@ outcomes are:
 
 The trace also retains one provider report for every selected provider and
 every configured provider excluded from the active role. Reports classify the
-selected person package, ordinary catalogues, and role-only providers, then
+selected person package, ordinary catalogues, and role-only skill-provider repositories, then
 record their configuration scope, outcome, and reason.
 
 When a role provider carries an ordinary-skill selector, its report also

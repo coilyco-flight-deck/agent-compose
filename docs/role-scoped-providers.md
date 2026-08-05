@@ -1,35 +1,28 @@
 # Role-scoped skill providers
 
-A trusted root can admit local skill providers for one role without widening
-the host-global surface. It owns `.agents/roles.kdl`, whose provider IDs are
-document-local.
+A trusted root can admit local skill-provider repositories for one role without widening the host-global surface. It owns `.agents/roles.kdl`, whose repository IDs are document-local.
 
 ## Configuration
 
-Declare providers beside composed skills in the trusted root's role graph:
+Declare skill-provider repositories beside composed skills in the trusted root's role graph:
 
 ```kdl
-providers {
-    provider infrastructure path="example/infrastructure"
-    provider deploy path="example/deploy"
+repositories {
+    repository hardware path="example/hardware" {
+        skill "compute-stack"
+        skill "machine-*"
+    }
 }
 roles {
     role operations {
-        use-provider infrastructure required=#true
-        use-provider deploy required=#false
+        use-repository hardware
     }
 }
 ```
 
-Optional `skill` children select a bounded ordinary-skill slice. See
-[Ordinary-skill selectors](ordinary-skill-selectors.md). Omission preserves
-the whole provider.
+`skill` children mark a repository as a role skill provider and select a bounded ordinary-skill slice. Use `skill "*"` when the role should receive the whole ordinary catalogue. See [Ordinary-skill selectors](ordinary-skill-selectors.md).
 
-Required providers fail the assigned launch when their `.agents/skills`
-catalogue is unavailable. Optional providers leave an explicit excluded-source
-decision in `trace.json` and composition continues. A provider assigned to a
-different role is excluded with its provider and discoverable skill reasons in
-the same trace.
+Selected skill-provider repositories fail the assigned launch when their `.agents/skills` catalogue is unavailable. A provider assigned to a different role is excluded with its provider and discoverable skill reasons in the same trace.
 
 ## Selection
 
@@ -37,7 +30,7 @@ An assigned launch resolves providers in this order:
 
 1. Explicit operating-context repositories.
 2. Global repositories.
-3. Direct repositories and providers admitted for the selected role.
+3. Direct repositories and skill-provider repositories admitted for the role.
 
 Duplicate paths collapse first-wins. Byte-identical skills may shadow the
 earlier copy, while different bodies with the same name fail closed.
@@ -58,8 +51,8 @@ Native projection and `project --scope home` consume the same immutable bundle.
 
 `agent-compose describe <bundle>` shows selected and excluded providers in a
 dedicated provider section. It classifies default and harness roots as ordinary
-catalogues, role roots as role providers, and the selected roster as a person
-package. Its context-budget section names each provider's selected skill count,
+catalogues, role roots as skill-provider repositories, and the selected roster
+as a person package. Its context-budget section names selected skill count,
 retained bytes, and approximate tokens. Excluded providers contribute explicit
 zeroes. A selected slice records its selector outcome and bounded budget.
 `agent-compose describe <bundle> --why source:<provider-id>` explains provider
