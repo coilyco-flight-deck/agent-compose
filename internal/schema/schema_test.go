@@ -257,9 +257,6 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
     role engineer {
         composed-skill "coding-*"
-        intent autonomous-coding {
-            harness openhands
-        }
     }
     role designer {
         composed-skill design-system
@@ -309,20 +306,13 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		src.RoleSkills["designer"][0].ID != "design-system" {
 		t.Fatalf("unexpected composed role skills: %+v", src.RoleSkills)
 	}
-	if len(src.RoleIntents["engineer"]) != 1 ||
-		src.RoleIntents["engineer"][0].Intent != "autonomous-coding" ||
-		src.RoleIntents["engineer"][0].Harness != "openhands" {
-		t.Fatalf("unexpected role intent routes: %+v", src.RoleIntents)
-	}
-
 	direct, err := LoadSource(root)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if direct.ID != filepath.Base(root) ||
 		len(direct.Skills) != len(src.Skills) ||
-		len(direct.RoleSkills) != len(src.RoleSkills) ||
-		len(direct.RoleIntents) != len(src.RoleIntents) {
+		len(direct.RoleSkills) != len(src.RoleSkills) {
 		t.Fatalf("direct provider load differs: %+v", direct)
 	}
 }
@@ -475,26 +465,6 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
 		}
 	})
 
-	t.Run("malformed intent route", func(t *testing.T) {
-		root := makeProvider(t)
-		if err := os.MkdirAll(filepath.Join(root, ".agents", "composed"), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role engineer {
-        intent autonomous-coding {
-            model hidden-policy
-        }
-    }
-}
-`), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		if _, err := LoadSource(root); err == nil ||
-			!strings.Contains(err.Error(), "expects exactly one harness child") {
-			t.Fatalf("malformed intent route must fail closed, got %v", err)
-		}
-	})
 }
 
 func TestLoadInferredProviderAllowsMissingInvariant(t *testing.T) {

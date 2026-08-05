@@ -46,7 +46,7 @@ roles {
 ```
 
 Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or a `coding-*` glob. Globs expand lexically.
-Invalid, unmatched, and overlapping selections fail closed. Each `intent` records one model-opaque default harness route.
+Invalid, unmatched, and overlapping selections fail closed.
 Materialization renames the admitted entry point to `SKILL.md`. Nested
 `SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
