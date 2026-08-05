@@ -43,6 +43,9 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.ModelClass != schema.ModelClassFrontier {
 				t.Fatalf("model class = %q", verified.Manifest.ModelClass)
 			}
+			if verified.Manifest.ModelTier != schema.ModelTierFrontier {
+				t.Fatalf("model tier = %q", verified.Manifest.ModelTier)
+			}
 			if len(verified.Identities) != len(verified.Manifest.Personalities)+2 {
 				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
 			}
@@ -68,6 +71,19 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 }
 
 func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
+	t.Run("unknown model tier", func(t *testing.T) {
+		dir := copyBundle(t, composeBundle(t, "native.kdl"))
+		manifest, err := bundle.ReadManifest(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest.ModelTier = "premium"
+		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
+		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "model tier") {
+			t.Fatalf("expected model-tier failure, got %v", err)
+		}
+	})
+
 	t.Run("unknown model class", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
 		manifest, err := bundle.ReadManifest(dir)
@@ -166,6 +182,23 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 			t.Fatalf("expected symlink failure, got %v", err)
 		}
 	})
+}
+
+func TestVerifyDefaultsLegacyBundleToFrontierModelTier(t *testing.T) {
+	dir := copyBundle(t, composeBundle(t, "native.kdl"))
+	manifest, err := bundle.ReadManifest(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest.ModelTier = ""
+	writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
+	verified, err := bundle.Verify(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verified.Manifest.ModelTier != schema.ModelTierFrontier {
+		t.Fatalf("legacy model tier = %q, want frontier", verified.Manifest.ModelTier)
+	}
 }
 
 func TestMaterializeVerifiesCacheReuse(t *testing.T) {

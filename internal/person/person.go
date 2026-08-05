@@ -73,8 +73,23 @@ type Role struct {
 	Personalities         []string       `json:"personalities"`
 	Seats                 []Seat         `json:"seats"`
 	Inspiration           InspirationRef `json:"inspiration"`
+	SupportedModelTiers   []string       `json:"supported_model_tiers,omitempty"`
 	SupportedModelClasses []string       `json:"supported_model_classes,omitempty"`
 	CopyContract          *CopyContract  `json:"copy_contract,omitempty"`
+}
+
+// SupportsModelTier keeps packages authored before the tier axis compatible.
+// First-party roles declare their supported tiers explicitly.
+func (r Role) SupportsModelTier(modelTier string) bool {
+	if len(r.SupportedModelTiers) == 0 {
+		return true
+	}
+	for _, supported := range r.SupportedModelTiers {
+		if modelTier == supported {
+			return true
+		}
+	}
+	return false
 }
 
 type CopyContract struct {
@@ -1189,6 +1204,26 @@ func parse(raw []byte) (*Person, error) {
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
 					}
+				case "model-tier":
+					if len(role.SupportedModelTiers) != 0 {
+						return nil, fmt.Errorf("role %q: duplicate model-tier", name)
+					}
+					args := c.Arguments()
+					if len(args) == 0 {
+						return nil, fmt.Errorf("role %q: model-tier needs at least one argument", name)
+					}
+					seenModelTiers := map[string]bool{}
+					for _, arg := range args {
+						modelTier := arg.String()
+						if !schema.IsModelTier(modelTier) {
+							return nil, fmt.Errorf("role %q: unsupported model tier %q", name, modelTier)
+						}
+						if seenModelTiers[modelTier] {
+							return nil, fmt.Errorf("role %q repeats model tier %q", name, modelTier)
+						}
+						seenModelTiers[modelTier] = true
+						role.SupportedModelTiers = append(role.SupportedModelTiers, modelTier)
+					}
 				case "model-class":
 					if len(role.SupportedModelClasses) != 0 {
 						return nil, fmt.Errorf("role %q: duplicate model-class", name)
@@ -1264,6 +1299,14 @@ func parse(raw []byte) (*Person, error) {
 					}
 					if value := c.Prop("tier"); value.IsValid() {
 						seat.Tier = value.String()
+						if !schema.IsModelTier(seat.Tier) {
+							return nil, fmt.Errorf(
+								"role %q: seat %q has unsupported model tier %q",
+								name,
+								seat.Key,
+								seat.Tier,
+							)
+						}
 					}
 					for _, existing := range role.Seats {
 						if existing.Key == seat.Key {
@@ -1299,6 +1342,16 @@ func parse(raw []byte) (*Person, error) {
 			}
 			if len(role.Personalities) == 0 {
 				return nil, fmt.Errorf("role %q needs at least one personality", name)
+			}
+			for _, seat := range role.Seats {
+				if seat.Tier != "" && !role.SupportsModelTier(seat.Tier) {
+					return nil, fmt.Errorf(
+						"role %q: seat %q uses model tier %q outside the role compatibility set",
+						name,
+						seat.Key,
+						seat.Tier,
+					)
+				}
 			}
 			if role.Inspiration.ID == "" {
 				return nil, fmt.Errorf("role %q needs an inspiration", name)

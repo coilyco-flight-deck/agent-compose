@@ -13,6 +13,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
@@ -147,6 +148,9 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 			if result.ModelClass != tc.modelClass {
 				t.Fatalf("model class = %q, want %q", result.ModelClass, tc.modelClass)
 			}
+			if result.ModelTier != schema.ModelTierFrontier {
+				t.Fatalf("default model tier = %q, want frontier", result.ModelTier)
+			}
 			if result.Composition == nil ||
 				result.Composition.Resolution.Request.Role != "design" {
 				t.Fatalf("composition result does not retain the assigned role: %+v", result.Composition)
@@ -183,7 +187,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	}
 }
 
-func TestRefreshDefaultsToFrontierModelClass(t *testing.T) {
+func TestRefreshDefaultsToFrontierModelTierAndClass(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
@@ -203,6 +207,41 @@ func TestRefreshDefaultsToFrontierModelClass(t *testing.T) {
 	}
 	if result.ModelClass != "frontier" {
 		t.Fatalf("default model class = %q, want frontier", result.ModelClass)
+	}
+	if result.ModelTier != schema.ModelTierFrontier {
+		t.Fatalf("default model tier = %q, want frontier", result.ModelTier)
+	}
+}
+
+func TestRefreshAcceptsCanonicalModelTierAndRejectsUnknownTier(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "example", "provider")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	writeManifest(t, manifest, projects, provider)
+	options := Options{
+		Role:         "design",
+		Harness:      "codex",
+		ModelTier:    schema.ModelTierCommodity,
+		CWD:          projects,
+		TargetDir:    t.TempDir(),
+		ManifestPath: manifest,
+		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+	}
+
+	result, err := Refresh(options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ModelTier != schema.ModelTierCommodity ||
+		result.Composition.Resolution.Request.ModelTier != schema.ModelTierCommodity {
+		t.Fatalf("commodity model tier not retained: %+v", result)
+	}
+
+	options.ModelTier = "budget"
+	_, err = Refresh(options)
+	if err == nil || !strings.Contains(err.Error(), "unsupported native model tier") {
+		t.Fatalf("unknown model-tier error = %v", err)
 	}
 }
 

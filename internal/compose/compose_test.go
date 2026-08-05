@@ -61,6 +61,7 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			m := readManifest(t, result.Bundle.Dir)
 			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
+				m.ModelTier != schema.ModelTierFrontier ||
 				m.ModelClass != schema.ModelClassFrontier ||
 				!slices.Equal(m.Personalities, wantPersonalities) ||
 				m.Delivery.Mode != want {
@@ -454,6 +455,54 @@ func TestDifferentDeliveriesGetDifferentBundles(t *testing.T) {
 	}
 	if a.Bundle.Key == b.Bundle.Key {
 		t.Fatal("different deliveries must produce different bundle keys")
+	}
+}
+
+func TestDifferentModelTiersGetDifferentBundles(t *testing.T) {
+	provider := t.TempDir()
+	skillDir := filepath.Join(provider, ".agents", "skills", "fixture")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(
+		filepath.Join(skillDir, "SKILL.md"),
+		[]byte("---\nname: fixture\ndescription: Fixture capability.\n---\n\n# Fixture\n"),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	frontierRequest := &schema.Request{
+		Role:       "engineer",
+		Delivery:   schema.DeliveryNativeSkills,
+		ModelTier:  schema.ModelTierFrontier,
+		ModelClass: schema.ModelClassFrontier,
+	}
+	frontier, err := RunRoots(
+		frontierRequest,
+		[]RootSource{{ID: "fixture", Root: provider}},
+		out,
+		Options{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	commodityRequest := *frontierRequest
+	commodityRequest.ModelTier = schema.ModelTierCommodity
+	commodity, err := RunRoots(
+		&commodityRequest,
+		[]RootSource{{ID: "fixture", Root: provider}},
+		out,
+		Options{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if frontier.Bundle.Key == commodity.Bundle.Key {
+		t.Fatal("different model tiers must produce different bundle keys")
+	}
+	if readManifest(t, commodity.Bundle.Dir).ModelTier != schema.ModelTierCommodity {
+		t.Fatal("commodity bundle manifest lost its model tier")
 	}
 }
 

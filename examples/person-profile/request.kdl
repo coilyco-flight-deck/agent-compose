@@ -3,5 +3,6 @@ compose {
     personality-library "../shared-personality-library"
     role "bulk-captioner"
     delivery "compiled"
+    model-tier "commodity"
     model-class "frontier"
 }

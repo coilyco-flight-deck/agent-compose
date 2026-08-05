@@ -15,6 +15,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -325,7 +326,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 	got := output.String()
 	for _, want := range []string{
-		"request: model class frontier // delivery native-skills",
+		"request: model tier frontier // model class frontier // delivery native-skills",
 		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"personalities: curious // grounded // meticulous",
@@ -366,6 +367,7 @@ func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 		Resolution: &resolver.Resolution{
 			Request: &schema.Request{
 				Role:       "engineer",
+				ModelTier:  schema.ModelTierFrontier,
 				ModelClass: schema.ModelClassFrontier,
 				Delivery:   "native-skills",
 			},
@@ -582,6 +584,25 @@ func TestActivateNativeRuntimeHome(t *testing.T) {
 	} {
 		if got := os.Getenv(name); got != want {
 			t.Errorf("%s = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestClearNativeLaunchEnvironmentRemovesSelectionFacts(t *testing.T) {
+	names := []string{
+		nativelaunch.EnvModelTier,
+		nativelaunch.EnvModelClass,
+		nativelaunch.EnvRuntimeHome,
+	}
+	for _, name := range names {
+		t.Setenv(name, "fixture")
+	}
+	if err := clearNativeLaunchEnvironment(); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range names {
+		if _, ok := os.LookupEnv(name); ok {
+			t.Errorf("%s remains in the harness environment", name)
 		}
 	}
 }

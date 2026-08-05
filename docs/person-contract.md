@@ -7,11 +7,11 @@ may select one external package with the same contract:
 roster "core" {
     role "engineer" {
         purpose "Build and land work across Kai's real repository portfolio."
-        model-class "frontier"
+        model-tier "frontier" "commodity" "oss"
         skill "role-engineer"
         personality "curious" "grounded" "meticulous" "tenacious"
-        agent "claude" name="opal engineer" pronouns="she"
-        agent "codex" name="terran engineer" pronouns="he"
+        agent "claude" name="opal engineer" pronouns="she" tier="frontier"
+        agent "codex" name="terran engineer" pronouns="he" tier="frontier"
     }
     personality "curious" skill="personality-curious" color="#d98e48" motif="map-paper"
 }
@@ -23,12 +23,13 @@ and definitions into the layout documented in
 package before it becomes a source.
 
 A role names its display name, purpose, role skill, nonempty ordered
-personality meld, and seats. Its optional
-`model-class` list restricts composition, while omission supports both classes.
+personality meld, and seats. Its optional `model-tier` list restricts
+composition, while omission supports all three tiers. Core roles declare the
+list explicitly. Optional `model-class` separately restricts bundle density.
 The [role skill](role-briefings.md) needs valid frontmatter and at least three
 body paragraphs. The loader rejects invalid class names or personality sets.
-The embedded default has eight roles and sixteen personalities. Portfolio
-Strategist supports `frontier` only until a v2 OSS evaluation admits more.
+The default has eight roles and sixteen personalities. Strategist supports
+only `frontier`. Every other Core role declares all three tiers.
 
 A personality entry is a catalog binding from its canonical name to a stable
 skill id (`personality-<name>`). Every role reference needs one or the loader
@@ -50,7 +51,9 @@ clamps it into the legible band - the perceptual middle, never gray.
 
 ## Agent seats
 
-An `agent` node is a named seat. The harness is its join key, while `name` and `pronouns` are the identity it wears.
+An `agent` node is a named seat. The harness is its join key, while `name` and
+`pronouns` are its identity. Optional `tier` must be canonical and supported by
+the role.
 Launch consumers keep permissions, models, and reasoning effort on their side.
 Nothing here grants authority.
 

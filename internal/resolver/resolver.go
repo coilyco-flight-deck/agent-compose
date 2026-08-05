@@ -73,6 +73,12 @@ type Resolution struct {
 }
 
 func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, missing []schema.MissingSource) (*Resolution, error) {
+	if req.ModelTier == "" {
+		req.ModelTier = schema.ModelTierFrontier
+	}
+	if !schema.IsModelTier(req.ModelTier) {
+		return nil, fmt.Errorf("unsupported model tier %q", req.ModelTier)
+	}
 	if req.ModelClass == "" {
 		req.ModelClass = schema.ModelClassFrontier
 	}
@@ -95,6 +101,13 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	if !ok {
 		return nil, fmt.Errorf("role %q is not defined by person %q; defined roles: %s",
 			req.Role, p.Name, strings.Join(sortedKeys(p.Roles), ", "))
+	}
+	if !role.SupportsModelTier(req.ModelTier) {
+		return nil, fmt.Errorf(
+			"role %q does not support model tier %q",
+			req.Role,
+			req.ModelTier,
+		)
 	}
 	if !role.SupportsModelClass(req.ModelClass) {
 		if len(role.SupportedModelClasses) == 1 &&

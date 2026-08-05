@@ -14,8 +14,7 @@ Inventory of what ships today.
   across every person-dependent command.
 * AOS roots expose ordinary and [role-scoped skills](role-scoped-providers.md)
   with [selectors](ordinary-skill-selectors.md) and canonical external files.
-* Role compatibility fails closed. Portfolio Strategist supports only
-  `frontier` until the v2 OSS evaluation admits it.
+* Three model tiers fail closed per role. Strategist is frontier-only. Tier stays separate from bundle density.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
@@ -44,7 +43,7 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide rich inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) has paired Core Roster matrices, explicit
+* [Evaluation](evaluation.md) has three-lane Core Roster matrices, explicit
   communication hard fails, independent-review evidence, and
   [scorecards](evaluation-scorecard.md). `disabled_model_tiers` pauses a lane
   without deleting its matrix.

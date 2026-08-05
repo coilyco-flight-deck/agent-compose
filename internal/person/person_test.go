@@ -269,9 +269,12 @@ func TestExternalProfileComposesLibrariesSeatsAndCopyContracts(t *testing.T) {
 	role := p.Roles["bulk-captioner"]
 	if role.Seats[0].Selector() != "chatbot-sonnet-low" ||
 		role.Seats[0].Channel != "chatbot" ||
-		role.Seats[0].Tier != "sonnet-low" ||
+		role.Seats[0].Tier != schema.ModelTierCommodity ||
 		role.Seats[0].Pronouns != "they" {
 		t.Fatalf("generalized seat was not preserved: %+v", role.Seats)
+	}
+	if strings.Join(role.SupportedModelTiers, ",") != "frontier,commodity" {
+		t.Fatalf("role model tiers = %q", role.SupportedModelTiers)
 	}
 	if role.CopyContract == nil ||
 		role.CopyContract.Source != "person:example:role:bulk-captioner:copy-contract" ||
@@ -785,6 +788,43 @@ func TestParseRejectsInvalidRoleModelClasses(t *testing.T) {
 			if _, err := parse([]byte(tc.body)); err == nil ||
 				!strings.Contains(err.Error(), tc.want) {
 				t.Fatalf("model-class parse error = %v, want %q", err, tc.want)
+			}
+		})
+	}
+}
+
+func TestParseRejectsInvalidRoleModelTiers(t *testing.T) {
+	valid := inspirationFixture()
+	cases := map[string]struct {
+		body string
+		want string
+	}{
+		"empty": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-tier", 1),
+			want: "model-tier needs at least one argument",
+		},
+		"unsupported": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-tier \"premium\"", 1),
+			want: `unsupported model tier "premium"`,
+		},
+		"repeated": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-tier \"frontier\" \"frontier\"", 1),
+			want: `repeats model tier "frontier"`,
+		},
+		"seat outside role tiers": {
+			body: strings.Replace(valid, `personality "bright" "steady"`,
+				"personality \"bright\" \"steady\"\n        model-tier \"frontier\"\n        seat \"local\" name=\"local builder\" tier=\"oss\"", 1),
+			want: `seat "local" uses model tier "oss" outside the role compatibility set`,
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if _, err := parse([]byte(tc.body)); err == nil ||
+				!strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("model-tier parse error = %v, want %q", err, tc.want)
 			}
 		})
 	}

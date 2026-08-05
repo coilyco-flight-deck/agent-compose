@@ -14,8 +14,8 @@ The ordinary row carries the composition facts worth keeping visible:
   in the selected immutable bundle.
 * `role@harness` names the actual projection choice instead of inferring role
   from the current task.
-* Model class records the compatibility boundary Agent Compose evaluated. It
-  is not a model route or runtime permission.
+* Model tier records the role compatibility boundary Agent Compose evaluated.
+  It is not a model route or runtime permission.
 * The skill and token footprint comes from selected provider reports in the
   stored decision trace. The token value measures the discoverable selected
   catalogue, including lazy skill content. It is not prompt-context usage.

@@ -11,7 +11,8 @@ schema version `3`. The artifact exports:
 
 * the person name, selected `person:<name>` source provenance, and role order
 * every role's purpose, role-skill id, logical source, digest and body
-  projection, supported model classes, ordered meld, color, inspiration, and seats
+  projection, supported model tiers and classes, ordered meld, color,
+  inspiration, and seats
 * every personality's skill binding, color, emblem, motif, form language,
   sound mark, and inspiration relationship
 * the fixed renderer expression vocabulary
@@ -21,8 +22,10 @@ Roles and personalities are keyed by their stable slugs. `role_order` is the
 canonical presentation order. Consumers should use the explicit order rather
 than relying on JSON object order.
 
-Schema v3 adds optional role model-class compatibility. Consumers pinned to v2
-must upgrade before treating the format marker as compatible.
+Schema v3 carries optional role compatibility fields. Model-tier compatibility
+is additive within v3, and consumers must ignore optional fields they do not
+interpret. Consumers pinned to v2 must upgrade before treating the format
+marker as compatible.
 
 ## Convergence
 
