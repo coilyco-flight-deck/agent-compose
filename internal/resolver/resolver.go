@@ -71,6 +71,7 @@ type Resolution struct {
 	Decisions      []Decision
 	Providers      []ProviderReport
 	SourceIDs      []string
+	Repositories   []schema.RepositorySelection
 }
 
 func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, missing []schema.MissingSource) (*Resolution, error) {
@@ -165,6 +166,22 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
+		Repositories:  append([]schema.RepositorySelection(nil), req.Repositories...),
+	}
+	priorRepository := ""
+	for _, repository := range res.Repositories {
+		if repository.Identity == "" || repository.Source == "" || repository.Scope == "" || repository.Reason == "" {
+			return nil, fmt.Errorf("repository selections need identity, source, scope, and reason provenance")
+		}
+		if repository.Identity <= priorRepository {
+			return nil, fmt.Errorf("repository selections must be strictly sorted and deduplicated")
+		}
+		priorRepository = repository.Identity
+		res.decide(Decision{
+			Subject: "repository:" + repository.Identity,
+			Kind:    "repository", Source: repository.Source,
+			Outcome: OutcomeSelected, Reason: repository.Reason,
+		})
 	}
 	for _, src := range sources {
 		res.SourceIDs = append(res.SourceIDs, src.ID)

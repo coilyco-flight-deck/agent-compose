@@ -12,8 +12,7 @@ Inventory of what ships today.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
-* Trusted AOS roots use one `.agents/roles.kdl` graph for
-  [role providers](role-scoped-providers.md), selectors, and composed skills.
+* `.agents/roles.kdl` owns [role providers](role-scoped-providers.md), skills, and [repository policy](repository-policy.md).
 * [Three model tiers](model-tiers.md) fail closed through the Core role matrix. Tier stays separate from bundle density.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
@@ -61,8 +60,8 @@ Inventory of what ships today.
 * `agent-compose roster --out <dir>` renders lazy-loaded role and personality
   skills plus [native adaptation](native-adaptation.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md).
-* `agent-compose cascade` composes doctrine into per-harness files and a mount
-  manifest with v1-compatible dry-run and check behavior.
+* `cascade` emits harness doctrine and the role/residency `repository-plan.json`.
+* `bundle materialize` returns a verified role/harness bundle with provenance.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence and its test verb runs full validation.

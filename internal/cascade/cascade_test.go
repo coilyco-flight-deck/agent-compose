@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 )
 
 type env struct {
@@ -49,6 +49,30 @@ func (e env) write(t *testing.T, rel, content string) string {
 
 func (e env) config(t *testing.T, body string) {
 	t.Helper()
+	if !strings.Contains(body, "operating_context:") {
+		root := filepath.Join(e.projects, "test", "fixture")
+		if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "fixture"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "skills", "fixture", "SKILL.md"), []byte("# Fixture\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		roles := `roles {
+    role community {}
+    role content {}
+    role design {}
+    role director {}
+    role engineer {}
+    role ops {}
+    role qa {}
+    role strats {}
+}
+`
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		body += "operating_context:\n  - test/fixture\n"
+	}
 	base := "load_points:\n  claude: " + e.claude + "\n  codex: " + e.codex + "\n"
 	if err := os.MkdirAll(filepath.Dir(e.paths.Config), 0o755); err != nil {
 		t.Fatal(err)
@@ -162,35 +186,28 @@ roles {
 		t.Fatal(err)
 	}
 
-	e.config(t, "sources:\n  - "+source+"\n")
+	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 	if code, out, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("run failed: %s %s", out, errOut)
 	}
-	manifest, err := skillmount.LoadEligibility(filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	providers := manifest.RoleProviders["engineer"]
+	providers := manifest.Roles["engineer"]
 	canonicalHardware, err := canonicalPath(hardware)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(providers) != 1 || providers[0].Path != canonicalHardware || !providers[0].Required ||
-		providers[0].Name != "hardware" || providers[0].DeclaredBy != "example/aosk" ||
-		!slices.Equal(providers[0].Skills, []string{"compute-stack", "machine-*"}) {
+	if len(providers) != 2 || providers[1].Path != canonicalHardware || !providers[1].Required ||
+		providers[1].Name != "hardware" || providers[1].DeclaredBy != "example/aosk" ||
+		!slices.Equal(providers[1].Skills, []string{"compute-stack", "machine-*"}) {
 		t.Fatalf("unified role provider = %+v", providers)
 	}
 }
 
 func TestUnifiedRoleProviderGraphFailsClosed(t *testing.T) {
 	for name, setup := range map[string]func(t *testing.T, e env) string{
-		"missing required": func(t *testing.T, e env) string {
-			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
-    provider missing path="example/missing"
-}
-roles { role engineer { use-provider missing required=#true } }
-`)
-		},
 		"unmatched selector": func(t *testing.T, e env) string {
 			writeOrdinaryProvider(t, filepath.Join(e.projects, "example", "hardware"), "compute-stack")
 			return writeTrustedRoleGraph(t, e, "example/aosk", `providers {
@@ -210,7 +227,7 @@ roles { role engineer { use-provider self required=#true } }
 		t.Run(name, func(t *testing.T) {
 			e := newEnv(t)
 			source := setup(t, e)
-			e.config(t, "sources:\n  - "+source+"\n")
+			e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 			if code, _, errOut := e.run(t, true); code == 0 {
 				t.Fatalf("invalid graph passed: %s", errOut)
 			}
@@ -234,15 +251,15 @@ roles { role engineer { use-provider recursive required=#true } }
 }
 roles { role engineer { use-provider hardware required=#true } }
 `)
-	e.config(t, "sources:\n  - "+source+"\n")
+	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 	if code, out, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("run failed: %s %s", out, errOut)
 	}
-	manifest, err := skillmount.LoadEligibility(filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if providers := manifest.RoleProviders["engineer"]; len(providers) != 1 || providers[0].Name != "hardware" {
+	if providers := manifest.Roles["engineer"]; len(providers) != 2 || providers[1].Name != "hardware" {
 		t.Fatalf("imported graph widened eligibility: %+v", providers)
 	}
 }
@@ -259,8 +276,8 @@ roles {}
 }
 roles {}
 `)
-	e.config(t, "sources:\n  - "+one+"\n  - "+two+"\n")
-	if code, _, errOut := e.run(t, true); code == 0 || !strings.Contains(errOut, "conflicts at resolved repository path") {
+	e.config(t, "sources:\n  - "+one+"\n  - "+two+"\noperating_context:\n  - example/one\n  - example/two\n")
+	if code, _, errOut := e.run(t, true); code == 0 || !strings.Contains(errOut, "repository path \"example/shared\" is declared by both") {
 		t.Fatalf("conflicting trusted definitions must fail, code=%d stderr=%q", code, errOut)
 	}
 }
@@ -338,7 +355,7 @@ func TestReapplyRewritesCurrentLayout(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("reapply failed: %s %s", out, errOut)
 	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json")
 	for _, want := range []string{
 		"wrote   " + e.paths.Composed,
 		"wrote   " + manifestPath,
@@ -363,7 +380,7 @@ func TestVerbosePrintsEveryLayoutMapping(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("verbose run failed: %s %s", out, errOut)
 	}
-	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json")
+	manifestPath := filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json")
 	claudeOut := harnessOutputPath(e.paths.Composed, "claude")
 	codexOut := harnessOutputPath(e.paths.Composed, "codex")
 	for _, want := range []string{
@@ -491,10 +508,11 @@ func TestSymlinkBackupAndOptOut(t *testing.T) {
 
 	fresh := newEnv(t)
 	src2 := fresh.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	fresh.config(t, "sources:\n  - "+src2+"\n")
 	if err := os.MkdirAll(filepath.Dir(fresh.paths.Config), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(fresh.paths.Config, []byte("sources:\n  - "+src2+"\nload_points:\n  claude: "+fresh.claude+"\n  codex: null\n"), 0o644); err != nil {
+	if err := os.WriteFile(fresh.paths.Config, []byte("sources:\n  - "+src2+"\noperating_context:\n  - test/fixture\nload_points:\n  claude: "+fresh.claude+"\n  codex: null\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if code, _, _ := fresh.run(t, false); code != 0 {
@@ -508,7 +526,7 @@ func TestSymlinkBackupAndOptOut(t *testing.T) {
 	}
 }
 
-func TestMountEligibilityManifest(t *testing.T) {
+func TestRepositoryPlanNeverInfersDoctrineSourceRepositories(t *testing.T) {
 	e := newEnv(t)
 	inRepo := e.write(t, "projects/org/repo/deep/AGENTS.COMPOSE.md", "# InRepo\n")
 	outOfRepo := e.write(t, "elsewhere/AGENTS.COMPOSE.md", "# Outside\n")
@@ -516,18 +534,21 @@ func TestMountEligibilityManifest(t *testing.T) {
 	if code, _, errOut := e.run(t, false); code != 0 {
 		t.Fatal(errOut)
 	}
-	manifest := readFile(t, filepath.Join(filepath.Dir(e.paths.Composed), "mount-eligibility.json"))
+	manifest := readFile(t, filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.json"))
 	projects, err := filepath.EvalSymlinks(e.projects)
 	if err != nil {
 		t.Fatal(err)
 	}
 	inRepoPath := strings.ReplaceAll(filepath.Join(projects, "org", "repo"), `\`, `\\`)
-	if !strings.Contains(manifest, inRepoPath) {
-		t.Fatalf("in-repo source must make its repo mountable:\n%s", manifest)
+	if strings.Contains(manifest, inRepoPath) {
+		t.Fatalf("doctrine source location leaked into repository policy:\n%s", manifest)
 	}
 	defaultPath := strings.ReplaceAll(filepath.Join(projects, "coilyco-bridge", "lore"), `\`, `\\`)
-	if !strings.Contains(manifest, defaultPath) {
-		t.Fatalf("defaults must be unioned in:\n%s", manifest)
+	if strings.Contains(manifest, defaultPath) {
+		t.Fatalf("hard-coded default repository leaked into the compiled plan:\n%s", manifest)
+	}
+	if !strings.Contains(manifest, "test/fixture") {
+		t.Fatalf("explicit operating context is absent from repository plan:\n%s", manifest)
 	}
 	if strings.Contains(manifest, "elsewhere") {
 		t.Fatalf("out-of-repo source must back no repo:\n%s", manifest)

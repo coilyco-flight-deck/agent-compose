@@ -40,19 +40,20 @@ type IdentityPersonality struct {
 }
 
 type Manifest struct {
-	Format          string          `json:"format"`
-	Role            string          `json:"role"`
-	RoleSkill       string          `json:"role_skill"`
-	RoleSkillSource string          `json:"role_skill_source"`
-	RoleSkillDigest string          `json:"role_skill_digest"`
-	ModelTier       string          `json:"model_tier"`
-	ModelClass      string          `json:"model_class"`
-	Personalities   []string        `json:"personalities"`
-	Color           string          `json:"color"`
-	Identity        RoleIdentity    `json:"identity,omitempty"`
-	Sources         []string        `json:"sources"`
-	Content         []ContentDigest `json:"content"`
-	Delivery        Delivery        `json:"delivery"`
+	Format          string                       `json:"format"`
+	Role            string                       `json:"role"`
+	RoleSkill       string                       `json:"role_skill"`
+	RoleSkillSource string                       `json:"role_skill_source"`
+	RoleSkillDigest string                       `json:"role_skill_digest"`
+	ModelTier       string                       `json:"model_tier"`
+	ModelClass      string                       `json:"model_class"`
+	Personalities   []string                     `json:"personalities"`
+	Color           string                       `json:"color"`
+	Identity        RoleIdentity                 `json:"identity,omitempty"`
+	Sources         []string                     `json:"sources"`
+	Repositories    []schema.RepositorySelection `json:"repositories,omitempty"`
+	Content         []ContentDigest              `json:"content"`
+	Delivery        Delivery                     `json:"delivery"`
 }
 
 type ContentDigest struct {
@@ -237,6 +238,7 @@ func write(res *resolver.Resolution, root string) error {
 		Color:           res.FavoriteColor,
 		Identity:        identity,
 		Sources:         res.SourceIDs,
+		Repositories:    append([]schema.RepositorySelection(nil), res.Repositories...),
 		Content:         content,
 		Delivery:        delivery,
 	}, "", "  ")

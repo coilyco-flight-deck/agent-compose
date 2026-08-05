@@ -151,11 +151,22 @@ func main() {
 			},
 			{
 				Name: "bundle", Usage: "inspect or export verified bundles",
-				Commands: []*cli.Command{{
-					Name: "export", Usage: "write a deterministic verified .tar.gz archive", ArgsUsage: "<bundle-dir>",
-					Flags:  []cli.Flag{&cli.StringFlag{Name: "out", Required: true, Usage: "archive output path"}},
-					Action: runBundleExport,
-				}},
+				Commands: []*cli.Command{
+					{
+						Name: "export", Usage: "write a deterministic verified .tar.gz archive", ArgsUsage: "<bundle-dir>",
+						Flags:  []cli.Flag{&cli.StringFlag{Name: "out", Required: true, Usage: "archive output path"}},
+						Action: runBundleExport,
+					},
+					{
+						Name: "materialize", Usage: "materialize one verified host role bundle without launching a harness",
+						Flags: []cli.Flag{
+							&cli.StringFlag{Name: "role", Required: true, Usage: "caller-assigned role"},
+							&cli.StringFlag{Name: "harness", Required: true, Usage: "harness layout: claude, codex, goose, or opencode"},
+							&cli.StringFlag{Name: "out", Usage: "bundle cache directory"},
+						},
+						Action: runBundleMaterialize,
+					},
+				},
 			},
 			{
 				Name:  "catalog",
@@ -431,6 +442,48 @@ func runBundleExport(_ context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("bundle export needs exactly one bundle directory")
 	}
 	return bundle.Export(cmd.Args().First(), cmd.String("out"))
+}
+
+func runBundleMaterialize(_ context.Context, cmd *cli.Command) error {
+	role := strings.TrimSpace(cmd.String("role"))
+	harness := strings.TrimSpace(cmd.String("harness"))
+	if !nativeHarness(harness) {
+		return fmt.Errorf("unsupported native harness %q: want claude, codex, goose, or opencode", harness)
+	}
+	paths := cascade.DefaultPaths()
+	if code := converge.Run(paths, converge.Options{}, os.Stderr, os.Stderr); code != 0 {
+		return cli.Exit("", code)
+	}
+	stateDir, err := home.Dir()
+	if err != nil {
+		return fmt.Errorf("resolve agent-compose state: %w", err)
+	}
+	outDir := strings.TrimSpace(cmd.String("out"))
+	if outDir == "" {
+		outDir = filepath.Join(stateDir, "bundles")
+	}
+	cwd, err := filepath.Abs(".")
+	if err != nil {
+		return fmt.Errorf("resolve bundle materialization directory: %w", err)
+	}
+	personSelection, err := loadHostPersonOptions(paths)
+	if err != nil {
+		return err
+	}
+	result, err := nativelaunch.Refresh(nativelaunch.Options{
+		Role: role, Harness: harness, CWD: cwd, TargetDir: cwd,
+		PlanPath: filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json"),
+		OutDir:   outDir, PersonSelection: personSelection, SkipProjection: true,
+	})
+	if err != nil {
+		return err
+	}
+	printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
+	payload := struct {
+		Format string `json:"format"`
+		Bundle string `json:"bundle"`
+	}{Format: "agent-compose.bundle-selection.v1", Bundle: result.BundleDir}
+	return json.NewEncoder(os.Stdout).Encode(payload)
 }
 
 func writeCatalog(value any, asJSON bool, text string) error {
@@ -844,7 +897,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		ModelClass:      os.Getenv(nativelaunch.EnvModelClass),
 		CWD:             cwd,
 		TargetDir:       cwd,
-		ManifestPath:    filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json"),
+		PlanPath:        filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json"),
 		OutDir:          filepath.Join(stateDir, "bundles"),
 		PersonSelection: personSelection,
 	})

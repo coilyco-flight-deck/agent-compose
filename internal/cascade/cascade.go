@@ -1,6 +1,6 @@
 // Package cascade is the absorbed v1 composer: it composes AGENTS.COMPOSE.md
 // doctrine sources into COMPOSED files, wires harness load-point symlinks,
-// and emits the mount-eligibility manifest convergence consumers read.
+// and emits the compiled repository plan convergence consumers read.
 package cascade
 
 import (
@@ -24,14 +24,6 @@ const (
 	sourceFilename = "AGENTS.COMPOSE.md"
 )
 
-// defaultMountSet mounts regardless of task or harness: lore is agent
-// knowledge, agentic-os is doctrine, aosk is operating context.
-var defaultMountSet = []string{
-	"coilyco-bridge/lore",
-	"coilyco-flight-deck/agentic-os",
-	"coilyco-bridge/agentic-os-kai",
-}
-
 type Config struct {
 	Scopes               *scopeList          `yaml:"scopes"`
 	Sources              []string            `yaml:"sources"`
@@ -43,6 +35,7 @@ type Config struct {
 	RosterSources        []string            `yaml:"roster_sources"`
 	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
 	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
+	OperatingContext     []string            `yaml:"operating_context"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its
@@ -96,7 +89,28 @@ func LoadConfig(path string) (*Config, error) {
 	if err := personpolicy.Validate(cfg.PersonPolicy, cfg.PersonSource); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	seenRepositories := map[string]bool{}
+	for _, repository := range cfg.OperatingContext {
+		if err := validateConfiguredRepository(repository); err != nil {
+			return nil, fmt.Errorf("%s: operating_context: %w", path, err)
+		}
+		if seenRepositories[repository] {
+			return nil, fmt.Errorf("%s: operating_context repeats %q", path, repository)
+		}
+		seenRepositories[repository] = true
+	}
 	return &cfg, nil
+}
+
+func validateConfiguredRepository(value string) error {
+	if value == "" || strings.Contains(value, `\`) || filepath.IsAbs(value) || filepath.Clean(value) != value {
+		return fmt.Errorf("repository %q must be a clean owner/repository path", value)
+	}
+	parts := strings.Split(filepath.ToSlash(value), "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return fmt.Errorf("repository %q must have owner/repository form", value)
+	}
+	return nil
 }
 
 func decodeStrictYAML(raw []byte, path string, value any) error {

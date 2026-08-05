@@ -42,6 +42,7 @@ func Bundle(dir string, opts Options) (string, error) {
 		kinds []string
 	}{
 		{"profile", []string{"profile"}},
+		{"repositories", []string{"repository"}},
 		{"providers", []string{"source"}},
 		{"context budget", nil},
 		{"selection", []string{"instruction", "skill", "selector"}},

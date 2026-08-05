@@ -14,6 +14,23 @@ import (
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 	t.Helper()
+	if raw, err := os.ReadFile(paths.Config); err == nil && !strings.Contains(string(raw), "operating_context:") {
+		root := filepath.Join(paths.ProjectsRoot, "test", "context")
+		if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "fixture"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".agents", "skills", "fixture", "SKILL.md"), []byte("# Fixture\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		roles := "roles { role community {}; role content {}; role design {}; role director {}; role engineer {}; role ops {}; role qa {}; role strats {} }\n"
+		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		raw = append(raw, []byte("operating_context:\n  - test/context\n")...)
+		if err := os.WriteFile(paths.Config, raw, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
 	var out, errOut bytes.Buffer
 	code := Run(paths, Options{}, &out, &errOut)
 	return code, out.String(), errOut.String()
@@ -46,7 +63,12 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err := os.Symlink(filepath.Join(dir, "vanished-skill"), missingSkill); err != nil {
 		t.Fatal(err)
 	}
+	roles := "roles { role community {}; role content {}; role design {}; role director {}; role engineer {}; role ops {}; role qa {}; role strats {} }\n"
+	if err := os.WriteFile(filepath.Join(providerRoot, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	config := "sources:\n  - " + doctrine + "\nroots:\n  - " + filepath.Join(dir, "sources") + "\n" +
+		"operating_context:\n  - coilyco-flight-deck/agentic-os\n" +
 		"roster_sources:\n  - " + providerRoot + "\n" +
 		"skill_load_points:\n  codex: " + filepath.Join(dir, "links", "skills") + "\n" +
 		"load_points:\n  claude: " + filepath.Join(dir, "links", "CLAUDE.md") + "\n  codex: null\n"
@@ -102,7 +124,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if code != 0 || strings.Contains(out, "wrote") {
 		t.Fatalf("second converge must not rewrite current cascade state: %s", out)
 	}
-	if !strings.Contains(out, "cascade outputs=1 load-points=1 manifest=1 changed=0") {
+	if !strings.Contains(out, "cascade outputs=1 load-points=1 repository-plan=1 changed=0") {
 		t.Fatalf("second converge must summarize the full cascade check: %s", out)
 	}
 	skillEntries, err := os.ReadDir(skillRoot)

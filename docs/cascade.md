@@ -3,7 +3,7 @@
 The cascade turns doctrine sources into each harness's global context when
 `~/.agent-compose/agent-compose.yaml` exists. Missing config is a no-op.
 
-Bare `acompose` summarizes its roster, outputs, load points, manifest, skill
+Bare `acompose` summarizes its roster, outputs, load points, repository plan, skill
 links, and repaired drift.
 Bare `acompose --reapply` recreates outputs and load-point links.
 `acompose --verbose` emits each source, override, manifest, and link as
@@ -12,7 +12,7 @@ Bare `acompose --reapply` recreates outputs and load-point links.
 `person_policy: external-only` requires `person_source`. A bad package aborts
 before roster or cascade projection can restore the embedded default.
 
-All state lives under `~/.agent-compose`: config, outputs, manifest, roster,
+All state lives under `~/.agent-compose`: config, outputs, repository plan, roster,
 and cache. A legacy `~/.config/agent-compose` migrates on first use and leaves
 a compatibility symlink through the cutover tracked in agentic-os#618.
 
@@ -41,11 +41,10 @@ removed on convergence.
 
 Each configured load point (claude and codex by default, others via
 `load_points`, `null` to opt out) is symlinked at its harness's composed
-file, backing up any pre-existing regular file to `.bak`. The
-mount-eligibility manifest is emitted beside the composed output:
-per harness, the repos backing its selected sources unioned with the default
-mount set as JSON. [Role-scoped providers](role-scoped-providers.md) compile
-from trusted KDL, stay out of bare convergence, and retain provenance.
+file, backing up any pre-existing regular file to `.bak`. The strict
+[`repository-plan.json`](repository-policy.md) is emitted beside the composed
+output. It compiles operating context, global policy, role policy, provider
+uses, and resident-only pins from trusted KDL with complete provenance.
 
 `--dry-run` previews only real changes; `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
@@ -58,10 +57,9 @@ linked strict provider document without writes.
 Bare compose can also link authored skill catalogs into harness-native skill
 directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
 
-Each harness uses eligible repositories from `mount-eligibility.json`,
-including default AOS and AOSK roots. Repositories contribute
-`.agents/skills`. Defaults precede added repositories and verified local
-catalogues. Existing unowned entries win. Missing entries warn and skip, while
+Native skill linking uses the compiled residency set from
+`repository-plan.json`. Repositories contribute `.agents/skills`. The compiled
+set precedes verified local catalogues. Existing unowned entries win. Missing entries warn and skip, while
 other inspection failures remain fatal. Agent-compose records links in
 `~/.agent-compose/skill-mounts.json` and removes only stale links that still
 match that ownership record. Fleet pointer aggregation, conditional category
@@ -74,5 +72,6 @@ substrate operation.
 ## See also
 
 * [integration.md](integration.md) - how roster and cascade fit together.
+* [repository-policy.md](repository-policy.md) - strict repository grammar and projections.
 * [projection.md](projection.md) - repo and home load-point projection.
 * [local-skill-catalogues.md](local-skill-catalogues.md) - AOS local-root handoff.

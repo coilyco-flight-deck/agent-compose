@@ -12,8 +12,8 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 const (
@@ -34,9 +34,10 @@ type Options struct {
 	ModelClass      string
 	CWD             string
 	TargetDir       string
-	ManifestPath    string
+	PlanPath        string
 	OutDir          string
 	PersonSelection compose.Options
+	SkipProjection  bool
 }
 
 // Result records the immutable bundle and projected load points selected for
@@ -52,8 +53,8 @@ type Result struct {
 }
 
 type repository struct {
-	relative string
-	provider skillmount.Provider
+	relative  string
+	selection repositoryplan.Selection
 }
 
 // Refresh resolves eligible providers, composes the complete role meld, and
@@ -70,19 +71,20 @@ func Refresh(opts Options) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	manifest, err := skillmount.LoadEligibility(opts.ManifestPath)
+	plan, err := repositoryplan.Load(opts.PlanPath)
 	if err != nil {
 		return nil, err
 	}
-	roots, missing, err := resolveRoots(manifest, opts.Harness, opts.Role, opts.CWD)
+	roots, missing, repositories, err := resolveRoots(plan, opts.Role, opts.CWD)
 	if err != nil {
 		return nil, err
 	}
 	request := &schema.Request{
-		Role:       strings.TrimSpace(opts.Role),
-		Delivery:   schema.DeliveryNativeSkills,
-		ModelTier:  modelTier,
-		ModelClass: modelClass,
+		Role:         strings.TrimSpace(opts.Role),
+		Delivery:     schema.DeliveryNativeSkills,
+		ModelTier:    modelTier,
+		ModelClass:   modelClass,
+		Repositories: repositories,
 	}
 	composed, err := compose.RunRootsWithMissing(
 		request,
@@ -98,21 +100,25 @@ func Refresh(opts Options) (*Result, error) {
 	if target == "" {
 		target = opts.CWD
 	}
-	projected, err := project.Project(composed.Bundle.Dir, opts.Harness, target)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"project native role %q for %s into %s: %w",
-			opts.Role,
-			opts.Harness,
-			target,
-			err,
-		)
+	projectedCount := 0
+	if !opts.SkipProjection {
+		projected, err := project.Project(composed.Bundle.Dir, opts.Harness, target)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"project native role %q for %s into %s: %w",
+				opts.Role,
+				opts.Harness,
+				target,
+				err,
+			)
+		}
+		projectedCount = len(projected.Files)
 	}
 	return &Result{
 		Composition:  composed,
 		BundleDir:    composed.Bundle.Dir,
 		BundleReused: composed.Bundle.Reused,
-		Projected:    len(projected.Files),
+		Projected:    projectedCount,
 		ModelTier:    modelTier,
 		ModelClass:   modelClass,
 		Sources:      roots,
@@ -156,29 +162,36 @@ func normalizeModelClass(value string) (string, error) {
 }
 
 func resolveRoots(
-	manifest skillmount.Eligibility,
-	harness string,
+	plan repositoryplan.Plan,
 	role string,
 	cwd string,
-) ([]compose.RootSource, []schema.MissingSource, error) {
-	providers := manifest.Providers(harness, strings.TrimSpace(role))
-	if len(providers) == 0 {
-		return nil, nil, fmt.Errorf("mount eligibility selects no repositories for %s", harness)
+) ([]compose.RootSource, []schema.MissingSource, []schema.RepositorySelection, error) {
+	selections, err := plan.ForRole(strings.TrimSpace(role))
+	if err != nil {
+		return nil, nil, nil, err
 	}
-	relative := make([]repository, 0, len(providers))
-	for _, provider := range providers {
-		rel, err := filepath.Rel(manifest.ProjectsRoot, provider.Path)
+	if len(selections) == 0 {
+		return nil, nil, nil, fmt.Errorf("repository plan selects no repositories for role %q", role)
+	}
+	relative := make([]repository, 0, len(selections))
+	repositories := make([]schema.RepositorySelection, 0, len(selections))
+	for _, selection := range selections {
+		rel, err := filepath.Rel(plan.ProjectsRoot, selection.Path)
 		if err != nil || rel == "." || rel == ".." ||
 			strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			return nil, nil, fmt.Errorf(
-				"eligible repository %s is outside projects_root %s",
-				provider.Path,
-				manifest.ProjectsRoot,
+			return nil, nil, nil, fmt.Errorf(
+				"selected repository %s is outside projects_root %s",
+				selection.Path,
+				plan.ProjectsRoot,
 			)
 		}
-		relative = append(relative, repository{relative: rel, provider: provider})
+		relative = append(relative, repository{relative: rel, selection: selection})
+		repositories = append(repositories, schema.RepositorySelection{
+			Identity: selection.Identity, Source: selection.Source,
+			Scope: selection.Scope, Reason: selection.Reason,
+		})
 	}
-	projectsRoot := resolveProjectsRoot(cwd, manifest.ProjectsRoot, relative)
+	projectsRoot := resolveProjectsRoot(cwd, plan.ProjectsRoot, relative)
 	roots := make([]compose.RootSource, 0, len(relative))
 	var missing []schema.MissingSource
 	hasRoleProvider := false
@@ -190,14 +203,14 @@ func resolveRoots(
 		selectedProviderIDs[id] = true
 		if info, err := os.Stat(filepath.Join(root, ".agents", "skills")); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
-				if repo.provider.Scope == "role" {
+				if repo.selection.Scope == "provider" {
 					reason := fmt.Sprintf(
 						"optional role provider %s for role %q is unavailable",
 						repo.relative,
 						role,
 					)
-					if repo.provider.Required {
-						return nil, nil, fmt.Errorf(
+					if repo.selection.Required {
+						return nil, nil, nil, fmt.Errorf(
 							"required role provider %s for role %q is unavailable beneath %s",
 							repo.relative,
 							role,
@@ -211,16 +224,16 @@ func resolveRoots(
 				}
 				continue
 			}
-			return nil, nil, fmt.Errorf("inspect eligible provider %s: %w", root, err)
+			return nil, nil, nil, fmt.Errorf("inspect selected repository %s: %w", root, err)
 		} else if !info.IsDir() {
-			if repo.provider.Scope == "role" {
+			if repo.selection.Scope == "provider" {
 				reason := fmt.Sprintf(
 					"optional role provider %s for role %q has no .agents/skills directory",
 					repo.relative,
 					role,
 				)
-				if repo.provider.Required {
-					return nil, nil, fmt.Errorf(
+				if repo.selection.Required {
+					return nil, nil, nil, fmt.Errorf(
 						"required role provider %s for role %q has no .agents/skills directory",
 						repo.relative,
 						role,
@@ -237,10 +250,10 @@ func resolveRoots(
 			info.Mode().IsRegular() {
 			hasRoleProvider = true
 		} else if err != nil && !errors.Is(err, os.ErrNotExist) {
-			return nil, nil, fmt.Errorf("inspect role bindings in %s: %w", root, err)
+			return nil, nil, nil, fmt.Errorf("inspect role bindings in %s: %w", root, err)
 		}
 		if sourceIDs[id] {
-			return nil, nil, fmt.Errorf(
+			return nil, nil, nil, fmt.Errorf(
 				"eligible providers produce duplicate source id %q",
 				id,
 			)
@@ -249,60 +262,48 @@ func resolveRoots(
 		roots = append(roots, compose.RootSource{
 			ID:     id,
 			Root:   root,
-			Reason: providerReason(repo.provider, harness, role),
-			Scope:  repo.provider.Scope,
-			Skills: append([]string(nil), repo.provider.Skills...),
+			Reason: repo.selection.Reason,
+			Scope:  providerScope(repo.selection.Scope),
+			Skills: append([]string(nil), repo.selection.Skills...),
 		})
 	}
 	if len(roots) == 0 {
-		return nil, nil, fmt.Errorf(
+		return nil, nil, nil, fmt.Errorf(
 			"no eligible skill providers are available beneath %s",
 			projectsRoot,
 		)
 	}
 	if !hasRoleProvider {
-		return nil, nil, fmt.Errorf(
+		return nil, nil, nil, fmt.Errorf(
 			"native role launch needs an eligible provider with .agents/roles.kdl beneath %s",
 			projectsRoot,
 		)
 	}
 	missing = append(missing, excludedRoleProviders(
-		manifest,
+		plan,
 		strings.TrimSpace(role),
 		projectsRoot,
 		selectedProviderIDs,
 	)...)
-	return roots, missing, nil
+	return roots, missing, repositories, nil
 }
 
-func providerReason(provider skillmount.Provider, harness, role string) string {
-	switch provider.Scope {
-	case "harness":
-		return fmt.Sprintf("provider selected for harness %q", harness)
-	case "role":
-		if provider.Name != "" && provider.DeclaredBy != "" {
-			return fmt.Sprintf(
-				"role %q -> provider %q declared by %s -> selected catalogue",
-				role,
-				provider.Name,
-				provider.DeclaredBy,
-			)
-		}
-		return fmt.Sprintf("role provider selected because role %q requests it", role)
-	default:
-		return "default provider selected for every assigned role"
+func providerScope(scope string) string {
+	if scope == "provider" {
+		return schema.ProviderScopeRole
 	}
+	return schema.ProviderScopeDefault
 }
 
 func excludedRoleProviders(
-	manifest skillmount.Eligibility,
+	plan repositoryplan.Plan,
 	selectedRole string,
 	projectsRoot string,
 	selectedIDs map[string]bool,
 ) []schema.MissingSource {
 	rolesByPath := map[string][]string{}
-	roles := make([]string, 0, len(manifest.RoleProviders))
-	for role := range manifest.RoleProviders {
+	roles := make([]string, 0, len(plan.Roles))
+	for role := range plan.Roles {
 		roles = append(roles, role)
 	}
 	sort.Strings(roles)
@@ -310,8 +311,11 @@ func excludedRoleProviders(
 		if role == selectedRole {
 			continue
 		}
-		for _, provider := range manifest.RoleProviders[role] {
-			rel, err := filepath.Rel(manifest.ProjectsRoot, provider.Path)
+		for _, provider := range plan.Roles[role] {
+			if provider.Scope != "provider" {
+				continue
+			}
+			rel, err := filepath.Rel(plan.ProjectsRoot, provider.Path)
 			if err != nil || rel == "." || rel == ".." ||
 				strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 				continue

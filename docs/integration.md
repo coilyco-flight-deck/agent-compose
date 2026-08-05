@@ -8,7 +8,7 @@ The v1 Python composer was absorbed into
 [`agent-compose cascade`](cascade.md), which composes doctrine sources into
 `~/.agent-compose/COMPOSED.<harness>.md`, symlinks each harness's
 global load point at the result, applies scope and harness filtering with
-per-harness section overrides, and emits a generic mount-eligibility manifest.
+per-harness section overrides, and emits a strict repository plan.
 
 ## The seam rule
 
@@ -16,8 +16,8 @@ On a host, the cascade owns the harness global load points and everything
 else (roster, overlays) feeds it sources. In a container, projection owns
 the whole home and no cascade runs. No path is ever written by both.
 
-Host convergence may also mount skills from repositories already admitted by
-`mount-eligibility.json` into configured harness-native skill directories.
+Host convergence may also mount skills from repositories in the compiled
+residency projection into configured harness-native skill directories.
 Agent-compose owns only the links recorded in its sidecar. Infrastructure still
 owns the load points a host declares.
 
@@ -73,3 +73,4 @@ Hosts must reconcile hand-edited snapshots into sources before cutover.
 * [person-packages.md](person-packages.md) - external package selection.
 * [role-briefings.md](role-briefings.md) - role charter delivery.
 * [architecture.md](architecture.md) - composition inputs and ownership.
+* [repository-policy.md](repository-policy.md) - the compiler and consumer seam.

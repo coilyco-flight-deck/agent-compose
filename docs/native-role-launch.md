@@ -10,15 +10,14 @@ acompose qa goose run
 acompose content opencode
 ```
 
-Arguments after the harness pass through unchanged. The long form is
-`agent-compose launch <role> <harness>`.
+Arguments pass through. Long form: `agent-compose launch <role> <harness>`.
 
 ## Selection
 
-The launcher converges the host first, then reads the generated
-`mount-eligibility.json`. It admits ordered default, harness, and
-[role-scoped providers](role-scoped-providers.md). Required providers fail when
-missing. Optional exclusions stay traced. Isolated workspaces remap the same set.
+Launch reads the selected role from
+[`repository-plan.json`](repository-policy.md). It admits operating context,
+global repositories, role repositories, and [role-scoped providers](role-scoped-providers.md).
+Required providers fail closed. Optional exclusions stay traced.
 
 Model tier and bundle model class are separate launch-consumer runtime facts.
 Agent Compose defaults both to `frontier`. A launch consumer may set
@@ -78,3 +77,4 @@ inferred-role native path for compatibility.
 * [Integration](integration.md) - host and isolated delivery tiers.
 * [Role selection](role-selection.md) - inferred and caller-assigned roles.
 * [Projection](projection.md) - harness load points and ownership.
+* [Repository policy](repository-policy.md) - availability and residency.

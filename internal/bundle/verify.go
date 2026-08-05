@@ -46,6 +46,9 @@ func Verify(dir string) (*Verification, error) {
 	if err := verifyTraceProfiles(trace, manifest); err != nil {
 		return nil, err
 	}
+	if err := verifyRepositoryDecisions(trace, manifest); err != nil {
+		return nil, err
+	}
 	identities, err := selectedIdentities(trace)
 	if err != nil {
 		return nil, err
@@ -335,6 +338,51 @@ func verifyTraceProfiles(trace *Trace, manifest *Manifest) error {
 			selected, len(manifest.Personalities))
 	}
 	return nil
+}
+
+func verifyRepositoryDecisions(trace *Trace, manifest *Manifest) error {
+	prior := ""
+	for _, repository := range manifest.Repositories {
+		if !safeRepositoryIdentity(repository.Identity) {
+			return fmt.Errorf("bundle manifest contains unsafe repository identity %q", repository.Identity)
+		}
+		if repository.Identity <= prior {
+			return fmt.Errorf("bundle manifest repositories must be strictly sorted and deduplicated")
+		}
+		prior = repository.Identity
+		if repository.Source == "" || repository.Scope == "" || repository.Reason == "" {
+			return fmt.Errorf("bundle manifest repository %q lacks decision provenance", repository.Identity)
+		}
+	}
+	selected := map[string]resolver.Decision{}
+	for _, decision := range trace.Decisions {
+		if decision.Kind != "repository" || decision.Outcome != resolver.OutcomeSelected {
+			continue
+		}
+		identity, ok := strings.CutPrefix(decision.Subject, "repository:")
+		if !ok || !safeRepositoryIdentity(identity) || selected[identity].Subject != "" {
+			return fmt.Errorf("bundle trace selects an unsafe or duplicate repository %q", decision.Subject)
+		}
+		selected[identity] = decision
+	}
+	if len(selected) != len(manifest.Repositories) {
+		return fmt.Errorf("bundle trace selects %d repositories, manifest names %d", len(selected), len(manifest.Repositories))
+	}
+	for _, repository := range manifest.Repositories {
+		decision, ok := selected[repository.Identity]
+		if !ok {
+			return fmt.Errorf("bundle trace does not select manifest repository %q", repository.Identity)
+		}
+		if decision.Source != repository.Source || decision.Reason != repository.Reason {
+			return fmt.Errorf("bundle repository %q provenance disagrees with its decision trace", repository.Identity)
+		}
+	}
+	return nil
+}
+
+func safeRepositoryIdentity(value string) bool {
+	parts := strings.Split(value, "/")
+	return len(parts) == 2 && safeSegment(parts[0]) && safeSegment(parts[1])
 }
 
 func verifyIdentityTree(dir string, identities []Identity) error {

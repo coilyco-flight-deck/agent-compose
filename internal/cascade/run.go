@@ -121,15 +121,15 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 		active[target] = true
 	}
 	stale := staleGeneratedOutputs(paths.Composed, active)
-	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
-	manifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	planPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
+	repositoryPlan, err := RenderRepositoryPlan(cfg, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
 
 	if opts.Verbose {
-		printLayout(stdout, paths.Config, manifestPath, byTarget, p, loadPoints)
+		printLayout(stdout, paths.Config, planPath, byTarget, p, loadPoints)
 	}
 
 	if opts.DryRun {
@@ -144,8 +144,8 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stdout, "would write %s (%d source(s))%s\n", target, len(entry.sources), tail)
 			}
 		}
-		if opts.Reapply || readOr(manifestPath, "\x00") != manifest {
-			fmt.Fprintf(stdout, "would write %s (mount-eligibility manifest)\n", manifestPath)
+		if opts.Reapply || readOr(planPath, "\x00") != repositoryPlan {
+			fmt.Fprintf(stdout, "would write %s (repository plan)\n", planPath)
 		}
 		for _, target := range stale {
 			fmt.Fprintf(stdout, "would remove %s (obsolete generated output)\n", target)
@@ -185,12 +185,12 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
 		changed++
 	}
-	if opts.Reapply || readOr(manifestPath, "\x00") != manifest {
-		if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
+	if opts.Reapply || readOr(planPath, "\x00") != repositoryPlan {
+		if err := os.WriteFile(planPath, []byte(repositoryPlan), 0o644); err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
 		}
-		fmt.Fprintf(stdout, "wrote   %s (mount-eligibility manifest)\n", manifestPath)
+		fmt.Fprintf(stdout, "wrote   %s (repository plan)\n", planPath)
 		changed++
 	}
 	for _, harness := range sortedKeys2(loadPoints) {
@@ -204,7 +204,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 			changed++
 		}
 	}
-	fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d manifest=1 changed=%d\n",
+	fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d repository-plan=1 changed=%d\n",
 		len(byTarget), len(loadPoints), changed)
 	return 0
 }
@@ -246,7 +246,7 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	byTarget, p, _, _, code := buildPlan(cfg, paths, stderr, true)
+	byTarget, _, _, _, code := buildPlan(cfg, paths, stderr, true)
 	if code != 0 {
 		return code
 	}
@@ -275,18 +275,18 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: drift - %s is missing, stale, or hand-edited. Run `agent-compose cascade` to regenerate.\n", target)
 		writeDiff(stderr, actual, expected, target)
 	}
-	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
-	expectedManifest, err := RenderManifest(p.slices, paths.ProjectsRoot)
+	planPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
+	expectedPlan, err := RenderRepositoryPlan(cfg, paths.ProjectsRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	if actual := readOr(manifestPath, ""); actual == expectedManifest {
-		fmt.Fprintf(stdout, "agent-compose: %s in sync\n", manifestPath)
+	if actual := readOr(planPath, ""); actual == expectedPlan {
+		fmt.Fprintf(stdout, "agent-compose: %s in sync\n", planPath)
 	} else {
 		drifted = true
-		fmt.Fprintf(stderr, "agent-compose: drift - %s (mount-eligibility manifest) is missing, stale, or hand-edited. Run `agent-compose cascade` to regenerate.\n", manifestPath)
-		writeDiff(stderr, actual, expectedManifest, manifestPath)
+		fmt.Fprintf(stderr, "agent-compose: drift - %s (repository plan) is missing, stale, or hand-edited. Run `agent-compose compose` to regenerate.\n", planPath)
+		writeDiff(stderr, actual, expectedPlan, planPath)
 	}
 	if drifted {
 		return 1

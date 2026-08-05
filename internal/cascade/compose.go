@@ -1,8 +1,6 @@
 package cascade
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,7 +9,6 @@ import (
 	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
 
 var headingRe = regexp.MustCompile(`^(#{1,6}) +\S`)
@@ -292,142 +289,10 @@ func canonicalPath(path string) (string, error) {
 	return absolute, nil
 }
 
-type manifestPayload struct {
-	Banner        string                               `json:"banner"`
-	ProjectsRoot  string                               `json:"projects_root"`
-	Defaults      []string                             `json:"defaults"`
-	Harnesses     map[string][]string                  `json:"harnesses"`
-	RoleProviders map[string][]skillmount.RoleProvider `json:"role_providers,omitempty"`
-}
-
 type trustedRoleGraph struct {
 	root     string
 	relative string
 	source   *schema.Source
-}
-
-// compileRoleProviderGraph reads only already trusted role graphs. Imported
-// providers validate completely without recursively widening eligibility.
-func compileRoleProviderGraph(
-	slices map[string][]string,
-	projects string,
-) (map[string][]skillmount.RoleProvider, error) {
-	trusted := map[string]bool{}
-	for _, slug := range defaultMountSet {
-		trusted[filepath.Join(projects, slug)] = true
-	}
-	for _, selected := range slices {
-		for _, source := range selected {
-			if repo := repoForSource(source, projects); repo != "" {
-				trusted[repo] = true
-			}
-		}
-	}
-	roots := make([]string, 0, len(trusted))
-	for root := range trusted {
-		roots = append(roots, root)
-	}
-	sort.Strings(roots)
-
-	graphs := make([]trustedRoleGraph, 0, len(roots))
-	for _, root := range roots {
-		rolesPath := filepath.Join(root, ".agents", "roles.kdl")
-		info, err := os.Stat(rolesPath)
-		if errors.Is(err, os.ErrNotExist) {
-			continue
-		}
-		if err != nil {
-			return nil, fmt.Errorf("inspect trusted role graph %s: %w", rolesPath, err)
-		}
-		if !info.Mode().IsRegular() {
-			return nil, fmt.Errorf("trusted role graph %s is not a regular file", rolesPath)
-		}
-		source, err := schema.LoadSource(root)
-		if err != nil {
-			return nil, fmt.Errorf("load trusted role graph %s: %w", rolesPath, err)
-		}
-		relative, err := filepath.Rel(projects, root)
-		if err != nil {
-			return nil, fmt.Errorf("resolve trusted role graph %s: %w", root, err)
-		}
-		graphs = append(graphs, trustedRoleGraph{root: root, relative: filepath.ToSlash(relative), source: source})
-	}
-
-	definitions := map[string]string{}
-	definitionsByRoot := map[string]map[string]string{}
-	for _, graph := range graphs {
-		ids := make([]string, 0, len(graph.source.Providers))
-		for id := range graph.source.Providers {
-			ids = append(ids, id)
-		}
-		sort.Strings(ids)
-		definitionsByRoot[graph.root] = map[string]string{}
-		for _, id := range ids {
-			definition := graph.source.Providers[id]
-			resolved, err := resolveProviderPath(projects, definition.Path)
-			if err != nil {
-				return nil, fmt.Errorf("provider %q declared by %s: %w", id, graph.relative, err)
-			}
-			if previous, exists := definitions[resolved]; exists {
-				return nil, fmt.Errorf(
-					"provider %q declared by %s conflicts at resolved repository path %s with %s",
-					id,
-					graph.relative,
-					resolved,
-					previous,
-				)
-			}
-			definitions[resolved] = fmt.Sprintf("provider %q declared by %s", id, graph.relative)
-			definitionsByRoot[graph.root][id] = resolved
-		}
-	}
-	if err := rejectProviderCycles(graphs, definitionsByRoot); err != nil {
-		return nil, err
-	}
-
-	roles := map[string][]skillmount.RoleProvider{}
-	for _, graph := range graphs {
-		roleNames := make([]string, 0, len(graph.source.RoleProviders))
-		for role := range graph.source.RoleProviders {
-			roleNames = append(roleNames, role)
-		}
-		sort.Strings(roleNames)
-		for _, role := range roleNames {
-			for _, use := range graph.source.RoleProviders[role] {
-				definition := graph.source.Providers[use.Provider]
-				resolved := definitionsByRoot[graph.root][use.Provider]
-				if info, err := os.Stat(resolved); err == nil {
-					if !info.IsDir() {
-						return nil, fmt.Errorf("provider %q repository path %s is not a directory", use.Provider, resolved)
-					}
-					providerSource, err := schema.LoadSource(resolved)
-					if err != nil {
-						return nil, fmt.Errorf("load provider %q declared by %s: %w", use.Provider, graph.relative, err)
-					}
-					if err := schema.SelectOrdinarySkills(providerSource, definition.Skills); err != nil {
-						return nil, fmt.Errorf("select provider %q declared by %s: %w", use.Provider, graph.relative, err)
-					}
-				} else if !errors.Is(err, os.ErrNotExist) {
-					return nil, fmt.Errorf("inspect provider %q path %s: %w", use.Provider, resolved, err)
-				} else if use.Required {
-					return nil, fmt.Errorf(
-						"required provider %q for role %q is unavailable at %s",
-						use.Provider,
-						role,
-						resolved,
-					)
-				}
-				roles[role] = append(roles[role], skillmount.RoleProvider{
-					Path:       resolved,
-					Required:   use.Required,
-					Skills:     append([]string(nil), definition.Skills...),
-					Name:       use.Provider,
-					DeclaredBy: graph.relative,
-				})
-			}
-		}
-	}
-	return roles, nil
 }
 
 func resolveProviderPath(projects, logical string) (string, error) {
@@ -487,92 +352,6 @@ func rejectProviderCycles(graphs []trustedRoleGraph, definitions map[string]map[
 		}
 	}
 	return nil
-}
-
-// RenderManifest emits deterministic default, harness, and role-only mount
-// eligibility without adding role providers to bare host convergence.
-func RenderManifest(
-	slices map[string][]string,
-	projects string,
-) (string, error) {
-	canonicalProjects, err := canonicalPath(projects)
-	if err != nil {
-		return "", err
-	}
-	projects = canonicalProjects
-	roleProviders, err := compileRoleProviderGraph(slices, projects)
-	if err != nil {
-		return "", err
-	}
-	defaults := make([]string, 0, len(defaultMountSet))
-	for _, slug := range defaultMountSet {
-		defaults = append(defaults, filepath.Join(projects, slug))
-	}
-	harnesses := map[string][]string{}
-	for harness, selected := range slices {
-		repos := map[string]bool{}
-		for _, d := range defaults {
-			repos[d] = true
-		}
-		for _, src := range selected {
-			if repo := repoForSource(src, projects); repo != "" {
-				repos[repo] = true
-			}
-		}
-		sorted := make([]string, 0, len(repos))
-		for repo := range repos {
-			sorted = append(sorted, repo)
-		}
-		sort.Strings(sorted)
-		harnesses[harness] = sorted
-	}
-	roles := map[string][]skillmount.RoleProvider{}
-	for role, configured := range roleProviders {
-		seen := map[string]bool{}
-		for index, provider := range configured {
-			resolved := strings.TrimSpace(provider.Path)
-			if !filepath.IsAbs(resolved) {
-				resolved = filepath.Join(projects, resolved)
-			}
-			resolved, err = canonicalPath(resolved)
-			if err != nil {
-				return "", fmt.Errorf("resolve role provider %q entry %d: %w", role, index, err)
-			}
-			rel, err := filepath.Rel(projects, resolved)
-			if err != nil || rel == "." || rel == ".." ||
-				strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-				return "", fmt.Errorf(
-					"role provider %q entry %d path %s is outside projects_root %s",
-					role,
-					index,
-					resolved,
-					projects,
-				)
-			}
-			if seen[resolved] {
-				return "", fmt.Errorf("role provider %q repeats path %s", role, resolved)
-			}
-			seen[resolved] = true
-			roles[role] = append(roles[role], skillmount.RoleProvider{
-				Path:       resolved,
-				Required:   provider.Required,
-				Skills:     append([]string(nil), provider.Skills...),
-				Name:       provider.Name,
-				DeclaredBy: provider.DeclaredBy,
-			})
-		}
-	}
-	raw, err := json.MarshalIndent(manifestPayload{
-		Banner:        manifestBanner,
-		ProjectsRoot:  projects,
-		Defaults:      defaults,
-		Harnesses:     harnesses,
-		RoleProviders: roles,
-	}, "", "  ")
-	if err != nil {
-		return "", err
-	}
-	return string(raw) + "\n", nil
 }
 
 func symlinkUpToDate(dst, target string) bool {

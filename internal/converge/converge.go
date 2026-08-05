@@ -97,7 +97,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	if code := cascade.Run(paths, cascadeOpts, stdout, stderr); code != 0 {
 		return code
 	}
-	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "mount-eligibility.json")
+	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.json")
 	skills, err := skillmount.ApplyWithCatalogs(
 		manifestPath,
 		cfg.SkillLoadPoints,

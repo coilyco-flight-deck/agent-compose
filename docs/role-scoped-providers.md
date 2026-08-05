@@ -35,9 +35,9 @@ the same trace.
 
 An assigned launch resolves providers in this order:
 
-1. Default repositories.
-2. Repositories admitted for the selected harness.
-3. Providers admitted for the selected role.
+1. Explicit operating-context repositories.
+2. Global repositories.
+3. Direct repositories and providers admitted for the selected role.
 
 Duplicate paths collapse first-wins. Byte-identical skills may shadow the
 earlier copy, while different bodies with the same name fail closed.
@@ -47,9 +47,9 @@ selectors match the same composed skill, Agent Compose selects that skill once,
 emits a warning, and retains every matching selector in `trace.json`. Overlap
 within one role does not create a content collision. Different skill bodies
 with the same name still fail closed during cross-provider resolution.
-An empty role selects only defaults and harness repositories. Bare `acompose`
-convergence therefore never links role-only providers into host-global skill
-load points.
+An empty role selects only operating context and global repositories. Bare `acompose`
+uses the host-residency union. Assigned launch consumers hide that global skill
+mount before projecting the role bundle.
 
 ## Native and staged delivery
 
@@ -75,6 +75,6 @@ choose authority, or add mappings to the Core Roster.
 
 ## See also
 
-* [Cascade](cascade.md) - generated mount eligibility and bare convergence.
+* [Repository policy](repository-policy.md) - direct role and residency selection.
 * [Ordinary-skill selectors](ordinary-skill-selectors.md) - bounded catalogue slices.
 * [Integration](integration.md) - host and isolated ownership tiers.

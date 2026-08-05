@@ -2,6 +2,7 @@ package nativelaunch
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -12,10 +13,25 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
 )
+
+type testRoleProvider struct {
+	Path       string
+	Required   bool
+	Skills     []string
+	Name       string
+	DeclaredBy string
+}
+
+type testRepositoryPlan struct {
+	ProjectsRoot  string
+	Defaults      []string
+	Harnesses     map[string][]string
+	RoleProviders map[string][]testRoleProvider
+}
 
 func writeFile(t *testing.T, path, body string) {
 	t.Helper()
@@ -58,9 +74,62 @@ func writeOrdinarySkill(t *testing.T, root, name string) {
 	)
 }
 
-func writeEligibilityManifest(t *testing.T, path string, manifest skillmount.Eligibility) {
+func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPlan) {
 	t.Helper()
-	raw, err := json.Marshal(manifest)
+	basePaths := append([]string(nil), input.Defaults...)
+	for _, paths := range input.Harnesses {
+		basePaths = append(basePaths, paths...)
+	}
+	selection := func(path, scope, source, reason string) repositoryplan.Selection {
+		identity, err := filepath.Rel(input.ProjectsRoot, path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return repositoryplan.Selection{
+			Identity: filepath.ToSlash(identity), Path: path,
+			Source: source, Scope: scope, Reason: reason,
+		}
+	}
+	roles := map[string][]repositoryplan.Selection{}
+	for _, role := range []string{"community", "content", "design", "director", "engineer", "ops", "qa", "strats"} {
+		for _, path := range basePaths {
+			roles[role] = append(roles[role], selection(path, "operating-context", "test", "test operating context"))
+		}
+		for _, provider := range input.RoleProviders[role] {
+			reason := fmt.Sprintf("role %q uses a role provider", role)
+			if provider.Name != "" && provider.DeclaredBy != "" {
+				reason = fmt.Sprintf("role %q -> provider %q declared by %s -> selected catalogue", role, provider.Name, provider.DeclaredBy)
+			}
+			item := selection(provider.Path, "provider", "test", reason)
+			item.Required = provider.Required
+			item.Skills = append([]string(nil), provider.Skills...)
+			item.Name = provider.Name
+			item.DeclaredBy = provider.DeclaredBy
+			roles[role] = append(roles[role], item)
+		}
+		sort.Slice(roles[role], func(i, j int) bool { return roles[role][i].Identity < roles[role][j].Identity })
+	}
+	resident := map[string]repositoryplan.Selection{}
+	for _, selections := range roles {
+		for _, item := range selections {
+			item.Scope = "role-union"
+			item.Reason = "test role union"
+			resident[item.Identity] = item
+		}
+	}
+	identities := make([]string, 0, len(resident))
+	for identity := range resident {
+		identities = append(identities, identity)
+	}
+	sort.Strings(identities)
+	residency := make([]repositoryplan.Selection, 0, len(identities))
+	for _, identity := range identities {
+		residency = append(residency, resident[identity])
+	}
+	raw, err := json.Marshal(repositoryplan.Plan{
+		Format: repositoryplan.Format, ProjectsRoot: input.ProjectsRoot,
+		Roles: roles, Residency: residency,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,22 +165,18 @@ func providerReport(t *testing.T, result *Result, source string) resolver.Provid
 
 func writeManifest(t *testing.T, path, projectsRoot, provider string) {
 	t.Helper()
-	raw, err := json.Marshal(skillmount.Eligibility{
+	writeEligibilityManifest(t, path, testRepositoryPlan{
 		ProjectsRoot: projectsRoot,
 		Defaults:     []string{provider},
 		Harnesses:    map[string][]string{},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, path, string(raw))
 }
 
 func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
 	writeManifest(t, manifest, projects, provider)
 	out := filepath.Join(t.TempDir(), "bundles")
 	profile, err := person.Load()
@@ -134,13 +199,13 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 		t.Run(harness, func(t *testing.T) {
 			target := t.TempDir()
 			result, err := Refresh(Options{
-				Role:         "design",
-				Harness:      harness,
-				ModelClass:   tc.modelClass,
-				CWD:          projects,
-				TargetDir:    target,
-				ManifestPath: manifest,
-				OutDir:       out,
+				Role:       "design",
+				Harness:    harness,
+				ModelClass: tc.modelClass,
+				CWD:        projects,
+				TargetDir:  target,
+				PlanPath:   manifest,
+				OutDir:     out,
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -191,16 +256,16 @@ func TestRefreshDefaultsToFrontierModelTierAndClass(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
 	writeManifest(t, manifest, projects, provider)
 
 	result, err := Refresh(Options{
-		Role:         "design",
-		Harness:      "goose",
-		CWD:          projects,
-		TargetDir:    t.TempDir(),
-		ManifestPath: manifest,
-		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+		Role:      "design",
+		Harness:   "goose",
+		CWD:       projects,
+		TargetDir: t.TempDir(),
+		PlanPath:  manifest,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -217,16 +282,16 @@ func TestRefreshAcceptsCanonicalModelTierAndRejectsUnknownTier(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
-	manifest := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
 	writeManifest(t, manifest, projects, provider)
 	options := Options{
-		Role:         "design",
-		Harness:      "codex",
-		ModelTier:    schema.ModelTierCommodity,
-		CWD:          projects,
-		TargetDir:    t.TempDir(),
-		ManifestPath: manifest,
-		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+		Role:      "design",
+		Harness:   "codex",
+		ModelTier: schema.ModelTierCommodity,
+		CWD:       projects,
+		TargetDir: t.TempDir(),
+		PlanPath:  manifest,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
 	}
 
 	result, err := Refresh(options)
@@ -249,16 +314,16 @@ func TestRefreshRequiresRoleComposedProvider(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "ordinary")
 	writeProvider(t, provider, false)
-	manifest := filepath.Join(t.TempDir(), "mount-eligibility.json")
+	manifest := filepath.Join(t.TempDir(), "repository-plan.json")
 	writeManifest(t, manifest, projects, provider)
 
 	_, err := Refresh(Options{
-		Role:         "design",
-		Harness:      "codex",
-		CWD:          projects,
-		TargetDir:    t.TempDir(),
-		ManifestPath: manifest,
-		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+		Role:      "design",
+		Harness:   "codex",
+		CWD:       projects,
+		TargetDir: t.TempDir(),
+		PlanPath:  manifest,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
 	})
 	if err == nil || !strings.Contains(err.Error(), "needs an eligible provider") {
 		t.Fatalf("role-provider error = %v", err)
@@ -278,12 +343,12 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	writeOrdinarySkill(t, infrastructure, "repo-infrastructure")
 	writeOrdinarySkill(t, deploy, "deploy-ops")
 	writeOrdinarySkill(t, deploy, "repo-deploy")
-	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
-	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},
 		Harnesses:    map[string][]string{},
-		RoleProviders: map[string][]skillmount.RoleProvider{
+		RoleProviders: map[string][]testRoleProvider{
 			"ops": {
 				{Path: infrastructure, Required: true, Name: "infrastructure", DeclaredBy: "example/aosk"},
 				{Path: deploy, Required: true, Name: "deploy", DeclaredBy: "example/aosk"},
@@ -298,12 +363,12 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		target := t.TempDir()
 		targets[role] = target
 		result, err := Refresh(Options{
-			Role:         role,
-			Harness:      "codex",
-			CWD:          projects,
-			TargetDir:    target,
-			ManifestPath: manifestPath,
-			OutDir:       out,
+			Role:      role,
+			Harness:   "codex",
+			CWD:       projects,
+			TargetDir: target,
+			PlanPath:  manifestPath,
+			OutDir:    out,
 		})
 		if err != nil {
 			t.Fatalf("refresh %s: %v", role, err)
@@ -420,12 +485,12 @@ func TestRoleProviderSelectorsMatchAcrossNativeAndStagedHarnesses(t *testing.T) 
 	} {
 		writeOrdinarySkill(t, hardware, skill)
 	}
-	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
-	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},
 		Harnesses:    map[string][]string{},
-		RoleProviders: map[string][]skillmount.RoleProvider{
+		RoleProviders: map[string][]testRoleProvider{
 			"design": {{
 				Path:     hardware,
 				Required: true,
@@ -448,13 +513,13 @@ func TestRoleProviderSelectorsMatchAcrossNativeAndStagedHarnesses(t *testing.T) 
 		t.Run(harness, func(t *testing.T) {
 			target := t.TempDir()
 			result, err := Refresh(Options{
-				Role:         "design",
-				Harness:      harness,
-				ModelClass:   tc.modelClass,
-				CWD:          projects,
-				TargetDir:    target,
-				ManifestPath: manifestPath,
-				OutDir:       filepath.Join(t.TempDir(), "bundles"),
+				Role:       "design",
+				Harness:    harness,
+				ModelClass: tc.modelClass,
+				CWD:        projects,
+				TargetDir:  target,
+				PlanPath:   manifestPath,
+				OutDir:     filepath.Join(t.TempDir(), "bundles"),
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -498,22 +563,22 @@ func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
 	base := filepath.Join(projects, "example", "base")
 	missing := filepath.Join(projects, "example", "required")
 	writeProvider(t, base, true)
-	manifestPath := filepath.Join(t.TempDir(), "mount-eligibility.json")
-	writeEligibilityManifest(t, manifestPath, skillmount.Eligibility{
+	manifestPath := filepath.Join(t.TempDir(), "repository-plan.json")
+	writeEligibilityManifest(t, manifestPath, testRepositoryPlan{
 		ProjectsRoot: projects,
 		Defaults:     []string{base},
 		Harnesses:    map[string][]string{},
-		RoleProviders: map[string][]skillmount.RoleProvider{
+		RoleProviders: map[string][]testRoleProvider{
 			"ops": {{Path: missing, Required: true}},
 		},
 	})
 	_, err := Refresh(Options{
-		Role:         "ops",
-		Harness:      "codex",
-		CWD:          projects,
-		TargetDir:    t.TempDir(),
-		ManifestPath: manifestPath,
-		OutDir:       filepath.Join(t.TempDir(), "bundles"),
+		Role:      "ops",
+		Harness:   "codex",
+		CWD:       projects,
+		TargetDir: t.TempDir(),
+		PlanPath:  manifestPath,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
 	})
 	if err == nil || !strings.Contains(err.Error(), "required role provider example/required") {
 		t.Fatalf("required missing provider error = %v", err)

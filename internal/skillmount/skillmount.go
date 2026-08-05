@@ -3,16 +3,15 @@
 package skillmount
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
 )
 
@@ -26,35 +25,6 @@ type link struct {
 
 type sidecar struct {
 	Links []link `json:"links"`
-}
-
-type Eligibility struct {
-	Banner        string                    `json:"banner,omitempty"`
-	ProjectsRoot  string                    `json:"projects_root"`
-	Defaults      []string                  `json:"defaults"`
-	Harnesses     map[string][]string       `json:"harnesses"`
-	RoleProviders map[string][]RoleProvider `json:"role_providers,omitempty"`
-}
-
-// RoleProvider is one local provider admitted only when its role is selected.
-// Paths are canonical repository roots in generated eligibility manifests.
-type RoleProvider struct {
-	Path       string   `json:"path"`
-	Required   bool     `json:"required"`
-	Skills     []string `json:"skills,omitempty"`
-	Name       string   `json:"name,omitempty"`
-	DeclaredBy string   `json:"declared_by,omitempty"`
-}
-
-// Provider records one selected repository and why it entered the ordered
-// defaults, harness, and role union.
-type Provider struct {
-	Path       string
-	Scope      string
-	Required   bool
-	Skills     []string
-	Name       string
-	DeclaredBy string
 }
 
 // Catalog is a verified skill root projected to every configured load point.
@@ -90,107 +60,8 @@ func linkKey(destination, name string) string {
 	return filepath.Join(destination, name)
 }
 
-func (manifest Eligibility) Repositories(harness string) []string {
-	providers := manifest.Providers(harness, "")
-	repos := make([]string, 0, len(providers))
-	for _, provider := range providers {
-		repos = append(repos, provider.Path)
-	}
-	return repos
-}
-
-// Providers returns defaults, harness providers, then role providers. An empty
-// role excludes every role-only provider from bare host convergence.
-func (manifest Eligibility) Providers(harness, role string) []Provider {
-	seen := map[string]bool{}
-	providers := make([]Provider, 0, len(manifest.Defaults)+len(manifest.Harnesses[harness]))
-	add := func(provider Provider) {
-		if seen[provider.Path] {
-			return
-		}
-		seen[provider.Path] = true
-		providers = append(providers, provider)
-	}
-	for _, repo := range manifest.Defaults {
-		add(Provider{Path: repo, Scope: "default"})
-	}
-	extra := append([]string(nil), manifest.Harnesses[harness]...)
-	sort.Strings(extra)
-	for _, repo := range extra {
-		add(Provider{Path: repo, Scope: "harness"})
-	}
-	if role != "" {
-		for _, provider := range manifest.RoleProviders[role] {
-			add(Provider{
-				Path:       provider.Path,
-				Scope:      "role",
-				Required:   provider.Required,
-				Skills:     append([]string(nil), provider.Skills...),
-				Name:       provider.Name,
-				DeclaredBy: provider.DeclaredBy,
-			})
-		}
-	}
-	return providers
-}
-
-func LoadEligibility(path string) (Eligibility, error) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return Eligibility{}, fmt.Errorf("read mount eligibility %s: %w", path, err)
-	}
-	var manifest Eligibility
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&manifest); err != nil {
-		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: %w", path, err)
-	}
-	var trailing any
-	if err := decoder.Decode(&trailing); err == nil {
-		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: trailing JSON value", path)
-	} else if !errors.Is(err, io.EOF) {
-		return Eligibility{}, fmt.Errorf("parse mount eligibility %s: %w", path, err)
-	}
-	if strings.TrimSpace(manifest.ProjectsRoot) == "" {
-		return Eligibility{}, fmt.Errorf("mount eligibility %s names no projects_root", path)
-	}
-	for role, providers := range manifest.RoleProviders {
-		if strings.TrimSpace(role) == "" {
-			return Eligibility{}, fmt.Errorf("mount eligibility %s names an empty role", path)
-		}
-		for index, provider := range providers {
-			if strings.TrimSpace(provider.Path) == "" {
-				return Eligibility{}, fmt.Errorf(
-					"mount eligibility %s role %q provider %d names no path",
-					path,
-					role,
-					index,
-				)
-			}
-			if err := skillselector.Validate(provider.Skills); err != nil {
-				return Eligibility{}, fmt.Errorf(
-					"mount eligibility %s role %q provider %d: %w",
-					path,
-					role,
-					index,
-					err,
-				)
-			}
-			if (strings.TrimSpace(provider.Name) == "") != (strings.TrimSpace(provider.DeclaredBy) == "") {
-				return Eligibility{}, fmt.Errorf(
-					"mount eligibility %s role %q provider %d needs both name and declared_by provenance",
-					path,
-					role,
-					index,
-				)
-			}
-		}
-	}
-	return manifest, nil
-}
-
 func discover(manifestPath string, loadPoints map[string]string, catalogs []Catalog) (map[string]link, []string, error) {
-	manifest, err := LoadEligibility(manifestPath)
+	plan, err := repositoryplan.Load(manifestPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -243,8 +114,11 @@ func discover(manifestPath string, loadPoints map[string]string, catalogs []Cata
 			}
 			return nil
 		}
-		for _, repo := range manifest.Repositories(harness) {
-			if err := addRoot(filepath.Join(repo, ".agents", "skills")); err != nil {
+		for _, repository := range plan.Residency {
+			if err := skillselector.Validate(repository.Skills); err != nil {
+				return nil, nil, fmt.Errorf("repository %q skill selector: %w", repository.Identity, err)
+			}
+			if err := addRoot(filepath.Join(repository.Path, ".agents", "skills")); err != nil {
 				return nil, nil, err
 			}
 		}

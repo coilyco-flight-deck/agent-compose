@@ -584,6 +584,73 @@ roles {
 
 }
 
+func TestLoadSourceRepositoryPolicy(t *testing.T) {
+	root := t.TempDir()
+	roles := filepath.Join(root, ".agents", "roles.kdl")
+	if err := os.MkdirAll(filepath.Join(root, ".agents", "skills"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	skill := filepath.Join(root, ".agents", "skills", "fixture", "SKILL.md")
+	if err := os.MkdirAll(filepath.Dir(skill), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(skill, []byte("# Fixture\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	graph := `repositories {
+    repository lore path="owner/lore"
+    repository voice path="owner/voice"
+    repository resident path="owner/resident"
+    global lore
+    resident-only resident
+}
+roles {
+    role engineer { use-repository voice }
+    role qa {}
+}
+`
+	if err := os.WriteFile(roles, []byte(graph), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	source, err := LoadSource(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if source.Repositories["voice"].Path != "owner/voice" ||
+		len(source.GlobalRepos) != 1 || source.GlobalRepos[0].Repository != "lore" ||
+		len(source.ResidentRepos) != 1 || source.ResidentRepos[0].Repository != "resident" ||
+		len(source.RoleRepos["engineer"]) != 1 || source.RoleRepos["engineer"][0].Repository != "voice" {
+		t.Fatalf("repository policy = %+v", source)
+	}
+	if _, exists := source.RoleRepos["qa"]; !exists {
+		t.Fatal("empty canonical role was omitted from repository policy")
+	}
+}
+
+func TestLoadSourceRepositoryPolicyFailsClosed(t *testing.T) {
+	for name, graph := range map[string]string{
+		"undeclared global":          `repositories { global missing } roles { role engineer {} }`,
+		"undeclared role repository": `repositories {} roles { role engineer { use-repository missing } }`,
+		"duplicate repository path":  `repositories { repository one path="owner/repo"; repository two path="owner/repo" } roles { role engineer {} }`,
+		"unsafe repository path":     `repositories { repository one path="../repo" } roles { role engineer {} }`,
+		"duplicate global":           `repositories { repository one path="owner/one"; global one; global one } roles { role engineer {} }`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := t.TempDir()
+			roles := filepath.Join(root, ".agents", "roles.kdl")
+			if err := os.MkdirAll(filepath.Join(root, ".agents", "skills"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(roles, []byte(graph+"\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := LoadSource(root); err == nil {
+				t.Fatalf("invalid repository policy passed: %s", graph)
+			}
+		})
+	}
+}
+
 func TestLoadInferredProviderAllowsMissingInvariant(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "ordinary-provider")
 	skill := filepath.Join(root, ".agents", "skills", "personality-bright")
