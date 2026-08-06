@@ -1,0 +1,21 @@
+{
+  "name": "Portfolio Strategist (Saiya)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#d98e48",
+    "autoAcceptShimmer": "#fbae68",
+    "bashBorder": "#5fa87a",
+    "briefLabelClaude": "#c58a54",
+    "claude": "#c58a54",
+    "claudeShimmer": "#e6a973",
+    "clawd_body": "#c58a54",
+    "permission": "#5fa87a",
+    "permissionShimmer": "#7ec898",
+    "promptBorder": "#c58a54",
+    "promptBorderShimmer": "#e6a973",
+    "remember": "#da6c74",
+    "skill": "#d98e48",
+    "suggestion": "#da6c74",
+    "yellow_FOR_SUBAGENTS_ONLY": "#c58a54"
+  }
+}

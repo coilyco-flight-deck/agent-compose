@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-ops",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Shielding",
+      "Warding",
+      "Guarding",
+      "Sheltering",
+      "Buttressing",
+      "Tending",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing",
+      "Stilling",
+      "Pondering",
+      "Mulling",
+      "Musing",
+      "Dwelling",
+      "Reflecting"
+    ]
+  }
+}

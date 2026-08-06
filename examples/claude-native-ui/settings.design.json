@@ -6,33 +6,21 @@
       "Refracting",
       "Kaleidoscoping",
       "Conjuring",
-      "Dreaming up",
-      "Sketching",
-      "Storyboarding",
-      "Wireframing",
-      "Prototyping",
+      "Dreaming",
+      "Imagining",
+      "Blooming",
       "Whirling",
       "Doodling",
-      "Tinkering",
       "Cavorting",
+      "Tinkering",
+      "Confettiing",
+      "Frolicking",
       "Kerning",
       "Annotating",
       "Redlining",
       "Typesetting",
       "Copyfitting",
-      "Composing"
+      "Drafting"
     ]
-  },
-  "spinnerTipsOverride": {
-    "excludeDefault": true,
-    "tips": [
-      "Delphi holds the design charter. Role switches need a new bundle.",
-      "Meld: imaginative, playful, editorial.",
-      "A first-time user is the only reviewer who cannot be told what to click."
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "agent-compose statusline"
   }
 }

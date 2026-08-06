@@ -23,6 +23,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -385,6 +386,34 @@ func main() {
 					},
 				},
 				Action: runPaletteData,
+			},
+			{
+				Name:  "native-ui",
+				Usage: "emit Claude Code themes and settings fragments for every role",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "out",
+						Usage: "write theme and settings files under this directory instead of stdout",
+					},
+					&cli.StringFlag{
+						Name:  "role",
+						Usage: "emit one role instead of the whole catalogue",
+					},
+					&cli.StringFlag{
+						Name:  "spinner-mode",
+						Value: "replace",
+						Usage: "replace the harness spinner verbs or append to them",
+					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
+					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
+					},
+				},
+				Action: runNativeUI,
 			},
 			{
 				Name:      "project",
@@ -1317,6 +1346,45 @@ func runPaletteData(_ context.Context, cmd *cli.Command) error {
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+func runNativeUI(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
+	if err != nil {
+		return err
+	}
+	opts := nativeui.Options{SpinnerMode: cmd.String("spinner-mode")}
+	if opts.SpinnerMode != "replace" && opts.SpinnerMode != "append" {
+		return fmt.Errorf("spinner-mode must be replace or append, got %q", opts.SpinnerMode)
+	}
+
+	var bundles []nativeui.Bundle
+	if role := cmd.String("role"); role != "" {
+		bundle, err := nativeui.BuildRole(p, role, opts)
+		if err != nil {
+			return err
+		}
+		bundles = []nativeui.Bundle{bundle}
+	} else if bundles, err = nativeui.Build(p, opts); err != nil {
+		return err
+	}
+
+	out := cmd.String("out")
+	if out == "" {
+		raw, err := json.MarshalIndent(bundles, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(append(raw, '\n'))
+		return err
+	}
+
+	written, err := nativeui.WriteAll(out, bundles)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("native-ui artifact: %d files under %s\n", written, out)
+	return nil
 }
 
 func loadSelectedPerson(source string) (*person.Person, bool, error) {

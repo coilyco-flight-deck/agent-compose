@@ -1,21 +1,21 @@
 {
-  "name": "AOS Design (Delphi)",
+  "name": "Designer (Delphi)",
   "base": "dark",
   "overrides": {
-    "claude": "#ac8fd7",
-    "claudeShimmer": "#c9b0e8",
-    "clawd_body": "#ac8fd7",
-    "briefLabelClaude": "#ac8fd7",
-    "promptBorder": "#8f74b8",
-    "promptBorderShimmer": "#c9b0e8",
-    "skill": "#b682ed",
     "autoAccept": "#b682ed",
-    "autoAcceptShimmer": "#cdaef5",
-    "permission": "#e882e1",
-    "permissionShimmer": "#f2b0ee",
+    "autoAcceptShimmer": "#d6a2ff",
     "bashBorder": "#e882e1",
-    "suggestion": "#4f9eb8",
+    "briefLabelClaude": "#ac8fd7",
+    "claude": "#ac8fd7",
+    "claudeShimmer": "#ccaef8",
+    "clawd_body": "#ac8fd7",
+    "permission": "#e882e1",
+    "permissionShimmer": "#ffa2ff",
+    "promptBorder": "#ac8fd7",
+    "promptBorderShimmer": "#ccaef8",
+    "purple_FOR_SUBAGENTS_ONLY": "#ac8fd7",
     "remember": "#4f9eb8",
-    "purple_FOR_SUBAGENTS_ONLY": "#ac8fd7"
+    "skill": "#b682ed",
+    "suggestion": "#4f9eb8"
   }
 }

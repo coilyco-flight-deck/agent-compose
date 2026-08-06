@@ -24,22 +24,31 @@ decides who writes them.
 
 Cheapest and least invasive first.
 
-1. **Session display name** - pass the resolved seat name as `--name` from the
+1. **Theme emission** - done. `agent-compose native-ui` projects the selected
+   person into a validated theme document per role.
+2. **Spinner emission** - done. The same command emits `spinnerVerbs` from the
+   personality meld, sourced from `verb` nodes in the person source.
+3. **Session display name** - pass the resolved seat name as `--name` from the
    native launch path. No new file format, no host mutation, immediately visible
    in the prompt box and terminal title.
-2. **Subagent status line** - add a `--subagent` mode to the existing
+4. **Subagent status line** - add a `--subagent` mode to the existing
    `statusline` command that reads row context from stdin and renders the role
    mark and color per subagent row. Reuses the renderer that already exists.
-3. **Theme emission** - a `theme` command that projects the selected person into
-   a validated theme document, in the same shape as the existing palette
-   projection. Validation against the base token list is part of the command,
-   not the consumer.
-4. **Spinner emission** - extend the same command family to emit the
-   `spinnerVerbs` and `spinnerTipsOverride` fragments per role. Verbs come from
-   the personality meld, not from the role alone.
-5. **Plugin packaging** - wrap theme, output style, and syntax highlighting into
+5. **Spinner tips** - emit `spinnerTipsOverride` per role. Held back from the
+   first pass because tips are prose, and role prose has a review path that
+   colors and verbs do not.
+6. **Plugin packaging** - wrap theme, output style, and syntax highlighting into
    one generated plugin per role so convergence installs a single unit rather
    than patching several settings keys.
+
+## Upstream coupling
+
+The emitted token names are Claude Code's, and the harness drops an unknown
+token silently rather than erroring. `internal/nativeui` therefore emits a fixed
+slot map rather than arbitrary tokens, and its test asserts every emitted token
+against the dark base set shipped in Claude Code 2.1.221. An upstream rename
+fails that test instead of quietly blanking a role's identity on a user's
+terminal. Refreshing the list is a deliberate act when the harness moves.
 
 ## Open questions
 

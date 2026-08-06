@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-strats",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Wandering",
+      "Surveying",
+      "Sniffing",
+      "Charting",
+      "Wondering",
+      "Peering",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing",
+      "Snipping",
+      "Shearing",
+      "Committing",
+      "Closing",
+      "Choosing",
+      "Trimming"
+    ]
+  }
+}

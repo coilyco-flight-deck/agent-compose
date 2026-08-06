@@ -59,8 +59,9 @@ together. Every surface above except the status line command and the session
 name vanishes in a troubleshooting session. Identity that must survive safe mode
 belongs in the composed context, never in the theme.
 
-## Worked example
+## Generated output
 
-[`examples/claude-native-ui/`](../examples/claude-native-ui/README.md) carries a
-validated theme and settings fragment for the design role, built from the role
-color `#ac8fd7` and its imaginative, playful, and editorial meld.
+`agent-compose native-ui` emits a theme and settings fragment per role.
+[`examples/claude-native-ui/`](../examples/claude-native-ui/README.md) is the
+checked-in result for `roster:core`, and its README explains how a meld becomes
+a theme.

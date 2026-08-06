@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-engineer",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Wandering",
+      "Surveying",
+      "Sniffing",
+      "Charting",
+      "Wondering",
+      "Peering",
+      "Squaring",
+      "Aligning",
+      "Ruling",
+      "Tallying",
+      "Truing",
+      "Gridding",
+      "Grappling",
+      "Hauling",
+      "Gripping",
+      "Persisting",
+      "Digging",
+      "Anchoring"
+    ]
+  }
+}

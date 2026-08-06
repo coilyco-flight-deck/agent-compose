@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-director",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Charging",
+      "Kindling",
+      "Forging",
+      "Vaulting",
+      "Hammering",
+      "Striking",
+      "Bridging",
+      "Smoothing",
+      "Brokering",
+      "Weaving",
+      "Convening",
+      "Ferrying",
+      "Snipping",
+      "Shearing",
+      "Committing",
+      "Closing",
+      "Choosing",
+      "Trimming"
+    ]
+  }
+}

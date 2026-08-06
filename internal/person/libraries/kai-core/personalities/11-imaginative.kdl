@@ -2,6 +2,7 @@ personality "imaginative" skill="personality-imaginative" color="#b682ed" motif=
     emblem { name "kaleidoscope"; emoji "🔮"; glyph "✧" }
     form { silhouette "bloom"; geometry "radial-facets"; motion "unfolding" }
     sound-mark { timbre "celesta"; contour "expanding-arc"; pulse "shimmering-three" }
+    verb "Refracting" "Kaleidoscoping" "Conjuring" "Dreaming" "Imagining" "Blooming"
     alias "creative"
     alias "inventive"
     alias "visionary"

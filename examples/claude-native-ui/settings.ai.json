@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-ai",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Wandering",
+      "Surveying",
+      "Sniffing",
+      "Charting",
+      "Wondering",
+      "Peering",
+      "Squaring",
+      "Aligning",
+      "Ruling",
+      "Tallying",
+      "Truing",
+      "Gridding",
+      "Squinting",
+      "Doubting",
+      "Probing",
+      "Interrogating",
+      "Testing",
+      "Scrutinizing"
+    ]
+  }
+}

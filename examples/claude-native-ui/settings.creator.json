@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-creator",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Kerning",
+      "Annotating",
+      "Redlining",
+      "Typesetting",
+      "Copyfitting",
+      "Drafting",
+      "Sprouting",
+      "Cultivating",
+      "Coaxing",
+      "Nourishing",
+      "Growing",
+      "Potting",
+      "Welcoming",
+      "Warming",
+      "Comforting",
+      "Cheering",
+      "Softening",
+      "Nestling"
+    ]
+  }
+}

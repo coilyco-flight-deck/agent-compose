@@ -1,6 +1,7 @@
 package color
 
 import (
+	"math"
 	"strings"
 	"testing"
 )
@@ -78,5 +79,46 @@ func TestANSIRendering(t *testing.T) {
 	}
 	if got := ANSI("bogus", "x", true); got != "x" {
 		t.Fatalf("bad hex must degrade to plain text, got %q", got)
+	}
+}
+
+func TestShimmerLightensWithoutChangingHue(t *testing.T) {
+	base := "#ac8fd7"
+	shimmer, err := Shimmer(base)
+	if err != nil {
+		t.Fatalf("shimmer: %v", err)
+	}
+	baseLab, _ := toOKLab(base)
+	shimmerLab, _ := toOKLab(shimmer)
+	if shimmerLab.L <= baseLab.L {
+		t.Errorf("shimmer lightness %.3f is not above base %.3f", shimmerLab.L, baseLab.L)
+	}
+	baseHue := math.Atan2(baseLab.B, baseLab.A)
+	shimmerHue := math.Atan2(shimmerLab.B, shimmerLab.A)
+	if math.Abs(baseHue-shimmerHue) > 0.01 {
+		t.Errorf("shimmer shifted hue from %.3f to %.3f", baseHue, shimmerHue)
+	}
+}
+
+func TestShimmerRejectsBadHex(t *testing.T) {
+	if _, err := Shimmer("purple"); err == nil {
+		t.Fatal("expected an error for a non-hex color")
+	}
+}
+
+func TestNearestPicksTheClosestHue(t *testing.T) {
+	slots := []string{"#dc2626", "#6a9bcc", "#16a34a", "#827dbd"}
+	got, err := Nearest("#ac8fd7", slots)
+	if err != nil {
+		t.Fatalf("nearest: %v", err)
+	}
+	if got != "#827dbd" {
+		t.Errorf("nearest slot is %q, want the purple slot", got)
+	}
+}
+
+func TestNearestNeedsCandidates(t *testing.T) {
+	if _, err := Nearest("#ac8fd7", nil); err == nil {
+		t.Fatal("expected an error with no candidates")
 	}
 }

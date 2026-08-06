@@ -1,0 +1,26 @@
+{
+  "theme": "custom:aos-qa",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Squaring",
+      "Aligning",
+      "Ruling",
+      "Tallying",
+      "Truing",
+      "Gridding",
+      "Clarifying",
+      "Naming",
+      "Declaring",
+      "Unclouding",
+      "Stating",
+      "Unvarnishing",
+      "Squinting",
+      "Doubting",
+      "Probing",
+      "Interrogating",
+      "Testing",
+      "Scrutinizing"
+    ]
+  }
+}

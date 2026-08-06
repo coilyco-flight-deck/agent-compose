@@ -1,43 +1,55 @@
-# Claude Code native UI, design role
+# Claude Code native UI, generated
 
-A hand-built reference bundle for one role, used to check that the surfaces in
-[docs/claude-native-ui-surfaces.md](../../docs/claude-native-ui-surfaces.md) read
-as distinct before generating all eight. Nothing here is generated yet.
+Generated output, not hand-authored. Regenerate with:
+
+```
+agent-compose native-ui --out examples/claude-native-ui
+```
 
 ## Files
 
-* `themes/aos-design.json` - custom theme for the design role. Every override
-  key was validated against the `dark` base token list shipped in Claude Code
-  2.1.221, so no key is silently dropped.
-* `settings.design.json` - the settings fragment that selects the theme and
-  carries the spinner verbs and tips for the same role.
+* `themes/aos-<role>.json` - one custom theme per role, ready to copy into
+  `~/.claude/themes/`.
+* `settings.<role>.json` - the settings fragment that selects that theme and
+  carries the role's spinner verbs.
 
-## Trying it
+## Trying one
 
 1. Copy `themes/aos-design.json` to `~/.claude/themes/aos-design.json`.
-2. Merge `settings.design.json` into `~/.claude/settings.json`, or select the
-   theme interactively with `/theme`.
+2. Select it with `/theme`, or merge `settings.design.json` into
+   `~/.claude/settings.json`.
 
-The theme directory is watched, so an edit to the theme file applies without
+The theme directory is watched, so an edit to a theme file applies without
 restarting. Settings changes need a fresh session.
 
-## Palette derivation
+## How a role becomes a theme
 
-* `#ac8fd7` is the design role color. It carries the prompt border, the Clawd
-  mascot body, and the assistant accent, so the role reads before any text does.
-* `#b682ed` imaginative drives the skill and auto-accept accents.
-* `#e882e1` playful drives the permission and bash-input accents, which is where
-  the interface is asking rather than telling.
-* `#4f9eb8` editorial drives suggestions and memory, the two places the
-  interface is annotating the user rather than acting.
+The role color is the OKLab meld of its personality colors, the same math the
+palette explorer and status line already use. It carries the frame: the prompt
+border, the Clawd mascot body, and the assistant accent.
 
-Text, background, and every diff token stay at base values. Role identity is
-worth a border, never a contrast regression.
+Each personality in the meld then carries one interaction the frame contains.
+
+* The first carries what the agent offers, so it colors skills and auto-accept.
+* The middle carries what the agent asks for, so it colors permissions and the
+  bash input border.
+* The last carries what the agent annotates back, so it colors suggestions and
+  memory.
+
+Text, background, and every diff and severity token stay at base values. Role
+identity is worth a border, never a contrast regression, and a test enforces
+that.
+
+Each role also claims the nearest of Claude Code's eight fixed subagent color
+slots. Two roles can land on the same slot, which is harmless because only one
+role is active per session, but it does mean the slot is not a role identifier.
 
 ## Spinner verbs
 
-The fragment uses `mode: "replace"` so the role voice is unambiguous while
-testing. `append` is the gentler production choice, since it keeps the default
-whimsy and adds the role vocabulary on top. Verbs are grouped by the meld:
+Verbs live on the personality in the person source, six each, so a role's
+spinner vocabulary is the concatenation of its meld in role order. Design gets
 refracting and conjuring from imaginative, whirling and doodling from playful,
 kerning and redlining from editorial.
+
+`replace` is the default, which discards Claude Code's own vocabulary and makes
+the role unmistakable. Pass `--spinner-mode append` to keep both.

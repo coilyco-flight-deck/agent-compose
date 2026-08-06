@@ -1,0 +1,21 @@
+{
+  "name": "AI Engineer (Lucia)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#d98e48",
+    "autoAcceptShimmer": "#fbae68",
+    "bashBorder": "#7d9fd3",
+    "briefLabelClaude": "#8f94ce",
+    "claude": "#8f94ce",
+    "claudeShimmer": "#aeb3ef",
+    "clawd_body": "#8f94ce",
+    "permission": "#7d9fd3",
+    "permissionShimmer": "#9bbff4",
+    "promptBorder": "#8f94ce",
+    "promptBorderShimmer": "#aeb3ef",
+    "purple_FOR_SUBAGENTS_ONLY": "#8f94ce",
+    "remember": "#5d8fd7",
+    "skill": "#d98e48",
+    "suggestion": "#5d8fd7"
+  }
+}

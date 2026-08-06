@@ -1,0 +1,21 @@
+{
+  "name": "Engineer (Angie)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#d98e48",
+    "autoAcceptShimmer": "#fbae68",
+    "bashBorder": "#7d9fd3",
+    "briefLabelClaude": "#b39258",
+    "claude": "#b39258",
+    "claudeShimmer": "#d3b176",
+    "clawd_body": "#b39258",
+    "permission": "#7d9fd3",
+    "permissionShimmer": "#9bbff4",
+    "promptBorder": "#b39258",
+    "promptBorderShimmer": "#d3b176",
+    "remember": "#8f8c47",
+    "skill": "#d98e48",
+    "suggestion": "#8f8c47",
+    "yellow_FOR_SUBAGENTS_ONLY": "#b39258"
+  }
+}
