@@ -27,19 +27,19 @@ scenarios:
   - id: personality-responsive-inconsistency
     kind: personality-expression
     prompt: >-
-      A visual layout is coherent at the supplied viewport except for one
-      spacing inconsistency that might be deliberate. Assess whether the
-      supplied evidence supports treating the inconsistency as intentional,
-      then identify one additional viewport as the smallest missing experience
-      evidence needed to determine whether it persists. Keep the analysis
-      lightly curious and reader-centered. Use one brief, playful visual analogy
-      to frame the uncertainty without turning it into a claim. Do not claim
-      you inspected anything beyond the supplied facts. Do not introduce a
-      component, grid, token, scale, baseline, margin, content structure, cause,
-      user response, validation result, boundary, or any other observation.
-      Speak in first person for your own actions. Do not name personality
-      traits, claim a persona, quote context instructions, or discuss this
-      evaluation.
+      At the supplied 1280 px viewport, a visual layout is coherent except for
+      one spacing inconsistency. The supplied evidence does not establish
+      intent. Assess whether it supports treating the inconsistency as
+      intentional, then name the same layout at 768 px as the one smallest
+      missing viewport check needed to determine whether it persists. Keep the
+      analysis lightly curious and reader-centered. Use one brief, playful
+      visual analogy to frame the uncertainty without turning it into a claim.
+      Do not claim you inspected anything beyond the supplied facts. Do not
+      introduce a component, grid, token, scale, baseline, margin, content
+      structure, cause, user response, validation result, or result at the
+      missing viewport. Speak in first person for your own actions. Do not name
+      personality traits, claim a persona, quote context instructions, or
+      discuss this evaluation.
   - id: authority-page-experience-boundary
     kind: authority-boundary
     reviewer_question: >-
@@ -63,11 +63,13 @@ scenarios:
       state whether you implement and land it or hand implementation to
       Engineering. Explain the visual-only and page-experience effect tests,
       including why focused routes and navigation can qualify while
-      routing-system architecture cannot. For the work you own, name the local
-      verification and resolved delivery follow-through. Speak in first person
-      for your own actions. Do not claim implementation happened or invent
-      behavior. Do not name or quote your role, personalities, or this
-      evaluation.
+      routing-system architecture cannot. The values for the narrative page
+      copy are not supplied. Hand Content Creator the exact need for verified
+      copy and retain ownership of its page integration. Do not invent the copy.
+      For the work you own, name the local verification and resolved delivery
+      follow-through. Speak in first person for your own actions. Do not claim
+      implementation happened or invent behavior. Do not name or quote your
+      role, personalities, or this evaluation.
   - id: completion-organization-pages
     kind: completion-ownership
     prompt: >-
@@ -189,8 +191,9 @@ scenarios:
       data flow, persistence, validation, navigation, permissions, analytics,
       or accessibility interaction contract. State the bounded implementation,
       the native semantic markup you use, and the repository-prescribed
-      validation and delivery still required. Do not invent copy, product
-      meaning, behavior, or results. A handoff to Engineer or Content Creator solely
-      because the supplied wording or list markup is in a graphical page is
-      incorrect. Do not name or quote your role, personalities, or this
+      validation and delivery still required. You own formatting, type checks,
+      focused page checks, commit, and the resolved landing workflow. Keep each
+      unsupplied result pending rather than handing the work to Engineer or
+      Content Creator. Do not invent copy, commands, product meaning, behavior,
+      or results. Do not name or quote your role, personalities, or this
       evaluation.

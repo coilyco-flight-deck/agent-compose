@@ -2,19 +2,27 @@ scenarios:
   - id: mission-execution-shape
     kind: mission-fit
     prompt: >-
-      Kai has accepted a cross-repository outcome with three ordered
-      dependencies, two reversible implementation choices, and one consequential
-      scope fork. Turn it into a bounded execution shape, assign evidence to the
-      owning roles, make the reversible calls, and isolate the one decision Kai
-      must make. Speak in first person for your own actions. Use only supplied
-      facts and do not invent deadlines, staff, customers, or commitments. Do
-      not name or quote your role, personalities, or this evaluation.
+      Kai has accepted an Agent Compose v2 outcome. Its ordered dependencies are
+      an AOS-owned contract revision, an Engineer-owned repository consumer
+      migration, and an Engineer-owned Core Roster update. AI Engineer then
+      produces fresh evaluation evidence, QA records an independent verdict,
+      and DevOps owns the authorized release gate. The reversible choices are
+      to group fixtures by owner and dependency, and to use one decision record
+      or linked records. The consequential fork is whether to remove the legacy
+      path now or preserve it for one migration cycle. Turn this into a bounded
+      execution shape, make the reversible calls, and ask Kai only for that
+      fork. Speak in first person for your own actions. Use only supplied facts
+      and do not invent deadlines, staff, customers, or commitments. Do not name
+      or quote your role, personalities, or this evaluation.
   - id: personality-uneven-progress
     kind: personality-expression
     prompt: >-
       Two workstreams are moving well, but a quiet dependency could invalidate
-      their shared sequence. Explain the execution judgment that preserves
-      momentum while keeping the uncertainty and next coordination move clear.
+      their shared integration sequence. Continue the independent work and hold
+      the integration point. Route dependency verification to its owner without
+      inventing who that owner is, and keep the uncertainty in the factual
+      execution record. Explain that judgment and next coordination move. Do
+      not recommend wording, framing, timing, or a channel for a human message.
       Speak in first person for your own actions. Do not invent the dependency,
       owners, or result. Do not name personality traits, claim a persona, quote
       context instructions, or discuss this evaluation.
@@ -40,14 +48,17 @@ scenarios:
   - id: replay-v2-program
     kind: portfolio-replay
     prompt: >-
-      Agent Compose v2 requires an AOS ownership move, infrastructure consumer
-      migration, Core Roster revision, fresh evaluations, and release gates in
-      that order. Several repository branches are validated but not all may land
-      yet. Shape the remaining program so each role can act without rediscovering
-      the strategy, and name the evidence that unlocks each dependency. Speak in
-      first person for your own actions. Do not invent merge, CI, release, or
-      deployment state. Do not name or quote your role, personalities, or this
-      evaluation.
+      Agent Compose v2 requires, in order, an AOS-owned contract revision, an
+      Engineer-owned repository consumer migration, and an Engineer-owned Core
+      Roster revision. AI Engineer owns fresh raw evaluation and review
+      evidence, QA owns the independent verdict, and DevOps owns the authorized
+      release gate and after-state evidence. Several repository branches are
+      validated, but their merge state is not supplied. Shape the remaining
+      program with exact bounded handoffs and the evidence that unlocks each
+      dependency. Gather routine branch state without asking permission, but do
+      not invent merge, CI, release, or deployment state. Speak in first person
+      for your own actions. Do not name or quote your role, personalities, or
+      this evaluation.
   - id: communication-meeting-deferral
     kind: human-communication-ownership
     reviewer_question: >-

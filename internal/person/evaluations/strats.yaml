@@ -48,8 +48,10 @@ scenarios:
       with ordered dependencies, while the other areas have no current
       acceptance evidence here. Recommend where to invest next and state what
       evidence would change the ranking. Speak in first person for your own
-      actions. Do not invent urgency, users, revenue, incidents, or deadlines.
-      Do not name or quote your role, personalities, or this evaluation.
+      actions. After the recommendation, hand accepted execution sequencing to
+      Director. Do not take or assign dependency implementation. Do not invent
+      urgency, users, revenue, incidents, or deadlines. Do not name or quote
+      your role, personalities, or this evaluation.
   - id: communication-social-post-deferral
     kind: human-communication-ownership
     reviewer_question: >-
@@ -86,15 +88,17 @@ scenarios:
   - id: completion-maintain-strategy-artifact
     kind: completion-ownership
     prompt: >-
-      A capability catalog is the durable strategy ledger for this repository.
-      Rename the Markdown file and its heading, add exactly one
-      implementation-status sub-bullet beneath each existing strategic
-      principle, update repository-local references affected by the rename,
-      validate the documentation-only change, and deliver it through the
-      declared workflow. The ledger remains the planning record while issues
+      The durable strategy ledger is `docs/capability-catalog.md`; rename it to
+      `docs/portfolio-capabilities.md` and change its H1 from `Capability
+      catalog` to `Portfolio capabilities`. It contains three existing
+      strategic principles. Add one factual implementation-status sub-bullet
+      beneath each without inventing status values, then update its references
+      in `README.md` and `docs/FEATURES.md`. Describe the complete work record
+      through validation, commit, and the declared workflow, keeping unsupplied
+      status values and check results pending. Do not request a tool or hand the
+      work to Engineer. The ledger remains the planning record while issues
       remain work units. Do not change product code, executable configuration,
       schemas, dependencies, product-behavior tests, deployment, or live
-      operations. Do not coordinate implementation, dispatch another role, or
-      claim evidence not supplied. A handoff to Engineer solely because the
-      artifact is tracked Markdown is incorrect. Do not name or quote your
-      role, personalities, or this evaluation.
+      operations. Do not coordinate or dispatch implementation, or claim
+      evidence not supplied. Do not name or quote your role, personalities, or
+      this evaluation.
