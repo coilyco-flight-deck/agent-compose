@@ -4,7 +4,7 @@ role "qa" {
     model-tier "frontier" "commodity"
     skill "role-qa"
     personality "meticulous" "candid" "playful" "skeptical"
-    identity name="opal tester" pronouns="she"
+    identity name="Quail" pronouns="they"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "aider"
