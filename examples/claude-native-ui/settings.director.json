@@ -22,5 +22,14 @@
       "Choosing",
       "Trimming"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Shape decisions across the real project portfolio.",
+      "Darren holds the Director charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: bold, diplomatic, decisive."
+    ]
   }
 }

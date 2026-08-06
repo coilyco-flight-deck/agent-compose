@@ -22,5 +22,14 @@
       "Digging",
       "Anchoring"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Build and land work across the real repository portfolio.",
+      "Angie holds the Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: curious, meticulous, tenacious."
+    ]
   }
 }

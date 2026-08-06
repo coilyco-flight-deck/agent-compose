@@ -22,5 +22,14 @@
       "Choosing",
       "Trimming"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Decide where to invest attention across the real portfolio.",
+      "Saiya holds the Portfolio Strategist charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: curious, grounded, decisive."
+    ]
   }
 }

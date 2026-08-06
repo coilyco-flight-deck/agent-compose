@@ -52,4 +52,13 @@ refracting and conjuring from imaginative, whirling and doodling from playful,
 kerning and redlining from editorial.
 
 `replace` is the default, which discards Claude Code's own vocabulary and makes
-the role unmistakable. Pass `--spinner-mode append` to keep both.
+the role unmistakable. Pass `--spinner-mode append` to keep both. No authored
+verb repeats one of the harness's own 184, so replace mode always reads as the
+role, and a test holds that line.
+
+## Spinner tips
+
+Three per role: the purpose, the charter lock naming the seat, and the meld. A
+tip lands while the reader is waiting rather than reading, so it carries
+doctrine and not voice. `excludeDefault` stays false, because Claude Code's own
+tips teach the harness and a role has no business hiding them.

@@ -22,5 +22,14 @@
       "Copyfitting",
       "Drafting"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Shape experiences across real projects and communities.",
+      "Delphi holds the Designer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: imaginative, playful, editorial."
+    ]
   }
 }

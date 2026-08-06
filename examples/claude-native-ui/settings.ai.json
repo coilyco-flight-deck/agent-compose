@@ -22,5 +22,14 @@
       "Testing",
       "Scrutinizing"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Make AI models and agents useful, reliable, and efficient on real hardware.",
+      "Lucia holds the AI Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: curious, meticulous, skeptical."
+    ]
   }
 }

@@ -22,5 +22,14 @@
       "Testing",
       "Scrutinizing"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Independently verify work across the real repository portfolio.",
+      "Quail holds the QA charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: meticulous, candid, skeptical."
+    ]
   }
 }

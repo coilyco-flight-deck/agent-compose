@@ -22,5 +22,14 @@
       "Dwelling",
       "Reflecting"
     ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Operate the real hosted systems and release surfaces.",
+      "Olaf holds the DevOps charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: protective, grounded, reflective."
+    ]
   }
 }

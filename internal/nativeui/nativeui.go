@@ -6,6 +6,7 @@ package nativeui
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -41,10 +42,19 @@ type SpinnerVerbs struct {
 	Verbs []string `json:"verbs"`
 }
 
+// SpinnerTips adds role doctrine to the waiting surface. ExcludeDefault stays
+// false so the harness keeps teaching its own features.
+type SpinnerTips struct {
+	ExcludeDefault bool     `json:"excludeDefault"`
+	Tips           []string `json:"tips"`
+}
+
 // Settings is the fragment merged into ~/.claude/settings.json.
 type Settings struct {
-	Theme        string       `json:"theme"`
-	SpinnerVerbs SpinnerVerbs `json:"spinnerVerbs"`
+	Theme              string       `json:"theme"`
+	SpinnerVerbs       SpinnerVerbs `json:"spinnerVerbs"`
+	SpinnerTipsEnabled bool         `json:"spinnerTipsEnabled"`
+	SpinnerTips        SpinnerTips  `json:"spinnerTipsOverride"`
 }
 
 // Bundle is everything one role contributes to the native surfaces.
@@ -136,8 +146,26 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 				Mode:  opts.spinnerMode(),
 				Verbs: verbsFor(p, role),
 			},
+			SpinnerTipsEnabled: true,
+			SpinnerTips:        SpinnerTips{Tips: tipsFor(role)},
 		},
 	}, nil
+}
+
+// tipsFor states the charter, the lock on it, and the meld. A tip lands while
+// the reader is waiting, so it carries doctrine rather than voice.
+func tipsFor(role person.Role) []string {
+	tips := []string{role.Purpose}
+	if role.Identity != nil && role.Identity.Name != "" {
+		tips = append(tips, fmt.Sprintf(
+			"%s holds the %s charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+			role.Identity.Name, role.DisplayName,
+		))
+	}
+	if len(role.Personalities) > 0 {
+		tips = append(tips, "Meld: "+strings.Join(role.Personalities, ", ")+".")
+	}
+	return tips
 }
 
 // themeOverrides assigns the role color to the frame and each personality to
