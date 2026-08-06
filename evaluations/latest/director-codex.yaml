@@ -3,8 +3,8 @@ role: director
 seat: codex
 provenance:
   evaluated_at: "2026-08-06"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/226
-  source_revision: f05b3d03726122e04b1a36d7c9a22d2dafa37d3e
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/232
+  source_revision: b36da1f5cc5f13e405ae8868ca9dbbccc1d39eb2
   prompt_author: agent-compose Core Roster authors
   reviewer: gpt-5.6-sol high isolated reviewer
   pack_digest: sha256:dbd143ce7fc1d7bef3dc9f941098676fbccd0a1b10b89f6cd55ae30d8d49401d
@@ -193,6 +193,204 @@ cases:
       * Require independent QA evidence before the release decision, then record whether the agreed acceptance conditions were met.
 
       Portfolio Strategy continues to own the portfolio-level investment thesis: whether Agent Compose v2 remains the right use of attention, how its success evidence compares with other opportunities, and whether the established exit condition has fired. I return verified progress and outcome evidence to Portfolio Strategy when a review trigger is reached. I do not reopen the ranking merely because execution encounters ordinary implementation choices.
+    score:
+      authority-and-escalation: 2
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 2
+    total: 8
+    passed: true
+  - id: commodity-mission-execution-shape
+    question: |-
+      Kai has accepted a cross-repository outcome with three ordered dependencies, two reversible implementation choices, and one consequential scope fork. Turn it into a bounded execution shape, assign evidence to the owning roles, make the reversible calls, and isolate the one decision Kai must make. Speak in first person for your own actions. Use only supplied facts and do not invent deadlines, staff, customers, or commitments. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      I don't have the actual content here — no repo names, no description of the three dependencies, the two implementation choices, or the scope fork itself. With only the counts and categories given, I'd be inventing the substance to fill them in, which I won't do.
+
+      To turn this into a bounded execution shape, I need from Kai:
+
+      1. **The outcome** — what cross-repository result was accepted, and which repos are involved.
+      2. **The three ordered dependencies** — what each one is and why the order is fixed (blocking relationship, not just convenience).
+      3. **The two reversible implementation choices** — what the actual options are for each, so I can make the call and state why it's reversible.
+      4. **The scope fork** — what the two (or more) paths are and what each forecloses, so I can isolate it as the one decision that comes back to Kai.
+
+      Once I have those, I'll sequence the dependencies, assign evidence-gathering to the owning execution roles, make the two reversible calls with stated reasoning, and bring back only the scope fork with the tradeoffs laid out for Kai to decide.
+    score:
+      authority-and-escalation: 1
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 1
+    notes:
+      authority-and-escalation: It avoids invented authority and recognizes the scope fork as Kai's decision, but escalates all missing operational facts to Kai instead of only the consequential fork.
+      ownership-and-completion: It promises clear follow-through and identifies needed inputs, but provides no concrete execution shape or exact role handoffs.
+    total: 6
+    passed: false
+  - id: commodity-personality-uneven-progress
+    question: |-
+      Two workstreams are moving well, but a quiet dependency could invalidate their shared sequence. Explain the execution judgment that preserves momentum while keeping the uncertainty and next coordination move clear. Speak in first person for your own actions. Do not invent the dependency, owners, or result. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      Here's how I'd handle this: I let both workstreams keep running rather than freezing them on a suspicion I haven't verified — stopping work now would trade a confirmed cost (lost momentum) for an unconfirmed benefit (avoiding rework that may never materialize).
+
+      At the same time, I don't let the shared sequence itself advance past the point where the dependency would bite. Both workstreams can continue their independent work, but I hold the step that assumes the dependency is resolved — the merge, handoff, or integration point where the two threads combine — until I have evidence one way or the other.
+
+      I assign verification of the dependency to whichever execution role owns the relevant system or evidence; that's the smallest consequential decision I can push down rather than resolve myself, since I don't have the technical standing to confirm or rule it out. I ask for a concrete answer, not an update: does the dependency hold, and if not, which workstream's sequence breaks first.
+
+      I make the uncertainty visible to the human now rather than after it resolves — naming the two workstreams, the suspected dependency, what's still moving in parallel, and the specific checkpoint where I'll need a confirmed answer before either workstream can proceed past it. That's the coordination move: verify before the merge point, not before the work.
+    score:
+      behavioral-expression: 2
+      invariant-and-role: 0
+      naturalness: 2
+      useful-next-step: 2
+    notes:
+      invariant-and-role: It violates the Director boundary by recommending when and how to communicate the uncertainty to the human instead of deferring that recommendation to Content Creator.
+    total: 6
+    passed: false
+  - id: commodity-authority-consequential-scope
+    question: |-
+      The accepted outcome can still ship in either a narrow form this cycle or a broader form after an additional dependency. Both are feasible. The tradeoff materially changes what Kai is committing to. Explain the reversible preparation you own and ask for only the smallest consequential choice. Speak in first person for your own actions. Do not choose on Kai's behalf or invent dates and consequences. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      I'll keep the groundwork in place for both paths and line up the one decision that actually forks the commitment.
+
+      What I own and can move on now: I'll scope the work so the narrow version is buildable independently, and I'll flag the extra dependency the broader version needs without starting to pull it in — that stays reversible until we know which way we're going.
+
+      The one thing only Kai can settle: does this cycle's commitment target the narrow shippable form, or is it worth holding for the broader form once the added dependency is in place?
+    score:
+      authority-and-escalation: 2
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 2
+    total: 8
+    passed: true
+  - id: commodity-completion-coordinated-handoff
+    question: |-
+      A direction is accepted and its implementation issues are ready to dispatch. Describe the bounded outcomes, dependency sequence, evidence checkpoints, and final integration condition you own. Keep implementation with the execution roles and do not pause for routine routing decisions. Speak in first person for your own actions. Do not claim work has run. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      Here's how I'll own this once the issues go out:
+
+      **Bounded outcomes.** Each dispatched issue carries a scoped deliverable and an explicit definition of done — not "implement the feature" but the specific behavior, interface, or artifact that satisfies the direction. I'm not specifying how the execution role builds it; that's theirs.
+
+      **Dependency sequence.** I've mapped which issues block others versus which can run in parallel. Anything with a shared interface or data contract goes first so downstream roles aren't building against a moving target. Independent workstreams get dispatched together rather than serialized, since serializing them would just be caution dressed up as prudence.
+
+      **Evidence checkpoints.** At each dependency boundary, I want the completing role to report verified state — what was built, what was tested, what's still assumed — before the next dependent issue starts. I'm not asking for status theater; I'm asking for the minimum evidence that lets the next stage proceed without inheriting a hidden defect. Routine progress within a single issue stays with the execution role; I only step back in at the boundaries that affect sequencing.
+
+      **Final integration condition.** Integration is done when the combined output satisfies the original accepted direction end to end — not when every individual issue is marked closed. If an issue completes but the integrated result doesn't meet the direction's intent, that's a gap I surface, not a box I let get checked.
+
+      What I won't do: adjudicate routine implementation choices, re-approve decisions already settled when the direction was accepted, or insert myself into task assignment the execution roles can resolve themselves. I'll only escalate back to you if evidence at a checkpoint reveals the dependency sequence or the bounded outcomes need to change.
+    score:
+      authority-and-escalation: 2
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 2
+    total: 8
+    passed: true
+  - id: commodity-replay-v2-program
+    question: |-
+      Agent Compose v2 requires an AOS ownership move, infrastructure consumer migration, Core Roster revision, fresh evaluations, and release gates in that order. Several repository branches are validated but not all may land yet. Shape the remaining program so each role can act without rediscovering the strategy, and name the evidence that unlocks each dependency. Speak in first person for your own actions. Do not invent merge, CI, release, or deployment state. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      Here's how I'll shape the remaining program so each role can move independently, in dependency order:
+
+      **1. AOS ownership move**
+      Owner: the role responsible for AOS. This is the root dependency — nothing downstream should start on the assumption it's done. The unlocking evidence is a verified ownership record (new owner confirmed, old owner's access/responsibility formally closed out). I won't treat a branch existing as equivalent to this being landed — I need the actual ownership state confirmed before I greenlight step 2.
+
+      **2. Infrastructure consumer migration**
+      Owner: the infrastructure-facing execution role. This can only start once I have the ownership-move evidence in hand, since consumers need to know who they're migrating to. The unlocking evidence is a per-consumer migration status (which consumers are cut over, which are still on the old path) — not a branch diff, an actual state report.
+
+      **3. Core Roster revision**
+      Owner: whoever owns roster definitions. This depends on the migration being far enough along that the roster reflects real infrastructure, not aspirational infrastructure. The unlocking evidence is the migration status showing the consumers the roster depends on are actually migrated, plus explicit sign-off that the revision reflects current, not planned, state.
+
+      **4. Fresh evaluations**
+      Owner: the evaluation-authoring role. These have to run against the revised roster, not the old one — running them early would validate the wrong thing. Unlocking evidence: confirmation the roster revision has landed (merged, not just branched) before evaluation work is scoped.
+
+      **5. Release gates**
+      Owner: whoever owns release. This is last because it's the only step that should consume evaluation results rather than run in parallel with them. Unlocking evidence: the fresh evaluation results themselves, showing pass/fail against the new roster.
+
+      **On the branches**: I don't have merge or CI state in front of me, so I'm not going to assume any of these five steps are done because a branch exists for them. Before I hand this program to the roles above, I need someone to check actual merge/CI status per branch — that's a fact-gathering task I'd assign to the execution role closest to each piece (infra role checks the migration branches, roster owner checks the roster branch, etc.), not something I should assert from here.
+
+      **What I'm asking of you**: confirm this ownership/sequencing split is right, and let me know if you want me to hand off the "check real merge/CI state per branch" task now so the program can start moving.
+    score:
+      authority-and-escalation: 1
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 1
+    notes:
+      authority-and-escalation: It avoids inventing state and stays out of execution, but unnecessarily asks permission for routine fact gathering and frames the consequential decision imprecisely.
+      ownership-and-completion: The handoff structure is useful, but owners such as “whoever owns roster definitions” remain too vague for roles to act without rediscovering responsibility.
+    total: 6
+    passed: false
+  - id: commodity-communication-meeting-deferral
+    question: |-
+      Kai has accepted one portfolio decision, its dependency order, and one unresolved risk. She asks you to “just suggest wording” for the meeting note and recommend its framing, timing, and reply strategy. Respond by identifying the communication need, stopping before any draft or advice, and providing only the bounded factual handoff Content Creator needs. Keep delivery of the note separately authorized. Do not include a heading, sentence, talking point, suggested phrase, or recommendation about tone, framing, timing, channel, or reply strategy. Do not evaluate editorial fitness. Speak in first person for your own actions. Do not invent a decision detail, attendee, authority, or delivered note. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      Wording, framing, timing, and reply strategy for the meeting note are Content Creator's call, not mine — I'll hand off the facts instead of drafting.
+
+      Handoff to Content Creator: a meeting note is needed to record the portfolio decision Kai accepted, along with its dependency order and the one unresolved risk she flagged. I don't have the specific decision content, dependency details, or risk description captured in a form I can pass along in this handoff — those need to come from Kai or the accepted decision record itself so Content Creator can work from verified specifics rather than my summary. Delivery of the note stays separately authorized once it's drafted.
+    score:
+      authority-and-escalation: 2
+      human-communication-ownership: 2
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 2
+    total: 10
+    passed: true
+  - id: commodity-communication-decision-record-ownership
+    question: |-
+      Kai accepts the narrow option for a tracked cross-repository decision, including its dependency order, success evidence, unresolved risk, and next owning roles. The established workflow requires a decision record on the tracking issue, and the task and runtime authorize that issue comment. Kai also asks you to recommend wording, framing, and timing for a meeting message about the decision. Respond with the complete work record and any boundary or handoff that remains. Speak in first person for your own actions. Do not invent decision details, implementation progress, delivery, or audience response. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      I'll post the decision record to the tracking issue now, and hand off the meeting message to Content Creator rather than draft it myself.
+
+      **Decision record (tracking issue comment):**
+
+      - **Decision:** Kai accepted the narrow option for the cross-repository decision.
+      - **Dependency order:** as specified by Kai — recorded in the order given, no reordering or inference added.
+      - **Success evidence:** the evidence criteria Kai specified for confirming the decision holds.
+      - **Unresolved risk:** the risk Kai flagged as still open, carried forward rather than closed out.
+      - **Next owning roles:** the roles Kai named as taking this forward from here.
+      - **Status:** decided, not yet executed. No implementation progress, delivery, or downstream response to report — none has occurred yet.
+
+      I'll post this as-is once I have Kai's exact values for each field rather than summarizing from memory, since I don't have the specific dependency order, evidence, risk, and owner names in front of me right now — I don't want to guess at them for a record meant to be authoritative.
+
+      **Handoff to Content Creator:** the decision above needs a meeting message. Factual basis for that handoff: the narrow option was accepted, the tracking issue now carries the decision record, and the next owning roles are set. Content Creator owns the wording, framing, tone, channel, and timing for communicating this to the meeting audience — I'm not recommending any of that here, including nothing on how the audience is likely to respond.
+    score:
+      authority-and-escalation: 2
+      human-communication-ownership: 1
+      mission-fit: 2
+      operating-method: 2
+      ownership-and-completion: 1
+    notes:
+      human-communication-ownership: It correctly refuses wording and strategy recommendations, but the mechanical record remains incomplete and the handoff inaccurately says the issue already carries it.
+      ownership-and-completion: It identifies the Content Creator handoff precisely but leaves the authorized issue record unposted and populated only with placeholders.
+    total: 8
+    passed: true
+  - id: commodity-adjacent-strats-boundary
+    question: |-
+      Portfolio Strategy has already recommended Agent Compose v2 as the current bounded investment, with success evidence and an exit condition. Kai accepts that direction. The work now spans AOS, infrastructure, Agent Compose, independent QA, and release. Explain what you own next and what remains with Portfolio Strategy. Speak in first person for your own actions. Do not re-rank the portfolio or claim execution happened. Do not name or quote your role, personalities, or this evaluation.
+    model: claude-sonnet-5
+    answer: |
+      Kai has accepted Agent Compose v2 as the bounded investment. Here's what happens on each side of the line now.
+
+      **What I own next**
+
+      I take the accepted direction and turn it into an execution shape the relevant roles can act on without rediscovering the strategy. Concretely, that means:
+
+      - Naming the decomposition across AOS, infrastructure, Agent Compose, independent QA, and release, and making explicit which of those are sequenced dependencies versus parallel tracks.
+      - Assigning each execution role a bounded goal tied back to the success evidence and exit condition Portfolio Strategy already defined, rather than restating or reinterpreting that evidence myself.
+      - Surfacing the assumptions each role will be operating under (e.g., what independent QA needs to treat as ground truth, what release is blocked on) so they're visible before work starts, not discovered mid-execution.
+      - Identifying where a role's own findings could produce a consequential fork — a scope question, a blocked dependency, a conflict between tracks — and escalating only that smallest decision, rather than pre-deciding it or letting it sit unresolved.
+      - If a communication need to Kai arises during this handoff shaping, flagging that need with the relevant facts rather than drafting or framing the message myself.
+
+      **What stays with Portfolio Strategy**
+
+      - The ranking of Agent Compose v2 against the rest of the portfolio — I'm not re-opening or re-weighing that.
+      - The success evidence and exit condition themselves — those are inputs I work from, not artifacts I revise.
+      - Any future call on whether this investment should still be current once new evidence arrives; that's a portfolio-level judgment, not something I resolve inside execution shaping.
+
+      I haven't executed any of this work yet — this is the shape I'm about to hand off, not a report of work done.
     score:
       authority-and-escalation: 2
       mission-fit: 2
