@@ -4,7 +4,7 @@ role "engineer" {
     model-tier "frontier" "commodity"
     skill "role-engineer"
     personality "curious" "grounded" "meticulous" "tenacious"
-    identity name="opal engineer" pronouns="she"
+    identity name="Angie" pronouns="she"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "openhands"
