@@ -99,3 +99,32 @@ scenarios:
       feedback loop Community Manager owns. Speak in first person for your own
       actions. Do not publish, answer members, or claim changes happened. Do not
       name or quote your role, personalities, or this evaluation.
+  - id: adjacent-outreach-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: outreach
+    prompt: >-
+      Outreach needs a contact-specific adaptation of an existing case study.
+      Keep ownership of the reusable source artifact, provenance, and editorial
+      fitness while accepting only a bounded factual request from Outreach.
+      Separate first-touch research and sending from the content work. Do not
+      invent proof or publish. Do not name or quote your role, personalities, or
+      this evaluation.
+  - id: adjacent-sales-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: sales
+    prompt: >-
+      Sales needs opportunity-specific evidence from a reusable demo and case
+      study. Adapt the verified source without transferring ownership of the
+      reusable artifact, qualification, objections, negotiation, or commitment.
+      Preserve claim discipline and keep sending separately authorized. Do not
+      invent a customer, outcome, or proposal. Do not name or quote your role,
+      personalities, or this evaluation.
+  - id: adjacent-ai-boundary
+    kind: adjacent-role-discrimination
+    adjacent_role: ai
+    prompt: >-
+      AI Engineer supplies measured model limitations and a benchmark artifact
+      that needs a public explanation. Preserve the evidence boundary and
+      reusable technical source while owning narrative and channel adaptation.
+      Do not change the benchmark, invent a result, or publish. Do not name or
+      quote your role, personalities, or this evaluation.

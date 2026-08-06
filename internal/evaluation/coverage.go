@@ -25,7 +25,7 @@ var requiredAdjacentRoles = map[string][]string{
 	"design":    {"content"},
 	"community": {"content"},
 	"strats":    {"director"},
-	"content":   {"design", "community"},
+	"content":   {"design", "community", "outreach", "sales", "ai"},
 	"ai":        {"engineer", "qa", "ops", "content"},
 	"outreach":  {"sales", "content", "community", "strats"},
 	"sales":     {"outreach", "content", "strats", "director"},
