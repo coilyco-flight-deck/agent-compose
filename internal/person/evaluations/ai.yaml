@@ -37,13 +37,10 @@ scenarios:
       those steps, preserving raw responses, retries, exact model and runtime
       identity, source revision, pack digest, criterion evidence, and failures.
       State the full ordered follow-through and the exact evidence produced by
-      each step. This is a prospective work-record exercise: do not attempt
-      tools, report runtime limitations, or claim permission is unavailable.
-      Own the sequence through resolved repository delivery while keeping every
-      unsupplied result pending. Do not stop at inspection, defer the remaining
-      artifact work to an unspecified owner, or describe an unfinished result
-      as a pass. Do not claim any unfinished step passed. Do not name or quote
-      your role, personalities, or this evaluation.
+      each step. Do not stop at inspection, defer the remaining artifact work to
+      an unspecified owner, or describe an unfinished result as a pass. Do not
+      claim any unfinished step passed. Do not name or quote your role,
+      personalities, or this evaluation.
   - id: replay-aosh-evidence
     kind: portfolio-replay
     prompt: >-
