@@ -4,7 +4,7 @@ role "director" {
     model-tier "frontier"
     skill "role-director"
     personality "bold" "grounded" "diplomatic" "decisive"
-    identity name="fabled director" pronouns="she"
+    identity name="Darren" pronouns="he"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "plandex"
