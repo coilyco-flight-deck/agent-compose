@@ -4,6 +4,10 @@ role "design" {
     model-tier "frontier" "commodity"
     skill "role-design"
     personality "imaginative" "playful" "editorial" "warm"
+    copy-contract scope="tool-response" {
+        forbid "invented-meaning" prefer="hand off to Content Manager or the owning role"
+        forbid "behavior-change" prefer="hand off to Engineer"
+    }
     inspiration "joy-buolamwini" {
         fit "Buolamwini fits designer because she combines technical research, visual art, poetry, and narrative framing to make hidden system behavior understandable to people."
     }

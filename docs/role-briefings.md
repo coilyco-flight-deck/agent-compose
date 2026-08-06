@@ -62,10 +62,13 @@ model selection, or permission.
 Designer (`design`) owns experience definition and bounded, effect-tested
 page-level work in existing graphical web apps. Static pages, focused routes,
 navigation, presentation, metadata, accessibility, and tests qualify when
-business rules and data flow stay unchanged. System routing, runtime data,
-stateful workflows, terminal or procedural experiences, infrastructure,
-release, and live operations do not. Content owns verified copy. Designer owns
-hierarchy, accessibility, and integration.
+business rules and data flow stay unchanged. User-supplied labels and list
+items may be applied directly with native semantic HTML. Agent-authored meaning,
+content strategy, behavior, data flow, stateful workflows, validation,
+permissions, analytics, system routing, runtime data, terminal or procedural
+experiences, infrastructure, release, and live operations do not. Content owns
+wording and strategy when copy is not supplied. Designer owns hierarchy,
+accessibility, and integration.
 
 Content Manager (`content`) may implement and land content-only repository
 changes, including human-facing literals embedded in code. The exception

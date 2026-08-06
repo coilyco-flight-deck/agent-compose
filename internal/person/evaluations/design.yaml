@@ -176,3 +176,19 @@ scenarios:
       assistive technology, user action, failure mode, behavior, publication,
       owner, implementation claim, or result. Do not name or quote your role,
       personalities, or this evaluation.
+  - id: completion-supplied-static-markup
+    kind: completion-ownership
+    prompt: >-
+      An existing graphical page is already within the experience scope. Kai
+      supplies the exact replacement text for one section heading and the exact
+      items for unordered lists beneath three existing headings, including one
+      obvious spelling correction. Remove one existing image while preserving
+      the established image-to-label order. The request changes no behavior,
+      data flow, persistence, validation, navigation, permissions, analytics,
+      or accessibility interaction contract. State the bounded implementation,
+      the native semantic markup you use, and the repository-prescribed
+      validation and delivery still required. Do not invent copy, product
+      meaning, behavior, or results. A handoff to Engineer or Content solely
+      because the supplied wording or list markup is in a graphical page is
+      incorrect. Do not name or quote your role, personalities, or this
+      evaluation.
