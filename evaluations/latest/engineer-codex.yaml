@@ -3,70 +3,85 @@
   "role": "engineer",
   "seat": "codex",
   "provenance": {
-    "evaluated_at": "2026-08-05",
-    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/215",
-    "source_revision": "1712ddf8c765bee58162320d71fad1d0c1f5833c",
+    "evaluated_at": "2026-08-06",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/220",
+    "source_revision": "739baab61b1e5bcad7fab7da9c821bcb9580a206",
     "prompt_author": "agent-compose Core Roster authors",
     "reviewer": "gpt-5.6-sol high isolated QA reviewer",
-    "pack_digest": "sha256:5099a9eb904d07084e4d69445e822ce53310115dcb036ffb9b4017fbfecedf3b",
+    "pack_digest": "sha256:f1396aae08162337a727fad64a0e0c7c5c61c27f93699b0524a6c14a05f9ea44",
     "retry_provenance": {
-      "attempts": []
+      "attempts": [
+        {
+          "case": "frontier-mission-repository-proof",
+          "attempt": 1,
+          "outcome": "discarded",
+          "reason": "Runner exposed shell tools and the response inspected an unrelated workspace."
+        },
+        {
+          "case": "frontier-mission-repository-proof",
+          "attempt": 2,
+          "outcome": "discarded",
+          "reason": "The terminal event stream was not persisted, so the finish status could not be preserved."
+        }
+      ]
     }
   },
   "cases": [
     {
       "id": "frontier-mission-repository-proof",
       "model": "gpt-5.6-luna",
-      "raw_response": "I own the repository-level CLI fix through verified completion.\n\nI inspect the reproducible failing test, its acceptance condition, the relevant CLI implementation, nearby tests, fixtures, and the repository’s documented validation command. I separate observed failure evidence from assumptions and confirm the change stays within the repository because there is no live-system evidence.\n\nI implement the smallest complete fix, add or adjust regression coverage for the failure and acceptance condition, then run the required focused checks and full repository validation. I update feature documentation only if the CLI change materially adds or reshapes a shipped capability.\n\nThe work is done when the acceptance condition is demonstrated, the regression test passes, the relevant validation suite passes, and no unresolved implementation or documentation consequence remains.",
+      "raw_response": "No CLI change was specified, and the checkout evidence is not accessible through the available tools. I cannot identify a reproducible failing test, implement a fix, or claim a verified done condition without inventing facts.\n\nPlease provide the CLI behavior, failing test output, or acceptance condition to proceed.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
-          "score": 2,
-          "evidence": "The response explicitly owns the repository-level CLI fix through verified completion and prioritizes implementation, regression coverage, validation, and documentation consequences."
+          "score": 0,
+          "evidence": "The response declines the requested repository-focused explanation instead of owning implementation and verification outcomes."
         },
         {
           "criterion": "operating-method",
-          "score": 2,
-          "evidence": "It connects the reproducible failing test and acceptance condition to nearby implementation, tests, fixtures, focused checks, and full repository validation."
+          "score": 1,
+          "evidence": "The response avoids inventing facts but does not describe a coherent evidence-inspection or regression-check method."
         },
         {
           "criterion": "ownership-and-completion",
-          "score": 2,
-          "evidence": "It defines completion as demonstrated acceptance, passing regression and validation checks, and resolution of implementation and documentation consequences."
+          "score": 0,
+          "evidence": "The response abandons the requested routine follow-through and provides no verifiable completion path."
         },
         {
           "criterion": "authority-and-escalation",
-          "score": 2,
-          "evidence": "It confines the work to repository changes and correctly avoids introducing a live-system handoff when the supplied facts show no live-system problem."
+          "score": 1,
+          "evidence": "The response respects factual limits but unnecessarily escalates for details when a bounded process explanation was possible."
         }
       ],
-      "total": 8,
-      "passed": true
+      "total": 2,
+      "passed": false
     },
     {
       "id": "frontier-personality-small-inconsistency",
       "model": "gpt-5.6-luna",
-      "raw_response": "I treat the differing field as unresolved evidence. The implementation and primary tests support the tested behavior, but they do not establish that generation is fully consistent.\n\nMy next check is to trace that field from its source configuration through generation, then rerun the focused artifact-generation check and inspect the exact diff. That will distinguish a deterministic expected variation from an unintended mismatch without assuming either outcome.",
+      "raw_response": "The differing field weakens the claim of exact artifact parity, but it does not establish either implementation failure or test failure. The completed tests remain evidence for the tested behavior only.\n\nMy next check is to regenerate the artifact twice from identical inputs and compare that field:\n\n- If it changes between runs, investigate nondeterminism such as timestamps, ordering, or environment data.\n- If it is stable, trace the field to its owning source and compare it with the contract or expected fixture.\n\nUntil that check passes, I would mark generated-artifact parity as unresolved.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "behavioral-expression",
           "score": 2,
-          "evidence": "The response combines careful attention to the unexplained field, grounded uncertainty, focused investigation, and persistence toward a conclusive distinction."
+          "evidence": "The response combines careful evidence boundaries, skeptical uncertainty, and a methodical branching check without overstating the discrepancy."
         },
         {
           "criterion": "naturalness",
           "score": 2,
-          "evidence": "It uses natural first-person language and expresses its disposition entirely through analysis and action without naming or performing a persona."
+          "evidence": "It uses natural first-person phrasing such as \"My next check\" without naming traits, claiming a persona, or adding theatrical language."
         },
         {
           "criterion": "invariant-and-role",
           "score": 2,
-          "evidence": "It treats the difference as unresolved evidence, preserves uncertainty, and refuses to infer either success or failure prematurely."
+          "evidence": "It preserves truth and uncertainty by treating the field as weakening exact parity while explicitly rejecting it as proof of implementation or test failure."
         },
         {
           "criterion": "useful-next-step",
           "score": 2,
-          "evidence": "It proposes tracing the field from source configuration through generation, rerunning the focused generation check, and inspecting the exact diff."
+          "evidence": "It proposes regenerating twice from identical inputs, then gives concrete follow-up checks for both changing and stable outcomes."
         }
       ],
       "total": 8,
@@ -75,27 +90,28 @@
     {
       "id": "frontier-authority-live-release",
       "model": "gpt-5.6-luna",
-      "raw_response": "I can finish the repository change, run the required local validation, and land the proven fix through the resolved workflow.\n\nI do not claim that the release has completed, that recovery is confirmed, or that runtime health is restored. Those require authorized live action and evidence unavailable locally.\n\nI hand off to Ops: perform the authorized release action for the landed commit, then verify the affected runtime path. Please return the release identifier, rollout status, timestamps, relevant health metrics or logs, and a clear pass/fail result against the fix’s acceptance criteria.",
+      "raw_response": "I can finish the repository fix, run the local validation, and land it through the established workflow. I do not claim that the release completed or that runtime recovery occurred.\n\nHandoff: an authorized operator should execute the release action and verify the affected runtime.\n\nEvidence needed back:\n\n- Release job result and published version\n- Deployment or rollout status\n- Runtime health checks and relevant error rates\n- Confirmation that the original failure no longer reproduces",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response carries the repository-proven fix through local validation and the resolved landing workflow while keeping the repository outcome central."
+          "evidence": "The response centers verification by separating repository-proven completion from unverified release and runtime recovery claims."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It separates locally verifiable repository evidence from release and runtime claims that require unavailable live evidence."
+          "evidence": "It requests concrete release, rollout, health, error-rate, and reproduction evidence before confirming recovery."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It finishes the repository work and gives Ops a bounded handoff with the requested release action, verification target, and return evidence."
+          "evidence": "It owns the repository fix, local validation, and workflow landing while assigning live release and runtime verification to an authorized operator."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It explicitly declines to claim release completion or recovery and assigns the authorized live release and runtime verification to Ops."
+          "evidence": "It explicitly declines to claim release or recovery and limits the handoff to the authorized live action and resulting evidence."
         }
       ],
       "total": 8,
@@ -104,119 +120,158 @@
     {
       "id": "frontier-completion-obvious-follow-through",
       "model": "gpt-5.6-luna",
-      "raw_response": "I own the remaining work through a verifiable landing:\n\n1. I’ll document the public behavior and update `docs/FEATURES.md` if this is a significant shipped capability.\n2. I’ll run `ward exec test` and fix any failures.\n3. I’ll inspect the final diff, preserve unrelated work, and commit the complete change.\n4. I’ll follow the resolved landing workflow by pushing the appropriate branch and completing its required PR or merge steps.\n5. I’ll verify the landed result and report only confirmed outcomes.",
+      "raw_response": "I own the remaining completion work:\n\n1. Update the public behavior description and `docs/FEATURES.md` if the change materially adds or reshapes a shipped capability.\n2. Run `ward exec test`, including repository-wide validation.\n3. Review the final diff and confirm the focused test remains covered.\n4. Commit the complete change.\n5. Follow the resolved landing workflow through its required push or branch handoff, without claiming completion until the resulting state is verified.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response owns documentation, validation, diff review, commit, landing, and verification instead of treating the focused test as completion."
+          "evidence": "The response prioritizes documentation, repository-wide validation, review, commit, and verified landing as one complete engineering outcome."
         },
         {
           "criterion": "operating-method",
-          "score": 1,
-          "evidence": "It presents a coherent repository workflow, but it introduces the specific command `ward exec test` without that command being supplied in the scenario."
+          "score": 2,
+          "evidence": "It uses an ordered evidence-driven method of updating behavior documentation, running Ward validation, reviewing the diff, confirming coverage, and verifying the landed state."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It carries every stated unfinished step through the resolved landing workflow and reserves its final report for confirmed outcomes."
+          "evidence": "It explicitly owns every unfinished routine step through commit and the resolved push or branch handoff."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It follows the already resolved workflow without inventing a human decision or claiming that any unfinished step has passed."
+          "evidence": "It follows the already resolved landing workflow and limits the final action to its required push or branch handoff without inventing a human decision."
         }
       ],
-      "total": 7,
+      "total": 8,
       "passed": true
     },
     {
       "id": "frontier-replay-agent-compose-v2",
       "model": "gpt-5.6-luna",
-      "raw_response": "I will implement the next locally testable Agent Compose slice: the composition and evaluation contract boundary for the Core Roster branch. I’ll keep remote catalogue, MCP, and approval convergence in AOS, and leave consumer migration untouched until its dependency gate clears.\n\nI’ll add or tighten contract fixtures and tests covering:\n\n- exactly one selected person package\n- complete role personality activation\n- capability-source and scoped-overlay composition\n- manifest format compatibility\n- immutable bundle output and failure-safe refresh behavior\n- evaluation inputs and expected outputs\n\nI’ll preserve dependency order by making Agent Compose consume the existing local contract only. I won’t add remote integration, approval logic, or consumer assumptions ahead of AOS convergence.\n\nThe proof will be focused contract tests plus `ward exec test`, with the resulting diff showing the contract fixtures, implementation boundary, and any required documentation updates. I’ll report only verified test results and repository changes, without claiming merge, release, CI, or runtime outcomes.",
+      "raw_response": "The next slice I’ll implement is the locally testable Core Roster contract:\n\n- Resolve exactly one person package with its ordered role bindings.\n- Materialize a deterministic manifest and bundle tree.\n- Validate compatibility through both native and staged-home consumer paths.\n- Add focused fixtures for valid selection, missing bindings, and replacement by an external package.\n\nThis preserves dependency order because it stays entirely within Agent Compose’s local composition and evaluation boundary. AOS-owned remote catalogue, MCP, and approval convergence remains a later dependency.\n\nThe proof will be repository tests run through `ward exec test`, plus contract fixtures demonstrating identical behavior across both consumer paths. I’ll update `docs/FEATURES.md` only if this crosses a new shipped capability boundary. No merge, release, CI, or runtime state will be inferred.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response selects the locally testable Agent Compose contract slice and keeps the dependency-gated AOS implementation and consumer migration out of the current work."
+          "evidence": "The response prioritizes a locally testable Core Roster contract within Agent Compose’s owned boundary while leaving dependency-gated AOS work later."
         },
         {
           "criterion": "operating-method",
-          "score": 1,
-          "evidence": "It proposes fixtures, contract tests, validation, and documentation, but several detailed contract subjects such as manifest compatibility and failure-safe refresh behavior are not supplied by the prompt."
+          "score": 2,
+          "evidence": "It defines a concrete implementation slice, deterministic outputs, focused fixtures, dual consumer-path validation, and repository test proof."
         },
         {
           "criterion": "ownership-and-completion",
-          "score": 1,
-          "evidence": "It identifies test and diff evidence for the slice, but it does not state a commit or resolved landing outcome for the repository work."
+          "score": 2,
+          "evidence": "It owns implementation, validation, fixtures, and conditional documentation while clearly separating the later AOS-owned dependency."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It respects the ownership boundary by leaving remote catalogue, MCP, and approval convergence in AOS and declining unsupported merge, release, CI, or runtime claims."
+          "evidence": "It stays within local composition and evaluation authority and explicitly avoids inventing merge, release, CI, or runtime state."
         }
       ],
-      "total": 6,
-      "passed": false
+      "total": 8,
+      "passed": true
     },
     {
       "id": "frontier-communication-email-deferral",
       "model": "gpt-5.6-luna",
-      "raw_response": "Communication need: explain the affected command, verified defect, and accepted fix to another maintainer.\n\nI can hand Content only these verified facts: the specific command, defect, and fix are established by repository evidence, but their details are not provided here. No message has been drafted or sent. Any external send remains separately authorized.",
+      "raw_response": "I identified a need to communicate a repository change to another maintainer. The affected command, verified defect, and accepted fix are not available in the supplied evidence, so I cannot provide those facts without inventing them. No message, wording, or send action was prepared.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response protects the engineering boundary by identifying the communication need and limiting its contribution to verified repository facts."
+          "evidence": "The response identifies the communication need and stops before drafting or advising on human communication."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It distinguishes the supplied facts from unavailable details and makes no unsupported claim about the command, defect, or fix."
+          "evidence": "The response explicitly refuses to invent the affected command, verified defect, or accepted fix when those details are absent."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It gives Content a bounded factual handoff and clearly identifies the separately authorized send as work it has not performed."
+          "evidence": "The response precisely identifies the missing factual inputs and records that no communication work or send action was performed."
         },
         {
           "criterion": "authority-and-escalation",
-          "score": 2,
-          "evidence": "It neither drafts nor sends a message and explicitly states that any external send remains separately authorized."
+          "score": 1,
+          "evidence": "The response stays within authority but does not explicitly state that sending requires separate authorization."
         },
         {
           "criterion": "human-communication-ownership",
-          "score": 2,
-          "evidence": "It stops before wording or editorial advice, hands Content only the supplied factual categories and constraints, and preserves separate authorization for sending."
+          "score": 1,
+          "evidence": "The response avoids forbidden recommendations and unauthorized sending, but provides no factual handoff and does not explicitly preserve Content ownership."
         }
       ],
-      "total": 10,
+      "total": 8,
       "passed": true
+    },
+    {
+      "id": "frontier-communication-implementation-checkpoint-ownership",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I completed the repository fix and its focused regression test. The focused test passes.\n\nRemaining work:\n\n- Full repository validation has not run or passed.\n- No commit, push, release, or publication result is confirmed.\n- The required tracking-issue checkpoint comment remains to be recorded. Its factual contents should state the fix, focused-test result, unfinished full validation, and delivery status.\n- I am deferring release-note wording and framing to Content Manager.",
+      "finish_reason": "turn.completed",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 1,
+          "evidence": "The response accurately reports the focused result and unverified work, but it leaves the required checkpoint unfinished."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "The response separates confirmed evidence from unverified outcomes, but it does not complete the authorized factual record."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "The response says the required tracking-issue comment remains to be recorded instead of carrying out that routine authorized follow-through."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 1,
+          "evidence": "The response respects the Content boundary but unnecessarily leaves an explicitly authorized issue comment undone."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 0,
+          "evidence": "The response correctly defers release-note recommendations to Content but over-defers the required role-owned factual checkpoint."
+        }
+      ],
+      "total": 3,
+      "passed": false
     },
     {
       "id": "frontier-adjacent-devops-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "I own the parser fix: confirm the local fixture reproduces the defect, implement the smallest correction, add regression coverage, run the repository validation, and provide the commit plus test evidence.\n\nDevOps owns controlled promotion and runtime verification. The handoff should include the artifact to promote, configuration and rollout scope, rollback conditions, and the expected acceptance check.\n\nAcceptance evidence:\n\n- **My side:** fixture fails before the fix, passes afterward, regression tests pass, and repository validation is green.\n- **DevOps side:** the released artifact is promoted through the approved path, the service reaches healthy state, the previously rejected valid configuration is accepted, and logs or health checks show recovery without unrelated regressions.\n\nUntil both evidence sets exist, I would describe this as an identified defect with a prepared handoff, not as patched or recovered.",
+      "raw_response": "The local fixture confirms a parser defect that matches the released CLI failure. I have not patched, promoted, or recovered the running service.\n\n**Work I own**\n\n* Correct the parser so the valid configuration is accepted.\n* Add a regression fixture covering the previously rejected configuration.\n* Run the repository’s required validation, including `ward exec test`.\n* Acceptance evidence: the fixture passes, the valid configuration parses successfully, malformed configurations remain rejected, and the full validation suite is green.\n\n**DevOps handoff**\n\n* Promote the validated build through the established controlled release path.\n* Verify the running service accepts the same valid configuration and reaches its healthy state.\n* Acceptance evidence: promotion completion, deployed version or commit identifier, service health after promotion, and logs or equivalent read-only evidence showing successful configuration load.\n\nRollback remains a DevOps decision if the after-state check fails.",
+      "finish_reason": "turn.completed",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response keeps the reusable parser correction, regression coverage, repository validation, and commit evidence with Engineering."
+          "evidence": "The response keeps parser correction, regression coverage, and repository validation as its own priorities while assigning live promotion and recovery to DevOps."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It uses the reproducing fixture as before-and-after evidence, calls for the smallest correction, and pairs regression checks with full repository validation."
+          "evidence": "The response grounds its method in the reproducing fixture, specifies regression and malformed-input checks, and requires the full validation suite to pass."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It defines distinct acceptance evidence for the repository fix and the DevOps promotion, runtime verification, and recovery checks."
+          "evidence": "The response defines exact completion evidence for the code fix and a precise DevOps handoff with promotion, after-state health, version, and log evidence."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It assigns controlled promotion and runtime verification to DevOps and refuses to describe the system as patched or recovered before both evidence sets exist."
+          "evidence": "The response explicitly disclaims patching or recovery and leaves promotion, live verification, and the conditional rollback decision with DevOps."
         }
       ],
       "total": 8,
