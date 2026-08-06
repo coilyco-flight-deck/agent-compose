@@ -17,14 +17,14 @@ Inventory of what ships today.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
-* Canonical skills use identity cards and compiled fallback. Designer
-  may land supplied-copy pages with semantic markup. Content
-  owns reusable proof and content-only code changes.
+* Canonical skills use identity cards and compiled fallback. Designer may land
+  bounded page-level web experiences. Content owns reusable proof and
+  content-only code changes.
 
 ## Load-point projection
 
 * `agent-compose project` places verified bundles transactionally at repo or
-  container-home load points for all four harnesses.
+  container-home load points for four harnesses.
 * Sidecar ownership protects foreign files and restores prior owned state.
 
 ## Launch-time refresh

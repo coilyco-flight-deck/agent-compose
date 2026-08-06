@@ -10,13 +10,15 @@ local or open models such as Ornith and Mistral.
 
 ## Category 1: complex roles
 
-These roles require frontier reasoning for consequential decisions and live
-system control.
+These roles require frontier reasoning for complex evidence or consequential
+decisions.
 
 * Director - frontier
 * Portfolio Strategist - frontier
 * DevOps - frontier
 * AI Engineer - frontier
+* Outreach - frontier
+* Sales - frontier
 
 ## Category 2: foundational roles
 
@@ -35,13 +37,14 @@ local or open-model route. Its Discord seat is classified OSS. Claude and Codex
 seats remain model-neutral harness identities for evaluation and overlays.
 
 * Community - OSS
-* AI Engineer remains frontier-only until a complete lower-tier evidence lane passes.
 
 ## Evaluation state
 
 Evaluation packs retain all three lanes so matrix changes remain visible.
 Role-incompatible lanes are disabled. Commodity and OSS execution also stays
-disabled until independently reviewed evidence admits those lanes.
+disabled until independently reviewed evidence admits those lanes. AI
+Engineer, Outreach, and Sales remain frontier-only until a complete lower-tier
+evidence lane passes for each role.
 
 ## See also
 

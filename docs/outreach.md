@@ -5,6 +5,8 @@ qualified first conversations. It owns target research, segmentation,
 contact-path research, evidence-backed personalization, bounded follow-up,
 qualification thresholds, response classification, experiment measurement,
 stop conditions, and the explicit handoff of qualified interest to Sales.
+Contact-specific wording is a bounded factual request to Content, which retains
+editorial ownership of the communication artifact.
 
 Portfolio Strategist owns market selection. Content Manager owns reusable proof
 and channel content. Sales owns conversion after substantive interest.

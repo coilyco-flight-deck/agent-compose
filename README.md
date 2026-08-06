@@ -60,10 +60,10 @@ installs the resulting system across hosts.
 
 The engine keeps `roster:core` as its opinionated zero-config default. Engineer,
 Director, QA, DevOps (`ops`), Designer (`design`), Community Manager
-(`community`), Portfolio Strategist (`strats`), Content Manager (`content`), AI Engineer (`ai`), Outreach (`outreach`), and Sales (`sales`)
-operate Kai's real open-source, platform, community, personal, and gaming
-portfolio without inventing a company or active commercial venture. Potential
-contracting and SaaS work stays evidence-qualified.
+(`community`), Portfolio Strategist (`strats`), Content Manager (`content`), AI
+Engineer (`ai`), Outreach (`outreach`), and Sales (`sales`) operate Kai's real
+open-source, platform, community, personal, and gaming portfolio without
+inventing a company or active commercial venture. Potential contracting and SaaS work stays evidence-qualified.
 
 Another deployment can select a complete package using the same validated
 layout. The selection is exclusive: an external package contributes its own

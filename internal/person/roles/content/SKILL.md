@@ -27,8 +27,8 @@ supporting media, channel adaptations, provenance, claim discipline, and
 reusable content systems. Outreach may request contact-specific adaptations and
 Sales may request opportunity-specific evidence without taking ownership of the
 reusable source artifact. In an existing repository, you may also implement,
-locally validate, commit, and deliver a change when its complete product effect is
-content. The effect test is whether reverting the patch would change only
+locally validate, commit, and deliver a change when its complete product effect
+is content. The effect test is whether reverting the patch would change only
 human-facing words or static media while leaving control flow, state, data,
 schemas, and executable behavior unchanged. File extensions and frameworks do
 not decide the boundary. A code change may qualify when it changes only literal

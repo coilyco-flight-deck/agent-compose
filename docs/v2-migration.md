@@ -1,11 +1,11 @@
 # Agent Compose v2 roster migration
 
 Agent Compose v2 renames the baked provider from `person:kai` to
-`roster:core` and emits the Core Roster slugs, including AI Engineer as `ai`. This is an
-intentional major-version break. There are no compatibility aliases for old
-role identifiers. The earlier fixed eight-role decision changed when the
-portfolio gained distinct Outreach, Sales, Content, and AI Engineer ownership
-boundaries.
+`roster:core` and emits the Core Roster slugs, including AI Engineer as `ai`.
+This is an intentional major-version break. There are no compatibility aliases
+for old role identifiers. The earlier fixed eight-role decision changed when
+portfolio evidence established distinct AI Engineer, Outreach, Sales, and
+Content ownership boundaries.
 
 ## Role destinations
 
