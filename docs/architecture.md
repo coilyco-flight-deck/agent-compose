@@ -32,9 +32,9 @@ The Core Roster applies those tiers through its
 Agent-compose embeds the eleven-role Core Roster, `roster:core`, as its
 public-safe default. A caller may
 select one complete [external package](person-packages.md) instead. Selection
-is exclusive. The package owns roles, personalities, compatibility, invariant,
-definitions, and inspirations. Capability sources add knowledge but cannot
-redefine those names or bodies.
+is exclusive. The package owns identity policy and
+[role methods](role-methods.md). Capability sources add knowledge but cannot
+redefine package names or bodies.
 
 Personality definitions live inside person-package skills. Agent-compose
 discovers ordinary skills and a `.agents/roles.kdl` graph for
@@ -51,8 +51,8 @@ v0.1 rather than adding an override grammar.
 ## Composition flow
 
 Agent-compose loads exactly one person source, validates the role, selects
-matching instructions, ordinary skills, active personalities, and composed
-role skills, then chooses delivery and materializes the bundle. It records
+matching instructions, role and method skills, active personalities, and
+provider skills, then materializes the bundle. It records
 what it picked and why as each decision occurs.
 
 ## Integration obligations

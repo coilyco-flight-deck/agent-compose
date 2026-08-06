@@ -285,8 +285,9 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 				t.Fatal(err)
 			}
 			rolePersonalities := role.Personalities
-			if len(res.Skills) != len(rolePersonalities)+1 {
-				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), len(rolePersonalities)+1, res.Skills)
+			wantCount := len(rolePersonalities) + len(role.Methods) + 1
+			if len(res.Skills) != wantCount {
+				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), wantCount, res.Skills)
 			}
 			if res.Skills[0].ID != p.RoleSkillID(roleName) {
 				t.Fatalf("selected role skill = %q, want %q", res.Skills[0].ID, p.RoleSkillID(roleName))
@@ -294,6 +295,12 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 			for i, personalityName := range rolePersonalities {
 				if want := p.Personalities[personalityName].Skill; res.Skills[i+1].ID != want {
 					t.Fatalf("selected skill %d = %q, want %q", i+1, res.Skills[i+1].ID, want)
+				}
+			}
+			for i, method := range role.Methods {
+				index := len(rolePersonalities) + i + 1
+				if res.Skills[index].ID != method {
+					t.Fatalf("selected method skill %d = %q, want %q", index, res.Skills[index].ID, method)
 				}
 			}
 		})

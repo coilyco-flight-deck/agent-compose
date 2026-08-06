@@ -23,7 +23,8 @@ switch.
 
 An explicit user request naming a valid target, such as `swap into QA`,
 activates `qa` without another confirmation. The agent loads the target role
-skill and every skill in its complete ordered personality meld before acting,
+skill and every skill in its complete ordered personality meld before acting.
+Role methods become eligible only when the new role and task both match. The agent
 announces the new role, and stops following the prior charter. The new role remains inferred, so
 another explicit request may switch again or return to an earlier role. The
 current selection lasts until the next explicit switch or session end.
@@ -41,8 +42,8 @@ role slugs so the user can correct the request.
 
 A caller-assigned role remains fixed. The agent rejects a role-switch request
 and directs the caller to launch a new bundle with the different role.
-Native bundles materialize only the assigned role skill and meld. Compiled
-bundles inline those same selected bodies, which preserves this boundary.
+Native bundles materialize only the assigned role skill, role methods, and meld.
+Compiled bundles inline those same selected bodies, which preserves this boundary.
 
 ## Personality-only swaps
 
@@ -75,4 +76,5 @@ not create, retain, or broaden that authority.
 
 * [Role selection](role-selection.md) - inferred and assigned role origins.
 * [Role briefings](role-briefings.md) - role charter and meld delivery.
+* [Role methods](role-methods.md) - task-triggered role procedures.
 * [Integration](integration.md) - native roster and isolated bundle paths.

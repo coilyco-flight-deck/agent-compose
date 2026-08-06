@@ -28,6 +28,7 @@ type RoleCatalogEntry struct {
 	Skill         string   `json:"skill"`
 	SkillSource   string   `json:"skill_source"`
 	SkillDigest   string   `json:"skill_digest"`
+	Methods       []string `json:"methods,omitempty"`
 	Seats         []Seat   `json:"seats"`
 	Personalities []string `json:"personalities"`
 	FavoriteColor string   `json:"favorite_color"`
@@ -103,6 +104,7 @@ func (p *Person) RoleCatalog() ([]RoleCatalogEntry, error) {
 			Skill:         p.RoleSkillID(name),
 			SkillSource:   role.SkillSource,
 			SkillDigest:   role.SkillDigest,
+			Methods:       append([]string(nil), role.Methods...),
 			Seats:         append([]Seat(nil), role.Seats...),
 			Personalities: append([]string(nil), role.Personalities...),
 			FavoriteColor: snapshot.Roles[name].FavoriteColor,

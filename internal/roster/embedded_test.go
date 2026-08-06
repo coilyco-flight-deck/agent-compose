@@ -38,5 +38,10 @@ func TestEmbeddedRosterRendersEveryCanonicalSeat(t *testing.T) {
 		if _, ok := files[".agents/skills/"+p.RoleSkillID(roleName)+"/SKILL.md"]; !ok {
 			t.Errorf("roster omitted role skill %q", roleName)
 		}
+		for _, method := range role.Methods {
+			if _, ok := files[".agents/skills/"+method+"/SKILL.md"]; !ok {
+				t.Errorf("roster omitted method skill %q for role %q", method, roleName)
+			}
+		}
 	}
 }

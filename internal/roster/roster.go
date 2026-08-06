@@ -58,7 +58,8 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 	table.WriteString("An eligible inferred native role changes only under the explicit policy below.\n")
 	table.WriteString("Before acting, each agent loads the selected role skill and every personality\n")
 	table.WriteString("skill named by that role's complete ordered meld. Other role and personality\n")
-	table.WriteString("skills stay inactive unless the native interactive policy activates them.\n\n")
+	table.WriteString("skills stay inactive unless the native interactive policy activates them. Role\n")
+	table.WriteString("methods stay lazy and apply only when the active role and task both match.\n\n")
 	table.WriteString(renderNativeAdaptationPolicy(p))
 
 	for _, roleName := range p.RoleOrder {
@@ -93,6 +94,13 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 			return nil, fmt.Errorf("render role %q: role skill is missing", roleName)
 		}
 		files[".agents/skills/"+p.RoleSkillID(roleName)+"/SKILL.md"] = raw
+		for _, method := range role.Methods {
+			raw, ok := p.RoleMethodDefinition(roleName, method)
+			if !ok {
+				return nil, fmt.Errorf("render role %q: method skill %q is missing", roleName, method)
+			}
+			files[".agents/skills/"+method+"/SKILL.md"] = raw
+		}
 	}
 	files["AGENTS.COMPOSE.md"] = []byte(table.String())
 

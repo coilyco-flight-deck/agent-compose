@@ -9,8 +9,9 @@ reviewable local data assets.
 * Engine assets - generic evaluation behavior and the native adaptation
   policy. `internal/roster/definitions/NATIVE-ADAPTATION.txt` is embedded data,
   not a profile override.
-* Profile assets - role skills, structured role metadata, invariant, copy contracts, role
-  inspirations, and optional complete `evaluations/<role>.yaml` matrices.
+* Profile assets - role skills, role-bound methods, structured role metadata,
+  invariant, copy contracts, role inspirations, and optional complete
+  `evaluations/<role>.yaml` matrices.
 * Personality-library assets - personality bindings, aliases, identity
   primitives, definition skills, and personality inspirations.
 * Consumer configuration - local profile and library roots only. Agent

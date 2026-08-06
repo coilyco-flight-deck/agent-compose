@@ -12,7 +12,7 @@ default.
 The intended product accepts a role, a model tier, a delivery mode, and
 optional capability sources. The role activates its complete ordered default
 personality set.
-Agent-compose resolves the selected role skill and every bound personality
+Agent-compose resolves the selected role skill, role methods, and every bound personality
 skill from the selected person package, tells the agent every component and
 melded favorite color through a compact identity card, and emits an immutable
 context bundle.
@@ -22,7 +22,7 @@ context bundle.
 Agent-compose owns the context boundary and its bundled public-safe Core
 Roster:
 
-* canonical role skills plus role-driven personality meld resolution with host-only
+* canonical role skills and role-bound methods plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
 * Content-exclusive recommendations for every human communication, with factual
   handoffs from other roles and separate authorization for external delivery
@@ -79,9 +79,9 @@ bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
 package-manager distribution. Trusted roots use `.agents/roles.kdl` for skill-provider repositories, composed skills, and strict [repository policy](docs/repository-policy.md).
 Cascade compiles one availability and residency plan. Verified bundles retain repository provenance for launch consumers. Imported graphs do not recurse. The
-default `roster:core` provider supplies the personality invariant and all 16
-canonical definitions, so its host roster convergence needs no external
-personality source. A configured external person package replaces that provider
+default `roster:core` provider supplies the personality invariant, all 16
+canonical definitions, and AI Engineer's cross-role evaluation methods, so its
+host roster convergence needs no external personality source. A configured external person package replaces that provider
 as one unit. The selected person policy carries a normalized catalogue of
 credited inspirations and representative public appearances without adding
 biography to runtime prompts. The repository also ships a local personality
