@@ -24,9 +24,10 @@ the page to standard output unless `--out` names a file. `--check` fails when
 that file differs from a fresh render.
 
 Uniform frontier, commodity, and OSS model names appear once in the header.
-Mixed fields name all three models on each affected row. The YAML records
-remain the owning score source, while the committed page is a
-renderer-verified view.
+Mixed fields name all three models on each affected row. Compact YAML review
+records remain the owning score source, while the committed page is a
+renderer-verified aggregate view. Execution packs are ephemeral and
+reproducible from each record's source revision and digest.
 
 ## See also
 

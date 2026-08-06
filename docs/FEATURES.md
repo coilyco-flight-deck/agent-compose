@@ -43,8 +43,8 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide rich inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) ships Core Roster matrices and scorecards with
-  commodity-medium drivers and frontier-high independent review.
+* [Evaluation](evaluation.md) ships Core matrices, compact question-answer
+  review records, and independently reviewed scorecards.
   `disabled_model_tiers` pauses a lane without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
