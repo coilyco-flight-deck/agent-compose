@@ -5,7 +5,7 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eight roles, sixteen personalities, melds, and seats.
+* `roster:core` carries nine roles, sixteen personalities, melds, and seats.
   Content exclusively owns human communication recommendations. Every other
   role stops at a factual handoff, and external delivery remains separately
   authorized.
@@ -18,7 +18,7 @@ Inventory of what ships today.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use compact identity cards and compiled fallback. Designer
-  may land bounded pages with supplied copy and semantic markup. Content
+  may land pages with supplied copy and semantic markup. Content
   may land content-only code changes.
 
 ## Load-point projection

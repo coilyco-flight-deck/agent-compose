@@ -84,8 +84,12 @@ func TestWriteEvaluationPacksEmitsCompleteDigestIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(entries) != 9 {
-		t.Fatalf("evaluation output entries = %d, want 9", len(entries))
+	profile, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != len(profile.RoleOrder)+1 {
+		t.Fatalf("evaluation output entries = %d, want loader role count plus index %d", len(entries), len(profile.RoleOrder)+1)
 	}
 	index, err := os.ReadFile(filepath.Join(output, "index.json"))
 	if err != nil {

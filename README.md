@@ -4,7 +4,7 @@ Agent-compose is the context substrate between knowledge providers and native
 or isolated agent harnesses. It selects, compiles, and installs the context an
 agent starts with while keeping executable authority outside the bundle. The
 public product is intentionally opinionated: its first-party **Core Roster**
-provides eight public-safe roles, sixteen personalities, seats, compatibility,
+provides nine public-safe roles, sixteen personalities, seats, compatibility,
 and evaluation context. An independent deployment can select one complete
 external package instead, with no role or definition inheritance from that
 default.
@@ -60,7 +60,7 @@ installs the resulting system across hosts.
 
 The engine keeps `roster:core` as its opinionated zero-config default. Engineer,
 Director, QA, DevOps (`ops`), Designer (`design`), Community Manager
-(`community`), Portfolio Strategist (`strats`), and Content Manager (`content`)
+(`community`), Portfolio Strategist (`strats`), Content Manager (`content`), and AI Engineer (`ai`)
 operate Kai's real open-source, platform, community, personal, and gaming
 portfolio without inventing a company or active commercial venture. Potential
 contracting and SaaS work stays evidence-qualified.

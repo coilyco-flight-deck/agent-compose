@@ -18,7 +18,7 @@ Supported Core Roster scenario kinds are:
 
 The engine expands each scenario into frontier, commodity, and OSS cases.
 Frontier and commodity use the full bundle class, while OSS uses low-context.
-Keeping lanes and rubrics in the engine prevents eight role assets from
+Keeping lanes and rubrics in the engine prevents role assets from
 restating the same evaluation configuration. A pack-level
 `disabled_model_tiers` marker temporarily pauses a lane without deleting its
 cases or changing role-owned scenario files.

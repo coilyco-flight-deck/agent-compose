@@ -30,7 +30,7 @@ The Core Roster applies those tiers through its
 
 ## Policy ownership
 
-Agent-compose embeds the eight-role Core Roster, `roster:core`, as its
+Agent-compose embeds the nine-role Core Roster, `roster:core`, as its
 public-safe default. A caller may
 select one complete [external package](person-packages.md) instead. Selection
 is exclusive. The package owns roles, personalities, compatibility, invariant,

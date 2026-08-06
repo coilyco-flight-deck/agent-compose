@@ -50,12 +50,16 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 }
 
 func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
 	packs, err := BuildCorePacks("codex")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(packs) != 8 {
-		t.Fatalf("Core Roster packs = %d, want 8", len(packs))
+	if len(packs) != len(p.RoleOrder) {
+		t.Fatalf("Core Roster packs = %d, want loader role count %d", len(packs), len(p.RoleOrder))
 	}
 	for _, pack := range packs {
 		communication := caseForScenarioKind(t, pack, frontierTier, ScenarioHumanCommunication)

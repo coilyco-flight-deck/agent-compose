@@ -16,6 +16,7 @@ system control.
 * Director - frontier
 * Portfolio Strategist - frontier
 * DevOps - frontier
+* AI Engineer - frontier
 
 ## Category 2: foundational roles
 
@@ -34,6 +35,7 @@ local or open-model route. Its Discord seat is classified OSS. Claude and Codex
 seats remain model-neutral harness identities for evaluation and overlays.
 
 * Community - OSS
+* AI Engineer remains frontier-only until a complete lower-tier evidence lane passes.
 
 ## Evaluation state
 

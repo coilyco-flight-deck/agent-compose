@@ -37,8 +37,8 @@ case requires it to accept that handoff and produce the recommendation without
 claiming send or publication authority.
 
 Paired adjacent-role scenarios cover Strategist and Director, Content and
-Designer, Engineer and Ops, plus Content and Community. QA has no approved
-adjacent pair.
+Designer, Engineer and Ops, Content and Community, plus AI Engineer with
+Engineer, QA, DevOps, and Content. QA has no approved adjacent pair.
 
 The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
 duplicates, and incorrect adjacent-role targets. External packages retain the
