@@ -17,7 +17,9 @@ directory must be empty.
 Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evaluation-packs`; `<dir>` must be empty.
 
 Agent Compose emits prompts and context, never model calls, credentials, scores,
-or authority. `--person-source` selects one complete external package.
+or authority. `--person-source` selects one complete external package. The Core
+AI role's [evaluation methods](role-methods.md) guide cross-role suite curation
+without replacing this pack or reviewer contract.
 
 The [evaluation policy](evaluation-policy.md) defines model capability,
 reasoning effort, session isolation, review, and evidence requirements.

@@ -26,8 +26,8 @@ compatibility lane. AOS owns the runtime registry. Every supported tier and
 harness receives the same complete selected context through its existing
 projection layout.
 
-The resulting bundle contains only the assigned role skill, its complete
-ordered personality meld, ordinary admitted skills, and role-composed skills
+The resulting bundle contains only the assigned role skill, its role methods,
+complete ordered personality meld, ordinary admitted skills, and composed skills
 bound to that role. Startup instructions require the harness to read the role
 and meld skills before acting. Another role requires another launch.
 

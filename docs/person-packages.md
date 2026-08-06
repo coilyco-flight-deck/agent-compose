@@ -2,7 +2,7 @@
 
 One agent-compose installation can use a person package that is completely
 independent of the shipped Core Roster, `roster:core`. Selection is exclusive.
-Agent-compose never merges roles, seats, personalities, definitions, or
+Agent-compose never merges roles, role methods, seats, personalities, definitions, or
 evaluation context across the two packages.
 
 The package owns identity and operating policy. Capability providers still own
@@ -73,7 +73,8 @@ agent-compose evaluation \
 guard they inherit its source when the flag is absent.
 
 Evaluation packs include person identity, role-skill body, seat, invariant, and
-active definitions. External packages use the generic frontier, commodity, and
+active definitions. Role methods remain curation tools outside the behavior
+pack under test. External packages use the generic frontier, commodity, and
 OSS fallback without inheriting Core Roster scenarios. Agent-compose emits and
 validates the deterministic pack. A runner or human still owns model calls,
 credentials, response capture, and scoring.

@@ -16,6 +16,16 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	ai := p.Roles["ai"]
+	if got := strings.Join(ai.Methods, ","); got != "eval-role-comms,eval-role-live-ops" {
+		t.Fatalf("AI role methods = %q", got)
+	}
+	for _, method := range ai.Methods {
+		if raw, ok := p.RoleMethodDefinition("ai", method); !ok ||
+			!strings.Contains(string(raw), "\nname: "+method+"\n") {
+			t.Errorf("AI role method %q is missing or mismatched", method)
+		}
+	}
 	seatNames := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
@@ -204,6 +214,62 @@ func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 				t.Fatal("invalid role skill must fail")
 			}
 		})
+	}
+}
+
+func TestLoadRoleMethodsRejectsIncompleteOrExtraDefinitions(t *testing.T) {
+	valid := []byte("---\nname: eval-fixture\ndescription: Evaluate the fixture.\n---\n\n# Fixture\n")
+	for name, files := range map[string]fstest.MapFS{
+		"missing directory": {},
+		"mismatched frontmatter": {
+			"roles/builder/skills/eval-fixture/SKILL.md": {
+				Data: []byte("---\nname: eval-other\ndescription: Wrong.\n---\n\n# Wrong\n"),
+			},
+		},
+		"extra file": {
+			"roles/builder/skills/eval-fixture/SKILL.md":  {Data: valid},
+			"roles/builder/skills/eval-fixture/README.md": {Data: []byte("extra")},
+		},
+		"undeclared skill": {
+			"roles/builder/skills/eval-fixture/SKILL.md": {Data: valid},
+			"roles/builder/skills/eval-other/SKILL.md":   {Data: valid},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p := &Person{
+				Name:      "fixture",
+				RoleOrder: []string{"builder"},
+				Roles: map[string]Role{
+					"builder": {Skill: "role-builder", Methods: []string{"eval-fixture"}},
+				},
+			}
+			if err := loadRoleMethods(files, p); err == nil {
+				t.Fatal("invalid role method layout must fail")
+			}
+		})
+	}
+}
+
+func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	src, err := Source(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(src.RoleSkills["ai"]); got != 3 {
+		t.Fatalf("AI role skill count = %d, want charter plus two methods", got)
+	}
+	for _, roleName := range p.RoleOrder {
+		want := 1
+		if roleName == "ai" {
+			want = 3
+		}
+		if got := len(src.RoleSkills[roleName]); got != want {
+			t.Errorf("role %q selected %d person skills, want %d", roleName, got, want)
+		}
 	}
 }
 

@@ -20,13 +20,15 @@ package layout land together so the code never precedes its public boundary.
 ## Repo boundaries
 
 * `agent-compose` owns the compiler, schema, resolver, cache, bundle format,
-  harness adapters, diagnostics, and Kai's public-safe default person package.
+  harness adapters, diagnostics, and Kai's public-safe default person package,
+  including role methods determined by that package's cross-role policy.
 * Each selected person package owns its operating purpose, personality
   catalog bindings, compatibility, credited inspirations, and selection policy.
 * `agent-compose` owns the personality invariant and canonical personality
   definitions alongside the person configuration that binds them.
 * `agentic-os` owns reusable knowledge sources, general skills, capability
-  providers, and editorial validators.
+  providers, and editorial validators. It consumes person-owned role methods
+  without carrying source copies.
 * An external person package stays outside this public repo and fully replaces
   the embedded default. Private overlays may add scoped instructions to the
   selected package without redefining its content.

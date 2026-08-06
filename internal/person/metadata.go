@@ -22,6 +22,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	roleSkill := p.RoleSkillID(roleName)
 	fmt.Fprintf(&out, "# %s\n\n%s\n\n", p.RoleDisplayName(roleName), role.Purpose)
 	fmt.Fprintf(&out, "**Role skill // `%s`**\n", roleSkill)
+	if len(role.Methods) > 0 {
+		fmt.Fprintf(&out, "**Role methods // `%s`**\n", strings.Join(role.Methods, "` // `"))
+	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if len(role.Seats) > 0 {
 		out.WriteString("**Seats")
@@ -126,6 +129,9 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	fmt.Fprintf(&out, "* Provider: `%s`\n", p.ProviderID())
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
+	if len(role.Methods) > 0 {
+		fmt.Fprintf(&out, "* Role methods: `%s`\n", strings.Join(role.Methods, "`, `"))
+	}
 	out.WriteString("* Role inspiration:\n")
 	if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
 		return "", err
@@ -196,6 +202,9 @@ func (p *Person) RenderRoleTranscript(
 	fmt.Fprintf(&roleBlock, "%s: %s // provided by: %s\n", p.providerKind(), p.Name, p.ProviderID())
 	fmt.Fprintf(&roleBlock, "role: %s\n", roleName)
 	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
+	if len(role.Methods) > 0 {
+		fmt.Fprintf(&roleBlock, "methods: %s\n", strings.Join(role.Methods, " // "))
+	}
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
 	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
 	writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)

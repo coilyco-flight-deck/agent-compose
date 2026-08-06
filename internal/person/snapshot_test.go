@@ -88,6 +88,7 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"PersonalityLibraries": true,
 		"evaluations":          true,
 		"roleSkills":           true,
+		"roleMethods":          true,
 		"source":               true,
 	}
 	model := reflect.TypeOf(Person{})

@@ -50,7 +50,7 @@ in older JSON are ignored.
 
 `role_skill`, `role_skill_source`, and `role_skill_digest` bind the role
 identity to its canonical doctrine. `content` records the effective logical
-role skill, invariant, personality definitions, evaluation assets, copy
+role skill and methods, invariant, personality definitions, evaluation assets, copy
 contract, and compact role identity metadata. `diff` compares these stable IDs
 and digests without reopening the authoring roots. Local filesystem paths never
 appear.
@@ -59,4 +59,5 @@ appear.
 
 * [bundle-protocol.md](bundle-protocol.md) - tree layout and atomicity.
 * [decision-trace.md](decision-trace.md) - retained decision evidence.
+* [role-methods.md](role-methods.md) - selected method skills.
 * [contract-review.md](contract-review.md) - review decisions of record.

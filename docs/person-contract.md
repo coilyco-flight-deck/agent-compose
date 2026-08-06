@@ -9,6 +9,7 @@ roster "core" {
         purpose "Build and land work across Kai's real repository portfolio."
         model-tier "frontier" "commodity" "oss"
         skill "role-engineer"
+        method "eval-role-comms"
         personality "curious" "grounded" "meticulous" "tenacious"
         agent "claude" name="opal engineer" pronouns="she" tier="frontier"
         agent "codex" name="terran engineer" pronouns="he" tier="frontier"
@@ -22,8 +23,8 @@ and definitions into the layout documented in
 [person-packages.md](person-packages.md). The loader assembles and validates the
 package before it becomes a source.
 
-A role names its display name, purpose, role skill, nonempty ordered
-personality meld, and seats. Its optional `model-tier` list restricts
+A role names its display name, purpose, role skill,
+[methods](role-methods.md), ordered personality meld, and seats. Its optional `model-tier` list restricts
 composition, while omission supports all three tiers. Core roles declare the
 list explicitly. The [role skill](role-briefings.md) needs valid frontmatter
 and at least three body paragraphs. The loader rejects invalid tiers or
@@ -62,7 +63,7 @@ Every Core Roster role carries named harness seats. Seat keys remain stable
 join points while display names and pronouns remain roster-owned identity.
 
 Seats are personality-neutral. A compose request selects a role, and that role
-activates its role skill and ordered personality set. Roster delivery is documented
+activates its role skill, role methods, and ordered personality set. Roster delivery is documented
 in [role-briefings.md](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not

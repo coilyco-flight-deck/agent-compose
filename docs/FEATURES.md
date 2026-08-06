@@ -5,10 +5,8 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eleven roles, 16 personalities, melds, and seats.
-  Content exclusively owns human communication recommendations. Every other
-  role stops at a factual handoff, and external delivery remains separately
-  authorized.
+* `roster:core` carries eleven roles, 16 personalities, melds, seats,
+  communication ownership, and [role methods](role-methods.md).
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.

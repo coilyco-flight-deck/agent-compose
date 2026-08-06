@@ -69,6 +69,7 @@ type Role struct {
 	Skill               string         `json:"skill"`
 	SkillSource         string         `json:"skill_source"`
 	SkillDigest         string         `json:"skill_digest"`
+	Methods             []string       `json:"methods,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
 	Seats               []Seat         `json:"seats"`
@@ -285,6 +286,7 @@ type Person struct {
 	PersonalityLibraries map[string]string      `json:"-"`
 	evaluations          map[string][]byte
 	roleSkills           map[string][]byte
+	roleMethods          map[string]map[string][]byte
 	source               fs.FS
 }
 
@@ -694,6 +696,9 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 	if err := loadRoleSkills(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
+	if err := loadRoleMethods(source, p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
 	if err := addCopyContractProvenance(p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
@@ -773,6 +778,68 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 	return nil
 }
 
+func loadRoleMethods(source fs.FS, p *Person) error {
+	p.roleMethods = map[string]map[string][]byte{}
+	claimed := map[string]string{}
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		methodsRoot := "roles/" + roleName + "/skills"
+		if len(role.Methods) == 0 {
+			if _, err := fs.Stat(source, methodsRoot); err == nil {
+				return fmt.Errorf("role %q has an undeclared skills directory", roleName)
+			} else if !os.IsNotExist(err) {
+				return fmt.Errorf("role %q skills: %w", roleName, err)
+			}
+			continue
+		}
+
+		expected := make(map[string]bool, len(role.Methods))
+		for _, method := range role.Methods {
+			if owner, duplicate := claimed[method]; duplicate {
+				return fmt.Errorf("roles %q and %q bind the same method skill %q", owner, roleName, method)
+			}
+			claimed[method] = roleName
+			expected[method] = true
+		}
+		entries, err := fs.ReadDir(source, methodsRoot)
+		if err != nil {
+			return fmt.Errorf("role %q method skills: %w", roleName, err)
+		}
+		if len(entries) != len(expected) {
+			return fmt.Errorf(
+				"role %q binds %d method skills but its directory contains %d entries",
+				roleName,
+				len(expected),
+				len(entries),
+			)
+		}
+		p.roleMethods[roleName] = map[string][]byte{}
+		for _, entry := range entries {
+			method := entry.Name()
+			if !entry.IsDir() || !expected[method] {
+				return fmt.Errorf("role %q method skills has unexpected entry %q", roleName, method)
+			}
+			methodRoot := methodsRoot + "/" + method
+			methodEntries, err := fs.ReadDir(source, methodRoot)
+			if err != nil {
+				return fmt.Errorf("role %q method skill %q: %w", roleName, method, err)
+			}
+			if len(methodEntries) != 1 || methodEntries[0].IsDir() || methodEntries[0].Name() != "SKILL.md" {
+				return fmt.Errorf("role %q method skill %q must contain only SKILL.md", roleName, method)
+			}
+			raw, err := fs.ReadFile(source, methodRoot+"/SKILL.md")
+			if err != nil {
+				return fmt.Errorf("role %q method skill %q: %w", roleName, method, err)
+			}
+			if err := validateSkillDefinition(method, raw); err != nil {
+				return err
+			}
+			p.roleMethods[roleName][method] = append([]byte(nil), raw...)
+		}
+	}
+	return nil
+}
+
 func skillBody(raw []byte) (string, error) {
 	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
 	if !strings.HasPrefix(text, "---\n") {
@@ -817,6 +884,16 @@ func (p *Person) RoleSkillID(roleName string) string {
 		return role.Skill
 	}
 	return "role-" + roleName
+}
+
+// RoleMethodDefinition returns one role-bound progressive-disclosure skill.
+func (p *Person) RoleMethodDefinition(roleName, method string) ([]byte, bool) {
+	methods, ok := p.roleMethods[roleName]
+	if !ok {
+		return nil, false
+	}
+	raw, ok := methods[method]
+	return append([]byte(nil), raw...), ok
 }
 
 func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
@@ -1078,6 +1155,22 @@ func Source(p *Person) (*schema.Source, error) {
 			Path:       "skills/" + roleSkill,
 			EntryPoint: "SKILL.md",
 		}}
+		for _, method := range p.Roles[roleName].Methods {
+			raw, ok := p.RoleMethodDefinition(roleName, method)
+			if !ok {
+				return nil, fmt.Errorf("person %q role %q has no method skill %q", p.Name, roleName, method)
+			}
+			path := "skills/" + method + "/SKILL.md"
+			if _, collision := files[path]; collision {
+				return nil, fmt.Errorf("person %q role %q method skill %q collides with another person skill", p.Name, roleName, method)
+			}
+			files[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+			src.RoleSkills[roleName] = append(src.RoleSkills[roleName], schema.ContentRef{
+				ID:         method,
+				Path:       "skills/" + method,
+				EntryPoint: "SKILL.md",
+			})
+		}
 	}
 	return src, nil
 }
@@ -1126,6 +1219,7 @@ func parse(raw []byte) (*Person, error) {
 		Personalities: map[string]Personality{},
 		Inspirations:  map[string]Inspiration{},
 		roleSkills:    map[string][]byte{},
+		roleMethods:   map[string]map[string][]byte{},
 		Raw:           raw,
 	}
 	for _, n := range root.Children().Nodes {
@@ -1185,6 +1279,18 @@ func parse(raw []byte) (*Person, error) {
 						return nil, fmt.Errorf("role %q: skill needs one id", name)
 					}
 					role.Skill = sargs[0].String()
+				case "method":
+					margs := c.Arguments()
+					if len(margs) != 1 || !validSemanticToken(margs[0].String()) {
+						return nil, fmt.Errorf("role %q: method needs one stable skill id", name)
+					}
+					method := margs[0].String()
+					for _, existing := range role.Methods {
+						if existing == method {
+							return nil, fmt.Errorf("role %q repeats method skill %q", name, method)
+						}
+					}
+					role.Methods = append(role.Methods, method)
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
@@ -1300,6 +1406,11 @@ func parse(raw []byte) (*Person, error) {
 			}
 			if briefingSet {
 				role.Skill = "role-" + name
+			}
+			for _, method := range role.Methods {
+				if method == role.Skill {
+					return nil, fmt.Errorf("role %q method skill %q duplicates its role skill", name, method)
+				}
 			}
 			if briefingSet && briefingParagraphCount(role.Briefing) < 3 {
 				paragraphs := briefingParagraphCount(role.Briefing)
