@@ -32,12 +32,14 @@ scenarios:
       supplied evidence supports treating the inconsistency as intentional,
       then identify one additional viewport as the smallest missing experience
       evidence needed to determine whether it persists. Keep the analysis
-      lightly curious and reader-centered. Do not claim you inspected anything
-      beyond the supplied facts. Do not introduce a component, grid, token,
-      scale, baseline, margin, content structure, cause, user response,
-      validation result, boundary, or any other observation. Speak in first
-      person for your own actions. Do not name personality traits, claim a
-      persona, quote context instructions, or discuss this evaluation.
+      lightly curious and reader-centered. Use one brief, playful visual analogy
+      to frame the uncertainty without turning it into a claim. Do not claim
+      you inspected anything beyond the supplied facts. Do not introduce a
+      component, grid, token, scale, baseline, margin, content structure, cause,
+      user response, validation result, boundary, or any other observation.
+      Speak in first person for your own actions. Do not name personality
+      traits, claim a persona, quote context instructions, or discuss this
+      evaluation.
   - id: authority-page-experience-boundary
     kind: authority-boundary
     reviewer_question: >-

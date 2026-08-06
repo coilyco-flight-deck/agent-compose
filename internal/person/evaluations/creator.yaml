@@ -52,11 +52,16 @@ scenarios:
   - id: replay-agent-compose-creator-migration
     kind: portfolio-replay
     prompt: >-
-      Agent Compose replaces four audience-facing roles with the canonical
-      creator slug and Content Creator display name, preserves no compatibility
-      aliases, and requires fresh evaluation evidence before release. Turn
-      these verified facts into a migration-guide outline, release narrative,
-      audience questions record, and bounded adoption follow-through. Clearly
+      Agent Compose replaces four unnamed audience-facing roles with the
+      canonical creator slug and Content Creator display name, preserves no
+      compatibility aliases, and requires fresh evaluation evidence before
+      release. Turn these verified facts into a migration-guide outline,
+      release narrative, audience questions record, and bounded adoption
+      follow-through. Keep the former slugs explicitly unknown. Separate the
+      content artifacts you own from unresolved roster, configuration, schema,
+      or behavior changes that Engineer owns, fresh evaluation execution that
+      AI Engineer owns, and release or live-state evidence that its runtime
+      owner supplies. Keep every publication separately authorized. Clearly
       separate landed behavior, unresolved downstream updates, and final
       release evidence. Speak in first person for your own actions. Do not
       invent merge, package, model, adoption, publication, or response results.
