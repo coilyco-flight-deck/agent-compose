@@ -330,6 +330,10 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 }
 
 func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
 	out := t.TempDir()
 	result, err := Run(fixture(t, "compiled.kdl"), out)
 	if err != nil {
@@ -339,7 +343,8 @@ func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, heading := range []string{"# Curious", "# Grounded", "# Meticulous"} {
+	for _, personalityName := range p.Roles["engineer"].Personalities {
+		heading := "# " + strings.ToUpper(personalityName[:1]) + personalityName[1:]
 		if !strings.Contains(string(body), heading) {
 			t.Fatalf("compiled prose missing %q:\n%s", heading, body)
 		}

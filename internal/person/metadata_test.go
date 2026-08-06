@@ -205,23 +205,35 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	trueColor, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{
+	role := p.Roles["engineer"]
+	componentColors := make([]string, 0, len(role.Personalities))
+	for _, personalityName := range role.Personalities {
+		componentColors = append(componentColors, p.Personalities[personalityName].Color)
+	}
+	favoriteColor, err := color.Favorite(componentColors)
+	if err != nil {
+		t.Fatal(err)
+	}
+	trueColor, err := p.RenderRoleTranscript("engineer", favoriteColor, RoleTranscriptOptions{
 		Color: true, TrueColor: true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{
-		"\x1b[38;2;144;166;106mrole metadata",
-		"\x1b[38;2;217;142;72mpersonality: curious",
-		"\x1b[38;2;95;168;122mpersonality: grounded",
-		"\x1b[38;2;125;159;211mpersonality: meticulous",
-	} {
+	wants := []string{strings.TrimSuffix(color.ANSI(favoriteColor, "role metadata", true), "\x1b[0m")}
+	for _, personalityName := range role.Personalities {
+		wants = append(wants, strings.TrimSuffix(color.ANSI(
+			p.Personalities[personalityName].Color,
+			"personality: "+personalityName,
+			true,
+		), "\x1b[0m"))
+	}
+	for _, want := range wants {
 		if !strings.Contains(trueColor, want) {
 			t.Errorf("truecolor transcript missing %q:\n%q", want, trueColor)
 		}
 	}
-	fallback, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{
+	fallback, err := p.RenderRoleTranscript("engineer", favoriteColor, RoleTranscriptOptions{
 		Color: true,
 	})
 	if err != nil {

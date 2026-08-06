@@ -86,6 +86,50 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
+func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
+	t.Run("wrong slot count", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		role := p.Roles["engineer"]
+		role.Personalities = append(role.Personalities, "grounded")
+		p.Roles["engineer"] = role
+		if err := validateCoreMelds(p); err == nil ||
+			!strings.Contains(err.Error(), "want exactly three") {
+			t.Fatalf("slot-count validation error = %v", err)
+		}
+	})
+
+	t.Run("overused personality", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		role := p.Roles["ops"]
+		role.Personalities[2] = "curious"
+		p.Roles["ops"] = role
+		if err := validateCoreMelds(p); err == nil ||
+			!strings.Contains(err.Error(), "want at most three") {
+			t.Fatalf("usage validation error = %v", err)
+		}
+	})
+
+	t.Run("duplicate favorite color", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		role := p.Roles["director"]
+		role.Personalities = append([]string(nil), p.Roles["engineer"].Personalities...)
+		p.Roles["director"] = role
+		if err := validateCoreMelds(p); err == nil ||
+			!strings.Contains(err.Error(), "share melded favorite color") {
+			t.Fatalf("favorite-color validation error = %v", err)
+		}
+	})
+}
+
 func TestPortfolioStrategistOwnsPrioritiesWithoutDispatch(t *testing.T) {
 	p, err := Load()
 	if err != nil {

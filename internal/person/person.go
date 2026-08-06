@@ -349,6 +349,9 @@ func Load() (*Person, error) {
 	if err := validateNoUnusedPersonalities(p); err != nil {
 		return nil, err
 	}
+	if err := validateCoreMelds(p); err != nil {
+		return nil, err
+	}
 	return p, nil
 }
 
@@ -575,6 +578,52 @@ func validateNoUnusedPersonalities(p *Person) error {
 	}
 	if len(unused) != 0 {
 		return fmt.Errorf("core roster has unused personalities: %s", strings.Join(unused, ", "))
+	}
+	return nil
+}
+
+func validateCoreMelds(p *Person) error {
+	usage := map[string]int{}
+	colors := map[string]string{}
+	for _, roleName := range p.RoleOrder {
+		role := p.Roles[roleName]
+		if len(role.Personalities) != 3 {
+			return fmt.Errorf(
+				"core role %q has %d personalities, want exactly three",
+				roleName,
+				len(role.Personalities),
+			)
+		}
+		components := make([]string, 0, len(role.Personalities))
+		for _, name := range role.Personalities {
+			usage[name]++
+			components = append(components, p.Personalities[name].Color)
+		}
+		favorite, err := color.Favorite(components)
+		if err != nil {
+			return fmt.Errorf("core role %q favorite color: %w", roleName, err)
+		}
+		if err := color.Legible(favorite); err != nil {
+			return fmt.Errorf("core role %q favorite color: %w", roleName, err)
+		}
+		if existing, ok := colors[favorite]; ok {
+			return fmt.Errorf(
+				"core roles %q and %q share melded favorite color %q",
+				existing,
+				roleName,
+				favorite,
+			)
+		}
+		colors[favorite] = roleName
+	}
+	for name, count := range usage {
+		if count > 3 {
+			return fmt.Errorf(
+				"core personality %q appears in %d roles, want at most three",
+				name,
+				count,
+			)
+		}
 	}
 	return nil
 }

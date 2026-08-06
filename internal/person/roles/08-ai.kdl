@@ -5,7 +5,7 @@ role "ai" {
     skill "role-ai"
     method "eval-role-comms"
     method "eval-role-live-ops"
-    personality "curious" "meticulous" "skeptical" "tenacious"
+    personality "curious" "meticulous" "skeptical"
     identity name="Lucia" pronouns="she"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"

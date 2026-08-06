@@ -26,9 +26,11 @@ it becomes a source.
 A role names its display name, purpose, role skill, [methods](role-methods.md),
 ordered personality meld, and seats. Its optional `model-tier` list restricts
 composition, while omission supports all three tiers. Core roles declare the
-list explicitly. The [role skill](role-briefings.md) needs valid frontmatter
-and at least three body paragraphs. The loader rejects invalid tiers or
-personality sets.
+list explicitly. Core uses exactly three per role, covers every canonical
+personality, caps usage at three roles, and requires legible, distinct derived
+colors. External packages retain any nonempty ordered meld. The [role skill](role-briefings.md)
+needs valid frontmatter and at least three body paragraphs. The loader rejects
+invalid tiers or personality sets.
 The default has eight roles and sixteen personalities. Its explicit
 [role-by-tier matrix](model-tiers.md) groups complex, foundational, and
 high-security roles without changing their authority.

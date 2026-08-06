@@ -10,8 +10,8 @@ external package instead, with no role or definition inheritance from that
 default.
 
 The intended product accepts a role, a model tier, a delivery mode, and
-optional capability sources. The role activates its complete ordered default
-personality set.
+optional capability sources. The role activates its ordered three-personality
+default meld.
 Agent-compose resolves the selected role skill, role methods, and every bound personality
 skill from the selected person package, tells the agent every component and
 melded favorite color through a compact identity card, and emits an immutable

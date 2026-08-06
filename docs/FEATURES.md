@@ -5,7 +5,8 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eight roles, 16 personalities, stable identities, and
+* `roster:core` has 8 roles, 16 personalities, balanced triads, stable
+  identities, and
   Content Creator that connects proof, audience research, community continuity,
   decision support, and communication with external action kept separate.
 * [External person packages](person-packages.md) and

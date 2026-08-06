@@ -33,7 +33,7 @@ func TestBundleRendersSections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{
+	wants := []string{
 		"engineer/" + personalitySet,
 		"melded #",
 		"\nprofile\n", "\nproviders\n", "\ncontext budget\n", "\nselection\n", "\ndelivery\n",
@@ -42,13 +42,14 @@ func TestBundleRendersSections(t *testing.T) {
 		"✓ roster:core", "(person-package/person)",
 		"✓ aos-public", "(catalogue/request)",
 		"skills ·", "bytes · ~", "tokens",
-		"✓ skill personality-curious",
-		"✓ skill personality-grounded",
-		"✓ skill personality-meticulous",
 		"✓ skill fixture-review",
 		"→ content/skills",
 		"machine-readable trace: trace.json",
-	} {
+	}
+	for _, personalityName := range p.Roles["engineer"].Personalities {
+		wants = append(wants, "✓ skill "+p.Personalities[personalityName].Skill)
+	}
+	for _, want := range wants {
 		if !strings.Contains(out, want) {
 			t.Fatalf("describe output missing %q:\n%s", want, out)
 		}

@@ -12,6 +12,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
@@ -328,6 +329,10 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := summaryFixture(t, p)
+	wantPersonalities := strings.Join(p.Roles["engineer"].Personalities, " // ")
+	wantColor := result.Resolution.FavoriteColor
+	wantIdentity := "agent identity: " + p.Roles["engineer"].Identity.Name +
+		" // pronouns: " + p.Roles["engineer"].Identity.Pronouns
 
 	var output strings.Builder
 	if err := printSummary(&output, result, person.RoleTranscriptOptions{}); err != nil {
@@ -338,10 +343,10 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		"request: model tier frontier // delivery native-skills",
 		"roster: core // provided by: roster:core",
 		"role: engineer",
-		"personalities: curious // grounded // meticulous",
-		"melded color: #90a66a",
+		"personalities: " + wantPersonalities,
+		"melded color: " + wantColor,
 		"personality: curious",
-		"agent identity: opal engineer // pronouns: she",
+		wantIdentity,
 		"renderer expressions: available // listening // thinking",
 		"decisions: 1 selected // 1 excluded // 1 shadowed // 1 delivered",
 	} {
@@ -364,7 +369,8 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(colored.String(), "\x1b[38;2;144;166;106mbundle") {
+	wantColoredBundle := strings.TrimSuffix(color.ANSI(wantColor, "bundle", true), "\x1b[0m")
+	if !strings.Contains(colored.String(), wantColoredBundle) {
 		t.Fatalf("summary intro did not use melded truecolor:\n%q", colored.String())
 	}
 }
@@ -382,6 +388,15 @@ func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 
 func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 	t.Helper()
+	personalities := p.Roles["engineer"].Personalities
+	colors := make([]string, 0, len(personalities))
+	for _, personalityName := range personalities {
+		colors = append(colors, p.Personalities[personalityName].Color)
+	}
+	favoriteColor, err := color.Favorite(colors)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return &compose.Result{
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{
@@ -390,8 +405,8 @@ func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 				ModelTier: schema.ModelTierFrontier,
 				Delivery:  "native-skills",
 			},
-			Personalities: []string{"curious", "grounded", "meticulous"},
-			FavoriteColor: "#90a66a",
+			Personalities: personalities,
+			FavoriteColor: favoriteColor,
 			SourceIDs:     []string{"roster:core", "aos-public"},
 			Person:        p,
 			Decisions: []resolver.Decision{

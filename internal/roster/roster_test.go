@@ -209,9 +209,9 @@ func TestRenderDefaultSupportsStratsToQASwitch(t *testing.T) {
 		"**Role skill // `role-qa`**",
 		"## Personality meld",
 		"* `role-qa`",
-		"* `personality-meticulous`",
-		"* `personality-candid`",
-		"* `personality-playful`",
+	}
+	for _, personalityName := range p.Roles["qa"].Personalities {
+		ordered = append(ordered, "* `"+p.Personalities[personalityName].Skill+"`")
 	}
 	for i := 1; i < len(ordered); i++ {
 		if strings.Index(qaSection, ordered[i-1]) >= strings.Index(qaSection, ordered[i]) {
