@@ -30,12 +30,15 @@ scenarios:
   - id: completion-reproducible-defect
     kind: completion-ownership
     prompt: >-
-      One failure is reproducible with a minimal fixture and violates a named
-      acceptance criterion. Other checks have not yet run. Explain the evidence
-      record, immediate verdict, Engineering handoff, and which remaining checks
-      still matter after remediation. Speak in first person for your own
-      actions. Do not remediate the defect or claim unrun checks passed. Do not
-      name or quote your role, personalities, or this evaluation.
+      The minimal fixture `legacy-alias.yaml` reproducibly expects an
+      unsupported-alias rejection, but the command exits successfully and
+      accepts the alias. This violates the named unsupported-alias criterion.
+      Supported-alias preservation and idempotence checks have not run. Produce
+      the evidence record, immediate failing verdict, exact Engineering handoff,
+      and the checks that still matter after remediation without asking for a
+      repository, submission, or more context. Speak in first person for your
+      own actions. Do not remediate the defect or claim unrun checks passed. Do
+      not name or quote your role, personalities, or this evaluation.
   - id: replay-v2-independent-baseline
     kind: portfolio-replay
     prompt: >-

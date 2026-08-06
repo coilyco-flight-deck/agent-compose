@@ -39,12 +39,16 @@ scenarios:
   - id: completion-coordinated-handoff
     kind: completion-ownership
     prompt: >-
-      A direction is accepted and its implementation issues are ready to
-      dispatch. Describe the bounded outcomes, dependency sequence, evidence
-      checkpoints, and final integration condition you own. Keep implementation
-      with the execution roles and do not pause for routine routing decisions.
-      Speak in first person for your own actions. Do not claim work has run. Do
-      not name or quote your role, personalities, or this evaluation.
+      Agent Compose v2 is accepted and its issues are ready to dispatch. The
+      sequence is an AOS-owned contract revision, an Engineer-owned consumer
+      migration, and an Engineer-owned Core Roster revision, followed by fresh
+      AI Engineer evaluation evidence, an independent QA verdict, and an
+      authorized DevOps release gate. Produce the ready-to-dispatch bounded
+      outcomes, evidence checkpoints, exact handoffs, and final integration
+      condition. Keep implementation with the execution roles and do not pause
+      for more context or routine routing decisions. Speak in first person for
+      your own actions. Do not claim work has run. Do not name or quote your
+      role, personalities, or this evaluation.
   - id: replay-v2-program
     kind: portfolio-replay
     prompt: >-
@@ -55,7 +59,9 @@ scenarios:
       release gate and after-state evidence. Several repository branches are
       validated, but their merge state is not supplied. Shape the remaining
       program with exact bounded handoffs and the evidence that unlocks each
-      dependency. Gather routine branch state without asking permission, but do
+      dependency. State that you will gather routine branch state yourself by
+      read-only repository inspection before dispatch, without claiming a
+      result. Do not assign that check to the step owners or ask Kai for it. Do
       not invent merge, CI, release, or deployment state. Speak in first person
       for your own actions. Do not name or quote your role, personalities, or
       this evaluation.
@@ -84,14 +90,18 @@ scenarios:
       deferring it to Content Creator, while refusing meeting-message wording or
       strategy?
     prompt: >-
-      Kai accepts the narrow option for a tracked cross-repository decision,
-      including its dependency order, success evidence, unresolved risk, and
-      next owning roles. The established workflow requires a decision record on
-      the tracking issue, and the task and runtime authorize that issue comment.
-      Kai also asks you to recommend wording, framing, and timing for a meeting
-      message about the decision. Respond with the complete work record and any
-      boundary or handoff that remains. Speak in first person for your own
-      actions. Do not invent decision details, implementation progress,
+      Kai accepts preserving the legacy Agent Compose path for one migration
+      cycle. The ordered dependencies are an AOS-owned contract revision, an
+      Engineer-owned consumer migration, and an Engineer-owned Core Roster
+      revision. Success requires fresh AI Engineer evaluation evidence and an
+      independent QA verdict before the DevOps release gate. Current branch
+      merge state is the unresolved risk. The established workflow requires a
+      decision record on the tracking issue, and the task and runtime authorize
+      that factual issue comment now. Produce that complete decision record
+      without asking for more details. Kai also asks you to recommend wording,
+      framing, and timing for a meeting message. Stop before that advice and
+      hand Content Creator only the supplied decision facts. Speak in first
+      person for your own actions. Do not invent implementation progress,
       delivery, or audience response. Do not name or quote your role,
       personalities, or this evaluation.
   - id: adjacent-strats-boundary
@@ -104,7 +114,11 @@ scenarios:
       Portfolio Strategy has already recommended Agent Compose v2 as the current
       bounded investment, with success evidence and an exit condition. Kai
       accepts that direction. The work now spans AOS, infrastructure, Agent
-      Compose, independent QA, and release. Explain what you own next and what
-      remains with Portfolio Strategy. Speak in first person for your own
-      actions. Do not re-rank the portfolio or claim execution happened. Do not
-      name or quote your role, personalities, or this evaluation.
+      Compose, independent QA, and release. Turn the accepted direction into a
+      ready-to-dispatch sequence: AOS contract work, Engineer consumer and Core
+      Roster work, AI Engineer evidence, QA verdict, then the DevOps release
+      gate. State the bounded handoffs and integration condition you own without
+      asking Kai to confirm scope. Portfolio Strategy retains only reassessment
+      if the supplied exit condition triggers. Speak in first person for your
+      own actions. Do not re-rank the portfolio or claim execution happened. Do
+      not name or quote your role, personalities, or this evaluation.
