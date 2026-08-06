@@ -85,6 +85,16 @@ type ReviewRule struct {
 	RequiredEvidence         string         `yaml:"required_evidence"`
 }
 
+type EvaluationModelPolicy struct {
+	CapabilityClass string `yaml:"capability_class"`
+	ReasoningEffort string `yaml:"reasoning_effort"`
+}
+
+type EvaluationPolicy struct {
+	Driver   EvaluationModelPolicy `yaml:"driver"`
+	Reviewer EvaluationModelPolicy `yaml:"reviewer"`
+}
+
 type Pack struct {
 	Format              string               `yaml:"format"`
 	Person              string               `yaml:"person"`
@@ -100,6 +110,7 @@ type Pack struct {
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
 	Invariant           string               `yaml:"invariant"`
 	DisabledModelTiers  []string             `yaml:"disabled_model_tiers,omitempty"`
+	EvaluationPolicy    EvaluationPolicy     `yaml:"evaluation_policy"`
 	RunProtocol         []string             `yaml:"run_protocol"`
 	ReviewRule          ReviewRule           `yaml:"review_rule"`
 	Cases               []Case               `yaml:"cases"`
@@ -138,6 +149,7 @@ func EffectiveAssetDigests(p *person.Person, roleName string) ([]AssetDigest, er
 }
 
 type profileMatrix struct {
+	EvaluationPolicy    EvaluationPolicy  `yaml:"evaluation_policy"`
 	RunProtocol         []string          `yaml:"run_protocol"`
 	ReviewRule          ReviewRule        `yaml:"review_rule"`
 	Cases               []Case            `yaml:"cases"`
@@ -239,6 +251,7 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
 		Invariant:           strings.TrimSpace(string(invariant)),
+		EvaluationPolicy:    generic.EvaluationPolicy,
 		RunProtocol:         generic.RunProtocol,
 		ReviewRule:          generic.ReviewRule,
 		Cases:               generic.Cases,
@@ -296,6 +309,9 @@ func parseGenericMatrix(raw []byte) (profileMatrix, error) {
 	if err := yaml.Unmarshal(raw, &matrix); err != nil {
 		return matrix, err
 	}
+	if err := validateEvaluationPolicy(matrix.EvaluationPolicy); err != nil {
+		return matrix, err
+	}
 	if len(matrix.RunProtocol) == 0 || matrix.ReviewRule.PassingTotal == 0 ||
 		len(matrix.Cases) == 0 || len(matrix.RoleRubric) == 0 ||
 		len(matrix.PersonalityRubric) == 0 || matrix.RoleQuestion == "" || matrix.PersonalityQuestion == "" {
@@ -310,6 +326,9 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 	decoder.KnownFields(true)
 	if err := decoder.Decode(&matrix); err != nil {
 		return matrix, err
+	}
+	if !evaluationPolicyEmpty(matrix.EvaluationPolicy) {
+		return matrix, fmt.Errorf("custom matrix inherits the engine evaluation policy")
 	}
 	if len(matrix.Cases) > 0 && len(matrix.Scenarios) > 0 {
 		return matrix, fmt.Errorf("matrix cannot mix cases and scenarios")
@@ -352,6 +371,38 @@ func parseProfileMatrix(raw []byte) (profileMatrix, error) {
 		return matrix, fmt.Errorf("matrix must include role_prompt and personality_prompt")
 	}
 	return matrix, nil
+}
+
+func evaluationPolicyEmpty(policy EvaluationPolicy) bool {
+	return policy.Driver == (EvaluationModelPolicy{}) &&
+		policy.Reviewer == (EvaluationModelPolicy{})
+}
+
+func validateEvaluationPolicy(policy EvaluationPolicy) error {
+	for name, model := range map[string]EvaluationModelPolicy{
+		"driver":   policy.Driver,
+		"reviewer": policy.Reviewer,
+	} {
+		switch model.CapabilityClass {
+		case schema.ModelTierFrontier, schema.ModelTierCommodity, schema.ModelTierOSS:
+		default:
+			return fmt.Errorf(
+				"evaluation %s capability class %q is unsupported",
+				name,
+				model.CapabilityClass,
+			)
+		}
+		switch model.ReasoningEffort {
+		case "low", "medium", "high", "xhigh":
+		default:
+			return fmt.Errorf(
+				"evaluation %s reasoning effort %q is unsupported",
+				name,
+				model.ReasoningEffort,
+			)
+		}
+	}
+	return nil
 }
 
 func validateScenario(scenario Scenario) error {

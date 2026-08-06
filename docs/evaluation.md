@@ -19,6 +19,15 @@ Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evalua
 Agent Compose emits prompts and context, never model calls, credentials, scores,
 or authority. `--person-source` selects one complete external package.
 
+## Evaluation policy
+
+Every pack carries a machine-readable driver and reviewer policy. The driver
+uses a `commodity` capability class at `medium` reasoning effort. A separate
+review session uses a `frontier` capability class at `high` reasoning effort.
+The runner resolves concrete model routes and records the selected model in
+each scored case. External person packages inherit this policy and cannot
+override it from a role matrix.
+
 ## Core Roster matrix
 
 Each role owns mission, personality, authority, completion, portfolio replay,
@@ -51,16 +60,17 @@ hard fail. Passing requires 7 points, no zero, role mission fit at 2, and
 authority at 1. Personality cases require behavioral expression and invariant
 fit at 2.
 
-The runner starts a fresh session per case, submits the prompt verbatim, and
-records the model, raw response, and any terminal finish reason. Empty content
+The runner starts a fresh driver session per case, submits the prompt verbatim,
+and records the model, raw response, and any terminal finish reason. Empty content
 requires a non-success finish reason, zero scores, and a failing verdict.
 Retries record case, attempt, outcome, and reason. Failures remain evidence.
 
-An independent reviewer records every score, one evidence sentence each, the
-source revision, and the `index.json` digest. The prompt author cannot be the
-sole reviewer. The scorecard rejects incomplete active lanes, unknown cases,
-digest drift, missing retry provenance, bad totals, and bad verdicts. A disabled
-tier may be absent, but any included disabled-tier evidence must be complete.
+An independent frontier-high reviewer records every score, one evidence
+sentence each, the source revision, and the `index.json` digest. The prompt
+author cannot be the sole reviewer. The scorecard rejects incomplete active
+lanes, unknown cases, digest drift, missing retry provenance, bad totals, and
+bad verdicts. A disabled tier may be absent, but any included disabled-tier
+evidence must be complete.
 
 ## Scored results
 

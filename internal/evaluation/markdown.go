@@ -27,6 +27,12 @@ func Markdown(pack *Pack) []byte {
 		fmt.Fprintf(&out, "### %s\n\n%s\n\n", personality.Name, personality.Definition)
 	}
 
+	out.WriteString("## Evaluation policy\n\n")
+	fmt.Fprintf(&out, "* Driver capability class: `%s`\n", pack.EvaluationPolicy.Driver.CapabilityClass)
+	fmt.Fprintf(&out, "* Driver reasoning effort: `%s`\n", pack.EvaluationPolicy.Driver.ReasoningEffort)
+	fmt.Fprintf(&out, "* Reviewer capability class: `%s`\n", pack.EvaluationPolicy.Reviewer.CapabilityClass)
+	fmt.Fprintf(&out, "* Reviewer reasoning effort: `%s`\n\n", pack.EvaluationPolicy.Reviewer.ReasoningEffort)
+
 	out.WriteString("## Run protocol\n\n")
 	for i, step := range pack.RunProtocol {
 		fmt.Fprintf(&out, "%d. %s\n", i+1, step)

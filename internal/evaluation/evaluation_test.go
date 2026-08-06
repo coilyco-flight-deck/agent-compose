@@ -329,6 +329,7 @@ func TestSeatSelectionChangesIdentityNotDoctrineOrAuthority(t *testing.T) {
 		claude.RoleSkillDigest != codex.RoleSkillDigest ||
 		claude.Briefing != codex.Briefing ||
 		!reflect.DeepEqual(claude.Personalities, codex.Personalities) ||
+		!reflect.DeepEqual(claude.EvaluationPolicy, codex.EvaluationPolicy) ||
 		!reflect.DeepEqual(claude.RunProtocol, codex.RunProtocol) ||
 		!reflect.DeepEqual(claude.ReviewRule, codex.ReviewRule) ||
 		!reflect.DeepEqual(claude.Cases, codex.Cases) {

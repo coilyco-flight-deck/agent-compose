@@ -43,7 +43,8 @@ Inventory of what ships today.
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
 * [Evaluation](evaluation.md) has three-lane Core Roster matrices, explicit
-  communication hard fails, independent-review evidence, and
+  communication hard fails, commodity-medium drivers, frontier-high
+  independent review, and
   [scorecards](evaluation-scorecard.md). `disabled_model_tiers` pauses a lane
   without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
