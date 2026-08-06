@@ -26,6 +26,8 @@ import (
 //go:embed person.kdl roles definitions evaluations libraries
 var embedded embed.FS
 
+const maxRoleSkillBodyWords = 400
+
 var personSections = []struct {
 	directory string
 	node      string
@@ -827,6 +829,14 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 		body, err := skillBody(raw)
 		if err != nil {
 			return fmt.Errorf("role %q skill %q: %w", roleName, role.Skill, err)
+		}
+		if words := roleSkillBodyWordCount(body); words > maxRoleSkillBodyWords {
+			return fmt.Errorf(
+				"role %q skill body has %d words, maximum is %d",
+				roleName,
+				words,
+				maxRoleSkillBodyWords,
+			)
 		}
 		if paragraphs := briefingParagraphCount(body); paragraphs < 3 {
 			return fmt.Errorf("role %q skill needs at least three paragraphs, got %d", roleName, paragraphs)
@@ -1705,6 +1715,15 @@ func briefingParagraphCount(briefing string) int {
 		}
 	}
 	return count
+}
+
+func roleSkillBodyWordCount(body string) int {
+	content := strings.TrimSpace(strings.ReplaceAll(body, "\r\n", "\n"))
+	firstLine, remainder, found := strings.Cut(content, "\n")
+	if found && strings.HasPrefix(strings.TrimSpace(firstLine), "# ") {
+		content = remainder
+	}
+	return len(strings.Fields(content))
 }
 
 func validLogicalID(value string) bool {

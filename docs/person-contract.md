@@ -6,11 +6,11 @@ may select one external package with the same contract:
 ```kdl
 roster "core" {
     role "engineer" {
-        purpose "Build and land work across Kai's real repository portfolio."
+        purpose "Build and land work across the real repository portfolio."
         model-tier "frontier" "commodity" "oss"
         skill "role-engineer"
         method "eval-role-comms"
-        personality "curious" "grounded" "meticulous" "tenacious"
+        personality "curious" "meticulous" "tenacious"
         identity name="opal engineer" pronouns="she"
         agent "claude" tier="frontier"
         agent "codex" tier="frontier"
@@ -28,9 +28,9 @@ ordered personality meld, and seats. Its optional `model-tier` list restricts
 composition, while omission supports all three tiers. Core roles declare the
 list explicitly. Core uses exactly three per role, covers every canonical
 personality, caps usage at three roles, and requires legible, distinct derived
-colors. External packages retain any nonempty ordered meld. The [role skill](role-briefings.md)
-needs valid frontmatter and at least three body paragraphs. The loader rejects
-invalid tiers or personality sets.
+colors. External packages retain any nonempty ordered meld. A
+[role skill](role-briefings.md) needs valid frontmatter, three paragraphs, and
+at most 400 body words after its leading title. Invalid sources fail loading.
 The default has eight roles and sixteen personalities. Its explicit
 [role-by-tier matrix](model-tiers.md) groups complex, foundational, and
 high-security roles without changing their authority.

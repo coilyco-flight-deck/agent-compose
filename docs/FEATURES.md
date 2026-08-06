@@ -18,9 +18,9 @@ Inventory of what ships today.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
-* Canonical skills use identity cards and compiled fallback. Designer may land
-  bounded page-level web experiences. Content Creator owns the audience loop,
-  reusable proof, and content-only code changes.
+* Canonical skills use identity cards and compiled fallback. Designer owns
+  bounded page experiences. Content Creator owns the audience loop and
+  content-only changes. Role-skill bodies have a 400-word ceiling.
 
 ## Load-point projection
 

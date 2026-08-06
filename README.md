@@ -59,8 +59,9 @@ installs the resulting system across hosts.
 
 The opinionated `roster:core` default has Engineer, Director, QA, DevOps
 (`ops`), Designer (`design`), Portfolio Strategist (`strats`), Content
-Creator (`creator`), and AI Engineer (`ai`). They operate Kai's real
-open-source, platform, community, personal, and gaming portfolio without inventing a company or active commercial venture. Content Creator unifies the
+Creator (`creator`), and AI Engineer (`ai`). They operate the real
+open-source, platform, community, personal, and gaming portfolio without
+inventing a company or active commercial venture. Content Creator unifies the
 old content, community, outreach, and sales work. Potential contracting and
 SaaS work stays evidence-qualified.
 

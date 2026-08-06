@@ -1,6 +1,6 @@
 role "director" {
     display-name "Director"
-    purpose "Shape decisions across Kai's real project portfolio."
+    purpose "Shape decisions across the real project portfolio."
     model-tier "frontier"
     skill "role-director"
     personality "bold" "diplomatic" "decisive"

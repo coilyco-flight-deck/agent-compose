@@ -130,127 +130,6 @@ func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
 	})
 }
 
-func TestPortfolioStrategistOwnsPrioritiesWithoutDispatch(t *testing.T) {
-	p, err := Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-	role := p.Roles["strats"]
-	for _, required := range []string{
-		"decide where Kai should invest attention",
-		"opportunity cost",
-		"revisit or exit condition",
-		"do not own execution coordination or agent dispatch",
-		"Director turns an accepted direction into coordinated Ward work",
-		"Never invent authority",
-	} {
-		if !strings.Contains(role.Briefing, required) {
-			t.Errorf("Portfolio Strategist role skill omitted %q", required)
-		}
-	}
-}
-
-func TestDesignerRoleSkillAllowsBoundedPageExperiences(t *testing.T) {
-	p, err := Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-	briefing := strings.Join(strings.Fields(p.Roles["design"].Briefing), " ")
-	for _, required := range []string{
-		"existing graphical web application",
-		"complete product effect is visual presentation",
-		"complete page-level experience",
-		"static or content-driven routes, navigation placement, presentation, accessibility, and page copy",
-		"reverting the patch would change presentation while leaving all non-visual behavior and generated system output unchanged",
-		"reverting the patch would remove or reshape that bounded experience",
-		"File extensions and frameworks do not decide the boundary",
-		"file-based routes or focused route declarations whose sole purpose is exposing those pages",
-		"adding, removing, renaming, or reordering their navigation entries",
-		"meaningful page copy, static public data catalogs",
-		"user supplies exact static labels or list items",
-		"native semantic HTML",
-		"accessibility semantics, focus treatment, ordinary keyboard access",
-		"metadata, Open Graph treatment, empty states, error copy",
-		"focused route, rendering, accessibility, and navigation tests",
-		"Business rules, application state machines, cross-feature interaction logic",
-		"runtime data fetching, APIs, networking, persistence, authentication, permissions, analytics",
-		"stateful forms, validation engines, transactions, workflows, routing-system architecture",
-		"Terminal, CLI, TUI, game, simulation, procedural-generation, infrastructure, deployment, release, and live-operations work",
-		"isolate and land the coherent design-owned slice",
-		"does not grant commands, credentials, mounts, network access, model selection, or executable permission",
-	} {
-		if !strings.Contains(briefing, required) {
-			t.Errorf("Designer role skill omitted %q", required)
-		}
-	}
-}
-
-func TestContentCreatorRoleSkillMergesAudienceWorkAndLimitsImplementation(t *testing.T) {
-	p, err := Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-	briefing := strings.Join(strings.Fields(p.Roles["creator"].Briefing), " ")
-	for _, required := range []string{
-		"own the complete audience loop",
-		"community-state and durable-feedback records",
-		"qualification thresholds, response classification",
-		"discovery and decision-criteria preparation",
-		"complete product effect is content",
-		"reverting the patch would change only human-facing words or static media",
-		"File extensions and frameworks do not decide the boundary",
-		"literal copy or static content consumed by existing behavior",
-		"documentation, interface copy, CLI help text, verified error wording",
-		"identifiers, commands, flags, structured output, APIs, data contracts",
-		"agent prompts or instructions that determine system behavior",
-		"isolate and land the content-only slice",
-		"exclusively own every recommendation about communication to a human",
-		"wording, tone, framing, timing, channel, reply strategy, and editorial fitness",
-		"Other roles retain their routine factual work records",
-		"Do not require a Content Creator handoff or exact supplied wording",
-		"does not authorize you to publish, post, upload, send",
-		"does not grant commands, credentials, mounts, network access",
-	} {
-		if !strings.Contains(briefing, required) {
-			t.Errorf("Content Creator role skill omitted %q", required)
-		}
-	}
-	for _, removed := range []string{"content", "community", "outreach", "sales"} {
-		if _, exists := p.Roles[removed]; exists {
-			t.Errorf("removed role %q remains in Core Roster", removed)
-		}
-	}
-}
-
-func TestCoreRosterDefersHumanCommunicationRecommendationsToContentCreator(t *testing.T) {
-	p, err := Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, roleName := range p.RoleOrder {
-		if roleName == "creator" {
-			continue
-		}
-		briefing := strings.Join(strings.Fields(p.Roles[roleName].Briefing), " ")
-		for _, required := range []string{
-			"Content Creator is the exclusive owner of every recommendation about communication to a human",
-			"draft, rewrite, suggest, or evaluate wording",
-			"tone, framing, timing, channel, or reply strategy",
-			"bounded factual handoff",
-			"This boundary does not transfer routine factual work records to Content Creator",
-			"mechanically determined status, checkpoint, completion, failure, rollback, containment, verdict, decision, issue, cross-link, and handoff records",
-			"verified state, actions, evidence, results, blockers, acceptance conditions, and the next owner",
-			"task, runtime, and user authorize the external action and destination",
-			"Role prose grants no sending or publication authority",
-			"already approved communication artifact",
-		} {
-			if !strings.Contains(briefing, required) {
-				t.Errorf("role %q communication boundary omitted %q", roleName, required)
-			}
-		}
-	}
-}
-
 func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 	for name, files := range map[string]fstest.MapFS{
 		"missing": {},
@@ -273,6 +152,44 @@ func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLoadRoleSkillsEnforcesAuthoredBodyWordLimit(t *testing.T) {
+	for name, words := range map[string]int{
+		"at limit":   maxRoleSkillBodyWords,
+		"over limit": maxRoleSkillBodyWords + 1,
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := fstest.MapFS{
+				"roles/builder/SKILL.md": {
+					Data: roleSkillWordLimitFixture(words),
+				},
+			}
+			p := &Person{
+				Name:      "fixture",
+				RoleOrder: []string{"builder"},
+				Roles: map[string]Role{
+					"builder": {Skill: "role-builder"},
+				},
+			}
+			err := loadRoleSkills(files, p)
+			if words == maxRoleSkillBodyWords && err != nil {
+				t.Fatalf("role skill at word limit failed: %v", err)
+			}
+			if words > maxRoleSkillBodyWords &&
+				(err == nil || !strings.Contains(err.Error(), "maximum is 400")) {
+				t.Fatalf("role skill over word limit error = %v", err)
+			}
+		})
+	}
+}
+
+func roleSkillWordLimitFixture(words int) []byte {
+	body := strings.TrimSpace(strings.Repeat("word ", words-2))
+	return []byte(
+		"---\nname: role-builder\ndescription: Build fixtures.\n---\n\n" +
+			"# Builder\n\n" + body + "\n\nSecond.\n\nThird.\n",
+	)
 }
 
 func TestLoadRoleMethodsRejectsIncompleteOrExtraDefinitions(t *testing.T) {

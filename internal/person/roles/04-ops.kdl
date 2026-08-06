@@ -1,6 +1,6 @@
 role "ops" {
     display-name "DevOps"
-    purpose "Operate Kai's real hosted systems and release surfaces."
+    purpose "Operate the real hosted systems and release surfaces."
     model-tier "frontier"
     skill "role-ops"
     personality "protective" "grounded" "reflective"

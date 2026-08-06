@@ -9,14 +9,14 @@ A role fragment binds a stable skill id:
 ```kdl
 role "strats" {
     display-name "Portfolio Strategist"
-    purpose "Decide where Kai should invest attention across her real portfolio."
+    purpose "Decide where to invest attention across the real portfolio."
     skill "role-strats"
-    personality "curious" "skeptical" "grounded" "decisive"
+    personality "curious" "grounded" "decisive"
 }
 ```
 
-The body lives at `roles/strats/SKILL.md` with ordinary skill frontmatter. It
-requires `role-<slug>`, matching metadata, and at least three paragraphs.
+The body at `roles/strats/SKILL.md` needs ordinary frontmatter, matching
+`role-<slug>` metadata, three paragraphs, and at most 400 words after its title.
 
 V1.x packages may retain an inline `briefing`. The compatibility adapter
 projects it as an in-memory `role-<slug>` skill. A role cannot declare both
