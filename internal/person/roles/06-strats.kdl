@@ -4,7 +4,7 @@ role "strats" {
     model-tier "frontier"
     skill "role-strats"
     personality "curious" "skeptical" "grounded" "decisive"
-    identity name="fabled strategist" pronouns="she"
+    identity name="Saiya" pronouns="they"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "hermes"
