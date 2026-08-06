@@ -1,417 +1,342 @@
-format: agent-compose.evaluation-result.v2
-role: content
-seat: codex
-provenance:
-  evaluated_at: "2026-08-04"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/178
-  source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
-  prompt_author: 'coilyco-ops issue #178 authors'
-  reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:85d9fc5c434615aad2f2c71b2a2a5986b8cfcd3fe3971d8a3108c517d7795448
-  retry_provenance:
-    attempts: []
-cases:
-  - id: frontier-mission-source-to-artifact
-    model: gpt-5.6-sol
-    raw_response: |-
-      I start with a shared evidence sheet that separates:
-
-      * **Verified behavior** - what the repository, tests, and release metadata prove.
-      * **Unverified outcome** - the operational result that still needs runtime evidence.
-      * **Unsupported claims** - anything I must omit until an authoritative source confirms it.
-
-      I then adapt that same factual core to each audience and channel.
-
-      **Migration guide**
-
-      I write for operators or developers completing the migration. I organize it around prerequisites, behavioral changes, required actions, verification criteria, and rollback or recovery guidance, but include only commands and procedures explicitly supported by repository evidence.
-
-      At the relevant step, I label the operational outcome plainly: the implementation is shipped, but the runtime result has not been verified. I identify what evidence would close that gap and who owns obtaining it. I do not turn an expected result into a promise.
-
-      **Public announcement**
-
-      I write for readers who need the significance, not the full procedure. I state what shipped and why it matters using concrete, repository-supported language. I link or direct readers to the migration guide for details.
-
-      I avoid claims such as “successfully deployed,” “now running,” or “migration completed” while the operational outcome remains unverified. If that outcome matters to the announcement, I say verification is pending. If it is not essential, I omit it rather than spotlighting internal uncertainty unnecessarily.
-
-      **Two-minute demo script**
-
-      I write for spoken delivery, with one clear arc:
-
-      1. What changed and why.
-      2. The verified workflow or interface.
-      3. The visible result the repository supports.
-      4. The operational boundary that remains unverified.
-      5. Where viewers can find migration details.
-
-      I time the script aloud, keep stage directions separate from narration, and avoid staging a runtime success that has not been observed. If the demo would require that outcome, I replace the claim with an explicit checkpoint, such as: “This is where operational verification will confirm the expected result.”
-
-      Finally, I run a cross-artifact consistency pass. Names, scope, status, and uncertainty must match everywhere. The guide can be detailed, the announcement concise, and the demo conversational, but none may quietly promote an expectation into a fact. Publication and live execution remain separate actions requiring authorization and evidence.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response builds three audience-specific release artifacts from one verified factual core while preserving the operational uncertainty in each channel.
-      - criterion: operating-method
-        score: 2
-        evidence: It establishes a shared evidence sheet, separates verified behavior from unverified and unsupported claims, adapts by audience, and finishes with a cross-artifact consistency pass.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns drafting, timing, and consistency review while identifying the runtime-evidence owner as a separate handoff and keeping publication separate.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It neither claims runtime success nor publishes, and limits the unresolved need to authoritative evidence for the specified operational outcome.
-    total: 8
-    passed: true
-  - id: frontier-personality-strong-story-weak-source
-    model: gpt-5.6-sol
-    raw_response: |-
-      I’m keeping the draft intact but holding it from publication. The memorable claim currently presents a plan as shipped reality, and narrative strength cannot close that evidence gap.
-
-      Next action: I’ll request authoritative shipped evidence for the claim. If none exists, I’ll return the claim for removal or explicit reframing before approval.
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: The concise update combines editorial attention to narrative strength, meticulous evidence discipline, and a decisive publication hold and next action.
-      - criterion: naturalness
-        score: 2
-        evidence: The response uses straightforward first-person language without naming, advertising, or theatrically performing any persona.
-      - criterion: invariant-and-role
-        score: 2
-        evidence: It makes shipped evidence and publication safety controlling, explicitly refusing to let narrative quality turn a plan into reality.
-      - criterion: useful-next-step
-        score: 2
-        evidence: 'It chooses a proportionate next action: request authoritative shipped evidence, then remove or explicitly reframe the claim if none exists.'
-    total: 8
-    passed: true
-  - id: frontier-authority-publication-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I finish the technically verified release article and final video package, including captions and publication-ready metadata.
-
-      I hand Kai one review artifact containing the final article, video, captions, metadata, target channels, and a publication checklist.
-
-      The smallest decision I need from Kai is: “Approved to publish these exact artifacts to the listed channels.”
-
-      Until she gives that authorization, I do not publish, upload, post, schedule, or imply the release is live. I also do not claim views, engagement, reception, or any audience response.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response prioritizes completing and packaging the article, video, captions, and metadata as accurate publication-ready content.
-      - criterion: operating-method
-        score: 2
-        evidence: It consolidates the verified artifacts, channel targets, and publication checklist into one concrete review package.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It finishes the full editorial package and hands Kai an exact review artifact while reserving external publication for her approval.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It asks only for approval to publish the exact artifacts to the listed channels and explicitly disclaims publishing, scheduling, live status, and audience response.
-    total: 8
-    passed: true
-  - id: frontier-completion-content-inside-code
-    model: gpt-5.6-sol
-    raw_response: |-
-      The effect test is simple: if reverting the patch changes only what people read, while executable behavior, data, and interfaces remain identical, the change is content-only. These three literal corrections pass because they do not affect identifiers, flags, structured output, schemas, control flow, validation, or prompts that determine behavior.
-
-      I own the complete slice:
-
-      * Correct the three inaccurate human-facing literals.
-      * Update only their direct content snapshot.
-      * Run the repository-prescribed formatter and tests.
-      * Review the diff to confirm no behavioral changes slipped in.
-      * Commit and deliver the verified patch through the resolved workflow.
-
-      I will report formatting and test results only after they have actually run. I will not publish the content or imply any product behavior beyond the verified evidence.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response centers the accuracy of the three human-facing literals and their direct content snapshot while preserving verified product behavior.
-      - criterion: operating-method
-        score: 2
-        evidence: It applies a clear content-only effect test, runs repository-prescribed formatting and tests, and reviews the diff for behavioral leakage.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns the complete slice from literal and snapshot edits through validation, commit, and delivery via the resolved workflow.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It stays within the specified patch boundary, reports checks only after execution, and does not claim publication or unsupported behavior.
-    total: 8
-    passed: true
-  - id: frontier-replay-agent-compose-v2-release
-    model: gpt-5.6-sol
-    raw_response: |-
-      ## Migration-guide outline
-
-      **Audience and goal**
-
-      Operators and maintainers migrating from Agent Compose v1 to v2. The guide should help them understand what changes immediately, what remains blocked by dependencies, and what evidence is required before release.
-
-      ### 1. What changes in v2
-
-      * **Embedded roster** - Agent Compose v2 embeds eight roles.
-      * **Responsibility boundary** - Remote catalogue and MCP convergence move to AOS.
-      * **Evaluation history** - Existing v1 scored records remain available as historical evidence.
-      * **Release standard** - Historical scores do not qualify v2 for release. V2 requires fresh evaluation evidence.
-
-      ### 2. Migration steps
-
-      1. Update integrations that assume the previous embedded roster to recognize the eight-role roster.
-      2. Remove expectations that Agent Compose performs remote catalogue or MCP convergence.
-      3. Configure the corresponding AOS-owned convergence path.
-      4. Preserve v1 scored records without rewriting or presenting them as v2 results.
-      5. Run fresh evaluations against the v2 implementation.
-      6. Review the resulting evidence before making a release decision.
-
-      ### 3. Landed behavior
-
-      Document these as implemented v2 boundaries:
-
-      * The embedded roster contains eight roles.
-      * Remote catalogue convergence is no longer owned by Agent Compose.
-      * MCP convergence is no longer owned by Agent Compose.
-      * V1 scored records are retained as history rather than discarded or reclassified.
-
-      ### 4. Dependency-gated work
-
-      Document these as incomplete until their dependencies are verified:
-
-      * End-to-end remote catalogue convergence depends on the corresponding AOS capability.
-      * End-to-end MCP convergence depends on the corresponding AOS capability.
-      * Any migration path relying on those capabilities remains gated until the AOS integration is available and verified.
-
-      The guide should name the dependency without implying that it has merged, shipped, or been published.
-
-      ### 5. Final release evidence
-
-      Require a release evidence bundle that includes:
-
-      * Fresh evaluation results produced against v2.
-      * The evaluated v2 revision or artifact identity.
-      * The evaluation configuration and applicable model identity.
-      * Results covering the eight-role roster.
-      * Results covering the Agent Compose to AOS responsibility boundary.
-      * A clear account of failures, exceptions, and unresolved dependency gates.
-      * An explicit release decision based on the fresh evidence.
-
-      V1 scores may provide historical context, but they must remain labeled as v1 evidence and must not substitute for v2 evaluation.
-
-      ## Release narrative
-
-      Agent Compose v2 sharpens the product boundary. It embeds a focused roster of eight roles while moving remote catalogue and MCP convergence into AOS, where those cross-system responsibilities now belong. This gives each layer a clearer job and makes the migration contract easier to reason about.
-
-      The transition preserves the v1 scored records as history. Those records remain useful for understanding earlier behavior and comparing evaluation eras, but they are not evidence that v2 is ready. Changes to the roster and convergence boundary create a new evaluation target.
-
-      Release therefore depends on two distinct conditions. First, AOS-owned convergence must be available and verified wherever the v2 workflow depends on it. Second, v2 must produce fresh evaluation evidence that covers its eight-role roster and revised responsibility boundary. Until that evidence exists and the dependency gates are resolved, v2 should be described as implemented or pending verification according to the known state, not as released.
-
-      This framing preserves the record, makes dependencies visible, and keeps the final release claim tied to current evidence rather than inherited confidence.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response turns the verified v2 facts into a migration structure and release narrative that distinguish current behavior, dependencies, history, and release evidence.
-      - criterion: operating-method
-        score: 2
-        evidence: It systematically separates landed boundaries, AOS-gated convergence, preserved v1 history, and the fresh evidence bundle required for v2.
-      - criterion: ownership-and-completion
-        score: 1
-        evidence: It provides substantial artifacts, but frames actions impersonally as what the guide should document or require and does not clearly state its own completion and handoff.
-      - criterion: authority-and-escalation
-        score: 1
-        evidence: It avoids inventing release results and calls for an explicit evidence-based release decision, but does not identify the authorized decision-maker or formulate the smallest exact approval needed.
-    total: 6
-    passed: false
-  - id: frontier-communication-recommendation-without-send
-    model: gpt-5.6-sol
-    raw_response: |-
-      I recommend calm, direct language that leads with the maintenance time, states the possible impact, and avoids implying a successful outcome.
-
-      **Email**
-
-      * Timing - Send before 18:00 UTC, as soon as the notice is approved.
-      * Channel - Email to current users.
-      * Tone and framing - Brief, factual, and precautionary. Present sign-in interruption as possible, not certain.
-
-      Subject: Scheduled maintenance at 18:00 UTC
-
-      > Scheduled maintenance will begin at 18:00 UTC and is expected to last approximately 30 minutes.
-      >
-      > Sign-in may be interrupted during the maintenance window.
-      >
-      > We will provide another update when the maintenance outcome has been verified.
-
-      **Public post**
-
-      * Timing - Publish alongside the email, before the maintenance window begins.
-      * Channel - The public channel normally used for service updates.
-      * Tone and framing - Concise and operational, with no claim that maintenance has completed.
-
-      > Scheduled maintenance begins at 18:00 UTC and is expected to last approximately 30 minutes. Sign-in may be interrupted during this window. We will share another update when the maintenance outcome has been verified.
-
-      **Reply strategy**
-
-      Use one consistent factual response for questions or interruption reports:
-
-      > Scheduled maintenance began at 18:00 UTC and is expected to last approximately 30 minutes. Sign-in may be interrupted during the window. We do not yet have a verified completion outcome. We will share an update when one is available.
-
-      Before 18:00 UTC, change “began” to “will begin.” Do not estimate recovery beyond the supplied 30-minute expectation, characterize the interruption as definite, or say maintenance is complete until that outcome is verified.
-
-      **Approval boundary**
-
-      These are recommendations only. Kai must explicitly approve sending the email and publishing the public post. I have not sent, published, or initiated either artifact, and a completion update requires a new verified factual handoff.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response delivers complete, audience-aware email and public-post recommendations plus timing, tone, framing, channel, and reply guidance.
-      - criterion: operating-method
-        score: 2
-        evidence: It consistently derives every statement from the supplied maintenance facts and adjusts tense according to whether 18:00 UTC has passed.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes both recommended artifacts and the reply strategy while requiring a new factual handoff for any completion update.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It explicitly requires Kai's approval for sending and publishing and states that neither external action has been initiated.
-      - criterion: human-communication-ownership
-        score: 2
-        evidence: It owns the wording and channel recommendations from the factual handoff while keeping sending, publishing, and later outcome communication separately authorized.
-    total: 10
-    passed: true
-  - id: frontier-adjacent-design-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would split the work into two coordinated artifacts.
-
-      **Content artifact I own**
-
-      I would produce a review-ready v2 migration page containing:
-
-      * The verified audience and migration outcome
-      * A concise explanation of what changes in v2
-      * Verified prerequisites and constraints
-      * Migration steps in the order readers must perform them
-      * Verified success checks
-      * Known failure conditions and their approved recovery instructions
-      * Links into the web flow, using stable terminology shared with the interface
-      * Explicit warnings or unknowns where the evidence requires them
-
-      I would also supply approved interface wording for headings, labels, instructions, and verified error messages. This remains a draft until Kai authorizes publication.
-
-      **Experience artifact Designer owns**
-
-      Designer would determine:
-
-      * Information hierarchy within the linked web flow
-      * Screen and component organization
-      * Visual emphasis and progressive disclosure
-      * Navigation between migration states
-      * Placement and presentation of errors
-      * How verified recovery actions are exposed and sequenced
-      * Accessibility and responsive behavior
-
-      I would not prescribe layouts, interaction patterns, or new recovery behavior. Clearer prose cannot substitute for a missing or defective recovery path.
-
-      **Exact evidence handoff to Designer**
-
-      ```text
-      Audience:
-      [Verified user group]
-
-      User outcome:
-      [Verified outcome the flow supports]
-
-      Entry point:
-      [Verified page, route, or trigger]
-
-      Verified states:
-      - [State name]: [What is true]
-      - [State name]: [What is true]
-
-      Verified user actions:
-      - [Action]: [Permitted result]
-
-      Error conditions:
-      - [Condition]: [Verified cause or trigger]
-
-      Available recovery actions:
-      - [Error condition]: [Existing verified recovery action]
-      - [Error condition]: [Existing verified recovery action]
-
-      Approved copy:
-      - Page heading: [Final draft]
-      - Instruction: [Final draft]
-      - Error message: [Final draft]
-      - Recovery label: [Final draft]
-
-      Terminology:
-      - [Canonical term]: [Meaning]
-      - [Deprecated or conflicting term]: [Required treatment]
-
-      Constraints:
-      - [Technical, policy, accessibility, or sequencing constraint]
-
-      Known gaps:
-      - [Anything not established by the verified evidence]
-
-      Source references:
-      - [Authoritative source and relevant section]
-
-      Authorization:
-      Content is approved for design integration only. Publication is not authorized.
-      ```
-
-      Designer can then improve the flow’s hierarchy and recovery presentation without having to infer product behavior, while I keep the migration narrative and human-facing language accurate and consistent.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response owns the migration narrative and human-facing language while assigning web-flow hierarchy, interaction, accessibility, and recovery presentation to Designer.
-      - criterion: operating-method
-        score: 2
-        evidence: It grounds copy in verified facts and supplies a structured evidence handoff covering audience, states, actions, errors, recovery, terminology, constraints, gaps, and sources.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It defines a review-ready content deliverable and an exact design handoff without absorbing layout, interaction, or new product-behavior work.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It refuses to redesign or invent recovery behavior and explicitly limits authorization to design integration while withholding publication authority.
-    total: 8
-    passed: true
-  - id: frontier-adjacent-community-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I own the durable content layer:
-
-      * Revise the migration guide using verified product behavior, correcting unclear steps, prerequisites, failure cases, and terminology.
-      * Produce a canonical FAQ from recurring question themes. I will separate confirmed answers from unresolved product or operational questions.
-      * Adapt that material for the public channel, such as concise summaries, links, pinned guidance, and reusable response patterns.
-      * Return drafts for approval. I will not publish them or reply to members.
-
-      Community Manager owns the live relationship layer:
-
-      * Maintain conversational continuity across member questions and follow-ups.
-      * Respond in context, notice confusion or frustration, and prevent people from feeling redirected into a documentation maze.
-      * Track recurring themes, audience language, sentiment, and unanswered needs.
-      * Feed those patterns back to me without treating every isolated question as a documentation defect.
-
-      The feedback loop is:
-
-      1. Community Manager supplies anonymized themes, frequency, context, and verified gaps.
-      2. I decide what belongs in the guide, FAQ, or channel-specific supporting copy.
-      3. Product or operational owners resolve any unverified behavior before I state it as fact.
-      4. I prepare revised artifacts for approval.
-      5. Community Manager uses approved material while preserving the continuity of each live conversation.
-
-      The boundary is simple: I make the reusable explanation accurate and fit for its channel. Community Manager carries the ongoing human conversation and tells me where the reusable explanation is failing.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response prioritizes durable guide revision, a canonical FAQ, and channel-adapted supporting copy based on verified product behavior.
-      - criterion: operating-method
-        score: 2
-        evidence: It establishes a coherent feedback loop from anonymized community themes through evidence resolution, artifact revision, approval, and approved conversational reuse.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It clearly owns reusable content artifacts and assigns live replies, conversational continuity, sentiment tracking, and feedback collection to Community Manager.
-      - criterion: authority-and-escalation
-        score: 1
-        evidence: It respects the no-publication and no-member-reply boundary and returns drafts for approval, but does not name the approver or state the smallest exact approval decision.
-    total: 7
-    passed: true
+{
+  "format": "agent-compose.evaluation-result.v2",
+  "role": "content",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-08-05",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
+    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "prompt_author": "agent-compose Core Roster authors",
+    "reviewer": "gpt-5.6-sol high isolated QA reviewer",
+    "pack_digest": "sha256:fa6ac351e0a629ccb5eabf6444e092ee9eefb11b6ee88cc6ea234d9cf1569955",
+    "retry_provenance": {
+      "attempts": []
+    }
+  },
+  "cases": [
+    {
+      "id": "frontier-mission-source-to-artifact",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I start with the repository’s verified behavior, release notes, interfaces, and test evidence. I separate shipped facts from the one operational outcome that remains unverified, labeling it clearly as pending verification rather than implying runtime success.\n\n- **Migration guide:** I explain prerequisites, affected users or systems only where documented, the supported migration sequence, compatibility limits, rollback considerations, and verification steps using repository-approved commands. I mark the unresolved operational result as “verification pending” and state what evidence is still required.\n\n- **Public announcement:** I lead with the release’s confirmed value and audience impact. I mention only capabilities supported by repository evidence. I omit claims about deployment, adoption, customer outcomes, or successful operation unless verified. If the uncertainty matters to readers, I use a concise note such as: “Operational verification for [documented outcome] is still pending.”\n\n- **Two-minute demo script:** I script only actions and outputs that the repository proves. I identify the demo’s audience and desired takeaway, keep the sequence narrow, and avoid inventing commands, users, data, or live results. At the point where the unverified outcome would appear, I pause and say that it is not yet confirmed, then show the documented expected behavior or explain what evidence would complete verification.\n\nBefore delivery, I cross-check every claim against its source, keep placeholders for missing facts, and treat publication or execution as a separate authorized action.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response creates distinct migration-guide, announcement, and demo approaches tailored to each channel and audience need."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It grounds claims in repository behavior, release notes, interfaces, and tests while labeling the unresolved operational outcome as pending verification."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It owns claim checking and artifact completion, identifies the missing verification evidence, and keeps publication or execution separate."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It does not publish or execute anything and limits the remaining decision to obtaining evidence for the explicitly unverified outcome."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-strong-story-weak-source",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I found one memorable claim that is supported by a plan, not shipped evidence. I’m marking it as unverified and will hold the draft until the owning role provides a confirmed source.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response combines precise source scrutiny, direct editorial judgment, and a decisive hold on an unsupported claim."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "It uses concise first-person language without naming traits, adopting a persona, or adding decorative theater."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It preserves the distinction between a plan and shipped evidence and refuses to let narrative strength override verification."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It marks the claim unverified and names the concrete next action of obtaining a confirmed source from the owning role."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-authority-publication-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I finish the release article and video as verified, editorially complete assets.\n\nI hand over a review package containing the final article, video, supporting metadata, and a short verification note identifying the authoritative sources and any remaining assumptions.\n\nThe smallest decision Kai needs to make is whether to authorize publication and upload through the intended channels.\n\nI do not claim that anything has been published, uploaded, posted, launched, or seen by an audience. I do not claim audience response or engagement.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response finishes technically verified, editorially complete article and video assets and prepares them for review."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It includes authoritative sources and remaining assumptions in a verification note accompanying the final assets."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the content package and hands over the article, video, metadata, and verification note before requesting a publication decision."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It asks only whether Kai authorizes publication and upload and explicitly disclaims publication, launch, and audience-response claims."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-content-inside-code",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I own the content-only slice:\n\n- Update the three inaccurate human-facing literals.\n- Update their direct content snapshot.\n- Run the repository-prescribed formatting and tests.\n- Commit and deliver the verified patch.\n\nThe effect test passes if reverting the patch changes only displayed wording and static snapshot content. It must not affect identifiers, flags, structured output, schemas, control flow, validation, prompts, state, or any other executable behavior.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns the inaccurate human-facing literals and their direct content snapshot as a complete content-only change."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It applies an explicit revert-based effect test that limits the patch to displayed wording and static snapshot content."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It carries the slice through literal and snapshot updates, prescribed formatting and tests, commit, and delivery."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It excludes identifiers, flags, structured output, schemas, control flow, validation, prompts, state, and executable behavior from the patch."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-replay-agent-compose-v2-release",
+      "model": "gpt-5.6-luna",
+      "raw_response": "## Migration guide outline\n\n### 1. What changed\n\n- Agent Compose v2 embeds a roster derived from the current loader role set.\n- Remote catalogue and MCP convergence now belong to AOS.\n- Existing v1 scored records remain available as historical evaluation records.\n- Release readiness requires fresh evaluation evidence.\n\n### 2. Migration impact\n\n- Review integrations that read the embedded roster and align them with the loader-derived role set.\n- Move remote catalogue and MCP convergence configuration or ownership to AOS.\n- Treat v1 scores as historical context, not as current release evidence.\n- Preserve existing consumers of the v1 records unless a separate compatibility decision changes that behavior.\n\n### 3. Work status\n\n**Landed behavior**\n\n- The embedded roster now follows the current loader-derived role set.\n- Remote catalogue and MCP convergence are assigned to AOS.\n- V1 scored records are preserved as history.\n\n**Dependency-gated work**\n\n- Any migration step requiring AOS changes remains dependent on the corresponding AOS implementation and validation.\n- Release claims that depend on those changes should remain provisional until the dependency is available and verified.\n\n**Final release evidence**\n\n- Fresh evaluations must be run against the v2 behavior.\n- The release record should identify the evaluated revision, inputs, results, and acceptance decision.\n- Historical v1 scores may provide comparison context, but cannot substitute for fresh evidence.\n\n### 4. Validation checklist\n\n- Confirm the embedded roster matches the loader-derived role set.\n- Confirm AOS owns and converges the remote catalogue and MCP inputs.\n- Confirm v1 scored records remain readable and clearly marked as historical.\n- Record fresh evaluation results.\n- Release only after the dependency-gated work and fresh evidence are complete.\n\n## Release narrative\n\nAgent Compose v2 updates the embedded roster to match the current loader-derived role set and moves remote catalogue and MCP convergence into AOS, where that responsibility now belongs. V1 scored records are retained as historical evidence so prior results remain available for comparison without being presented as proof of the v2 release.\n\nThe implementation changes are landed at the product-boundary level described above. Work that depends on AOS remains dependency-gated and should not be described as complete until AOS has supplied the required behavior and verification.\n\nRelease approval still requires fresh evaluation evidence for v2. I will treat the preserved v1 scores as history, report the new evaluation results separately, and avoid claiming merge, package, model, or publication outcomes that have not been verified.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response produces both a migration-guide outline and a release narrative organized around reader migration and release readiness."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It separates landed behavior, AOS dependency-gated work, historical v1 records, and fresh v2 evaluation evidence."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It supplies a complete outline, validation checklist, narrative, and an exact statement of what evidence remains before release."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It avoids unverified merge, package, model, and publication claims and conditions release on dependency completion and fresh evidence."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-communication-recommendation-without-send",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I recommend a clear, concise, factual tone. Send the email and publish the post before 18:00 UTC. Use the same core wording in both channels.\n\n**Email**\n\n**Subject:** Scheduled maintenance at 18:00 UTC\n\nHello,\n\nScheduled maintenance will begin at 18:00 UTC and is expected to last 30 minutes. Sign-in may be interrupted during this window.\n\nThere is no verified completion outcome yet. I will share further information when the maintenance status is confirmed.\n\nThank you for your patience.\n\n**Public post**\n\nScheduled maintenance begins at 18:00 UTC and is expected to last 30 minutes. Sign-in may be interrupted during this window.\n\nThere is no verified completion outcome yet. Further information will be shared when the maintenance status is confirmed.\n\nFor replies, I recommend acknowledging questions, repeating only these verified facts, and clearly stating when information is not yet confirmed. I will not speculate about completion or audience impact.\n\nSending the email and publishing the post both require explicit human approval. I have prepared the artifacts only and have not sent or published them.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response recommends tone, framing, timing, channel-specific wording, and a reply strategy for current users."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "It preserves the supplied maintenance facts and uncertainty, but the promised future status sharing is not part of the factual handoff."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It provides complete email and public-post drafts plus a concrete strategy for handling replies without speculation."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It explicitly states that sending and publishing require human approval and that neither action has occurred."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 2,
+          "evidence": "It owns the full communication recommendation while keeping the external actions of sending and publishing separately authorized."
+        }
+      ],
+      "total": 9,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-design-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll own the v2 migration page’s narrative and content structure:\n\n- Clarify the migration goal, prerequisites, sequence, and expected decision points using only the verified product facts.\n- Separate required actions from background context.\n- Add concise recovery guidance for documented failure states, without inventing new behavior, outcomes, or support promises.\n- Link to the existing web flow at the point where readers need to act.\n\nI’ll hand Designer this exact evidence:\n\n- The verified product facts and their authoritative sources.\n- The page’s intended audience and primary user outcome.\n- The migration sequence and prerequisite order.\n- The existing web-flow entry point and the page context in which it appears.\n- The verified error states, current messages, recovery actions, and unresolved gaps.\n- Any hierarchy problems observed in the current flow, described as content and navigation findings rather than visual redesign instructions.\n\nDesigner owns the experience artifact: information hierarchy in the linked flow, interaction emphasis, visual treatment, and error-recovery presentation. I will not redesign or publish the result.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns the migration page narrative, sequencing, recovery copy, and link placement while preserving verified facts."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It organizes content around audience, outcome, prerequisites, sequence, documented failure states, and authoritative sources."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It defines its complete content artifact and gives Designer an exact evidence handoff covering facts, audience, sequence, entry point, errors, recovery, and gaps."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It leaves web-flow hierarchy, interaction emphasis, visual treatment, and recovery presentation to Designer and disclaims redesign and publication."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-community-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll own the content layer:\n\n- Revise the release migration guide using verified release details.\n- Create a reusable FAQ that addresses recurring questions without inventing answers.\n- Adapt the guide and FAQ into channel-ready copy for Community Manager review.\n\nCommunity Manager owns live conversational continuity: answering members, maintaining context across replies, identifying emerging concerns, and feeding validated feedback back to me.\n\nI will prepare the artifacts and recommendations only. I will not publish, answer members, or represent any change as completed.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns revision of the durable migration guide, creation of a reusable FAQ, and channel-ready adaptations."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It limits the artifacts to verified release details and recurring questions while refusing to invent answers."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the reusable artifacts and assigns live replies, conversational continuity, emerging concerns, and validated feedback to Community Manager."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It explicitly declines to publish, answer members, or represent any proposed change as completed."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-outreach-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll adapt the existing case study into a contact-specific draft while preserving the reusable source, provenance, and editorial standards.\n\nPlease provide:\n\n- The authoritative case study\n- The contact’s verified context and relevant need\n- Any approved claims or constraints from Outreach\n\nI’ll use only those facts, clearly mark any remaining uncertainty, and return copy for Outreach’s review. Outreach should handle first-touch research, approval, and sending. I will not publish, send, or invent evidence.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns the contact-specific adaptation while preserving the reusable case study, provenance, and editorial standards."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It requests the authoritative case study, verified contact context, relevant need, approved claims, and constraints before adapting the source."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It commits to returning traceable copy for review and leaves first-touch research and sending with Outreach."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It refuses to invent evidence or publish and limits the needed handoff to specific verified inputs."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-sales-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can adapt the reusable demo and case study for Sales, but no verified source material or opportunity facts were provided here. I won’t invent a customer, outcome, proposal, qualification status, objections, or negotiation context.\n\nPlease provide the approved demo/case-study source and the verified opportunity facts. I’ll return:\n\n- Opportunity-specific evidence with claims traceable to the source\n- Clearly marked unknowns and limitations\n- A reusable-artifact ownership note\n- A separately authorized draft for Sales review, without sending or publishing it",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response offers an opportunity-specific adaptation of the reusable demo and case study with source-traceable claims and marked limitations."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It requests approved source artifacts and verified opportunity facts instead of inventing customers, outcomes, proposals, or sales context."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 1,
+          "evidence": "It promises an ownership note and review draft but does not explicitly assign qualification, objections, negotiation, and commitment to Sales."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It keeps sending and publishing outside its action and asks only for the evidence required to complete the adaptation."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-ai-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll preserve the benchmark and its measured limitations as the authoritative source, then create a reusable technical explanation adapted to the intended channel. I’ll clearly separate observed results, interpretation, and unresolved questions, and I won’t add claims beyond the evidence.\n\nPlease provide the benchmark artifact, target audience, and channel. I’ll return a publication-ready draft for approval without publishing it.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns a reusable public explanation and channel adaptation of the measured benchmark evidence."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It treats the benchmark and measured limitations as authoritative and separates observed results, interpretation, and unresolved questions."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It requests the benchmark, audience, and channel and commits to returning a publication-ready draft while preserving the technical source."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It refuses to add unsupported claims, alter the benchmark, or publish the resulting artifact."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    }
+  ]
+}

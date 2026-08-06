@@ -4,7 +4,8 @@ Agent Compose releases are Forgejo-canonical. Every push to `main` enters a
 no-cancel queue and validates the exact commit. The owning
 `scripts/release-impact.sh` classifier then decides whether publication runs.
 
-Automatic publication occurs when the diff changes shipped product inputs:
+Automatic publication occurs when the unreleased diff from the latest reachable
+`v*` release tag changes shipped product inputs:
 
 * the Go command or internal engine and embedded Core Roster
 * Go module dependencies
@@ -13,9 +14,12 @@ Automatic publication occurs when the diff changes shipped product inputs:
 
 Documentation, scored evaluation results, examples, tests, and development
 workflow changes still validate but do not create a product version. The
-classifier fails closed to publication when its base revision is unavailable.
-Its fixture suite covers documentation, results, product code, initial pushes,
-the major hold, and manual dispatch.
+event base is the fallback before the first release tag. This roll-forward
+window keeps a failed product release eligible when a later main push contains
+only recovery evidence. The classifier fails closed to publication when its
+base revision is unavailable. Its fixture suite covers documentation, results,
+product code, roll-forward recovery, initial pushes, the major hold, and manual
+dispatch.
 
 An automatic release bumps the minor version, cross-compiles macOS, Linux, and
 Windows binaries, creates the Forgejo release, uploads checksums and package

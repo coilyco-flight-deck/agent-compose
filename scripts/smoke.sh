@@ -105,6 +105,13 @@ roles {
 }
 EOF
 
+git -C "$provider_dir" init -q
+git -C "$provider_dir" config user.name Fixture
+git -C "$provider_dir" config user.email fixture@example.test
+git -C "$provider_dir" config commit.gpgSign false
+git -C "$provider_dir" add .
+git -C "$provider_dir" commit -q -m fixture
+
 cat >"$smoke_root/bin/codex" <<'EOF'
 #!/bin/sh
 printf 'fake codex'
@@ -120,6 +127,8 @@ roots:
   - $native_root/home/.agent-compose/sources
 roster_sources:
   - $native_root/projects/coilyco-flight-deck/agentic-os
+operating_context:
+  - coilyco-flight-deck/agentic-os
 skill_load_points:
   codex: $native_root/load-points/skills
 load_points:
@@ -143,7 +152,7 @@ fi
 
 assert_contains "$first_output" "roster  "
 assert_contains "$first_output" "wrote"
-assert_contains "$first_output" "cascade outputs=1 load-points=1 manifest=1 changed="
+assert_contains "$first_output" "cascade outputs=1 load-points=1 repository-plan=1 changed="
 assert_contains "$first_output" "skills  managed="
 printf 'smoke: first isolated convergence... ok\n'
 show_transcript "first convergence" "$first_output"
@@ -153,10 +162,10 @@ roster_override="$state_dir/sources/personality/AGENTS.claude.md"
 roster_body="$state_dir/sources/personality/.agents/skills/personality-curious/SKILL.md"
 person_snapshot="$state_dir/sources/personality/person.json"
 composed="$state_dir/COMPOSED.md"
-manifest="$state_dir/mount-eligibility.json"
+repository_plan="$state_dir/repository-plan.yaml"
 skill_state="$state_dir/skill-mounts.json"
 for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
-  "$manifest" "$skill_state" \
+  "$repository_plan" "$skill_state" \
   "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md" \
   "$load_points/skills/role-engineer/SKILL.md" \
   "$load_points/skills/personality-curious/SKILL.md"; do
@@ -176,7 +185,7 @@ snapshot_file "$roster_override" roster-override
 snapshot_file "$roster_body" roster-body
 snapshot_file "$person_snapshot" person-snapshot
 snapshot_file "$composed" composed
-snapshot_file "$manifest" manifest
+snapshot_file "$repository_plan" repository-plan
 snapshot_file "$skill_state" skill-state
 second_output="$smoke_root/second.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
@@ -189,7 +198,7 @@ if grep -F "wrote" "$second_output" >/dev/null; then
   cat "$second_output" >&2
   fail "second convergence rewrote current state"
 fi
-assert_contains "$second_output" "cascade outputs=1 load-points=1 manifest=1 changed=0"
+assert_contains "$second_output" "cascade outputs=1 load-points=1 repository-plan=1 changed=0"
 assert_contains "$second_output" "skills  managed="
 assert_contains "$second_output" "linked=0 removed=0 preserved=0"
 printf 'smoke: second isolated convergence reports unchanged state... ok\n'
@@ -200,7 +209,7 @@ assert_unchanged "$roster_override" roster-override
 assert_unchanged "$roster_body" roster-body
 assert_unchanged "$person_snapshot" person-snapshot
 assert_unchanged "$composed" composed
-assert_unchanged "$manifest" manifest
+assert_unchanged "$repository_plan" repository-plan
 assert_unchanged "$skill_state" skill-state
 printf 'smoke: representative artifacts remain byte-stable... ok\n'
 
@@ -258,7 +267,7 @@ fi
 assert_contains "$third_output" "layout  $native_root/fixtures/AGENTS.COMPOSE.md => "
 assert_contains "$third_output" " => $native_root/load-points/CLAUDE.md"
 assert_contains "$third_output" "wrote"
-assert_contains "$third_output" "cascade outputs=1 load-points=1 manifest=1 changed=3"
+assert_contains "$third_output" "cascade outputs=1 load-points=1 repository-plan=1 changed=3"
 printf 'smoke: verbose reapply traces and recreates the compose layout... ok\n'
 show_transcript "verbose reapply" "$third_output"
 

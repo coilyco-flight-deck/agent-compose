@@ -19,14 +19,8 @@ Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evalua
 Agent Compose emits prompts and context, never model calls, credentials, scores,
 or authority. `--person-source` selects one complete external package.
 
-## Evaluation policy
-
-Every pack carries a machine-readable driver and reviewer policy. The driver
-uses a `commodity` capability class at `medium` reasoning effort. A separate
-review session uses a `frontier` capability class at `high` reasoning effort.
-The runner resolves concrete model routes and records the selected model in
-each scored case. External person packages inherit this policy and cannot
-override it from a role matrix.
+The [evaluation policy](evaluation-policy.md) defines model capability,
+reasoning effort, session isolation, review, and evidence requirements.
 
 ## Core Roster matrix
 
@@ -53,25 +47,6 @@ The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
 duplicates, and incorrect adjacent-role targets. External packages retain the
 generic fallback or may provide a complete custom matrix.
 
-## Review contract
-
-Standard cases have four 0-to-2 criteria. Communication cases add an ownership
-hard fail. Passing requires 7 points, no zero, role mission fit at 2, and
-authority at 1. Personality cases require behavioral expression and invariant
-fit at 2.
-
-The runner starts a fresh driver session per case, submits the prompt verbatim,
-and records the model, raw response, and any terminal finish reason. Empty content
-requires a non-success finish reason, zero scores, and a failing verdict.
-Retries record case, attempt, outcome, and reason. Failures remain evidence.
-
-An independent frontier-high reviewer records every score, one evidence
-sentence each, the source revision, and the `index.json` digest. The prompt
-author cannot be the sole reviewer. The scorecard rejects incomplete active
-lanes, unknown cases, digest drift, missing retry provenance, bad totals, and
-bad verdicts. A disabled tier may be absent, but any included disabled-tier
-evidence must be complete.
-
 ## Scored results
 
 [`evaluations/latest/`](../evaluations/latest/) contains the independently
@@ -87,4 +62,5 @@ remains visible when present and controls whether those lanes can be enabled.
 * [role-briefings.md](role-briefings.md) - role operating charters.
 * [person-packages.md](person-packages.md) - independent evaluation context.
 * [evaluation-matrices.md](evaluation-matrices.md) - profile-owned matrices.
+* [evaluation-policy.md](evaluation-policy.md) - driver and reviewer contract.
 * [evaluation-scorecard.md](evaluation-scorecard.md) - validated aggregate view.

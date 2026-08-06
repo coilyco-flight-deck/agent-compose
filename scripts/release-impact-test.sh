@@ -15,12 +15,14 @@ git -C "$fixture_root" init -q
 git -C "$fixture_root" config user.name Fixture
 git -C "$fixture_root" config user.email fixture@example.test
 git -C "$fixture_root" config commit.gpgSign false
+git -C "$fixture_root" config tag.gpgSign false
 mkdir -p "$fixture_root/cmd/tool" "$fixture_root/docs" "$fixture_root/evaluations/latest"
 printf 'package main\n' >"$fixture_root/cmd/tool/main.go"
 printf '# Guide\n' >"$fixture_root/docs/guide.md"
 git -C "$fixture_root" add .
 git -C "$fixture_root" commit -q -m base
 base=$(git -C "$fixture_root" rev-parse HEAD)
+git -C "$fixture_root" tag v1.0.0 "$base"
 
 expect() {
   expected=$1
@@ -57,12 +59,25 @@ product_revision=$(git -C "$fixture_root" rev-parse HEAD)
 expect true push "$results_revision" "$product_revision"
 expect true push 0000000000000000000000000000000000000000 "$product_revision"
 
+printf 'format: recovery\n' >"$fixture_root/evaluations/latest/result.yaml"
+git -C "$fixture_root" add evaluations/latest/result.yaml
+git -C "$fixture_root" commit -q -m recovery-results
+recovery_revision=$(git -C "$fixture_root" rev-parse HEAD)
+expect true push "$product_revision" "$recovery_revision"
+git -C "$fixture_root" tag v1.1.0 "$recovery_revision"
+
+printf 'Released docs.\n' >>"$fixture_root/docs/guide.md"
+git -C "$fixture_root" add docs/guide.md
+git -C "$fixture_root" commit -q -m released-docs
+released_docs_revision=$(git -C "$fixture_root" rev-parse HEAD)
+expect false push "$recovery_revision" "$released_docs_revision"
+
 printf 'v2.0.0\n' >"$fixture_root/.release-major"
 printf '// held product change\n' >>"$fixture_root/cmd/tool/main.go"
 git -C "$fixture_root" add .release-major cmd/tool/main.go
 git -C "$fixture_root" commit -q -m held
 held_revision=$(git -C "$fixture_root" rev-parse HEAD)
-expect false push "$product_revision" "$held_revision"
+expect false push "$released_docs_revision" "$held_revision"
 expect true workflow_dispatch "$held_revision" "$held_revision"
 
 echo "release-impact-test: ok"

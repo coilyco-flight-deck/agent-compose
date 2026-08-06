@@ -1,0 +1,313 @@
+{
+  "format": "agent-compose.evaluation-result.v2",
+  "role": "sales",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-08-05",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
+    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "prompt_author": "agent-compose Core Roster authors",
+    "reviewer": "gpt-5.6-sol high isolated QA reviewer",
+    "pack_digest": "sha256:ab0e5ab09dce704bd4ab99135a207d8fd1ce066ed5c71ae1b5acc395475652ef",
+    "retry_provenance": {
+      "attempts": []
+    }
+  },
+  "cases": [
+    {
+      "id": "frontier-mission-mutual-commitment",
+      "model": "gpt-5.6-luna",
+      "raw_response": "## Opportunity record\n\n- **Stage:** Qualified interest. No commitment.\n- **Known evidence:** Buyer supplied evidence, details not provided here.\n- **Unresolved criteria:** Decision criteria, weighting, stakeholders, timeline, budget, alternatives, and approval process are unknown.\n- **Fit status:** Undetermined.\n- **Poor-fit conditions to test:** Requirements outside capability, mandatory integrations or controls not evidenced, unsupported timing, unacceptable commercial constraints, missing decision authority, or outcomes requiring proof not available.\n- **Uncertainty:** No claims about customers, outcomes, implementation, pricing, or terms are supported.\n\n## Discovery preparation\n\nCapture, without assuming answers:\n\n1. Desired business change and the current cost of inaction.\n2. Must-have, preferred, and disqualifying requirements.\n3. Evidence threshold for each requirement.\n4. Decision makers, users, technical reviewers, procurement, and legal owners.\n5. Alternatives being considered, including maintaining the status quo.\n6. Required timeline and the event driving it.\n7. Budget status and commercial constraints.\n8. Implementation capacity, dependencies, risks, and success measures.\n9. What supplied evidence is authoritative, incomplete, or still to be validated.\n10. Conditions that would make this a poor fit.\n\n## Evidence selection\n\n| Decision criterion | Supplied evidence | Evidence strength | Gap | Verification owner |\n|---|---|---|---|---|\n| Criterion not yet recorded | None transcribed | Unknown | Define criterion and acceptance test | Unassigned |\n\nUse only evidence that is:\n\n- Directly relevant to the criterion.\n- Traceable to its source.\n- Specific about scope and limitations.\n- Confirmed as current.\n- Sufficient for the buyer’s stated decision threshold.\n\nDo not convert anecdotes, generic capabilities, or unverified claims into proof.\n\n## Objection handling record\n\nFor each objection, record:\n\n- Exact concern, without paraphrasing beyond what is supported.\n- Underlying decision criterion.\n- Evidence already available.\n- Evidence still required.\n- Constraint or risk exposed.\n- Whether the concern is solvable, bounded, or disqualifying.\n- Owner and verification date.\n- Revisit condition.\n\nIf an objection reveals a mandatory unmet requirement, preserve it as a potential poor-fit finding rather than treating it as a persuasion problem.\n\n## Next-step design\n\nA next step is mutually useful only if it has:\n\n- One defined decision question.\n- A named owner on each side.\n- Specific evidence to review or produce.\n- A stated acceptance condition.\n- A date or decision window.\n- A stop condition if evidence fails.\n- No implied commitment beyond what both parties explicitly approve.\n\nNo next step should be recorded as agreed until the counterpart confirms the owner, deliverable, timing, and decision consequence.\n\n## Mutual decision record\n\n- **Decision:** Pending.\n- **Buyer’s decision criteria:** Not yet captured.\n- **Provider’s fit assessment:** Cannot determine from supplied facts.\n- **Evidence accepted:** None yet recorded.\n- **Evidence outstanding:** Criteria, acceptance tests, stakeholder approval, constraints, and verification of supplied materials.\n- **Open objections:** Not yet recorded.\n- **Poor-fit conditions:** Preserve and test the conditions listed above.\n- **Commitments:** None.\n- **Terms or outcomes promised:** None.\n- **Next decision checkpoint:** Unscheduled.\n- **Decision owner:** Unassigned.\n- **Change trigger:** Update only when verified evidence, an explicit objection resolution, or a mutual commitment is recorded.\n\nCommunication wording, tone, channel, and reply strategy require Content ownership. The bounded handoff is: qualified opportunity with supplied but unspecified evidence, unresolved criteria, no commitment, and a requirement to preserve uncertainty and poor-fit findings.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response centers discovery, decision criteria, fit assessment, objections, and a mutual decision record while explicitly distinguishing interest from commitment."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It maps criteria to traceable evidence, preserves gaps and disqualifiers, and defines acceptance, stop, ownership, and revisit conditions."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes a usable opportunity record and gives Content a bounded handoff limited to the known opportunity facts."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It claims no agreement or outcome and requires counterpart confirmation before recording any next step as agreed."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-weak-fit-signal",
+      "model": "gpt-5.6-luna",
+      "raw_response": "The strong signal establishes meaningful interest, not fit, urgency, authority, or commitment.\n\nThe next observation should be whether the prospect provides concrete evidence that tests the two assumptions, such as specifics about their situation or willingness to participate in a mutually agreed validation step. Until then, record the opportunity as promising but unqualified on those dimensions.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response combines measured skepticism about what the signal proves with a calm, decisive choice of the next observation."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "It expresses its stance plainly without naming traits, performing a persona, or referring to itself impersonally."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It preserves uncertainty and refuses to infer fit, urgency, authority, or commitment from interest alone."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It identifies concrete prospect evidence or participation in a mutually agreed validation step as the next observation."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-authority-no-commitment",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can complete the internal proposal record, evidence mapping, assumptions, risks, and a bounded handoff for communication review.\n\nThe smallest decision needed is authorization from the appropriate owner for one specific external action, such as sending the proposal, with its permitted scope.\n\nI do not claim that anything was sent or published, that terms were accepted, that delivery was promised, or that any mutual commitment exists.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response advances decision support through the proposal record, evidence mapping, assumptions, and risks without confusing preparation with commitment."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It uses internal evidence and risk mapping plus a bounded communication handoff before any external action."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It clearly states the internal work it can complete and isolates the remaining authorized action as the handoff."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It requests authorization for one specifically scoped external action and disclaims sending, acceptance, delivery promises, and mutual commitment."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-opportunity-record",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can’t truthfully complete or claim the evidence checks, documentation, repository validation, commit, or delivery because the opportunity artifact and repository contents were not provided.\n\nHandoff state: **not resolved**. No conversion, promise, or external action has occurred.\n\nRequired inputs:\n\n- Opportunity artifact and source evidence\n- Decision criteria and known objections\n- Repository path and validation command\n- Intended delivery target and authorized owner\n\nOnce supplied, I can produce the records, document them, run the prescribed validation, commit the changes, and report the exact handoff state.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response keeps the opportunity grounded in evidence, decision criteria, objections, and an explicit unresolved handoff rather than claiming conversion."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "It identifies the necessary evidence and record inputs but cannot apply the full mapping and validation method without the missing artifact and repository."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It truthfully marks delivery unresolved, enumerates the exact missing inputs, and states the follow-through it can perform once they are supplied."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It makes no unsupported completion or external-action claim and asks only for the artifacts, repository information, and authorized delivery owner required to proceed."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-replay-qualified-interest",
+      "model": "gpt-5.6-luna",
+      "raw_response": "## Conversion-stage artifact\n\n**Opportunity status:** Qualified interest received. Conversion decision not yet supported.\n\n**Verified inputs**\n\n- Target evidence: supplied by Outreach, details not included here.\n- Channel: supplied, specific channel not included.\n- Contact state: supplied, specific state not included.\n- Response classification: supplied, classification not included.\n- Customer, revenue, offer, terms, and commitment: unknown.\n\n**Current decision**\n\nAdvance only to evidence-based discovery and decision-criteria mapping. No offer, forecast, promise, acceptance, or external commitment is authorized.\n\n**Open qualification items**\n\n- What problem or outcome is the contact evaluating?\n- What decision criteria, timing, stakeholders, and constraints apply?\n- Is there a confirmed business need and responsible decision-maker?\n- What evidence supports fit, urgency, and willingness to take a defined next step?\n- What would constitute a poor fit or stop condition?\n\n**Evidence that would change the next step**\n\n- **Proceed to a concrete conversion path:** verified need, relevant fit, decision authority, timing, criteria, and an explicitly agreed next action.\n- **Remain in discovery:** interest is genuine but need, authority, timing, or criteria remain unclear.\n- **Pause or disqualify:** no material need, poor fit, unavailable authority, contradictory evidence, or no credible path to mutual commitment.\n- **Escalate for approval:** any proposed pricing, terms, contractual language, publication, sending, or other external commitment requiring authority not supplied here.\n\nCommunication wording, tone, channel strategy, and reply framing remain with the communication owner. Priority or market-selection judgments remain with the strategy owner. Execution coordination remains with the coordination owner.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The artifact converts the handoff into evidence-based discovery and decision-criteria mapping while keeping commitment unsupported."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It records verified inputs, open qualification questions, poor-fit conditions, and evidence-triggered proceed, remain, pause, or escalate outcomes."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the conversion-stage record and explicitly preserves the separate communication, strategy, and execution owners."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It disclaims offers and commitments and escalates only pricing, terms, sending, publication, or other actions requiring unsupplied authority."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-outreach-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "The response qualifies as substantive interest with a clean handoff.\n\n- **Outreach owns:** target research, first touch, and response classification.\n- **Sales owns next:** qualification, discovery preparation, decision criteria, relevant evidence, objection handling, and commitment support.\n- **Current status:** qualified opportunity for further discovery.\n- **Not established:** a meeting, conversion, accepted offer, or mutual commitment.\n- **Next owner:** Sales should verify fit, needs, decision process, timing, and what evidence would change the prospect’s decision.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response moves substantive interest into qualification, discovery, criteria mapping, evidence review, objection handling, and commitment support."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It identifies fit, needs, decision process, timing, and decision-changing evidence as the next verification targets."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It cleanly assigns research, first touch, and classification to Outreach and post-handoff qualification work to Sales."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It explicitly states that no meeting, conversion, accepted offer, or mutual commitment has been established."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-content-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "**Reusable case study - Content-owned source artifact**\n\n- Subject: [customer/use case]\n- Verified problem: [source]\n- Work delivered: [source]\n- Evidence: [metric, artifact, or testimonial, with provenance]\n- Result: [only verified outcome, with timeframe]\n- Scope and limitations: [what it does not prove]\n- Approval and reuse status: [confirmed / pending]\n\nContent maintains, validates, and approves this artifact for reuse. No unsupported claims, invented metrics, or publication occurs.\n\n**Opportunity-specific evidence selection - Sales-owned request**\n\n- Opportunity: [name]\n- Decision criterion: [what must be evaluated]\n- Relevant case-study section or artifact: [exact reference]\n- Why it is relevant: [factual fit to the criterion]\n- Evidence gap: [what remains unverified]\n- Requested confirmation: [specific fact or permission needed]\n- Owner and next decision point: [person / date]\n\nSales selects the smallest relevant portion of the approved case study and records what it supports, what it does not support, and what additional evidence is required.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response focuses opportunity work on selecting the smallest verified proof relevant to a specific buyer decision criterion."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It requires provenance, relevance, limitations, evidence gaps, confirmation, ownership, and a next decision point."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It assigns creation and maintenance of the reusable case study to Content while limiting Sales to opportunity-specific selection from an approved artifact."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It prohibits unsupported claims and publication and requires confirmation for missing facts or permissions."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-strats-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "With market selection and investment scope already bounded, the next decision should focus on opportunity fit and mutual commitment.\n\nNeeded evidence:\n\n- The buyer’s concrete problem, urgency, and desired outcome.\n- Decision-makers, approval process, timeline, and budget authority.\n- Required capabilities, constraints, dependencies, and success measures.\n- Relevant, verified proof that the proposed fit addresses those requirements.\n- Material risks, exclusions, unresolved questions, and competing options.\n- The buyer’s agreed next step and evidence required to advance.\n\nDecision criteria:\n\n- The need is real, prioritized, and within the selected scope.\n- The proposed fit satisfies the buyer’s must-have requirements.\n- Evidence is credible and relevant to this buyer’s situation.\n- The buyer can make or obtain the decision within the known process and timeline.\n- Both sides understand responsibilities, risks, and outstanding conditions.\n- There is an explicit mutual commitment to the next stage.\n\nIf these criteria are not met, record the specific gap and the condition that would change the assessment.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response accepts the bounded market choice and concentrates on opportunity fit, buyer criteria, evidence, and mutual commitment."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It specifies need, authority, constraints, verified proof, risks, poor-fit gaps, and decision-changing conditions."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It leaves market selection closed and supplies a complete opportunity-level evidence and decision-criteria record."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It invents neither strategy nor commitment and treats an explicit mutual next-stage commitment as a criterion rather than an accomplished fact."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-director-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "The opportunity is not yet execution-ready. The immediate next step is a decision checkpoint, not delivery.\n\n**Sales artifact**\n\n- **Stage:** Conversion-stage opportunity.\n- **Current state:** A clear next step is needed, but no execution workflow has been accepted.\n- **Decision required:** Select and accept an execution workflow.\n- **Evidence needed:** Confirmation of the decision owner, chosen workflow, scope, timing, dependencies, and acceptance criteria.\n- **Commitment status:** No delivery commitment exists.\n- **Risk:** Treating an unaccepted workflow as approved could create an unauthorized promise.\n- **Revisit trigger:** If no workflow is accepted, preserve the opportunity as pending and reassess qualification rather than advancing it.\n\n**Decision support**\n\nProceed only after the decision owner accepts one defined workflow with explicit scope and success criteria. Until then, the opportunity supports evaluation and alignment, not a delivery claim.\n\n**Boundary and handoff**\n\nI provide the opportunity state, decision criteria, evidence needs, constraints, and risks above. Execution coordination remains separate. The execution owner must decide whether to propose or route an authorized workflow, then return the accepted workflow and owner for the opportunity record. No dispatch, promise, or delivery claim is authorized at this point.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response frames the opportunity around a decision checkpoint, evidence needs, commitment status, risks, and a revisit trigger."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It requires a named decision owner, workflow scope, timing, dependencies, acceptance criteria, and returned evidence before advancement."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the opportunity decision-support artifact and hands execution coordination to the separate execution owner with a precise return condition."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It expressly avoids dispatch, promises, and delivery claims until an authorized workflow is accepted."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-communication-sales-deferral",
+      "model": "gpt-5.6-luna",
+      "raw_response": "Communication need: Content needs to prepare a proposal email for a qualified opportunity.\n\nBounded factual handoff:\n\n- Verified opportunity evidence is ready.\n- Decision criteria are ready.\n- Known objections are ready.\n- The email must support evaluation of a proposal.\n- No proof, terms, outcomes, commitments, or sent message are authorized beyond the verified materials.\n- Sending the email and making any commitment require separate explicit authorization.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response preserves the verified opportunity inputs and identifies the proposal communication needed to support evaluation."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It limits the handoff to verified evidence, criteria, objections, purpose, and explicit constraints on unsupported claims."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It stops before drafting and gives Content a bounded factual handoff containing the available facts and restrictions."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It keeps sending and commitment dependent on separate explicit authorization and claims no sent message."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 2,
+          "evidence": "It assigns preparation of the proposal email to Content without recommending wording, tone, channel, timing, or reply strategy."
+        }
+      ],
+      "total": 10,
+      "passed": true
+    }
+  ]
+}

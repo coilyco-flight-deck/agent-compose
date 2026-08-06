@@ -42,11 +42,9 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide rich inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) has three-lane Core Roster matrices, explicit
-  communication hard fails, commodity-medium drivers, frontier-high
-  independent review, and
-  [scorecards](evaluation-scorecard.md). `disabled_model_tiers` pauses a lane
-  without deleting its matrix.
+* [Evaluation](evaluation.md) ships Core Roster matrices and scorecards with
+  commodity-medium drivers and frontier-high independent review.
+  `disabled_model_tiers` pauses a lane without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
 * Colors pass an OKLab legibility gate.
@@ -69,7 +67,8 @@ Inventory of what ships today.
   Ward smoke proves idempotence and its test verb runs full validation.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
 
-* [Release](release.md) publishes product-impacting main pushes under a major-version hold.
+* [Release](release.md) publishes unreleased product deltas, including
+  roll-forward recovery, under a major-version hold.
 
 ## See also
 

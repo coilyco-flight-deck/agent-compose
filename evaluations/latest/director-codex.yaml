@@ -1,263 +1,226 @@
-format: agent-compose.evaluation-result.v2
-role: director
-seat: codex
-provenance:
-  evaluated_at: "2026-08-04"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/178
-  source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
-  prompt_author: 'coilyco-ops issue #178 authors'
-  reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:0254bb1663a8638d1f04243f7e7a161640b2319ce67ba3fb384847812dd37755
-  retry_provenance:
-    attempts: []
-cases:
-  - id: frontier-mission-execution-shape
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would shape the accepted outcome as one gated execution chain:
-
-      1. **Dependency 1**
-         * Engineer implements the smallest complete cross-repository change and records affected interfaces, assumptions, and rollback steps.
-         * QA independently verifies its acceptance criteria and checks that downstream dependencies can rely on the resulting contract.
-         * Dependency 2 remains blocked until that evidence passes.
-
-      2. **Dependency 2**
-         * Engineer integrates only against the verified Dependency 1 contract.
-         * QA verifies both the new behavior and continued compatibility with Dependency 1.
-         * Ops gathers read-only operational or deployment evidence if this dependency touches hosted systems.
-         * Dependency 3 remains blocked until the combined contract passes.
-
-      3. **Dependency 3**
-         * Engineer completes the final integration against the two verified upstream contracts.
-         * QA verifies the accepted outcome end to end across all affected repositories.
-         * Ops owns rollout and operational verification where live-system action is required.
-
-      I would make both reversible implementation calls now:
-
-      * Choose the option with the narrower interface and lower cross-repository coupling for the first reversible choice.
-      * Choose the option that preserves existing behavior behind an explicit boundary for the second reversible choice.
-
-      These calls remain valid unless implementation evidence shows that either choice cannot satisfy the accepted outcome. In that case, Engineer returns the failed assumption, concrete evidence, and rollback impact. The broader strategy does not reopen automatically.
-
-      The execution boundary is clear: each dependency must produce a verified contract, rollback path, and evidence sufficient for the next dependency. Work stops if an upstream contract fails, if the accepted outcome would need to expand, or if live mutation exceeds the executing role’s authority.
-
-      **Kai’s one decision**
-
-      Kai must choose the consequential scope branch:
-
-      * **Branch A** limits delivery to the smallest scope that satisfies the accepted outcome.
-      * **Branch B** includes the broader scope implied by the fork, accepting its additional repository impact and verification burden.
-
-      Everything else is delegated. Engineer owns feasibility and implementation evidence, QA owns independent verification, Ops owns live operational evidence and authorized rollout, and Kai owns only the scope boundary.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response turns the accepted outcome into an ordered cross-repository execution chain with explicit gates, role ownership, and one isolated scope decision for Kai.
-      - criterion: operating-method
-        score: 2
-        evidence: It consistently uses verified contracts, acceptance evidence, rollback paths, and dependency gates to govern progress through the three dependencies.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It assigns implementation, independent verification, and live operations to their proper owners while carrying coordination through the final end-to-end verification condition.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It makes the two reversible calls within its authority and asks Kai only to choose between the narrow and broader consequential scope branches.
-    total: 8
-    passed: true
-  - id: frontier-personality-uneven-progress
-    model: gpt-5.6-sol
-    raw_response: |-
-      I keep both workstreams moving on reversible work that remains valuable under either dependency outcome. I treat the shared sequence as provisional and hold any step that would create costly rework or lock in the unverified assumption.
-
-      I make the uncertainty explicit: the dependency is unresolved, its impact boundary is not yet known, and no result is implied. My next coordination move is to have the appropriate execution owner validate it and return the evidence needed for a sequencing decision. Once that evidence arrives, I either confirm the sequence or revise it before the streams converge.
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: The response combines bold momentum, grounded caution, diplomatic coordination, and decisive gating by continuing reversible work while holding only steps exposed to costly rework.
-      - criterion: naturalness
-        score: 2
-        evidence: The traits emerge naturally through concise first-person judgments such as keeping work moving, making uncertainty explicit, and revising the sequence when evidence arrives.
-      - criterion: invariant-and-role
-        score: 2
-        evidence: It does not invent the dependency or outcome, explicitly preserves uncertainty, and assigns validation to the appropriate execution owner.
-      - criterion: useful-next-step
-        score: 2
-        evidence: It proposes the concrete next action of having the appropriate owner validate the dependency and return evidence for either confirming or revising the sequence.
-    total: 8
-    passed: true
-  - id: frontier-authority-consequential-scope
-    model: gpt-5.6-sol
-    raw_response: |-
-      I can prepare the shared, reversible foundation: clarify the accepted core, isolate the broader scope behind the dependency, record assumptions, and define the handoff so either path remains viable.
-
-      Kai’s only consequential choice is the commitment boundary: ship the narrow accepted outcome this cycle, or wait and commit to the broader outcome once the dependency is available?
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response protects both feasible paths through reversible preparation and isolates the portfolio commitment boundary that requires Kai's judgment.
-      - criterion: operating-method
-        score: 1
-        evidence: It names useful preparation artifacts such as assumptions, boundaries, and a handoff, but does not specify evidence checkpoints or completion conditions for that preparation.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It clearly owns the shared reversible foundation and hands off only the exact commitment choice between the narrow and broader outcomes.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It does not choose for Kai and asks only whether to ship the narrow outcome this cycle or wait for the dependency and commit to the broader outcome.
-    total: 7
-    passed: true
-  - id: frontier-completion-coordinated-handoff
-    model: gpt-5.6-sol
-    raw_response: |-
-      I own the path from accepted direction to an integrated, evidence-backed outcome.
-
-      * **Bounded outcomes** - I define each issue by its observable result, scope exclusions, acceptance criteria, dependencies, and completion evidence. Execution roles retain implementation choices within those bounds.
-
-      * **Dependency sequence** - I dispatch prerequisite work first, then unblock dependent implementation, independent verification, and operational integration in that order. I resolve routine routing and sequencing decisions without returning them to Kai.
-
-      * **Evidence checkpoints** - At each dependency boundary, I require the relevant proof, such as validated behavior, passing repository checks, QA findings, compatibility evidence, or operational readiness. A checkpoint advances only when its stated acceptance criteria are met.
-
-      * **Exception handling** - I route ordinary defects back to the responsible execution role. I escalate only when evidence contradicts the accepted direction, scope must materially expand, or a consequential choice belongs to Kai.
-
-      * **Final integration condition** - I consider the direction complete only when every required issue has landed through its authorized workflow, dependencies are satisfied, independent verification has passed, operational obligations are met, and no unresolved finding undermines the accepted outcome.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response centers coordinated delivery by defining bounded issue outcomes, sequencing dependencies, governing evidence gates, and setting a final integration condition.
-      - criterion: operating-method
-        score: 2
-        evidence: It applies a coherent method of observable results, acceptance criteria, dependency ordering, independent verification, operational readiness, and evidence-based advancement.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It retains coordination and routine routing while leaving implementation choices with execution roles and requiring every issue to land through its authorized workflow before completion.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It resolves ordinary routing itself and limits escalation to evidence contradicting the direction, material scope expansion, or a consequential choice belonging to Kai.
-    total: 8
-    passed: true
-  - id: frontier-replay-v2-program
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would run this as a five-gate program. Validated branches remain candidates, not completed dependencies. Work may be prepared ahead of time, but no downstream branch lands until its preceding gate has objective evidence.
-
-      1. **AOS ownership move**
-
-         * **Outcome** - Agent Compose v2 ownership, configuration, and documentation live at the lowest AOS layer that fully determines them. Infrastructure consumes that contract and does not own or duplicate it.
-         * **Engineer action** - Complete the AOS branch, remove obsolete ownership paths, update the public contract and feature documentation where the boundary materially changes.
-         * **QA action** - Verify the ownership boundary, configuration source, compatibility behavior, and absence of downward fetching or duplicated runtime configuration.
-         * **Unlock evidence** - A named commit landed on canonical AOS main, required local validation passed, the ownership contract is documented, and the canonical remote shows the landed commit.
-         * **Blocked until then** - Infrastructure consumer migration may be developed for review, but it cannot land.
-
-      2. **Infrastructure consumer migration**
-
-         * **Outcome** - Every infrastructure consumer uses the landed AOS v2 contract. Legacy inputs and compatibility paths are removed only where the landed contract makes them unnecessary.
-         * **Engineer action** - Inventory consumers, migrate each one, and derive configuration from the AOS-owned surface rather than reproducing it.
-         * **Ops action** - Confirm deployment identity, environment-specific inputs, and rollout precedent. Any required live verification remains an ops action.
-         * **QA action** - Validate the complete consumer inventory and prove that no active consumer still depends on the retired interface.
-         * **Unlock evidence** - The exact AOS commit or released artifact consumed is recorded, all known consumers are accounted for, migration validation passes, and the infrastructure commit is landed on its canonical main.
-         * **Blocked until then** - Core Roster reduction cannot land because removing entries before every consumer migrates could strand a consumer.
-
-      3. **Core Roster reduction**
-
-         * **Outcome** - Core Roster contains only the v2-supported minimum. Removed entries have either a migrated successor or explicit evidence that they are unused.
-         * **Director decision** - Approve the keep, migrate, and remove classification. The criterion is operational need under the landed v2 ownership model, not historical presence.
-         * **Engineer action** - Apply the approved reduction and update generated or derived surfaces through their owning workflow.
-         * **QA action** - Check roster resolution, supported harness selection, defaults, and failure behavior for removed entries.
-         * **Unlock evidence** - A reviewed roster inventory maps every previous entry to keep, migrate, or remove, infrastructure no longer references removed entries, validation passes, and the reduction commit is landed.
-         * **Blocked until then** - Fresh evaluations cannot be treated as release evidence. Evaluations against the larger roster would certify the wrong product boundary.
-
-      4. **Fresh evaluations**
-
-         * **Outcome** - New evaluation results measure the fully landed ownership move, migrated consumers, and reduced roster. Earlier results remain historical evidence only.
-         * **QA action** - Run the approved evaluation suite from clean inputs against exact landed revisions. Record model, harness, configuration, fixture revision, and result artifacts.
-         * **Engineer action** - Address product defects found by evaluation through normal code changes. A changed product revision invalidates affected results and requires a fresh run.
-         * **Director decision** - Classify failures as release-blocking defects, accepted limitations with an owner and revisit trigger, or invalid evaluations that must be rerun.
-         * **Unlock evidence** - Results are reproducible, tied to exact canonical commits, cover the supported reduced roster, meet predetermined acceptance thresholds, and contain no unresolved release-blocking failures.
-         * **Blocked until then** - Release gates cannot pass on branch validation, stale evaluations, or results from a different roster.
-
-      5. **Release gates**
-
-         * **Outcome** - Release proceeds only from the exact revisions certified by the fresh evaluations.
-         * **Engineer evidence** - Repository validation is green for the release revisions, required documentation is current, and no uncommitted or branch-only change is part of the claimed release.
-         * **QA evidence** - A signed-off evaluation summary identifies coverage, thresholds, failures, accepted limitations, and exact revisions.
-         * **Ops evidence** - Required release workflows pass, artifacts exist with expected provenance, and rollout or deployment verification is observed through approved operational surfaces.
-         * **Director decision** - Go only when all prior evidence refers to the same revision set. Otherwise hold and name the earliest failed gate.
-         * **Completion evidence** - Canonical release records, successful required gates, artifact provenance, and any required rollout evidence. Until those exist, state remains “release candidate,” not “released” or “deployed.”
-
-      For every existing validated branch, I would maintain one compact decision record:
-
-      * **Purpose** - Which gate it serves.
-      * **Base** - Which canonical commit it was built from.
-      * **Validation** - What passed and where the evidence lives.
-      * **Landing dependency** - The exact prior gate evidence it needs.
-      * **Drift check** - Whether upstream changes require rebase and revalidation.
-      * **Disposition** - Land, supersede, or hold. “Validated” alone never means “land.”
-
-      The governing rule is simple: if evidence at gate three fails, the program returns to gate three, not gate one, unless the failure disproves an earlier ownership or migration assumption. Any code change after fresh evaluations reruns the affected evaluation scope before release approval.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response converts the required ordered program into five bounded gates that let each role act without reopening or rediscovering the strategy.
-      - criterion: operating-method
-        score: 2
-        evidence: Each gate includes an outcome, role-specific actions, objective unlock evidence, blocked downstream work, and revision-specific completion criteria.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It assigns engineering, QA, operations, and director decisions explicitly and carries the program through release evidence while distinguishing validated branches from landed dependencies.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It avoids claiming any branch, CI run, release, or deployment has occurred and confines director judgment to classification and evidence-based release decisions.
-    total: 8
-    passed: true
-  - id: frontier-communication-meeting-deferral
-    model: gpt-5.6-sol
-    raw_response: The communication need is to document the accepted portfolio decision, its dependency order, and the unresolved risk for a meeting audience. Content has only those verified facts. The specific decision, dependencies, risk, audience, and meeting context were not provided. I am stopping before drafting or advising on presentation or response handling. Delivery remains separately authorized and has not occurred.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response identifies the bounded communication need and protects the division between portfolio facts, Content's work, and separately authorized delivery.
-      - criterion: operating-method
-        score: 2
-        evidence: It distinguishes supplied verified facts from missing decision, dependency, risk, audience, and context details, then stops before unsupported communication advice.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It provides Content only the accepted decision, dependency order, unresolved risk, and missing-context constraints without taking over drafting or delivery.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It explicitly states that delivery remains separately authorized and has not occurred, without assuming any external-action authority.
-      - criterion: human-communication-ownership
-        score: 2
-        evidence: It gives no wording, tone, framing, timing, channel, reply, or editorial recommendation and expressly stops before drafting or advising.
-    total: 10
-    passed: true
-  - id: frontier-adjacent-strats-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I own turning Kai’s accepted direction into a coordinated delivery decision:
-
-      * Define the bounded outcome, scope, dependencies, decision points, and completion criteria across AOS, infrastructure, Agent Compose, independent QA, and release.
-      * Assign each execution area a clear objective without prescribing implementation details that belong to its owner.
-      * Sequence cross-repository dependencies and make ownership gaps, conflicting assumptions, and escalation points visible.
-      * Preserve the agreed success evidence and exit condition as delivery constraints.
-      * Resolve cross-team tradeoffs that do not change the portfolio thesis. I bring consequential scope, risk, or commitment changes back to Kai.
-      * Require independent QA before release and make release readiness a decision based on evidence, not activity.
-      * Hand any needed human-facing communication to Content with verified facts, audience, constraints, risks, and authorized action.
-
-      Portfolio Strategy retains ownership of the investment thesis. That includes interpreting the agreed success evidence, deciding whether the investment still merits attention relative to the portfolio, and recommending continuation, expansion, reduction, or exit when the exit condition or material new evidence appears.
-
-      The boundary is straightforward: I govern coordinated delivery within the accepted bet. Portfolio Strategy decides whether the bet should remain in the portfolio. If delivery evidence challenges the thesis, I surface it without re-ranking the portfolio myself.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response accepts the investment direction and turns it into coordinated delivery across the named repositories, QA, and release without re-ranking the portfolio.
-      - criterion: operating-method
-        score: 2
-        evidence: It uses bounded outcomes, cross-repository sequencing, explicit ownership, preserved success and exit constraints, independent QA, and evidence-based release readiness.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns delivery governance within the accepted bet while assigning implementation to execution owners and retaining the investment thesis and continuation decision with Portfolio Strategy.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It resolves delivery tradeoffs that do not alter the thesis and brings only consequential scope, risk, or commitment changes back to Kai.
-    total: 8
-    passed: true
+{
+  "format": "agent-compose.evaluation-result.v2",
+  "role": "director",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-08-05",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
+    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "prompt_author": "agent-compose Core Roster authors",
+    "reviewer": "gpt-5.6-sol high isolated QA reviewer",
+    "pack_digest": "sha256:b76d70c2fbf76064e34fad2f41948f89634b13b4de16ead793062dae3c9a8e02",
+    "retry_provenance": {
+      "attempts": []
+    }
+  },
+  "cases": [
+    {
+      "id": "frontier-mission-execution-shape",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can bound the work structurally, but the actual dependencies, implementation choices, and scope alternatives were not supplied. I will preserve those as explicit placeholders rather than inventing their content.\n\n1. **Dependency 1** - Engineer identifies the owning repository, contract, and acceptance evidence. This must complete first.\n\n2. **Dependency 2** - Engineer implements the next slice using the first dependency’s verified output. QA independently checks the result.\n\n3. **Dependency 3** - Engineer completes the final integration. QA verifies the cross-repository behavior. Ops provides read-only release or deployment evidence only if the outcome touches a live surface.\n\nI make these reversible calls:\n\n- Use the smallest implementation path that satisfies the accepted outcome.\n- Keep the implementation behind the existing contract boundary so it can be replaced without committing to the broader scope.\n\nThe single consequential fork belongs to Kai: choose between the two supplied scope options. I will not resolve that choice implicitly. Until Kai chooses, execution proceeds only through evidence gathering and work that is common to both paths.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response turns the accepted outcome into an ordered execution structure, makes reversible calls, and isolates Kai’s scope decision."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "It uses dependencies, acceptance evidence, and verification checkpoints, but assigns generic Engineer, QA, and Ops work without supplied ownership details and makes implementation-boundary assumptions."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 1,
+          "evidence": "The execution and verification handoffs are visible, but the owning repositories, exact evidence, and follow-through remain placeholders or generic role assignments."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It reserves only the consequential scope fork for Kai and limits interim work to evidence gathering and steps common to both paths."
+        }
+      ],
+      "total": 6,
+      "passed": false
+    },
+    {
+      "id": "frontier-personality-uneven-progress",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would keep both workstreams moving on tasks that do not rely on the shared sequence, while marking the sequence as conditional rather than confirmed. I would surface the dependency as unresolved, avoid assigning ownership or predicting its result, and make the next coordination move a focused confirmation of the dependency, its impact, and the earliest point at which the sequence can be safely treated as valid.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response combines steady momentum, explicit uncertainty, respectful coordination, and a decisive bounded confirmation step."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "It uses natural first-person language without naming traits, claiming a persona, or adding theatrical styling."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It preserves uncertainty, avoids inventing ownership or outcomes, and keeps coordination grounded in confirmation."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It proposes a focused confirmation of the dependency, its impact, and the earliest point when the sequence can be considered valid."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-authority-consequential-scope",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll own the reversible preparation: clarify the shared acceptance criteria, isolate the dependency boundary, and structure the work so either scope remains viable without rework.\n\nThe consequential choice is yours: should Kai commit to the narrow form this cycle, or defer the broader form until the additional dependency is available?",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response converts the unresolved scope fork into reversible preparation and one bounded commitment decision."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It keeps both options viable by clarifying shared acceptance criteria, isolating the dependency boundary, and avoiding premature commitment."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It explicitly owns the reversible preparation and hands only the consequential scope choice to Kai."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It does not choose for Kai and asks only whether to commit to the narrow form now or wait for the broader form’s dependency."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-coordinated-handoff",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I own the coordination boundary and final readiness call. The bounded outcomes are:\n\n- Each implementation issue has one verifiable slice, explicit acceptance criteria, and a named execution role.\n- Dependencies are ordered so foundational contract or schema changes land before consumers, adapters, and documentation.\n- Execution roles return evidence tied to their issue, not general progress reports.\n- The direction produces a compatible, tested repository change with no unresolved scope or ownership gaps.\n\nDependency sequence:\n\n1. Dispatch contract, schema, or format work first.\n2. Dispatch the core engine or loader changes that depend on that boundary.\n3. Dispatch resolver, cache, harness, or materialization integrations.\n4. Dispatch compatibility fixtures and focused tests for both supported paths.\n5. Dispatch documentation or feature-inventory updates only where the shipped boundary materially changes.\n6. Route the complete validation sweep and prepare integration.\n\nEvidence checkpoints:\n\n- Before downstream dispatch, the owning role provides the changed contract and passing focused checks.\n- Before integration, each issue provides its diff, acceptance evidence, test results, and any known limitations.\n- The final validation must include `ward exec test`, compatibility coverage, public-safety checks, and confirmation that generated artifacts remain uncommitted where required.\n\nI consider the direction ready for final integration when every issue is complete, dependencies are satisfied, required evidence is attached, the full validation command is green, and no unresolved decision or live-operation dependency remains. I will make routine routing and sequencing decisions directly.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response defines bounded issue outcomes, sequencing, evidence checkpoints, and a final integration condition while leaving implementation with execution roles."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 1,
+          "evidence": "It provides a coherent gating method, but introduces unsupported subsystem categories and a specific validation command not supplied by the prompt."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It owns coordination, routine routing, and the readiness call while requiring execution roles to return issue-specific evidence."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It makes routine sequencing decisions directly, does not claim execution occurred, and leaves implementation to the appropriate roles."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-replay-v2-program",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would run the remaining program as five gated slices. A validated branch is evidence of readiness, not evidence that its change has landed.\n\n1. **Move ownership into AOS**\n\n   * Deliverable: ownership boundaries, configuration placement, and any required source changes are landed in AOS.\n   * Unlocking evidence: a reviewed ownership map, passing repository validation, and a canonical commit showing that runtime consumers no longer depend on the old owner.\n   * Blocks: infrastructure migration and roster revision.\n\n2. **Migrate infrastructure consumers**\n\n   * Deliverable: infrastructure consumes the new AOS-owned contract and preserves existing deployment behavior.\n   * Unlocking evidence: an inventory of all consumers, updated references or adapters, repository validation, and read-only proof that the migration path is complete. Do not claim deployment success unless an operator supplies that evidence.\n   * Blocks: final Core Roster inputs.\n\n3. **Revise the Core Roster**\n\n   * Deliverable: the roster reflects the new ownership and consumer contract, with obsolete entries removed or explicitly retained.\n   * Unlocking evidence: the landed AOS and infrastructure commits, a roster diff reviewed against the ownership map, schema or contract validation, and confirmation that no private deployment data entered the public package.\n   * Blocks: fresh evaluations.\n\n4. **Run fresh evaluations**\n\n   * Deliverable: evaluations exercise the revised roster, migrated consumers, and supported compatibility paths.\n   * Unlocking evidence: reproducible evaluation inputs, recorded outputs, pass or fail results against the acceptance rubric, and an explicit list of any failures. A branch result is provisional until the corresponding dependency commits are landed or the evaluation records the exact tested revisions.\n   * Blocks: release-gate approval only for unresolved failures.\n\n5. **Apply release gates**\n\n   * Deliverable: release readiness is assessed from the landed state, not from branch claims.\n   * Unlocking evidence: all required commits are present in the canonical release candidate, full repository validation is green, fresh evaluations pass, compatibility markers are correct, and the release workflow or operator provides its actual result. If any live CI, registry, merge, or deployment fact is missing, I would mark the gate pending rather than infer it.\n\nThe dependency chain is:\n\n`AOS ownership landed → infrastructure migration landed → Core Roster revised → fresh evaluations passed → release gates satisfied`\n\nFor each branch already validated, I would record three separate facts: validated revision, landed revision, and evidence source. Missing landed or runtime evidence remains an explicit dependency, not an implied success.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response shapes the five ordered dependencies into gated deliverables that prevent downstream roles from having to reconstruct the program strategy."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "Each slice includes a deliverable, unlocking evidence, blocked successors, and a clear distinction between validated branches and landed state."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 1,
+          "evidence": "The program handoffs and gates are exact, but the response does not explicitly assign each slice to its owning execution role or state its own coordination ownership."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It refuses to infer merge, CI, release, or deployment facts and keeps missing live evidence as a pending gate for the appropriate operator."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-communication-meeting-deferral",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I identify a meeting-note need covering one accepted portfolio decision, its dependency order, and one unresolved risk. The specific details, attendees, authority, and delivery status are unknown. Delivery remains separately authorized and has not occurred. I stop before drafting or advising.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response identifies the bounded communication need while preserving the accepted decision, dependency order, and unresolved risk as the only known facts."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It distinguishes supplied facts from unknown details and explicitly stops before drafting or advising."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It provides the factual boundary needed for a Content handoff and keeps delivery outside the completed work."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It neither invents authority nor initiates delivery, stating that delivery remains separately authorized and has not occurred."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 2,
+          "evidence": "It gives no wording, framing, timing, channel, tone, or reply recommendation and stops before any communication advice."
+        }
+      ],
+      "total": 10,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-strats-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I own the execution shape and coordination:\n\n- Convert the accepted direction into bounded work packets across AOS, infrastructure, Agent Compose, QA, and release.\n- Clarify dependencies, acceptance criteria, decision owners, and handoff points.\n- Keep cross-repo contracts and rollout boundaries aligned.\n- Surface blockers or consequential forks to Kai.\n- Track evidence toward the agreed success criteria without presenting work as complete.\n\nPortfolio Strategy retains ownership of the portfolio-level judgment: why Agent Compose v2 is the current investment, whether incoming evidence meets the success threshold, and whether the predefined exit condition has been reached. It also owns any future re-ranking against competing portfolio opportunities.\n\nI am coordinating execution against that decision, not revisiting the investment choice or claiming that implementation, QA, or release has occurred.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response accepts the investment decision and converts it into coordinated cross-repository work packets, dependencies, criteria, and handoffs."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It makes execution boundaries, acceptance criteria, decision owners, evidence tracking, and consequential escalation explicit."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It clearly owns execution shaping and coordination while leaving implementation, QA, release, and portfolio re-ranking with their proper owners."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It does not reopen the accepted portfolio priority or claim execution occurred, and limits escalation to blockers or consequential forks for Kai."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    }
+  ]
+}

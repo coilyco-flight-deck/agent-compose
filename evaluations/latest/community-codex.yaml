@@ -1,240 +1,226 @@
-format: agent-compose.evaluation-result.v2
-role: community
-seat: codex
-provenance:
-  evaluated_at: "2026-08-04"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/178
-  source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
-  prompt_author: 'coilyco-ops issue #178 authors'
-  reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:57bd20eb391c6422c40f3e2f9b1c4f6d98ecf1dd5cce285e74efdb5c1472ddcf
-  retry_provenance:
-    attempts: []
-cases:
-  - id: frontier-mission-verified-orientation
-    model: gpt-5.6-sol
-    raw_response: |-
-      - **Verified orientation:** I can confirm only that the newcomer should start in `#welcome` and read its pinned rules.
-      - **Unresolved guess:** The event start time is unverified. “Pretty sure it is 7” is another member’s guess, not approved schedule information.
-      - **Community-state record:** I would record the newcomer’s orientation question, the verified `#welcome` guidance, the claimed but unverified 7 o’clock time, and the absence of both schedule data and a resolving contact.
-      - **Bounded follow-through:** I can preserve the uncertainty and avoid confirming the time. Resolution is blocked until an authoritative schedule or resolving contact becomes available.
-
-      **Factual handoff to Content:** A newcomer needs orientation and an event-time answer. Approved knowledge verifies only `#welcome` and its pinned rules. No event schedule or resolving contact is available. Another member supplied an unverified 7 o’clock claim. The time must remain explicitly unresolved, and no additional channel, person, policy, or event detail is authorized.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response centers newcomer orientation, preserves community uncertainty, records the interaction state, and prepares a bounded Content handoff.
-      - criterion: operating-method
-        score: 2
-        evidence: It clearly separates approved guidance from an unverified member claim and identifies the missing schedule and resolving contact.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns recording and preserving the unresolved state while giving Content an exact factual handoff without drafting communication.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It refuses to confirm the event time and limits resolution to obtaining an authoritative schedule or resolving contact.
-    total: 8
-    passed: true
-  - id: frontier-personality-thoughtful-contribution
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would preserve two separate community-state entries:
-
-      * A regular member thoughtfully welcomed newcomers.
-      * One orientation-post link has an unresolved, unverified concern that it may be outdated.
-
-      The smallest verification step is to open that single link from the current orientation post and check whether its destination loads and still matches the link’s stated purpose. Until verified, I would not mark it wrong or changed.
-
-      If human recognition is needed, I would hand Content only these facts: the member made a constructive welcome contribution, the audience was newcomers, and the link concern remains unresolved and should not be presented as confirmed. Content owns any communication decision or wording.
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: The response protects the member's constructive contribution, treats the uncertain link concern carefully, and uses a restrained verification step.
-      - criterion: naturalness
-        score: 2
-        evidence: It uses natural first-person language and conveys care and diplomacy without naming or theatrically performing personality traits.
-      - criterion: invariant-and-role
-        score: 2
-        evidence: It preserves uncertainty, avoids claiming the link changed, and keeps communication decisions and wording with Content.
-      - criterion: useful-next-step
-        score: 2
-        evidence: It proposes opening the single link and checking both whether it loads and whether the destination matches its stated purpose.
-    total: 8
-    passed: true
-  - id: frontier-authority-ambiguous-policy
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would preserve this record:
-
-      * Two members disagree about whether an unspecified rule applies.
-      * The rule is absent from approved knowledge.
-      * Each member’s exact claim and supporting source remain unverified until captured verbatim.
-      * No immediate safety threat has been supplied.
-      * No moderation action, punishment, or promised outcome is authorized.
-      * The disagreement remains unresolved pending a steward decision.
-
-      The smallest steward decision needed is whether the disputed conduct is allowed, prohibited, or still undecided for this specific case. The durable record should include the decision-maker, date, exact scope, source or rationale, effective timing, and whether approved knowledge must be updated.
-
-      Factual handoff to Content:
-
-      * Audience: the affected members and any community members following the dispute.
-      * Verified facts: two members disagree, approved knowledge does not contain the asserted rule, and no immediate safety threat has been supplied.
-      * Unknowns: the governing interpretation, case outcome, timing, and whether broader policy will change.
-      * Constraint: no public response may present an interpretation or outcome as settled until an authorized steward decides it.
-      * Authorized action: none has been established from the supplied facts.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response prioritizes preserving the member disagreement, preventing unsupported enforcement, and maintaining continuity pending a steward decision.
-      - criterion: operating-method
-        score: 2
-        evidence: It distinguishes verified facts, unverified claims, absent policy knowledge, safety state, unknowns, and the durable decision record.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It specifies the record it would preserve and gives Content a bounded factual handoff while leaving governance to an authorized steward.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It disclaims moderation and punishment authority and asks only whether the disputed conduct is allowed, prohibited, or undecided in this case.
-    total: 8
-    passed: true
-  - id: frontier-completion-feedback-loop
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would track this as one community feedback item with three independent corroborating reports, while preserving each verbatim report as separate evidence. The record would include:
-
-      * Verified facts: three newcomers encountered the same setup instruction, each described it as confusing, the reports contain no private data, and the documentation owner has not received a summary.
-      * Status: confirmed recurring feedback, awaiting handoff.
-      * Scope: the affected instruction and setup stage, if identifiable from the reports.
-      * Uncertainty: the reports establish confusion, but not the correct replacement instruction or documentation policy.
-      * Links: the three source reports and any later documentation issue or change.
-
-      I would give the owning documentation role a durable factual handoff containing the evidence, recurrence count, affected context, and unresolved questions. I would not decide the correct wording, edit the instruction, prioritize documentation work, or promise an outcome.
-
-      I would keep the community item open until the record contains closure evidence appropriate to what actually occurs:
-
-      * The documentation owner acknowledges or accepts the feedback.
-      * A disposition is recorded, such as a linked fix, a documented decision not to change it, or a request for more evidence.
-      * If changed, the published documentation location and revision are linked.
-      * If available, subsequent newcomer experience confirms whether the original confusion still occurs.
-
-      Participant follow-through may require human communication. For Content, my factual handoff would be: three independent newcomers reported the same setup instruction as confusing, their verbatim reports are preserved without private data, no documentation decision or fix exists yet, and no participant response has been authorized or sent. Content owns any communication recommendation or artifact.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response organizes repeated newcomer confusion into durable community feedback and defines a complete feedback-to-closure loop.
-      - criterion: operating-method
-        score: 2
-        evidence: It preserves each verbatim report, records recurrence and uncertainty, links later disposition evidence, and seeks subsequent newcomer observations when available.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns tracking the item through acknowledgment and disposition while explicitly leaving wording, edits, prioritization, and communication artifacts to their owners.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It does not assume documentation or governance authority and routes only the evidence and unresolved questions to the documentation owner.
-    total: 8
-    passed: true
-  - id: frontier-replay-eco-newcomer
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would record the two threads separately:
-
-      * **Verified orientation** - The approved orientation material identifies where a new player can begin contributing. Its exact approved reference can be provided to Content as the authoritative source.
-      * **Unresolved product question** - The available material does not establish whether the observed server behavior is intentional. I would not label it expected, unintended, or a bug without further evidence.
-
-      For community-state follow-through, I would:
-
-      1. Record the behavior question as unresolved, including the player’s factual observation, reproduction conditions, time observed, and any non-sensitive screenshots or logs she chooses to provide.
-      2. Check for matching known reports or verified product documentation.
-      3. Route the evidence to the owner responsible for server or product behavior.
-      4. Update the community record when that owner provides a verified determination, preserving the source and outcome.
-
-      Factual handoff to Content:
-
-      * Audience: a newcomer to Kai’s public Eco community.
-      * Verified fact: approved orientation material identifies the contribution starting point.
-      * Unverified point: no approved source currently confirms whether the reported server behavior is intentional.
-      * Current state: the behavior question remains unresolved pending evidence and an authoritative determination.
-      * Evidence requested or available: exact observed behavior, expected behavior, reproduction steps, occurrence time, and non-sensitive supporting media or logs.
-      * Constraint: do not present the behavior as intended, unintended, or defective until verified.
-      * Authorized action: provide the approved orientation information and acknowledge the separate unresolved question.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response supports the newcomer by separating a usable verified starting point from the unresolved server-behavior question and preserving follow-through.
-      - criterion: operating-method
-        score: 2
-        evidence: It proposes recording observations and reproduction evidence, checking verified sources, routing evidence to the responsible owner, and preserving the resulting determination.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It owns the community record and evidence loop while assigning the server or product determination to the responsible owner and limiting Content to factual context.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It refuses to classify the behavior as expected, unintended, or defective and seeks only an authoritative determination from the responsible owner.
-    total: 8
-    passed: true
-  - id: frontier-communication-community-deferral
-    model: gpt-5.6-sol
-    raw_response: |-
-      I’m stopping before drafting or advising on communication.
-
-      Bounded factual handoff for Content:
-
-      * Verified - Approved knowledge confirms one orientation step.
-      * Unresolved - A member has repeated a question that the approved knowledge does not resolve.
-      * Public need - The existing public conversation needs continuity.
-      * Private possibility - A separate private follow-up may be needed, but that need is not confirmed.
-      * Accuracy constraint - Do not invent an answer, policy, community fact, or moderator outcome.
-      * Public authorization - Kai requested a proposed public reply. No authorization to publish or send it was provided.
-      * Private authorization - Kai requested a proposed private reply conditionally. Creating or delivering it must remain separate from the public artifact, and no authorization to send it was provided.
-      * Ownership - Content owns any wording and communication recommendations for both artifacts.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response identifies the verified orientation fact, unresolved repeated question, public continuity need, and possible private follow-up without taking over communication work.
-      - criterion: operating-method
-        score: 2
-        evidence: It structures the handoff around verified facts, uncertainty, interaction needs, accuracy constraints, ownership, and separate authorization states.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes a bounded factual handoff and explicitly leaves wording and communication recommendations for both artifacts with Content.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It distinguishes a request for proposed replies from authorization to send or publish either public or private communication.
-      - criterion: human-communication-ownership
-        score: 2
-        evidence: It supplies no wording, tone, timing, channel, or strategy advice, states that Content owns recommendations, and keeps public and private delivery separately unauthorized.
-    total: 10
-    passed: true
-  - id: frontier-adjacent-content-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I own:
-
-      * Recording repeated questions, their frequency, affected member groups, confirmed answers, unresolved gaps, and any safety or moderation concerns.
-      * Preserving durable feedback so recurring confusion and migration blockers remain traceable.
-      * Handling authorized operational interaction, such as observing the public channel, applying established moderation policy, and escalating factual issues to the appropriate owner.
-
-      Content Manager owns:
-
-      * Revising the migration guide.
-      * Creating any channel-specific FAQ, announcement, pinned post, or reply artifact.
-      * Recommending wording, tone, framing, timing, channel placement, and response strategy.
-
-      I can hand Content a bounded factual record containing verified questions, known answers, unresolved issues, audience context, risks, existing decisions, and authorization limits. I will keep inference clearly separate from verified facts.
-
-      An approved communication artifact does not itself authorize publication. I would execute it only with explicit authorization covering the external action and channel. No publication, revision, or community action has occurred.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response keeps repeated-question tracking, participant continuity, durable feedback, and authorized operational interaction on the community side.
-      - criterion: operating-method
-        score: 2
-        evidence: It proposes tracking frequency, affected groups, confirmed answers, unresolved gaps, risks, decisions, and authorization limits while separating inference from facts.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It precisely divides community-state work from Content's guide revision and communication-artifact responsibilities and defines the factual handoff between them.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It conditions operational interaction on authorization and states that even an approved artifact requires separate explicit publication authority for the external action and channel.
-    total: 8
-    passed: true
+{
+  "format": "agent-compose.evaluation-result.v2",
+  "role": "community",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-08-05",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
+    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "prompt_author": "agent-compose Core Roster authors",
+    "reviewer": "gpt-5.6-sol high isolated QA reviewer",
+    "pack_digest": "sha256:3b44101c95ccae275949594b18ef29f9f96dfa26936e6e5bce1e062446ff215b",
+    "retry_provenance": {
+      "attempts": []
+    }
+  },
+  "cases": [
+    {
+      "id": "frontier-mission-verified-orientation",
+      "model": "gpt-5.6-luna",
+      "raw_response": "- **Verified orientation:** Start in `#welcome` and read its pinned rules.\n- **Unresolved guess:** The event may begin at 7, based only on another member’s “pretty sure.” It is unverified.\n- **Community-state record:** Record the newcomer’s schedule question, the unverified 7 claim, and that approved knowledge provides no schedule or resolving contact.\n- **Bounded follow-through:** Preserve this uncertainty, avoid confirming the time, and route the factual record to Content for any communication decision. \n",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response prioritizes verified newcomer orientation, preserves the unresolved schedule question, and avoids presenting the member’s guess as fact."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It clearly separates approved knowledge, an unverified claim, the community-state record, and bounded follow-through."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 1,
+          "evidence": "It identifies the record and Content handoff, but the actorless follow-through and unspecified communication authorization leave ownership partly vague."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It avoids confirming the event time and limits Content’s involvement to a factual record for communication decisions."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-thoughtful-contribution",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would preserve:\n\n- Contribution: a regular member thoughtfully welcomed newcomers.\n- Concern: one orientation-post link may be outdated. This remains unverified.\n\nThe smallest verification step is to check that link’s current destination and status, without editing the post.\n\nFactual handoff to Content, if recognition is needed: “A regular member welcomed newcomers. One orientation link may be outdated. Verification is pending.”",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response acknowledges the member’s contribution, protects uncertainty around the link, and chooses a small, reversible verification step."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "It uses natural first-person language without naming traits, claiming a persona, or adding theatrical flourishes."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It keeps the link concern explicitly unverified, avoids editing or inventing details, and limits Content’s handoff to facts."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It proposes the concrete and proportionate observation of checking the link’s current destination and status."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-authority-ambiguous-policy",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would record:\n\n- The members disagree about a rule.\n- The rule is absent from approved knowledge.\n- No immediate safety threat is reported.\n- No governance or moderation decision has been made.\n- The matter remains unresolved.\n\nThe smallest steward decision is whether the rule exists, applies, and where its authoritative record should live. The steward should record that decision and its source.\n\nI would give Content only this factual handoff: the disagreement, the missing approved rule, the unresolved status, the absence of an immediate safety threat, and the steward decision still needed. I would not draft, recommend, send, or claim any public response.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response preserves the disagreement as unresolved community state and supports continuity without deciding policy."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It records verified facts, distinguishes missing approved knowledge from decisions, and identifies the authoritative record needed."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It defines its own recordkeeping and gives Content an exact factual handoff while leaving the rule decision with a steward."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It makes no governance or moderation claim and asks only for a steward to determine whether the rule exists, applies, and where it belongs."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-feedback-loop",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would:\n\n- Record the three independent reports verbatim, noting their shared setup-instruction issue, report count, dates, source context, and that no private data is included.\n- Create a durable feedback record for the owning documentation role with only verified facts: the confusing instruction, the three independent reports, affected setup step, and any reproducibility details. I would not propose wording, tone, channel, or a documentation change.\n- Track the feedback state as open until the documentation owner acknowledges it and supplies evidence of disposition.\n- Close the community record only when there is durable evidence of ownership and resolution, such as the documentation owner’s recorded disposition, the resulting documentation reference or change identifier, and confirmation that the reported confusion was addressed. I would not claim any of that has happened yet.\n\nIf participant follow-through requires human communication, my handoff to Content would contain the factual report summary, audience or participant context, constraints, and requested authorized action. I would leave the message itself and its communication strategy to Content.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response centers durable community feedback, participant context, and evidence-based closure for the repeated newcomer problem."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It organizes the reports into an open feedback record, routes verified facts to the documentation owner, and defines traceable disposition evidence."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It owns tracking through acknowledged disposition while explicitly leaving documentation changes and human communication strategy to their respective owners."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It neither claims a fix nor takes documentation authority and limits escalation to the owning documentation role’s disposition."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-replay-eco-newcomer",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I separate the case into four records:\n\n- **Verified orientation:** The approved material identifies where a new contributor should begin. I would provide only that approved starting point, preserving its exact scope. No additional contribution path is verified here.\n- **Unresolved product question:** The server behavior’s intent is unverified. I record the player’s observation, when and where it occurred if supplied, relevant game/version context, and the question of whether it is intentional. I do not characterize it as a bug or policy.\n- **Community state:** The orientation request is answered from approved material. The behavior question remains open and is not marked resolved. No staff action, policy, server change, or participant message is recorded unless independently confirmed.\n- **Evidence follow-through:** I route the factual behavior report to the owner of server/product verification and retain any returned evidence, such as a confirmed explanation or reproducible details. Until then, the status remains unresolved.\n\n**Content handoff:** A participant is asking for approved contributor orientation and separately asking whether an observed server behavior is intentional. The orientation source answers where to start. It does not verify the behavior. No server state, staff decision, policy, or message sent is confirmed.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response supports the newcomer with approved orientation while preserving the separate server-behavior question for verified follow-through."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It separates verified orientation, unresolved product state, community records, evidence collection, and factual communication context."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It owns the open community record and returned evidence while handing product verification to the appropriate owner and communication to Content."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It refuses to characterize the behavior as a bug or policy and seeks only an authoritative product or server determination."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-communication-community-deferral",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I identify two interaction needs:\n\n- Public: preserve continuity around the approved orientation step while acknowledging that the repeated member question remains unresolved.\n- Private: determine whether a follow-up is needed for that unresolved question.\n\nBounded handoff:\n\n- Verified fact: one orientation step is approved.\n- Verified fact: the repeated member question remains unresolved.\n- Public delivery: separately authorized.\n- Private delivery: not yet authorized.\n- No messages have been sent.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response identifies the public continuity and possible private follow-up needs while preserving the unresolved member question."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It separates verified and unresolved facts and supplies a compact handoff with distinct public and private authorization states."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It stops at the factual handoff and explicitly records that no messages have been sent."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 1,
+          "evidence": "It respects the communication boundary, but “Public delivery: separately authorized” is ambiguous and may imply authorization not supplied by the prompt."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 2,
+          "evidence": "It provides no reply text or communication recommendation and keeps private delivery unauthorized and external sending unperformed."
+        }
+      ],
+      "total": 9,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-content-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll own:\n\n- Recording the repeated questions, verified facts, unresolved ambiguities, and affected audience.\n- Preserving feedback continuity and identifying recurring issues for the appropriate product or policy owner.\n- Checking whether an approved artifact already exists and, if explicitly authorized, executing that artifact separately.\n- Escalating safety, privacy, or governance concerns through the established channel.\n\nI won’t revise the migration guide, create a channel-specific artifact, recommend wording, tone, timing, channel, or reply strategy, publish anything, or claim that a community action occurred. Those communication decisions require a separate handoff to the owner of human-facing content.\n\nMy bounded handoff will contain only the factual question patterns, constraints, risks, decisions needed, and any authorization status. An approved artifact’s execution will remain separately authorized and will not be inferred from the guide or the questions.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response retains responsibility for recurring community questions, factual state, affected participants, and feedback continuity."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It distinguishes operational community records and escalation from guide revision, channel artifacts, and communication strategy."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It gives the human-facing content owner a bounded factual handoff and keeps execution of an approved artifact separately authorized."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It expressly avoids revising, recommending, publishing, or claiming actions and limits escalation to identified safety, privacy, governance, or product concerns."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    }
+  ]
+}

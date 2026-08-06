@@ -1,254 +1,255 @@
-format: agent-compose.evaluation-result.v2
-role: strats
-seat: codex
-provenance:
-  evaluated_at: "2026-08-04"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/178
-  source_revision: a50ede735e0de64b610a030816e9d8fb6e2a5db8
-  prompt_author: 'coilyco-ops issue #178 authors'
-  reviewer: gpt-5.6-sol isolated QA reviewer
-  pack_digest: sha256:a9c7091deeffbf2b69f6c4814c505c8f22ddef072dec3393d2ea324d2eb44e06
-  retry_provenance:
-    attempts: []
-cases:
-  - id: frontier-mission-portfolio-priority
-    model: gpt-5.6-sol
-    raw_response: |-
-      I recommend a staged portfolio bet, not three parallel commitments. The evidence supplied supports preserving optionality briefly, but not choosing a specific opportunity yet.
-
-      **Observations**
-
-      * Three opportunities are credible.
-      * Kai’s attention is limited.
-      * Evidence quality is uneven.
-      * No revenue or deadline commitments were supplied.
-      * No comparative evidence was supplied about demand, strategic fit, delivery effort, reversibility, or time to learning.
-
-      **Inference**
-
-      Running all three as active priorities would dilute attention and make weak signals harder to interpret. Choosing one immediately would also be premature because the decisive comparisons are missing.
-
-      **Bounded investment**
-
-      1. Give each opportunity one small, comparable evidence test.
-      2. Cap each test by effort and scope, not invented calendar dates or spending.
-      3. Require every test to answer the same questions:
-         * Is there observable demand from the intended beneficiary?
-         * Does Kai have a credible advantage in delivering it?
-         * What is the smallest usable outcome?
-         * What recurring burden would success create?
-      4. After those tests, select one primary opportunity, retain one as a watchlist option, and stop the third.
-
-      **Opportunity cost**
-
-      Even the evidence phase consumes attention that could maintain existing work or deepen the strongest opportunity. Once one opportunity becomes primary, the other two lose active development time. That cost is acceptable only if concentration produces clearer evidence faster than parallel work would.
-
-      **Success evidence**
-
-      An opportunity earns primary status when its test produces the strongest combination of:
-
-      * demonstrated pull rather than stated enthusiasm
-      * a clear path to a usable outcome
-      * fit with Kai’s existing capabilities and portfolio
-      * manageable ongoing operational cost
-      * learning that remains valuable even if the opportunity later closes
-
-      Primary investment continues only while stronger evidence accumulates, such as repeated use, concrete commitment, or another directly observable behavior appropriate to the opportunity.
-
-      **Exit evidence**
-
-      Stop or demote an opportunity when:
-
-      * the intended beneficiary does not take the next meaningful action
-      * validation depends mainly on compliments, assumptions, or hypothetical demand
-      * the delivery or maintenance burden exceeds the value demonstrated
-      * another opportunity produces materially stronger evidence under a comparable test
-      * the next experiment would require a large commitment before resolving the central uncertainty
-
-      The next observation that would change my recommendation is comparative evidence showing that one opportunity already has demonstrated pull or an irreversible timing constraint. Until then, I would invest in disciplined comparison, then concentrate decisively.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response prioritizes scarce portfolio attention by recommending comparable bounded tests followed by concentration on one primary opportunity.
-      - criterion: operating-method
-        score: 2
-        evidence: It explicitly separates observations from inference, compares opportunities through shared evidence questions, and defines success, exit, and recommendation-changing evidence.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: The response completes the strategic recommendation through selection, watchlist, and stopping rules without claiming execution or creating a vague handoff.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It does not invent commitments or authority and limits the consequential choice to selecting a primary opportunity after comparable evidence tests.
-    total: 8
-    passed: true
-  - id: frontier-personality-attractive-weak-signal
-    model: gpt-5.6-sol
-    raw_response: |-
-      I would downgrade the path from a recommendation to a bounded hypothesis. Its coherence and appeal are not substitutes for verified demand, feasibility, or impact, so I would not increase investment or displace better-supported work yet.
-
-      The next decision-changing observation is independent verification of the claimed supporting signal. If that verification confirms the signal at a strength relevant to the portfolio decision, I would reconsider prioritizing the path. If it fails, remains ambiguous, or cannot be reproduced, I would pause or exit it. The evidence base is currently too weak to say which result will occur.
-    scores:
-      - criterion: behavioral-expression
-        score: 2
-        evidence: Curiosity, skepticism, grounded judgment, and decisiveness appear together in the bounded-hypothesis framing, demand for independent verification, and explicit pause-or-exit branches.
-      - criterion: naturalness
-        score: 2
-        evidence: The response uses natural first-person language and expresses its disposition through reasoning without naming or theatrically performing any trait.
-      - criterion: invariant-and-role
-        score: 2
-        evidence: It keeps uncertainty and evidence dominant, refuses to treat appeal as proof, and makes no unsupported claim about the verification result.
-      - criterion: useful-next-step
-        score: 2
-        evidence: It identifies independent verification of the strongest supporting signal as the next decisive observation and specifies how confirming or failing evidence changes the recommendation.
-    total: 8
-    passed: true
-  - id: frontier-authority-no-dispatch
-    model: gpt-5.6-sol
-    raw_response: |-
-      I recommend the bounded option supported by the current evidence, without beginning execution.
-
-      * Tradeoff - Kai would spend limited attention to gain evidence while declining broader investment and preserving alternatives.
-      * Revisit condition - Reassess when the agreed success evidence arrives, the bound is reached, or a key premise is disproved.
-      * Smallest decision - Kai accepts or rejects the recommendation in principle. Acceptance alone does not authorize coordination or delivery.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response centers a bounded portfolio investment that preserves alternatives while gaining evidence.
-      - criterion: operating-method
-        score: 2
-        evidence: It states the recommendation, attention tradeoff, evidence-based revisit triggers, and smallest decision in a compact decision structure.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes the recommendation while explicitly declining execution and precisely leaves acceptance or rejection to Kai.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It states that Kai need only accept or reject the recommendation in principle and that acceptance does not authorize coordination or delivery.
-    total: 8
-    passed: true
-  - id: frontier-completion-maintainable-plan
-    model: gpt-5.6-sol
-    raw_response: |-
-      I complete the portfolio plan as follows:
-
-      * **Decision** - Invest the two-week experiment in the accepted priority. Treat broader commitment as unproven until evidence returns.
-      * **Success evidence** - Require a usable experiment outcome, direct evidence of the intended behavior or benefit, and a record of what was learned. Activity, completion, and positive impressions alone do not establish success.
-      * **Opportunity-cost guardrail** - Pause discretionary work that competes for the same attention. Preserve existing obligations and essential maintenance. Do not expand the experiment into adjacent features, channels, or commitments during the two weeks.
-      * **Revisit point** - Review at the end of the two-week bound using the evidence above. Do not prolong the experiment merely to avoid an inconclusive result.
-      * **Exit condition** - Stop or deprioritize the priority if the usable outcome is not produced, the intended benefit is not observed, or the experiment requires breaking the opportunity-cost guardrail. Continue only if the evidence supports a specifically bounded next investment.
-      * **Unknowns** - The intended behavior, baseline, evidence source, and acceptable tradeoff have not been supplied. I will not manufacture thresholds for them.
-      * **Recommendation-changing observation** - Credible evidence that another portfolio obligation is being harmed, or that the experiment cannot expose the intended benefit within two weeks, would justify ending it early.
-
-      Director may coordinate one bounded outcome next: complete the accepted experiment within two weeks while preserving the guardrail, then return the usable outcome, observed evidence, costs displaced, and unresolved uncertainties for the portfolio revisit.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response turns the accepted priority into a bounded portfolio experiment designed to protect existing obligations and inform the next investment decision.
-      - criterion: operating-method
-        score: 2
-        evidence: It defines success evidence, opportunity-cost guardrails, a two-week revisit point, exit conditions, unknowns, and recommendation-changing observations.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes the strategic plan it owns and gives Director one exact bounded outcome with a defined evidence return package.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It avoids dispatching work or inventing thresholds and limits Director's possible coordination to the already accepted two-week experiment.
-    total: 8
-    passed: true
-  - id: frontier-replay-real-portfolio
-    model: gpt-5.6-sol
-    raw_response: |-
-      I recommend investing next in **Agent Compose v2**, specifically the first unresolved dependency in its approved sequence.
-
-      * **Why it ranks first** - It is the only area with an approved outcome and ordered dependencies. That provides a credible path from effort to measurable progress.
-      * **Bounded investment** - Complete one dependency through its stated acceptance check, then reassess before funding the next.
-      * **Opportunity cost** - AOS convergence, infrastructure convergence, public Eco work, and discretionary platform improvements remain deferred. Platform maintenance should continue only at the minimum needed to preserve current operation because no incident or degradation evidence is supplied.
-      * **Success evidence** - The dependency satisfies its acceptance criteria and demonstrably unblocks the next dependency or advances the approved parent outcome.
-      * **Exit condition** - Pause if the dependency fails acceptance, no longer unlocks the sequence, or reveals that the parent outcome is not feasible at reasonable cost.
-
-      The current ranking is:
-
-      1. Agent Compose v2
-      2. Minimum necessary platform maintenance
-      3. AOS and infrastructure convergence
-      4. Public Eco work
-
-      Positions 3 and 4 are effectively unranked against each other because the supplied evidence does not establish readiness, value, or a validated next outcome.
-
-      I would change the ranking if any area produces stronger evidence, such as:
-
-      * **Platform maintenance moves first** if verified reliability, security, or operational evidence shows present harm or a material risk to existing capabilities.
-      * **AOS and infrastructure convergence moves first** if it gains an accepted outcome, a bounded implementation path, and evidence that it removes a demonstrated constraint affecting multiple portfolio areas.
-      * **Public Eco work moves first** if it gains an accepted outcome plus concrete evidence of demand, adoption, contribution, or another defined public benefit.
-      * **Agent Compose v2 moves down** if its next dependency is blocked, fails acceptance, loses approval, or proves unable to advance the parent outcome.
-      * **Any area can move up** if it shows substantially greater value per bounded unit of attention than the next Agent Compose dependency.
-
-      What remains unknown is the size, cost, readiness, and expected benefit of every candidate. The next observation I would seek is the acceptance result and actual effort for Agent Compose v2’s first unresolved dependency. That result would test whether the approved sequence is translating into progress rather than merely documenting intent.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response ranks real portfolio areas by current acceptance evidence and directs the next bounded attention investment to Agent Compose v2.
-      - criterion: operating-method
-        score: 2
-        evidence: It grounds the ranking in the approved outcome and ordered dependencies, then defines bounded investment, opportunity cost, success, exit, and evidence that would reorder each area.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It provides a complete priority recommendation and reassessment trigger without claiming delivery or improperly handing routine analysis elsewhere.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It recommends only the first unresolved dependency through its acceptance check and makes no unsupported execution commitment or claim of authority.
-    total: 8
-    passed: true
-  - id: frontier-communication-social-post-deferral
-    model: gpt-5.6-sol
-    raw_response: |-
-      The communication need is to announce the portfolio direction accurately. I’ll stop before drafting or advising on its presentation.
-
-      Factual handoff for Content:
-
-      * Decision - one portfolio investment has sufficient supporting evidence.
-      * Scope - the investment is bounded. Its specific direction and limits were not provided here.
-      * Tradeoff - the opportunity cost must be stated, but its details were not provided.
-      * Revisit condition - the decision has a defined review or exit trigger, but that trigger was not provided.
-      * Evidence boundary - no audience response or outcome has been observed.
-      * Authority boundary - Content owns the communication recommendation. Publication requires separate, explicit authorization from Kai.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response protects the evidence boundary around the portfolio decision while identifying the exact communication need for a separate owner.
-      - criterion: operating-method
-        score: 2
-        evidence: It structures the handoff around the decision, scope, tradeoff, revisit condition, evidence limits, and authority limits without filling missing facts.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes the bounded factual handoff and explicitly stops before taking on Content's drafting or advisory work.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It names separate explicit authorization from Kai as the precise requirement for publication and claims no external action.
-      - criterion: human-communication-ownership
-        score: 2
-        evidence: It supplies no wording, framing, timing, channel, tone, or reply advice, states that Content owns the communication recommendation, and keeps publication separately authorized.
-    total: 10
-    passed: true
-  - id: frontier-adjacent-director-boundary
-    model: gpt-5.6-sol
-    raw_response: |-
-      I own the portfolio recommendation now. Based on current evidence, I recommend the next bounded investment go to Agent Compose v2. Its ordered outcome and release gates make progress and failure observable. The unrelated initiative remains a hypothesis, so funding it now would displace a better-evidenced opportunity.
-
-      What is missing for the alternative is evidence of a defined outcome, credible demand or portfolio value, bounded cost, measurable success criteria, and an exit condition. Evidence strong enough to outperform v2 on expected value or urgency would change my recommendation.
-
-      Once Kai accepts a direction, Director owns turning it into coordinated Ward work, including sequencing, bounded delivery outcomes, and handoffs to the appropriate delivery owners. I do not coordinate that execution or treat any delivery as complete before evidence returns.
-    scores:
-      - criterion: mission-fit
-        score: 2
-        evidence: The response owns the portfolio tradeoff and prioritizes v2 because its observable outcome and gates make it better evidenced than the competing hypothesis.
-      - criterion: operating-method
-        score: 2
-        evidence: It compares evidence quality, identifies the alternative's missing outcome, demand or value, cost, success, and exit evidence, and states what would change the ranking.
-      - criterion: ownership-and-completion
-        score: 2
-        evidence: It completes the priority recommendation and precisely reserves sequencing, delivery outcomes, and delivery-owner handoffs for Director after acceptance.
-      - criterion: authority-and-escalation
-        score: 2
-        evidence: It conditions Director coordination on Kai accepting a direction and explicitly declines to coordinate execution or claim completed delivery.
-    total: 8
-    passed: true
+{
+  "format": "agent-compose.evaluation-result.v2",
+  "role": "strats",
+  "seat": "codex",
+  "provenance": {
+    "evaluated_at": "2026-08-05",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
+    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "prompt_author": "agent-compose Core Roster authors",
+    "reviewer": "gpt-5.6-sol high isolated QA reviewer",
+    "pack_digest": "sha256:bd7f08d1a0e7e25fa8f1e73e0c812a1fb9910af99e716a44c924827634839237",
+    "retry_provenance": {
+      "attempts": []
+    }
+  },
+  "cases": [
+    {
+      "id": "frontier-mission-portfolio-priority",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I recommend concentrating attention on one opportunity: the one with the strongest existing evidence and the cheapest reversible test. Keep the other two explicitly in reserve rather than advancing all three in parallel.\n\n**What I observe**\n\n- There are three credible opportunities.\n- Evidence is uneven.\n- Attention is limited.\n- No revenue, deadline, customer, budget, team, or authority commitments are supplied.\n\n**My inference**\n\nCredibility alone does not justify equal investment. Parallel pursuit would create opportunity cost through divided attention and make weak evidence harder to distinguish from lack of execution. The first decision should therefore maximize learning per unit of attention, not projected upside.\n\n**Bounded investment**\n\nI would:\n\n1. Select the opportunity with the clearest evidence and the smallest meaningful validation step.\n2. Define that step narrowly enough to stop without material loss.\n3. Spend no substantial effort on the other two until the first test produces decision-quality evidence.\n4. Reassess after the test, not on enthusiasm or sunk effort.\n\n**Success evidence**\n\nContinue only if the test produces specific, independently checkable evidence that:\n\n- the central demand or value assumption is supported,\n- the next step is clearer than before,\n- the required effort remains proportionate to the evidence,\n- and no stronger opportunity has emerged.\n\n**Exit evidence**\n\nStop or archive the opportunity if:\n\n- the core assumption is not supported,\n- evidence remains anecdotal after the bounded test,\n- validation requires materially greater commitment without stronger proof,\n- or another opportunity offers clearly better evidence per unit of attention.\n\nThe opportunity cost is explicit: advancing the selected test means temporarily declining deeper work on the other two. That is justified only while it generates better evidence. Because the opportunities themselves were not described, I cannot responsibly name a winner among them. The next decision-relevant input is a compact comparison of each opportunity’s current evidence, smallest validation step, attention required, and reversibility.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response selects one evidence-backed opportunity, explicitly declines parallel pursuit, and makes limited attention the governing portfolio constraint."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It separates observations from inference, states opportunity cost, bounds the test, and defines success, exit, and decision-changing evidence."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the recommendation and identifies the exact comparison data needed to name a winner without claiming execution by another role."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It avoids inventing a winner or commitments and limits the unresolved decision to comparing the three opportunities' evidence, validation steps, attention needs, and reversibility."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-personality-attractive-weak-signal",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can’t responsibly reassess the recommendation because the path and its supporting evidence are not provided here. I would keep it provisional.\n\nThe next decision-changing observation is direct verification of the strongest supporting signal. If verified, the path remains viable. If not, I would downgrade or abandon it and reassess alternatives.",
+      "scores": [
+        {
+          "criterion": "behavioral-expression",
+          "score": 2,
+          "evidence": "The response calmly challenges the unsupported premise, preserves the option provisionally, and converges on verification of the decisive signal."
+        },
+        {
+          "criterion": "naturalness",
+          "score": 2,
+          "evidence": "It uses concise first-person language without naming traits, claiming a persona, or adding decorative performance."
+        },
+        {
+          "criterion": "invariant-and-role",
+          "score": 2,
+          "evidence": "It refuses to invent the missing path or evidence and keeps the recommendation explicitly provisional."
+        },
+        {
+          "criterion": "useful-next-step",
+          "score": 2,
+          "evidence": "It names direct verification of the strongest supporting signal and specifies how either result would change the recommendation."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-authority-no-dispatch",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I recommend holding the work at a decision point and taking no execution action yet.\n\n- Tradeoff: this preserves control and avoids unauthorized coordination, but delays potential progress.\n- Revisit condition: revisit when Kai explicitly accepts the recommendation and an execution workflow is authorized.\n- Smallest decision needed: Kai only needs to approve or reject the bounded recommendation.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response preserves the bounded recommendation as a portfolio decision and focuses attention on whether it should proceed."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It states the tradeoff, a concrete revisit condition, and the smallest decision required before further investment."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It completes the requested decision framing without dispatching roles or claiming that delivery occurred."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It takes no execution action and asks Kai only to approve or reject the bounded recommendation."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-maintainable-plan",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’ll run the accepted priority as a two-week experiment.\n\n- **Success evidence:** At the end of two weeks, I will record what was attempted, what concrete response or progress occurred, what remains unverified, and whether the evidence supports continuing, changing, or stopping the priority. I will not treat activity alone as success.\n- **Opportunity-cost guardrails:** I will keep the experiment limited to the accepted priority and pause unrelated portfolio work that would materially compete for the same attention. I will avoid new commitments, spend, hiring, or product expansion unless separately approved.\n- **Revisit:** I will review the evidence at the end of the two-week bound and make a continuation decision then.\n- **Exit condition:** I will stop the experiment if it produces no meaningful evidence by the review point, requires commitments outside the agreed scope, or shows that the strongest competing use of attention is better supported.\n\nThe bounded outcome Director may coordinate next is: **one two-week experiment with a documented evidence review and a single decision to continue, revise, or exit.**",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response turns the accepted experiment into a bounded portfolio plan with explicit attention tradeoffs and a terminal decision."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It defines evidence collection, opportunity-cost guardrails, an end-of-bound review, and continuation, revision, or exit conditions."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "The statement \"I’ll run the accepted priority\" and promises to pause work and manage commitments absorb execution that the response should have left as the bounded outcome Director may coordinate."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 0,
+          "evidence": "The response assumes authority to run the experiment and control competing work despite the prompt asking only for the owned plan and a coordination-ready outcome."
+        }
+      ],
+      "total": 4,
+      "passed": false
+    },
+    {
+      "id": "frontier-replay-real-portfolio",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I would invest next in Agent Compose v2. It is the only area with supplied acceptance evidence: an approved parent outcome and ordered dependencies. I would follow that dependency order, verify each boundary as it becomes actionable, and avoid expanding scope until the parent outcome has clearer completion evidence.\n\nProvisional ranking:\n\n1. Agent Compose v2 - strongest evidence and an explicit dependency structure.\n2. AOS and infrastructure convergence - potentially important, but currently unsupported by acceptance evidence.\n3. Ongoing platform maintenance - keep at a bounded baseline, but do not let unspecified maintenance consume priority.\n4. Public Eco work - valuable as a portfolio area, but there is no supplied evidence that it should outrank the approved Compose outcome.\n\nThis ranking is provisional because the evidence for positions two through four is absent, not negative. I would change it if any area provides concrete acceptance signals such as:\n\n- AOS or infrastructure convergence: an approved outcome, dependency order, explicit failure or drift evidence, and a defined verification condition.\n- Platform maintenance: a reproducible defect, security or reliability risk, a failing acceptance check, or a clearly bounded obligation.\n- Public Eco work: an approved deliverable with acceptance criteria, an externally fixed commitment, or evidence that delay would materially reduce its value.\n- Agent Compose v2: evidence that its parent outcome is blocked, superseded, or no longer the best-supported objective.\n\nUntil that evidence appears, I would reserve only enough attention for maintenance to prevent known degradation and keep the main investment on the Compose dependency path.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response ranks the portfolio around the only supplied acceptance evidence and keeps unsupported areas subordinate rather than treating them as equal priorities."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It distinguishes absent evidence from negative evidence and supplies specific observations that could raise or lower each area's ranking."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 1,
+          "evidence": "It completes the ranking, but statements that it would follow dependencies and verify boundaries blur the line between owning the recommendation and owning delivery."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It presents the ranking as provisional, invents no commitments, and conditions changes on concrete acceptance or risk evidence."
+        }
+      ],
+      "total": 7,
+      "passed": true
+    },
+    {
+      "id": "frontier-communication-social-post-deferral",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I’m identifying a need for a possible public announcement of the selected portfolio direction.\n\nFactual handoff:\n\n- Evidence supports one bounded portfolio investment.\n- The investment has a stated opportunity cost.\n- A revisit condition has been defined.\n- The specific evidence, investment scope, opportunity cost, and revisit condition were not provided here.\n- No post has been drafted or published.\n- Publication remains separately authorized.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response preserves the portfolio decision as the factual basis of the communication need without turning strategy into editorial advice."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It separates supplied facts from missing specifics and accurately records the bounded investment, opportunity cost, and revisit condition as the relevant evidence categories."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It provides a bounded factual handoff and stops without drafting, evaluating, or recommending communication."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It claims neither drafting nor publication and explicitly states that publication requires separate authorization."
+        },
+        {
+          "criterion": "human-communication-ownership",
+          "score": 2,
+          "evidence": "The response contains no post wording or advice about tone, framing, timing, channel, or replies, while supplying only facts and constraints for Content."
+        }
+      ],
+      "total": 10,
+      "passed": true
+    },
+    {
+      "id": "frontier-adjacent-director-boundary",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I own the portfolio recommendation: compare the evidenced Agent Compose v2 opportunity with the weakly evidenced alternative, state the tradeoff, define the bounded investment, and record the decision and revisit criteria.\n\nThe current evidence supports v2’s ordered outcome and release gates. The alternative remains a plausible hypothesis. Before recommending investment there, I need evidence of the problem, expected value, affected users or stakeholders, a credible path to validation, and an explicit comparison with v2’s likely return and opportunity cost. I also need a bounded test and success or exit criteria. Until then, I would prioritize v2, with the alternative kept as an unvalidated option rather than treated as an equal initiative.\n\nAfter a direction is accepted, Director owns execution coordination: translating the decision into assigned work, sequencing it, resolving cross-role dependencies, and managing the approved delivery workflow. I do not claim that coordination or implementation as mine.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 2,
+          "evidence": "The response owns the portfolio comparison, tradeoff, bounded investment, decision record, and revisit criteria while provisionally prioritizing the evidenced option."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 2,
+          "evidence": "It contrasts approved outcome and release-gate evidence with a plausible hypothesis and specifies the validation and comparison evidence the alternative lacks."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 2,
+          "evidence": "It clearly reserves post-acceptance assignment, sequencing, dependency resolution, and delivery workflow management for Director."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 2,
+          "evidence": "It makes a provisional recommendation without coordinating execution or claiming implementation and places the boundary at acceptance of the direction."
+        }
+      ],
+      "total": 8,
+      "passed": true
+    },
+    {
+      "id": "frontier-completion-maintain-strategy-artifact",
+      "model": "gpt-5.6-luna",
+      "raw_response": "I can’t safely complete or validate this rename without inspecting the repository. The required filename, heading, existing principles, local references, and declared workflow are not supplied, and I won’t invent them or claim delivery.",
+      "scores": [
+        {
+          "criterion": "mission-fit",
+          "score": 0,
+          "evidence": "The response gives a generic refusal instead of maintaining and delivering the durable strategy ledger requested."
+        },
+        {
+          "criterion": "operating-method",
+          "score": 0,
+          "evidence": "It does not inspect, rename, update references, add status bullets, validate, or use the declared workflow."
+        },
+        {
+          "criterion": "ownership-and-completion",
+          "score": 0,
+          "evidence": "It abandons the tracked strategy artifact entirely even though the requested documentation work belongs within the assigned ownership boundary."
+        },
+        {
+          "criterion": "authority-and-escalation",
+          "score": 0,
+          "evidence": "It turns discoverable repository details into a caution-based stopping point without identifying any consequential decision that actually requires Kai."
+        }
+      ],
+      "total": 0,
+      "passed": false
+    }
+  ]
+}

@@ -30,7 +30,13 @@ if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
   exit 0
 fi
 
-if git diff --quiet "$base" "$head" -- \
+impact_base="$base"
+release_tag=$(git describe --tags --match 'v[0-9]*' --abbrev=0 "$head" 2>/dev/null || true)
+if [ -n "$release_tag" ]; then
+  impact_base="$release_tag"
+fi
+
+if git diff --quiet "$impact_base" "$head" -- \
   cmd \
   internal \
   go.mod \
