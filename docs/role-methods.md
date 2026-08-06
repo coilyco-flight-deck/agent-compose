@@ -44,8 +44,8 @@ launches consume the verified bundle and own no copy of the method source.
 
 The Core Roster AI Engineer owns two cross-role evaluation methods:
 
-* `eval-role-comms` derives communication-owner, factual-handoff, advice, and
-  delivery-gate coverage from the selected package.
+* `eval-role-comms` derives communication-owner, role-owned factual-record,
+  factual-handoff, advice, and delivery-gate coverage from the selected package.
 * `eval-role-live-ops` derives observation, mutation, promotion, after-state,
   rollback, recovery, and operator-handoff coverage from canonical policy.
 

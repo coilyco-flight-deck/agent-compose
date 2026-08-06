@@ -30,6 +30,12 @@ evidence, while Content retains the reusable source artifact, provenance, claim
 discipline, and editorial recommendation. Publication and sending remain
 separately authorized.
 
+Content owns recommendations about human communication, not every
+human-readable artifact. Each other role retains mechanically determined status,
+checkpoint, verdict, decision, incident, issue, cross-link, and handoff records
+for work it already owns. External posting remains separately authorized by the
+task, runtime, and user.
+
 ## Reviewed production locations
 
 * `internal/evaluation/evaluation.go` - typed evaluation pack rendering,

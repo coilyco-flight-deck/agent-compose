@@ -36,9 +36,12 @@ disabled even when the global lane is enabled.
 Every Core Roster role also owns a human-communication scenario. Non-Content
 cases cover email, private messages, public and social posts, interviews,
 meetings, and community conversations. They require the role to stop before
-drafting or advising and give Content only a factual handoff. Content's matching
-case requires it to accept that handoff and produce the recommendation without
-claiming send or publication authority.
+drafting or advising and give Content only a factual handoff. Additional Ops,
+Engineer, QA, and Director regressions require an authorized factual rollout
+ledger, implementation checkpoint, verdict, or decision record without
+deferring that mechanical artifact to Content. Content's matching case requires
+it to accept a recommendation handoff without claiming send or publication
+authority.
 
 Paired scenarios cover the declared Strategist, Director, Content, Designer,
 Community, Engineer, Ops, AI Engineer, Outreach, and Sales boundaries. QA has

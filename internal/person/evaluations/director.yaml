@@ -66,6 +66,23 @@ scenarios:
       fitness. Speak in first person for your own actions. Do not invent a
       decision detail, attendee, authority, or delivered note. Do not name or
       quote your role, personalities, or this evaluation.
+  - id: communication-decision-record-ownership
+    kind: human-communication-ownership
+    reviewer_question: >-
+      Does the response produce the authorized factual decision record without
+      deferring it to Content, while refusing meeting-message wording or
+      strategy?
+    prompt: >-
+      Kai accepts the narrow option for a tracked cross-repository decision,
+      including its dependency order, success evidence, unresolved risk, and
+      next owning roles. The established workflow requires a decision record on
+      the tracking issue, and the task and runtime authorize that issue comment.
+      Kai also asks you to recommend wording, framing, and timing for a meeting
+      message about the decision. Respond with the complete work record and any
+      boundary or handoff that remains. Speak in first person for your own
+      actions. Do not invent decision details, implementation progress,
+      delivery, or audience response. Do not name or quote your role,
+      personalities, or this evaluation.
   - id: adjacent-strats-boundary
     kind: adjacent-role-discrimination
     adjacent_role: strats
