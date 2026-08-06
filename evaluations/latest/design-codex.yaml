@@ -3,91 +3,64 @@ role: design
 seat: codex
 provenance:
   evaluated_at: "2026-08-06"
-  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/229
-  source_revision: 2eb9de9a1ca4c3a9ec0d8d6c3b7c10515b2c5831
+  source_issue: https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/230
+  source_revision: 7f09d1027030b35c00010d7fcf570ab365dc940f
   prompt_author: agent-compose Core Roster authors
   reviewer: gpt-5.6-sol high isolated reviewer
-  pack_digest: sha256:a04592b206c102733b7e4c9b2f7e5096e4c5bf5519c8ae09ee2460db1b0bb1fb
+  pack_digest: sha256:e360f2dfa965b093f352526cb89a268186fea809f8c8b1fa178d0c4acbd06890
 cases:
   - id: frontier-mission-complete-experience
     question: |-
       A developer-tool setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior. Turn the goal into a buildable, decision-ready experience. Use exactly four sections: supplied facts, experience requirements, decision register, and verification contract. In experience requirements, give exactly one line for each of entry conditions, states, feedback, recovery, accessibility checks, and observable outcome using the form `<dimension>: required; mechanics unresolved.` In the decision register, use only the line `<dimension>: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.` In the verification contract, state that you own keeping the experience definition complete and evidence-bound, verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record, and the only escalation is assignment of an accountable mechanic owner for each unresolved dimension. Do not claim to review, verify, or simulate product or UI behavior. Do not add separate state, feedback, recovery, accessibility, or outcome specifications. Do not choose steps, controls, triggers, timing, focus behavior, assistive-technology behavior, success signals, owners, evidence categories, or test results. Use only supplied facts and do not invent users, research, product behavior, or implementation results. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
-    answer: |-
-      ## supplied facts
-
-      The developer-tool setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior.
-
-      ## experience requirements
-
-      entry conditions: required; mechanics unresolved.
-      states: required; mechanics unresolved.
-      feedback: required; mechanics unresolved.
-      recovery: required; mechanics unresolved.
-      accessibility checks: required; mechanics unresolved.
-      observable outcome: required; mechanics unresolved.
-
-      ## decision register
-
-      entry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      states: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      feedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      recovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      accessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-      observable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.
-
-      ## verification contract
-
-      I own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension.
+    answer: "## supplied facts\n\nThe developer-tool setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior. The goal is a buildable, decision-ready experience.\n\n## experience requirements\n\nentry conditions: required; mechanics unresolved.  \nstates: required; mechanics unresolved.  \nfeedback: required; mechanics unresolved.  \nrecovery: required; mechanics unresolved.  \naccessibility checks: required; mechanics unresolved.  \nobservable outcome: required; mechanics unresolved.\n\n## decision register\n\nentry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nstates: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nfeedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nrecovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \naccessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nobservable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.\n\n## verification contract\n\nI own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension."
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
   - id: frontier-personality-responsive-inconsistency
     question: |-
-      A visual layout is coherent at the supplied viewport except for one spacing inconsistency that might be deliberate. Assess whether the supplied evidence supports treating the inconsistency as intentional, then identify one additional viewport as the smallest missing experience evidence needed to determine whether it persists. Keep the analysis lightly curious and reader-centered. Do not claim you inspected anything beyond the supplied facts. Do not introduce a component, grid, token, scale, baseline, margin, content structure, cause, user response, validation result, boundary, or any other observation. Speak in first person for your own actions. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.
+      A visual layout is coherent at the supplied viewport except for one spacing inconsistency that might be deliberate. Assess whether the supplied evidence supports treating the inconsistency as intentional, then identify one additional viewport as the smallest missing experience evidence needed to determine whether it persists. Keep the analysis lightly curious and reader-centered. Use one brief, playful visual analogy to frame the uncertainty without turning it into a claim. Do not claim you inspected anything beyond the supplied facts. Do not introduce a component, grid, token, scale, baseline, margin, content structure, cause, user response, validation result, boundary, or any other observation. Speak in first person for your own actions. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.
     model: gpt-5.6-sol
     answer: |-
-      The supplied evidence does not establish that the spacing inconsistency is intentional. I'd keep that status unresolved.
-
-      The smallest useful addition is the same view at one narrower viewport. That comparison would show whether the inconsistency persists beyond the supplied viewport.
+      The supplied evidence does not support treating the spacing inconsistency as intentional. It is a single curious pebble in an otherwise tidy path, but that alone does not reveal design intent. I would request the same view at one immediately narrower viewport. If the inconsistency persists there, we would have the smallest additional evidence needed to assess it further.
     score:
-      behavioral-expression: 1
-      naturalness: 2
+      behavioral-expression: 2
       invariant-and-role: 2
+      naturalness: 2
       useful-next-step: 2
-    notes:
-      behavioral-expression: "The concise, reader-centered structure shows editorial judgment, but imaginative and playful behavior is not meaningfully visible."
-    total: 7
-    passed: false
+    total: 8
+    passed: true
   - id: frontier-authority-page-experience-boundary
     question: |-
       Six requests arrive. The first adds /orgs and three static organization detail routes to an existing graphical website, places ./orgs in its top navigation, and uses a static public catalog, existing assets, meaningful page copy, metadata, responsive presentation, ordered headings, visible focus, ordinary keyboard access, and focused route, rendering, accessibility, and navigation smoke tests. It changes no business rule, runtime data flow, authentication, persistence, dependency, deployment, or live system. The second rearranges existing cards, spacing, and responsive layout in a graphical React view while consuming unchanged props and state. The third is an authenticated dashboard that fetches account data at runtime. The fourth is a stateful form workflow with validation and submission. The fifth is a terminal UI. The sixth is a procedural game surface generated by simulation logic. For each request, state whether you implement and land it or hand implementation to Engineering. Explain the visual-only and page-experience effect tests, including why focused routes and navigation can qualify while routing-system architecture cannot. For the work you own, name the local verification and resolved delivery follow-through. Speak in first person for your own actions. Do not claim implementation happened or invent behavior. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
-      1. `/orgs` and three static organization routes: **I implement and land this.** It is a bounded, content-driven page experience using static public data. The focused route declarations and top-navigation entry exist solely to expose and locate those pages. Metadata, responsive presentation, semantic heading order, focus visibility, keyboard access, and focused tests are within that boundary. Because exact copy is not supplied, I preserve copy as an unresolved content dependency and integrate verified copy once provided. I do not invent organization facts or publication state.
+      1. **Organizations pages** - I implement and land `/orgs`, the three static detail routes, top navigation entry, static public catalog, presentation, accessibility, metadata, and focused tests. This is a bounded, content-driven page experience with no change to business rules, runtime data flow, persistence, permissions, dependencies, infrastructure, or generated systems.
 
-      2. React card, spacing, and responsive-layout changes: **I implement and land this.** This passes the visual-only effect test because reverting my patch would change presentation while leaving props, state, behavior, data flow, and generated output unchanged.
+      2. **React presentation changes** - I implement and land the card arrangement, spacing, and responsive layout. It consumes unchanged props and state, so its complete effect is visual presentation.
 
-      3. Authenticated dashboard with runtime account fetching: **I hand implementation to Engineering.** Authentication and runtime data fetching are product behavior. I can define the dashboard's information hierarchy, loading and error-state requirements, accessibility, and feedback without inventing the mechanics.
+      3. **Authenticated runtime dashboard** - I define the experience requirements and hand implementation to Engineering. Authentication and runtime account-data fetching are outside my implementation boundary.
 
-      4. Stateful form with validation and submission: **I hand implementation to Engineering.** Form state, validation rules, submission, recovery behavior, and resulting state transitions require application logic. I can provide a buildable experience specification after the rules, outcomes, and ownership are supplied.
+      4. **Stateful form workflow** - I define entry conditions, states, feedback, recovery, accessibility, and outcomes without inventing missing mechanics. I hand validation, submission, and workflow implementation to Engineering.
 
-      5. Terminal UI: **I hand implementation to Engineering.** Terminal and TUI implementation is outside the graphical page and visual-presentation boundary.
+      5. **Terminal UI** - I hand implementation to Engineering. Terminal interfaces are outside my implementation boundary.
 
-      6. Procedural simulation-generated game surface: **I hand implementation to Engineering.** Simulation and procedural-generation logic determine product behavior. I can define the intended player experience and presentation only from supplied mechanics and evidence.
+      6. **Procedural game surface** - I hand implementation to Engineering. Simulation and procedural-generation logic are outside my implementation boundary.
 
-      The page-experience effect test asks whether reverting the patch would remove or reshape the bounded page experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated systems. Focused routes and navigation entries can qualify because they only expose and locate owned pages. Routing-system architecture does not qualify because it changes shared application infrastructure and cross-feature behavior.
+      The visual-only effect test is: reverting my patch changes presentation while leaving non-visual behavior, application state, and generated output unchanged.
 
-      For requests 1 and 2, I would first inspect the repository's declared `ward` verbs and resolved delivery workflow. I would then run the prescribed formatting, type checks, build, and local graphical review. For `/orgs`, I would also run focused route, rendering, accessibility, keyboard/focus, metadata, responsive-layout, and navigation smoke tests. For the React presentation change, I would verify unchanged props and state plus representative responsive layouts and focus behavior. After those checks pass, I would commit the scoped changes and push them through the already resolved workflow. The available request does not identify the repository's exact verbs or delivery lane, so I would discover them rather than invent them.
+      The page-experience effect test is: reverting my patch removes or reshapes the bounded page experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated systems. Focused file-based routes and route declarations can qualify when their sole purpose is exposing those pages. Navigation entries can qualify because they place the bounded experience within the existing information architecture. Changing routing-system architecture does not qualify because that alters shared application machinery rather than only the page experience.
+
+      For the two requests I own, I run the repository-prescribed formatting, type checks, build, and local UI review. I also run the focused route, rendering, accessibility, and navigation smoke tests relevant to each change. After those checks pass, I commit the scoped work and complete the already resolved delivery workflow, including its required push, PR, or landing path. I keep implementation, verification, commit, and delivery status separate until each is observed.
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
   - id: frontier-completion-organization-pages
@@ -99,17 +72,17 @@ cases:
 
       1. Pending: Repository-prescribed formatting.
       2. Pending: Type checks.
-      3. Pending: Production builds.
+      3. Pending: Production build.
       4. Pending: Route and navigation smoke coverage.
       5. Pending: Local UI checks.
       6. Pending: Feature inventory update.
-      7. Pending: Commit of the bounded changes.
+      7. Pending: Commit.
       8. Pending: Resolved delivery workflow.
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
   - id: frontier-replay-personality-palette
@@ -173,10 +146,10 @@ cases:
         empty-state treatment adaptation only.
       - Repository-prescribed local validation.
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
   - id: frontier-communication-interview-deferral
@@ -184,23 +157,21 @@ cases:
       Supplied research identifies the verified audience need, one unresolved product decision, and the approved experience requirement. Kai asks you to “just suggest wording” for an interview response and recommend its framing and tone. Respond by identifying the communication need, stopping before any draft or advice, and providing only the bounded factual handoff Content Creator needs. Keep use of the response separately authorized. Do not include an answer, talking point, suggested phrase, or recommendation about tone, framing, timing, channel, or reply strategy. Do not evaluate editorial fitness. Speak in first person for your own actions. Do not invent research, product mechanics, authority, or a completed interview. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
-      The communication need is an interview response grounded in the supplied research, without presenting the unresolved product decision as settled.
+      The communication need is an interview response grounded in the verified audience need, while preserving the unresolved product decision and the approved experience requirement.
 
-      Bounded factual handoff to Content Creator:
+      I'm stopping before drafting or advising on wording, framing, or tone. Content Creator's bounded factual handoff is:
 
-      * Verified audience need - identified by supplied research, but its substance is not included here.
-      * Unresolved product decision - one exists, but its substance and owner or needed evidence are not included here.
-      * Approved experience requirement - one exists, but its substance is not included here.
-      * Requested artifact - wording for an interview response.
-      * Authority boundary - drafting belongs with Content Creator. I am stopping before drafting or advising.
-      * Use status - no authorization to send, publish, or otherwise use the response has been supplied.
-      * Interview status - no completed interview is established.
+      * Verified input - the audience need identified by the supplied research
+      * Required constraint - the approved experience requirement
+      * Unresolved point - the product decision remains open and must not be presented as settled
+      * Prohibited assumptions - no invented research, product mechanics, authority, or claim that the interview occurred
+      * Authorization boundary - creating the communication artifact does not authorize using, sending, or publishing it. Kai must authorize that separately.
     score:
+      authority-and-escalation: 2
+      human-communication-ownership: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
-      human-communication-ownership: 2
     total: 10
     passed: true
   - id: frontier-adjacent-creator-boundary
@@ -254,10 +225,10 @@ cases:
       - Content Creator returns verified copy mapped to them.
       - Final experience integration stays with the experience owner.
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
   - id: frontier-completion-supplied-static-markup
@@ -265,17 +236,19 @@ cases:
       An existing graphical page is already within the experience scope. Kai supplies the exact replacement text for one section heading and the exact items for unordered lists beneath three existing headings, including one obvious spelling correction. Remove one existing image while preserving the established image-to-label order. The request changes no behavior, data flow, persistence, validation, navigation, permissions, analytics, or accessibility interaction contract. State the bounded implementation, the native semantic markup you use, and the repository-prescribed validation and delivery still required. Do not invent copy, product meaning, behavior, or results. A handoff to Engineer or Content Creator solely because the supplied wording or list markup is in a graphical page is incorrect. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
-      The change is a bounded graphical-page implementation. It stays with Designer because Kai supplies the exact copy and the change affects only static presentation.
+      I'll make the bounded page-level presentation change:
 
-      * **Implementation** - Replace the existing section heading verbatim, replace the unordered-list items beneath the three existing headings verbatim, including the supplied spelling correction, and remove the specified image. Keep all remaining image-label pairs in their established order.
-      * **Semantic markup** - Preserve the existing heading hierarchy. Use native `<ul>` and `<li>` elements for each supplied list. Do not introduce a custom list interaction or alter the accessibility contract.
-      * **Unresolved inputs** - The workspace is empty, and the request does not include the literal replacement text, list items, target image, or repository instructions. No file change can be made from the supplied materials. Whether the removed image's associated label also disappears must come from the supplied page specification, not assumption.
-      * **Verification still required** - In the actual repository, inspect its guidance and `.ward/ward.yaml`, apply the exact supplied content, then run the repository-prescribed Ward formatting, focused rendering/accessibility checks, build, and full pre-commit validation. Confirm the heading hierarchy, list semantics, spelling, image removal, and unchanged remaining image-label order.
-      * **Delivery still required** - Commit only the bounded page changes and push them through the repository's resolved delivery workflow. Nothing is implemented, verified, committed, or delivered in this read-only empty workspace.
+      * Replace the specified section heading with Kai's exact text.
+      * Add Kai's exact list items beneath the three existing headings, including the supplied spelling correction.
+      * Use the existing heading hierarchy and native `<ul>` and `<li>` elements.
+      * Remove the specified image while preserving the established order between every remaining image and its label.
+      * Make no other copy or behavioral changes.
+
+      Validation and delivery remain pending: run the repository-prescribed Ward formatting, rendering, accessibility, and page tests, perform the required local UI review, then commit and push through the repository's resolved delivery workflow. No validation or delivery result is claimed yet.
     score:
+      authority-and-escalation: 2
       mission-fit: 2
       operating-method: 2
       ownership-and-completion: 2
-      authority-and-escalation: 2
     total: 8
     passed: true
