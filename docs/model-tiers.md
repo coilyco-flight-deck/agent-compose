@@ -17,8 +17,6 @@ decisions.
 * Portfolio Strategist - frontier
 * DevOps - frontier
 * AI Engineer - frontier
-* Outreach - frontier
-* Sales - frontier
 
 ## Category 2: foundational roles
 
@@ -29,6 +27,8 @@ commodity models.
 * QA - frontier, commodity
 * Designer - frontier, commodity
 * Content Manager - frontier, commodity
+* Outreach - frontier, commodity
+* Sales - frontier, commodity
 
 ## Category 3: high-security roles
 
@@ -42,9 +42,8 @@ seats remain model-neutral harness identities for evaluation and overlays.
 
 Evaluation packs retain all three lanes so matrix changes remain visible.
 Role-incompatible lanes are disabled. Commodity and OSS execution also stays
-disabled until independently reviewed evidence admits those lanes. AI
-Engineer, Outreach, and Sales remain frontier-only until a complete lower-tier
-evidence lane passes for each role.
+disabled until independently reviewed evidence admits those lanes. AI Engineer
+remains frontier-only until a complete lower-tier evidence lane passes.
 
 ## See also
 
