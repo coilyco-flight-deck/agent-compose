@@ -61,7 +61,11 @@ func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := passingResult(pack)
+	result.Format = ""
 	result.Cases[0].RawResponse = "first line\nsecond line"
+	result.Cases[0].Scores[1].Score = 1
+	result.Cases[0].Scores[1].Evidence = "The operating method is incomplete."
+	result.Cases[0].Total--
 	first, err := MarshalResult(result, pack)
 	if err != nil {
 		t.Fatal(err)
@@ -73,8 +77,23 @@ func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
 	if !bytes.Equal(first, second) {
 		t.Fatal("scored evaluation YAML is not deterministic")
 	}
-	if !strings.Contains(string(first), "raw_response: |-\n") {
-		t.Fatalf("multiline response did not use a YAML block scalar:\n%s", first)
+	for _, want := range []string{
+		"format: agent-compose.evaluation-result.v3",
+		"question: >-\n",
+		"answer: |-\n",
+		"score:\n",
+		"operating-method: 1",
+		"notes:\n",
+		"operating-method: The operating method is incomplete.",
+	} {
+		if !strings.Contains(string(first), want) {
+			t.Fatalf("compact result omitted %q:\n%s", want, first)
+		}
+	}
+	for _, excluded := range []string{"raw_response:", "scores:", "criterion:", "evidence:"} {
+		if strings.Contains(string(first), excluded) {
+			t.Fatalf("compact result retained %q:\n%s", excluded, first)
+		}
 	}
 	decoded, err := DecodeResult(first)
 	if err != nil {
@@ -85,7 +104,7 @@ func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
 	}
 }
 
-func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
+func TestMarshalResultWritesV3AndRejectsPackDrift(t *testing.T) {
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
@@ -100,7 +119,7 @@ func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if decoded.Format != ResultFormatV2 ||
+	if decoded.Format != ResultFormatV3 ||
 		!strings.HasPrefix(decoded.Provenance.PackDigest, "sha256:") ||
 		decoded.Provenance.RetryProvenance == nil {
 		t.Fatalf("new result omitted v2 pack provenance: %+v", decoded.Provenance)
@@ -120,6 +139,42 @@ func TestMarshalResultWritesV2AndRejectsPackDrift(t *testing.T) {
 	}
 	if err := ValidateResult(passingResult(pack), pack); err != nil {
 		t.Fatalf("v1 compatibility failed: %v", err)
+	}
+}
+
+func TestValidateV3RequiresExactQuestionAndDeductionNote(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := passingResult(pack)
+	result.Format = ""
+	result.Cases[0].Scores[1].Score = 1
+	result.Cases[0].Scores[1].Evidence = "The operating method is incomplete."
+	result.Cases[0].Total--
+	raw, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := DecodeResult(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded.Cases[0].Question += " drift"
+	if err := ValidateResult(decoded, pack); err == nil ||
+		!strings.Contains(err.Error(), "question does not match") {
+		t.Fatalf("question drift error = %v", err)
+	}
+	decoded.Cases[0].Question = pack.Cases[0].Prompt
+	for index := range decoded.Cases[0].Scores {
+		if decoded.Cases[0].Scores[index].Score == 1 {
+			decoded.Cases[0].Scores[index].Evidence = ""
+		}
+	}
+	if err := ValidateResult(decoded, pack); err == nil ||
+		!strings.Contains(err.Error(), "deduction has no note") {
+		t.Fatalf("missing deduction note error = %v", err)
 	}
 }
 

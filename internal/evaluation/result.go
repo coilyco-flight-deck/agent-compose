@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,8 +17,9 @@ import (
 const (
 	ResultFormatV1 = "agent-compose.evaluation-result.v1"
 	ResultFormatV2 = "agent-compose.evaluation-result.v2"
+	ResultFormatV3 = "agent-compose.evaluation-result.v3"
 	// ResultFormat remains the v1 fixture compatibility marker. New callers
-	// select ResultFormatV2 and include PackDigest.
+	// omit the format so MarshalResult selects the compact current format.
 	ResultFormat = ResultFormatV1
 )
 
@@ -50,6 +52,7 @@ type CriterionScore struct {
 
 type ScoredCase struct {
 	ID           string           `yaml:"id"`
+	Question     string           `yaml:"-"`
 	Model        string           `yaml:"model"`
 	RawResponse  string           `yaml:"raw_response"`
 	FinishReason string           `yaml:"finish_reason,omitempty"`
@@ -66,7 +69,66 @@ type ScoredResult struct {
 	Cases      []ScoredCase     `yaml:"cases"`
 }
 
+type compactScoredCase struct {
+	ID           string            `yaml:"id"`
+	Question     string            `yaml:"question"`
+	Model        string            `yaml:"model"`
+	Answer       string            `yaml:"answer"`
+	FinishReason string            `yaml:"finish_reason,omitempty"`
+	Score        map[string]int    `yaml:"score"`
+	Notes        map[string]string `yaml:"notes,omitempty"`
+	Total        int               `yaml:"total"`
+	Passed       bool              `yaml:"passed"`
+}
+
+type compactScoredResult struct {
+	Format     string              `yaml:"format"`
+	Role       string              `yaml:"role"`
+	Seat       string              `yaml:"seat"`
+	Provenance ResultProvenance    `yaml:"provenance"`
+	Cases      []compactScoredCase `yaml:"cases"`
+}
+
+func (scored compactScoredCase) MarshalYAML() (any, error) {
+	type encodedCase struct {
+		ID           string            `yaml:"id"`
+		Question     yaml.Node         `yaml:"question"`
+		Model        string            `yaml:"model"`
+		Answer       yaml.Node         `yaml:"answer"`
+		FinishReason string            `yaml:"finish_reason,omitempty"`
+		Score        map[string]int    `yaml:"score"`
+		Notes        map[string]string `yaml:"notes,omitempty"`
+		Total        int               `yaml:"total"`
+		Passed       bool              `yaml:"passed"`
+	}
+	return encodedCase{
+		ID: scored.ID,
+		Question: yaml.Node{
+			Kind: yaml.ScalarNode, Tag: "!!str",
+			Value: scored.Question, Style: yaml.FoldedStyle,
+		},
+		Model: scored.Model,
+		Answer: yaml.Node{
+			Kind: yaml.ScalarNode, Tag: "!!str",
+			Value: scored.Answer, Style: yaml.LiteralStyle,
+		},
+		FinishReason: scored.FinishReason,
+		Score:        scored.Score, Notes: scored.Notes,
+		Total: scored.Total, Passed: scored.Passed,
+	}, nil
+}
+
 func DecodeResult(raw []byte) (*ScoredResult, error) {
+	var header struct {
+		Format string `yaml:"format"`
+	}
+	if err := yaml.Unmarshal(raw, &header); err != nil {
+		return nil, fmt.Errorf("decode scored evaluation YAML header: %w", err)
+	}
+	if header.Format == ResultFormatV3 {
+		return decodeCompactResult(raw)
+	}
+
 	decoder := yaml.NewDecoder(bytes.NewReader(raw))
 	decoder.KnownFields(true)
 	var result ScoredResult
@@ -80,12 +142,54 @@ func DecodeResult(raw []byte) (*ScoredResult, error) {
 	return &result, nil
 }
 
+func decodeCompactResult(raw []byte) (*ScoredResult, error) {
+	decoder := yaml.NewDecoder(bytes.NewReader(raw))
+	decoder.KnownFields(true)
+	var compact compactScoredResult
+	if err := decoder.Decode(&compact); err != nil {
+		return nil, fmt.Errorf("decode compact scored evaluation YAML: %w", err)
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		return nil, fmt.Errorf("decode compact scored evaluation YAML: trailing content")
+	}
+	result := &ScoredResult{
+		Format: compact.Format, Role: compact.Role, Seat: compact.Seat,
+		Provenance: compact.Provenance,
+	}
+	if result.Provenance.RetryProvenance == nil {
+		result.Provenance.RetryProvenance = &RetryProvenance{Attempts: []RetryAttempt{}}
+	}
+	for _, compactCase := range compact.Cases {
+		scored := ScoredCase{
+			ID: compactCase.ID, Question: compactCase.Question,
+			Model: compactCase.Model, RawResponse: compactCase.Answer,
+			FinishReason: compactCase.FinishReason,
+			Total:        compactCase.Total, Passed: compactCase.Passed,
+		}
+		criteria := make([]string, 0, len(compactCase.Score))
+		for criterion := range compactCase.Score {
+			criteria = append(criteria, criterion)
+		}
+		sort.Strings(criteria)
+		for _, criterion := range criteria {
+			scored.Scores = append(scored.Scores, CriterionScore{
+				Criterion: criterion,
+				Score:     compactCase.Score[criterion],
+				Evidence:  compactCase.Notes[criterion],
+			})
+		}
+		result.Cases = append(result.Cases, scored)
+	}
+	return result, nil
+}
+
 func MarshalResult(result *ScoredResult, pack *Pack) ([]byte, error) {
 	if result == nil {
 		return nil, fmt.Errorf("scored evaluation is required")
 	}
 	if result.Format == "" {
-		result.Format = ResultFormatV2
+		result.Format = ResultFormatV3
 		digest, err := PackDigest(pack)
 		if err != nil {
 			return nil, err
@@ -97,23 +201,78 @@ func MarshalResult(result *ScoredResult, pack *Pack) ([]byte, error) {
 			}
 		}
 	}
-	if result.Format == ResultFormatV2 &&
+	if (result.Format == ResultFormatV2 || result.Format == ResultFormatV3) &&
 		result.Provenance.RetryProvenance == nil {
 		result.Provenance.RetryProvenance = &RetryProvenance{
 			Attempts: []RetryAttempt{},
 		}
 	}
+	if result.Format == ResultFormatV3 {
+		questions := make(map[string]string, len(pack.Cases))
+		for _, evalCase := range pack.Cases {
+			questions[evalCase.ID] = evalCase.Prompt
+		}
+		for index := range result.Cases {
+			if result.Cases[index].Question == "" {
+				result.Cases[index].Question = questions[result.Cases[index].ID]
+			}
+			for scoreIndex := range result.Cases[index].Scores {
+				if result.Cases[index].Scores[scoreIndex].Score == 2 {
+					result.Cases[index].Scores[scoreIndex].Evidence = ""
+				}
+			}
+		}
+	}
 	if err := ValidateResult(result, pack); err != nil {
 		return nil, err
 	}
+	if result.Format == ResultFormatV3 {
+		return marshalCompactResult(result, pack)
+	}
 	return marshalYAML(result)
+}
+
+func marshalCompactResult(result *ScoredResult, pack *Pack) ([]byte, error) {
+	questions := make(map[string]string, len(pack.Cases))
+	for _, evalCase := range pack.Cases {
+		questions[evalCase.ID] = evalCase.Prompt
+	}
+	compact := compactScoredResult{
+		Format: result.Format, Role: result.Role, Seat: result.Seat,
+		Provenance: result.Provenance,
+	}
+	if compact.Provenance.RetryProvenance != nil &&
+		len(compact.Provenance.RetryProvenance.Attempts) == 0 {
+		compact.Provenance.RetryProvenance = nil
+	}
+	for _, scored := range result.Cases {
+		compactCase := compactScoredCase{
+			ID: scored.ID, Question: questions[scored.ID], Model: scored.Model,
+			Answer: scored.RawResponse, FinishReason: scored.FinishReason,
+			Score: make(map[string]int, len(scored.Scores)),
+			Total: scored.Total, Passed: scored.Passed,
+		}
+		for _, score := range scored.Scores {
+			compactCase.Score[score.Criterion] = score.Score
+			if score.Score < 2 {
+				if compactCase.Notes == nil {
+					compactCase.Notes = make(map[string]string)
+				}
+				compactCase.Notes[score.Criterion] = score.Evidence
+			}
+		}
+		compact.Cases = append(compact.Cases, compactCase)
+	}
+	return marshalYAML(compact)
 }
 
 func ValidateResult(result *ScoredResult, pack *Pack) error {
 	if result == nil || pack == nil {
 		return fmt.Errorf("scored evaluation and pack are required")
 	}
-	if result.Format != ResultFormatV1 && result.Format != ResultFormatV2 {
+	if result.Format != ResultFormatV1 &&
+		result.Format != ResultFormatV2 &&
+		result.Format != ResultFormatV3 {
 		return fmt.Errorf("result format %q is unsupported", result.Format)
 	}
 	if result.Role != pack.Role || result.Seat != pack.Seat.Selector() {
@@ -133,21 +292,21 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		strings.TrimSpace(result.Provenance.Reviewer) == "" {
 		return fmt.Errorf("result provenance is incomplete")
 	}
-	if result.Format == ResultFormatV2 {
+	if result.Format == ResultFormatV2 || result.Format == ResultFormatV3 {
 		if strings.TrimSpace(result.Provenance.PromptAuthor) == "" {
-			return fmt.Errorf("v2 result prompt author is required")
+			return fmt.Errorf("versioned result prompt author is required")
 		}
 		if strings.EqualFold(
 			strings.TrimSpace(result.Provenance.PromptAuthor),
 			strings.TrimSpace(result.Provenance.Reviewer),
 		) {
-			return fmt.Errorf("v2 result reviewer must be independent from the prompt author")
+			return fmt.Errorf("versioned result reviewer must be independent from the prompt author")
 		}
 		if !isFullGitRevision(result.Provenance.SourceRevision) {
-			return fmt.Errorf("v2 result source_revision must be a full Git object id")
+			return fmt.Errorf("versioned result source_revision must be a full Git object id")
 		}
 		if result.Provenance.RetryProvenance == nil {
-			return fmt.Errorf("v2 result retry provenance is required")
+			return fmt.Errorf("versioned result retry provenance is required")
 		}
 		digest, err := PackDigest(pack)
 		if err != nil {
@@ -200,7 +359,10 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 			return fmt.Errorf("result repeats case %q for model %q", scored.ID, scored.Model)
 		}
 		seen[key] = true
-		if err := validateScoredCase(scored, evalCase, pack.ReviewRule); err != nil {
+		if result.Format == ResultFormatV3 && scored.Question != evalCase.Prompt {
+			return fmt.Errorf("case %q: question does not match the evaluation pack", scored.ID)
+		}
+		if err := validateScoredCase(scored, evalCase, pack.ReviewRule, result.Format); err != nil {
 			return fmt.Errorf("case %q: %w", scored.ID, err)
 		}
 		if observed[evalCase.ModelTier] == nil {
@@ -242,7 +404,7 @@ func isFullGitRevision(revision string) bool {
 	return err == nil
 }
 
-// PackDigest binds a v2 result to the complete rendered review contract.
+// PackDigest binds a versioned result to the complete rendered review contract.
 func PackDigest(pack *Pack) (string, error) {
 	if pack == nil {
 		return "", fmt.Errorf("evaluation pack is required")
@@ -255,7 +417,7 @@ func PackDigest(pack *Pack) (string, error) {
 	return fmt.Sprintf("sha256:%x", digest), nil
 }
 
-func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule) error {
+func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule, format string) error {
 	if strings.TrimSpace(scored.Model) == "" {
 		return fmt.Errorf("model is required")
 	}
@@ -287,8 +449,16 @@ func validateScoredCase(scored ScoredCase, evalCase Case, rule ReviewRule) error
 		if score.Score < 0 || score.Score > 2 {
 			return fmt.Errorf("criterion %q score %d is outside 0..2", score.Criterion, score.Score)
 		}
-		if strings.TrimSpace(score.Evidence) == "" {
+		if format != ResultFormatV3 && strings.TrimSpace(score.Evidence) == "" {
 			return fmt.Errorf("criterion %q has no evidence", score.Criterion)
+		}
+		if format == ResultFormatV3 && score.Score < 2 &&
+			strings.TrimSpace(score.Evidence) == "" {
+			return fmt.Errorf("criterion %q deduction has no note", score.Criterion)
+		}
+		if format == ResultFormatV3 && score.Score == 2 &&
+			strings.TrimSpace(score.Evidence) != "" {
+			return fmt.Errorf("criterion %q strong score has an unnecessary note", score.Criterion)
 		}
 		values[score.Criterion] = score.Score
 		total += score.Score

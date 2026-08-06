@@ -1,6 +1,6 @@
 # Behavior evaluation
 
-`agent-compose evaluation` emits deterministic, self-contained human-review
+`agent-compose evaluation` emits deterministic, self-contained execution
 packs:
 
 ```text
@@ -20,6 +20,9 @@ Agent Compose emits prompts and context, never model calls, credentials, scores,
 or authority. `--person-source` selects one complete external package. The Core
 AI role's [evaluation methods](role-methods.md) guide cross-role suite curation
 without replacing this pack or reviewer contract.
+
+Execution packs are ephemeral. Their digest binds the exact role, personality,
+policy, and case context used by one durable review record.
 
 The [evaluation policy](evaluation-policy.md) defines model capability,
 reasoning effort, session isolation, review, and evidence requirements.
@@ -51,15 +54,18 @@ The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
 duplicates, and incorrect adjacent-role targets. External packages retain the
 generic fallback or may provide a complete custom matrix.
 
-## Scored results
+## Review records
 
 [`evaluations/latest/`](../evaluations/latest/) contains the independently
-reviewed v2 baseline. Historical mode renders archived records without
+reviewed baseline. Historical mode renders archived v2 records without
 rebinding their pack digests.
 
-V2 records preserve models, responses, scores, evidence, provenance, finish
-reasons, and retries. Frontier cases gate release. Commodity and OSS evidence
-remains visible when present and controls whether those lanes can be enabled.
+V3 is the compact human review format. Each case preserves its exact question
+and answer, a criterion-to-score mapping, total, verdict, model, and optional
+finish reason. Notes appear only for deductions. Record provenance retains the
+source revision, pack digest, independent reviewer, and any retries. Frontier
+cases gate release. Commodity and OSS evidence remains visible when present
+and controls whether those lanes can be enabled.
 
 ## See also
 
