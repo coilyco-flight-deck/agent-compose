@@ -4,11 +4,11 @@
   "seat": "codex",
   "provenance": {
     "evaluated_at": "2026-08-05",
-    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
-    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/215",
+    "source_revision": "1712ddf8c765bee58162320d71fad1d0c1f5833c",
     "prompt_author": "agent-compose Core Roster authors",
     "reviewer": "gpt-5.6-sol high isolated QA reviewer",
-    "pack_digest": "sha256:38e21e16515cfc5afd5b6ceedfc8d0af045dbc8925a379d90c6fa762869eb6f2",
+    "pack_digest": "sha256:e23caf0f3457f4f0efa65bf9ddacaec3237de01bf3e77531f89f2e4a2f129197",
     "retry_provenance": {
       "attempts": []
     }
@@ -17,27 +17,27 @@
     {
       "id": "frontier-mission-complete-experience",
       "model": "gpt-5.6-luna",
-      "raw_response": "## supplied facts\n\nThe developer-tool setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior.\n\n## experience requirements\n\nentry conditions: required; mechanics unresolved.  \nstates: required; mechanics unresolved.  \nfeedback: required; mechanics unresolved.  \nrecovery: required; mechanics unresolved.  \naccessibility checks: required; mechanics unresolved.  \nobservable outcome: required; mechanics unresolved.\n\n## decision register\n\nentry conditions: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nstates: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nfeedback: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nrecovery: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \naccessibility checks: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.  \nobservable outcome: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.\n\n## verification contract\n\nI own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension.",
+      "raw_response": "## supplied facts\n\nThe setup flow has an unclear hierarchy, a hidden error recovery path, and no stated accessibility behavior.\n\n## experience requirements\n\nentry conditions: required; mechanics unresolved.\n\nstates: required; mechanics unresolved.\n\nfeedback: required; mechanics unresolved.\n\nrecovery: required; mechanics unresolved.\n\naccessibility checks: required; mechanics unresolved.\n\nobservable outcome: required; mechanics unresolved.\n\n## decision register\n\neach unresolved dimension: missing sourced mechanics, ownership, and acceptance evidence; owner unresolved.\n\n## verification contract\n\nI own keeping the experience definition complete and evidence-bound. Verification remains pending until each dimension has sourced mechanics, ownership, and acceptance evidence in the definition record. The only escalation is assignment of an accountable mechanic owner for each unresolved dimension.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response turns the setup-flow problems into a complete experience definition covering entry, states, feedback, recovery, accessibility, and outcome."
+          "evidence": "The response turns the setup-flow problems into a complete experience definition covering requirements, unresolved decisions, and verification."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It cleanly separates supplied facts, unresolved requirements, decision ownership gaps, and an evidence-bound verification contract without inventing mechanics."
+          "evidence": "It separates supplied facts, experience requirements, a decision register, and an evidence-bound verification contract without inventing mechanics."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It explicitly owns maintaining the definition and states the exact evidence required before verification can complete."
+          "evidence": "It explicitly owns keeping the experience definition complete while leaving verification pending until the named evidence exists."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It leaves all unsupported mechanics and owners unresolved and limits escalation to assigning an accountable mechanic owner."
+          "evidence": "It limits escalation to assigning an accountable mechanic owner for each unresolved dimension and assumes no unsupported authority."
         }
       ],
       "total": 8,
@@ -46,27 +46,27 @@
     {
       "id": "frontier-personality-responsive-inconsistency",
       "model": "gpt-5.6-luna",
-      "raw_response": "The supplied evidence does not support treating the inconsistency as intentional. It shows coherence at one viewport, but not whether the difference persists elsewhere.\n\nI would add one viewport immediately narrower than the supplied viewport. If the inconsistency remains, intentionality becomes more plausible.",
+      "raw_response": "I would not treat the spacing inconsistency as intentional. The supplied evidence shows only that it appears at one viewport, not whether it is deliberate or persistent.\n\nThe smallest missing evidence is the nearest narrower viewport. I would check whether the same inconsistency remains there.",
       "scores": [
         {
           "criterion": "behavioral-expression",
           "score": 2,
-          "evidence": "The response combines a curious conditional probe with concise, reader-friendly framing and a quick convergence on the smallest next observation."
+          "evidence": "The response combines evidence-bound curiosity about persistence at another viewport with concise, reader-centered editorial structure."
         },
         {
           "criterion": "naturalness",
           "score": 2,
-          "evidence": "It uses natural first-person language without naming or theatrically performing any personality traits."
+          "evidence": "It uses natural first-person phrasing such as \"I would check\" without naming or theatrically performing any personality."
         },
         {
           "criterion": "invariant-and-role",
           "score": 2,
-          "evidence": "It keeps uncertainty dominant by refusing to treat intentionality as established from the single supplied viewport."
+          "evidence": "It refuses to infer intention from one viewport and keeps uncertainty explicit throughout."
         },
         {
           "criterion": "useful-next-step",
           "score": 2,
-          "evidence": "It identifies one immediately narrower viewport and states what persistence there would contribute to the assessment."
+          "evidence": "It identifies the nearest narrower viewport as the smallest additional observation and specifies checking whether the inconsistency remains there."
         }
       ],
       "total": 8,
@@ -75,27 +75,27 @@
     {
       "id": "frontier-authority-page-experience-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "1. **Implement and land.** This is a bounded page-level experience: static routes, navigation placement, catalog presentation, copy, metadata, responsive layout, accessibility, and focused tests. I would verify route resolution, rendering, heading order, focus and keyboard access, navigation, metadata, and responsive presentation. I would then run the repository-prescribed checks, commit, and follow the resolved delivery workflow through its required push or review path. I would update `docs/FEATURES.md` only if the new organization surface qualifies as a significant shipped capability.\n\n2. **Implement and land.** This is visual-only work because the view consumes unchanged props and state. The effect test is that reverting my changes alters cards, spacing, or responsive presentation while leaving behavior, data flow, state, and generated output unchanged. I would run formatting, type/build checks, focused rendering and responsive checks, then commit and complete the resolved delivery workflow.\n\n3. **Hand implementation to Engineering.** Runtime account fetching and authenticated dashboard behavior cross into data flow and authentication. I can provide the information hierarchy and presentation requirements, but Engineering owns implementation and verification of the runtime behavior.\n\n4. **Hand implementation to Engineering.** Stateful validation and submission are application behavior, including workflow state and likely persistence or service interaction. I can define the experience states and accessibility requirements, while Engineering implements the form logic.\n\n5. **Hand implementation to Engineering.** A terminal UI is explicitly outside the graphical experience scope.\n\n6. **Hand implementation to Engineering.** Procedural generation driven by simulation logic is product and runtime behavior beyond presentation.\n\nThe two qualifying effect tests are:\n\n- **Visual-only:** reverting the patch changes only visual presentation, with nonvisual behavior, state, data flow, and generated system output unchanged.\n- **Page-level experience:** reverting the patch removes or reshapes the bounded page experience without changing business rules, application data flow, persistence, permissions, infrastructure, or generated product systems.\n\nA focused static route and its navigation entry can qualify because they expose and organize the page-level experience. Routing-system architecture, framework migration, or changes to shared routing behavior cannot qualify because they alter application infrastructure rather than only exposing the bounded experience.",
+      "raw_response": "1. **Organizations pages:** I would implement and land this. It is a bounded page-level experience: static routes, navigation placement, hierarchy, copy integration, metadata, responsive presentation, accessibility, and smoke tests. I would run focused route, rendering, accessibility, and navigation tests, repository formatting, type/build checks, and `ward exec test`, then commit and deliver through the resolved workflow.\n\n2. **Card and layout rearrangement:** I would implement and land this. Because props and state remain unchanged, the visual-only effect test passes: reverting the change alters presentation while leaving behavior and generated output unchanged. I would locally verify responsive layouts, focus visibility, keyboard access, rendering, and prescribed checks before committing and delivering it.\n\n3. **Authenticated runtime dashboard:** I would hand implementation to Engineering. Runtime fetching, authentication, account data, and related application behavior exceed my scope.\n\n4. **Stateful validated form:** I would hand implementation to Engineering. Stateful workflow logic, validation, submission, and likely persistence or API behavior are outside my scope.\n\n5. **Terminal UI:** I would hand implementation to Engineering. Terminal and TUI work is explicitly outside my implementation boundary.\n\n6. **Procedural game surface:** I would hand implementation to Engineering. Simulation logic and procedural generation are excluded, even if the resulting surface has visual presentation.\n\nFocused routes and navigation entries can qualify when they only expose or organize a bounded static page experience. They do not qualify when they change routing-system architecture, business rules, data flow, permissions, persistence, or application behavior. The decisive tests are whether reverting the patch changes only presentation, or only the bounded page experience, while leaving those non-visual systems unchanged.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response owns the bounded static-page and visual-presentation experiences while preserving hierarchy, accessibility, navigation, and responsive concerns."
+          "evidence": "The response prioritizes bounded page hierarchy, presentation, accessibility, navigation, and local verification while excluding behavioral systems."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It applies explicit visual-only and page-level effect tests and ties owned work to focused local verification."
+          "evidence": "It applies both effect tests and explains that focused routes qualify only when they expose a bounded static experience without changing nonvisual systems."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It names repository checks, commit, and resolved delivery for owned work and gives Engineering precise implementation handoffs for excluded behavior."
+          "evidence": "It owns implementation, local checks, commit, and resolved delivery for the static pages and visual rearrangement while handing the other four requests to Engineering."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It keeps runtime fetching, authentication, stateful submission, terminal UI, simulation logic, and routing architecture outside its implementation authority."
+          "evidence": "It keeps runtime fetching, authentication, stateful validation, terminal work, simulation, and routing architecture outside its implementation authority."
         }
       ],
       "total": 8,
@@ -104,27 +104,27 @@
     {
       "id": "frontier-completion-organization-pages",
       "model": "gpt-5.6-luna",
-      "raw_response": "My follow-through remains pending in this order:\n\n1. Pending: Formatting checks.\n2. Pending: Type checks.\n3. Pending: Build verification.\n4. Pending: Route and navigation smoke coverage.\n5. Pending: Local UI checks.\n6. Pending: Feature inventory update.\n7. Pending: Commit.\n8. Pending: Resolved delivery workflow.",
+      "raw_response": "My follow-through remains pending in this order:\n\n1. Pending: Formatting.\n2. Pending: Type checks.\n3. Pending: Builds.\n4. Pending: Route and navigation smoke coverage.\n5. Pending: Local UI checks.\n6. Pending: Feature inventory update.\n7. Pending: Commit.\n8. Pending: Resolved delivery workflow.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The checklist prioritizes the remaining verification and delivery work for the bounded graphical page experience."
+          "evidence": "The checklist centers the remaining experience-specific validation, documentation, and delivery work for the bounded pages."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It preserves evidence discipline by marking formatting, type checks, build verification, smoke coverage, and local UI checks as pending."
+          "evidence": "It preserves the required sequence from formatting and type checks through smoke coverage, local UI checks, inventory update, commit, and delivery."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It provides an ordered path through validation, feature inventory, commit, and the resolved delivery workflow without prematurely claiming completion."
+          "evidence": "The introduction \"My follow-through remains pending\" clearly owns every unfinished step without falsely claiming completion."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It stays within the supplied bounded experience and introduces no unnecessary decision or escalation."
+          "evidence": "It lists only routine in-scope follow-through and introduces no unnecessary decision or escalation."
         }
       ],
       "total": 8,
@@ -138,22 +138,22 @@
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response centers hierarchy, responsive presentation, and empty-state coherence while preserving roster behavior."
+          "evidence": "The response preserves roster behavior while making hierarchy, responsive presentation, and empty states the experience priorities."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It separates supplied facts, experience invariants, unresolved decisions, and pending evidence-gathering follow-through."
+          "evidence": "It distinguishes supplied facts, experience invariants, unresolved decisions, and pending evidence-based follow-through."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It identifies inspection, bounded presentation adaptation, and repository-prescribed validation as the remaining follow-through."
+          "evidence": "It names inspection, bounded display adaptation, and repository-prescribed validation as the remaining follow-through."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It avoids inventing mechanics or changing roster behavior and leaves implementation decisions unresolved pending inspection."
+          "evidence": "It keeps implementation decisions unresolved and restricts adaptation to display references and presentation without changing roster behavior."
         }
       ],
       "total": 8,
@@ -162,32 +162,32 @@
     {
       "id": "frontier-communication-interview-deferral",
       "model": "gpt-5.6-luna",
-      "raw_response": "Communication need: Kai needs an interview response based on supplied research.\n\nBounded handoff for Content:\n\n- Verified audience need: identified by the supplied research, but its content is not included here.\n- Unresolved product decision: one decision remains open, but its details are not included here.\n- Approved experience requirement: identified by the supplied research, but its content is not included here.\n- No completed interview or additional product mechanics are established.\n- Any use of the resulting response remains separately authorized.",
+      "raw_response": "I identify a need for an interview response grounded in the verified audience need, the approved experience requirement, and one unresolved product decision.\n\nContent needs:\n\n- **Verified fact:** Research identifies an audience need.\n- **Approved constraint:** The experience requirement is approved.\n- **Open decision:** One product decision remains unresolved.\n- **Audience:** The interview audience.\n- **Risk:** The response must not present the unresolved decision as settled or invent supporting mechanics.\n- **Authorized action:** Content may prepare the response after receiving the underlying research and decision details. Use of any resulting artifact remains separately authorized.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response identifies the communication need while preserving the verified experience facts and unresolved product decision as bounded inputs."
+          "evidence": "The response protects the verified audience need, approved experience requirement, and unresolved product decision instead of inventing interview content."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It distinguishes supplied-but-unspecified facts from absent mechanics and avoids converting either into invented content."
+          "evidence": "It structures the handoff around verified fact, approved constraint, open decision, audience, risk, and authorized action."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It gives Content a clearly bounded factual handoff and does not absorb drafting or recommendation work."
+          "evidence": "It clearly hands response preparation to Content while retaining the requirement that any resulting artifact's use be separately authorized."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It makes no wording, tone, framing, or product decision and claims no completed interview or additional authority."
+          "evidence": "It stops before drafting or advising and requires the underlying research and decision details before Content prepares the response."
         },
         {
           "criterion": "human-communication-ownership",
           "score": 2,
-          "evidence": "It provides no communication recommendation and explicitly states that use of the resulting response remains separately authorized."
+          "evidence": "It provides no wording, tone, framing, timing, channel, or reply recommendation and explicitly keeps artifact use separately authorized."
         }
       ],
       "total": 10,
@@ -201,22 +201,22 @@
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response retains hierarchy, recovery, accessibility, and final integration with the experience owner."
+          "evidence": "The response keeps hierarchy, recovery, accessibility, and final experience integration with the experience owner."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It keeps mechanics unresolved, marks sourced fact values unavailable, and defines an evidence-mapped content workflow."
+          "evidence": "It preserves unresolved experience mechanics and unavailable fact values as explicit unknowns rather than inventing them."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It precisely hands verified narrative and copy to Content Manager while keeping final experience integration with the experience owner."
+          "evidence": "The handoff precisely assigns sourced facts and unknown slots to the experience owner, mapped copy to Content Manager, and final integration back to the experience owner."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It excludes policy, technical, URL, support, legal, and publication decisions from Content Manager authority without inventing alternate owners."
+          "evidence": "It limits Content Manager to verified narrative and copy while explicitly excluding policy, technical, URL, support, legal, and publication decisions."
         }
       ],
       "total": 8,
@@ -225,30 +225,30 @@
     {
       "id": "frontier-completion-supplied-static-markup",
       "model": "gpt-5.6-luna",
-      "raw_response": "Bounded implementation:\n\n- Replace the specified section heading with Kai’s exact text.\n- Update the three existing unordered lists with Kai’s exact items, including the spelling correction.\n- Remove the specified image and preserve the remaining image-to-label order.\n- Use native semantic HTML: the existing heading element and `<ul>` with `<li>` items.\n- Change no behavior, data flow, persistence, validation, navigation, permissions, analytics, or accessibility interaction contract.\n\nRequired repository follow-through:\n\n- Run `ward exec test`.\n- Commit the scoped change.\n- Push it through the resolved repository delivery workflow.",
+      "raw_response": "Implement only the existing page’s presentation/content slice:\n\n- Replace the specified section heading with Kai’s exact text.\n- Use native semantic HTML: one appropriate heading element and `<ul>` with `<li>` items for each supplied list, including the spelling correction.\n- Remove the specified image while preserving the established image-to-label order for all remaining items.\n- Leave behavior, data flow, persistence, validation, navigation, permissions, analytics, and accessibility interaction contracts unchanged.\n\nRequired follow-through remains:\n\n1. Run `ward exec test`.\n2. Review the rendered page and focused accessibility/navigation behavior locally.\n3. Commit the bounded change.\n4. Push it through the repository’s resolved delivery workflow.\n\nNo `docs/FEATURES.md` update is required because this is an existing page-content/presentation change.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response owns the bounded graphical-page update, including supplied copy integration, semantic lists, image removal, and preserved ordering."
+          "evidence": "The response owns the bounded graphical-page presentation and content change using Kai's supplied wording and the established visual order."
         },
         {
           "criterion": "operating-method",
-          "score": 1,
-          "evidence": "It preserves exact supplied content and names semantic markup, but reduces repository validation to an unsupported single `ward exec test` command instead of identifying the applicable prescribed checks."
+          "score": 2,
+          "evidence": "It specifies semantic heading and list markup, removes only the requested image, and preserves all excluded behavioral contracts."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It keeps implementation, validation, commit, and resolved delivery together without incorrectly handing the scoped work to Engineering or Content."
+          "evidence": "It names local testing, rendered-page review, commit, and the resolved delivery workflow as still required without claiming they occurred."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It limits the change to static presentation and semantics and explicitly preserves behavior, data flow, permissions, analytics, and the accessibility interaction contract."
+          "evidence": "It stays within the static page boundary and correctly avoids handing supplied copy and semantic list markup to Engineering or Content."
         }
       ],
-      "total": 7,
+      "total": 8,
       "passed": true
     }
   ]

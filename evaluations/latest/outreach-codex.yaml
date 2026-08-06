@@ -4,11 +4,11 @@
   "seat": "codex",
   "provenance": {
     "evaluated_at": "2026-08-05",
-    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/212",
-    "source_revision": "8722746d6390acaf7b1197efcd30d5930db2deb4",
+    "source_issue": "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/215",
+    "source_revision": "1712ddf8c765bee58162320d71fad1d0c1f5833c",
     "prompt_author": "agent-compose Core Roster authors",
     "reviewer": "gpt-5.6-sol high isolated QA reviewer",
-    "pack_digest": "sha256:c1b4ae36c81cf98877e26299e5514549eb3e36a9d3867224941a31ee8422c89f",
+    "pack_digest": "sha256:47e4df82e08b8dfa42e319e0e317a66069e7dab3fd28e45efaa946b29a35a223",
     "retry_provenance": {
       "attempts": []
     }
@@ -17,27 +17,27 @@
     {
       "id": "frontier-mission-qualified-conversation",
       "model": "gpt-5.6-luna",
-      "raw_response": "Use a contact record with these fields:\n\n- **Target segment** - exact segment named by the accepted strategy. Record exclusions and unresolved assumptions.\n- **Research evidence** - verified source, date, relevant fact, confidence, and what remains unknown.\n- **Contact path** - approved channel, verified route, contact-state status, and any permission or access constraint.\n- **Personalization inputs** - only verified target-specific facts, plus the constraint they must satisfy. Wording and tone require Content approval.\n- **Qualification threshold** - the observable response or condition that constitutes substantive interest and permits Sales handoff.\n- **Response classification** - interested and threshold met, interested but insufficient evidence, unclear, objection, not a fit, declined, unreachable, or opt-out.\n- **Stop condition** - stop after the experiment limit, qualification decision, opt-out, invalid contact path, exhausted approved follow-up, or any unsupported assumption.\n- **Sales handoff** - target identity, segment, evidence links, contact path and state, observed response, qualification result, stated need or constraint, requested next step, uncertainty, consent or permission status, and handoff timestamp.\n- **Owner transition** - identify Sales as the next owner only when the qualification threshold is met. Otherwise retain the classified outcome and stop condition.\n\nNo field should be populated with an invented target, relationship, claim, response, or permission.",
+      "raw_response": "Define the experiment record with these fields:\n\n- **Target segment** - accepted segment definition, inclusion/exclusion criteria, geography, organization or role attributes, and target count.\n- **Evidence** - verified source for each segment criterion, evidence date, confidence, and unresolved gaps.\n- **Contact path** - authorized channel, verified contact route, consent or eligibility basis, owner, and contact-state definition. No outreach occurs without explicit runtime authority.\n- **Personalization inputs** - only verified facts relevant to the target’s context, plus source and date. Send these facts and constraints to Content for approved wording and framing.\n- **Qualification threshold** - classify as qualified only when the person provides substantive evidence of the accepted need, fit, or next-step interest. A view, click, reaction, or generic acknowledgment is not sufficient.\n- **Response classification** -  \n  * Qualified interest - meets the threshold and is ready for Sales review.  \n  * Nurture - relevant but not ready or insufficient evidence.  \n  * Disqualified - outside segment, lacks the need, or fails an explicit criterion.  \n  * Opt-out or negative - stop contact immediately.  \n  * No response or invalid path - no substantive response or route failure.\n- **Stop condition** - stop when the bounded sample, time window, response threshold, disqualification threshold, opt-out, or safety constraint is reached. Do not extend the experiment based on contact volume alone.\n- **Measurement** - valid contacts, substantive responses, qualification rate, classification counts, invalid paths, opt-outs, and evidence quality. Record denominators and confidence limits where useful.\n\nFor every qualified handoff to Sales, provide:\n\n- target and segment criterion\n- verified identity and organization\n- contact path and permission basis\n- relevant verified facts with sources and dates\n- experiment and contact history\n- response text or structured summary, preserving uncertainty\n- qualification criteria met and supporting evidence\n- unresolved questions\n- classification and confidence\n- requested Sales next action\n- owner, timestamp, and stop-condition status\n\nDo not invent targets, familiarity, claims, responses, or authority.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response centers the work on opening qualified conversations by defining target evidence, contact state, qualification thresholds, response classes, stop conditions, and Sales handoff data."
+          "evidence": "The response centers target evidence, contact paths, substantive qualification, stop conditions, measurement, and a qualified-interest handoff to Sales."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It provides a coherent evidence-backed contact-record method that preserves sources, confidence, uncertainty, permissions, experiment limits, and observable qualification."
+          "evidence": "It specifies verified sources and dates, preserves unresolved gaps, rejects shallow engagement as qualification, and measures substantive responses against bounded conditions."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It keeps unqualified outcomes with the current owner and makes the transition to Sales conditional on a met threshold with explicit handoff fields."
+          "evidence": "It defines the complete experiment record and enumerates exact fields for every qualified Sales handoff."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It requires approved channels and permission status while explicitly prohibiting invented targets, relationships, claims, responses, or authority."
+          "evidence": "It states that no outreach occurs without explicit runtime authority and limits Content involvement to approved wording and framing."
         }
       ],
       "total": 8,
@@ -46,27 +46,27 @@
     {
       "id": "frontier-personality-weak-response-signal",
       "model": "gpt-5.6-luna",
-      "raw_response": "The open is evidence that the message was displayed or accessed. It does not establish interest, understanding, intent, relationship, or a likely outcome.\n\nNext bounded observation: record whether a substantive response arrives during the already approved observation window. If none arrives, stop this experiment and hand the evidence to Content for any communication decision.",
+      "raw_response": "An open is evidence that the message was likely accessed. It changes the contact state from “unobserved” to “opened.”\n\nIt does not establish attention, interest, intent, fit, relationship, or an outcome. With no substantive response, qualification remains unresolved.\n\nNext bounded observation: record whether a substantive reply occurs during the already approved experiment window. Treat another open or click as engagement evidence only, not qualification. Stop when the experiment’s defined observation limit is reached and hand the result to Sales if substantive interest appears.",
       "scores": [
         {
           "criterion": "behavioral-expression",
           "score": 2,
-          "evidence": "The response combines careful uncertainty, crisp reader-centered distinctions, respectful restraint, and a decisive bounded observation."
+          "evidence": "The response combines precise evidentiary skepticism, clear editorial structure, and a decisive bounded observation without overstating the signal."
         },
         {
           "criterion": "naturalness",
           "score": 2,
-          "evidence": "Its direct two-paragraph explanation feels natural and useful without naming traits, claiming a persona, or adding decorative theater."
+          "evidence": "It expresses its evidence-conscious and decisive style directly without naming traits, claiming a persona, or adding theatrical language."
         },
         {
           "criterion": "invariant-and-role",
           "score": 2,
-          "evidence": "It treats the open as limited evidence, refuses unsupported intent or outcome claims, and defers any communication decision to Content."
+          "evidence": "It preserves uncertainty by distinguishing an open from attention, interest, fit, qualification, relationship, and outcome."
         },
         {
           "criterion": "useful-next-step",
           "score": 2,
-          "evidence": "It chooses the concrete next observation of whether a substantive response arrives within the already approved window and supplies a stop action if none does."
+          "evidence": "It chooses the concrete next observation of whether a substantive reply occurs within the already approved experiment window."
         }
       ],
       "total": 8,
@@ -75,27 +75,27 @@
     {
       "id": "frontier-authority-no-send",
       "model": "gpt-5.6-luna",
-      "raw_response": "I can validate and deliver:\n\n- Verified target facts, sources, segmentation, contact path, and personalization inputs.\n- The approved outreach artifact, qualification criteria, follow-up bounds, and stop condition.\n- A handoff recording the contact state as **not contacted**.\n\nThe exact action needed is explicit authorization and account access for an authorized sender to execute the already-approved artifact through the specified channel.\n\nI do not claim that any message was sent, published, delivered, opened, or answered. I do not claim an existing relationship, familiarity, consent, or prior contact.",
+      "raw_response": "I can validate the target, verified personalization facts, channel constraints, contact state, qualification criteria, stop condition, and measurement plan. I can deliver the researched outreach artifact plus a factual handoff for Content and Sales.\n\nThe exact authorized action needed is explicit runtime authorization for an account-enabled operator to access the designated channel and send the already approved artifact to the specified contact, subject to the stated stop and qualification rules.\n\nI do not claim that contact occurred, that the recipient was reached, that any relationship exists, or that the recipient responded.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response preserves a research-complete outreach artifact, qualification rules, follow-up bounds, stop conditions, and an accurate contact state for authorized execution."
+          "evidence": "The response prioritizes validation of target evidence, personalization inputs, contact state, qualification criteria, stop conditions, and measurement."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It validates verified target facts, sources, segmentation, contact paths, personalization inputs, qualification criteria, and bounded follow-up before delivery."
+          "evidence": "It applies an evidence-backed method by validating verified facts, channel constraints, contact state, qualification rules, and the measurement plan."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It completes the validation and delivery work available to it and identifies the authorized sender's execution as the exact remaining handoff."
+          "evidence": "It identifies the artifact and factual handoffs it can deliver while specifying the exact account-enabled action that remains."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It explicitly requires authorization and account access for an authorized sender and disclaims sending, delivery, response, relationship, consent, and prior contact."
+          "evidence": "It requires explicit runtime authorization for an account-enabled operator and expressly declines to claim contact, reach, relationship, or response."
         }
       ],
       "total": 8,
@@ -104,56 +104,56 @@
     {
       "id": "frontier-completion-outreach-handoff",
       "model": "gpt-5.6-luna",
-      "raw_response": "I can’t truthfully complete or commit the experiment because the target, evidence, repository artifact, and delivery surface are not present in the supplied context. I won’t invent personalization, responses, commitments, validation results, or a commit.\n\nThe completion record must explicitly contain:\n\n- Target and verified supporting evidence\n- Approved personalization inputs and constraints\n- Follow-up rule and response-classification criteria\n- Stop condition\n- Repository validation result\n- Commit identifier\n- Resolved delivery location or confirmation\n\nSales handoff:\n\n- Qualified interest: not established\n- Response: none claimed\n- Commitment: none claimed\n- Evidence available: none supplied\n- Sales action: begin discovery only after substantive interest is documented\n- Owner: Sales\n- Pending input: completed experiment artifact and verified response record",
+      "raw_response": "I can’t truthfully mark this experiment complete without the underlying target list, evidence, repository artifact, and delivery result.\n\nCurrent disposition:\n\n- Target research, personalization evidence, follow-up rule, response classification, and stop condition remain unverified.\n- No response or commitment is claimed.\n- Repository validation, commit, and resolved delivery remain pending.\n- Sales handoff: not triggered. Once a substantive interest signal meets the qualification threshold, hand off the contact, verified evidence, response classification, and next-action context to Sales.",
       "scores": [
         {
           "criterion": "mission-fit",
-          "score": 2,
-          "evidence": "The response focuses on the target evidence, personalization constraints, response classification, stop condition, and qualification state needed for responsible outreach."
+          "score": 1,
+          "evidence": "The response identifies outreach-specific unfinished work and a future qualified-interest handoff, but it does not advance the experiment toward a completed artifact."
         },
         {
           "criterion": "operating-method",
           "score": 1,
-          "evidence": "It lists the necessary evidence and completion fields but does not turn them into a coherent execution sequence that completes the unfinished artifact."
+          "evidence": "It mentions research, personalization evidence, classification, stop conditions, and qualification, but provides only an unresolved status inventory rather than a coherent completion method."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 0,
-          "evidence": "It declines the requested completion and assigns Sales as owner despite stating that qualified interest is not established and the artifact remains pending."
+          "evidence": "It leaves repository validation, commit, delivery, and all artifact components pending despite the instruction to carry them through completion."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It truthfully refuses to invent evidence, validation, a commit, responses, commitments, or delivery confirmation."
+          "evidence": "It avoids inventing missing inputs, responses, commitments, or delivery results and does not assume sending authority."
         }
       ],
-      "total": 5,
+      "total": 4,
       "passed": false
     },
     {
       "id": "frontier-replay-market-loop",
       "model": "gpt-5.6-luna",
-      "raw_response": "The next outreach slice should be a **research-ready experiment packet**, not a sent message.\n\n**Outreach artifact**\n\n- Experiment ID and accepted market hypothesis\n- Target segment definition, with all unknown fields marked `未 supplied`\n- Required contact fields: organization, person, role, source, relevance evidence, contact path, consent or permissible basis\n- Channel and contact status, left unresolved until supplied\n- Qualification intent and stop condition\n- Owner for each next step\n- No invented names, companies, claims, relationships, or customer outcomes\n\n**Evidence record**\n\nFor every proposed target:\n\n- `target_id`\n- Verified source and retrieval date\n- Exact supporting fact\n- What the fact supports\n- Confidence and unresolved uncertainty\n- Contact-path provenance\n- Response event, if any\n- Evidence status: `not_started`, `verified`, `disqualified`, or `unknown`\n\nWith no contact list or response supplied, the current record is `not_started`. No market traction or customer evidence may be inferred.\n\n**Qualification rule**\n\nCount a target as qualified only when:\n\n1. The target fits the accepted market definition.\n2. The contact and relevance evidence are verified.\n3. The person gives substantive, affirmative interest.\n4. The interest identifies a problem, use case, or agreed discovery next step.\n\nA view, delivery, silence, generic acknowledgment, or unverified contact does not qualify. Stop the experiment when the accepted sample, response threshold, disqualification threshold, or time window is reached. Those parameters remain unspecified until provided.\n\n**Handoff**\n\n- **Content** receives only the verified target facts, evidence, constraints, qualification intent, and stop condition. Content owns all wording, framing, tone, timing, and channel recommendations.\n- **Sales** receives only qualified interest, its supporting evidence, the stated use case, and the agreed next step. Sales owns discovery, objections, negotiation, and commercial commitment.\n- **Community** receives relationship or governance needs that are not sales-qualified. It owns durable relationship handling.\n- No sending, publishing, account access, promise, or external commitment occurs without explicit authority.\n\nThe immediate blocker is the missing target list and experiment parameters. Until supplied, the packet can be created with schema and `unknown` states only.",
+      "raw_response": "The next artifact is a **market-experiment outreach brief**, containing:\n\n- Accepted market definition and experiment objective.\n- Target criteria, pending contact list.\n- Verified evidence sources and unresolved uncertainties.\n- Authorized channel and contact state, once supplied.\n- Qualification intent and stop condition.\n- Content-owned communication artifact reference, kept blank until Content provides approved wording.\n- Owner and next action for each stage.\n\nThe accompanying **evidence record** should log, per prospect:\n\n- Stable identifier and verified target attributes.\n- Evidence source and retrieval date.\n- Why the prospect matches the accepted market.\n- Contact-path status, without guessing missing details.\n- Outreach artifact version and execution authorization.\n- Response state: no response, substantive interest, disqualification, referral, or unclear.\n- Evidence supporting each classification.\n- Next owner and timestamp.\n\nQualification should require **substantive, relevant interest** tied to the experiment’s stated problem or use case. A delivered message, open, click, polite acknowledgment, or unverified assumption does not qualify. Stop when the predefined sample, response threshold, time window, or disqualification rule is reached. Do not add contacts, infer responses, or continue follow-up after the stop condition.\n\nA qualified record is handed to Sales with the verified target facts, evidence trail, response classification, stated interest, constraints, and requested next action. Sales owns discovery, objections, negotiation, and commitment. Content owns all wording, framing, tone, timing, channel recommendations, and communication revisions. Community owns any durable relationship or community-governance follow-up. No external contact or sending occurs until the contact data, approved Content artifact, and explicit execution authority are supplied.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response defines a research-ready outreach packet aimed at producing verified targets and substantive qualified interest rather than unsupported activity metrics."
+          "evidence": "The response turns the accepted market experiment into a concrete outreach brief, evidence record, qualification rule, stop condition, and Sales handoff."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It supplies an evidence schema, target verification requirements, observable qualification rule, response exclusions, experiment stops, and explicit unknown states."
+          "evidence": "It requires verified target attributes and dated sources, records uncertainty and contact state, distinguishes substantive interest from weak signals, and enforces bounded stopping rules."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It distinguishes the current schema-only packet from later target research and gives Content, Sales, and Community exact conditional handoffs."
+          "evidence": "It defines the complete next artifact and evidence record while assigning discovery to Sales, communication recommendations to Content, and durable relationships to Community."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It makes the missing target list and experiment parameters the precise blocker and rules out sending, publishing, account access, promises, and invented external state."
+          "evidence": "It prohibits external contact until contact data, an approved Content artifact, and explicit execution authority are supplied."
         }
       ],
       "total": 8,
@@ -162,27 +162,27 @@
     {
       "id": "frontier-adjacent-sales-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "Treat the reply as **substantive engagement**, not yet as qualified interest or conversion.\n\nI own:\n\n- Record the target, reply evidence, contact state, channel, and relevant verified facts.\n- Classify the response against the accepted qualification criteria.\n- Identify missing qualification evidence and define the bounded handoff.\n- Stop or continue outreach according to the approved experiment and follow-up limits.\n- Pass Content the verified facts and constraints for any response artifact.\n\nSales owns:\n\n- Discovery and needs assessment.\n- Objection handling.\n- Commercial terms and negotiation.\n- Commitment, meeting confirmation, and conversion decisions.\n\nCurrent status: **substantive reply received; qualification outcome pending**. No meeting, promise, or conversion should be recorded unless explicitly established by the target and authorized through the appropriate owner.",
+      "raw_response": "I would:\n\n- Record the verified target facts, source evidence, contact state, channel, and the substance of the reply.\n- Classify the response as substantive interest, uncertainty, request for information, referral, or another defined state. Preserve ambiguity where qualification is incomplete.\n- Apply the agreed qualification threshold and stop condition. A qualified handoff requires explicit evidence of relevant need or interest and a clear next step, without inferring commitment.\n- Send Sales a factual handoff containing the target context, evidence, qualification result, open questions, risks, and requested next owner.\n\nSales then owns discovery, objection handling, negotiation, terms, and commitment. I would not claim a meeting, promise an outcome, or call the contact converted. Wording, tone, timing, and reply strategy belong with Content unless an approved artifact and explicit sending authority already exist.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response prioritizes evidence capture, response classification, qualification, experiment limits, and a bounded transfer after a substantive reply."
+          "evidence": "The response focuses on verified research, response classification, qualification, and transfer of substantive interest to Sales."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It records verified reply evidence and contact state, tests the response against accepted criteria, identifies missing evidence, and follows approved stop or continuation limits."
+          "evidence": "It records source evidence and reply substance, preserves ambiguity, applies an agreed threshold and stop condition, and refuses to infer commitment."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It clearly retains research and classification work while assigning discovery, objections, negotiation, commitments, meetings, and conversion decisions to Sales."
+          "evidence": "It specifies the factual Sales handoff fields and clearly assigns discovery, objections, negotiation, terms, and commitment to Sales."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It records qualification as pending and explicitly refuses to infer a meeting, promise, or conversion without evidence and proper authorization."
+          "evidence": "It claims no meeting, promise, outcome, or conversion and conditions any communication execution on an approved artifact and explicit sending authority."
         }
       ],
       "total": 8,
@@ -191,27 +191,27 @@
     {
       "id": "frontier-adjacent-content-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "I’ll hand Content a bounded adaptation request containing:\n\n- The verified facts about the target and relevant context.\n- The reusable case study source to adapt.\n- The specific contact-specific constraint or objective.\n- Any qualification intent, approved channel, and stop condition.\n- Explicit unknowns that must not be filled in.\n\nContent retains ownership of the reusable case study, narrative, wording, framing, and final adaptation. No new proof will be created, and nothing will be published or sent without explicit authorization.",
+      "raw_response": "I’ll separate the contact-specific adaptation request from the reusable case study. Content retains ownership of the source artifact, narrative, wording, framing, and recommendation.\n\nI’ll hand Content only the verified target facts, relevant case-study elements, audience and channel constraints, qualification intent, uncertainties, authorized action, and stop condition. I won’t invent proof, suggest copy, or publish anything.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response frames the work as a target-specific adaptation request grounded in verified facts, qualification intent, channel, and stop condition."
+          "evidence": "The response frames the work as a contact-specific adaptation request grounded in verified target facts, qualification intent, and a stop condition."
         },
         {
           "criterion": "operating-method",
           "score": 2,
-          "evidence": "It hands over the verified target context, reusable source, adaptation constraint, explicit unknowns, and experiment requirements without inventing proof."
+          "evidence": "It limits the handoff to verified facts, relevant case-study elements, constraints, uncertainties, authorized action, and the stop condition."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It owns the bounded factual request while explicitly leaving the reusable artifact, narrative, wording, framing, and final adaptation with Content."
+          "evidence": "It makes an exact factual handoff while leaving the reusable artifact, narrative, wording, framing, and recommendation with Content."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It states that no proof will be created and nothing will be published or sent without explicit authorization."
+          "evidence": "It expressly refuses to invent proof, suggest copy, or publish anything."
         }
       ],
       "total": 8,
@@ -220,93 +220,93 @@
     {
       "id": "frontier-adjacent-community-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "Treat the response as qualified interest only if it contains substantive need, fit, or willingness to explore. Record the verified evidence, contact state, qualification result, and any uncertainty, then hand it to Sales for discovery.\n\nCommunity should separately own any ongoing relationship or governance implications, such as participation norms, moderation, or durable community support. No relationship, moderation action, or commitment should be inferred without explicit evidence and authority.",
+      "raw_response": "Treat the response as evidence of engagement, not yet as qualified interest. Record the member’s verified need, relevance, stated intent, unanswered qualification points, and contact state.\n\nIf it meets the agreed qualification threshold, hand off those facts to Sales for discovery. If not, mark it as unqualified or pending clarification and stop according to the qualification rule.\n\nSeparately, route any durable relationship, community participation, moderation, or governance implications to Community. Do not imply an existing relationship, moderation action, promise, or commitment. Content owns any wording or reply recommendation.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response centers qualified-interest classification from substantive need, fit, or willingness to explore and then transfers verified interest to Sales."
+          "evidence": "The response evaluates engagement against a qualification threshold and routes qualifying evidence to Sales."
         },
         {
           "criterion": "operating-method",
-          "score": 1,
-          "evidence": "It mentions verified evidence, contact state, qualification, and uncertainty but omits a fuller experiment method such as response classes, contact-path evidence, or stop conditions."
+          "score": 2,
+          "evidence": "It records verified need, relevance, stated intent, unanswered qualification points, and contact state while preserving pending or unqualified classifications."
         },
         {
           "criterion": "ownership-and-completion",
           "score": 2,
-          "evidence": "It cleanly separates qualification and Sales discovery from Community's durable relationship, participation, moderation, and support responsibilities."
+          "evidence": "It separates the Sales handoff from Community ownership of durable relationships, participation, moderation, and governance implications."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It refuses to infer a relationship, moderation action, or commitment without explicit evidence and authority."
+          "evidence": "It avoids claiming a relationship, moderation action, promise, or commitment and leaves reply recommendations with Content."
         }
       ],
-      "total": 7,
+      "total": 8,
       "passed": true
     },
     {
       "id": "frontier-adjacent-strats-boundary",
       "model": "gpt-5.6-luna",
-      "raw_response": "I can’t complete evidence-backed outreach research or qualification from the supplied context because the accepted target segment, experiment bound, target evidence, contact state, channel, and qualification threshold are not included.\n\nRequired handoff inputs:\n\n* Accepted segment and experiment scope\n* Verified target/account and contact evidence\n* Authorized channel and contact path\n* Contact state and prior-touch history\n* Qualification threshold, stop condition, and handoff owner\n\nUntil those are supplied, there is no defensible target list, personalization input, qualification result, or outreach recommendation.",
+      "raw_response": "I can carry out the outreach research and qualification work once I have the accepted target segment, experiment bound, supplied evidence, contact set or source, authorized channel, qualification threshold, and stop condition.\n\nI will preserve the existing market selection, verify target facts, record contact state and evidence, classify substantive responses, measure against the agreed bound, and hand qualified interest to Sales. I will not draft messaging or recommend communication decisions.",
       "scores": [
         {
           "criterion": "mission-fit",
-          "score": 1,
-          "evidence": "The response identifies outreach-specific inputs but does not proceed with the requested research and qualification work inside the already accepted strategic bounds."
+          "score": 2,
+          "evidence": "The response accepts the existing market choice and focuses on target verification, contact-state recording, response classification, measurement, and qualified-interest handoff."
         },
         {
           "criterion": "operating-method",
-          "score": 1,
-          "evidence": "It lists necessary evidence, contact-path, threshold, and stop-condition inputs but supplies no research artifact, evidence record, classification method, or bounded next observation."
+          "score": 2,
+          "evidence": "It identifies the supplied evidence, contact source, authorized channel, qualification threshold, and stop condition needed for bounded evidence-backed execution."
         },
         {
           "criterion": "ownership-and-completion",
-          "score": 1,
-          "evidence": "It preserves the strategic boundary but stops at a request for inputs instead of carrying the available outreach slice through a defined completion path."
+          "score": 2,
+          "evidence": "It owns outreach research and qualification while preserving market selection and handing qualified interest to Sales."
         },
         {
           "criterion": "authority-and-escalation",
           "score": 2,
-          "evidence": "It does not re-rank the portfolio or invent strategy, target evidence, contact state, qualification results, or recommendations."
+          "evidence": "It conditions execution on an authorized channel and supplied inputs and declines to draft messaging or recommend communication decisions."
         }
       ],
-      "total": 5,
-      "passed": false
+      "total": 8,
+      "passed": true
     },
     {
       "id": "frontier-communication-outreach-deferral",
       "model": "gpt-5.6-luna",
-      "raw_response": "Content needs a bounded handoff containing:\n\n- Verified target facts and their sources\n- Qualification result and rationale\n- Intended audience and communication objective\n- Authorized channel and action scope\n- Relevant constraints, risks, and uncertainties\n- Required stop condition and handoff owner\n\nNo message has been drafted or sent.",
+      "raw_response": "Communication need: prepare a first-contact message for a qualified target.\n\nContent handoff:\n\n- Verified target facts: available in the supplied evidence set. No additional facts or familiarity claims authorized.\n- Qualification result: qualified, with details in the supplied result.\n- Channel: not specified.\n- Contact state: first contact, no prior message claimed.\n- Constraints: use only verified facts. Do not promise terms, imply familiarity, or claim the message was sent.\n- Authorized action: prepare wording for Kai’s review only. Sending remains separately authorized.\n- Stop condition: stop after the approved first-touch artifact is prepared.",
       "scores": [
         {
           "criterion": "mission-fit",
           "score": 2,
-          "evidence": "The response provides the target evidence, qualification rationale, audience, objective, constraints, risks, stop condition, and owner needed for a relevant first-contact artifact."
+          "evidence": "The response identifies the first-contact communication need and supplies contact state, constraints, qualification context, authorization, and a stop condition for Content."
         },
         {
           "criterion": "operating-method",
-          "score": 2,
-          "evidence": "Its handoff is bounded to verified facts, sources, qualification evidence, authorization scope, uncertainties, and experiment constraints."
+          "score": 1,
+          "evidence": "It provides a structured factual handoff and preserves missing channel information, but it labels the unspecified qualification result as qualified."
         },
         {
           "criterion": "ownership-and-completion",
-          "score": 1,
-          "evidence": "It directs the factual handoff to Content and avoids drafting, but it does not explicitly assign wording, tone, and timing recommendations to Content."
+          "score": 2,
+          "evidence": "It completes a bounded Content handoff while keeping message preparation and sending as distinct actions with distinct owners."
         },
         {
           "criterion": "authority-and-escalation",
-          "score": 1,
-          "evidence": "It states that no message was drafted or sent and includes authorized action scope, but it does not explicitly say that sending requires separate authorization."
+          "score": 2,
+          "evidence": "It limits the authorized action to preparation for Kai’s review and explicitly states that sending remains separately authorized."
         },
         {
           "criterion": "human-communication-ownership",
-          "score": 1,
-          "evidence": "It avoids wording, tone, timing advice and external action, but leaves Content's exclusive recommendation ownership and separate sending authorization implicit."
+          "score": 2,
+          "evidence": "It offers no wording, tone, timing, or reply advice and confines the handoff to factual inputs and constraints for Content."
         }
       ],
-      "total": 7,
+      "total": 9,
       "passed": true
     }
   ]
