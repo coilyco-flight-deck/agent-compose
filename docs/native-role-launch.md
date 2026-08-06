@@ -19,12 +19,12 @@ Launch reads the selected role from
 global repositories, role repositories, and [role-scoped providers](role-scoped-providers.md).
 Required providers fail closed. Optional exclusions stay traced.
 
-Model tier and bundle model class are separate launch-consumer runtime facts.
-Agent Compose defaults both to `frontier`. A launch consumer may set
+Model tier is a launch-consumer runtime fact. Agent Compose defaults it to
+`frontier`. A launch consumer may set
 `AGENT_COMPOSE_MODEL_TIER=frontier`, `commodity`, or `oss` to select the role
-compatibility lane, and `AGENT_COMPOSE_MODEL_CLASS=frontier` or `low-context`
-for context density. AOS owns the runtime registry for both. All harnesses
-receive native skills through their existing projection layout.
+compatibility lane. AOS owns the runtime registry. Every supported tier and
+harness receives the same complete selected context through its existing
+projection layout.
 
 The resulting bundle contains only the assigned role skill, its complete
 ordered personality meld, ordinary admitted skills, and role-composed skills

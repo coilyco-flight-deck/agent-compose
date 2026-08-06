@@ -62,7 +62,6 @@ func TestComposeAllFixtures(t *testing.T) {
 			m := readManifest(t, result.Bundle.Dir)
 			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
 				m.ModelTier != schema.ModelTierFrontier ||
-				m.ModelClass != schema.ModelClassFrontier ||
 				!slices.Equal(m.Personalities, wantPersonalities) ||
 				m.Delivery.Mode != want {
 				t.Fatalf("unexpected manifest: %+v", m)
@@ -211,44 +210,6 @@ func TestComposeHostExternalOnlyRequiresSource(t *testing.T) {
 	}
 }
 
-func TestComposeLowContextPrunesOnlyOptedOutSkills(t *testing.T) {
-	result, err := Run(fixture(t, "low-context.kdl"), t.TempDir())
-	if err != nil {
-		t.Fatal(err)
-	}
-	manifest := readManifest(t, result.Bundle.Dir)
-	if manifest.ModelClass != schema.ModelClassLowContext {
-		t.Fatalf("model class = %q", manifest.ModelClass)
-	}
-	ordinary := filepath.Join(
-		result.Bundle.Dir,
-		"content",
-		"skills",
-		"aos-public",
-		"fixture-review",
-	)
-	if _, err := os.Stat(ordinary); !os.IsNotExist(err) {
-		t.Fatalf("low-context optional skill entered the bundle: %v", err)
-	}
-	for _, personalityName := range manifest.Personalities {
-		mustExist(
-			t,
-			result.Bundle.Dir,
-			"content/skills/roster%3Acore/personality-"+personalityName+"/SKILL.md",
-		)
-	}
-	var excluded bool
-	for _, decision := range result.Resolution.Decisions {
-		if decision.Subject == "skill:fixture-review" &&
-			decision.Outcome == resolver.OutcomeExcluded {
-			excluded = true
-		}
-	}
-	if !excluded {
-		t.Fatalf("low-context exclusion missing from trace: %+v", result.Resolution.Decisions)
-	}
-}
-
 func TestComposeInferredProviderRoot(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
@@ -376,9 +337,8 @@ func TestDesignerPageExperienceBoundaryMatchesNativeAndCompiledDelivery(t *testi
 		t.Run(delivery, func(t *testing.T) {
 			result, err := RunRoots(
 				&schema.Request{
-					Role:       "design",
-					Delivery:   delivery,
-					ModelClass: schema.ModelClassFrontier,
+					Role:     "design",
+					Delivery: delivery,
 				},
 				[]RootSource{{ID: "fixture", Root: provider}},
 				t.TempDir(),
@@ -458,7 +418,7 @@ func TestDifferentDeliveriesGetDifferentBundles(t *testing.T) {
 	}
 }
 
-func TestDifferentModelTiersGetDifferentBundles(t *testing.T) {
+func TestModelTiersGetDistinctBundlesWithIdenticalContext(t *testing.T) {
 	provider := t.TempDir()
 	skillDir := filepath.Join(provider, ".agents", "skills", "fixture")
 	if err := os.MkdirAll(skillDir, 0o755); err != nil {
@@ -473,10 +433,9 @@ func TestDifferentModelTiersGetDifferentBundles(t *testing.T) {
 	}
 	out := t.TempDir()
 	frontierRequest := &schema.Request{
-		Role:       "engineer",
-		Delivery:   schema.DeliveryNativeSkills,
-		ModelTier:  schema.ModelTierFrontier,
-		ModelClass: schema.ModelClassFrontier,
+		Role:      "engineer",
+		Delivery:  schema.DeliveryNativeSkills,
+		ModelTier: schema.ModelTierFrontier,
 	}
 	frontier, err := RunRoots(
 		frontierRequest,
@@ -501,8 +460,24 @@ func TestDifferentModelTiersGetDifferentBundles(t *testing.T) {
 	if frontier.Bundle.Key == commodity.Bundle.Key {
 		t.Fatal("different model tiers must produce different bundle keys")
 	}
-	if readManifest(t, commodity.Bundle.Dir).ModelTier != schema.ModelTierCommodity {
+	frontierManifest := readManifest(t, frontier.Bundle.Dir)
+	commodityManifest := readManifest(t, commodity.Bundle.Dir)
+	if commodityManifest.ModelTier != schema.ModelTierCommodity {
 		t.Fatal("commodity bundle manifest lost its model tier")
+	}
+	if !slices.Equal(frontierManifest.Content, commodityManifest.Content) {
+		t.Fatal("model tier changed logical context content")
+	}
+	if len(frontier.Resolution.Skills) != len(commodity.Resolution.Skills) {
+		t.Fatal("model tier changed selected skill count")
+	}
+	for index, frontierSkill := range frontier.Resolution.Skills {
+		commoditySkill := commodity.Resolution.Skills[index]
+		if frontierSkill.ID != commoditySkill.ID ||
+			frontierSkill.Source != commoditySkill.Source ||
+			frontierSkill.EntryPoint != commoditySkill.EntryPoint {
+			t.Fatalf("model tier changed selected skill %d: %+v versus %+v", index, frontierSkill, commoditySkill)
+		}
 	}
 }
 

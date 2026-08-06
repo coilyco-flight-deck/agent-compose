@@ -13,7 +13,8 @@ Inventory of what ships today.
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
 * `.agents/roles.kdl` owns [skill-provider repos](role-scoped-providers.md), skills, and [repository policy](repository-policy.md).
-* [Three model tiers](model-tiers.md) fail closed through the Core role matrix. Tier stays separate from bundle density.
+* [Three model tiers](model-tiers.md) enforce the Core role matrix without
+  changing selected context.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.

@@ -335,7 +335,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	}
 	got := output.String()
 	for _, want := range []string{
-		"request: model tier frontier // model class frontier // delivery native-skills",
+		"request: model tier frontier // delivery native-skills",
 		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"personalities: curious // grounded // meticulous",
@@ -386,10 +386,9 @@ func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{
 			Request: &schema.Request{
-				Role:       "engineer",
-				ModelTier:  schema.ModelTierFrontier,
-				ModelClass: schema.ModelClassFrontier,
-				Delivery:   "native-skills",
+				Role:      "engineer",
+				ModelTier: schema.ModelTierFrontier,
+				Delivery:  "native-skills",
 			},
 			Personalities: []string{"curious", "grounded", "meticulous"},
 			FavoriteColor: "#90a66a",
@@ -611,7 +610,7 @@ func TestActivateNativeRuntimeHome(t *testing.T) {
 func TestClearNativeLaunchEnvironmentRemovesSelectionFacts(t *testing.T) {
 	names := []string{
 		nativelaunch.EnvModelTier,
-		nativelaunch.EnvModelClass,
+		"AGENT_COMPOSE_MODEL_CLASS",
 		nativelaunch.EnvRuntimeHome,
 	}
 	for _, name := range names {

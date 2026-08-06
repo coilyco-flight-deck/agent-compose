@@ -19,8 +19,6 @@ import (
 const (
 	// EnvModelTier carries the launch consumer's runtime model-tier selection.
 	EnvModelTier = "AGENT_COMPOSE_MODEL_TIER"
-	// EnvModelClass carries the launch consumer's runtime model-class selection.
-	EnvModelClass = "AGENT_COMPOSE_MODEL_CLASS"
 	// EnvRuntimeHome selects a session-scoped home for the harness process.
 	EnvRuntimeHome = "AGENT_COMPOSE_RUNTIME_HOME"
 )
@@ -31,7 +29,6 @@ type Options struct {
 	Role            string
 	Harness         string
 	ModelTier       string
-	ModelClass      string
 	CWD             string
 	TargetDir       string
 	PlanPath        string
@@ -48,7 +45,6 @@ type Result struct {
 	BundleReused bool
 	Projected    int
 	ModelTier    string
-	ModelClass   string
 	Sources      []compose.RootSource
 }
 
@@ -67,10 +63,6 @@ func Refresh(opts Options) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	modelClass, err := normalizeModelClass(opts.ModelClass)
-	if err != nil {
-		return nil, err
-	}
 	plan, err := repositoryplan.Load(opts.PlanPath)
 	if err != nil {
 		return nil, err
@@ -83,7 +75,6 @@ func Refresh(opts Options) (*Result, error) {
 		Role:         strings.TrimSpace(opts.Role),
 		Delivery:     schema.DeliveryNativeSkills,
 		ModelTier:    modelTier,
-		ModelClass:   modelClass,
 		Repositories: repositories,
 	}
 	composed, err := compose.RunRootsWithMissing(
@@ -120,7 +111,6 @@ func Refresh(opts Options) (*Result, error) {
 		BundleReused: composed.Bundle.Reused,
 		Projected:    projectedCount,
 		ModelTier:    modelTier,
-		ModelClass:   modelClass,
 		Sources:      roots,
 	}, nil
 }
@@ -146,19 +136,6 @@ func normalizeModelTier(value string) (string, error) {
 		return value, nil
 	}
 	return "", fmt.Errorf("unsupported native model tier %q", value)
-}
-
-func normalizeModelClass(value string) (string, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return schema.ModelClassFrontier, nil
-	}
-	switch value {
-	case schema.ModelClassFrontier, schema.ModelClassLowContext:
-		return value, nil
-	default:
-		return "", fmt.Errorf("unsupported native model class %q", value)
-	}
 }
 
 func resolveRoots(

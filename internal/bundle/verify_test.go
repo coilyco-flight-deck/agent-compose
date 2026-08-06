@@ -40,9 +40,6 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.Delivery.Mode != tc.mode {
 				t.Fatalf("delivery = %q, want %q", verified.Manifest.Delivery.Mode, tc.mode)
 			}
-			if verified.Manifest.ModelClass != schema.ModelClassFrontier {
-				t.Fatalf("model class = %q", verified.Manifest.ModelClass)
-			}
 			if verified.Manifest.ModelTier != schema.ModelTierFrontier {
 				t.Fatalf("model tier = %q", verified.Manifest.ModelTier)
 			}
@@ -84,16 +81,20 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 		}
 	})
 
-	t.Run("unknown model class", func(t *testing.T) {
+	t.Run("legacy model class is ignored", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
-		manifest, err := bundle.ReadManifest(dir)
+		raw, err := os.ReadFile(filepath.Join(dir, "manifest.json"))
 		if err != nil {
 			t.Fatal(err)
 		}
-		manifest.ModelClass = "tiny"
+		manifest := map[string]any{}
+		if err := json.Unmarshal(raw, &manifest); err != nil {
+			t.Fatal(err)
+		}
+		manifest["model_class"] = "low-context"
 		writeJSON(t, filepath.Join(dir, "manifest.json"), manifest)
-		if _, err := bundle.Verify(dir); err == nil || !strings.Contains(err.Error(), "model class") {
-			t.Fatalf("expected model-class failure, got %v", err)
+		if _, err := bundle.Verify(dir); err != nil {
+			t.Fatalf("legacy model_class field changed verification: %v", err)
 		}
 	})
 

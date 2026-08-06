@@ -11,6 +11,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 type Options struct {
@@ -48,7 +49,7 @@ func render(
 ) string {
 	modelTier := manifest.ModelTier
 	if modelTier == "" {
-		modelTier = manifest.ModelClass
+		modelTier = schema.ModelTierFrontier
 	}
 	seat := selectedSeat(manifest.Identity.Seats, projection.Layout)
 	seatName := manifest.Role

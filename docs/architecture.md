@@ -13,9 +13,8 @@ The caller supplies every input. Agent-compose infers nothing about the agent:
 * `role` - the caller names it, the selected person source validates it, and the role
   activates every personality it declares.
 * `model tier` - the caller selects `frontier`, `commodity`, or `oss`, and the
-  role may reject it before bundle materialization.
-* `model class` - the caller independently selects full `frontier` or pruned
-  `low-context` bundle density.
+  role may reject it before bundle materialization. A supported tier receives
+  the same complete context as every other supported tier.
 * `delivery` - native skills or compiled context.
 * `source locators` - where optional capability files live. AOS's knowledge
   inventory is inferred from its provider root.

@@ -26,11 +26,10 @@ reasoning effort, session isolation, review, and evidence requirements.
 
 Each role owns mission, personality, authority, completion, portfolio replay,
 and adjacent-role scenarios. Each expands unchanged into `frontier`,
-`commodity`, and `oss` model-tier lanes. Frontier and commodity use the full
-`frontier` bundle class. OSS uses `low-context`. Packs currently mark commodity
-and OSS in `disabled_model_tiers`, so runners skip those cases without deleting
-the matrix. A role-incompatible tier remains disabled even when the global lane
-is enabled.
+`commodity`, and `oss` model-tier lanes with the same complete context. Packs
+currently mark commodity and OSS in `disabled_model_tiers`, so runners skip
+those cases without deleting the matrix. A role-incompatible tier remains
+disabled even when the global lane is enabled.
 
 Every Core Roster role also owns a human-communication scenario. Non-Content
 cases cover email, private messages, public and social posts, interviews,

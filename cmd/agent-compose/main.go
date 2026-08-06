@@ -894,7 +894,6 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		Role:            role,
 		Harness:         harness,
 		ModelTier:       os.Getenv(nativelaunch.EnvModelTier),
-		ModelClass:      os.Getenv(nativelaunch.EnvModelClass),
 		CWD:             cwd,
 		TargetDir:       cwd,
 		PlanPath:        filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
@@ -974,11 +973,10 @@ func printNativeLaunchStatus(
 ) {
 	fmt.Fprintf(
 		w,
-		"agent-compose: assigned %s to %s (%s tier, %s %s bundle, %d files)\n",
+		"agent-compose: assigned %s to %s (%s tier, %s bundle, %d files)\n",
 		role,
 		harness,
 		result.ModelTier,
-		result.ModelClass,
 		state,
 		result.Projected,
 	)
@@ -1066,7 +1064,7 @@ func codexAcceptsInitialPrompt(args []string) bool {
 func clearNativeLaunchEnvironment() error {
 	for _, name := range []string{
 		nativelaunch.EnvModelTier,
-		nativelaunch.EnvModelClass,
+		"AGENT_COMPOSE_MODEL_CLASS",
 		nativelaunch.EnvRuntimeHome,
 	} {
 		if err := os.Unsetenv(name); err != nil {
@@ -1452,8 +1450,8 @@ func printNativeLaunchSummary(
 	}
 	req := r.Resolution.Request
 	intro := fmt.Sprintf(
-		"bundle %s (%s)\nrequest: model tier %s // model class %s // delivery %s\n",
-		r.Bundle.Key, state, req.ModelTier, req.ModelClass, req.Delivery,
+		"bundle %s (%s)\nrequest: model tier %s // delivery %s\n",
+		r.Bundle.Key, state, req.ModelTier, req.Delivery,
 	)
 	if opts.Color {
 		intro = color.ANSI(r.Resolution.FavoriteColor, intro, opts.TrueColor)

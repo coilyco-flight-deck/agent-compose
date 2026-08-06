@@ -35,7 +35,7 @@ func testPerson() *person.Person {
 
 func testRequest(delivery string) *schema.Request {
 	return &schema.Request{
-		Role: "engineer", Delivery: delivery, ModelClass: schema.ModelClassFrontier,
+		Role: "engineer", Delivery: delivery,
 	}
 }
 
@@ -103,7 +103,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	}
 }
 
-func TestResolveLetsSkillsOptOutOfLowContextModels(t *testing.T) {
+func TestResolveIncludesSkillsRegardlessOfLegacyContextMetadata(t *testing.T) {
 	src := makeSource(t, "aos", map[string]string{
 		"coding-python": `---
 name: coding-python
@@ -122,32 +122,7 @@ low-context: optional
 # Architecture
 `,
 	})
-	low := testRequest(schema.DeliveryNativeSkills)
-	low.ModelClass = schema.ModelClassLowContext
-	res, err := Resolve(low, testPerson(), []*schema.Source{src}, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	selected := map[string]bool{}
-	for _, skill := range res.Skills {
-		selected[skill.ID] = true
-	}
-	if !selected["coding-python"] || selected["architecture"] {
-		t.Fatalf("low-context selection = %v", selected)
-	}
-	var excluded bool
-	for _, decision := range res.Decisions {
-		if decision.Subject == "skill:architecture" &&
-			decision.Outcome == OutcomeExcluded &&
-			strings.Contains(decision.Reason, "optional for low-context") {
-			excluded = true
-		}
-	}
-	if !excluded {
-		t.Fatalf("trace omitted low-context exclusion: %+v", res.Decisions)
-	}
-
-	frontier, err := Resolve(
+	res, err := Resolve(
 		testRequest(schema.DeliveryNativeSkills),
 		testPerson(),
 		[]*schema.Source{src},
@@ -156,12 +131,12 @@ low-context: optional
 	if err != nil {
 		t.Fatal(err)
 	}
-	selected = map[string]bool{}
-	for _, skill := range frontier.Skills {
+	selected := map[string]bool{}
+	for _, skill := range res.Skills {
 		selected[skill.ID] = true
 	}
 	if !selected["coding-python"] || !selected["architecture"] {
-		t.Fatalf("frontier selection = %v", selected)
+		t.Fatalf("complete context selection = %v", selected)
 	}
 }
 
@@ -171,10 +146,9 @@ func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 		t.Fatal(err)
 	}
 	oss := &schema.Request{
-		Role:       "strats",
-		Delivery:   schema.DeliveryNativeSkills,
-		ModelTier:  schema.ModelTierOSS,
-		ModelClass: schema.ModelClassLowContext,
+		Role:      "strats",
+		Delivery:  schema.DeliveryNativeSkills,
+		ModelTier: schema.ModelTierOSS,
 	}
 	if _, err := Resolve(oss, p, nil, nil); err == nil ||
 		err.Error() != `role "strats" does not support model tier "oss"` {
@@ -184,7 +158,7 @@ func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 	frontier := *oss
 	frontier.ModelTier = schema.ModelTierFrontier
 	if _, err := Resolve(&frontier, p, nil, nil); err != nil {
-		t.Fatalf("frontier low-context Portfolio Strategist failed: %v", err)
+		t.Fatalf("frontier Portfolio Strategist failed: %v", err)
 	}
 }
 

@@ -14,7 +14,6 @@ compose {
     person-source "person"
     role "engineer"
     model-tier "commodity"
-    model-class "frontier"
     delivery "native-skills"
     source "aos-public" root="agentic-os" required=#true
 }
@@ -26,7 +25,8 @@ fallback. Omitting both selects `roster:core`, unless the host guard supplies it
 
 The role activates its personality set, ordinary skills, and composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
 `model-tier` is `frontier`, `commodity`, or `oss`, defaults to `frontier`, and must be supported by the role.
-`model-class` independently selects bundle density and defaults to `frontier`. `low-context` excludes skills marked `low-context: optional`. A package may add a model-class restriction.
+Model tier never changes selected context. Every supported tier receives the
+complete role, personality, ordinary-skill, and composed-skill selection.
 
 Legacy `density "full"` is ignored and other densities fail. Sources run in
 request order. `root` and `declaration` only locate files.

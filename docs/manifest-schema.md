@@ -10,7 +10,6 @@
   "role_skill_source": "roster:core:role:engineer",
   "role_skill_digest": "sha256:<digest>",
   "model_tier": "frontier",
-  "model_class": "frontier",
   "personalities": ["curious", "grounded", "meticulous"],
   "color": "#90a66a",
   "sources": ["roster:core", "aos-public"],
@@ -44,10 +43,10 @@ appear. `personalities` preserves the role's declaration order. `color` is
 their melded favorite, derived from every component color.
 [person-contract.md](person-contract.md) owns the legibility and blend rules.
 `model_tier` records the caller's `frontier`, `commodity`, or `oss`
-compatibility lane. `model_class` independently records the caller fact used
-for per-skill context pruning. Neither field identifies or routes a runtime
-model. A manifest from before the tier field is read as `frontier`, matching
-the earlier implicit default.
+compatibility lane. It does not identify or route a runtime model and never
+changes selected context. A manifest from before the tier field is read as
+`frontier`, matching the earlier implicit default. Retired `model_class` fields
+in older JSON are ignored.
 
 `role_skill`, `role_skill_source`, and `role_skill_digest` bind the role
 identity to its canonical doctrine. `content` records the effective logical

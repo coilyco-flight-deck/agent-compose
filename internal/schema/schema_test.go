@@ -26,9 +26,6 @@ func TestParseRequestFixture(t *testing.T) {
 	if req.Delivery != DeliveryNativeSkills {
 		t.Fatalf("unexpected delivery: %+v", req)
 	}
-	if req.ModelClass != ModelClassFrontier {
-		t.Fatalf("unexpected default model class: %+v", req)
-	}
 	if req.ModelTier != ModelTierFrontier {
 		t.Fatalf("unexpected default model tier: %+v", req)
 	}
@@ -53,21 +50,6 @@ func TestParseRequestAcceptsCanonicalModelTiers(t *testing.T) {
 				t.Fatalf("model tier = %q, want %q", req.ModelTier, tier)
 			}
 		})
-	}
-}
-
-func TestParseRequestAcceptsLowContextModelClass(t *testing.T) {
-	path := writeRequest(t, `compose {
-    role "engineer"
-    delivery "compiled"
-    model-class "low-context"
-}`)
-	req, err := ParseRequest(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if req.ModelClass != ModelClassLowContext {
-		t.Fatalf("model class = %q", req.ModelClass)
 	}
 }
 
@@ -124,10 +106,10 @@ func TestParseRequestFailsClosed(t *testing.T) {
     role "engineer"
     delivery "carrier-pigeon"
 }`,
-		"bad model class": `compose {
+		"removed model class": `compose {
     role "engineer"
     delivery "native-skills"
-    model-class "tiny"
+    model-class "low-context"
 }`,
 		"bad model tier": `compose {
     role "engineer"

@@ -4,5 +4,4 @@ compose {
     role "bulk-captioner"
     delivery "compiled"
     model-tier "commodity"
-    model-class "frontier"
 }

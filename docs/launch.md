@@ -27,9 +27,9 @@ projects through the harness layout before exec. Unlike generic request
 refresh, an assigned-role launch does not fall back to a prior projection.
 Starting with the wrong stale role would violate the caller assignment.
 Launch consumers may pass their model-tier decision through
-`AGENT_COMPOSE_MODEL_TIER` and their independent bundle-density decision
-through `AGENT_COMPOSE_MODEL_CLASS`. Agent Compose defaults both to `frontier`
-and clears both launch-only variables before handing control to the harness.
+`AGENT_COMPOSE_MODEL_TIER`. Agent Compose defaults it to `frontier` and clears
+the launch-only variable before handing control to the harness. The retired
+`AGENT_COMPOSE_MODEL_CLASS` variable is ignored and stripped during migration.
 `AGENT_COMPOSE_RUNTIME_HOME` similarly selects a prepared session home. Agent
 Compose switches `HOME`, `CODEX_HOME`, `XDG_CONFIG_HOME`, and Claude's config
 directory only after composition, then clears the control variable.

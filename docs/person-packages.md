@@ -21,7 +21,6 @@ compose {
     person-source "person"
     role "builder"
     model-tier "commodity"
-    model-class "frontier"
     delivery "native-skills"
     source "knowledge" root="knowledge"
 }

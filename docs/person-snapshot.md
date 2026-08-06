@@ -11,8 +11,8 @@ schema version `3`. The artifact exports:
 
 * the person name, selected `person:<name>` source provenance, and role order
 * every role's purpose, role-skill id, logical source, digest and body
-  projection, supported model tiers and classes, ordered meld, color,
-  inspiration, and seats
+  projection, supported model tiers, ordered meld, color, inspiration, and
+  seats
 * every personality's skill binding, color, emblem, motif, form language,
   sound mark, and inspiration relationship
 * the fixed renderer expression vocabulary

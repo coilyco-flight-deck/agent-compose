@@ -50,7 +50,6 @@ func Markdown(pack *Pack) []byte {
 	for _, evalCase := range pack.Cases {
 		fmt.Fprintf(&out, "### %s\n\n", evalCase.ID)
 		fmt.Fprintf(&out, "* Model tier: `%s`\n", evalCase.ModelTier)
-		fmt.Fprintf(&out, "* Bundle model class: `%s`\n", evalCase.BundleModelClass)
 		fmt.Fprintf(&out, "* Dimension: `%s`\n", evalCase.Dimension)
 		if evalCase.Scenario != "" {
 			fmt.Fprintf(&out, "* Scenario: `%s` (`%s`)\n", evalCase.Scenario, evalCase.ScenarioKind)

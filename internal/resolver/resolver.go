@@ -81,12 +81,6 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	if !schema.IsModelTier(req.ModelTier) {
 		return nil, fmt.Errorf("unsupported model tier %q", req.ModelTier)
 	}
-	if req.ModelClass == "" {
-		req.ModelClass = schema.ModelClassFrontier
-	}
-	if req.ModelClass != schema.ModelClassFrontier && req.ModelClass != schema.ModelClassLowContext {
-		return nil, fmt.Errorf("unsupported model class %q", req.ModelClass)
-	}
 	personSource, err := person.Source(p)
 	if err != nil {
 		return nil, err
@@ -109,17 +103,6 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			"role %q does not support model tier %q",
 			req.Role,
 			req.ModelTier,
-		)
-	}
-	if !role.SupportsModelClass(req.ModelClass) {
-		if len(role.SupportedModelClasses) == 1 &&
-			role.SupportedModelClasses[0] == schema.ModelClassFrontier {
-			return nil, fmt.Errorf("role %q requires a frontier model", req.Role)
-		}
-		return nil, fmt.Errorf(
-			"role %q does not support model class %q",
-			req.Role,
-			req.ModelClass,
 		)
 	}
 	if len(role.Personalities) == 0 {
@@ -248,18 +231,6 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	selectedBySkill := map[string]Selected{}
 	skillDigests := map[string]string{}
 	considerSkill := func(src *schema.Source, ref schema.ContentRef, reason string) error {
-		policy, err := src.LowContextPolicy(ref)
-		if err != nil {
-			return fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)
-		}
-		if req.ModelClass == schema.ModelClassLowContext && policy == schema.LowContextOptional {
-			res.decide(Decision{
-				Subject: "skill:" + ref.ID, Kind: "skill", Source: src.ID,
-				Outcome: OutcomeExcluded,
-				Reason:  "skill frontmatter marks it optional for low-context model classes",
-			})
-			return nil
-		}
 		digest, err := treeDigest(src.FileSystem(), ref.Path)
 		if err != nil {
 			return fmt.Errorf("source %q skill %q: %w", src.ID, ref.ID, err)

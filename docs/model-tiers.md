@@ -2,8 +2,8 @@
 
 The role KDL fragments under `internal/person/roles/` own this policy. This
 page is its human-readable reference inventory. Model tier controls role
-compatibility, not permissions or executable authority. Bundle model class
-remains an independent context-density choice.
+compatibility, not context selection, permissions, or executable authority.
+Every tier supported by a role receives the same complete selected context.
 
 Frontier covers Claude and Codex, commodity covers DeepSeek, and OSS covers
 local or open models such as Ornith and Mistral.

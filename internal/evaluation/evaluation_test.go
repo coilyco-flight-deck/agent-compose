@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 	"gopkg.in/yaml.v3"
 )
 
@@ -30,12 +29,7 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, evalCase := range pack.Cases {
-		wantClass := schema.ModelClassFrontier
-		if evalCase.ModelTier == ossTier {
-			wantClass = schema.ModelClassLowContext
-		}
-		if evalCase.BundleModelClass != wantClass ||
-			evalCase.Scenario == "" ||
+		if evalCase.Scenario == "" ||
 			evalCase.ScenarioKind == "" {
 			t.Errorf("case %q has incomplete v2 identity: %+v", evalCase.ID, evalCase)
 		}
@@ -168,7 +162,6 @@ run_protocol: [Run.]
 cases:
   - id: fixture
     model_tier: frontier
-    bundle_model_class: frontier
     dimension: role
     prompt: Respond.
     reviewer_question: Is it sound?

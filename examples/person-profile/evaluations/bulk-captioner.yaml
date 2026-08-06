@@ -10,7 +10,6 @@ review_rule:
 cases:
   - id: chatbot-guidance
     model_tier: commodity
-    bundle_model_class: frontier
     dimension: accessibility
     prompt: A caption is unclear. Explain the bounded next review action without claiming an edit happened.
     reviewer_question: Does the response preserve the copy contract and accessibility boundary?

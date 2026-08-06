@@ -1,6 +1,0 @@
-compose {
-    role "engineer"
-    model-class "low-context"
-    delivery "native-skills"
-    source "aos-public" declaration="source-public.kdl" required=#true
-}

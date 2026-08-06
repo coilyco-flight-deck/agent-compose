@@ -25,9 +25,9 @@ package before it becomes a source.
 A role names its display name, purpose, role skill, nonempty ordered
 personality meld, and seats. Its optional `model-tier` list restricts
 composition, while omission supports all three tiers. Core roles declare the
-list explicitly. Optional `model-class` separately restricts bundle density.
-The [role skill](role-briefings.md) needs valid frontmatter and at least three
-body paragraphs. The loader rejects invalid class names or personality sets.
+list explicitly. The [role skill](role-briefings.md) needs valid frontmatter
+and at least three body paragraphs. The loader rejects invalid tiers or
+personality sets.
 The default has eleven roles and sixteen personalities. Its explicit
 [role-by-tier matrix](model-tiers.md) groups complex, foundational, and
 high-security roles without changing their authority.

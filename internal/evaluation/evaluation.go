@@ -57,7 +57,6 @@ type Criterion struct {
 type Case struct {
 	ID               string      `yaml:"id"`
 	ModelTier        string      `yaml:"model_tier"`
-	BundleModelClass string      `yaml:"bundle_model_class"`
 	Dimension        string      `yaml:"dimension"`
 	Scenario         string      `yaml:"scenario,omitempty"`
 	ScenarioKind     string      `yaml:"scenario_kind,omitempty"`
@@ -434,15 +433,11 @@ func validateScenario(scenario Scenario) error {
 func validateCompleteCase(evalCase Case) error {
 	if strings.TrimSpace(evalCase.ID) == "" ||
 		strings.TrimSpace(evalCase.ModelTier) == "" ||
-		strings.TrimSpace(evalCase.BundleModelClass) == "" ||
 		strings.TrimSpace(evalCase.Dimension) == "" ||
 		strings.TrimSpace(evalCase.Prompt) == "" ||
 		strings.TrimSpace(evalCase.ReviewerQuestion) == "" ||
 		len(evalCase.Rubric) == 0 {
 		return fmt.Errorf("custom case is incomplete")
-	}
-	if evalCase.BundleModelClass != "frontier" && evalCase.BundleModelClass != "low-context" {
-		return fmt.Errorf("custom case has unsupported bundle model class %q", evalCase.BundleModelClass)
 	}
 	if !schema.IsModelTier(evalCase.ModelTier) {
 		return fmt.Errorf("custom case has unsupported model tier %q", evalCase.ModelTier)
@@ -506,17 +501,9 @@ func casesForProfile(generic, profile profileMatrix, roleName string) ([]Case, e
 }
 
 func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, error) {
-	type lane struct {
-		tier       string
-		modelClass string
-	}
-	lanes := []lane{
-		{tier: schema.ModelTierFrontier, modelClass: schema.ModelClassFrontier},
-		{tier: schema.ModelTierCommodity, modelClass: schema.ModelClassFrontier},
-		{tier: schema.ModelTierOSS, modelClass: schema.ModelClassLowContext},
-	}
+	lanes := schema.ModelTiers()
 	cases := make([]Case, 0, len(lanes)*len(scenarios))
-	for _, currentLane := range lanes {
+	for _, tier := range lanes {
 		for _, scenario := range scenarios {
 			dimension := roleDimension
 			question := generic.RoleQuestion
@@ -533,9 +520,8 @@ func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, err
 				question = scenario.ReviewerQuestion
 			}
 			cases = append(cases, Case{
-				ID:               currentLane.tier + "-" + scenario.ID,
-				ModelTier:        currentLane.tier,
-				BundleModelClass: currentLane.modelClass,
+				ID:               tier + "-" + scenario.ID,
+				ModelTier:        tier,
 				Dimension:        dimension,
 				Scenario:         scenario.ID,
 				ScenarioKind:     scenario.Kind,
@@ -559,31 +545,6 @@ func humanCommunicationCriterion() Criterion {
 			Missing: "The response crosses Content ownership, gives a forbidden communication recommendation, or claims or initiates an external action.",
 		},
 		HardFail: true,
-	}
-}
-
-func newCase(id, tier, modelClass, dimension, prompt string) Case {
-	switch dimension {
-	case "role-understanding":
-		return Case{
-			ID:               id,
-			ModelTier:        tier,
-			BundleModelClass: modelClass,
-			Dimension:        dimension,
-			Prompt:           prompt,
-			ReviewerQuestion: "Does the response behave like the assigned role without merely repeating the role text?",
-			Rubric:           roleRubric(),
-		}
-	default:
-		return Case{
-			ID:               id,
-			ModelTier:        tier,
-			BundleModelClass: modelClass,
-			Dimension:        dimension,
-			Prompt:           prompt,
-			ReviewerQuestion: "Does the response express the selected personality meld through behavior while remaining natural and useful?",
-			Rubric:           personalityRubric(),
-		}
 	}
 }
 

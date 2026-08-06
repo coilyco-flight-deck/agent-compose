@@ -231,10 +231,6 @@ func verifyManifest(dir string, manifest *Manifest) error {
 	if manifest.RoleSkill != "role-"+manifest.Role {
 		return fmt.Errorf("bundle manifest role skill %q does not match role %q", manifest.RoleSkill, manifest.Role)
 	}
-	if manifest.ModelClass != schema.ModelClassFrontier &&
-		manifest.ModelClass != schema.ModelClassLowContext {
-		return fmt.Errorf("bundle manifest has unknown model class %q", manifest.ModelClass)
-	}
 	if manifest.ModelTier == "" {
 		manifest.ModelTier = schema.ModelTierFrontier
 	} else if !schema.IsModelTier(manifest.ModelTier) {

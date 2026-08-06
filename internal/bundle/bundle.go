@@ -46,7 +46,6 @@ type Manifest struct {
 	RoleSkillSource string                       `json:"role_skill_source"`
 	RoleSkillDigest string                       `json:"role_skill_digest"`
 	ModelTier       string                       `json:"model_tier"`
-	ModelClass      string                       `json:"model_class"`
 	Personalities   []string                     `json:"personalities"`
 	Color           string                       `json:"color"`
 	Identity        RoleIdentity                 `json:"identity,omitempty"`
@@ -233,7 +232,6 @@ func write(res *resolver.Resolution, root string) error {
 		RoleSkillSource: role.SkillSource,
 		RoleSkillDigest: role.SkillDigest,
 		ModelTier:       res.Request.ModelTier,
-		ModelClass:      res.Request.ModelClass,
 		Personalities:   res.Personalities,
 		Color:           res.FavoriteColor,
 		Identity:        identity,
@@ -286,8 +284,8 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 // compiler-authored instruction changes invalidate prior cached bundles.
 func cacheKey(res *resolver.Resolution) (string, error) {
 	h := sha256.New()
-	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00%s\x00",
-		res.Request.Role, res.Request.Delivery, res.Request.ModelTier, res.Request.ModelClass)
+	fmt.Fprintf(h, "request\x00%s\x00%s\x00%s\x00",
+		res.Request.Role, res.Request.Delivery, res.Request.ModelTier)
 	fmt.Fprintf(h, "person\x00%d\x00", len(res.Person.Raw))
 	h.Write(res.Person.Raw)
 	fmt.Fprintf(h, "role-briefing\x00%d\x00", len(res.RoleBriefing))
@@ -363,25 +361,23 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		Digest: role.SkillDigest,
 	}}
 	identity := struct {
-		Purpose               string
-		Skill                 string
-		Personalities         []string
-		PersonalityMetadata   []IdentityPersonality
-		Seats                 []person.Seat
-		Inspiration           person.InspirationRef
-		SupportedModelTiers   []string
-		SupportedModelClasses []string
-		FavoriteColor         string
+		Purpose             string
+		Skill               string
+		Personalities       []string
+		PersonalityMetadata []IdentityPersonality
+		Seats               []person.Seat
+		Inspiration         person.InspirationRef
+		SupportedModelTiers []string
+		FavoriteColor       string
 	}{
-		Purpose:               role.Purpose,
-		Skill:                 role.Skill,
-		Personalities:         role.Personalities,
-		PersonalityMetadata:   selectedIdentityPersonalities(res),
-		Seats:                 role.Seats,
-		Inspiration:           role.Inspiration,
-		SupportedModelTiers:   role.SupportedModelTiers,
-		SupportedModelClasses: role.SupportedModelClasses,
-		FavoriteColor:         res.FavoriteColor,
+		Purpose:             role.Purpose,
+		Skill:               role.Skill,
+		Personalities:       role.Personalities,
+		PersonalityMetadata: selectedIdentityPersonalities(res),
+		Seats:               role.Seats,
+		Inspiration:         role.Inspiration,
+		SupportedModelTiers: role.SupportedModelTiers,
+		FavoriteColor:       res.FavoriteColor,
 	}
 	raw, err := json.Marshal(identity)
 	if err != nil {

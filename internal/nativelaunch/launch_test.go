@@ -219,30 +219,25 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	cases := map[string]struct {
 		instructions string
 		skills       string
-		modelClass   string
 	}{
-		"claude":   {"CLAUDE.md", ".claude/skills", "frontier"},
-		"codex":    {"AGENTS.md", ".agents/skills", "frontier"},
-		"goose":    {".goosehints", ".agents/skills", "low-context"},
-		"opencode": {"AGENTS.md", ".agents/skills", "low-context"},
+		"claude":   {"CLAUDE.md", ".claude/skills"},
+		"codex":    {"AGENTS.md", ".agents/skills"},
+		"goose":    {".goosehints", ".agents/skills"},
+		"opencode": {"AGENTS.md", ".agents/skills"},
 	}
 	for harness, tc := range cases {
 		t.Run(harness, func(t *testing.T) {
 			target := t.TempDir()
 			result, err := Refresh(Options{
-				Role:       "design",
-				Harness:    harness,
-				ModelClass: tc.modelClass,
-				CWD:        projects,
-				TargetDir:  target,
-				PlanPath:   manifest,
-				OutDir:     out,
+				Role:      "design",
+				Harness:   harness,
+				CWD:       projects,
+				TargetDir: target,
+				PlanPath:  manifest,
+				OutDir:    out,
 			})
 			if err != nil {
 				t.Fatal(err)
-			}
-			if result.ModelClass != tc.modelClass {
-				t.Fatalf("model class = %q, want %q", result.ModelClass, tc.modelClass)
 			}
 			if result.ModelTier != schema.ModelTierFrontier {
 				t.Fatalf("default model tier = %q, want frontier", result.ModelTier)
@@ -283,7 +278,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 	}
 }
 
-func TestRefreshDefaultsToFrontierModelTierAndClass(t *testing.T) {
+func TestRefreshDefaultsToFrontierModelTier(t *testing.T) {
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
@@ -300,9 +295,6 @@ func TestRefreshDefaultsToFrontierModelTierAndClass(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
-	}
-	if result.ModelClass != "frontier" {
-		t.Fatalf("default model class = %q, want frontier", result.ModelClass)
 	}
 	if result.ModelTier != schema.ModelTierFrontier {
 		t.Fatalf("default model tier = %q, want frontier", result.ModelTier)
@@ -531,26 +523,24 @@ func TestRoleProviderSelectorsMatchAcrossNativeAndStagedHarnesses(t *testing.T) 
 	})
 
 	cases := map[string]struct {
-		modelClass   string
 		nativeSkills string
 		stagedSkills string
 	}{
-		"claude":   {"frontier", ".claude/skills", ".claude/skills"},
-		"codex":    {"frontier", ".agents/skills", ".agents/skills"},
-		"goose":    {"low-context", ".agents/skills", ".agents/skills"},
-		"opencode": {"low-context", ".agents/skills", ".agents/skills"},
+		"claude":   {".claude/skills", ".claude/skills"},
+		"codex":    {".agents/skills", ".agents/skills"},
+		"goose":    {".agents/skills", ".agents/skills"},
+		"opencode": {".agents/skills", ".agents/skills"},
 	}
 	for harness, tc := range cases {
 		t.Run(harness, func(t *testing.T) {
 			target := t.TempDir()
 			result, err := Refresh(Options{
-				Role:       "design",
-				Harness:    harness,
-				ModelClass: tc.modelClass,
-				CWD:        projects,
-				TargetDir:  target,
-				PlanPath:   manifestPath,
-				OutDir:     filepath.Join(t.TempDir(), "bundles"),
+				Role:      "design",
+				Harness:   harness,
+				CWD:       projects,
+				TargetDir: target,
+				PlanPath:  manifestPath,
+				OutDir:    filepath.Join(t.TempDir(), "bundles"),
 			})
 			if err != nil {
 				t.Fatal(err)
