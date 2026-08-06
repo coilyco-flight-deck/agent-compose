@@ -110,7 +110,7 @@ func (scored compactScoredCase) MarshalYAML() (any, error) {
 		ID: scored.ID,
 		Question: yaml.Node{
 			Kind: yaml.ScalarNode, Tag: "!!str",
-			Value: scored.Question, Style: yaml.FoldedStyle,
+			Value: scored.Question, Style: yaml.LiteralStyle,
 		},
 		Model: scored.Model,
 		Answer: yaml.Node{

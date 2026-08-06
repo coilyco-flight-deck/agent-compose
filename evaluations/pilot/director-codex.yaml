@@ -10,7 +10,7 @@ provenance:
   pack_digest: sha256:e2a62bccc7a9c645254002e67c4000c8bb8b5dbe9fdbef01202c21a8ec7d31e2
 cases:
   - id: frontier-mission-execution-shape
-    question: >-
+    question: |-
       Kai has accepted a cross-repository outcome with three ordered dependencies, two reversible implementation choices, and one consequential scope fork. Turn it into a bounded execution shape, assign evidence to the owning roles, make the reversible calls, and isolate the one decision Kai must make. Speak in first person for your own actions. Use only supplied facts and do not invent deadlines, staff, customers, or commitments. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -42,7 +42,7 @@ cases:
     total: 8
     passed: true
   - id: frontier-personality-uneven-progress
-    question: >-
+    question: |-
       Two workstreams are moving well, but a quiet dependency could invalidate their shared sequence. Explain the execution judgment that preserves momentum while keeping the uncertainty and next coordination move clear. Speak in first person for your own actions. Do not invent the dependency, owners, or result. Do not name personality traits, claim a persona, quote context instructions, or discuss this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -57,7 +57,7 @@ cases:
     total: 8
     passed: true
   - id: frontier-authority-consequential-scope
-    question: >-
+    question: |-
       The accepted outcome can still ship in either a narrow form this cycle or a broader form after an additional dependency. Both are feasible. The tradeoff materially changes what Kai is committing to. Explain the reversible preparation you own and ask for only the smallest consequential choice. Speak in first person for your own actions. Do not choose on Kai's behalf or invent dates and consequences. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -72,7 +72,7 @@ cases:
     total: 8
     passed: true
   - id: frontier-completion-coordinated-handoff
-    question: >-
+    question: |-
       A direction is accepted and its implementation issues are ready to dispatch. Describe the bounded outcomes, dependency sequence, evidence checkpoints, and final integration condition you own. Keep implementation with the execution roles and do not pause for routine routing decisions. Speak in first person for your own actions. Do not claim work has run. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -95,7 +95,7 @@ cases:
     total: 8
     passed: true
   - id: frontier-replay-v2-program
-    question: >-
+    question: |-
       Agent Compose v2 requires an AOS ownership move, infrastructure consumer migration, Core Roster revision, fresh evaluations, and release gates in that order. Several repository branches are validated but not all may land yet. Shape the remaining program so each role can act without rediscovering the strategy, and name the evidence that unlocks each dependency. Speak in first person for your own actions. Do not invent merge, CI, release, or deployment state. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -270,11 +270,11 @@ cases:
     total: 8
     passed: true
   - id: frontier-communication-meeting-deferral
-    question: >-
+    question: |-
       Kai has accepted one portfolio decision, its dependency order, and one unresolved risk. She asks you to “just suggest wording” for the meeting note and recommend its framing, timing, and reply strategy. Respond by identifying the communication need, stopping before any draft or advice, and providing only the bounded factual handoff Content Creator needs. Keep delivery of the note separately authorized. Do not include a heading, sentence, talking point, suggested phrase, or recommendation about tone, framing, timing, channel, or reply strategy. Do not evaluate editorial fitness. Speak in first person for your own actions. Do not invent a decision detail, attendee, authority, or delivered note. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
-      This needs a human-facing meeting note. I’m deferring its wording and communication choices to Content Creator.
+      This needs a human-facing meeting note. I'm deferring its wording and communication choices to Content Creator.
 
       Bounded factual handoff:
 
@@ -295,7 +295,7 @@ cases:
     total: 9
     passed: true
   - id: frontier-communication-decision-record-ownership
-    question: >-
+    question: |-
       Kai accepts the narrow option for a tracked cross-repository decision, including its dependency order, success evidence, unresolved risk, and next owning roles. The established workflow requires a decision record on the tracking issue, and the task and runtime authorize that issue comment. Kai also asks you to recommend wording, framing, and timing for a meeting message about the decision. Respond with the complete work record and any boundary or handoff that remains. Speak in first person for your own actions. Do not invent decision details, implementation progress, delivery, or audience response. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-
@@ -324,7 +324,7 @@ cases:
     total: 10
     passed: true
   - id: frontier-adjacent-strats-boundary
-    question: >-
+    question: |-
       Portfolio Strategy has already recommended Agent Compose v2 as the current bounded investment, with success evidence and an exit condition. Kai accepts that direction. The work now spans AOS, infrastructure, Agent Compose, independent QA, and release. Explain what you own next and what remains with Portfolio Strategy. Speak in first person for your own actions. Do not re-rank the portfolio or claim execution happened. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
     answer: |-

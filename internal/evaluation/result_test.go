@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestV1ScoredResultsRemainReadableHistoricalEvidence(t *testing.T) {
+func TestLatestScoredResultsMatchCurrentPacks(t *testing.T) {
 	root := filepath.Join("..", "..", "evaluations", "latest")
 	files, err := filepath.Glob(filepath.Join(root, "*.yaml"))
 	if err != nil {
@@ -35,8 +35,8 @@ func TestV1ScoredResultsRemainReadableHistoricalEvidence(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if result.Format != ResultFormatV2 {
-				t.Fatalf("historical result uses %q, want %q", result.Format, ResultFormatV2)
+			if result.Format != ResultFormatV3 {
+				t.Fatalf("latest result uses %q, want %q", result.Format, ResultFormatV3)
 			}
 			if result.Role == "" || result.Seat == "" || len(result.Cases) == 0 {
 				t.Fatalf("historical result lost identity or evidence: %+v", result)
@@ -49,6 +49,13 @@ func TestV1ScoredResultsRemainReadableHistoricalEvidence(t *testing.T) {
 						scoredCase.ID,
 					)
 				}
+			}
+			pack, err := Build(result.Role, result.Seat)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := ValidateResult(result, pack); err != nil {
+				t.Fatal(err)
 			}
 		})
 	}
@@ -79,7 +86,7 @@ func TestMarshalResultWritesDeterministicYAML(t *testing.T) {
 	}
 	for _, want := range []string{
 		"format: agent-compose.evaluation-result.v3",
-		"question: >-\n",
+		"question: |-\n",
 		"answer: |-\n",
 		"score:\n",
 		"operating-method: 1",
