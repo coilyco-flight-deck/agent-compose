@@ -88,7 +88,7 @@ func TestPortfolioStrategistOwnsPrioritiesWithoutDispatch(t *testing.T) {
 		"decide where Kai should invest attention",
 		"opportunity cost",
 		"revisit or exit condition",
-		"not execution coordination or agent dispatch",
+		"do not own execution coordination or agent dispatch",
 		"Director turns an accepted direction into coordinated Ward work",
 		"Never invent authority",
 	} {
@@ -115,6 +115,8 @@ func TestDesignerRoleSkillAllowsBoundedPageExperiences(t *testing.T) {
 		"file-based routes or focused route declarations whose sole purpose is exposing those pages",
 		"adding, removing, renaming, or reordering their navigation entries",
 		"meaningful page copy, static public data catalogs",
+		"user supplies exact static labels or list items",
+		"native semantic HTML",
 		"accessibility semantics, focus treatment, ordinary keyboard access",
 		"metadata, Open Graph treatment, empty states, error copy",
 		"focused route, rendering, accessibility, and navigation tests",

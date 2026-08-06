@@ -41,7 +41,7 @@ scenarios:
     kind: portfolio-replay
     prompt: >-
       Agent Compose v2 requires an AOS ownership move, infrastructure consumer
-      migration, Core Roster reduction, fresh evaluations, and release gates in
+      migration, Core Roster revision, fresh evaluations, and release gates in
       that order. Several repository branches are validated but not all may land
       yet. Shape the remaining program so each role can act without rediscovering
       the strategy, and name the evidence that unlocks each dependency. Speak in

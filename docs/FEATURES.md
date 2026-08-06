@@ -5,7 +5,7 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eight roles, sixteen personalities, melds, and seats.
+* `roster:core` carries eleven roles, 16 personalities, melds, and seats.
   Content exclusively owns human communication recommendations. Every other
   role stops at a factual handoff, and external delivery remains separately
   authorized.
@@ -17,14 +17,14 @@ Inventory of what ships today.
 * Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
-* Canonical skills use compact identity cards and compiled fallback. Designer
-  may land bounded page-level web experiences. Content may land content-only
-  code changes.
+* Canonical skills use identity cards and compiled fallback. Designer may land
+  bounded page-level web experiences. Content owns reusable proof and
+  content-only code changes.
 
 ## Load-point projection
 
 * `agent-compose project` places verified bundles transactionally at repo or
-  container-home load points for all four harnesses.
+  container-home load points for four harnesses.
 * Sidecar ownership protects foreign files and restores prior owned state.
 
 ## Launch-time refresh

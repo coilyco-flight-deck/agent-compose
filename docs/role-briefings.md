@@ -1,7 +1,6 @@
 # Role skills
 
-Each person profile owns one ordinary skill per role. KDL selects it and keeps
-compact identity data. Its body is the canonical long-form role doctrine.
+Each person profile owns one ordinary role skill. KDL keeps compact identity data and leaves long-form doctrine in the skill body.
 
 ## Profile layout
 
@@ -16,10 +15,8 @@ role "strats" {
 }
 ```
 
-The body lives at `roles/strats/SKILL.md` with ordinary skill frontmatter.
-The loader requires `role-<slug>`, matching frontmatter, a nonempty
-description, and at least three substantive body paragraphs. Missing,
-malformed, or mismatched skills fail before composition.
+The body lives at `roles/strats/SKILL.md` with ordinary skill frontmatter. It
+requires `role-<slug>`, matching metadata, and at least three paragraphs.
 
 V1.x packages may retain an inline `briefing`. The compatibility adapter
 projects it as an in-memory `role-<slug>` skill. A role cannot declare both
@@ -59,15 +56,18 @@ unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
 
-Designer (`design`) owns experience definition and bounded, effect-tested
+Designer (`design`) owns bounded, effect-tested experience definition and
 page-level work in existing graphical web apps. Static pages, focused routes,
 navigation, presentation, metadata, accessibility, and tests qualify when
-business rules and data flow stay unchanged. System routing, runtime data,
-stateful workflows, terminal or procedural experiences, infrastructure,
-release, and live operations do not. Content owns verified copy. Designer owns
-hierarchy, accessibility, and integration.
+business rules and data flow stay unchanged. User-supplied labels and list
+items may be applied directly with native semantic HTML. Agent-authored meaning,
+content strategy, behavior, data flow, stateful workflows, validation,
+permissions, analytics, system routing, runtime data, terminal or procedural
+experiences, infrastructure, release, and live operations do not. Content owns
+wording and strategy when copy is not supplied. Designer owns hierarchy,
+accessibility, and integration.
 
-Content Manager (`content`) may implement and land content-only repository
+Content Manager (`content`) may land content-only repository
 changes, including human-facing literals embedded in code. The exception
 requires unchanged control flow, state, schemas, structured contracts, and
 executable behavior. Mixed content and behavior returns to Engineer. Content

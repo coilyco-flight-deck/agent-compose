@@ -23,6 +23,12 @@ The engine supplies its complete generic matrix when a selected role has no
 profile asset. A profile matrix replaces that matrix as one complete unit.
 The loader does not merge fields, and a role cannot silently opt out.
 
+Content Manager is the reusable-proof leg of the market loop. Outreach may
+request contact-specific adaptations and Sales may request opportunity-specific
+evidence, while Content retains the reusable source artifact, provenance, claim
+discipline, and editorial recommendation. Publication and sending remain
+separately authorized.
+
 ## Reviewed production locations
 
 * `internal/evaluation/evaluation.go` - typed evaluation pack rendering,

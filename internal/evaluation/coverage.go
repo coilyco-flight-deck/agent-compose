@@ -25,7 +25,10 @@ var requiredAdjacentRoles = map[string][]string{
 	"design":    {"content"},
 	"community": {"content"},
 	"strats":    {"director"},
-	"content":   {"design", "community"},
+	"content":   {"design", "community", "outreach", "sales", "ai"},
+	"ai":        {"engineer", "qa", "ops", "content"},
+	"outreach":  {"sales", "content", "community", "strats"},
+	"sales":     {"outreach", "content", "strats", "director"},
 }
 
 // BuildCorePacks renders and validates the complete embedded Core Roster
@@ -46,11 +49,11 @@ func BuildCorePacks(harness string) ([]*Pack, error) {
 		}
 		packs = append(packs, pack)
 	}
-	if len(packs) != len(requiredAdjacentRoles) {
+	if len(packs) != len(p.RoleOrder) {
 		return nil, fmt.Errorf(
-			"Core Roster evaluation has %d roles, want %d",
+			"Core Roster evaluation has %d roles, loader has %d",
 			len(packs),
-			len(requiredAdjacentRoles),
+			len(p.RoleOrder),
 		)
 	}
 	return packs, nil

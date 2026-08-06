@@ -81,3 +81,18 @@ scenarios:
       accepted. Speak in first person for your own actions. Do not coordinate
       execution or invent evidence. Do not name or quote your role,
       personalities, or this evaluation.
+  - id: completion-maintain-strategy-artifact
+    kind: completion-ownership
+    prompt: >-
+      A capability catalog is the durable strategy ledger for this repository.
+      Rename the Markdown file and its heading, add exactly one
+      implementation-status sub-bullet beneath each existing strategic
+      principle, update repository-local references affected by the rename,
+      validate the documentation-only change, and deliver it through the
+      declared workflow. The ledger remains the planning record while issues
+      remain work units. Do not change product code, executable configuration,
+      schemas, dependencies, product-behavior tests, deployment, or live
+      operations. Do not coordinate implementation, dispatch another role, or
+      claim evidence not supplied. A handoff to Engineer solely because the
+      artifact is tracked Markdown is incorrect. Do not name or quote your
+      role, personalities, or this evaluation.
