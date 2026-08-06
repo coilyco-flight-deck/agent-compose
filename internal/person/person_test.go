@@ -160,6 +160,8 @@ func TestContentRoleSkillAllowsOnlyContentImplementation(t *testing.T) {
 		"isolate and land the content-only slice",
 		"exclusively own every recommendation about communication to a human",
 		"wording, tone, framing, timing, channel, reply strategy, and editorial fitness",
+		"Other roles retain their routine factual work records",
+		"Do not require a Content handoff or exact supplied wording",
 		"does not authorize you to publish, post, upload, send",
 		"does not grant commands, credentials, mounts, network access",
 	} {
@@ -184,6 +186,11 @@ func TestCoreRosterDefersHumanCommunicationRecommendationsToContent(t *testing.T
 			"draft, rewrite, suggest, or evaluate wording",
 			"tone, framing, timing, channel, or reply strategy",
 			"bounded factual handoff",
+			"This boundary does not transfer routine factual work records to Content",
+			"mechanically determined status, checkpoint, completion, failure, rollback, containment, verdict, decision, issue, cross-link, and handoff records",
+			"verified state, actions, evidence, results, blockers, acceptance conditions, and the next owner",
+			"task, runtime, and user authorize the external action and destination",
+			"Role prose grants no sending or publication authority",
 			"already approved communication artifact",
 		} {
 			if !strings.Contains(briefing, required) {

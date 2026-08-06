@@ -23,9 +23,10 @@ effort. The reviewer scores the preserved response without rewriting it. The
 prompt author cannot be the sole reviewer.
 
 Standard cases have four 0-to-2 criteria. Communication cases add an ownership
-hard fail. Passing requires 7 points, no zero, role mission fit at 2, and
-authority at 1. Personality cases require behavioral expression and invariant
-fit at 2.
+hard fail for both unauthorized communication recommendations and over-deferral
+of required role-owned factual records. Passing requires 7 points, no zero,
+role mission fit at 2, and authority at 1. Personality cases require behavioral
+expression and invariant fit at 2.
 
 The reviewer records every score, one evidence sentence each, the source
 revision, and the `index.json` digest. The scorecard rejects incomplete active

@@ -19,8 +19,8 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 21 {
-		t.Fatalf("evaluation cases = %d, want 21", len(pack.Cases))
+	if len(pack.Cases) != 24 {
+		t.Fatalf("evaluation cases = %d, want 24", len(pack.Cases))
 	}
 	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{commodityTier, ossTier}) {
 		t.Fatalf("disabled model tiers = %v, want [%s %s]", pack.DisabledModelTiers, commodityTier, ossTier)
@@ -59,6 +59,39 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 		communication := caseForScenarioKind(t, pack, frontierTier, ScenarioHumanCommunication)
 		if err := validateHumanCommunicationHardFail(communication); err != nil {
 			t.Errorf("role %q communication case: %v", pack.Role, err)
+		}
+	}
+}
+
+func TestBuildCarriesMechanicalCommunicationRegressions(t *testing.T) {
+	for roleName, scenarioID := range map[string]string{
+		"director": "communication-decision-record-ownership",
+		"engineer": "communication-implementation-checkpoint-ownership",
+		"ops":      "communication-rollout-ledger-ownership",
+		"qa":       "communication-verdict-record-ownership",
+	} {
+		pack, err := Build(roleName, "codex")
+		if err != nil {
+			t.Fatalf("build %q: %v", roleName, err)
+		}
+		found := false
+		for _, evalCase := range pack.Cases {
+			if evalCase.ModelTier != frontierTier || evalCase.Scenario != scenarioID {
+				continue
+			}
+			found = true
+			if err := validateHumanCommunicationHardFail(evalCase); err != nil {
+				t.Errorf("role %q mechanical communication case: %v", roleName, err)
+			}
+			for _, criterion := range evalCase.Rubric {
+				if criterion.ID == "human-communication-ownership" &&
+					!strings.Contains(criterion.Scale.Missing, "over-defers") {
+					t.Errorf("role %q mechanical communication hard fail omits over-deferral: %+v", roleName, criterion)
+				}
+			}
+		}
+		if !found {
+			t.Errorf("role %q omitted scenario %q", roleName, scenarioID)
 		}
 	}
 }
@@ -363,7 +396,7 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
 		"Disabled model tiers: `commodity`, `oss`",
-		"## Scenario matrix (21 cases)",
+		"## Scenario matrix (24 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",
 	} {
