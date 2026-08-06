@@ -142,6 +142,45 @@ func TestMarshalResultWritesV3AndRejectsPackDrift(t *testing.T) {
 	}
 }
 
+func TestMarshalResultNormalizesReviewApostrophes(t *testing.T) {
+	t.Parallel()
+	pack, err := Build("engineer", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pack.Cases[0].Prompt = "Kai\u2019s exact question."
+	result := passingResult(pack)
+	result.Format = ""
+	result.Cases[0].RawResponse = "I\u2019ll preserve the wording."
+	result.Cases[0].Scores[1].Score = 1
+	result.Cases[0].Scores[1].Evidence = "It\u2019s incomplete."
+	result.Cases[0].Total--
+	raw, err := MarshalResult(result, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"Kai's exact question.",
+		"I'll preserve the wording.",
+		"It's incomplete.",
+	} {
+		if !bytes.Contains(raw, []byte(want)) {
+			t.Fatalf("compact result omitted normalized text %q:\n%s", want, raw)
+		}
+	}
+	if bytes.Contains(raw, []byte("\u2019")) ||
+		bytes.Contains(raw, []byte("\u2018")) {
+		t.Fatalf("compact result retained typographic apostrophes:\n%s", raw)
+	}
+	decoded, err := DecodeResult(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ValidateResult(decoded, pack); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestValidateV3RequiresExactQuestionAndDeductionNote(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("engineer", "codex")

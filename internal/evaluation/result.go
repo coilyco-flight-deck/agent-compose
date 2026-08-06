@@ -23,6 +23,11 @@ const (
 	ResultFormat = ResultFormatV1
 )
 
+var reviewApostrophes = strings.NewReplacer(
+	"\u2018", "'",
+	"\u2019", "'",
+)
+
 type ResultProvenance struct {
 	EvaluatedAt     string           `yaml:"evaluated_at"`
 	SourceIssue     string           `yaml:"source_issue"`
@@ -247,10 +252,13 @@ func marshalCompactResult(result *ScoredResult, pack *Pack) ([]byte, error) {
 	}
 	for _, scored := range result.Cases {
 		compactCase := compactScoredCase{
-			ID: scored.ID, Question: questions[scored.ID], Model: scored.Model,
-			Answer: scored.RawResponse, FinishReason: scored.FinishReason,
-			Score: make(map[string]int, len(scored.Scores)),
-			Total: scored.Total, Passed: scored.Passed,
+			ID:           scored.ID,
+			Question:     normalizeReviewApostrophes(questions[scored.ID]),
+			Model:        scored.Model,
+			Answer:       normalizeReviewApostrophes(scored.RawResponse),
+			FinishReason: scored.FinishReason,
+			Score:        make(map[string]int, len(scored.Scores)),
+			Total:        scored.Total, Passed: scored.Passed,
 		}
 		for _, score := range scored.Scores {
 			compactCase.Score[score.Criterion] = score.Score
@@ -258,7 +266,8 @@ func marshalCompactResult(result *ScoredResult, pack *Pack) ([]byte, error) {
 				if compactCase.Notes == nil {
 					compactCase.Notes = make(map[string]string)
 				}
-				compactCase.Notes[score.Criterion] = score.Evidence
+				compactCase.Notes[score.Criterion] =
+					normalizeReviewApostrophes(score.Evidence)
 			}
 		}
 		compact.Cases = append(compact.Cases, compactCase)
@@ -359,7 +368,9 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 			return fmt.Errorf("result repeats case %q for model %q", scored.ID, scored.Model)
 		}
 		seen[key] = true
-		if result.Format == ResultFormatV3 && scored.Question != evalCase.Prompt {
+		if result.Format == ResultFormatV3 &&
+			normalizeReviewApostrophes(scored.Question) !=
+				normalizeReviewApostrophes(evalCase.Prompt) {
 			return fmt.Errorf("case %q: question does not match the evaluation pack", scored.ID)
 		}
 		if err := validateScoredCase(scored, evalCase, pack.ReviewRule, result.Format); err != nil {
@@ -394,6 +405,10 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 		}
 	}
 	return nil
+}
+
+func normalizeReviewApostrophes(value string) string {
+	return reviewApostrophes.Replace(value)
 }
 
 func isFullGitRevision(revision string) bool {

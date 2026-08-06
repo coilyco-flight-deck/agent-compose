@@ -60,12 +60,14 @@ generic fallback or may provide a complete custom matrix.
 reviewed baseline. Historical mode renders archived v2 records without
 rebinding their pack digests.
 
-V3 is the compact human review format. Each case preserves its exact question
-and answer, a criterion-to-score mapping, total, verdict, model, and optional
-finish reason. Notes appear only for deductions. Record provenance retains the
-source revision, pack digest, independent reviewer, and any retries. Frontier
-cases gate release. Commodity and OSS evidence remains visible when present
-and controls whether those lanes can be enabled.
+V3 is the compact human review format. Each case preserves its question and
+answer with typographic apostrophes normalized to ASCII for Forgejo review. It
+also carries a criterion-to-score mapping, total, verdict, model, and optional
+finish reason. Notes appear only for deductions and receive the same
+normalization. Record provenance retains the source revision, pack digest,
+independent reviewer, and any retries. Frontier cases gate release. Commodity
+and OSS evidence remains visible when present and controls whether those lanes
+can be enabled.
 
 ## See also
 
