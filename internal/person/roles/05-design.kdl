@@ -4,7 +4,7 @@ role "design" {
     model-tier "frontier" "commodity"
     skill "role-design"
     personality "imaginative" "playful" "editorial" "warm"
-    identity name="opal product designer" pronouns="she"
+    identity name="Delphi" pronouns="she"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "penpot"
