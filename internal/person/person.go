@@ -28,11 +28,16 @@ var embedded embed.FS
 
 const maxRoleSkillBodyWords = 400
 
+// maxMeldSkillBodyWords bounds one shared doctrine body separately from the
+// role charter that melds it. See docs/role-melds.md.
+const maxMeldSkillBodyWords = 400
+
 var personSections = []struct {
 	directory string
 	node      string
 }{
 	{directory: "roles", node: "role"},
+	{directory: "melds", node: "meld"},
 	{directory: "personalities", node: "personality"},
 	{directory: "inspirations", node: "inspiration"},
 }
@@ -41,6 +46,7 @@ var librarySections = []struct {
 	directory string
 	node      string
 }{
+	{directory: "melds", node: "meld"},
 	{directory: "personalities", node: "personality"},
 	{directory: "inspirations", node: "inspiration"},
 }
@@ -79,6 +85,7 @@ type Role struct {
 	SkillSource         string         `json:"skill_source"`
 	SkillDigest         string         `json:"skill_digest"`
 	Methods             []string       `json:"methods,omitempty"`
+	Melds               []string       `json:"melds,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
 	Identity            *AgentIdentity `json:"identity,omitempty"`
@@ -135,6 +142,15 @@ type SoundMark struct {
 	Timbre  string `json:"timbre"`
 	Contour string `json:"contour"`
 	Pulse   string `json:"pulse"`
+}
+
+// Meld binds one shared doctrine body that any number of roles may activate.
+// It carries obligation, so it declares no visual primitives and no color.
+type Meld struct {
+	Skill   string `json:"skill"`
+	Summary string `json:"summary"`
+	Source  string `json:"source,omitempty"`
+	Digest  string `json:"digest,omitempty"`
 }
 
 // Personality binds the definition, visual and sensory identity primitives,
@@ -230,6 +246,18 @@ func (p *Person) personalityOrder() []string {
 	return names
 }
 
+func (p *Person) meldOrder() []string {
+	if len(p.MeldOrder) == len(p.Melds) {
+		return append([]string(nil), p.MeldOrder...)
+	}
+	names := make([]string, 0, len(p.Melds))
+	for name := range p.Melds {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 func (p *Person) roleOrder() []string {
 	if len(p.RoleOrder) == len(p.Roles) {
 		return append([]string(nil), p.RoleOrder...)
@@ -287,6 +315,8 @@ type Person struct {
 	Name                 string                 `json:"person"`
 	Roles                map[string]Role        `json:"roles"`
 	RoleOrder            []string               `json:"role_order"`
+	Melds                map[string]Meld        `json:"melds,omitempty"`
+	MeldOrder            []string               `json:"meld_order,omitempty"`
 	Personalities        map[string]Personality `json:"personalities"`
 	PersonalityOrder     []string               `json:"personality_order"`
 	Inspirations         map[string]Inspiration `json:"inspirations"`
@@ -297,6 +327,7 @@ type Person struct {
 	evaluations          map[string][]byte
 	roleSkills           map[string][]byte
 	roleMethods          map[string]map[string][]byte
+	meldSkills           map[string][]byte
 	source               fs.FS
 }
 
@@ -351,7 +382,10 @@ func Load() (*Person, error) {
 	if err := validateNoUnusedPersonalities(p); err != nil {
 		return nil, err
 	}
-	if err := validateCoreMelds(p); err != nil {
+	if err := validateNoUnusedMelds(p); err != nil {
+		return nil, err
+	}
+	if err := validateCorePersonalityMelds(p); err != nil {
 		return nil, err
 	}
 	return p, nil
@@ -470,7 +504,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 			p.PersonalityLibraries[name] = p.localSourceID()
 		}
 	}
-	overlay, err := definitionOverlay(p.source, p.Personalities)
+	overlay, err := definitionOverlay(p.source, p.Personalities, p.Melds)
 	if err != nil {
 		return nil, err
 	}
@@ -488,7 +522,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 }
 
 func mergeLoadedLibrary(p *Person, library *Person, id string, source fs.FS) error {
-	overlay, err := definitionOverlay(p.source, p.Personalities)
+	overlay, err := definitionOverlay(p.source, p.Personalities, p.Melds)
 	if err != nil {
 		return err
 	}
@@ -526,6 +560,25 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 		p.PersonalityLibraries[name] = id
 		p.PersonalityOrder = append(p.PersonalityOrder, name)
 	}
+	for _, name := range library.meldOrder() {
+		binding := library.Melds[name]
+		if existing, exists := p.Melds[name]; exists {
+			if existing.Skill != binding.Skill || existing.Summary != binding.Summary {
+				return fmt.Errorf("meld %q conflicts between profile libraries", name)
+			}
+			continue
+		}
+		for otherName, other := range p.Melds {
+			if other.Skill == binding.Skill && otherName != name {
+				return fmt.Errorf("meld skill %q conflicts between %q and %q", binding.Skill, otherName, name)
+			}
+		}
+		p.Melds[name] = binding
+		p.MeldOrder = append(p.MeldOrder, name)
+		if raw, ok := library.meldSkills[name]; ok {
+			p.meldSkills[name] = append([]byte(nil), raw...)
+		}
+	}
 	for _, name := range library.InspirationOrder {
 		inspiration := library.Inspirations[name]
 		if existing, exists := p.Inspirations[name]; exists && fmt.Sprintf("%#v", existing) != fmt.Sprintf("%#v", inspiration) {
@@ -534,7 +587,7 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 		p.Inspirations[name] = inspiration
 		p.InspirationOrder = append(p.InspirationOrder, name)
 	}
-	if err := appendDefinitions(overlay, librarySource, library.Personalities); err != nil {
+	if err := appendDefinitions(overlay, librarySource, library.Personalities, library.Melds); err != nil {
 		return err
 	}
 	p.Libraries[id] = "admitted-local"
@@ -551,6 +604,11 @@ func validateResolvedPerson(p *Person) error {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
 				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
+			}
+		}
+		for _, meldName := range p.Roles[roleName].Melds {
+			if _, ok := p.Melds[meldName]; !ok {
+				return fmt.Errorf("role %q: meld %q has no catalog binding", roleName, meldName)
 			}
 		}
 		ref := p.Roles[roleName].Inspiration.ID
@@ -584,7 +642,28 @@ func validateNoUnusedPersonalities(p *Person) error {
 	return nil
 }
 
-func validateCoreMelds(p *Person) error {
+// validateNoUnusedMelds keeps shared doctrine anchored to at least one role, so
+// a meld cannot linger after the last role drops its reference.
+func validateNoUnusedMelds(p *Person) error {
+	used := map[string]bool{}
+	for _, roleName := range p.RoleOrder {
+		for _, meldName := range p.Roles[roleName].Melds {
+			used[meldName] = true
+		}
+	}
+	var unused []string
+	for _, meldName := range p.meldOrder() {
+		if !used[meldName] {
+			unused = append(unused, meldName)
+		}
+	}
+	if len(unused) != 0 {
+		return fmt.Errorf("core roster has unused melds: %s", strings.Join(unused, ", "))
+	}
+	return nil
+}
+
+func validateCorePersonalityMelds(p *Person) error {
 	usage := map[string]int{}
 	colors := map[string]string{}
 	for _, roleName := range p.RoleOrder {
@@ -682,15 +761,20 @@ func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 	if err != nil {
 		return nil, "", fmt.Errorf("parse personality library %q: %w", id, err)
 	}
+	// A library may publish shared doctrine, so its meld bodies are read and
+	// bounded here rather than only in the consuming package.
+	if err := loadMeldSkills(source, library); err != nil {
+		return nil, "", fmt.Errorf("personality library %q: %w", id, err)
+	}
 	return library, id, nil
 }
 
 func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
 	var out bytes.Buffer
 	fmt.Fprintf(&out, "person %q {\n", id)
-	for _, directory := range []string{"personalities", "inspirations"} {
+	for _, directory := range []string{"melds", "personalities", "inspirations"} {
 		entries, err := fs.ReadDir(source, directory)
-		if os.IsNotExist(err) && directory == "inspirations" {
+		if os.IsNotExist(err) && (directory == "inspirations" || directory == "melds") {
 			continue
 		}
 		if err != nil {
@@ -719,15 +803,22 @@ func equalPersonality(left, right Personality) bool {
 	return fmt.Sprintf("%#v", left) == fmt.Sprintf("%#v", right)
 }
 
-func definitionOverlay(base fs.FS, personalities map[string]Personality) (fstest.MapFS, error) {
+func definitionOverlay(
+	base fs.FS, personalities map[string]Personality, melds map[string]Meld,
+) (fstest.MapFS, error) {
 	overlay := fstest.MapFS{}
-	if err := appendDefinitions(overlay, base, personalities); err != nil {
+	if err := appendDefinitions(overlay, base, personalities, melds); err != nil {
 		return nil, err
 	}
 	return overlay, nil
 }
 
-func appendDefinitions(overlay fstest.MapFS, source fs.FS, personalities map[string]Personality) error {
+func appendDefinitions(
+	overlay fstest.MapFS,
+	source fs.FS,
+	personalities map[string]Personality,
+	melds map[string]Meld,
+) error {
 	for _, binding := range personalities {
 		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
 		raw, err := fs.ReadFile(source, path)
@@ -736,6 +827,17 @@ func appendDefinitions(overlay fstest.MapFS, source fs.FS, personalities map[str
 		}
 		if existing, ok := overlay[path]; ok && !bytes.Equal(existing.Data, raw) {
 			return fmt.Errorf("personality definition %q conflicts between local libraries", binding.Skill)
+		}
+		overlay[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+	}
+	for _, binding := range melds {
+		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
+		raw, err := fs.ReadFile(source, path)
+		if err != nil {
+			return fmt.Errorf("meld skill %q: read definition: %w", binding.Skill, err)
+		}
+		if existing, ok := overlay[path]; ok && !bytes.Equal(existing.Data, raw) {
+			return fmt.Errorf("meld definition %q conflicts between local libraries", binding.Skill)
 		}
 		overlay[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
 	}
@@ -762,6 +864,9 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := loadRoleMethods(source, p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
+	if err := loadMeldSkills(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := addCopyContractProvenance(p); err != nil {
@@ -849,6 +954,68 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 		p.Roles[roleName] = role
 	}
 	return nil
+}
+
+// loadMeldSkills reads each shared doctrine body and bounds it against the meld
+// budget. The body never enters Role.Briefing, so it spends no role budget.
+func loadMeldSkills(source fs.FS, p *Person) error {
+	p.meldSkills = map[string][]byte{}
+	for _, meldName := range p.MeldOrder {
+		meld := p.Melds[meldName]
+		path := "definitions/skills/" + meld.Skill + "/SKILL.md"
+		raw, err := fs.ReadFile(source, path)
+		if err != nil {
+			return fmt.Errorf("meld %q skill %q: read definition: %w", meldName, meld.Skill, err)
+		}
+		if err := validateSkillDefinition(meld.Skill, raw); err != nil {
+			return err
+		}
+		body, err := skillBody(raw)
+		if err != nil {
+			return fmt.Errorf("meld %q skill %q: %w", meldName, meld.Skill, err)
+		}
+		if words := roleSkillBodyWordCount(body); words > maxMeldSkillBodyWords {
+			return fmt.Errorf(
+				"meld %q skill body has %d words, maximum is %d",
+				meldName,
+				words,
+				maxMeldSkillBodyWords,
+			)
+		}
+		digest := sha256.Sum256(raw)
+		meld.Source = p.ProviderID() + ":meld:" + meldName
+		meld.Digest = fmt.Sprintf("sha256:%x", digest)
+		p.Melds[meldName] = meld
+		p.meldSkills[meldName] = append([]byte(nil), raw...)
+	}
+	return nil
+}
+
+// MeldSkillDefinition returns the raw shared doctrine skill for one meld.
+func (p *Person) MeldSkillDefinition(meldName string) ([]byte, bool) {
+	raw, ok := p.meldSkills[meldName]
+	if !ok {
+		return nil, false
+	}
+	return append([]byte(nil), raw...), true
+}
+
+// RoleMeldSkillIDs returns the meld skill ids one role activates, in declared
+// order, so callers can name them without loading their bodies.
+func (p *Person) RoleMeldSkillIDs(roleName string) []string {
+	role, ok := p.Roles[roleName]
+	if !ok {
+		return nil
+	}
+	ids := make([]string, 0, len(role.Melds))
+	for _, meldName := range role.Melds {
+		binding, exists := p.Melds[meldName]
+		if !exists {
+			continue
+		}
+		ids = append(ids, binding.Skill)
+	}
+	return ids
 }
 
 func loadRoleMethods(source fs.FS, p *Person) error {
@@ -1109,11 +1276,11 @@ func Source(p *Person) (*schema.Source, error) {
 		if err != nil {
 			return nil, fmt.Errorf("open embedded personality library: %w", err)
 		}
-		overlay, err := definitionOverlay(embedded, map[string]Personality{})
+		overlay, err := definitionOverlay(embedded, map[string]Personality{}, map[string]Meld{})
 		if err != nil {
 			return nil, err
 		}
-		if err := appendDefinitions(overlay, library, p.Personalities); err != nil {
+		if err := appendDefinitions(overlay, library, p.Personalities, p.Melds); err != nil {
 			return nil, err
 		}
 		source = overlay
@@ -1148,10 +1315,18 @@ func Source(p *Person) (*schema.Source, error) {
 		return nil, fmt.Errorf("person %q personality invariant is empty", p.Name)
 	}
 
-	expected := make(map[string]bool, len(p.Personalities))
-	canonicalSkills := make([]string, 0, len(p.Personalities))
+	// The definitions tree carries personality and meld bodies alike, so the
+	// canonical set spans both catalogs.
+	expected := make(map[string]bool, len(p.Personalities)+len(p.Melds))
+	canonicalSkills := make([]string, 0, len(p.Personalities)+len(p.Melds))
 	for _, binding := range p.Personalities {
 		expected[binding.Skill] = true
+		canonicalSkills = append(canonicalSkills, binding.Skill)
+	}
+	meldSkills := make(map[string]bool, len(p.Melds))
+	for _, binding := range p.Melds {
+		expected[binding.Skill] = true
+		meldSkills[binding.Skill] = true
 		canonicalSkills = append(canonicalSkills, binding.Skill)
 	}
 	sort.Strings(canonicalSkills)
@@ -1244,6 +1419,31 @@ func Source(p *Person) (*schema.Source, error) {
 				EntryPoint: "SKILL.md",
 			})
 		}
+		for _, meldName := range p.Roles[roleName].Melds {
+			binding, ok := p.Melds[meldName]
+			if !ok {
+				return nil, fmt.Errorf("person %q role %q has no meld binding %q", p.Name, roleName, meldName)
+			}
+			raw, ok := p.MeldSkillDefinition(meldName)
+			if !ok {
+				return nil, fmt.Errorf("person %q role %q has no meld skill %q", p.Name, roleName, meldName)
+			}
+			path := "skills/" + binding.Skill + "/SKILL.md"
+			// Several roles share one meld body, so an identical repeat is the
+			// expected case and only a differing body is a real collision.
+			if existing, collision := files[path]; collision && !bytes.Equal(existing.Data, raw) {
+				return nil, fmt.Errorf(
+					"person %q role %q meld skill %q collides with another person skill",
+					p.Name, roleName, binding.Skill,
+				)
+			}
+			files[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+			src.RoleSkills[roleName] = append(src.RoleSkills[roleName], schema.ContentRef{
+				ID:         binding.Skill,
+				Path:       "skills/" + binding.Skill,
+				EntryPoint: "SKILL.md",
+			})
+		}
 	}
 	return src, nil
 }
@@ -1289,10 +1489,12 @@ func parse(raw []byte) (*Person, error) {
 		ProviderKind:  doc.Nodes[0].Name(),
 		Name:          args[0].String(),
 		Roles:         map[string]Role{},
+		Melds:         map[string]Meld{},
 		Personalities: map[string]Personality{},
 		Inspirations:  map[string]Inspiration{},
 		roleSkills:    map[string][]byte{},
 		roleMethods:   map[string]map[string][]byte{},
+		meldSkills:    map[string][]byte{},
 		Raw:           raw,
 	}
 	for _, n := range root.Children().Nodes {
@@ -1383,6 +1585,23 @@ func parse(raw []byte) (*Person, error) {
 						}
 					}
 					role.Methods = append(role.Methods, method)
+				case "meld":
+					margs := c.Arguments()
+					if len(margs) == 0 {
+						return nil, fmt.Errorf("role %q: meld needs at least one shared doctrine id", name)
+					}
+					for _, a := range margs {
+						meld := a.String()
+						if !validSemanticToken(meld) {
+							return nil, fmt.Errorf("role %q: meld needs one stable doctrine id", name)
+						}
+						for _, existing := range role.Melds {
+							if existing == meld {
+								return nil, fmt.Errorf("role %q repeats meld %q", name, meld)
+							}
+						}
+						role.Melds = append(role.Melds, meld)
+					}
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
@@ -1545,6 +1764,39 @@ func parse(raw []byte) (*Person, error) {
 			}
 			p.Roles[name] = role
 			p.RoleOrder = append(p.RoleOrder, name)
+		case "meld":
+			margs := n.Arguments()
+			if len(margs) != 1 {
+				return nil, fmt.Errorf("person meld node needs one name argument")
+			}
+			meldName := margs[0].String()
+			if !validSemanticToken(meldName) {
+				return nil, fmt.Errorf("person meld %q needs a stable doctrine id", meldName)
+			}
+			if _, dup := p.Melds[meldName]; dup {
+				return nil, fmt.Errorf("person meld %q declared twice", meldName)
+			}
+			meldSkill := n.Prop("skill")
+			if !meldSkill.IsValid() {
+				return nil, fmt.Errorf("meld %q needs a skill property", meldName)
+			}
+			if meldSkill.String() != "meld-"+meldName {
+				return nil, fmt.Errorf(
+					"meld %q skill %q must be meld-%s", meldName, meldSkill.String(), meldName,
+				)
+			}
+			meldSummary := n.Prop("summary")
+			if !meldSummary.IsValid() || strings.TrimSpace(meldSummary.String()) == "" {
+				return nil, fmt.Errorf("meld %q needs a summary property", meldName)
+			}
+			if children := n.Children(); children != nil && len(children.Nodes) > 0 {
+				return nil, fmt.Errorf("meld %q accepts no child nodes", meldName)
+			}
+			p.Melds[meldName] = Meld{
+				Skill:   meldSkill.String(),
+				Summary: strings.TrimSpace(meldSummary.String()),
+			}
+			p.MeldOrder = append(p.MeldOrder, meldName)
 		case "personality":
 			pargs := n.Arguments()
 			if len(pargs) != 1 {

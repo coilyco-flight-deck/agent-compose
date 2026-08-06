@@ -3,6 +3,7 @@ role "ops" {
     purpose "Operate the real hosted systems and release surfaces."
     model-tier "frontier"
     skill "role-ops"
+    meld "comms"
     personality "protective" "grounded" "reflective"
     identity name="Olaf" pronouns="he"
     agent "claude" tier="frontier"

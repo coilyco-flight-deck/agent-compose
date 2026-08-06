@@ -43,8 +43,13 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			if verified.Manifest.ModelTier != schema.ModelTierFrontier {
 				t.Fatalf("model tier = %q", verified.Manifest.ModelTier)
 			}
-			if len(verified.Identities) != len(verified.Manifest.Personalities)+2 {
-				t.Fatalf("identities = %+v, personalities = %v", verified.Identities, verified.Manifest.Personalities)
+			// Identities cover the personalities, the melded shared doctrine,
+			// the role charter, and the one ordinary fixture skill.
+			wantIdentities := len(verified.Manifest.Personalities) + len(verified.Manifest.Melds) + 2
+			if len(verified.Identities) != wantIdentities {
+				t.Fatalf("identities = %+v, want %d covering personalities %v and melds %v",
+					verified.Identities, wantIdentities,
+					verified.Manifest.Personalities, verified.Manifest.Melds)
 			}
 			var foundOrdinary bool
 			for _, identity := range verified.Identities {

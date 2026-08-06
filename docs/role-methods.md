@@ -53,8 +53,12 @@ Both methods preserve pack provenance, isolated runs, raw failures, independent
 review, and QA acceptance. Live-operations cases use offline fixtures. Neither
 method grants communication, deployment, credential, or runtime authority.
 
+A method is owned by exactly one role. When the same procedure binds several
+roles, use a [role meld](role-melds.md) instead.
+
 ## See also
 
+* [Role melds](role-melds.md) - shared eager doctrine across many roles.
 * [Role skills](role-briefings.md) - charter and progressive-disclosure model.
 * [Person package authoring](person-package-authoring.md) - complete layout.
 * [Evaluation](evaluation.md) - deterministic packs and review policy.

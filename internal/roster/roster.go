@@ -101,6 +101,13 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 			}
 			files[".agents/skills/"+method+"/SKILL.md"] = raw
 		}
+		for _, meld := range role.Melds {
+			raw, ok := p.MeldSkillDefinition(meld)
+			if !ok {
+				return nil, fmt.Errorf("render role %q: meld skill %q is missing", roleName, meld)
+			}
+			files[".agents/skills/"+p.Melds[meld].Skill+"/SKILL.md"] = raw
+		}
 	}
 	files["AGENTS.COMPOSE.md"] = []byte(table.String())
 
