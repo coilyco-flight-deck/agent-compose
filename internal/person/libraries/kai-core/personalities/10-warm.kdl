@@ -6,7 +6,4 @@ personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" {
     alias "welcoming"
     alias "friendly"
     alias "empathetic"
-    inspiration "kimberly-bryant" {
-        fit "Bryant embodies warmth by building an affirming environment where girls of color can encounter technology through belonging, encouragement, and community rather than isolation."
-    }
 }

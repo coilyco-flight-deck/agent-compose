@@ -26,9 +26,21 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 		fmt.Fprintf(&out, "**Role methods // `%s`**\n", strings.Join(role.Methods, "` // `"))
 	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
+	if role.Identity != nil {
+		fmt.Fprintf(
+			&out,
+			"**Agent // %s (%s)**\n",
+			role.Identity.Name,
+			role.Identity.Pronouns,
+		)
+	}
 	if len(role.Seats) > 0 {
 		out.WriteString("**Seats")
 		for _, seat := range role.Seats {
+			if role.Identity != nil {
+				fmt.Fprintf(&out, " // %s", seat.Selector())
+				continue
+			}
 			fmt.Fprintf(&out, " // %s: %s (%s)", seat.Selector(), seat.Name, seat.Pronouns)
 		}
 		out.WriteString("**\n")
@@ -124,17 +136,30 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 
 	var out strings.Builder
 	out.WriteString("## Active role metadata\n\n")
-	out.WriteString("Agent-compose selected these public-safe facts for the agent. ")
-	out.WriteString("Credits acknowledge influences and do not assign another identity.\n\n")
+	out.WriteString("Agent-compose selected these public-safe facts for the agent.")
+	if hasSelectedInspiration(role, p.Personalities) {
+		out.WriteString(" Credits acknowledge influences and do not assign another identity.")
+	}
+	out.WriteString("\n\n")
 	fmt.Fprintf(&out, "* Provider: `%s`\n", p.ProviderID())
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
+	if role.Identity != nil {
+		fmt.Fprintf(
+			&out,
+			"* Agent identity: `%s` (pronouns: `%s`)\n",
+			role.Identity.Name,
+			role.Identity.Pronouns,
+		)
+	}
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "* Role methods: `%s`\n", strings.Join(role.Methods, "`, `"))
 	}
-	out.WriteString("* Role inspiration:\n")
-	if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
-		return "", err
+	if role.Inspiration.ID != "" {
+		out.WriteString("* Role inspiration:\n")
+		if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
+			return "", err
+		}
 	}
 	out.WriteString("* Component personalities:\n")
 	for _, name := range role.Personalities {
@@ -159,8 +184,10 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 			binding.SoundMark.Contour,
 			binding.SoundMark.Pulse,
 		)
-		if err := writeCredit(&out, "Personality `"+name+"`", binding.Inspiration, p.Inspirations); err != nil {
-			return "", err
+		if binding.Inspiration.ID != "" {
+			if err := writeCredit(&out, "Personality `"+name+"`", binding.Inspiration, p.Inspirations); err != nil {
+				return "", err
+			}
 		}
 	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n", meldedColor)
@@ -170,6 +197,10 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	} else {
 		out.WriteString("* Known agent seats:\n")
 		for _, seat := range role.Seats {
+			if role.Identity != nil {
+				fmt.Fprintf(&out, "  * `%s`%s\n", seat.Selector(), seatRoutingSuffix(seat))
+				continue
+			}
 			fmt.Fprintf(&out, "  * `%s`: `%s` (pronouns: `%s`)\n",
 				seat.Selector(), seat.Name, seat.Pronouns)
 		}
@@ -191,26 +222,39 @@ func (p *Person) RenderRoleTranscript(
 	if meldedColor == "" {
 		return "", fmt.Errorf("render role transcript: role %q has no melded color", roleName)
 	}
-	roleCredit, ok := p.Inspirations[role.Inspiration.ID]
-	if !ok {
-		return "", fmt.Errorf("render role transcript: inspiration %q is not defined", role.Inspiration.ID)
-	}
-
 	var out strings.Builder
 	var roleBlock strings.Builder
 	roleBlock.WriteString("role metadata\n")
 	fmt.Fprintf(&roleBlock, "%s: %s // provided by: %s\n", p.providerKind(), p.Name, p.ProviderID())
 	fmt.Fprintf(&roleBlock, "role: %s\n", roleName)
 	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
+	if role.Identity != nil {
+		fmt.Fprintf(
+			&roleBlock,
+			"agent identity: %s // pronouns: %s\n",
+			role.Identity.Name,
+			role.Identity.Pronouns,
+		)
+	}
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&roleBlock, "methods: %s\n", strings.Join(role.Methods, " // "))
 	}
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
 	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
-	writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
+	if role.Inspiration.ID != "" {
+		roleCredit, exists := p.Inspirations[role.Inspiration.ID]
+		if !exists {
+			return "", fmt.Errorf("render role transcript: inspiration %q is not defined", role.Inspiration.ID)
+		}
+		writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
+	}
 	writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	roleBlock.WriteString("seats:\n")
 	for _, seat := range role.Seats {
+		if role.Identity != nil {
+			fmt.Fprintf(&roleBlock, "seat %s%s\n", seat.Selector(), seatRoutingSuffix(seat))
+			continue
+		}
 		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
 	}
 
@@ -219,10 +263,6 @@ func (p *Person) RenderRoleTranscript(
 		binding, exists := p.Personalities[name]
 		if !exists {
 			return "", fmt.Errorf("render role transcript: personality %q is not defined", name)
-		}
-		credit, exists := p.Inspirations[binding.Inspiration.ID]
-		if !exists {
-			return "", fmt.Errorf("render role transcript: inspiration %q is not defined", binding.Inspiration.ID)
 		}
 		if index > 0 {
 			out.WriteByte('\n')
@@ -238,7 +278,13 @@ func (p *Person) RenderRoleTranscript(
 			binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
 		fmt.Fprintf(&personalityBlock, "sound mark: timbre %s // contour %s // pulse %s\n",
 			binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
-		writeTranscriptInspiration(&personalityBlock, "inspiration", binding.Inspiration, credit)
+		if binding.Inspiration.ID != "" {
+			credit, exists := p.Inspirations[binding.Inspiration.ID]
+			if !exists {
+				return "", fmt.Errorf("render role transcript: inspiration %q is not defined", binding.Inspiration.ID)
+			}
+			writeTranscriptInspiration(&personalityBlock, "inspiration", binding.Inspiration, credit)
+		}
 		writeTranscriptSection(&out, binding.Color, personalityBlock.String(), opts)
 	}
 
@@ -251,6 +297,32 @@ func (p *Person) RenderRoleTranscript(
 	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 	return out.String(), nil
+}
+
+func hasSelectedInspiration(role Role, personalities map[string]Personality) bool {
+	if role.Inspiration.ID != "" {
+		return true
+	}
+	for _, name := range role.Personalities {
+		if personalities[name].Inspiration.ID != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func seatRoutingSuffix(seat Seat) string {
+	parts := make([]string, 0, 2)
+	if seat.Channel != "" {
+		parts = append(parts, "channel: "+seat.Channel)
+	}
+	if seat.Tier != "" {
+		parts = append(parts, "tier: "+seat.Tier)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return " (" + strings.Join(parts, " // ") + ")"
 }
 
 func writeTranscriptSection(

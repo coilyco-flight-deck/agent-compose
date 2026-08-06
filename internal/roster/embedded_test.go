@@ -29,8 +29,16 @@ func TestEmbeddedRosterRendersEveryCanonicalSeat(t *testing.T) {
 			!strings.Contains(table, role.Purpose) {
 			t.Errorf("roster omitted role %q", roleName)
 		}
+		identity := fmt.Sprintf(
+			"**Agent // %s (%s)**",
+			role.Identity.Name,
+			role.Identity.Pronouns,
+		)
+		if strings.Count(table, identity) != 1 {
+			t.Errorf("roster identity count for role %q = %d", roleName, strings.Count(table, identity))
+		}
 		for _, seat := range role.Seats {
-			want := fmt.Sprintf("// %s: %s (%s)", seat.Selector(), seat.Name, seat.Pronouns)
+			want := "// " + seat.Selector()
 			if !strings.Contains(table, want) {
 				t.Errorf("roster omitted seat %q for role %q", seat.Harness, roleName)
 			}

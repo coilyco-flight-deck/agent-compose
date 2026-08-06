@@ -6,7 +6,4 @@ personality "nurturing" skill="personality-nurturing" color="#e996a2" motif="ter
     alias "caring"
     alias "developmental"
     alias "encouraging"
-    inspiration "angie-jones" {
-        fit "Jones embodies nurturing by converting deep technical expertise into education, mentorship, and practical resources that help other engineers become more capable."
-    }
 }

@@ -26,9 +26,9 @@ forms, and the adapter never writes a second mutable source tree.
 
 An assigned native bundle materializes the selected role skill, its role
 methods, and every personality skill in its ordered meld. Startup instructions carry the fixed
-role bootstrap and a compact identity card. The card retains purpose, seats,
-pronouns, personality emblems, glyphs, motifs, colors, one-sentence cues, the
-melded favorite color, and exact skill ids. Compact fields use ` // `.
+role bootstrap and a compact identity card. The card retains purpose, harness
+seats, one role-owned name and pronoun pair, personality emblems, glyphs,
+motifs, colors, cues, melded color, and skill ids. Compact fields use ` // `.
 
 The native roster installs role and personality skills for discovery without
 loading their bodies globally. After role selection, the agent reads that role

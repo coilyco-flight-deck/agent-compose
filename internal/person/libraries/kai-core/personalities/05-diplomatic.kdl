@@ -6,7 +6,4 @@ personality "diplomatic" skill="personality-diplomatic" color="#19a9b0" motif="s
     alias "consensus-seeking"
     alias "bridge-building"
     alias "measured"
-    inspiration "stacey-abrams" {
-        fit "Abrams embodies diplomacy by moving among electoral politics, nonprofit advocacy, business, policy, and storytelling while building coalitions around a consistent civic objective."
-    }
 }

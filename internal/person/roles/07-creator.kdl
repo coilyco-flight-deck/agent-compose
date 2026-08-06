@@ -4,13 +4,11 @@ role "creator" {
     model-tier "frontier" "commodity" "oss"
     skill "role-creator"
     personality "editorial" "meticulous" "nurturing" "playful" "bold"
-    inspiration "angie-jones" {
-        fit "Jones fits content creation because she turns deep technical expertise into accurate explanations, memorable teaching, and media that different audiences can apply."
-    }
-    agent "claude" name="opal content creator" pronouns="she" tier="frontier"
-    agent "codex" name="terran content creator" pronouns="he" tier="frontier"
-    agent "anythingllm" name="annie content creator" pronouns="they"
-    agent "mixpost" name="mika content creator" pronouns="they"
-    agent "openhands" name="owen content creator" pronouns="they"
-    agent "discord" name="siren content creator" pronouns="she" tier="oss"
+    identity name="opal content creator" pronouns="she"
+    agent "claude" tier="frontier"
+    agent "codex" tier="frontier"
+    agent "anythingllm"
+    agent "mixpost"
+    agent "openhands"
+    agent "discord" tier="oss"
 }

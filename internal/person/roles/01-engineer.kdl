@@ -4,10 +4,8 @@ role "engineer" {
     model-tier "frontier" "commodity"
     skill "role-engineer"
     personality "curious" "grounded" "meticulous" "tenacious"
-    inspiration "marian-croak" {
-        fit "Croak is a direct engineer archetype because she led foundational work on VoIP and has spent her career turning complex communications research into working infrastructure."
-    }
-    agent "claude" name="opal engineer" pronouns="she" tier="frontier"
-    agent "codex" name="terran engineer" pronouns="he" tier="frontier"
-    agent "openhands" name="owen engineer" pronouns="they"
+    identity name="opal engineer" pronouns="she"
+    agent "claude" tier="frontier"
+    agent "codex" tier="frontier"
+    agent "openhands"
 }

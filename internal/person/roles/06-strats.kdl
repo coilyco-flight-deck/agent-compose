@@ -4,10 +4,8 @@ role "strats" {
     model-tier "frontier"
     skill "role-strats"
     personality "curious" "skeptical" "grounded" "decisive"
-    inspiration "mellody-hobson" {
-        fit "Hobson fits portfolio strategy through decades of investment judgment, corporate governance, strategic planning, and disciplined allocation across major institutions."
-    }
-    agent "claude" name="fabled strategist" pronouns="she" tier="frontier"
-    agent "codex" name="solar strategist" pronouns="he" tier="frontier"
-    agent "hermes" name="hermes strategist" pronouns="they"
+    identity name="fabled strategist" pronouns="she"
+    agent "claude" tier="frontier"
+    agent "codex" tier="frontier"
+    agent "hermes"
 }

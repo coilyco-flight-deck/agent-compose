@@ -7,7 +7,7 @@ person.kdl
 roles/
 roles/<role>/skills/<method>/SKILL.md
 personalities/
-inspirations/
+[inspirations/]
 definitions/INVARIANT.md
 definitions/skills/<skill>/SKILL.md
 ```
@@ -18,7 +18,7 @@ ordered KDL fragment:
 ```text
 roles/01-builder.kdl
 personalities/01-curious.kdl
-inspirations/01-example.kdl
+[inspirations/01-example.kdl]
 ```
 
 The two-digit prefix controls order. The remaining filename must match the
@@ -28,10 +28,13 @@ is declared in the role fragment and stored below that role's `skills/`
 directory. Method directories contain only `SKILL.md`.
 Symlinks are invalid anywhere in the package.
 
-The existing role, personality, identity, inspiration, color, and model-tier
-validation applies unchanged. A missing, malformed, or internally inconsistent
-package fails before bundle materialization or host projection. Person packages
-never transport credentials or launcher authority.
+The role, personality, identity, color, and model-tier validation applies
+unchanged. Inspiration relationships and their catalogue remain optional
+compatibility data for independently authored packages. When supplied, every
+reference must resolve, every entry must be used, and every record must remain
+complete. A missing, malformed, or internally inconsistent package fails
+before bundle materialization or host projection. Person packages never
+transport credentials or launcher authority.
 
 ## See also
 

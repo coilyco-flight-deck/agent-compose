@@ -144,9 +144,9 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		"roster: core // provided by: roster:core",
 		"role: engineer",
 		"purpose: " + role.Purpose,
+		"agent identity: " + role.Identity.Name + " // pronouns: " + role.Identity.Pronouns,
 		"personalities: " + strings.Join(role.Personalities, " // "),
 		"melded color: #90a66a",
-		"role inspiration fit: " + role.Inspiration.Fit,
 		"briefing:",
 		"seats:",
 		"personality metadata",
@@ -157,14 +157,13 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		}
 	}
 	for _, seat := range role.Seats {
-		want := fmt.Sprintf("seat %s: %s // pronouns: %s", seat.Harness, seat.Name, seat.Pronouns)
+		want := fmt.Sprintf("seat %s%s", seat.Selector(), seatRoutingSuffix(seat))
 		if !strings.Contains(got, want) {
 			t.Errorf("transcript missing seat %q:\n%s", want, got)
 		}
 	}
 	for _, name := range role.Personalities {
 		binding := p.Personalities[name]
-		inspiration := p.Inspirations[binding.Inspiration.ID]
 		for _, want := range []string{
 			"personality: " + name,
 			"skill: " + binding.Skill,
@@ -173,54 +172,24 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 			"emblem: " + binding.Emblem.Name,
 			"form: silhouette " + binding.Form.Silhouette,
 			"sound mark: timbre " + binding.SoundMark.Timbre,
-			"inspiration fit: " + binding.Inspiration.Fit,
-			"inspiration achievement: " + inspiration.Achievement,
-			"inspiration impact mode: " + inspiration.ImpactMode,
-			"inspiration impact fit: " + inspiration.ImpactFit,
-			"inspiration profile citation: " + inspiration.ProfileCitation,
 		} {
 			if !strings.Contains(got, want) {
 				t.Errorf("transcript missing personality field %q:\n%s", want, got)
 			}
 		}
 	}
-	roleInspiration := p.Inspirations[role.Inspiration.ID]
-	for _, want := range []string{
-		"role inspiration achievement: " + roleInspiration.Achievement,
-		"role inspiration impact mode: " + roleInspiration.ImpactMode,
-		"role inspiration impact fit: " + roleInspiration.ImpactFit,
-		"role inspiration profile citation: " + roleInspiration.ProfileCitation,
-	} {
-		if !strings.Contains(got, want) {
-			t.Errorf("transcript missing role inspiration field %q:\n%s", want, got)
-		}
-	}
 	for _, excluded := range []string{
 		"additional linked metadata",
+		"inspiration:",
+		"inspiration fit:",
+		"inspiration achievement:",
+		"inspiration profile citation:",
 		"inspiration appearance:",
 		"inspiration appearance event:",
 		"inspiration appearance citations:",
 	} {
 		if strings.Contains(got, excluded) {
 			t.Errorf("transcript retained excluded appearance key %q:\n%s", excluded, got)
-		}
-	}
-	identityRefs := []InspirationRef{role.Inspiration}
-	for _, name := range role.Personalities {
-		identityRefs = append(identityRefs, p.Personalities[name].Inspiration)
-	}
-	for _, ref := range identityRefs {
-		appearance := p.Inspirations[ref.ID].Appearance
-		for _, excluded := range []string{
-			appearance.Title,
-			appearance.ID,
-			appearance.Event,
-			strings.Join(strings.Fields(appearance.Summary), " "),
-			strings.Join(appearance.Citations, " // "),
-		} {
-			if strings.Contains(got, excluded) {
-				t.Errorf("transcript retained excluded appearance field %q:\n%s", excluded, got)
-			}
 		}
 	}
 	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {
@@ -282,9 +251,16 @@ func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		identity := fmt.Sprintf(
+			"* Agent identity: `%s` (pronouns: `%s`)",
+			role.Identity.Name,
+			role.Identity.Pronouns,
+		)
+		if strings.Count(metadata, identity) != 1 {
+			t.Errorf("role %q metadata identity count = %d:\n%s", roleName, strings.Count(metadata, identity), metadata)
+		}
 		for _, seat := range role.Seats {
-			want := fmt.Sprintf("`%s`: `%s` (pronouns: `%s`)",
-				seat.Harness, seat.Name, seat.Pronouns)
+			want := fmt.Sprintf("`%s`%s", seat.Selector(), seatRoutingSuffix(seat))
 			if !strings.Contains(metadata, want) {
 				t.Errorf("role %q metadata missing seat %q:\n%s", roleName, want, metadata)
 			}

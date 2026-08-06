@@ -4,10 +4,8 @@ role "director" {
     model-tier "frontier"
     skill "role-director"
     personality "bold" "grounded" "diplomatic" "decisive"
-    inspiration "ava-duvernay" {
-        fit "DuVernay models the director role by coordinating creative vision, large multidisciplinary productions, distribution, and institution-building through ARRAY."
-    }
-    agent "claude" name="fabled director" pronouns="she" tier="frontier"
-    agent "codex" name="solar director" pronouns="he" tier="frontier"
-    agent "plandex" name="dex director" pronouns="they"
+    identity name="fabled director" pronouns="she"
+    agent "claude" tier="frontier"
+    agent "codex" tier="frontier"
+    agent "plandex"
 }

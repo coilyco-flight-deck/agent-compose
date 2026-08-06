@@ -6,7 +6,4 @@ personality "reflective" skill="personality-reflective" color="#787bd2" motif="s
     alias "introspective"
     alias "thoughtful"
     alias "considered"
-    inspiration "ava-duvernay" {
-        fit "DuVernay embodies reflection by using film to examine how history, law, race, and institutional power continue shaping present-day lives."
-    }
 }

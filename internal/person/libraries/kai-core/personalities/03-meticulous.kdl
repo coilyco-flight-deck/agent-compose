@@ -6,7 +6,4 @@ personality "meticulous" skill="personality-meticulous" color="#7d9fd3" motif="g
     alias "thorough"
     alias "detail-oriented"
     alias "careful"
-    inspiration "marian-croak" {
-        fit "Croak embodies meticulousness through a large patent portfolio and the sustained engineering precision required to make internet-based voice communication dependable at scale."
-    }
 }

@@ -5,7 +5,7 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` carries eight roles, 16 personalities, melds, seats, and a
+* `roster:core` carries eight roles, 16 personalities, stable identities, and
   Content Creator that connects proof, audience research, community continuity,
   decision support, and communication with external action kept separate.
 * [External person packages](person-packages.md) and
@@ -51,8 +51,9 @@ Inventory of what ships today.
 
 ## Identity surfaces
 
-* [Identity renderers](statusline.md) include the local palette, text or JSON
-  overlays, and an `acompose statusline` row for active bundle identity and health.
+* [Identity renderers](statusline.md) include the palette, overlays, and an
+  `acompose statusline` row for identity and health.
+  Core roles keep one identity.
 
 ## Roster artifact and cascade
 

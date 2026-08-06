@@ -1,5 +1,5 @@
 // Package person embeds the canonical public-safe roles, agent seats,
-// personality definitions, invariant, and credited inspirations.
+// personality definitions, and invariant.
 package person
 
 import (
@@ -56,6 +56,13 @@ type Seat struct {
 	Tier     string `json:"tier,omitempty" yaml:"tier,omitempty"`
 }
 
+// AgentIdentity is the role-owned name and pronoun pair shared by every seat.
+// Legacy external packages may continue to own identity on individual seats.
+type AgentIdentity struct {
+	Name     string `json:"name" yaml:"name"`
+	Pronouns string `json:"pronouns" yaml:"pronouns"`
+}
+
 // InspirationRef records why one role or personality cites a catalog entry.
 // Inspirations are acknowledgements and evidence, not identities to imitate.
 type InspirationRef struct {
@@ -72,8 +79,9 @@ type Role struct {
 	Methods             []string       `json:"methods,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
+	Identity            *AgentIdentity `json:"identity,omitempty"`
 	Seats               []Seat         `json:"seats"`
-	Inspiration         InspirationRef `json:"inspiration"`
+	Inspiration         InspirationRef `json:"inspiration,omitempty"`
 	SupportedModelTiers []string       `json:"supported_model_tiers,omitempty"`
 	CopyContract        *CopyContract  `json:"copy_contract,omitempty"`
 }
@@ -136,7 +144,7 @@ type Personality struct {
 	Emblem      Emblem         `json:"emblem"`
 	Form        Form           `json:"form"`
 	SoundMark   SoundMark      `json:"sound_mark"`
-	Inspiration InspirationRef `json:"inspiration"`
+	Inspiration InspirationRef `json:"inspiration,omitempty"`
 	Aliases     []string       `json:"aliases,omitempty"`
 }
 
@@ -540,8 +548,11 @@ func validateResolvedPerson(p *Person) error {
 				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
 			}
 		}
-		if _, ok := p.Inspirations[p.Roles[roleName].Inspiration.ID]; !ok {
-			return fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, p.Roles[roleName].Inspiration.ID)
+		ref := p.Roles[roleName].Inspiration.ID
+		if ref != "" {
+			if _, ok := p.Inspirations[ref]; !ok {
+				return fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
+			}
 		}
 	}
 	return nil
@@ -628,10 +639,13 @@ func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
 	fmt.Fprintf(&out, "person %q {\n", id)
 	for _, directory := range []string{"personalities", "inspirations"} {
 		entries, err := fs.ReadDir(source, directory)
+		if os.IsNotExist(err) && directory == "inspirations" {
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("read personality library %s: %w", directory, err)
 		}
-		if len(entries) == 0 {
+		if len(entries) == 0 && directory == "personalities" {
 			return nil, fmt.Errorf("personality library %q has empty %s", id, directory)
 		}
 		for _, entry := range entries {
@@ -1238,6 +1252,25 @@ func parse(raw []byte) (*Person, error) {
 			skillSet := false
 			for _, c := range n.Children().Nodes {
 				switch c.Name() {
+				case "identity":
+					if role.Identity != nil {
+						return nil, fmt.Errorf("role %q: duplicate identity", name)
+					}
+					if len(c.Arguments()) != 0 {
+						return nil, fmt.Errorf("role %q: identity takes name and pronouns properties", name)
+					}
+					identityName := c.Prop("name")
+					pronouns := c.Prop("pronouns")
+					if !identityName.IsValid() || strings.TrimSpace(identityName.String()) == "" {
+						return nil, fmt.Errorf("role %q: identity needs a name property", name)
+					}
+					if !pronouns.IsValid() || strings.TrimSpace(pronouns.String()) == "" {
+						return nil, fmt.Errorf("role %q: identity needs a pronouns property", name)
+					}
+					role.Identity = &AgentIdentity{
+						Name:     strings.TrimSpace(identityName.String()),
+						Pronouns: strings.TrimSpace(pronouns.String()),
+					}
 				case "display-name":
 					if role.DisplayName != "" {
 						return nil, fmt.Errorf("role %q: duplicate display-name", name)
@@ -1359,9 +1392,6 @@ func parse(raw []byte) (*Person, error) {
 					if n := c.Prop("name"); n.IsValid() {
 						seat.Name = n.String()
 					}
-					if seat.Name == "" {
-						return nil, fmt.Errorf("role %q: seat %q needs a name property", name, seat.Key)
-					}
 					if p := c.Prop("pronouns"); p.IsValid() {
 						seat.Pronouns = p.String()
 					}
@@ -1419,6 +1449,24 @@ func parse(raw []byte) (*Person, error) {
 			if len(role.Personalities) == 0 {
 				return nil, fmt.Errorf("role %q needs at least one personality", name)
 			}
+			for index := range role.Seats {
+				seat := &role.Seats[index]
+				if role.Identity != nil {
+					if seat.Name != "" || seat.Pronouns != "" {
+						return nil, fmt.Errorf(
+							"role %q: seat %q cannot redefine role identity",
+							name,
+							seat.Key,
+						)
+					}
+					seat.Name = role.Identity.Name
+					seat.Pronouns = role.Identity.Pronouns
+					continue
+				}
+				if seat.Name == "" {
+					return nil, fmt.Errorf("role %q: seat %q needs a name property", name, seat.Key)
+				}
+			}
 			for _, seat := range role.Seats {
 				if seat.Tier != "" && !role.SupportsModelTier(seat.Tier) {
 					return nil, fmt.Errorf(
@@ -1428,9 +1476,6 @@ func parse(raw []byte) (*Person, error) {
 						seat.Tier,
 					)
 				}
-			}
-			if role.Inspiration.ID == "" {
-				return nil, fmt.Errorf("role %q needs an inspiration", name)
 			}
 			seenPersonalities := map[string]bool{}
 			for _, personalityName := range role.Personalities {
@@ -1547,9 +1592,6 @@ func parse(raw []byte) (*Person, error) {
 			if personality.SoundMark.Timbre == "" {
 				return nil, fmt.Errorf("personality %q needs a sound-mark", name)
 			}
-			if personality.Inspiration.ID == "" {
-				return nil, fmt.Errorf("personality %q needs an inspiration", name)
-			}
 			p.Personalities[name] = personality
 			p.PersonalityOrder = append(p.PersonalityOrder, name)
 		case "inspiration":
@@ -1577,7 +1619,7 @@ func parse(raw []byte) (*Person, error) {
 	referencedInspirations := map[string]bool{}
 	for _, roleName := range p.RoleOrder {
 		ref := p.Roles[roleName].Inspiration.ID
-		if len(p.Inspirations) != 0 {
+		if ref != "" {
 			if _, ok := p.Inspirations[ref]; !ok {
 				return nil, fmt.Errorf("role %q: inspiration %q has no catalog entry", roleName, ref)
 			}
@@ -1586,6 +1628,9 @@ func parse(raw []byte) (*Person, error) {
 	}
 	for name, personality := range p.Personalities {
 		ref := personality.Inspiration.ID
+		if ref == "" {
+			continue
+		}
 		if _, ok := p.Inspirations[ref]; !ok {
 			return nil, fmt.Errorf("personality %q: inspiration %q has no catalog entry", name, ref)
 		}

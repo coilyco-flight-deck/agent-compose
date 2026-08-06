@@ -12,11 +12,11 @@ schema version `3`. The artifact exports:
 * the person name, selected `person:<name>` source provenance, and role order
 * every role's purpose, role-skill id, logical source, digest and body
   projection, role-method ids, supported model tiers, ordered meld, color,
-  inspiration, and seats
+  role-stable identity, and seats
 * every personality's skill binding, color, emblem, motif, form language,
-  sound mark, and inspiration relationship
+  and sound mark
 * the fixed renderer expression vocabulary
-* the normalized inspiration and speaking-appearance catalogue
+* optional external-package inspiration compatibility data
 
 Roles and personalities are keyed by their stable slugs. `role_order` is the
 canonical presentation order. Consumers should use the explicit order rather
@@ -35,10 +35,10 @@ projection restores the prior owned artifact. A second convergence leaves
 identical bytes unchanged.
 
 The `compose` terminal transcript and compact identity card render the
-selected-role slice from this same model. Each inspiration record stays with
-the role or personality relationship it describes. Both surfaces include
-identity primitives, fits, achievements, impacts, profile citations, and the
-expression vocabulary. The appearance catalogue remains snapshot-only.
+selected-role slice from this same model. Core surfaces include the canonical
+role identity once, harness routing selectors, personality primitives, and the
+expression vocabulary. Optional inspiration data from an external package
+remains in the snapshot and renders only when that package supplies it.
 
 The generated file remains outside repositories. Consumers can read it but do
 not edit it or treat it as a second policy source.
@@ -54,5 +54,4 @@ systems keep those fields.
 
 * [person-contract.md](person-contract.md) - validated KDL package model.
 * [person-packages.md](person-packages.md) - external package selection.
-* [inspiration-catalogue.md](inspiration-catalogue.md) - credited evidence model.
 * [role-briefings.md](role-briefings.md) - unconditional role charter.

@@ -26,7 +26,7 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			t.Errorf("AI role method %q is missing or mismatched", method)
 		}
 	}
-	seatNames := map[string]string{}
+	identityNames := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
 		if role.Skill != "role-"+roleName ||
@@ -44,22 +44,29 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		if len(role.Seats) < 2 {
 			t.Errorf("role %q has %d seats, want at least claude and codex", roleName, len(role.Seats))
 		}
+		if role.Identity == nil || role.Identity.Name == "" || role.Identity.Pronouns != "she" {
+			t.Errorf("role %q identity is incomplete: %+v", roleName, role.Identity)
+			continue
+		}
+		if prior, exists := identityNames[role.Identity.Name]; exists {
+			t.Errorf("roles %q and %q share identity name %q", prior, roleName, role.Identity.Name)
+		}
+		identityNames[role.Identity.Name] = roleName
 		seats := map[string]Seat{}
 		for _, seat := range role.Seats {
 			seats[seat.Harness] = seat
-			if prior, exists := seatNames[seat.Name]; exists {
-				t.Errorf("roles %q and %q share seat name %q", prior, roleName, seat.Name)
+			if seat.Name != role.Identity.Name || seat.Pronouns != role.Identity.Pronouns {
+				t.Errorf("role %q seat %q redefines identity: %+v", roleName, seat.Selector(), seat)
 			}
-			seatNames[seat.Name] = roleName
 		}
-		for harness, pronouns := range map[string]string{"claude": "she", "codex": "he"} {
+		for _, harness := range []string{"claude", "codex"} {
 			seat, exists := seats[harness]
-			if !exists || seat.Name == "" || seat.Pronouns != pronouns {
+			if !exists || seat.Name != role.Identity.Name || seat.Pronouns != role.Identity.Pronouns {
 				t.Errorf("role %q %s seat is incomplete: %+v", roleName, harness, seat)
 			}
 		}
-		if _, ok := p.Inspirations[role.Inspiration.ID]; !ok {
-			t.Errorf("role %q inspiration %q has no catalog entry", roleName, role.Inspiration.ID)
+		if role.Inspiration.ID != "" {
+			t.Errorf("role %q retains Core inspiration %q", roleName, role.Inspiration.ID)
 		}
 		for _, name := range role.Personalities {
 			binding, ok := p.Personalities[name]
@@ -69,22 +76,13 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			if want := "personality-" + name; binding.Skill != want {
 				t.Errorf("personality %q skill = %q, want %q", name, binding.Skill, want)
 			}
-			if _, ok := p.Inspirations[binding.Inspiration.ID]; !ok {
-				t.Errorf("personality %q inspiration %q has no catalog entry", name, binding.Inspiration.ID)
+			if binding.Inspiration.ID != "" {
+				t.Errorf("personality %q retains Core inspiration %q", name, binding.Inspiration.ID)
 			}
 		}
 	}
-	for _, id := range p.InspirationOrder {
-		inspiration := p.Inspirations[id]
-		if inspiration.Name == "" || inspiration.Achievement == "" ||
-			inspiration.ImpactMode == "" || inspiration.ImpactFit == "" ||
-			inspiration.ProfileCitation == "" {
-			t.Errorf("inspiration %q is incomplete: %+v", id, inspiration)
-		}
-		if inspiration.Appearance.ID == "" || inspiration.Appearance.Summary == "" ||
-			len(inspiration.Appearance.Citations) == 0 {
-			t.Errorf("inspiration %q appearance is incomplete: %+v", id, inspiration.Appearance)
-		}
+	if len(p.Inspirations) != 0 || len(p.InspirationOrder) != 0 {
+		t.Fatalf("Core retains inspirations: order=%v catalog=%v", p.InspirationOrder, p.Inspirations)
 	}
 }
 
@@ -628,33 +626,9 @@ func TestParseRejectsBrokenInspirationRelationships(t *testing.T) {
 		body string
 		want string
 	}{
-		"role missing inspiration": {
-			body: strings.Replace(valid, `
-        inspiration "fixture-builder" {
-            fit "The fixture is a useful builder archetype."
-        }`, "", 1),
-			want: `role "builder" needs an inspiration`,
-		},
 		"unknown role inspiration": {
 			body: strings.Replace(valid, `inspiration "fixture-builder" {`, `inspiration "missing-builder" {`, 1),
 			want: `role "builder": inspiration "missing-builder" has no catalog entry`,
-		},
-		"personality missing inspiration": {
-			body: strings.Replace(valid, `
-    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
-        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
-        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
-        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-        inspiration "fixture-builder" {
-            fit "The fixture demonstrates brightness."
-        }
-    }`, `
-    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
-        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
-        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
-        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-    }`, 1),
-			want: `personality "bright" needs an inspiration`,
 		},
 		"appearance missing citation": {
 			body: strings.Replace(valid, `
@@ -868,7 +842,7 @@ func TestParseRejectsInvalidRoleModelTiers(t *testing.T) {
 		},
 		"seat outside role tiers": {
 			body: strings.Replace(valid, `personality "bright" "steady"`,
-				"personality \"bright\" \"steady\"\n        model-tier \"frontier\"\n        seat \"local\" name=\"local builder\" tier=\"oss\"", 1),
+				"personality \"bright\" \"steady\"\n        model-tier \"frontier\"\n        seat \"local\" name=\"local builder\" pronouns=\"they\" tier=\"oss\"", 1),
 			want: `seat "local" uses model tier "oss" outside the role compatibility set`,
 		},
 	}
@@ -936,6 +910,52 @@ func TestParseSeatValidation(t *testing.T) {
 				t.Fatal("expected parse failure")
 			}
 		})
+	}
+}
+
+func TestParseRoleIdentityAppliesAcrossSeatsAndRejectsMixedDeclarations(t *testing.T) {
+	legacy := strings.Replace(
+		inspirationFixture(),
+		`        personality "bright" "steady"`,
+		`        agent "claude" name="legacy guide"
+        personality "bright" "steady"`,
+		1,
+	)
+	legacyPerson, err := parse([]byte(legacy))
+	if err != nil {
+		t.Fatalf("legacy per-seat identity: %v", err)
+	}
+	if got := legacyPerson.Roles["builder"].Seats[0]; got.Name != "legacy guide" || got.Pronouns != "" {
+		t.Fatalf("legacy seat identity = %+v", got)
+	}
+
+	valid := strings.Replace(
+		inspirationFixture(),
+		`        personality "bright" "steady"`,
+		`        identity name="fixture guide" pronouns="she"
+        agent "claude"
+        seat "local" channel="chatbot" tier="commodity"
+        personality "bright" "steady"`,
+		1,
+	)
+	p, err := parse([]byte(valid))
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := p.Roles["builder"]
+	if role.Identity == nil || role.Identity.Name != "fixture guide" || role.Identity.Pronouns != "she" {
+		t.Fatalf("role identity = %+v", role.Identity)
+	}
+	for _, seat := range role.Seats {
+		if seat.Name != role.Identity.Name || seat.Pronouns != role.Identity.Pronouns {
+			t.Fatalf("seat %q did not inherit role identity: %+v", seat.Selector(), seat)
+		}
+	}
+
+	mixed := strings.Replace(valid, `agent "claude"`, `agent "claude" name="other guide"`, 1)
+	if _, err := parse([]byte(mixed)); err == nil ||
+		!strings.Contains(err.Error(), `seat "claude" cannot redefine role identity`) {
+		t.Fatalf("mixed role and seat identity error = %v", err)
 	}
 }
 

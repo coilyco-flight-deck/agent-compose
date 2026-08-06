@@ -6,7 +6,4 @@ personality "skeptical" skill="personality-skeptical" color="#5d8fd7" motif="smo
     alias "evidence-seeking"
     alias "critical"
     alias "disbelieving"
-    inspiration "timnit-gebru" {
-        fit "Gebru embodies skepticism by examining confident technical claims against their evidence, incentives, hidden harms, and the institutions asking to be trusted."
-    }
 }

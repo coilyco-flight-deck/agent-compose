@@ -6,7 +6,4 @@ personality "imaginative" skill="personality-imaginative" color="#b682ed" motif=
     alias "inventive"
     alias "visionary"
     alias "speculative"
-    inspiration "lisa-gelobter" {
-        fit "Gelobter embodies imagination because her early work on Shockwave helped envision a web that could support rich, interactive multimedia rather than remaining primarily static."
-    }
 }

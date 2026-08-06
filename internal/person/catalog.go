@@ -22,16 +22,17 @@ type PersonalityCatalogEntry struct {
 }
 
 type RoleCatalogEntry struct {
-	Slug          string   `json:"slug"`
-	DisplayName   string   `json:"display_name"`
-	Purpose       string   `json:"purpose"`
-	Skill         string   `json:"skill"`
-	SkillSource   string   `json:"skill_source"`
-	SkillDigest   string   `json:"skill_digest"`
-	Methods       []string `json:"methods,omitempty"`
-	Seats         []Seat   `json:"seats"`
-	Personalities []string `json:"personalities"`
-	FavoriteColor string   `json:"favorite_color"`
+	Slug          string         `json:"slug"`
+	DisplayName   string         `json:"display_name"`
+	Purpose       string         `json:"purpose"`
+	Skill         string         `json:"skill"`
+	SkillSource   string         `json:"skill_source"`
+	SkillDigest   string         `json:"skill_digest"`
+	Methods       []string       `json:"methods,omitempty"`
+	Identity      *AgentIdentity `json:"identity,omitempty"`
+	Seats         []Seat         `json:"seats"`
+	Personalities []string       `json:"personalities"`
+	FavoriteColor string         `json:"favorite_color"`
 }
 
 type SeatCatalogEntry struct {
@@ -105,6 +106,7 @@ func (p *Person) RoleCatalog() ([]RoleCatalogEntry, error) {
 			SkillSource:   role.SkillSource,
 			SkillDigest:   role.SkillDigest,
 			Methods:       append([]string(nil), role.Methods...),
+			Identity:      role.Identity,
 			Seats:         append([]Seat(nil), role.Seats...),
 			Personalities: append([]string(nil), role.Personalities...),
 			FavoriteColor: snapshot.Roles[name].FavoriteColor,

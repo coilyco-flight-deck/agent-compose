@@ -10,10 +10,10 @@ reviewable local data assets.
   policy. `internal/roster/definitions/NATIVE-ADAPTATION.txt` is embedded data,
   not a profile override.
 * Profile assets - role skills, role-bound methods, structured role metadata,
-  invariant, copy contracts, role inspirations, and optional complete
+  role identity, invariant, copy contracts, and optional complete
   `evaluations/<role>.yaml` matrices.
 * Personality-library assets - personality bindings, aliases, identity
-  primitives, definition skills, and personality inspirations.
+  primitives, and definition skills.
 * Consumer configuration - local profile and library roots only. Agent
   Compose does not fetch URLs, clone repositories, resolve releases, or read
   git references.

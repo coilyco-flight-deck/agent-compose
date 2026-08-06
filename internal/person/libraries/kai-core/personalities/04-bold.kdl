@@ -6,7 +6,4 @@ personality "bold" skill="personality-bold" color="#e1514e" motif="hammered-iron
     alias "decisive"
     alias "courageous"
     alias "audacious"
-    inspiration "arlan-hamilton" {
-        fit "Hamilton embodies boldness by entering venture capital without its customary credentials or access and building a fund from the ground up while experiencing homelessness."
-    }
 }

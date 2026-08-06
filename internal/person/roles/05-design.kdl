@@ -4,10 +4,8 @@ role "design" {
     model-tier "frontier" "commodity"
     skill "role-design"
     personality "imaginative" "playful" "editorial" "warm"
-    inspiration "joy-buolamwini" {
-        fit "Buolamwini fits designer because she combines technical research, visual art, poetry, and narrative framing to make hidden system behavior understandable to people."
-    }
-    agent "claude" name="opal product designer" pronouns="she" tier="frontier"
-    agent "codex" name="terran product designer" pronouns="he" tier="frontier"
-    agent "penpot" name="penny product designer" pronouns="they"
+    identity name="opal product designer" pronouns="she"
+    agent "claude" tier="frontier"
+    agent "codex" tier="frontier"
+    agent "penpot"
 }

@@ -11,20 +11,20 @@ roster "core" {
         skill "role-engineer"
         method "eval-role-comms"
         personality "curious" "grounded" "meticulous" "tenacious"
-        agent "claude" name="opal engineer" pronouns="she" tier="frontier"
-        agent "codex" name="terran engineer" pronouns="he" tier="frontier"
+        identity name="opal engineer" pronouns="she"
+        agent "claude" tier="frontier"
+        agent "codex" tier="frontier"
     }
     personality "curious" skill="personality-curious" color="#d98e48" motif="map-paper"
 }
 ```
 
-A package splits the manifest, roles, personalities, inspirations, invariant,
-and definitions into the layout documented in
-[person-packages.md](person-packages.md). The loader assembles and validates the
-package before it becomes a source.
+A package splits the manifest, roles, personalities, invariant, and definitions
+into the [external layout](person-packages.md). The loader validates it before
+it becomes a source.
 
-A role names its display name, purpose, role skill,
-[methods](role-methods.md), ordered personality meld, and seats. Its optional `model-tier` list restricts
+A role names its display name, purpose, role skill, [methods](role-methods.md),
+ordered personality meld, and seats. Its optional `model-tier` list restricts
 composition, while omission supports all three tiers. Core roles declare the
 list explicitly. The [role skill](role-briefings.md) needs valid frontmatter
 and at least three body paragraphs. The loader rejects invalid tiers or
@@ -40,7 +40,7 @@ tree for every binding plus the personality invariant. A missing, empty, extra,
 or mismatched definition fails source validation. Roster output therefore
 carries every selected definition without a capability provider.
 
-The [identity primitives](identity-primitives.md) define renderer semantics. The [inspiration catalogue](inspiration-catalogue.md) defines credits.
+The [identity primitives](identity-primitives.md) define renderer semantics.
 
 ## Favorite colors
 
@@ -53,28 +53,26 @@ clamps it into the legible band - the perceptual middle, never gray.
 
 ## Agent seats
 
-An `agent` node is a named seat. The harness is its join key, while `name` and
-`pronouns` are its identity. Optional `tier` must be canonical and supported by
-the role.
+A Core role declares one `identity` with a name and pronoun pair. Every
+`agent` node is a harness routing selector for that identity. Optional
+`channel` and `tier` properties describe routing, and a tier must be
+canonical and supported by the role.
 Launch consumers keep permissions, models, and reasoning effort on their side.
 Nothing here grants authority.
 
-Every Core Roster role carries named harness seats. Seat keys remain stable
-join points while display names and pronouns remain roster-owned identity.
+Every Core Roster role carries harness seats. Seat keys remain stable join
+points while the role-owned name and pronouns remain identical across them.
+Selecting another seat changes routing metadata only.
 
-Seats are personality-neutral. A compose request selects a role, and that role
-activates its role skill, role methods, and ordered personality set. Roster delivery is documented
-in [role-briefings.md](role-briefings.md).
+External packages authored before role-level identity may keep `name` and
+`pronouns` on every seat. A role must use one form consistently. Mixing
+role-level identity with per-seat identity fails validation.
+
+Seats are personality-neutral. A compose request selects a role, which
+activates its role skill, methods, and ordered personality set. See
+[role-skill delivery](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not
 redefine selected roles, personalities, seats, definitions, or role
 personality sets. An external person package replaces the embedded default as
 one unit. AOS owns no copy of either package or its personality definitions.
-
-## See also
-
-* [person-snapshot.md](person-snapshot.md) - complete machine-readable export.
-* [model-tiers.md](model-tiers.md) - Core Roster compatibility matrix.
-* [person-packages.md](person-packages.md) - external layout and selection.
-* [role-briefings.md](role-briefings.md) - role charter and delivery contract.
-* [kdl-contracts.md](kdl-contracts.md) - request and source grammar.

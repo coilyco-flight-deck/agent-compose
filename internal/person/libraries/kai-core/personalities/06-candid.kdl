@@ -6,7 +6,4 @@ personality "candid" skill="personality-candid" color="#3dbfe2" motif="clear-gla
     alias "honest"
     alias "forthright"
     alias "truth-telling"
-    inspiration "timnit-gebru" {
-        fit "Gebru embodies candor by publicly naming the power structures and harms surrounding AI research, even when doing so placed her in conflict with major technology institutions."
-    }
 }

@@ -7,7 +7,7 @@ self-suppresses when no projection applies.
 The ordinary row carries the composition facts worth keeping visible:
 
 ```text
-🧭 🪨 📐 ⛏️  terran engineer · engineer@codex · frontier · 99 skills / ~96k catalog · ✓ composed
+🧭 🪨 📐 ⛏️  opal engineer · engineer@codex · frontier · 99 skills / ~96k catalog · ✓ composed
 ```
 
 * Personality emblems and the named seat come from identity metadata retained

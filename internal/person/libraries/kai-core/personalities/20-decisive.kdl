@@ -6,7 +6,4 @@ personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-p
     alias "closing-options"
     alias "choiceful"
     alias "resolute"
-    inspiration "carla-harris" {
-        fit "Harris embodies decisiveness through long-running capital-markets leadership that converts executive judgment into consequential commitments and clear direction."
-    }
 }

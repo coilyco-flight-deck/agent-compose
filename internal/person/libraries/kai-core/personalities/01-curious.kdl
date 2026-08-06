@@ -6,7 +6,4 @@ personality "curious" skill="personality-curious" color="#d98e48" motif="map-pap
     alias "exploratory"
     alias "investigative"
     alias "questioning"
-    inspiration "helen-jackson" {
-        fit "Jackson embodies curiosity through a career spanning software engineering, machine learning, materials science, nuclear physics, teaching, and technical policy."
-    }
 }

@@ -244,7 +244,7 @@ func TestBuildUsesDiscordNativeContentCreatorCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if pack.Seat.Name != "siren content creator" {
+	if pack.Seat.Name != "opal content creator" || pack.Seat.Pronouns != "she" {
 		t.Fatalf("Content Creator seat = %+v", pack.Seat)
 	}
 	for _, evalCase := range pack.Cases {
@@ -338,7 +338,7 @@ func TestBuildReviewMinimumsReferenceCaseCriteria(t *testing.T) {
 	}
 }
 
-func TestSeatSelectionChangesIdentityNotDoctrineOrAuthority(t *testing.T) {
+func TestSeatSelectionChangesRoutingNotIdentityDoctrineOrAuthority(t *testing.T) {
 	claude, err := Build("engineer", "claude")
 	if err != nil {
 		t.Fatal(err)
@@ -347,9 +347,12 @@ func TestSeatSelectionChangesIdentityNotDoctrineOrAuthority(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if claude.Seat.Selector() == codex.Seat.Selector() ||
-		claude.Seat.Name == codex.Seat.Name {
-		t.Fatalf("fixture seats are not distinct: %+v %+v", claude.Seat, codex.Seat)
+	if claude.Seat.Selector() == codex.Seat.Selector() {
+		t.Fatalf("fixture selectors are not distinct: %+v %+v", claude.Seat, codex.Seat)
+	}
+	if claude.Seat.Name != codex.Seat.Name ||
+		claude.Seat.Pronouns != codex.Seat.Pronouns {
+		t.Fatalf("seat selection changed role identity: %+v %+v", claude.Seat, codex.Seat)
 	}
 	if claude.RoleSkill != codex.RoleSkill ||
 		claude.RoleSkillDigest != codex.RoleSkillDigest ||

@@ -341,7 +341,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		"personalities: curious // grounded // meticulous",
 		"melded color: #90a66a",
 		"personality: curious",
-		"inspiration achievement:",
+		"agent identity: opal engineer // pronouns: she",
 		"renderer expressions: available // listening // thinking",
 		"decisions: 1 selected // 1 excluded // 1 shadowed // 1 delivered",
 	} {

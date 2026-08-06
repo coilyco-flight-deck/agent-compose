@@ -30,9 +30,8 @@ Roster:
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and
   curated compatibility
-* complete selected-role terminal metadata, including identity primitives,
-  seats, inspiration records, appearances, and renderer expressions
-* credited role and personality inspirations with sourced public appearances
+* complete selected-role terminal metadata, including role-stable agent
+  identity, harness selectors, personality primitives, and renderer expressions
 * ordinary and role-composed skill selection
 * [three stable model tiers](docs/model-tiers.md) with fail-closed per-role
   compatibility and identical selected context across supported tiers
@@ -82,10 +81,9 @@ Cascade compiles one availability and residency plan. Verified bundles retain re
 default `roster:core` provider supplies the personality invariant, all 16
 canonical definitions, and AI Engineer's cross-role evaluation methods, so its
 host roster convergence needs no external personality source. A configured external person package replaces that provider
-as one unit. The selected person policy carries a normalized catalogue of
-credited inspirations and representative public appearances without adding
-biography to runtime prompts. The repository also ships a local personality
-palette explorer, identity overlay, and Core Roster v2 behavior matrices.
+as one unit. Each Core role carries one name and pronoun pair across every
+harness selector. The repository also ships a local personality palette
+explorer, identity overlay, and Core Roster v2 behavior matrices.
 Bare `acompose` consumes AOS-verified local catalogue roots, converges the host,
 and refreshes the versioned person snapshot. `acompose -- <command>` launches with inferred
 context. Assigned [native role launches](docs/native-role-launch.md) render
@@ -152,7 +150,6 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
 * [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
 * [docs/v2-migration.md](docs/v2-migration.md) - v1 provider and role destinations.
-* [docs/inspiration-catalogue.md](docs/inspiration-catalogue.md) - credited influence and provenance contract.
 * [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
 * [docs/evaluation.md](docs/evaluation.md) - deterministic human behavior review.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
