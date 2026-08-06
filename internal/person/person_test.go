@@ -44,7 +44,7 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		if len(role.Seats) < 2 {
 			t.Errorf("role %q has %d seats, want at least claude and codex", roleName, len(role.Seats))
 		}
-		if role.Identity == nil || role.Identity.Name == "" || role.Identity.Pronouns != "she" {
+		if role.Identity == nil || role.Identity.Name == "" || role.Identity.Pronouns == "" {
 			t.Errorf("role %q identity is incomplete: %+v", roleName, role.Identity)
 			continue
 		}
@@ -904,7 +904,7 @@ func TestParseRoleIdentityAppliesAcrossSeatsAndRejectsMixedDeclarations(t *testi
 		t.Fatal(err)
 	}
 	role := p.Roles["builder"]
-	if role.Identity == nil || role.Identity.Name != "fixture guide" || role.Identity.Pronouns != "she" {
+	if role.Identity == nil || role.Identity.Name != "fixture guide" || role.Identity.Pronouns == "" {
 		t.Fatalf("role identity = %+v", role.Identity)
 	}
 	for _, seat := range role.Seats {

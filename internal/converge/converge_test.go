@@ -97,7 +97,7 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		!strings.Contains(composed, "# Agent seats") {
 		t.Fatalf("composed output must carry doctrine and the dispatch table:\n%s", composed)
 	}
-	if !strings.Contains(composed, "opal engineer") {
+	if !strings.Contains(composed, "Agent //") {
 		t.Fatalf("dispatch table incomplete:\n%s", composed)
 	}
 	identityRoot := filepath.Join(dir, "sources", "personality", ".agents", "skills")
@@ -296,7 +296,7 @@ func TestConvergeUsesConfiguredExternalPersonExclusively(t *testing.T) {
 		!strings.Contains(composed, "# Workbench invariant") {
 		t.Fatalf("external person did not reach host context:\n%s", composed)
 	}
-	if strings.Contains(composed, "opal engineer") ||
+	if strings.Contains(composed, "Agent //") ||
 		strings.Contains(composed, "# Personality invariant") {
 		t.Fatalf("external person inherited embedded context:\n%s", composed)
 	}

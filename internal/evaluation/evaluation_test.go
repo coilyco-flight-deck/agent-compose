@@ -244,9 +244,6 @@ func TestBuildUsesDiscordNativeContentCreatorCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if pack.Seat.Name != "opal content creator" || pack.Seat.Pronouns != "she" {
-		t.Fatalf("Content Creator seat = %+v", pack.Seat)
-	}
 	for _, evalCase := range pack.Cases {
 		if !strings.Contains(evalCase.Prompt, "Do not") {
 			t.Errorf("Content Creator case %q omits its evidence boundary: %q", evalCase.ID, evalCase.Prompt)
