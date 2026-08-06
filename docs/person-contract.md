@@ -28,7 +28,7 @@ composition, while omission supports all three tiers. Core roles declare the
 list explicitly. Optional `model-class` separately restricts bundle density.
 The [role skill](role-briefings.md) needs valid frontmatter and at least three
 body paragraphs. The loader rejects invalid class names or personality sets.
-The default has nine roles and sixteen personalities. Its explicit
+The default has ten roles and sixteen personalities. Its explicit
 [role-by-tier matrix](model-tiers.md) groups complex, foundational, and
 high-security roles without changing their authority.
 

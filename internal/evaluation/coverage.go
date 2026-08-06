@@ -27,6 +27,7 @@ var requiredAdjacentRoles = map[string][]string{
 	"strats":    {"director"},
 	"content":   {"design", "community"},
 	"ai":        {"engineer", "qa", "ops", "content"},
+	"outreach":  {"sales", "content", "community", "strats"},
 }
 
 // BuildCorePacks renders and validates the complete embedded Core Roster
