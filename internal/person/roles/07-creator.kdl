@@ -4,7 +4,7 @@ role "creator" {
     model-tier "frontier" "commodity" "oss"
     skill "role-creator"
     personality "editorial" "meticulous" "nurturing" "playful" "bold"
-    identity name="opal content creator" pronouns="she"
+    identity name="Gem" pronouns="they"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "anythingllm"
