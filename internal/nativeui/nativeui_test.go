@@ -198,3 +198,27 @@ func contains(values []string, want string) bool {
 	}
 	return false
 }
+
+// A verb the harness already ships does no identity work under replace mode.
+// testdata holds the 184 defaults from Claude Code 2.1.221.
+func TestVerbsDoNotRepeatTheHarnessDefaults(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("testdata", "harness-default-verbs.txt"))
+	if err != nil {
+		t.Fatalf("read defaults: %v", err)
+	}
+	defaults := map[string]bool{}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if verb := strings.TrimSpace(line); verb != "" {
+			defaults[verb] = true
+		}
+	}
+
+	p := selected(t)
+	for _, name := range p.PersonalityOrder {
+		for _, verb := range p.Personalities[name].Verbs {
+			if defaults[verb] {
+				t.Errorf("personality %q reuses harness default verb %q", name, verb)
+			}
+		}
+	}
+}
