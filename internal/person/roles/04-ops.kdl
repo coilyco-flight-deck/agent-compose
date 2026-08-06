@@ -4,7 +4,7 @@ role "ops" {
     model-tier "frontier"
     skill "role-ops"
     personality "protective" "grounded" "reflective" "meticulous"
-    identity name="Oscar" pronouns="he"
+    identity name="Olaf" pronouns="he"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "holmesgpt"
