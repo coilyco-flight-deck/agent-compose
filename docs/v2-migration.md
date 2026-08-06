@@ -19,8 +19,8 @@ boundaries.
   Strategist.
 * `technical-writer` and `social` - become `content`, displayed as Content
   Manager.
-* `sales` and `customer-success` - have no Core Roster replacement. Choose the
-  actual mission owner or supply an external roster package.
+* `sales` - is restored as Sales, with `customer-success` still requiring the
+  actual mission owner or an external roster package.
 
 Update launch commands, Ward role selections, composed-skill bindings,
 evaluation inputs, and any bundle source checks to use the new identifiers.
