@@ -92,7 +92,7 @@ func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPla
 	}
 	inputs := map[string]bool{defaultSource: true}
 	roles := map[string][]repositoryplan.Selection{}
-	for _, role := range []string{"community", "content", "design", "director", "engineer", "ops", "qa", "strats"} {
+	for _, role := range []string{"ai", "creator", "design", "director", "engineer", "ops", "qa", "strats"} {
 		for _, path := range basePaths {
 			roles[role] = append(roles[role], selection(path, "operating-context", defaultSource, "test operating context"))
 		}

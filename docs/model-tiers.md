@@ -26,17 +26,14 @@ commodity models.
 * Engineer - frontier, commodity
 * QA - frontier, commodity
 * Designer - frontier, commodity
-* Content Manager - frontier, commodity
-* Outreach - frontier, commodity
-* Sales - frontier, commodity
+* Content Creator - frontier, commodity, OSS
 
 ## Category 3: high-security roles
 
-Community is OSS-only so sensitive community context stays on the caller's
-local or open-model route. Its Discord seat is classified OSS. Claude and Codex
-seats remain model-neutral harness identities for evaluation and overlays.
-
-* Community - OSS
+Content Creator includes an OSS-classified Discord seat so callers can keep
+sensitive community context on a local or open-model route. Role compatibility
+does not choose a route or grant access. The launch consumer still selects the
+appropriate tier and controls the supplied context.
 
 ## Evaluation state
 

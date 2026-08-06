@@ -239,39 +239,39 @@ func TestBuildCarriesSelfContainedReviewContext(t *testing.T) {
 	}
 }
 
-func TestBuildUsesDiscordNativeCommunityCases(t *testing.T) {
-	pack, err := Build("community", "discord")
+func TestBuildUsesDiscordNativeContentCreatorCases(t *testing.T) {
+	pack, err := Build("creator", "discord")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if pack.Seat.Name != "siren community host" {
-		t.Fatalf("community seat = %+v", pack.Seat)
+	if pack.Seat.Name != "siren content creator" {
+		t.Fatalf("Content Creator seat = %+v", pack.Seat)
 	}
 	for _, evalCase := range pack.Cases {
 		if !strings.Contains(evalCase.Prompt, "Do not") {
-			t.Errorf("community case %q omits its evidence boundary: %q", evalCase.ID, evalCase.Prompt)
+			t.Errorf("Content Creator case %q omits its evidence boundary: %q", evalCase.ID, evalCase.Prompt)
 		}
 	}
 	rolePrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioMissionFit).Prompt
 	for _, want := range []string{
-		"#welcome",
-		"verified orientation",
+		"reusable proof",
 		"community-state record",
-		"factual handoff",
+		"qualification criteria",
+		"substantive expression of interest",
 	} {
 		if !strings.Contains(rolePrompt, want) {
-			t.Errorf("community role prompt omitted %q: %q", want, rolePrompt)
+			t.Errorf("Content Creator role prompt omitted %q: %q", want, rolePrompt)
 		}
 	}
 	personalityPrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioPersonality).Prompt
 	for _, want := range []string{
-		"welcomed newcomers",
-		"may be outdated",
-		"smallest verification step",
-		"factual handoff",
+		"strong narrative",
+		"promising audience signal",
+		"two fit assumptions",
+		"next bounded observation",
 	} {
 		if !strings.Contains(personalityPrompt, want) {
-			t.Errorf("community personality prompt omitted %q: %q", want, personalityPrompt)
+			t.Errorf("Content Creator personality prompt omitted %q: %q", want, personalityPrompt)
 		}
 	}
 }

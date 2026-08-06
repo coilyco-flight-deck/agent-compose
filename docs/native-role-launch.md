@@ -7,7 +7,7 @@ caller-assigned role bundle:
 acompose design codex
 acompose engineer claude --model opus
 acompose qa goose run
-acompose content opencode
+acompose creator opencode
 ```
 
 Arguments pass through. Long form: `agent-compose launch <role> <harness>`.

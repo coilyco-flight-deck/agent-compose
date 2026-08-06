@@ -53,14 +53,14 @@ scenarios:
     kind: human-communication-ownership
     reviewer_question: >-
       Does the response stop before recommending any human communication, give
-      Content only the supplied facts and constraints, and keep sending
+      Content Creator only the supplied facts and constraints, and keep sending
       separately authorized?
     prompt: >-
       Repository evidence supplies the affected command, the verified defect,
       and the accepted fix. A maintainer asks you to “just suggest wording” for
       an email to another maintainer explaining the change. Respond by
       identifying the communication need, stopping before any draft or advice,
-      and providing only the bounded factual handoff Content needs. Keep the
+      and providing only the bounded factual handoff Content Creator needs. Keep the
       external send action separately authorized. Do not include a subject,
       salutation, message text, suggested phrase, or recommendation about tone,
       framing, timing, channel, or reply strategy. Do not evaluate editorial
@@ -71,7 +71,7 @@ scenarios:
     kind: human-communication-ownership
     reviewer_question: >-
       Does the response produce the authorized factual implementation
-      checkpoint without deferring it to Content, while refusing release-note
+      checkpoint without deferring it to Content Creator, while refusing release-note
       wording or strategy?
     prompt: >-
       A repository fix and its focused regression test pass. Full repository

@@ -253,7 +253,7 @@ func TestValidateResultAcceptsExplicitEmptyFailedResponse(t *testing.T) {
 
 func TestValidateResultAcceptsCompleteMultipleModelsPerTier(t *testing.T) {
 	t.Parallel()
-	pack, err := Build("community", "discord")
+	pack, err := Build("creator", "discord")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,7 +297,7 @@ func TestValidateResultAllowsDisabledTierToBeOmitted(t *testing.T) {
 
 func TestValidateResultRejectsIncompleteOrRepeatedModelCases(t *testing.T) {
 	t.Parallel()
-	pack, err := Build("community", "discord")
+	pack, err := Build("creator", "discord")
 	if err != nil {
 		t.Fatal(err)
 	}

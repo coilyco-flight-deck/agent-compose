@@ -59,8 +59,8 @@ func (e env) config(t *testing.T, body string) {
 			t.Fatal(err)
 		}
 		roles := `roles {
-    role community {}
-    role content {}
+    role ai {}
+    role creator {}
     role design {}
     role director {}
     role engineer {}

@@ -12,7 +12,7 @@ method in that loop, not the whole role.
 
 Engineer retains generic product behavior. QA independently accepts contracts
 and results the AI Engineer authored. DevOps owns deployment, live verification,
-rollback, and recovery claims. Content owns human-facing communication. AOS
+rollback, and recovery claims. Content Creator owns human-facing communication. AOS
 owns routing, harness selection, deployment identity, and operator policy.
 Role doctrine grants no model transport, hardware, deployment, or executable
 authority.

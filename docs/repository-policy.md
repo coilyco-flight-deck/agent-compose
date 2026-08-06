@@ -25,7 +25,7 @@ repositories {
 }
 
 roles {
-    role content {
+    role creator {
         use-repository voice-corpus
     }
     role engineer { use-repository hardware }

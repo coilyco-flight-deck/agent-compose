@@ -44,11 +44,11 @@ Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
 executable authority.
 
-Content exclusively owns human communication recommendations, including
-wording, tone, framing, timing, channel, reply strategy, and editorial fitness.
-Other roles retain mechanically determined records for work they own and defer
-only when a recommendation is needed. Community owns community state,
-moderation context, durable feedback, and interaction. External
+Content Creator owns communication recommendations, including wording,
+tone, framing, timing, channel, reply strategy, and
+editorial fitness. It connects proof, audience research, community
+state, durable feedback, qualification, discovery, and decision support. Other
+roles retain mechanical records and defer only for recommendations. External
 action still requires task, runtime, and user authorization.
 
 The Engineer role owns repository-proven reusable software. Ops owns controlled
@@ -64,16 +64,16 @@ business rules and data flow stay unchanged. User-supplied labels and list
 items may be applied directly with native semantic HTML. Agent-authored meaning,
 content strategy, behavior, data flow, stateful workflows, validation,
 permissions, analytics, system routing, runtime data, terminal or procedural
-experiences, infrastructure, release, and live operations do not. Content owns
-wording and strategy when copy is not supplied. Designer owns hierarchy,
-accessibility, and integration.
+experiences, infrastructure, release, and live operations do not. Content
+Creator owns wording and strategy when copy is not supplied. Designer owns
+hierarchy, accessibility, and integration.
 
-Content Manager (`content`) may land content-only repository
-changes, including human-facing literals embedded in code. The exception
+Content Creator (`creator`) may land content-only repository changes,
+including human-facing literals embedded in code. The exception
 requires unchanged control flow, state, schemas, structured contracts, and
 executable behavior. Mixed content and behavior returns to Engineer. Content
-accepts factual handoffs for communication recommendations without absorbing
-another role's ledger or inferring authority to expose the result.
+Creator accepts factual handoffs for communication recommendations without
+absorbing another role's ledger or inferring authority to expose the result.
 
 ## See also
 

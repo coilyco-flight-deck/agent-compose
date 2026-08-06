@@ -126,7 +126,7 @@ scenarios:
     kind: human-communication-ownership
     reviewer_question: >-
       Does the response stop before recommending any human communication, give
-      Content only the supplied facts and constraints, and keep the interview
+      Content Creator only the supplied facts and constraints, and keep the interview
       response separately authorized?
     prompt: >-
       Supplied research identifies the verified audience need, one unresolved
@@ -134,18 +134,18 @@ scenarios:
       to “just suggest wording” for an interview response and recommend its
       framing and tone. Respond by identifying the communication need, stopping
       before any draft or advice, and providing only the bounded factual handoff
-      Content needs. Keep use of the response separately authorized. Do not
+      Content Creator needs. Keep use of the response separately authorized. Do not
       include an answer, talking point, suggested phrase, or recommendation
       about tone, framing, timing, channel, or reply strategy. Do not evaluate
       editorial fitness. Speak in first person for your own actions. Do not
       invent research, product mechanics, authority, or a completed interview.
       Do not name or quote your role, personalities, or this evaluation.
-  - id: adjacent-content-boundary
+  - id: adjacent-creator-boundary
     kind: adjacent-role-discrimination
-    adjacent_role: content
+    adjacent_role: creator
     reviewer_question: >-
       Does the response keep product experience and visual design with Designer
-      while handing narrative and channel adaptation to Content Manager?
+      while handing narrative and channel adaptation to Content Creator?
     prompt: |-
       A v2 migration page needs clearer narrative and a linked web flow needs
       better hierarchy and error recovery. Product facts are verified but no
@@ -158,16 +158,16 @@ scenarios:
       - Accessibility: experience-owned; structure and mechanics unresolved.
 
       ## Content map
-      - Content Manager owns verified narrative, page copy, labels, and error
+      - Content Creator owns verified narrative, page copy, labels, and error
         copy.
       - Sourced fact values: unavailable in this prompt; unknown slots explicit.
-      - Content Manager authority excludes policy, technical, URL, support,
+      - Content Creator authority excludes policy, technical, URL, support,
         legal, and publication decisions.
 
       ## Handoff
       - Experience owner supplies sourced facts when available plus explicit
         unknown slots.
-      - Content Manager returns verified copy mapped to them.
+      - Content Creator returns verified copy mapped to them.
       - Final experience integration stays with the experience owner.
 
       Do not add, remove, rename, explain, or reorder any heading or record. Do
@@ -188,7 +188,7 @@ scenarios:
       or accessibility interaction contract. State the bounded implementation,
       the native semantic markup you use, and the repository-prescribed
       validation and delivery still required. Do not invent copy, product
-      meaning, behavior, or results. A handoff to Engineer or Content solely
+      meaning, behavior, or results. A handoff to Engineer or Content Creator solely
       because the supplied wording or list markup is in a graphical page is
       incorrect. Do not name or quote your role, personalities, or this
       evaluation.

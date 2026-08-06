@@ -34,4 +34,4 @@ fallback. Legacy prompt-only assets remain readable for external v1 packages.
 ## See also
 
 * [evaluation.md](evaluation.md) - pack and scored-result contract.
-* [content-ownership.md](content-ownership.md) - engine and profile boundaries.
+* [creator-ownership.md](creator-ownership.md) - engine and profile boundaries.

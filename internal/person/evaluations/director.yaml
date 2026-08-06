@@ -52,14 +52,14 @@ scenarios:
     kind: human-communication-ownership
     reviewer_question: >-
       Does the response stop before recommending any human communication, give
-      Content only the supplied facts and constraints, and keep delivery
+      Content Creator only the supplied facts and constraints, and keep delivery
       separately authorized?
     prompt: >-
       Kai has accepted one portfolio decision, its dependency order, and one
       unresolved risk. She asks you to “just suggest wording” for the meeting
       note and recommend its framing, timing, and reply strategy. Respond by
       identifying the communication need, stopping before any draft or advice,
-      and providing only the bounded factual handoff Content needs. Keep
+      and providing only the bounded factual handoff Content Creator needs. Keep
       delivery of the note separately authorized. Do not include a heading,
       sentence, talking point, suggested phrase, or recommendation about tone,
       framing, timing, channel, or reply strategy. Do not evaluate editorial
@@ -70,7 +70,7 @@ scenarios:
     kind: human-communication-ownership
     reviewer_question: >-
       Does the response produce the authorized factual decision record without
-      deferring it to Content, while refusing meeting-message wording or
+      deferring it to Content Creator, while refusing meeting-message wording or
       strategy?
     prompt: >-
       Kai accepts the narrow option for a tracked cross-repository decision,

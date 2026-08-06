@@ -143,13 +143,17 @@ func TestDesignerRoleSkillAllowsBoundedPageExperiences(t *testing.T) {
 	}
 }
 
-func TestContentRoleSkillAllowsOnlyContentImplementation(t *testing.T) {
+func TestContentCreatorRoleSkillMergesAudienceWorkAndLimitsImplementation(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	briefing := strings.Join(strings.Fields(p.Roles["content"].Briefing), " ")
+	briefing := strings.Join(strings.Fields(p.Roles["creator"].Briefing), " ")
 	for _, required := range []string{
+		"own the complete audience loop",
+		"community-state and durable-feedback records",
+		"qualification thresholds, response classification",
+		"discovery and decision-criteria preparation",
 		"complete product effect is content",
 		"reverting the patch would change only human-facing words or static media",
 		"File extensions and frameworks do not decide the boundary",
@@ -161,32 +165,37 @@ func TestContentRoleSkillAllowsOnlyContentImplementation(t *testing.T) {
 		"exclusively own every recommendation about communication to a human",
 		"wording, tone, framing, timing, channel, reply strategy, and editorial fitness",
 		"Other roles retain their routine factual work records",
-		"Do not require a Content handoff or exact supplied wording",
+		"Do not require a Content Creator handoff or exact supplied wording",
 		"does not authorize you to publish, post, upload, send",
 		"does not grant commands, credentials, mounts, network access",
 	} {
 		if !strings.Contains(briefing, required) {
-			t.Errorf("Content Manager role skill omitted %q", required)
+			t.Errorf("Content Creator role skill omitted %q", required)
+		}
+	}
+	for _, removed := range []string{"content", "community", "outreach", "sales"} {
+		if _, exists := p.Roles[removed]; exists {
+			t.Errorf("removed role %q remains in Core Roster", removed)
 		}
 	}
 }
 
-func TestCoreRosterDefersHumanCommunicationRecommendationsToContent(t *testing.T) {
+func TestCoreRosterDefersHumanCommunicationRecommendationsToContentCreator(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, roleName := range p.RoleOrder {
-		if roleName == "content" {
+		if roleName == "creator" {
 			continue
 		}
 		briefing := strings.Join(strings.Fields(p.Roles[roleName].Briefing), " ")
 		for _, required := range []string{
-			"Content Manager is the exclusive owner of every recommendation about communication to a human",
+			"Content Creator is the exclusive owner of every recommendation about communication to a human",
 			"draft, rewrite, suggest, or evaluate wording",
 			"tone, framing, timing, channel, or reply strategy",
 			"bounded factual handoff",
-			"This boundary does not transfer routine factual work records to Content",
+			"This boundary does not transfer routine factual work records to Content Creator",
 			"mechanically determined status, checkpoint, completion, failure, rollback, containment, verdict, decision, issue, cross-link, and handoff records",
 			"verified state, actions, evidence, results, blockers, acceptance conditions, and the next owner",
 			"task, runtime, and user authorize the external action and destination",

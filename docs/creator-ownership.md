@@ -1,4 +1,4 @@
-# Content ownership
+# Content Creator ownership
 
 Agent Compose keeps executable parsing, validation, selection, deterministic
 rendering, and diagnostics in Go. Product prose and profile policy belong to
@@ -21,20 +21,22 @@ reviewable local data assets.
 ## Evaluation matrices
 
 The engine supplies its complete generic matrix when a selected role has no
-profile asset. A profile matrix replaces that matrix as one complete unit.
-The loader does not merge fields, and a role cannot silently opt out.
+profile asset. A profile matrix replaces that matrix as one complete unit. The
+loader does not merge fields, and a role cannot silently opt out.
 
-Content Manager is the reusable-proof leg of the market loop. Outreach may
-request contact-specific adaptations and Sales may request opportunity-specific
-evidence, while Content retains the reusable source artifact, provenance, claim
-discipline, and editorial recommendation. Publication and sending remain
-separately authorized.
+Content Creator owns one connected audience loop: reusable source artifacts,
+provenance, claim discipline, editorial recommendations, audience and contact
+research within accepted strategy, channel adaptation, community continuity,
+durable feedback, qualification, discovery support, evidence selection, and
+decision records. These responsibilities no longer cross artificial role
+handoffs.
 
-Content owns recommendations about human communication, not every
-human-readable artifact. Each other role retains mechanically determined status,
-checkpoint, verdict, decision, incident, issue, cross-link, and handoff records
-for work it already owns. External posting remains separately authorized by the
-task, runtime, and user.
+Content Creator owns recommendations about human communication, not every
+human-readable artifact. Each other role retains mechanically determined
+status, checkpoint, verdict, decision, incident, issue, cross-link, and handoff
+records for work it already owns. Publishing, sending, account access,
+moderation, terms, offers, and other external commitments remain separately
+authorized by the task, runtime, and user.
 
 ## Reviewed production locations
 

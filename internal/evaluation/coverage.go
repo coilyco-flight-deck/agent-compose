@@ -18,17 +18,14 @@ var requiredScenarioKinds = []string{
 }
 
 var requiredAdjacentRoles = map[string][]string{
-	"engineer":  {"ops"},
-	"director":  {"strats"},
-	"qa":        {},
-	"ops":       {"engineer"},
-	"design":    {"content"},
-	"community": {"content"},
-	"strats":    {"director"},
-	"content":   {"design", "community", "outreach", "sales", "ai"},
-	"ai":        {"engineer", "qa", "ops", "content"},
-	"outreach":  {"sales", "content", "community", "strats"},
-	"sales":     {"outreach", "content", "strats", "director"},
+	"engineer": {"ops"},
+	"director": {"strats"},
+	"qa":       {},
+	"ops":      {"engineer"},
+	"design":   {"creator"},
+	"strats":   {"director"},
+	"creator":  {"design", "strats", "director", "ai"},
+	"ai":       {"engineer", "qa", "ops", "creator"},
 }
 
 // BuildCorePacks renders and validates the complete embedded Core Roster

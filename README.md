@@ -4,7 +4,7 @@ Agent-compose is the context substrate between knowledge providers and native
 or isolated agent harnesses. It selects, compiles, and installs the context an
 agent starts with while keeping executable authority outside the bundle. The
 public product is intentionally opinionated: its first-party **Core Roster**
-provides eleven public-safe roles, sixteen personalities, seats, compatibility,
+provides eight public-safe roles, sixteen personalities, seats, compatibility,
 and evaluation context. An independent deployment can select one complete
 external package instead, with no role or definition inheritance from that
 default.
@@ -24,8 +24,8 @@ Roster:
 
 * canonical role skills and role-bound methods plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and melds
-* Content-exclusive human communication recommendations, role-owned factual
-  work records, and separate authorization for external delivery
+* Content Creator-owned audience research, proof, community continuity,
+  decision support, and communication, with external action separately authorized
 * one selected roster package, with `roster:core` as the zero-config default
 * external person packages that fully replace the default roster
 * role-neutral personality catalog bindings, definitions, invariant, and
@@ -58,12 +58,12 @@ installs the resulting system across hosts.
 
 ## Core Roster
 
-The engine keeps `roster:core` as its opinionated zero-config default. Engineer,
-Director, QA, DevOps (`ops`), Designer (`design`), Community Manager
-(`community`), Portfolio Strategist (`strats`), Content Manager (`content`), AI
-Engineer (`ai`), Outreach (`outreach`), and Sales (`sales`) operate Kai's real
-open-source, platform, community, personal, and gaming portfolio without
-inventing a company or active commercial venture. Potential contracting and SaaS work stays evidence-qualified.
+The opinionated `roster:core` default has Engineer, Director, QA, DevOps
+(`ops`), Designer (`design`), Portfolio Strategist (`strats`), Content
+Creator (`creator`), and AI Engineer (`ai`). They operate Kai's real
+open-source, platform, community, personal, and gaming portfolio without inventing a company or active commercial venture. Content Creator unifies the
+old content, community, outreach, and sales work. Potential contracting and
+SaaS work stays evidence-qualified.
 
 Another deployment can select a complete package using the same validated
 layout. The selection is exclusive: an external package contributes its own

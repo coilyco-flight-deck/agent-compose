@@ -98,7 +98,7 @@ func TestWriteEvaluationPacksEmitsCompleteDigestIndex(t *testing.T) {
 	for _, want := range []string{
 		`"format": "agent-compose.evaluation-index.v1"`,
 		`"role": "engineer"`,
-		`"role": "content"`,
+		`"role": "creator"`,
 		`"pack_digest": "sha256:`,
 	} {
 		if !strings.Contains(string(index), want) {
@@ -372,9 +372,9 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 	var output strings.Builder
 	printCompositionWarnings(&output, []string{
-		`source "aos" provider role "content" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once`,
+		`source "aos" provider role "creator" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once`,
 	})
-	want := `agent-compose: warning: source "aos" provider role "content" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once` + "\n"
+	want := `agent-compose: warning: source "aos" provider role "creator" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once` + "\n"
 	if output.String() != want {
 		t.Fatalf("warning output = %q, want %q", output.String(), want)
 	}

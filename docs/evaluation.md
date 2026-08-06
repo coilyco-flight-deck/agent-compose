@@ -33,19 +33,19 @@ currently mark commodity and OSS in `disabled_model_tiers`, so runners skip
 those cases without deleting the matrix. A role-incompatible tier remains
 disabled even when the global lane is enabled.
 
-Every Core Roster role also owns a human-communication scenario. Non-Content
+Every Core Roster role also owns a human-communication scenario. Non-Creator
 cases cover email, private messages, public and social posts, interviews,
 meetings, and community conversations. They require the role to stop before
-drafting or advising and give Content only a factual handoff. Additional Ops,
+drafting or advising and give Content Creator only a factual handoff. Additional Ops,
 Engineer, QA, and Director regressions require an authorized factual rollout
 ledger, implementation checkpoint, verdict, or decision record without
-deferring that mechanical artifact to Content. Content's matching case requires
-it to accept a recommendation handoff without claiming send or publication
-authority.
+deferring that mechanical artifact to Content Creator. Content Creator's
+matching case requires complete recommendations without claiming send,
+publication, account, moderation, or commitment authority.
 
-Paired scenarios cover the declared Strategist, Director, Content, Designer,
-Community, Engineer, Ops, AI Engineer, Outreach, and Sales boundaries. QA has
-no other approved adjacent pair.
+Paired scenarios cover the declared Strategist, Director, Content Creator,
+Designer, Engineer, Ops, and AI Engineer boundaries. QA has no other approved
+adjacent pair.
 
 The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
 duplicates, and incorrect adjacent-role targets. External packages retain the
