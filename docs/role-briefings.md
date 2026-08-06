@@ -58,8 +58,7 @@ running-system change, live verification, and rollback. QA remains read-only
 unless the runtime explicitly grants an enforced disposable fixture mode. No
 role skill grants commands, credentials, mounts, network access, deployment,
 model selection, or permission.
-
-Designer (`design`) owns experience definition and bounded, effect-tested
+Designer (`design`) owns bounded, effect-tested experience definition and
 page-level work in existing graphical web apps. Static pages, focused routes,
 navigation, presentation, metadata, accessibility, and tests qualify when
 business rules and data flow stay unchanged. User-supplied labels and list
@@ -69,15 +68,13 @@ permissions, analytics, system routing, runtime data, terminal or procedural
 experiences, infrastructure, release, and live operations do not. Content owns
 wording and strategy when copy is not supplied. Designer owns hierarchy,
 accessibility, and integration.
-
-Content Manager (`content`) may implement and land content-only repository
+Content Manager (`content`) may land content-only repository
 changes, including human-facing literals embedded in code. The exception
 requires unchanged control flow, state, schemas, structured contracts, and
 executable behavior. Mixed content and behavior returns to Engineer. Content
 also accepts factual handoffs from every other role and returns the recommended
 human-facing artifact or strategy without inferring authority to expose it
 externally.
-
 ## See also
 
 * [native-adaptation.md](native-adaptation.md) - inference and switching rules.

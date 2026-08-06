@@ -18,7 +18,7 @@ Inventory of what ships today.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use compact identity cards and compiled fallback. Designer
-  may land bounded pages with supplied static copy and semantic markup. Content
+  may land bounded pages with supplied copy and semantic markup. Content
   may land content-only code changes.
 
 ## Load-point projection
