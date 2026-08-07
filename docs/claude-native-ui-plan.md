@@ -62,7 +62,7 @@ Drift is detected by content, not by version. The test re-extracts both vendored
 lists from the installed binary on every run and skips when Claude Code is
 absent, so an upgrade that changes neither list stays quiet. `ward exec
 harness-refresh` rewrites them. The method and its limits live in
-[`internal/nativeui/testdata/README.md`](../internal/nativeui/testdata/README.md).
+[harness vendoring](harness-vendoring.md).
 
 ## Open questions
 

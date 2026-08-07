@@ -16,7 +16,7 @@ import (
 )
 
 // update rewrites the vendored harness data from the installed binary. See
-// internal/nativeui/testdata/README.md for the refresh procedure.
+// docs/harness-vendoring.md for the refresh procedure.
 var update = flag.Bool("update", false, "rewrite vendored harness data from the installed Claude Code binary")
 
 const (

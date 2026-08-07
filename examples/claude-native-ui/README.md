@@ -60,7 +60,7 @@ kerning and redlining from editorial.
 the role unmistakable. Pass `--spinner-mode append` to keep both. No authored
 verb repeats one of the harness's own defaults, so replace mode always reads as
 the role, and a test against the
-[vendored list](../../internal/nativeui/testdata/README.md) holds that line.
+[vendored list](../../docs/harness-vendoring.md) holds that line.
 
 ## Spinner tips
 

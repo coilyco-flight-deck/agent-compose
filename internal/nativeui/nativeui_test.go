@@ -14,7 +14,7 @@ import (
 var hexColor = regexp.MustCompile(`^#[0-9a-f]{6}$`)
 
 // knownTokens is the vendored token set. An upstream rename fails here rather
-// than silently blanking a role. See testdata/README.md.
+// than silently blanking a role. See docs/harness-vendoring.md.
 func knownTokens(t *testing.T) map[string]bool {
 	t.Helper()
 	known := map[string]bool{}
@@ -198,7 +198,7 @@ func contains(values []string, want string) bool {
 }
 
 // A verb the harness already ships does no identity work under replace mode.
-// testdata holds the vendored defaults. See testdata/README.md.
+// testdata holds the vendored defaults. See docs/harness-vendoring.md.
 func TestVerbsDoNotRepeatTheHarnessDefaults(t *testing.T) {
 	defaults := map[string]bool{}
 	for _, verb := range readVendoredLines(t, vendoredVerbsFile) {
