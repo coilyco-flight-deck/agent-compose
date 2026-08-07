@@ -18,8 +18,8 @@ Inventory of what ships today.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Designer owns
   bounded page experiences. Content Creator owns the audience loop and
-  content-only changes. Role bodies cap at 400 words, and
-  [role melds](role-melds.md) share doctrine under a separate cap.
+  content-only changes. Role bodies cap at 400 words.
+  [Role melds](role-melds.md) share doctrine under their own cap.
 
 ## Load-point projection
 
@@ -40,11 +40,11 @@ Inventory of what ships today.
   follows one item from consideration to outcome.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
   delivery, trace integrity, and selected identities.
-* [Catalogues and export](catalogues-and-export.md) provide rich inspection,
+* [Catalogues and export](catalogues-and-export.md) provide inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) ships Core matrices, compact question-answer
-  review records, and independently reviewed scorecards.
+* [Evaluation](evaluation.md) ships Core matrices, compact review records,
+  and independently reviewed scorecards.
   `disabled_model_tiers` pauses a lane without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.
