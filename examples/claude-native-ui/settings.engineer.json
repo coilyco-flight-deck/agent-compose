@@ -1,0 +1,39 @@
+{
+  "theme": "custom:aos-engineer",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Rummaging",
+      "Surveying",
+      "Sniffing",
+      "Charting",
+      "Wondering",
+      "Peering",
+      "Squaring",
+      "Aligning",
+      "Ruling",
+      "Tallying",
+      "Truing",
+      "Gridding",
+      "Grappling",
+      "Hauling",
+      "Gripping",
+      "Persisting",
+      "Digging",
+      "Anchoring"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Build and land work across the real repository portfolio.",
+      "Angie holds the Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: curious, meticulous, tenacious."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

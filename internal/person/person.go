@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"testing/fstest"
@@ -164,6 +165,7 @@ type Personality struct {
 	SoundMark   SoundMark      `json:"sound_mark"`
 	Inspiration InspirationRef `json:"inspiration,omitempty"`
 	Aliases     []string       `json:"aliases,omitempty"`
+	Verbs       []string       `json:"verbs,omitempty"`
 }
 
 // Selector returns the stable key used by all new commands and artifacts.
@@ -1890,6 +1892,21 @@ func parse(raw []byte) (*Person, error) {
 						}
 					}
 					personality.Aliases = append(personality.Aliases, alias)
+				case "verb":
+					args := c.Arguments()
+					if len(args) == 0 {
+						return nil, fmt.Errorf("personality %q verb needs at least one word", name)
+					}
+					for _, arg := range args {
+						verb := strings.TrimSpace(arg.String())
+						if verb == "" {
+							return nil, fmt.Errorf("personality %q has an empty verb", name)
+						}
+						if slices.Contains(personality.Verbs, verb) {
+							return nil, fmt.Errorf("personality %q repeats verb %q", name, verb)
+						}
+						personality.Verbs = append(personality.Verbs, verb)
+					}
 				default:
 					return nil, fmt.Errorf("personality %q: unknown node %q", name, c.Name())
 				}

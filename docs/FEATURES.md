@@ -5,9 +5,8 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
-* `roster:core` has 8 roles, 16 personalities, balanced triads, stable
-  identities, and Content Creator connecting proof, audience research,
-  community continuity, and decision support with external action kept separate.
+* `roster:core` has 8 roles, 16 personalities, balanced triads, and stable
+  identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   in every person-dependent command.
@@ -31,6 +30,7 @@ Inventory of what ships today.
 ## Launch-time refresh
 
 * [Launch](native-role-launch.md) adds color, an Enter gate, and a Codex intro.
+* A Claude launch passes [identity flags](claude-launch-identity.md), not files.
 * Refresh uses validated fallback unless `external-only` forbids it.
 
 ## Inspection
@@ -47,14 +47,14 @@ Inventory of what ships today.
   review records, and independently reviewed scorecards.
   `disabled_model_tiers` pauses a lane without deleting its matrix.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
-* TTY colors use canonical identity. Redirects and `NO_COLOR` stay plain.
-* Colors pass an OKLab legibility gate.
+* TTY colors use canonical identity and pass an OKLab legibility gate.
+  Redirects and `NO_COLOR` stay plain.
 
 ## Identity surfaces
 
-* [Identity renderers](statusline.md) include the palette, overlays, and an
-  `acompose statusline` row for identity and health.
-  Core roles keep one identity.
+* [Identity renderers](statusline.md) cover the palette, overlays, an
+  `acompose statusline` health row, and `--subagent` agent-panel rows.
+* [`native-ui`](claude-native-ui-surfaces.md) emits per-role Claude Code themes.
 
 ## Roster artifact and cascade
 
@@ -66,9 +66,8 @@ Inventory of what ships today.
 * `bundle materialize` returns a verified role/harness bundle with provenance.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
-  Ward smoke proves idempotence and its test verb runs validation.
+  Ward smoke proves idempotence.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
-
 * [Release](release.md) publishes unreleased product deltas, including
   roll-forward recovery, under a version hold.
 

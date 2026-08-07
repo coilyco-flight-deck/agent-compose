@@ -1,0 +1,39 @@
+{
+  "theme": "custom:aos-strats",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Rummaging",
+      "Surveying",
+      "Sniffing",
+      "Charting",
+      "Wondering",
+      "Peering",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing",
+      "Snipping",
+      "Shearing",
+      "Committing",
+      "Closing",
+      "Choosing",
+      "Trimming"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Decide where to invest attention across the real portfolio.",
+      "Saiya holds the Portfolio Strategist charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: curious, grounded, decisive."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

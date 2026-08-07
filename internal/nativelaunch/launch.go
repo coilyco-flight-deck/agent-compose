@@ -3,6 +3,7 @@
 package nativelaunch
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -46,7 +48,17 @@ type Result struct {
 	Projected    int
 	ModelTier    string
 	Sources      []compose.RootSource
+	// SeatName is the resolved display name for the selected seat. The launch
+	// path hands it to a harness that can show a session name.
+	SeatName string
+	// HarnessSettings is the emitted settings fragment for harnesses that read
+	// one as a launch argument. Empty when the harness has no such surface.
+	HarnessSettings string
 }
+
+// HarnessSettingsFile is the bundle-relative fragment the Claude launch path
+// passes as --settings. See docs/claude-launch-identity.md.
+const HarnessSettingsFile = "claude-settings.json"
 
 type repository struct {
 	relative  string
@@ -105,14 +117,68 @@ func Refresh(opts Options) (*Result, error) {
 		}
 		projectedCount = len(projected.Files)
 	}
+	settings, err := emitHarnessSettings(composed, opts.Harness, opts.Role)
+	if err != nil {
+		return nil, err
+	}
 	return &Result{
-		Composition:  composed,
-		BundleDir:    composed.Bundle.Dir,
-		BundleReused: composed.Bundle.Reused,
-		Projected:    projectedCount,
-		ModelTier:    modelTier,
-		Sources:      roots,
+		Composition:     composed,
+		BundleDir:       composed.Bundle.Dir,
+		BundleReused:    composed.Bundle.Reused,
+		Projected:       projectedCount,
+		ModelTier:       modelTier,
+		Sources:         roots,
+		SeatName:        seatName(composed, opts.Harness, opts.Role),
+		HarnessSettings: settings,
 	}, nil
+}
+
+// emitHarnessSettings writes the role's native UI fragment beside the bundle so
+// the launch path can hand it over as an argument. Only Claude Code reads one.
+func emitHarnessSettings(composed *compose.Result, harness, role string) (string, error) {
+	if strings.TrimSpace(harness) != "claude" {
+		return "", nil
+	}
+	p := composed.Resolution.Person
+	if p == nil {
+		return "", nil
+	}
+	built, err := nativeui.BuildRole(p, strings.TrimSpace(role), nativeui.Options{})
+	if err != nil {
+		return "", fmt.Errorf("emit native UI settings for role %q: %w", role, err)
+	}
+	raw, err := json.MarshalIndent(built.Settings, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("encode native UI settings for role %q: %w", role, err)
+	}
+	path := filepath.Join(composed.Bundle.Dir, HarnessSettingsFile)
+	if err := os.WriteFile(path, append(raw, '\n'), 0o644); err != nil {
+		return "", fmt.Errorf("write native UI settings for role %q: %w", role, err)
+	}
+	return path, nil
+}
+
+// seatName mirrors the status line: the selected seat's own name wins, then the
+// role-owned agent identity, then the role itself.
+func seatName(composed *compose.Result, harness, role string) string {
+	role = strings.TrimSpace(role)
+	p := composed.Resolution.Person
+	if p == nil {
+		return role
+	}
+	selected, ok := p.Roles[role]
+	if !ok {
+		return role
+	}
+	for _, seat := range selected.Seats {
+		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {
+			return seat.Name
+		}
+	}
+	if selected.Identity != nil && selected.Identity.Name != "" {
+		return selected.Identity.Name
+	}
+	return role
 }
 
 func validateHarness(harness string) error {

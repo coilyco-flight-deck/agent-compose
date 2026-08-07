@@ -2,6 +2,7 @@ personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-p
     emblem { name "shears"; emoji "✂️"; glyph "✂" }
     form { silhouette "blade"; geometry "clean-diagonal"; motion "severing" }
     sound-mark { timbre "snare-crack"; contour "falling-cut"; pulse "single-accent" }
+    verb "Snipping" "Shearing" "Committing" "Closing" "Choosing" "Trimming"
     alias "committed"
     alias "closing-options"
     alias "choiceful"

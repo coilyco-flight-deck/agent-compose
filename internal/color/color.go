@@ -16,6 +16,13 @@ const (
 	minChroma = 0.05
 )
 
+// Shimmer highlights sit above the legible band on purpose: they are a pulse
+// against the base color, never a color text is read against.
+const (
+	shimmerLift    = 0.10
+	shimmerCeiling = 0.95
+)
+
 type okLab struct {
 	L, A, B float64
 }
@@ -70,6 +77,42 @@ func Favorite(hexes []string) (string, error) {
 		return "", fmt.Errorf("derived favorite fell below the gray floor; give the components more chroma")
 	}
 	return fromOKLab(blend), nil
+}
+
+// Shimmer lightens a color for the paired highlight token a terminal theme
+// pulses against the base. Lightness is raised, hue and chroma are untouched.
+func Shimmer(hex string) (string, error) {
+	lab, err := toOKLab(hex)
+	if err != nil {
+		return "", err
+	}
+	lab.L = math.Min(shimmerCeiling, lab.L+shimmerLift)
+	return fromOKLab(lab), nil
+}
+
+// Nearest picks the candidate closest to hex in hue and chroma, ignoring
+// lightness. It selects a slot from a fixed palette rather than a free color.
+func Nearest(hex string, candidates []string) (string, error) {
+	if len(candidates) == 0 {
+		return "", fmt.Errorf("nearest needs at least one candidate color")
+	}
+	target, err := toOKLab(hex)
+	if err != nil {
+		return "", err
+	}
+	best := ""
+	bestDistance := math.Inf(1)
+	for _, candidate := range candidates {
+		lab, err := toOKLab(candidate)
+		if err != nil {
+			return "", err
+		}
+		distance := math.Hypot(lab.A-target.A, lab.B-target.B)
+		if distance < bestDistance {
+			best, bestDistance = candidate, distance
+		}
+	}
+	return best, nil
 }
 
 // ANSI renders text in the color: truecolor when supported, else the

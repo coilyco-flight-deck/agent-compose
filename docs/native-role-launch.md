@@ -46,8 +46,8 @@ Bare interactive Codex launches also supply an initial prompt asking the active
 Codex seat to introduce itself from the loaded identity card and personality
 meld, then invite the user's task. Codex options such as AOS's workspace trust
 override or an explicit model selection may precede that prompt. An explicit
-positional prompt, subcommand, or unknown option passes through without an
-added prompt.
+positional prompt, subcommand, or unknown option passes through unprompted. A
+Claude launch instead carries [identity flags](claude-launch-identity.md).
 
 ## Native workspace integration
 

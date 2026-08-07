@@ -2,6 +2,7 @@ personality "bold" skill="personality-bold" color="#e1514e" motif="hammered-iron
     emblem { name "torch"; emoji "🔥"; glyph "▲" }
     form { silhouette "spearhead"; geometry "hard-angles"; motion "striking" }
     sound-mark { timbre "brass-stab"; contour "rising-leap"; pulse "single-accent" }
+    verb "Charging" "Kindling" "Smithing" "Vaulting" "Hammering" "Striking"
     alias "daring"
     alias "decisive"
     alias "courageous"

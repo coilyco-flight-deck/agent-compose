@@ -1,0 +1,39 @@
+{
+  "theme": "custom:aos-design",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Refracting",
+      "Kaleidoscoping",
+      "Conjuring",
+      "Dreaming",
+      "Envisaging",
+      "Blooming",
+      "Whirling",
+      "Skylarking",
+      "Cavorting",
+      "Fiddling",
+      "Confettiing",
+      "Gamboling",
+      "Kerning",
+      "Annotating",
+      "Redlining",
+      "Typesetting",
+      "Copyfitting",
+      "Drafting"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Shape experiences across real projects and communities.",
+      "Delphi holds the Designer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: imaginative, playful, editorial."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

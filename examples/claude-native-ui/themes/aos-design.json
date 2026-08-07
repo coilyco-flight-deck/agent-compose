@@ -1,0 +1,21 @@
+{
+  "name": "Designer (Delphi)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#b682ed",
+    "autoAcceptShimmer": "#d6a2ff",
+    "bashBorder": "#e882e1",
+    "briefLabelClaude": "#ac8fd7",
+    "claude": "#ac8fd7",
+    "claudeShimmer": "#ccaef8",
+    "clawd_body": "#ac8fd7",
+    "permission": "#e882e1",
+    "permissionShimmer": "#ffa2ff",
+    "promptBorder": "#ac8fd7",
+    "promptBorderShimmer": "#ccaef8",
+    "purple_FOR_SUBAGENTS_ONLY": "#ac8fd7",
+    "remember": "#4f9eb8",
+    "skill": "#b682ed",
+    "suggestion": "#4f9eb8"
+  }
+}

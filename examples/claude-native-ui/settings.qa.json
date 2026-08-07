@@ -1,0 +1,39 @@
+{
+  "theme": "custom:aos-qa",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Squaring",
+      "Aligning",
+      "Ruling",
+      "Tallying",
+      "Truing",
+      "Gridding",
+      "Clarifying",
+      "Naming",
+      "Declaring",
+      "Unclouding",
+      "Stating",
+      "Unvarnishing",
+      "Squinting",
+      "Doubting",
+      "Probing",
+      "Interrogating",
+      "Testing",
+      "Scrutinizing"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Independently verify work across the real repository portfolio.",
+      "Quail holds the QA charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Meld: meticulous, candid, skeptical."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

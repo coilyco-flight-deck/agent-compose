@@ -1,0 +1,21 @@
+{
+  "name": "DevOps (Olaf)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#009a85",
+    "autoAcceptShimmer": "#3ebaa3",
+    "bashBorder": "#5fa87a",
+    "briefLabelClaude": "#229ca7",
+    "claude": "#229ca7",
+    "claudeShimmer": "#4cbcc7",
+    "clawd_body": "#229ca7",
+    "cyan_FOR_SUBAGENTS_ONLY": "#229ca7",
+    "permission": "#5fa87a",
+    "permissionShimmer": "#7ec898",
+    "promptBorder": "#229ca7",
+    "promptBorderShimmer": "#4cbcc7",
+    "remember": "#787bd2",
+    "skill": "#009a85",
+    "suggestion": "#787bd2"
+  }
+}

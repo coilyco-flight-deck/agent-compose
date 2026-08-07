@@ -1,0 +1,21 @@
+{
+  "name": "QA (Quail)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#7d9fd3",
+    "autoAcceptShimmer": "#9bbff4",
+    "bashBorder": "#3dbfe2",
+    "blue_FOR_SUBAGENTS_ONLY": "#62a5d9",
+    "briefLabelClaude": "#62a5d9",
+    "claude": "#62a5d9",
+    "claudeShimmer": "#81c5fb",
+    "clawd_body": "#62a5d9",
+    "permission": "#3dbfe2",
+    "permissionShimmer": "#64e0ff",
+    "promptBorder": "#62a5d9",
+    "promptBorderShimmer": "#81c5fb",
+    "remember": "#5d8fd7",
+    "skill": "#7d9fd3",
+    "suggestion": "#5d8fd7"
+  }
+}

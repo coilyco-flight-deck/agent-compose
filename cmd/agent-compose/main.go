@@ -23,6 +23,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -138,6 +139,10 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "color",
 						Usage: "emit ANSI identity colors even when stdout is not a terminal",
+					},
+					&cli.BoolFlag{
+						Name:  "subagent",
+						Usage: "read a Claude Code subagent tick from stdin and emit one JSON row per agent",
 					},
 				},
 				Action: runStatusline,
@@ -385,6 +390,34 @@ func main() {
 					},
 				},
 				Action: runPaletteData,
+			},
+			{
+				Name:  "native-ui",
+				Usage: "emit Claude Code themes and settings fragments for every role",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "out",
+						Usage: "write theme and settings files under this directory instead of stdout",
+					},
+					&cli.StringFlag{
+						Name:  "role",
+						Usage: "emit one role instead of the whole catalogue",
+					},
+					&cli.StringFlag{
+						Name:  "spinner-mode",
+						Value: "replace",
+						Usage: "replace the harness spinner verbs or append to them",
+					},
+					&cli.StringFlag{
+						Name:  "person-source",
+						Usage: "external roster-package root (defaults to embedded roster:core)",
+					},
+					&cli.StringSliceFlag{
+						Name:  "personality-library",
+						Usage: "additional local personality-library root (repeatable)",
+					},
+				},
+				Action: runNativeUI,
 			},
 			{
 				Name:      "project",
@@ -943,15 +976,28 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
-	return execReal(nativeHarnessCommand(harness, args[2:]))
+	return execReal(nativeHarnessCommand(harness, args[2:], nativeIdentity{
+		SeatName: result.SeatName,
+		Settings: result.HarnessSettings,
+	}))
 }
 
 func runStatusline(_ context.Context, cmd *cli.Command) error {
-	rendered, err := statusline.Render(statusline.Options{
+	opts := statusline.Options{
 		Target:    cmd.String("target"),
 		Color:     cmd.Bool("color") || colorEnabled(),
 		TrueColor: trueColorTerminal(),
-	})
+	}
+	if cmd.Bool("subagent") {
+		// The subagent mode already emits newline-terminated JSON rows.
+		rendered, err := statusline.RenderSubagents(os.Stdin, opts)
+		if err != nil {
+			return err
+		}
+		fmt.Fprint(cmd.Root().Writer, rendered)
+		return nil
+	}
+	rendered, err := statusline.Render(opts)
 	if err != nil {
 		return err
 	}
@@ -1008,12 +1054,50 @@ func acknowledgeNativeLaunch(
 	}
 }
 
-func nativeHarnessCommand(harness string, args []string) []string {
-	command := append([]string{harness}, args...)
+// nativeIdentity carries the composed surfaces a harness can accept as launch
+// arguments rather than as installed host state.
+type nativeIdentity struct {
+	SeatName string
+	Settings string
+}
+
+func nativeHarnessCommand(harness string, args []string, identity nativeIdentity) []string {
+	command := append([]string{harness}, nativeIdentityArgs(harness, args, identity)...)
+	command = append(command, args...)
 	if harness == "codex" && codexAcceptsInitialPrompt(args) {
 		command = append(command, nativeCodexIntroductionPrompt)
 	}
 	return command
+}
+
+// nativeIdentityArgs hands Claude Code its identity as flags, per
+// docs/claude-launch-identity.md. A caller-supplied flag always wins.
+func nativeIdentityArgs(harness string, args []string, identity nativeIdentity) []string {
+	if harness != "claude" {
+		return nil
+	}
+	var flags []string
+	if identity.SeatName != "" && !nativeArgsCarry(args, "--name") {
+		flags = append(flags, "--name", identity.SeatName)
+	}
+	if identity.Settings != "" && !nativeArgsCarry(args, "--settings") {
+		flags = append(flags, "--settings", identity.Settings)
+	}
+	return flags
+}
+
+// nativeArgsCarry reports whether the caller already supplied a flag, in either
+// the separate-value or the inline `--flag=value` spelling.
+func nativeArgsCarry(args []string, flag string) bool {
+	for _, arg := range args {
+		if arg == "--" {
+			return false
+		}
+		if arg == flag || strings.HasPrefix(arg, flag+"=") {
+			return true
+		}
+	}
+	return false
 }
 
 func codexAcceptsInitialPrompt(args []string) bool {
@@ -1317,6 +1401,45 @@ func runPaletteData(_ context.Context, cmd *cli.Command) error {
 	}
 	_, err = os.Stdout.Write(raw)
 	return err
+}
+
+func runNativeUI(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
+	if err != nil {
+		return err
+	}
+	opts := nativeui.Options{SpinnerMode: cmd.String("spinner-mode")}
+	if opts.SpinnerMode != "replace" && opts.SpinnerMode != "append" {
+		return fmt.Errorf("spinner-mode must be replace or append, got %q", opts.SpinnerMode)
+	}
+
+	var bundles []nativeui.Bundle
+	if role := cmd.String("role"); role != "" {
+		bundle, err := nativeui.BuildRole(p, role, opts)
+		if err != nil {
+			return err
+		}
+		bundles = []nativeui.Bundle{bundle}
+	} else if bundles, err = nativeui.Build(p, opts); err != nil {
+		return err
+	}
+
+	out := cmd.String("out")
+	if out == "" {
+		raw, err := json.MarshalIndent(bundles, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.Write(append(raw, '\n'))
+		return err
+	}
+
+	written, err := nativeui.WriteAll(out, bundles)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("native-ui artifact: %d files under %s\n", written, out)
+	return nil
 }
 
 func loadSelectedPerson(source string) (*person.Person, bool, error) {
