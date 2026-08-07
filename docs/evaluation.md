@@ -76,4 +76,5 @@ can be enabled.
 * [person-packages.md](person-packages.md) - independent evaluation context.
 * [evaluation-matrices.md](evaluation-matrices.md) - profile-owned matrices.
 * [evaluation-policy.md](evaluation-policy.md) - driver and reviewer contract.
+* [evaluation-driver.md](evaluation-driver.md) - executable driver and reviewer.
 * [evaluation-scorecard.md](evaluation-scorecard.md) - validated aggregate view.
