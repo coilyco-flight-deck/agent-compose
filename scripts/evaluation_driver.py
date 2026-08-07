@@ -244,6 +244,31 @@ def parse_result(stdout: str) -> dict | None:
     return None
 
 
+def shuffle_global_memory(enabled: bool) -> Path | None:
+    """Move host global instructions aside and return where they went.
+
+    The stored credential is namespaced by the config directory path, not by
+    its contents, so relocating the global memory file keeps the session
+    authenticated while removing host doctrine from every case. Hook
+    configuration stays in place, so a residual identity line can survive.
+    """
+
+    config = os.environ.get("CLAUDE_CONFIG_DIR")
+    if not enabled or not config:
+        return None
+    memory = Path(config) / "CLAUDE.md"
+    if not memory.exists():
+        return None
+    aside = memory.with_name("CLAUDE.md.eval-aside")
+    memory.rename(aside)
+    return aside
+
+
+def restore_global_memory(aside: Path | None) -> None:
+    if aside is not None and aside.exists():
+        aside.rename(aside.with_name("CLAUDE.md"))
+
+
 def source_revision() -> str:
     result = subprocess.run(
         ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False
@@ -280,9 +305,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--retries", type=int, default=1)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument(
+        "--shuffle-config",
+        action="store_true",
+        help="relocate host global instructions for the duration of the run",
+    )
     args = parser.parse_args(argv)
 
-    if args.home is None and not args.allow_host_home:
+    if args.home is None and not (args.allow_host_home or args.shuffle_config):
         print(
             "--home is required; pass --allow-host-home only for a plumbing smoke run",
             file=sys.stderr,
@@ -298,7 +328,14 @@ def main(argv: list[str] | None = None) -> int:
 
     args.out.mkdir(parents=True, exist_ok=True)
     revision = source_revision()
+    aside = shuffle_global_memory(args.shuffle_config)
+    try:
+        return run_arms(args, cases, revision, aside is not None)
+    finally:
+        restore_global_memory(aside)
 
+
+def run_arms(args, cases: list[Case], revision: str, shuffled: bool) -> int:
     for arm in args.arm:
         completed = 0
 
@@ -336,7 +373,14 @@ def main(argv: list[str] | None = None) -> int:
             "model_tier": args.tier,
             "source_revision": revision,
             "isolated_home": str(args.home) if args.home else None,
-            "context_isolation": "isolated" if args.home else "host-contaminated",
+            "context_isolation": (
+                "global-memory-relocated"
+                if shuffled
+                else ("isolated" if args.home else "host-contaminated")
+            ),
+            "residual_context": (
+                "host hook configuration stayed active" if shuffled else None
+            ),
             "cases": records,
         }
         target = args.out / f"{arm.name}.json"
