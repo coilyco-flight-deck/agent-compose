@@ -972,7 +972,10 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
-	return execReal(nativeHarnessCommand(harness, args[2:]))
+	return execReal(nativeHarnessCommand(harness, args[2:], nativeIdentity{
+		SeatName: result.SeatName,
+		Settings: result.HarnessSettings,
+	}))
 }
 
 func runStatusline(_ context.Context, cmd *cli.Command) error {
@@ -1037,12 +1040,50 @@ func acknowledgeNativeLaunch(
 	}
 }
 
-func nativeHarnessCommand(harness string, args []string) []string {
-	command := append([]string{harness}, args...)
+// nativeIdentity carries the composed surfaces a harness can accept as launch
+// arguments rather than as installed host state.
+type nativeIdentity struct {
+	SeatName string
+	Settings string
+}
+
+func nativeHarnessCommand(harness string, args []string, identity nativeIdentity) []string {
+	command := append([]string{harness}, nativeIdentityArgs(harness, args, identity)...)
+	command = append(command, args...)
 	if harness == "codex" && codexAcceptsInitialPrompt(args) {
 		command = append(command, nativeCodexIntroductionPrompt)
 	}
 	return command
+}
+
+// nativeIdentityArgs hands Claude Code its identity as flags, per
+// docs/claude-launch-identity.md. A caller-supplied flag always wins.
+func nativeIdentityArgs(harness string, args []string, identity nativeIdentity) []string {
+	if harness != "claude" {
+		return nil
+	}
+	var flags []string
+	if identity.SeatName != "" && !nativeArgsCarry(args, "--name") {
+		flags = append(flags, "--name", identity.SeatName)
+	}
+	if identity.Settings != "" && !nativeArgsCarry(args, "--settings") {
+		flags = append(flags, "--settings", identity.Settings)
+	}
+	return flags
+}
+
+// nativeArgsCarry reports whether the caller already supplied a flag, in either
+// the separate-value or the inline `--flag=value` spelling.
+func nativeArgsCarry(args []string, flag string) bool {
+	for _, arg := range args {
+		if arg == "--" {
+			return false
+		}
+		if arg == flag || strings.HasPrefix(arg, flag+"=") {
+			return true
+		}
+	}
+	return false
 }
 
 func codexAcceptsInitialPrompt(args []string) bool {

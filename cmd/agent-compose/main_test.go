@@ -430,7 +430,7 @@ func TestNativeHarnessCommandPromptsFreshCodexSession(t *testing.T) {
 		"model selection": {"--model", "gpt-5.6"},
 	} {
 		t.Run(name, func(t *testing.T) {
-			got := nativeHarnessCommand("codex", args)
+			got := nativeHarnessCommand("codex", args, nativeIdentity{})
 			if got[len(got)-1] != nativeCodexIntroductionPrompt {
 				t.Fatalf("command does not end with the introduction prompt: %#v", got)
 			}
@@ -447,7 +447,7 @@ func TestNativeHarnessCommandPreservesExplicitCodexWork(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			want := append([]string{"codex"}, args...)
-			if got := nativeHarnessCommand("codex", args); !reflect.DeepEqual(got, want) {
+			if got := nativeHarnessCommand("codex", args, nativeIdentity{}); !reflect.DeepEqual(got, want) {
 				t.Fatalf("command = %#v, want unchanged %#v", got, want)
 			}
 		})
@@ -456,8 +456,89 @@ func TestNativeHarnessCommandPreservesExplicitCodexWork(t *testing.T) {
 
 func TestNativeHarnessCommandDoesNotPromptOtherHarnesses(t *testing.T) {
 	t.Parallel()
-	if got, want := nativeHarnessCommand("claude", nil), []string{"claude"}; !reflect.DeepEqual(got, want) {
+	if got, want := nativeHarnessCommand("claude", nil, nativeIdentity{}), []string{"claude"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("command = %#v, want %#v", got, want)
+	}
+}
+
+func TestNativeHarnessCommandCarriesClaudeIdentity(t *testing.T) {
+	t.Parallel()
+	got := nativeHarnessCommand("claude", nil, nativeIdentity{
+		SeatName: "Angie",
+		Settings: "/bundles/abc/claude-settings.json",
+	})
+	want := []string{
+		"claude",
+		"--name", "Angie",
+		"--settings", "/bundles/abc/claude-settings.json",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("command = %#v, want %#v", got, want)
+	}
+}
+
+func TestNativeHarnessCommandKeepsIdentityFlagsAheadOfCallerArgs(t *testing.T) {
+	t.Parallel()
+	got := nativeHarnessCommand("claude", []string{"--model", "opus"}, nativeIdentity{
+		SeatName: "Angie",
+		Settings: "/bundles/abc/claude-settings.json",
+	})
+	want := []string{
+		"claude",
+		"--name", "Angie",
+		"--settings", "/bundles/abc/claude-settings.json",
+		"--model", "opus",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("command = %#v, want %#v", got, want)
+	}
+}
+
+func TestNativeHarnessCommandYieldsToCallerIdentityFlags(t *testing.T) {
+	t.Parallel()
+	for name, args := range map[string][]string{
+		"separate value": {"--name", "Scout", "--settings", "/tmp/mine.json"},
+		"inline value":   {"--name=Scout", "--settings=/tmp/mine.json"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			want := append([]string{"claude"}, args...)
+			got := nativeHarnessCommand("claude", args, nativeIdentity{
+				SeatName: "Angie",
+				Settings: "/bundles/abc/claude-settings.json",
+			})
+			if !reflect.DeepEqual(got, want) {
+				t.Fatalf("command = %#v, want unchanged %#v", got, want)
+			}
+		})
+	}
+}
+
+func TestNativeHarnessCommandTreatsPostTerminatorFlagsAsHarnessInput(t *testing.T) {
+	t.Parallel()
+	args := []string{"--", "--name", "Scout"}
+	got := nativeHarnessCommand("claude", args, nativeIdentity{SeatName: "Angie"})
+	want := append([]string{"claude", "--name", "Angie"}, args...)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("command = %#v, want %#v", got, want)
+	}
+}
+
+func TestNativeHarnessCommandLeavesOtherHarnessesUnnamed(t *testing.T) {
+	t.Parallel()
+	for _, harness := range []string{"codex", "goose", "opencode"} {
+		t.Run(harness, func(t *testing.T) {
+			t.Parallel()
+			got := nativeHarnessCommand(harness, []string{"--flag"}, nativeIdentity{
+				SeatName: "Angie",
+				Settings: "/bundles/abc/claude-settings.json",
+			})
+			for _, arg := range got {
+				if arg == "--name" || arg == "--settings" {
+					t.Fatalf("harness %q command carries a Claude flag: %#v", harness, got)
+				}
+			}
+		})
 	}
 }
 

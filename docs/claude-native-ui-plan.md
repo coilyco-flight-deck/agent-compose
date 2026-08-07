@@ -18,7 +18,10 @@ decides who writes them.
   law, Agent Compose authors the documents and convergence installs them. Agent
   Compose must not write into `~/.claude` at compose time.
 * **Launch argument** - the session display name is neither. It is an argument
-  the native launch path already controls.
+  the native launch path already controls. The spinner and theme settings turned
+  out to travel the same way: `--settings` loads a fragment into Claude Code's
+  `flagSettings` tier, which outranks every settings file but policy. Only the
+  theme document itself still needs to be pushed to the host.
 
 ## Build order
 
@@ -31,18 +34,21 @@ Cheapest and least invasive first.
 3. **Spinner tips** - done. Each role emits its purpose, the charter lock, and
    its meld, with `excludeDefault` false so the harness keeps teaching its own
    features.
-4. **Session display name** - pass the resolved seat name as `--name` from the
-   native launch path. No new file format, no host mutation, immediately visible
-   in the prompt box and terminal title.
+4. **Launch identity** - done. A Claude launch receives `--name <seat>` and
+   `--settings <bundle>/claude-settings.json`, so the seat name, theme
+   selection, verbs, and tips all arrive as arguments. No host mutation, and
+   both survive a caller-supplied flag of the same name. See
+   [native role launch](native-role-launch.md).
 5. **Subagent status line** - add a `--subagent` mode to the existing
    `statusline` command that reads row context from stdin and renders the role
    mark and color per subagent row. Reuses the renderer that already exists.
 6. **Plugin packaging** - wrap theme, output style, and syntax highlighting into
    one generated plugin per role so convergence installs a single unit rather
    than patching several settings keys.
-7. **Host rollout** - install the emitted tree onto hosts. Authored here,
-   applied by convergence, and out of scope for this repo by the
-   authoring-versus-rollout law.
+7. **Host rollout** - install the theme documents onto hosts. Reduced to eight
+   additive files under `<home>/.claude/themes/`, since the settings half now
+   travels as a launch argument. Authored here, applied by convergence, and out
+   of scope for this repo by the authoring-versus-rollout law.
 
 ## Upstream coupling
 

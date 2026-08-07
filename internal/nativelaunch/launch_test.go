@@ -1,6 +1,7 @@
 package nativelaunch
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
@@ -273,6 +275,90 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 				"SKILL.md",
 			)); !os.IsNotExist(err) {
 				t.Errorf("inactive role-engineer entered the bundle: %v", err)
+			}
+		})
+	}
+}
+
+// The seat name and the settings fragment are the two surfaces a Claude session
+// receives as launch arguments, so Refresh resolves both without host mutation.
+func TestRefreshEmitsClaudeLaunchIdentity(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "example", "provider")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+
+	result, err := Refresh(Options{
+		Role:      "design",
+		Harness:   "claude",
+		CWD:       projects,
+		TargetDir: t.TempDir(),
+		PlanPath:  manifest,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.SeatName != "Delphi" {
+		t.Errorf("seat name = %q, want Delphi", result.SeatName)
+	}
+	want := filepath.Join(result.BundleDir, HarnessSettingsFile)
+	if result.HarnessSettings != want {
+		t.Fatalf("settings path = %q, want %q", result.HarnessSettings, want)
+	}
+	raw, err := os.ReadFile(result.HarnessSettings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var settings nativeui.Settings
+	if err := json.Unmarshal(raw, &settings); err != nil {
+		t.Fatal(err)
+	}
+	if settings.Theme != "custom:aos-design" {
+		t.Errorf("theme = %q, want custom:aos-design", settings.Theme)
+	}
+	if len(settings.SpinnerVerbs.Verbs) == 0 {
+		t.Error("settings fragment carries no spinner verbs")
+	}
+	if len(settings.SpinnerTips.Tips) == 0 {
+		t.Error("settings fragment carries no spinner tips")
+	}
+}
+
+// Only Claude Code reads a settings fragment as a launch argument. Every other
+// harness still resolves a seat name, since that is identity, not a file.
+func TestRefreshWithholdsSettingsFromOtherHarnesses(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "example", "provider")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+
+	for _, harness := range []string{"codex", "goose", "opencode"} {
+		t.Run(harness, func(t *testing.T) {
+			result, err := Refresh(Options{
+				Role:      "design",
+				Harness:   harness,
+				CWD:       projects,
+				TargetDir: t.TempDir(),
+				PlanPath:  manifest,
+				OutDir:    filepath.Join(t.TempDir(), "bundles"),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.HarnessSettings != "" {
+				t.Errorf("harness %q got settings %q, want none", harness, result.HarnessSettings)
+			}
+			if _, err := os.Stat(filepath.Join(
+				result.BundleDir,
+				HarnessSettingsFile,
+			)); !os.IsNotExist(err) {
+				t.Errorf("harness %q bundle holds a Claude settings fragment: %v", harness, err)
+			}
+			if result.SeatName != "Delphi" {
+				t.Errorf("harness %q seat name = %q, want Delphi", harness, result.SeatName)
 			}
 		})
 	}

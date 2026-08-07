@@ -6,8 +6,7 @@ Inventory of what ships today.
 
 * `agent-compose compose` turns a KDL request into an immutable offline bundle.
 * `roster:core` has 8 roles, 16 personalities, balanced triads, and stable
-  identities. Content Creator connects proof, audience research, community
-  continuity, and decision support, with external action kept separate.
+  identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
   across every person-dependent command.
@@ -30,6 +29,7 @@ Inventory of what ships today.
 ## Launch-time refresh
 
 * [Launch](native-role-launch.md) adds color, an Enter gate, and a Codex intro.
+* A Claude launch passes [identity flags](claude-launch-identity.md), not files.
 * Refresh uses validated fallback unless `external-only` forbids it.
 
 ## Inspection
