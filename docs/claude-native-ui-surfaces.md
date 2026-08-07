@@ -12,16 +12,17 @@ order lives in [claude-native-ui-plan.md](claude-native-ui-plan.md).
   skill and permission accents, and the Clawd mascot body.
 * **Status line** - `statusLine` runs a command that receives session JSON on
   stdin. Already implemented as `agent-compose statusline`.
-* **Subagent status line** - `subagentStatusLine.command` renders a per-subagent
-  row in the agent panel and receives row context as JSON on stdin. Not yet
-  implemented here.
+* **Subagent status line** - `subagentStatusLine.command` runs once per tick with
+  every agent-panel row on stdin and returns `{id, content}` per line. Shipped as
+  `agent-compose statusline --subagent`.
 * **Spinner verbs** - `spinnerVerbs` with `mode` of `append` or `replace`, plus
   a `verbs` array. The single cheapest per-role voice signal.
 * **Spinner tips** - `spinnerTipsOverride` with `excludeDefault` and `tips`,
   gated by `spinnerTipsEnabled`.
 * **Session display name** - the `--name` launch flag, shown in the prompt box,
   the `/resume` picker, and the terminal title. Pure launch argument, no host
-  file is touched.
+  file is touched. Shipped, with `--settings`, as
+  [launch identity](claude-launch-identity.md).
 * **Output styles and syntax highlighting** - both are plugin components, so a
   generated plugin can carry them alongside a theme.
 
