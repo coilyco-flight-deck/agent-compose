@@ -2,7 +2,7 @@
 
 # Evaluation scorecard
 
-`2026-08-06 · seat codex · F gpt-5.6-sol · C claude-sonnet-5 · O disabled · 131/134 pass · 1091/1120 points`
+`2026-08-06 // seat codex // F gpt-5.6-sol // C claude-sonnet-5 // O disabled // 131/134 pass // 1091/1120 points`
 
 | role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -15,4 +15,4 @@
 | qa | 52/52✓ | 8✓ | - | 52/52✓ | 8✓ | - | - | - | - | 120/120 |
 | strats | 49/50✓ | 8✓ | 8✓ | 48/50✓ | 7✓ | 8✓ | - | - | - | 128/132 |
 
-`F` frontier · `C` commodity · `O` OSS · `R` role · `P` personality · `A` adjacent-role discrimination · `✓` pass · `×` fail. Cells are points.
+`F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality // `A` adjacent-role discrimination // `✓` pass // `×` fail. Cells are points.

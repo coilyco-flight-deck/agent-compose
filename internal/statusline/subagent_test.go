@@ -84,10 +84,10 @@ func TestRenderSubagentsDecoratesEveryRowFromItsOwnDirectory(t *testing.T) {
 	if len(rows) != 2 {
 		t.Fatalf("rows = %d, want 2", len(rows))
 	}
-	if want := "🧭 ⛏️ Angie [she] · engineer@claude"; rows[0].Content != want {
+	if want := "🧭 ⛏️ Angie [she] // engineer@claude"; rows[0].Content != want {
 		t.Errorf("row 1 content = %q, want %q", rows[0].Content, want)
 	}
-	if want := "🧭 ⛏️ Quail [they] · qa@claude"; rows[1].Content != want {
+	if want := "🧭 ⛏️ Quail [they] // qa@claude"; rows[1].Content != want {
 		t.Errorf("row 2 content = %q, want %q", rows[1].Content, want)
 	}
 }
@@ -135,7 +135,7 @@ func TestRenderSubagentsFallsBackToTargetWhenRowHasNoDirectory(t *testing.T) {
 	if len(rows) != 1 {
 		t.Fatalf("rows = %d, want 1", len(rows))
 	}
-	if want := "🧭 ⛏️ Olaf [he] · ops@codex"; rows[0].Content != want {
+	if want := "🧭 ⛏️ Olaf [he] // ops@codex"; rows[0].Content != want {
 		t.Errorf("content = %q, want %q", rows[0].Content, want)
 	}
 }

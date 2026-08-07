@@ -74,7 +74,7 @@ func render(
 	}
 
 	return fmt.Sprintf(
-		"  %s  %s · %s@%s · %s · %d skills / ~%s catalog · %s",
+		"  %s  %s // %s@%s // %s // %d skills / ~%s catalog // %s",
 		marks,
 		seatText,
 		manifest.Role,

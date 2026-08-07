@@ -33,7 +33,7 @@ func Bundle(dir string, opts Options) (string, error) {
 		return "", err
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "bundle %s · %s/%s · %s%s\n",
+	fmt.Fprintf(&b, "bundle %s // %s/%s // %s%s\n",
 		filepath.Base(dir), manifest.Role, strings.Join(manifest.Personalities, "+"),
 		manifest.Delivery.Mode, favoriteSuffix(manifest, opts))
 
@@ -326,10 +326,10 @@ func renderProviderLine(provider resolver.ProviderReport, opts Options) string {
 func renderBudgetLine(provider resolver.ProviderReport) string {
 	selector := ""
 	if provider.SelectorReason != "" {
-		selector = " · selected slice"
+		selector = " // selected slice"
 	}
 	return fmt.Sprintf(
-		"  %-36s %-22s %d skills · %d bytes · ~%d tokens%s",
+		"  %-36s %-22s %d skills // %d bytes // ~%d tokens%s",
 		provider.Source,
 		"("+provider.Category+"/"+provider.Scope+")",
 		provider.Skills,
@@ -388,9 +388,9 @@ func favoriteSuffix(manifest *bundle.Manifest, opts Options) string {
 		return ""
 	}
 	if !opts.Color {
-		return " · melded " + manifest.Color
+		return " // melded " + manifest.Color
 	}
-	return " · melded " + manifest.Color + " " + color.ANSI(manifest.Color, "■", opts.TrueColor)
+	return " // melded " + manifest.Color + " " + color.ANSI(manifest.Color, "■", opts.TrueColor)
 }
 
 func symbol(outcome string, opts Options) string {

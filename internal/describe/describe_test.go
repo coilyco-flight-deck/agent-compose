@@ -41,7 +41,7 @@ func TestBundleRendersSections(t *testing.T) {
 		"personality curious", "activates its full personality set",
 		"✓ roster:core", "(person-package/person)",
 		"✓ aos-public", "(catalogue/request)",
-		"skills ·", "bytes · ~", "tokens",
+		"skills //", "bytes // ~", "tokens",
 		"✓ skill fixture-review",
 		"→ content/skills",
 		"machine-readable trace: trace.json",

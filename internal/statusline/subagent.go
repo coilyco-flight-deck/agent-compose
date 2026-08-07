@@ -89,7 +89,7 @@ func subagentIdentity(target string, opts Options) string {
 		marks = "🧩"
 	}
 	return fmt.Sprintf(
-		"%s %s · %s@%s",
+		"%s %s // %s@%s",
 		marks,
 		paint(manifest.Color, seatDisplayName(manifest, projection.Layout), opts),
 		manifest.Role,

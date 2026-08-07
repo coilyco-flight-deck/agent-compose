@@ -579,7 +579,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	if err != nil ||
 		!strings.Contains(described, "example--infrastructure") ||
 		!strings.Contains(described, "(role-provider/role)") ||
-		!strings.Contains(described, "0 skills · 0 bytes · ~0 tokens") {
+		!strings.Contains(described, "0 skills // 0 bytes // ~0 tokens") {
 		t.Fatalf("provider-aware describe output = %q, err=%v", described, err)
 	}
 }

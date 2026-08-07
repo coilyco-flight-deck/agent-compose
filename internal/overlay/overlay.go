@@ -128,7 +128,7 @@ func RenderText(doc *Document, width int) (string, error) {
 	// The card prints the role on its own, so the seat carries pronouns only.
 	seat := person.SeatLabel(doc.Seat.Name, doc.Seat.Pronouns)
 	wide := fmt.Sprintf(
-		"%s  %s  ·  %s / %s  ·  %s  ·  %s",
+		"%s  %s  //  %s / %s  //  %s  //  %s",
 		strings.Join(marks, " "),
 		seat,
 		role,

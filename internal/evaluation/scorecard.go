@@ -238,14 +238,14 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 	out.WriteString("# Evaluation scorecard\n\n")
 	fmt.Fprintf(
 		&out,
-		"`%s · seat %s",
+		"`%s // seat %s",
 		strings.Join(dateList, ", "),
 		seat,
 	)
 	if uniformModels {
 		fmt.Fprintf(
 			&out,
-			" · F %s · C %s · O %s",
+			" // F %s // C %s // O %s",
 			sortedKeys(frontierModels)[0],
 			sortedKeys(commodityModels)[0],
 			sortedKeys(ossModels)[0],
@@ -253,7 +253,7 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 	}
 	fmt.Fprintf(
 		&out,
-		" · %d/%d pass · %d/%d points`\n\n",
+		" // %d/%d pass // %d/%d points`\n\n",
 		passedCases,
 		caseCount,
 		totalPoints,
@@ -358,11 +358,11 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 			maximum,
 		)
 	}
-	out.WriteString("\n`F` frontier · `C` commodity · `O` OSS · `R` role · `P` personality")
+	out.WriteString("\n`F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality")
 	if hasAdjacent {
-		out.WriteString(" · `A` adjacent-role discrimination")
+		out.WriteString(" // `A` adjacent-role discrimination")
 	}
-	out.WriteString(" · `✓` pass · `×` fail. Cells are points")
+	out.WriteString(" // `✓` pass // `×` fail. Cells are points")
 	if allCellsUseDefaultTotal(rows) {
 		fmt.Fprintf(&out, " out of %d", defaultCellMaximum)
 	}
