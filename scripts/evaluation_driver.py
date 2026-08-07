@@ -106,6 +106,10 @@ def stage_session(root: Path, arm: Arm, case: Case) -> Path:
     return cwd
 
 
+SEALED_TOOLS = "Bash,Write,Edit,NotebookEdit"
+SEALED_MCP = '{"mcpServers":{}}'
+
+
 def run_case(
     case: Case,
     arm: Arm,
@@ -114,6 +118,7 @@ def run_case(
     harness: str,
     timeout: int,
     retries: int,
+    sealed: bool = True,
 ) -> dict:
     cwd = stage_session(root, arm, case)
     env = dict(os.environ)
@@ -134,8 +139,15 @@ def run_case(
         "--no-session-persistence",
         "--output-format",
         "json",
-        case.prompt,
     ]
+
+    if sealed:
+        command += [
+            f"--mcp-config={SEALED_MCP}",
+            f"--disallowed-tools={SEALED_TOOLS}",
+        ]
+
+    command.append(case.prompt)
 
     attempts: list[Attempt] = []
     for attempt in range(1, retries + 2):
@@ -213,6 +225,7 @@ def run_case(
         "usage": payload.get("usage"),
         "session_dir": str(cwd.parent),
         "isolated_home": str(home) if home is not None else None,
+        "tool_policy": "sealed" if sealed else "host-tools-and-mcp",
         "retries": [
             {"attempt": a.attempt, "outcome": a.outcome, "reason": a.reason}
             for a in attempts
@@ -306,6 +319,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--jobs", type=int, default=1)
     parser.add_argument(
+        "--allow-mutation",
+        action="store_true",
+        help="leave shell, file writes, and MCP servers reachable, which lets a case act on real systems",
+    )
+    parser.add_argument(
         "--shuffle-config",
         action="store_true",
         help="relocate host global instructions for the duration of the run",
@@ -373,6 +391,9 @@ def run_arms(args, cases: list[Case], revision: str, shuffled: bool) -> int:
             "model_tier": args.tier,
             "source_revision": revision,
             "isolated_home": str(args.home) if args.home else None,
+            "tool_policy": (
+                "host-tools-and-mcp" if args.allow_mutation else "sealed"
+            ),
             "context_isolation": (
                 "global-memory-relocated"
                 if shuffled
