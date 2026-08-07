@@ -223,6 +223,26 @@ func TestVerbsDoNotRepeatTheHarnessDefaults(t *testing.T) {
 	}
 }
 
+// The subagent row renderer is pull-based, so every role names the same command
+// and nothing role-specific has to be installed for it.
+func TestEveryRoleWiresTheSubagentStatusLine(t *testing.T) {
+	p := selected(t)
+	bundles, err := Build(p, Options{})
+	if err != nil {
+		t.Fatalf("build: %v", err)
+	}
+	for _, bundle := range bundles {
+		line := bundle.Settings.SubagentStatusLine
+		if line.Type != "command" {
+			t.Errorf("role %q subagent status line type = %q, want command", bundle.Role, line.Type)
+		}
+		if line.Command != SubagentStatusLineCommand {
+			t.Errorf("role %q subagent command = %q, want %q",
+				bundle.Role, line.Command, SubagentStatusLineCommand)
+		}
+	}
+}
+
 func TestTipsCarryCharterAndKeepHarnessDefaults(t *testing.T) {
 	p := selected(t)
 	bundles, err := Build(p, Options{})

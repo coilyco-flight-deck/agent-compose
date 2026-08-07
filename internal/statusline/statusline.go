@@ -51,11 +51,7 @@ func render(
 	if modelTier == "" {
 		modelTier = schema.ModelTierFrontier
 	}
-	seat := selectedSeat(manifest.Identity.Seats, projection.Layout)
-	seatName := manifest.Role
-	if seat.Name != "" {
-		seatName = seat.Name
-	}
+	seatName := seatDisplayName(manifest, projection.Layout)
 
 	marks := personalityMarks(manifest, opts)
 	if marks == "" {
@@ -88,6 +84,15 @@ func render(
 		compact(tokens),
 		health,
 	)
+}
+
+// seatDisplayName degrades to the role rather than inventing a seat, so an
+// older bundle without identity metadata still renders.
+func seatDisplayName(manifest *bundle.Manifest, layout string) string {
+	if seat := selectedSeat(manifest.Identity.Seats, layout); seat.Name != "" {
+		return seat.Name
+	}
+	return manifest.Role
 }
 
 func selectedSeat(seats []person.Seat, layout string) person.Seat {

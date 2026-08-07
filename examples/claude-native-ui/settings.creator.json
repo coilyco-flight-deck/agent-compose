@@ -31,5 +31,9 @@
       "Gem holds the Content Creator charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: editorial, nurturing, warm."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
   }
 }

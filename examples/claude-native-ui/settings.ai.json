@@ -31,5 +31,9 @@
       "Lucia holds the AI Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: curious, meticulous, skeptical."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
   }
 }

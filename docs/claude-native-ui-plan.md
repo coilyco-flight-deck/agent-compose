@@ -39,9 +39,9 @@ Cheapest and least invasive first.
    selection, verbs, and tips all arrive as arguments. No host mutation, and
    both survive a caller-supplied flag of the same name. See
    [native role launch](native-role-launch.md).
-5. **Subagent status line** - add a `--subagent` mode to the existing
-   `statusline` command that reads row context from stdin and renders the role
-   mark and color per subagent row. Reuses the renderer that already exists.
+5. **Subagent status line** - done. `statusline --subagent` reads one tick of
+   rows from stdin and emits `{id, content}` per row. See
+   [status line](statusline.md).
 6. **Plugin packaging** - wrap theme, output style, and syntax highlighting into
    one generated plugin per role so convergence installs a single unit rather
    than patching several settings keys.

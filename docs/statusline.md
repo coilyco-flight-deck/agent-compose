@@ -46,6 +46,32 @@ provider discovery, the project-directory runtime fact, row ordering, and
 whether the output is shown. A missing projection emits no output. A recorded
 projection with an unreadable manifest or trace emits a compact warning row.
 
+## Subagent rows
+
+`acompose statusline --subagent` decorates Claude Code's agent panel. The harness
+runs the command once per tick with every live row on stdin, not once per row:
+
+```json
+{"columns": 72, "tasks": [{"id": "…", "cwd": "…", "status": "…", "label": "…"}]}
+```
+
+Stdout is one JSON object per line, `{"id", "content"}`, and the harness drops any
+line that is not valid JSON or fails that shape. Each row resolves the projection
+at its own `cwd`, so an agent working in another checkout reports that checkout's
+identity. A row with no projection is omitted rather than decorated with a guess,
+and an unreadable manifest warns for that row alone.
+
+```text
+🧭 📐 ⛏️ Angie · engineer@claude
+```
+
+Rows carry identity as text because Claude Code's eight subagent color slots are
+shared across the session. A role claims the nearest slot and two roles can land
+on the same one, so the slot is not a role identifier.
+
+`native-ui` emits the `subagentStatusLine` key, so a composed Claude launch wires
+this with no host mutation. It survives `--safe-mode` with the session row.
+
 ## See also
 
 * [Native role launch](native-role-launch.md) - how assigned bundles are composed and projected.

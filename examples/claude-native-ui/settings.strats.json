@@ -31,5 +31,9 @@
       "Saiya holds the Portfolio Strategist charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: curious, grounded, decisive."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
   }
 }

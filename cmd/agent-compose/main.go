@@ -140,6 +140,10 @@ func main() {
 						Name:  "color",
 						Usage: "emit ANSI identity colors even when stdout is not a terminal",
 					},
+					&cli.BoolFlag{
+						Name:  "subagent",
+						Usage: "read a Claude Code subagent tick from stdin and emit one JSON row per agent",
+					},
 				},
 				Action: runStatusline,
 			},
@@ -979,11 +983,21 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 }
 
 func runStatusline(_ context.Context, cmd *cli.Command) error {
-	rendered, err := statusline.Render(statusline.Options{
+	opts := statusline.Options{
 		Target:    cmd.String("target"),
 		Color:     cmd.Bool("color") || colorEnabled(),
 		TrueColor: trueColorTerminal(),
-	})
+	}
+	if cmd.Bool("subagent") {
+		// The subagent mode already emits newline-terminated JSON rows.
+		rendered, err := statusline.RenderSubagents(os.Stdin, opts)
+		if err != nil {
+			return err
+		}
+		fmt.Fprint(cmd.Root().Writer, rendered)
+		return nil
+	}
+	rendered, err := statusline.Render(opts)
 	if err != nil {
 		return err
 	}

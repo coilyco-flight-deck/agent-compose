@@ -51,8 +51,8 @@ Inventory of what ships today.
 
 ## Identity surfaces
 
-* [Identity renderers](statusline.md) cover the palette, overlays, and an
-  `acompose statusline` identity and health row. Core roles keep one.
+* [Identity renderers](statusline.md) cover the palette, overlays, an
+  `acompose statusline` health row, and `--subagent` agent-panel rows.
 * [`native-ui`](claude-native-ui-surfaces.md) emits per-role Claude Code themes.
 
 ## Roster artifact and cascade

@@ -31,5 +31,9 @@
       "Angie holds the Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: curious, meticulous, tenacious."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
   }
 }

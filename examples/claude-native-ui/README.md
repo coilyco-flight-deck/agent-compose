@@ -11,7 +11,11 @@ agent-compose native-ui --out examples/claude-native-ui
 * `themes/aos-<role>.json` - one custom theme per role, ready to copy into
   `~/.claude/themes/`.
 * `settings.<role>.json` - the settings fragment that selects that theme and
-  carries the role's spinner verbs.
+  carries the role's spinner verbs, tips, and subagent status line.
+
+A Claude launch passes the fragment as `--settings`, so a composed session needs
+only the theme file installed. See
+[claude-launch-identity.md](../../docs/claude-launch-identity.md).
 
 ## Trying one
 
@@ -43,6 +47,7 @@ that.
 Each role also claims the nearest of Claude Code's eight fixed subagent color
 slots. Two roles can land on the same slot, which is harmless because only one
 role is active per session, but it does mean the slot is not a role identifier.
+The `subagentStatusLine` row therefore carries the identity as text.
 
 ## Spinner verbs
 

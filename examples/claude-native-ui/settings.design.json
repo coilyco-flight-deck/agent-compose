@@ -31,5 +31,9 @@
       "Delphi holds the Designer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: imaginative, playful, editorial."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
   }
 }

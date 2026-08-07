@@ -49,13 +49,24 @@ type SpinnerTips struct {
 	Tips           []string `json:"tips"`
 }
 
+// StatusLineCommand is a pull-based row renderer the harness invokes. Nothing
+// is installed for it, so it survives --safe-mode.
+type StatusLineCommand struct {
+	Type    string `json:"type"`
+	Command string `json:"command"`
+}
+
 // Settings is the fragment merged into ~/.claude/settings.json.
 type Settings struct {
-	Theme              string       `json:"theme"`
-	SpinnerVerbs       SpinnerVerbs `json:"spinnerVerbs"`
-	SpinnerTipsEnabled bool         `json:"spinnerTipsEnabled"`
-	SpinnerTips        SpinnerTips  `json:"spinnerTipsOverride"`
+	Theme              string            `json:"theme"`
+	SpinnerVerbs       SpinnerVerbs      `json:"spinnerVerbs"`
+	SpinnerTipsEnabled bool              `json:"spinnerTipsEnabled"`
+	SpinnerTips        SpinnerTips       `json:"spinnerTipsOverride"`
+	SubagentStatusLine StatusLineCommand `json:"subagentStatusLine"`
 }
+
+// SubagentStatusLineCommand renders the composed identity per agent-panel row.
+const SubagentStatusLineCommand = "acompose statusline --subagent --color"
 
 // Bundle is everything one role contributes to the native surfaces.
 type Bundle struct {
@@ -148,6 +159,10 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 			},
 			SpinnerTipsEnabled: true,
 			SpinnerTips:        SpinnerTips{Tips: tipsFor(role)},
+			SubagentStatusLine: StatusLineCommand{
+				Type:    "command",
+				Command: SubagentStatusLineCommand,
+			},
 		},
 	}, nil
 }
