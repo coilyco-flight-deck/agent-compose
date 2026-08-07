@@ -25,7 +25,7 @@ Extracting the shared communication and live-operations boundaries into
 [role melds](role-melds.md) freed 602 words of role body prose across the eight
 Core Roster roles, from 2,759 to 2,157, a 22% reduction. Per role: engineer 295
 to 180, director 318 to 195, qa 298 to 196, ops 394 to 264, design 395 to 364,
-strats 288 to 226, ai 369 to 330, and creator unchanged at 402 because it owns
+exec 288 to 226, ai 369 to 330, and creator unchanged at 402 because it owns
 the communication boundary rather than deferring to it.
 
 The melded bodies are additive rather than deducted. Each is bounded by its own

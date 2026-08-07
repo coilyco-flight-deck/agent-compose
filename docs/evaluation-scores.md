@@ -13,6 +13,6 @@
 | engineer | 50/52✓ | 8✓ | 8✓ | 47/52✓ | 6× | 8✓ | - | - | - | 127/136 |
 | ops | 52/52✓ | 8✓ | 8✓ | 51/52✓ | 8✓ | 8✓ | - | - | - | 135/136 |
 | qa | 52/52✓ | 8✓ | - | 52/52✓ | 8✓ | - | - | - | - | 120/120 |
-| strats | 49/50✓ | 8✓ | 8✓ | 48/50✓ | 7✓ | 8✓ | - | - | - | 128/132 |
+| exec | 49/50✓ | 8✓ | 8✓ | 48/50✓ | 7✓ | 8✓ | - | - | - | 128/132 |
 
 `F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality // `A` adjacent-role discrimination // `✓` pass // `×` fail. Cells are points.

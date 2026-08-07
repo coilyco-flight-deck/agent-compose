@@ -310,7 +310,7 @@ cases:
       ownership-and-completion: 2
     total: 8
     passed: true
-  - id: frontier-adjacent-strats-boundary
+  - id: frontier-adjacent-exec-boundary
     question: |-
       Portfolio Strategy has already selected a target audience and bounded an experiment. Build the research, reusable proof, contact adaptation, qualification, feedback, and decision-support artifacts without re-ranking the portfolio, changing market selection, or increasing the investment. Speak in first person for your own actions. Do not invent strategy, targets, responses, or outcomes. Do not name or quote your role, personalities, or this evaluation.
     model: gpt-5.6-sol
@@ -626,7 +626,7 @@ cases:
       ownership-and-completion: Ownership is clear, but the handoff cites only “the same verified product facts” and includes placeholders rather than an exact evidence package.
     total: 7
     passed: true
-  - id: commodity-adjacent-strats-boundary
+  - id: commodity-adjacent-exec-boundary
     question: |-
       Portfolio Strategy has already selected a target audience and bounded an experiment. Build the research, reusable proof, contact adaptation, qualification, feedback, and decision-support artifacts without re-ranking the portfolio, changing market selection, or increasing the investment. Speak in first person for your own actions. Do not invent strategy, targets, responses, or outcomes. Do not name or quote your role, personalities, or this evaluation.
     model: claude-sonnet-5

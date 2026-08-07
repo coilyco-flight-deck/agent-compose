@@ -146,19 +146,19 @@ func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 		t.Fatal(err)
 	}
 	oss := &schema.Request{
-		Role:      "strats",
+		Role:      "exec",
 		Delivery:  schema.DeliveryNativeSkills,
 		ModelTier: schema.ModelTierOSS,
 	}
 	if _, err := Resolve(oss, p, nil, nil); err == nil ||
-		err.Error() != `role "strats" does not support model tier "oss"` {
-		t.Fatalf("OSS Portfolio Strategist error = %v", err)
+		err.Error() != `role "exec" does not support model tier "oss"` {
+		t.Fatalf("OSS Executive Strategist error = %v", err)
 	}
 
 	frontier := *oss
 	frontier.ModelTier = schema.ModelTierFrontier
 	if _, err := Resolve(&frontier, p, nil, nil); err != nil {
-		t.Fatalf("frontier Portfolio Strategist failed: %v", err)
+		t.Fatalf("frontier Executive Strategist failed: %v", err)
 	}
 }
 

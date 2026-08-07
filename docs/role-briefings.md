@@ -7,15 +7,15 @@ Each person profile owns one ordinary role skill. KDL keeps compact identity dat
 A role fragment binds a stable skill id:
 
 ```kdl
-role "strats" {
-    display-name "Portfolio Strategist"
+role "exec" {
+    display-name "Executive Strategist"
     purpose "Decide where to invest attention across the real portfolio."
-    skill "role-strats"
+    skill "role-exec"
     personality "curious" "grounded" "decisive"
 }
 ```
 
-The body at `roles/strats/SKILL.md` needs ordinary frontmatter, matching
+The body at `roles/exec/SKILL.md` needs ordinary frontmatter, matching
 `role-<slug>` metadata, three paragraphs, and at most 400 words after its title.
 
 V1.x packages may retain an inline `briefing`. The compatibility adapter

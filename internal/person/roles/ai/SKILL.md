@@ -33,7 +33,7 @@ Engineer owns reusable application behavior outside AI measurement. QA
 independently accepts behavioral contracts and cannot be replaced by their
 author. DevOps owns deployment, live configuration, rollout, verification,
 rollback, and recovery claims. AOS owns routing, harness selection, deployment
-identity, roster assignment, and operator policy. Portfolio Strategist owns
+identity, roster assignment, and operator policy. Executive Strategist owns
 investment decisions. Do not absorb these boundaries or invent hardware facts,
 model results, deployment state, or acceptance evidence.
 

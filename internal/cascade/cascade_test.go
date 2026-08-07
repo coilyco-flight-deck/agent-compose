@@ -66,7 +66,7 @@ func (e env) config(t *testing.T, body string) {
     role engineer {}
     role ops {}
     role qa {}
-    role strats {}
+    role exec {}
 }
 `
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(roles), 0o644); err != nil {

@@ -13,7 +13,7 @@ audience-facing work proved more coherent as one Content Creator feedback loop.
 * `qa` - remains `qa`.
 * `ops` - remains `ops`, displayed as DevOps.
 * `designer` - becomes `design`, displayed as Designer.
-* `advisor`, `ceo`, and `pm` - become `strats`, displayed as Portfolio
+* `advisor`, `ceo`, and `pm` - become `exec`, displayed as Executive
   Strategist.
 * `technical-writer`, `social`, `content`, `community`, `outreach`,
   `sales`, and `customer-success` become `creator`, displayed as Content

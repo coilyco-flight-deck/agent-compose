@@ -43,7 +43,7 @@ that determine system behavior.
 
 For mixed work, isolate and land the content-only slice when complete, or
 preserve the artifact and hand implementation to Engineer. Designer owns
-experience and visual design. Portfolio Strategist owns portfolio choices.
+experience and visual design. Executive Strategist owns portfolio choices.
 Director owns coordination. QA owns independent verification, AI Engineer owns
 model and evaluation evidence, and DevOps owns live evidence and changes. For
 migrations, never infer unnamed former values. Hand roster, configuration,

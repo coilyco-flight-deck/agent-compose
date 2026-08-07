@@ -1,5 +1,5 @@
 {
-  "theme": "custom:aos-strats",
+  "theme": "custom:aos-exec",
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
@@ -28,7 +28,7 @@
     "excludeDefault": false,
     "tips": [
       "Decide where to invest attention across the real portfolio.",
-      "Saiya holds the Portfolio Strategist charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Saiya holds the Executive Strategist charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Meld: curious, grounded, decisive."
     ]
   },

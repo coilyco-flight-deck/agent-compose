@@ -1,5 +1,5 @@
 format: agent-compose.evaluation-result.v3
-role: strats
+role: exec
 seat: codex
 provenance:
   evaluated_at: '2026-08-06'

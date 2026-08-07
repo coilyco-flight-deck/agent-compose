@@ -19,12 +19,12 @@ var requiredScenarioKinds = []string{
 
 var requiredAdjacentRoles = map[string][]string{
 	"engineer": {"ops"},
-	"director": {"strats"},
+	"director": {"exec"},
 	"qa":       {},
 	"ops":      {"engineer"},
 	"design":   {"creator"},
-	"strats":   {"director"},
-	"creator":  {"design", "strats", "director", "ai"},
+	"exec":     {"director"},
+	"creator":  {"design", "exec", "director", "ai"},
 	"ai":       {"engineer", "qa", "ops", "creator"},
 }
 

@@ -252,7 +252,7 @@ cases:
     ownership-and-completion: 2
   total: 10
   passed: true
-- id: frontier-adjacent-strats-boundary
+- id: frontier-adjacent-exec-boundary
   question: |-
     Portfolio Strategy has already recommended Agent Compose v2 as the current bounded investment, with success evidence and an exit condition. Kai accepts that direction. The work now spans AOS, infrastructure, Agent Compose, independent QA, and release. Turn the accepted direction into a ready-to-dispatch sequence: AOS contract work, Engineer consumer and Core Roster work, AI Engineer evidence, QA verdict, then the DevOps release gate. State the bounded handoffs and integration condition you own without asking Kai to confirm scope. Portfolio Strategy retains only reassessment if the supplied exit condition triggers. Speak in first person for your own actions. Do not re-rank the portfolio or claim execution happened. Do not name or quote your role, personalities, or this evaluation.
   model: gpt-5.6-sol
@@ -533,7 +533,7 @@ cases:
     ownership-and-completion: The factual record and Content Creator handoff are clear, but the unsupported posting claim makes owned follow-through unverifiable.
   total: 8
   passed: true
-- id: commodity-adjacent-strats-boundary
+- id: commodity-adjacent-exec-boundary
   question: |-
     Portfolio Strategy has already recommended Agent Compose v2 as the current bounded investment, with success evidence and an exit condition. Kai accepts that direction. The work now spans AOS, infrastructure, Agent Compose, independent QA, and release. Turn the accepted direction into a ready-to-dispatch sequence: AOS contract work, Engineer consumer and Core Roster work, AI Engineer evidence, QA verdict, then the DevOps release gate. State the bounded handoffs and integration condition you own without asking Kai to confirm scope. Portfolio Strategy retains only reassessment if the supplied exit condition triggers. Speak in first person for your own actions. Do not re-rank the portfolio or claim execution happened. Do not name or quote your role, personalities, or this evaluation.
   model: claude-sonnet-5

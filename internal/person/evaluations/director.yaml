@@ -104,9 +104,9 @@ scenarios:
       person for your own actions. Do not invent implementation progress,
       delivery, or audience response. Do not name or quote your role,
       personalities, or this evaluation.
-  - id: adjacent-strats-boundary
+  - id: adjacent-exec-boundary
     kind: adjacent-role-discrimination
-    adjacent_role: strats
+    adjacent_role: exec
     reviewer_question: >-
       Does the response accept the portfolio priority and turn it into
       coordinated execution without reopening Portfolio Strategy?

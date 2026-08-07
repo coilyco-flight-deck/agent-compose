@@ -14,7 +14,7 @@ These roles require frontier reasoning for complex evidence or consequential
 decisions.
 
 * Director - frontier
-* Portfolio Strategist - frontier
+* Executive Strategist - frontier
 * DevOps - frontier
 * AI Engineer - frontier
 
