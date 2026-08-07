@@ -1,6 +1,6 @@
 # Role skills
 
-Each person profile owns one ordinary role skill. KDL keeps compact identity data and leaves long-form doctrine in the skill body. It may also own separate [role methods](role-methods.md) whose procedure is determined by the package's cross-role policy.
+Each person profile owns one ordinary role skill. KDL keeps compact identity data and leaves long-form doctrine in the skill body. It may also own [role methods](role-methods.md) set by the package's cross-role policy, and activate [role melds](role-melds.md) sharing doctrine outside its budget.
 
 ## Profile layout
 
@@ -72,8 +72,8 @@ Content Creator (`creator`) may land content-only repository changes,
 including human-facing literals embedded in code. The exception
 requires unchanged control flow, state, schemas, structured contracts, and
 executable behavior. Mixed content and behavior returns to Engineer. Content
-Creator accepts factual handoffs for communication recommendations without
-absorbing another role's ledger or inferring authority to expose the result.
+Creator accepts factual handoffs without absorbing another role's ledger or
+inferring authority to expose the result.
 
 ## See also
 

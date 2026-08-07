@@ -25,6 +25,10 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "**Role methods // `%s`**\n", strings.Join(role.Methods, "` // `"))
 	}
+	meldSkills := p.RoleMeldSkillIDs(roleName)
+	if len(meldSkills) > 0 {
+		fmt.Fprintf(&out, "**Shared doctrine // `%s`**\n", strings.Join(meldSkills, "` // `"))
+	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if role.Identity != nil {
 		fmt.Fprintf(
@@ -66,8 +70,22 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 		}
 		fmt.Fprintf(&out, "%s\n\n", description)
 	}
+	if len(role.Melds) > 0 {
+		out.WriteString("## Shared doctrine\n\n")
+		for _, name := range role.Melds {
+			binding, exists := p.Melds[name]
+			if !exists {
+				return "", fmt.Errorf("render role identity card: meld %q is not defined", name)
+			}
+			fmt.Fprintf(&out, "* `%s` - %s\n", binding.Skill, binding.Summary)
+		}
+		out.WriteString("\n")
+	}
 	out.WriteString("## Active doctrine\n\nBefore acting, load:\n\n")
 	fmt.Fprintf(&out, "* `%s`\n", roleSkill)
+	for _, skill := range meldSkills {
+		fmt.Fprintf(&out, "* `%s`\n", skill)
+	}
 	for _, name := range role.Personalities {
 		fmt.Fprintf(&out, "* `%s`\n", p.Personalities[name].Skill)
 	}

@@ -95,7 +95,7 @@ func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
 		role := p.Roles["engineer"]
 		role.Personalities = append(role.Personalities, "grounded")
 		p.Roles["engineer"] = role
-		if err := validateCoreMelds(p); err == nil ||
+		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "want exactly three") {
 			t.Fatalf("slot-count validation error = %v", err)
 		}
@@ -109,7 +109,7 @@ func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
 		role := p.Roles["ops"]
 		role.Personalities[2] = "curious"
 		p.Roles["ops"] = role
-		if err := validateCoreMelds(p); err == nil ||
+		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "want at most three") {
 			t.Fatalf("usage validation error = %v", err)
 		}
@@ -123,7 +123,7 @@ func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
 		role := p.Roles["director"]
 		role.Personalities = append([]string(nil), p.Roles["engineer"].Personalities...)
 		p.Roles["director"] = role
-		if err := validateCoreMelds(p); err == nil ||
+		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "share melded favorite color") {
 			t.Fatalf("favorite-color validation error = %v", err)
 		}
@@ -184,6 +184,60 @@ func TestLoadRoleSkillsEnforcesAuthoredBodyWordLimit(t *testing.T) {
 	}
 }
 
+// TestMeldBodiesDoNotConsumeTheRoleWordBudget is the load-bearing guarantee:
+// shared doctrine must not compete with the charter for the same 400 words.
+func TestMeldBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
+	files := fstest.MapFS{
+		"roles/builder/SKILL.md": {
+			Data: roleSkillWordLimitFixture(maxRoleSkillBodyWords),
+		},
+		"definitions/skills/meld-shared/SKILL.md": {
+			Data: meldWordLimitFixture(maxMeldSkillBodyWords),
+		},
+	}
+	p := &Person{
+		Name:      "fixture",
+		RoleOrder: []string{"builder"},
+		Roles: map[string]Role{
+			"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+		},
+		MeldOrder: []string{"shared"},
+		Melds: map[string]Meld{
+			"shared": {Skill: "meld-shared", Summary: "shared fixture doctrine"},
+		},
+	}
+	if err := loadRoleSkills(files, p); err != nil {
+		t.Fatalf("role skill at its word limit failed alongside a meld: %v", err)
+	}
+	if err := loadMeldSkills(files, p); err != nil {
+		t.Fatalf("meld at its own word limit failed: %v", err)
+	}
+	// Role at its cap plus meld at its own proves the meld is additive.
+	if got := roleSkillBodyWordCount(p.Roles["builder"].Briefing); got != maxRoleSkillBodyWords {
+		t.Fatalf("role briefing word count = %d, want %d", got, maxRoleSkillBodyWords)
+	}
+	if _, ok := p.MeldSkillDefinition("shared"); !ok {
+		t.Fatal("meld body did not load")
+	}
+
+	over := fstest.MapFS{
+		"definitions/skills/meld-shared/SKILL.md": {
+			Data: meldWordLimitFixture(maxMeldSkillBodyWords + 1),
+		},
+	}
+	err := loadMeldSkills(over, p)
+	if err == nil || !strings.Contains(err.Error(), "maximum is 400") {
+		t.Fatalf("meld over its own word limit error = %v", err)
+	}
+}
+
+func meldWordLimitFixture(words int) []byte {
+	body := strings.TrimSpace(strings.Repeat("word ", words))
+	return []byte(
+		"---\nname: meld-shared\ndescription: Shared fixture doctrine.\n---\n\n" + body + "\n",
+	)
+}
+
 func roleSkillWordLimitFixture(words int) []byte {
 	body := strings.TrimSpace(strings.Repeat("word ", words-2))
 	return []byte(
@@ -234,16 +288,21 @@ func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := len(src.RoleSkills["ai"]); got != 3 {
-		t.Fatalf("AI role skill count = %d, want charter plus two methods", got)
-	}
+	// Methods belong to one role and melds are shared, so both counts derive
+	// from the loaded model rather than a second copy of the roster policy.
 	for _, roleName := range p.RoleOrder {
-		want := 1
-		if roleName == "ai" {
-			want = 3
-		}
+		role := p.Roles[roleName]
+		want := 1 + len(role.Methods) + len(role.Melds)
 		if got := len(src.RoleSkills[roleName]); got != want {
 			t.Errorf("role %q selected %d person skills, want %d", roleName, got, want)
+		}
+	}
+	if len(p.Roles["ai"].Methods) == 0 {
+		t.Fatal("AI role lost its owned methods")
+	}
+	for roleName, role := range p.Roles {
+		if roleName != "ai" && len(role.Methods) != 0 {
+			t.Errorf("role %q owns methods, which only the AI role may declare", roleName)
 		}
 	}
 }

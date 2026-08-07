@@ -9,16 +9,17 @@ Inventory of what ships today.
   identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default
-  across every person-dependent command.
+  in every person-dependent command.
 * `.agents/roles.kdl` owns [skill-provider repos](role-scoped-providers.md), skills, and [repository policy](repository-policy.md).
 * [Three model tiers](model-tiers.md) enforce the Core role matrix without
   changing selected context.
-* Materialization promotes admitted `COMPOSED.md` files to native `SKILL.md`.
+* Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Designer owns
   bounded page experiences. Content Creator owns the audience loop and
-  content-only changes. Role-skill bodies have a 400-word ceiling.
+  content-only changes. Role bodies cap at 400 words, and
+  [role melds](role-melds.md) share doctrine under a separate cap.
 
 ## Load-point projection
 
@@ -60,15 +61,15 @@ Inventory of what ships today.
 * `agent-compose roster --out <dir>` renders lazy-loaded role and personality
   skills plus [native adaptation](native-adaptation.md).
 * Bare convergence emits deterministic [`person.json`](person-snapshot.md).
-* `cascade` emits harness doctrine and the role/residency `repository-plan.yaml`
-  with sealed policy-source provenance.
+* `cascade` emits harness doctrine and the role/residency
+  `repository-plan.yaml` with sealed provenance.
 * `bundle materialize` returns a verified role/harness bundle with provenance.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
 * [Release](release.md) publishes unreleased product deltas, including
-  roll-forward recovery, under a major-version hold.
+  roll-forward recovery, under a version hold.
 
 ## See also
 

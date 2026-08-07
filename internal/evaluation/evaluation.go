@@ -41,6 +41,15 @@ type PersonalityContext struct {
 	Definition string `yaml:"definition"`
 }
 
+// MeldContext carries one shared doctrine body into the evaluated context, so
+// doctrine that left the briefing still reaches the driver. See docs/role-melds.md.
+type MeldContext struct {
+	Name       string `yaml:"name"`
+	Skill      string `yaml:"skill"`
+	Summary    string `yaml:"summary"`
+	Definition string `yaml:"definition"`
+}
+
 type ScoreScale struct {
 	Strong  string `yaml:"2"`
 	Partial string `yaml:"1"`
@@ -104,6 +113,7 @@ type Pack struct {
 	Seat                person.Seat          `yaml:"seat"`
 	Purpose             string               `yaml:"purpose"`
 	Briefing            string               `yaml:"briefing"`
+	Melds               []MeldContext        `yaml:"melds,omitempty"`
 	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
@@ -232,6 +242,24 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
+	melds := make([]MeldContext, 0, len(role.Melds))
+	for _, name := range role.Melds {
+		binding, bound := p.Melds[name]
+		if !bound {
+			return nil, fmt.Errorf("evaluation meld %q has no catalog binding", name)
+		}
+		raw, ok := p.MeldSkillDefinition(name)
+		if !ok {
+			return nil, fmt.Errorf("evaluation meld %q has no definition", name)
+		}
+		melds = append(melds, MeldContext{
+			Name:       name,
+			Skill:      binding.Skill,
+			Summary:    binding.Summary,
+			Definition: markdownBody(string(raw)),
+		})
+	}
+
 	generic, err := parseGenericMatrix(genericMatrixAsset)
 	if err != nil {
 		return nil, fmt.Errorf("parse embedded generic evaluation asset: %w", err)
@@ -246,6 +274,7 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Seat:                seat,
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
+		Melds:               melds,
 		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,

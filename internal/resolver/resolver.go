@@ -61,6 +61,7 @@ type Resolution struct {
 	Request        *schema.Request
 	Person         *person.Person
 	Personalities  []string
+	Melds          []string
 	RolePurpose    string
 	RoleBriefing   string
 	Instructions   []Selected
@@ -146,6 +147,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Request:       req,
 		Person:        p,
 		Personalities: append([]string(nil), role.Personalities...),
+		Melds:         append([]string(nil), role.Melds...),
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
@@ -179,6 +181,15 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Subject: "personality:" + name, Kind: "profile", Source: p.ProviderID(),
 			Outcome: OutcomeSelected,
 			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
+		})
+	}
+	for _, name := range role.Melds {
+		res.decide(Decision{
+			Subject: "meld:" + name, Kind: "profile", Source: p.ProviderID(),
+			Outcome: OutcomeSelected,
+			Reason: fmt.Sprintf(
+				"role %q melds shared doctrine %q, which every role that declares it activates identically",
+				req.Role, name),
 		})
 	}
 	for _, m := range missing {
@@ -328,6 +339,21 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		added[roleSkill] = true
 	} else {
 		return nil, fmt.Errorf("role %q binds skill %q, but no admitted source provides it", req.Role, roleSkill)
+	}
+	for _, name := range role.Melds {
+		binding, ok := p.Melds[name]
+		if !ok {
+			return nil, fmt.Errorf("role %q names meld %q without a catalog binding", req.Role, name)
+		}
+		selected, found := selectedBySkill[binding.Skill]
+		if !found {
+			return nil, fmt.Errorf("meld %q binds skill %q, but no admitted source provides it", name, binding.Skill)
+		}
+		if added[binding.Skill] {
+			continue
+		}
+		res.Skills = append(res.Skills, selected)
+		added[binding.Skill] = true
 	}
 	for _, name := range role.Personalities {
 		boundSkill := p.Personalities[name].Skill
