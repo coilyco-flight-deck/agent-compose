@@ -35,6 +35,50 @@ func TestBuildProjectsOneCanonicalMember(t *testing.T) {
 	}
 }
 
+// TestBuildComposesTheSeatAnnotation pins the identity string every terminal
+// renderer shows verbatim, so a consumer never reassembles it from parts.
+func TestBuildComposesTheSeatAnnotation(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Build(p, "engineer", "claude", "acting")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc.RoleDisplayName != "Engineer" {
+		t.Errorf("role display name = %q, want Engineer", doc.RoleDisplayName)
+	}
+	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Engineer")
+	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Engineer)") {
+		t.Errorf("annotation = %q, want %q", doc.Annotation, want)
+	}
+}
+
+// TestRenderTextCarriesPronounsNotTheRoleLabel guards the card's split: it
+// already prints the role on its own, so the seat stops at the pronouns.
+func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Build(p, "qa", "claude", "acting")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wide, err := RenderText(doc, 200)
+	if err != nil {
+		t.Fatal(err)
+	}
+	label := person.SeatLabel(doc.Seat.Name, doc.Seat.Pronouns)
+	if !strings.Contains(wide, label) {
+		t.Errorf("card %q omits seat label %q", wide, label)
+	}
+	if strings.Contains(wide, "(QA)") {
+		t.Errorf("card %q repeats the role label", wide)
+	}
+}
+
 func TestBuildRejectsUnknownSelectionFacts(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {

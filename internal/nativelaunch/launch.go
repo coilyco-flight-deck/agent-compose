@@ -13,6 +13,7 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -158,8 +159,8 @@ func emitHarnessSettings(composed *compose.Result, harness, role string) (string
 	return path, nil
 }
 
-// seatName mirrors the status line: the selected seat's own name wins, then the
-// role-owned agent identity, then the role itself.
+// seatName resolves the launch annotation: the selected seat's own name wins,
+// then the role-owned agent identity, then the role. See docs/overlay.md.
 func seatName(composed *compose.Result, harness, role string) string {
 	role = strings.TrimSpace(role)
 	p := composed.Resolution.Person
@@ -170,13 +171,18 @@ func seatName(composed *compose.Result, harness, role string) string {
 	if !ok {
 		return role
 	}
+	displayName := p.RoleDisplayName(role)
 	for _, seat := range selected.Seats {
 		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {
-			return seat.Name
+			return person.SeatAnnotation(seat.Name, seat.Pronouns, displayName)
 		}
 	}
 	if selected.Identity != nil && selected.Identity.Name != "" {
-		return selected.Identity.Name
+		return person.SeatAnnotation(
+			selected.Identity.Name,
+			selected.Identity.Pronouns,
+			displayName,
+		)
 	}
 	return role
 }

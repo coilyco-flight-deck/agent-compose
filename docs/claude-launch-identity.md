@@ -6,9 +6,18 @@ converged before the session starts.
 
 ## The two flags
 
-* `--name <seat>` carries the resolved seat name into the prompt box, the
-  `/resume` picker, and the terminal title. The selected seat's own name wins,
-  then the role-owned agent identity, then the role.
+* `--name <annotation>` carries the resolved seat annotation into the prompt
+  box, the `/resume` picker, and the terminal title. The selected seat's own
+  name wins, then the role-owned agent identity, then the role.
+
+  ```text
+  Angie [she] (Engineer)
+  ```
+
+  The annotation is the seat name, the seat's subject pronoun in brackets, and
+  the role's authored `display-name` in parentheses. A person package that omits
+  the pronouns or the display name drops that part rather than rendering an
+  empty bracket, so an external package still launches.
 * `--settings <bundle>/claude-settings.json` carries the role's
   [native UI](claude-native-ui-surfaces.md) fragment: the theme selection, the
   spinner verbs, and the spinner tips. Refresh writes that fragment beside the

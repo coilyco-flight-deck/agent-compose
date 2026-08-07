@@ -22,7 +22,10 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 		Format: "agent-compose.bundle", Role: "engineer", ModelTier: "frontier",
 		Color: "#959e5f",
 		Identity: bundle.RoleIdentity{
-			Person: "core", Seats: []person.Seat{{Key: "codex", Name: "opal engineer"}},
+			Person: "core",
+			Seats: []person.Seat{
+				{Key: "codex", Name: "opal engineer", Pronouns: "she"},
+			},
 			Personalities: []bundle.IdentityPersonality{
 				{Name: "curious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
 				{Name: "grounded", Color: "#5fa87a", Emblem: person.Emblem{Emoji: "🪨"}},
@@ -46,7 +49,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "  🧭 🪨  opal engineer · engineer@codex · frontier · 99 skills / ~96k catalog · ✓ composed"
+	want := "  🧭 🪨  opal engineer [she] · engineer@codex · frontier · 99 skills / ~96k catalog · ✓ composed"
 	if got != want {
 		t.Fatalf("statusline = %q, want %q", got, want)
 	}

@@ -27,13 +27,31 @@ stable plain text.
 
 Add `--json` for `agent-compose.overlay.v1`. The document contains:
 
-* person, role, purpose, and selected seat
+* person, role, `role_display_name`, purpose, and selected seat
+* `annotation`, the composed identity string a renderer shows verbatim
 * the caller-supplied expression
 * the role's derived favorite color
 * every component personality's color and identity primitives
 
 The JSON is a projection of the selected person model, not a second policy
 source.
+
+## Annotation
+
+`annotation` is the one identity string every terminal surface shows for a
+session, so a window title, a status row, and a launch flag never drift apart:
+
+```text
+Angie [she] (Engineer)
+```
+
+Agent Compose owns the shape. A renderer that has the document shows the field
+rather than reassembling it from the seat name, pronouns, and role. Both fields
+are additive to `agent-compose.overlay.v1`, so a consumer built before them
+keeps parsing the document unchanged.
+
+The plain text card stops at `Angie [she]`, because it already prints the role
+on its own line.
 
 ## State boundary
 

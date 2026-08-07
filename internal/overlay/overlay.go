@@ -27,12 +27,16 @@ type Personality struct {
 }
 
 type Document struct {
-	Format        string        `json:"format"`
-	SchemaVersion int           `json:"schema_version"`
-	Person        string        `json:"person"`
-	Role          string        `json:"role"`
-	Purpose       string        `json:"purpose"`
-	Seat          person.Seat   `json:"seat"`
+	Format          string      `json:"format"`
+	SchemaVersion   int         `json:"schema_version"`
+	Person          string      `json:"person"`
+	Role            string      `json:"role"`
+	RoleDisplayName string      `json:"role_display_name"`
+	Purpose         string      `json:"purpose"`
+	Seat            person.Seat `json:"seat"`
+	// Annotation is the composed identity string a renderer shows verbatim,
+	// `Angie [she] (Engineer)`.
+	Annotation    string        `json:"annotation"`
 	Expression    string        `json:"expression"`
 	FavoriteColor string        `json:"favorite_color"`
 	Personalities []Personality `json:"personalities"`
@@ -60,14 +64,17 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		return nil, fmt.Errorf("build overlay: expression %q is not defined", expression)
 	}
 
+	displayName := p.RoleDisplayName(roleName)
 	doc := &Document{
-		Format:        Format,
-		SchemaVersion: SchemaVersion,
-		Person:        p.Name,
-		Role:          roleName,
-		Purpose:       role.Purpose,
-		Seat:          seat,
-		Expression:    expression,
+		Format:          Format,
+		SchemaVersion:   SchemaVersion,
+		Person:          p.Name,
+		Role:            roleName,
+		RoleDisplayName: displayName,
+		Purpose:         role.Purpose,
+		Seat:            seat,
+		Annotation:      person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
+		Expression:      expression,
 	}
 	colors := make([]string, 0, len(role.Personalities))
 	for _, name := range role.Personalities {
@@ -118,10 +125,12 @@ func RenderText(doc *Document, width int) (string, error) {
 		names = append(names, personality.Name)
 	}
 	role := strings.ReplaceAll(doc.Role, "-", " ")
+	// The card prints the role on its own, so the seat carries pronouns only.
+	seat := person.SeatLabel(doc.Seat.Name, doc.Seat.Pronouns)
 	wide := fmt.Sprintf(
 		"%s  %s  ·  %s / %s  ·  %s  ·  %s",
 		strings.Join(marks, " "),
-		doc.Seat.Name,
+		seat,
 		role,
 		doc.Expression,
 		strings.Join(names, " + "),
@@ -132,7 +141,7 @@ func RenderText(doc *Document, width int) (string, error) {
 	}
 	var lines []string
 	for _, text := range []string{
-		strings.Join(marks, " ") + "  " + doc.Seat.Name,
+		strings.Join(marks, " ") + "  " + seat,
 		role + " / " + doc.Expression,
 		strings.Join(names, " + "),
 		doc.FavoriteColor,
