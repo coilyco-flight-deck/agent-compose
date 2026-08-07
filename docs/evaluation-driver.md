@@ -39,6 +39,23 @@ pass on host instructions the bundle never supplied. Such a run stamps
 evidence. It remains valid for comparing arms, because the same contamination
 applies to every arm.
 
+## Sealed sessions
+
+A driver session inherits the harness's ordinary tool surface, which includes
+every configured MCP server. A case that authorizes a factual record can then
+write one to a real system: during the first full run, a director case posted a
+decision record to a live tracking issue and reported the URL as its answer.
+
+Sealed sessions are therefore the default. The driver launches each case with
+no MCP servers and with shell, file-write, and notebook tools denied, so a case
+can reason about an authorized action and state it without performing it.
+Reading the repository through the harness's own read tools still works, which
+is what the portfolio-replay cases depend on. Every record carries its
+`tool_policy`.
+
+`--allow-mutation` restores the full surface. A run made that way can act on
+real systems and should be treated as an experiment, not as evidence.
+
 ## Reviewer
 
 The reviewer scores in separate sessions resolved from the pack's reviewer
