@@ -42,6 +42,9 @@ commands:
   evaluation-packs:
     run: sh scripts/render-evaluation-packs.sh
     description: Render the complete Core Roster review packs into an explicitly selected empty directory.
+  harness-refresh:
+    run: go test ./internal/nativeui -run TestVendoredHarnessData -update -v
+    description: Re-extract the vendored Claude Code verb and theme-token lists from the installed binary.
   palette-build:
     run: sh scripts/palette-web.sh build
     description: Generate canonical palette data and build the local explorer.

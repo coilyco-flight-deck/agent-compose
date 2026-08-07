@@ -52,12 +52,17 @@ Cheapest and least invasive first.
 
 ## Upstream coupling
 
-The emitted token names are Claude Code's, and the harness drops an unknown
-token silently rather than erroring. `internal/nativeui` therefore emits a fixed
-slot map rather than arbitrary tokens, and its test asserts every emitted token
-against the dark base set shipped in Claude Code 2.1.221. An upstream rename
-fails that test instead of quietly blanking a role's identity on a user's
-terminal. Refreshing the list is a deliberate act when the harness moves.
+The emitted token names are Claude Code's, and the harness drops an unknown token
+silently rather than erroring. `internal/nativeui` therefore emits a fixed slot
+map rather than arbitrary tokens, and its test asserts every emitted token
+against a vendored list of the names the harness knows. An upstream rename fails
+that test instead of quietly blanking a role's identity on a user's terminal.
+
+Drift is detected by content, not by version. The test re-extracts both vendored
+lists from the installed binary on every run and skips when Claude Code is
+absent, so an upgrade that changes neither list stays quiet. `ward exec
+harness-refresh` rewrites them. The method and its limits live in
+[`internal/nativeui/testdata/README.md`](../internal/nativeui/testdata/README.md).
 
 ## Open questions
 

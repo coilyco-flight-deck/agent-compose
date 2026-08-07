@@ -58,8 +58,9 @@ kerning and redlining from editorial.
 
 `replace` is the default, which discards Claude Code's own vocabulary and makes
 the role unmistakable. Pass `--spinner-mode append` to keep both. No authored
-verb repeats one of the harness's own 184, so replace mode always reads as the
-role, and a test holds that line.
+verb repeats one of the harness's own defaults, so replace mode always reads as
+the role, and a test against the
+[vendored list](../../internal/nativeui/testdata/README.md) holds that line.
 
 ## Spinner tips
 

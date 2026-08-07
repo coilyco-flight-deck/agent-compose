@@ -13,18 +13,15 @@ import (
 
 var hexColor = regexp.MustCompile(`^#[0-9a-f]{6}$`)
 
-// The dark base token set shipped in Claude Code 2.1.221. An upstream rename
-// fails here rather than silently blanking a role.
-var knownTokens = map[string]bool{
-	"autoAccept": true, "autoAcceptShimmer": true, "bashBorder": true,
-	"briefLabelClaude": true, "claude": true, "claudeShimmer": true,
-	"clawd_body": true, "permission": true, "permissionShimmer": true,
-	"promptBorder": true, "promptBorderShimmer": true, "remember": true,
-	"skill": true, "suggestion": true,
-	"red_FOR_SUBAGENTS_ONLY": true, "blue_FOR_SUBAGENTS_ONLY": true,
-	"green_FOR_SUBAGENTS_ONLY": true, "yellow_FOR_SUBAGENTS_ONLY": true,
-	"purple_FOR_SUBAGENTS_ONLY": true, "orange_FOR_SUBAGENTS_ONLY": true,
-	"pink_FOR_SUBAGENTS_ONLY": true, "cyan_FOR_SUBAGENTS_ONLY": true,
+// knownTokens is the vendored token set. An upstream rename fails here rather
+// than silently blanking a role. See testdata/README.md.
+func knownTokens(t *testing.T) map[string]bool {
+	t.Helper()
+	known := map[string]bool{}
+	for _, token := range readVendoredLines(t, vendoredTokensFile) {
+		known[token] = true
+	}
+	return known
 }
 
 func selected(t *testing.T) *person.Person {
@@ -57,12 +54,13 @@ func TestThemeOverridesAreAcceptedByTheHarness(t *testing.T) {
 	if err != nil {
 		t.Fatalf("build: %v", err)
 	}
+	known := knownTokens(t)
 	for _, bundle := range bundles {
 		if bundle.Theme.Base != "dark" {
 			t.Errorf("role %q uses base %q", bundle.Role, bundle.Theme.Base)
 		}
 		for token, value := range bundle.Theme.Overrides {
-			if !knownTokens[token] {
+			if !known[token] {
 				t.Errorf("role %q emits unknown token %q, which the harness drops silently", bundle.Role, token)
 			}
 			if !hexColor.MatchString(value) {
@@ -200,17 +198,11 @@ func contains(values []string, want string) bool {
 }
 
 // A verb the harness already ships does no identity work under replace mode.
-// testdata holds the 184 defaults from Claude Code 2.1.221.
+// testdata holds the vendored defaults. See testdata/README.md.
 func TestVerbsDoNotRepeatTheHarnessDefaults(t *testing.T) {
-	raw, err := os.ReadFile(filepath.Join("testdata", "harness-default-verbs.txt"))
-	if err != nil {
-		t.Fatalf("read defaults: %v", err)
-	}
 	defaults := map[string]bool{}
-	for _, line := range strings.Split(string(raw), "\n") {
-		if verb := strings.TrimSpace(line); verb != "" {
-			defaults[verb] = true
-		}
+	for _, verb := range readVendoredLines(t, vendoredVerbsFile) {
+		defaults[verb] = true
 	}
 
 	p := selected(t)
