@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 )
@@ -41,6 +42,7 @@ type reviewFile struct {
 	Reviews        []struct {
 		ID       string `json:"id"`
 		Role     string `json:"role"`
+		Arm      string `json:"arm"`
 		Reviewed bool   `json:"reviewed"`
 		Reason   string `json:"reason"`
 		Scores   []struct {
@@ -86,7 +88,12 @@ func write(runPath, reviewPath, outDir, seat, issue, author, evaluatedAt string)
 		Score     int    `json:"score"`
 		Evidence  string `json:"evidence"`
 	}, len(reviews.Reviews))
+	// One review file may cover several driver arms. Take only the entries
+	// belonging to this run, so a two-arm comparison cannot cross-join.
 	for _, entry := range reviews.Reviews {
+		if entry.Arm != "" && entry.Arm != run.Arm {
+			continue
+		}
 		if !entry.Reviewed {
 			return fmt.Errorf("case %q was not reviewed: %s", entry.ID, entry.Reason)
 		}
@@ -131,7 +138,13 @@ func write(runPath, reviewPath, outDir, seat, issue, author, evaluatedAt string)
 			RawResponse:  record.Answer,
 			FinishReason: record.FinishReason,
 		}
-		for _, entry := range scored[record.Role+"\x00"+record.ID] {
+		entries, reviewed := scored[record.Role+"\x00"+record.ID]
+		// The reviewer skips cases the driver could not complete. Any other
+		// gap means the join lost a case, which must not become a silent zero.
+		if !reviewed && record.Succeeded {
+			return fmt.Errorf("no review for succeeded case %s/%s", record.Role, record.ID)
+		}
+		for _, entry := range entries {
 			scoredCase.Scores = append(scoredCase.Scores, evaluation.CriterionScore{
 				Criterion: entry.Criterion,
 				Score:     entry.Score,
@@ -144,13 +157,19 @@ func write(runPath, reviewPath, outDir, seat, issue, author, evaluatedAt string)
 		result.Cases = append(result.Cases, scoredCase)
 
 		for _, retry := range record.Retries {
+			// The driver leaves reason empty on the attempt that worked, and
+			// provenance validation requires one, so name the fact instead.
+			reason := retry.Reason
+			if strings.TrimSpace(reason) == "" {
+				reason = "no failure recorded"
+			}
 			result.Provenance.RetryProvenance.Attempts = append(
 				result.Provenance.RetryProvenance.Attempts,
 				evaluation.RetryAttempt{
 					Case:    record.ID,
 					Attempt: retry.Attempt,
 					Outcome: retry.Outcome,
-					Reason:  retry.Reason,
+					Reason:  reason,
 				},
 			)
 		}
@@ -166,6 +185,13 @@ func write(runPath, reviewPath, outDir, seat, issue, author, evaluatedAt string)
 		if err != nil {
 			return fmt.Errorf("build %s pack: %w", role, err)
 		}
+		// MarshalResult stamps the digest only when the format arrives empty,
+		// and this writer sets v3 up front, so bind the record to its pack here.
+		digest, err := evaluation.PackDigest(pack)
+		if err != nil {
+			return fmt.Errorf("digest %s pack: %w", role, err)
+		}
+		result.Provenance.PackDigest = digest
 		applyRule(result, pack)
 		raw, err := evaluation.MarshalResult(result, pack)
 		if err != nil {

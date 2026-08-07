@@ -16,10 +16,9 @@ Inventory of what ships today.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
-* Canonical skills use identity cards and compiled fallback. Designer owns
-  bounded page experiences. Content Creator owns the audience loop and
-  content-only changes. Role bodies cap at 400 words.
-  [Role melds](role-melds.md) share doctrine under their own cap.
+* Canonical skills use identity cards and compiled fallback. Role bodies cap
+  at 400 words, and [role melds](role-melds.md) share doctrine under a
+  separate cap.
 
 ## Load-point projection
 

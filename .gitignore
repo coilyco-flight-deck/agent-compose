@@ -4,3 +4,7 @@
 /web/personality-palette/dist/
 /web/personality-palette/node_modules/
 /web/personality-palette/public/palette.json
+
+# Python bytecode from local script runs
+__pycache__/
+*.pyc

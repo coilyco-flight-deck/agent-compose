@@ -57,7 +57,7 @@ python3 scripts/evaluation_driver.py \
 echo "==> reviewing with ${REVIEWER_MODEL} at ${REVIEWER_EFFORT}" >&2
 python3 scripts/evaluation_reviewer.py \
   --packs "${PACKS}" \
-  --run "${RUNS}/baseline.json" \
+  --runs "${RUNS}/baseline.json" \
   --out "${REVIEW}" \
   --model "${REVIEWER_MODEL}" \
   --effort "${REVIEWER_EFFORT}" \
