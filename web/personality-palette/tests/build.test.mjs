@@ -4,7 +4,7 @@ import test from "node:test";
 
 test("the built explorer carries its shell and canonical data", async () => {
   const html = await readFile(new URL("../dist/index.html", import.meta.url), "utf8");
-  assert.match(html, /Personality Palette · Agent Compose/);
+  assert.match(html, /Personality Palette \/\/ Agent Compose/);
   assert.match(html, /type="module"/);
 
   const raw = await readFile(new URL("../dist/palette.json", import.meta.url), "utf8");

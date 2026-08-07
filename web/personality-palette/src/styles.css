@@ -229,7 +229,7 @@ footer {
 .color-sentence span::after {
   margin-left: 12px;
   color: var(--line);
-  content: "·";
+  content: "//";
 }
 
 .color-sentence span:last-child::after {

@@ -319,7 +319,7 @@ function renderCards(
           <span
             class="personality-emblem"
             aria-label="${escapeHTML(personality.emblem.name)}"
-            title="${escapeHTML(personality.emblem.glyph)} · ${escapeHTML(personality.emblem.name)}"
+            title="${escapeHTML(personality.emblem.glyph)} // ${escapeHTML(personality.emblem.name)}"
           >${escapeHTML(personality.emblem.emoji)}</span>
           <div class="contrast-pair" aria-label="Light and dark contrast sample">
             <span>Aa</span><span>Aa</span>
@@ -428,7 +428,7 @@ function render(data: PaletteDocument): void {
 
       <footer>
         <p>Color is expression, never authority.</p>
-        <p>Agent Compose · canonical palette</p>
+        <p>Agent Compose // canonical palette</p>
       </footer>
       <p class="sr-only" aria-live="polite">${state.copied ? `${escapeHTML(state.copied)} color copied` : ""}</p>
     </main>
