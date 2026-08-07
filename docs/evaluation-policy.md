@@ -34,6 +34,21 @@ lanes, unknown cases, digest drift, missing retry provenance, bad totals, and
 bad verdicts. A disabled tier may be absent, but included disabled-tier evidence
 must be complete.
 
+## Re-earning a baseline
+
+Editing a role, a meld, or the policy retires every affected record, because
+the pack digest it was bound to no longer exists. `ward exec
+evaluation-baseline` re-earns the baseline in one pass: render packs, drive
+every active case, review the preserved responses, then write the records
+through the owning marshaller so totals and verdicts come from the pack review
+rule rather than the reviewer.
+
+The driver and the reviewer each need their own isolated, authenticated home.
+Separate homes keep the reviewer from inheriting the role context projected
+for the driver. A run against the host home is plumbing only and cannot be
+evidence. A retired baseline moves under `evaluations/` by date and seat
+instead of being deleted.
+
 ## See also
 
 * [evaluation.md](evaluation.md) - pack generation and scored results.

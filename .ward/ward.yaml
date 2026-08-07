@@ -42,6 +42,9 @@ commands:
   evaluation-packs:
     run: sh scripts/render-evaluation-packs.sh
     description: Render the complete Core Roster review packs into an explicitly selected empty directory.
+  evaluation-baseline:
+    run: sh scripts/earn-evaluation-baseline.sh
+    description: Re-earn the committed baseline by driving, independently reviewing, and recording every active case.
   harness-refresh:
     run: go test ./internal/nativeui -run TestVendoredHarnessData -update -v
     description: Re-extract the vendored Claude Code verb and theme-token lists from the installed binary.

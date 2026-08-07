@@ -8,6 +8,6 @@ fi
 
 go run ./cmd/agent-compose evaluation \
   --all \
-  --seat codex \
+  --seat "${AGENT_COMPOSE_EVALUATION_SEAT:-claude}" \
   --format yaml \
   --out-dir "${AGENT_COMPOSE_EVALUATION_OUT}"
