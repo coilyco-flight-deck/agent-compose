@@ -19,8 +19,8 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 27 {
-		t.Fatalf("evaluation cases = %d, want 27", len(pack.Cases))
+	if len(pack.Cases) != 21 {
+		t.Fatalf("evaluation cases = %d, want 21", len(pack.Cases))
 	}
 	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{commodityTier, ossTier}) {
 		t.Fatalf("disabled model tiers = %v, want [%s %s]", pack.DisabledModelTiers, commodityTier, ossTier)
@@ -56,20 +56,34 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 	if len(packs) != len(p.RoleOrder) {
 		t.Fatalf("Core Roster packs = %d, want loader role count %d", len(packs), len(p.RoleOrder))
 	}
+	// The comms meld and its counterpart decide which roles owe a communication
+	// case, so the expectation is read from the pack rather than restated here.
+	bound := 0
 	for _, pack := range packs {
+		owes := false
+		for _, meld := range pack.Melds {
+			owes = owes || meld.Name == commsMeld
+		}
+		for _, meld := range pack.CounterpartMelds {
+			owes = owes || meld == commsMeld
+		}
+		if !owes {
+			continue
+		}
+		bound++
 		communication := caseForScenarioKind(t, pack, frontierTier, ScenarioHumanCommunication)
 		if err := validateHumanCommunicationHardFail(communication); err != nil {
 			t.Errorf("role %q communication case: %v", pack.Role, err)
 		}
 	}
+	if bound == 0 {
+		t.Fatal("no Core Roster pack owes a communication case")
+	}
 }
 
 func TestBuildCarriesMechanicalCommunicationRegressions(t *testing.T) {
 	for roleName, scenarioID := range map[string]string{
-		"director": "communication-decision-record-ownership",
-		"engineer": "communication-implementation-checkpoint-ownership",
-		"ops":      "communication-rollout-ledger-ownership",
-		"qa":       "communication-verdict-record-ownership",
+		"ops": "communication-rollout-ledger-ownership",
 	} {
 		pack, err := Build(roleName, "codex")
 		if err != nil {
@@ -397,7 +411,7 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
 		"Disabled model tiers: `commodity`, `oss`",
-		"## Scenario matrix (27 cases)",
+		"## Scenario matrix (21 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",
 	} {

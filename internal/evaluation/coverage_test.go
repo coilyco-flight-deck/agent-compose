@@ -39,24 +39,6 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
-		"missing human communication boundary": func(candidate *Pack) {
-			var kept []Case
-			for _, evalCase := range candidate.Cases {
-				if evalCase.ScenarioKind != ScenarioHumanCommunication {
-					kept = append(kept, evalCase)
-				}
-			}
-			candidate.Cases = kept
-		},
-		"missing evidence acquisition": func(candidate *Pack) {
-			var kept []Case
-			for _, evalCase := range candidate.Cases {
-				if evalCase.ScenarioKind != ScenarioEvidenceAcquisition {
-					kept = append(kept, evalCase)
-				}
-			}
-			candidate.Cases = kept
-		},
 		"evidence acquisition without the meld": func(candidate *Pack) {
 			var kept []MeldContext
 			for _, meld := range candidate.Melds {
@@ -81,20 +63,6 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 				return
 			}
 		},
-		"human communication boundary is not a hard fail": func(candidate *Pack) {
-			for caseIndex := range candidate.Cases {
-				if candidate.Cases[caseIndex].ScenarioKind != ScenarioHumanCommunication {
-					continue
-				}
-				for criterionIndex := range candidate.Cases[caseIndex].Rubric {
-					criterion := &candidate.Cases[caseIndex].Rubric[criterionIndex]
-					if criterion.ID == "human-communication-ownership" {
-						criterion.HardFail = false
-						return
-					}
-				}
-			}
-		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			candidate := *pack
@@ -108,6 +76,85 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			mutate(&candidate)
 			if err := ValidateCorePack(&candidate); err == nil {
 				t.Fatal("invalid Core Roster evaluation coverage passed")
+			}
+		})
+	}
+}
+
+func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
+	// The engineer pack no longer declares comms, so communication coverage is
+	// exercised against a declaring role and against the counterpart.
+	declaring, err := Build("ops", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	counterpart, err := Build("creator", "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, test := range map[string]struct {
+		base   *Pack
+		mutate func(*Pack)
+	}{
+		"declaring role missing the boundary": {base: declaring, mutate: func(candidate *Pack) {
+			var kept []Case
+			for _, evalCase := range candidate.Cases {
+				if evalCase.ScenarioKind != ScenarioHumanCommunication {
+					kept = append(kept, evalCase)
+				}
+			}
+			candidate.Cases = kept
+		}},
+		"counterpart missing the boundary": {base: counterpart, mutate: func(candidate *Pack) {
+			var kept []Case
+			for _, evalCase := range candidate.Cases {
+				if evalCase.ScenarioKind != ScenarioHumanCommunication {
+					kept = append(kept, evalCase)
+				}
+			}
+			candidate.Cases = kept
+		}},
+		"counterpart relationship dropped": {base: counterpart, mutate: func(candidate *Pack) {
+			candidate.CounterpartMelds = nil
+		}},
+		"boundary without the meld": {base: declaring, mutate: func(candidate *Pack) {
+			var kept []MeldContext
+			for _, meld := range candidate.Melds {
+				if meld.Name != commsMeld {
+					kept = append(kept, meld)
+				}
+			}
+			candidate.Melds = kept
+		}},
+		"boundary is not a hard fail": {base: declaring, mutate: func(candidate *Pack) {
+			for caseIndex := range candidate.Cases {
+				if candidate.Cases[caseIndex].ScenarioKind != ScenarioHumanCommunication {
+					continue
+				}
+				for criterionIndex := range candidate.Cases[caseIndex].Rubric {
+					criterion := &candidate.Cases[caseIndex].Rubric[criterionIndex]
+					if criterion.ID == "human-communication-ownership" {
+						criterion.HardFail = false
+						return
+					}
+				}
+			}
+		}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			candidate := *test.base
+			candidate.Cases = append([]Case(nil), test.base.Cases...)
+			candidate.Melds = append([]MeldContext(nil), test.base.Melds...)
+			candidate.CounterpartMelds = append([]string(nil), test.base.CounterpartMelds...)
+			for index := range candidate.Cases {
+				candidate.Cases[index].Rubric = append(
+					[]Criterion(nil),
+					test.base.Cases[index].Rubric...,
+				)
+			}
+			test.mutate(&candidate)
+			if err := ValidateCorePack(&candidate); err == nil {
+				t.Fatal("invalid communication coverage passed")
 			}
 		})
 	}

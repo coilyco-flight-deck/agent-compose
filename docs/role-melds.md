@@ -1,17 +1,17 @@
 # Role melds
 
 A meld is one shared doctrine body that any number of roles activate
-identically. Use a meld when the same obligation binds several roles and
-restating it per charter would let the copies drift apart.
+identically. Use one when the same obligation binds several roles and restating
+it per charter would let the copies drift apart. A body every role declares is
+a roster-wide rule, not a meld.
 
 ## Why melds exist
 
 Role skill bodies have a 400-word ceiling. Before melds, every role sharing the
 communication-ownership or live-operations boundary restated it in its own
 charter, so shared policy competed with role-specific prose for one budget.
-Extracting both boundaries freed 602 words across the Core Roster, a 22%
-reduction, without removing doctrine from any role. A meld body is bounded
-separately at 400 words and never enters `Role.Briefing`.
+Extracting both freed 602 words across the Core Roster, a 22% reduction, with no
+doctrine removed. A meld body is bounded separately and never enters the briefing.
 
 ## How a meld differs from its neighbours
 
@@ -24,13 +24,13 @@ separately at 400 words and never enters `Role.Briefing`.
 Declare the catalog entry in a library, then reference it from each role:
 
 ```kdl
-meld "live-ops" skill="meld-live-ops" summary="observation is approved, mutation and promotion are not"
+meld "live-ops" skill="meld-live-ops" counterpart="ops" summary="observation is approved, mutation and promotion are not"
 ```
 
 ```kdl
 role "engineer" {
     skill "role-engineer"
-    meld "live-ops" "comms"
+    meld "live-ops" "evidence"
     personality "curious" "meticulous" "tenacious"
 }
 ```
@@ -43,16 +43,15 @@ libraries/kai-core/definitions/skills/meld-live-ops/SKILL.md
 ```
 
 The catalog id, `skill` property, and frontmatter name must agree, so meld
-`live-ops` binds skill `meld-live-ops`. An unreferenced meld fails loading.
+`live-ops` binds `meld-live-ops`. An unreferenced meld fails loading.
 
 ## Selection and delivery
 
 Agent Compose selects a meld with every role that declares it. The identity card
 names melded skills under `Shared doctrine` and lists them in `Active doctrine`
-between the role charter and the personalities, so the agent loads them before
-acting. Native delivery installs each body once as an ordinary skill, and
-compiled delivery appends the same selected bodies. Several roles sharing one
-body is the expected case rather than a collision.
+between the charter and the personalities, so the agent loads them before acting.
+Native delivery installs each body once as an ordinary skill, and compiled
+delivery appends the same bodies. Sharing one body is expected, not a collision.
 
 The bundle manifest records the selected melds, the decision trace carries one
 `meld:<id>` entry per role, and bundle verification fails when the manifest and
@@ -60,20 +59,21 @@ trace disagree.
 
 ## Evaluation
 
-Evaluation packs carry melded bodies in a `melds` block beside the briefing, so
-doctrine that left a charter still reaches the driver rather than scoring an
-incomplete role. Changing a melded body moves the pack digest for every
-declaring role, retiring those results until an independently reviewed re-run.
+Packs carry melded bodies in a `melds` block beside the briefing, so doctrine
+that left a charter still reaches the driver rather than scoring an incomplete
+role. Changing a body moves the pack digest for every declaring role, retiring
+those results until an independently reviewed re-run.
 
 ## Core Roster melds
 
-* `live-ops` - melded into engineer, qa, and ai, the roles sealed against live mutation. DevOps owns the opposite authority and does not meld it.
-* `comms` - melded into every role except creator, which owns the other side of the boundary.
-* `evidence` - melded into engineer, exec, and ops, the roles whose diligence reaches past the context handed to them. QA treats the presented context as ground truth, Designer works from a preloaded style, Content Creator would be pulled toward crawling human content, Director assigns acquisition rather than performing it, and AI Engineer already carries a measured-evidence rule with its own stopping condition.
+* `live-ops` - melded into engineer, qa, and ai, the roles sealed against live mutation. Counterpart DevOps holds the opposite authority.
+* `comms` - melded into design, exec, and ops, the roles holding externally facing content that carries a social tone. Counterpart Content Creator owns the recommendations they defer.
+* `evidence` - melded into engineer, exec, and ops, the roles whose diligence reaches past the context handed to them. No counterpart, since no role owns the opposite. QA, Designer, Content Creator, Director, and AI Engineer are excluded, each because acquisition would override a designated source or duplicate a rule the charter already carries.
 
 ## See also
 
 * [Role skills](role-briefings.md) - charter and progressive-disclosure model.
+* [Meld counterparts](meld-counterparts.md) - the two-sided relationship.
 * [Role methods](role-methods.md) - single-owner lazy procedures.
 * [Personality libraries](personality-libraries.md) - the shared disposition axis.
 * [Role-skill context budget](role-skill-context-budget.md) - measured budget effects.

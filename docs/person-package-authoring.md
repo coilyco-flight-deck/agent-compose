@@ -28,7 +28,9 @@ definitions directory may not contain extra skills. Each optional role method
 is declared in the role fragment and stored below that role's `skills/`
 directory. Method directories contain only `SKILL.md`. Each optional meld is
 declared in its own fragment, stores its body beside the personality
-definitions, and must be referenced by at least one role.
+definitions, and must be referenced by at least one role. Its optional
+[counterpart](meld-counterparts.md) names a defined role that must not declare
+the meld.
 Symlinks are invalid anywhere in the package.
 
 The role, personality, identity, color, and model-tier validation applies
