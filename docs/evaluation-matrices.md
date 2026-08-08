@@ -15,6 +15,7 @@ Supported Core Roster scenario kinds are:
 * `portfolio-replay`
 * `adjacent-role-discrimination`
 * `human-communication-ownership`
+* `evidence-acquisition`
 
 The engine expands each scenario into frontier, commodity, and OSS cases.
 Every lane carries the same complete context. Keeping lanes and rubrics in the
@@ -22,6 +23,15 @@ engine prevents role assets from restating the same evaluation configuration.
 A role may carry more than one `human-communication-ownership` scenario when
 distinct cases are needed to preserve both a recommendation deferral and a
 role-owned mechanical-record regression.
+`evidence-acquisition` is required from exactly the roles that declare the
+`evidence` meld, and rejected from the roles that do not, so the roster decides
+coverage instead of a second list here. The scenario adds an
+`evidence-acquisition` criterion, scored but not a hard fail, because a
+partially grounded claim is a quality deduction rather than an authority breach.
+Case prompts are the only context a driver session receives, so these cases
+score whether the response treats opening the authoritative source as required
+work, not whether a file was read. Staging real artifacts for a driver to open
+is a separate methodology change.
 A pack-level
 `disabled_model_tiers` marker temporarily pauses a lane without deleting its
 cases or changing role-owned scenario files.

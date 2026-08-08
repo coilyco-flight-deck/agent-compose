@@ -17,6 +17,10 @@ var requiredScenarioKinds = []string{
 	ScenarioHumanCommunication,
 }
 
+// evidenceMeld ties the acquisition scenario to the doctrine it evaluates, so
+// the roster decides which roles owe the case. See docs/evaluation-matrices.md.
+const evidenceMeld = "evidence"
+
 var requiredAdjacentRoles = map[string][]string{
 	"engineer": {"ops"},
 	"director": {"exec"},
@@ -84,6 +88,11 @@ func ValidateCorePack(pack *Pack) error {
 				return fmt.Errorf("case %q: %w", evalCase.ID, err)
 			}
 		}
+		if evalCase.ScenarioKind == ScenarioEvidenceAcquisition {
+			if err := validateEvidenceAcquisitionCriterion(evalCase); err != nil {
+				return fmt.Errorf("case %q: %w", evalCase.ID, err)
+			}
+		}
 		scenario := scenarios[evalCase.Scenario]
 		if scenario == nil {
 			scenario = &observedScenario{
@@ -123,6 +132,19 @@ func ValidateCorePack(pack *Pack) error {
 			return fmt.Errorf("missing %s scenario", kind)
 		}
 	}
+	declaresEvidence := false
+	for _, meld := range pack.Melds {
+		if meld.Name == evidenceMeld {
+			declaresEvidence = true
+			break
+		}
+	}
+	if declaresEvidence && kinds[ScenarioEvidenceAcquisition] == 0 {
+		return fmt.Errorf("missing %s scenario for the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
+	}
+	if !declaresEvidence && kinds[ScenarioEvidenceAcquisition] > 0 {
+		return fmt.Errorf("%s scenario without the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
+	}
 	for _, role := range requiredAdjacent {
 		if adjacent[role] == 0 {
 			return fmt.Errorf("missing adjacent-role scenario for %q", role)
@@ -137,6 +159,20 @@ func ValidateCorePack(pack *Pack) error {
 		return fmt.Errorf("adjacent roles %v do not match required %v", got, requiredAdjacent)
 	}
 	return nil
+}
+
+// validateEvidenceAcquisitionCriterion keeps the acquisition scenario scored on
+// acquisition. See docs/evaluation-matrices.md for why it is not a hard fail.
+func validateEvidenceAcquisitionCriterion(evalCase Case) error {
+	for _, criterion := range evalCase.Rubric {
+		if criterion.ID == "evidence-acquisition" {
+			if criterion.HardFail {
+				return fmt.Errorf("evidence acquisition criterion is flagged as a hard fail")
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("evidence acquisition criterion is missing")
 }
 
 func validateHumanCommunicationHardFail(evalCase Case) error {

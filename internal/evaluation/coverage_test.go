@@ -48,6 +48,39 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
+		"missing evidence acquisition": func(candidate *Pack) {
+			var kept []Case
+			for _, evalCase := range candidate.Cases {
+				if evalCase.ScenarioKind != ScenarioEvidenceAcquisition {
+					kept = append(kept, evalCase)
+				}
+			}
+			candidate.Cases = kept
+		},
+		"evidence acquisition without the meld": func(candidate *Pack) {
+			var kept []MeldContext
+			for _, meld := range candidate.Melds {
+				if meld.Name != evidenceMeld {
+					kept = append(kept, meld)
+				}
+			}
+			candidate.Melds = kept
+		},
+		"evidence acquisition criterion dropped": func(candidate *Pack) {
+			for caseIndex := range candidate.Cases {
+				if candidate.Cases[caseIndex].ScenarioKind != ScenarioEvidenceAcquisition {
+					continue
+				}
+				var kept []Criterion
+				for _, criterion := range candidate.Cases[caseIndex].Rubric {
+					if criterion.ID != "evidence-acquisition" {
+						kept = append(kept, criterion)
+					}
+				}
+				candidate.Cases[caseIndex].Rubric = kept
+				return
+			}
+		},
 		"human communication boundary is not a hard fail": func(candidate *Pack) {
 			for caseIndex := range candidate.Cases {
 				if candidate.Cases[caseIndex].ScenarioKind != ScenarioHumanCommunication {

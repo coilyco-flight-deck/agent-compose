@@ -54,8 +54,8 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	}
 	for _, want := range []string{
 		"# Evaluation scorecard",
-		"F frontier-test // C commodity-test // O oss-test // 17/24 pass // 190/204 points",
-		"| engineer | 52/52✓ | 8✓ | 8✓ | 52/52✓ | 8✓ | 8✓ | 40/52× | 8✓ | 6× | 190/204 |",
+		"F frontier-test // C commodity-test // O oss-test // 19/27 pass // 218/234 points",
+		"| engineer | 62/62✓ | 8✓ | 8✓ | 62/62✓ | 8✓ | 8✓ | 48/62× | 8✓ | 6× | 218/234 |",
 		"`F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality // `A` adjacent-role discrimination",
 	} {
 		if !strings.Contains(string(first), want) {
@@ -103,8 +103,8 @@ func TestMarkdownScorecardMarksDisabledNonFrontierTiers(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"F frontier-test // C disabled // O disabled // 8/8 pass // 68/68 points",
-		"| engineer | 52/52✓ | 8✓ | 8✓ | - | - | - | - | - | - | 68/68 |",
+		"F frontier-test // C disabled // O disabled // 9/9 pass // 78/78 points",
+		"| engineer | 62/62✓ | 8✓ | 8✓ | - | - | - | - | - | - | 78/78 |",
 	} {
 		if !strings.Contains(string(scorecard), want) {
 			t.Errorf("disabled-tier scorecard omitted %q:\n%s", want, scorecard)
@@ -143,9 +143,9 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"F fixture-model // C disabled // O fixture-model // 16/16 pass // 136/136 points",
+		"F fixture-model // C disabled // O fixture-model // 18/18 pass // 156/156 points",
 		"| role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |",
-		"| engineer | 52/52✓ | 8✓ | 8✓ | - | - | - | 52/52✓ | 8✓ | 8✓ | 136/136 |",
+		"| engineer | 62/62✓ | 8✓ | 8✓ | - | - | - | 62/62✓ | 8✓ | 8✓ | 156/156 |",
 	} {
 		if !strings.Contains(string(scorecard), want) {
 			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)

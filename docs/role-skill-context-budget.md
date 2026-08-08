@@ -32,6 +32,17 @@ The melded bodies are additive rather than deducted. Each is bounded by its own
 400-word ceiling and never enters `Role.Briefing`, so the freed budget is
 available to role-specific charter prose.
 
+## Evidence meld
+
+The `evidence` meld binds engineer, exec, and ops, and spends 357 words of its
+own 400-word ceiling. It charges no role body. Role prose is unchanged except exec,
+which grew 223 to 244 words when the shared acquisition obligation replaced its
+`Prefer primary evidence` clause and absorbed the strategist residue about
+measuring rather than assuming portfolio numbers. Every role body stays under
+its 400-word ceiling, and Core Roster role prose totals 2,159 words. These
+counts come from the loader's own body counter, so they differ by a word or two
+from the extraction figures above, which were measured with a separate tool.
+
 ## See also
 
 * [role melds](role-melds.md) - shared doctrine and its separate budget.
