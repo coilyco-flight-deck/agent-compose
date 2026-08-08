@@ -32,8 +32,14 @@ type Options struct {
 	Role            string
 	Harness         string
 	ModelTier       string
-	CWD             string
-	TargetDir       string
+	CWD       string
+	TargetDir string
+	// RuntimeHome is the session-scoped home a launch consumer staged. When set,
+	// projection uses the harness global load points; see docs/projection.md.
+	RuntimeHome string
+	// OperatingBase leads the composed instructions, so a session home that
+	// replaces the host load point keeps the doctrine that file carried.
+	OperatingBase   string
 	PlanPath        string
 	OutDir          string
 	PersonSelection compose.Options
@@ -90,29 +96,37 @@ func Refresh(opts Options) (*Result, error) {
 		ModelTier:    modelTier,
 		Repositories: repositories,
 	}
+	selection := opts.PersonSelection
+	selection.OperatingBase = opts.OperatingBase
 	composed, err := compose.RunRootsWithMissing(
 		request,
 		roots,
 		missing,
 		opts.OutDir,
-		opts.PersonSelection,
+		selection,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("compose native role %q: %w", opts.Role, err)
 	}
-	target := opts.TargetDir
+	// A staged session home owns its whole load-point surface, so the role lands
+	// at the harness global paths rather than beside the checkouts.
+	target, scope := opts.TargetDir, project.ScopeRepo
 	if target == "" {
 		target = opts.CWD
 	}
+	if home := strings.TrimSpace(opts.RuntimeHome); home != "" {
+		target, scope = home, project.ScopeHome
+	}
 	projectedCount := 0
 	if !opts.SkipProjection {
-		projected, err := project.Project(composed.Bundle.Dir, opts.Harness, target)
+		projected, err := project.ProjectScoped(composed.Bundle.Dir, opts.Harness, target, scope)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"project native role %q for %s into %s: %w",
+				"project native role %q for %s into %s (%s scope): %w",
 				opts.Role,
 				opts.Harness,
 				target,
+				scope,
 				err,
 			)
 		}

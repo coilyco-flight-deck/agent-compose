@@ -253,7 +253,13 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	out := []byte(fmt.Sprintf(
+	// The operating base leads, matching the host global load point, so a role
+	// bundle carries its own doctrine instead of inheriting the host's.
+	var out []byte
+	if base := strings.TrimSpace(res.OperatingBase); base != "" {
+		out = append(out, []byte(base+"\n\n")...)
+	}
+	out = append(out, []byte(fmt.Sprintf(
 		"# Role instructions\n\n"+
 			"Agent-compose assigned the `%s` role from the caller's compose request. "+
 			"The agent treats this caller-assigned role as authoritative and fixed for the session. "+
@@ -267,7 +273,7 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 			"%s\n",
 		res.Request.Role,
 		card,
-	))
+	))...)
 	for _, sel := range res.Instructions {
 		raw, err := fs.ReadFile(sel.Files, sel.Path)
 		if err != nil {

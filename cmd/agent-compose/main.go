@@ -923,12 +923,27 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+	runtimeHome := strings.TrimSpace(os.Getenv(nativelaunch.EnvRuntimeHome))
+	// Only a session home replaces the host load point. A repo-scope launch
+	// still reads the host file, where repeating the base would double it.
+	operatingBase := ""
+	if runtimeHome != "" {
+		cfg, err := cascade.LoadConfig(paths.Config)
+		if err != nil {
+			return fmt.Errorf("load host configuration for the operating base: %w", err)
+		}
+		if operatingBase, err = cascade.OperatingBase(cfg, harness); err != nil {
+			return err
+		}
+	}
 	result, err := nativelaunch.Refresh(nativelaunch.Options{
 		Role:            role,
 		Harness:         harness,
 		ModelTier:       os.Getenv(nativelaunch.EnvModelTier),
 		CWD:             cwd,
 		TargetDir:       cwd,
+		RuntimeHome:     runtimeHome,
+		OperatingBase:   operatingBase,
 		PlanPath:        filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
 		OutDir:          filepath.Join(stateDir, "bundles"),
 		PersonSelection: personSelection,
@@ -964,7 +979,6 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	); err != nil {
 		return err
 	}
-	runtimeHome := strings.TrimSpace(os.Getenv(nativelaunch.EnvRuntimeHome))
 	if err := clearNativeLaunchEnvironment(); err != nil {
 		return err
 	}

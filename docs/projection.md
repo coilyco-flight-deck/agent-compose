@@ -27,7 +27,10 @@ never appear in the resolver, the request, the manifest, or the bundle tree.
 ## Home scope
 
 `project --scope home` treats the target as a home root and uses each
-harness's global load points, for containers where v2 owns the whole home:
+harness's global load points, for any launch owning the whole home. That covers
+containers and the native session home a consumer names through
+`AGENT_COMPOSE_RUNTIME_HOME`. Such a launch replaces the host global load point,
+so its bundle leads with the operating base instead of inheriting one:
 claude `.claude/CLAUDE.md` + `.claude/skills`, codex `.codex/AGENTS.md`,
 goose `.config/goose/.goosehints`, opencode `.config/opencode/AGENTS.md`,
 with `.agents/skills` as the portable global skills directory for all but

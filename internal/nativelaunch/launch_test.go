@@ -695,3 +695,131 @@ func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
 		t.Fatalf("required missing provider error = %v", err)
 	}
 }
+
+// A staged session home owns its whole load-point surface, so the role must land
+// at the harness global paths and leave the checkouts untouched.
+func TestRefreshProjectsIntoRuntimeHomeAtGlobalLoadPoints(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+	out := filepath.Join(t.TempDir(), "bundles")
+
+	cases := map[string]struct {
+		instructions string
+		skills       string
+	}{
+		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
+		"codex":    {".codex/AGENTS.md", ".agents/skills"},
+		"goose":    {".config/goose/.goosehints", ".agents/skills"},
+		"opencode": {".config/opencode/AGENTS.md", ".agents/skills"},
+	}
+	for harness, tc := range cases {
+		t.Run(harness, func(t *testing.T) {
+			home, target := t.TempDir(), t.TempDir()
+			result, err := Refresh(Options{
+				Role:        "design",
+				Harness:     harness,
+				CWD:         projects,
+				TargetDir:   target,
+				RuntimeHome: home,
+				PlanPath:    manifest,
+				OutDir:      out,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.Projected == 0 {
+				t.Fatal("home projection reported no files")
+			}
+			instructions, err := os.ReadFile(filepath.Join(home, filepath.FromSlash(tc.instructions)))
+			if err != nil {
+				t.Fatalf("instructions missing from the runtime home: %v", err)
+			}
+			if !strings.Contains(string(instructions), "assigned the `design` role") {
+				t.Fatalf("assigned role missing from instructions:\n%s", instructions)
+			}
+			skill := filepath.Join(home, filepath.FromSlash(tc.skills), "role-design", "SKILL.md")
+			if _, err := os.Stat(skill); err != nil {
+				t.Errorf("role skill missing from the runtime home: %v", err)
+			}
+			// The projects root is where the old repo-scope projection landed.
+			entries, err := os.ReadDir(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(entries) != 0 {
+				t.Errorf("runtime-home projection also wrote into the target: %v", entries)
+			}
+		})
+	}
+}
+
+// A session home replaces the host global load point, so the bundle has to carry
+// the doctrine that file supplied rather than inherit it.
+func TestRefreshLeadsInstructionsWithTheOperatingBase(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+	home := t.TempDir()
+
+	const base = "# Agent instructions\n\nPronouns stay she/her."
+	if _, err := Refresh(Options{
+		Role:          "design",
+		Harness:       "claude",
+		CWD:           projects,
+		TargetDir:     t.TempDir(),
+		RuntimeHome:   home,
+		OperatingBase: base,
+		PlanPath:      manifest,
+		OutDir:        filepath.Join(t.TempDir(), "bundles"),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(home, ".claude", "CLAUDE.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := string(raw)
+	baseAt, roleAt := strings.Index(body, base), strings.Index(body, "# Role instructions")
+	if baseAt < 0 {
+		t.Fatalf("operating base missing from the projected instructions:\n%s", body)
+	}
+	if roleAt < 0 || baseAt > roleAt {
+		t.Fatalf("operating base must lead the role card:\n%s", body)
+	}
+}
+
+// Without a session home the host load point still supplies the base, so
+// repeating it in the bundle would double the doctrine.
+func TestRefreshOmitsTheOperatingBaseWithoutARuntimeHome(t *testing.T) {
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+	target := t.TempDir()
+
+	if _, err := Refresh(Options{
+		Role:      "design",
+		Harness:   "claude",
+		CWD:       projects,
+		TargetDir: target,
+		PlanPath:  manifest,
+		OutDir:    filepath.Join(t.TempDir(), "bundles"),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(target, "CLAUDE.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(string(raw), "# Role instructions") {
+		t.Fatalf("repo-scope instructions must still start at the role card:\n%s", raw)
+	}
+}

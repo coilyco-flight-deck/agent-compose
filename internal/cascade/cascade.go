@@ -167,6 +167,28 @@ func ResolveLoadPoints(cfg *Config) map[string]string {
 	return resolvePoints(DefaultLoadPoints(), cfg.LoadPoints)
 }
 
+// OperatingBase renders the host operating base for one harness: the same
+// source selection cascade writes to that harness's global load point.
+func OperatingBase(cfg *Config, harness string) (string, error) {
+	gathered, _ := GatherSources(cfg)
+	filtering := cfg.Scopes != nil
+	var machineScopes []string
+	if filtering {
+		machineScopes = *cfg.Scopes
+	}
+	selected := selectByHarness(SelectByScope(gathered, machineScopes, filtering), harness)
+	if len(selected) == 0 {
+		return "", fmt.Errorf("no operating-base sources matched harness %q", harness)
+	}
+	overrides := map[string]string{}
+	for _, src := range selected {
+		if override := discoverOverride(src, harness); override != "" {
+			overrides[src] = override
+		}
+	}
+	return Compose(selected, overrides)
+}
+
 // DefaultSkillLoadPoints mirrors DefaultLoadPoints for skills. Claude reads only
 // `.claude/skills`, never the portable directory; see docs/projection.md.
 func DefaultSkillLoadPoints() map[string]string {
