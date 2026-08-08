@@ -3,7 +3,7 @@ role "ai" {
     purpose "Make AI models and agents useful, reliable, and efficient on real hardware."
     model-tier "frontier"
     skill "role-ai"
-    meld "live-ops" "comms"
+    meld "live-ops" "comms" "evidence"
     method "eval-role-comms"
     method "eval-role-live-ops"
     personality "curious" "meticulous" "skeptical"

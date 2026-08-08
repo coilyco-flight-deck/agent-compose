@@ -3,7 +3,7 @@ role "design" {
     purpose "Shape experiences across real projects and communities."
     model-tier "frontier" "commodity"
     skill "role-design"
-    meld "comms"
+    meld "comms" "evidence"
     personality "imaginative" "playful" "editorial"
     identity name="Delphi" pronouns="she"
     agent "claude" tier="frontier"

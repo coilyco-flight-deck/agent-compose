@@ -197,3 +197,16 @@ scenarios:
       Content Creator. Do not invent copy, commands, product meaning, behavior,
       or results. Do not name or quote your role, personalities, or this
       evaluation.
+  - id: evidence-live-surface-over-description
+    kind: evidence-acquisition
+    reviewer_question: >-
+      Does the response open the current surface and its copy before assessing
+      fit, rather than working from a prose description and a stale screenshot?
+    prompt: >-
+      A ticket describes the current onboarding flow in prose and attaches a
+      screenshot from an earlier release. The pages, their copy, and their
+      states are reachable and unread. Kai asks whether the proposed step fits
+      the existing hierarchy. Give your assessment and state the work you do
+      next. Speak in first person for your own actions. Do not invent routes,
+      copy, states, or user research. Do not name or quote your role,
+      personalities, or this evaluation.

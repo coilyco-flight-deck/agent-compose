@@ -60,16 +60,16 @@ trace disagree.
 
 ## Evaluation
 
-Evaluation packs carry melded bodies in a `melds` block beside the briefing.
-Doctrine that moved out of a charter must still reach the driver, otherwise a
-run would score an incomplete role. Changing a melded body changes the pack
-digest for every role that declares it, which retires the recorded results for
-all of them until the evaluation is re-run and independently reviewed.
+Evaluation packs carry melded bodies in a `melds` block beside the briefing, so
+doctrine that left a charter still reaches the driver rather than scoring an
+incomplete role. Changing a melded body moves the pack digest for every
+declaring role, retiring those results until an independently reviewed re-run.
 
 ## Core Roster melds
 
 * `live-ops` - melded into engineer, qa, and ai, the roles sealed against live mutation. DevOps owns the opposite authority and does not meld it.
 * `comms` - melded into every role except creator, which owns the other side of the boundary.
+* `evidence` - melded into every role. Acquiring the source that settles a claim precedes ranking the evidence already held, and no role is exempt from opening it.
 
 ## See also
 

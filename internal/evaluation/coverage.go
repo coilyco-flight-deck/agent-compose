@@ -15,6 +15,7 @@ var requiredScenarioKinds = []string{
 	ScenarioCompletionOwnership,
 	ScenarioPortfolioReplay,
 	ScenarioHumanCommunication,
+	ScenarioEvidenceAcquisition,
 }
 
 var requiredAdjacentRoles = map[string][]string{
@@ -84,6 +85,11 @@ func ValidateCorePack(pack *Pack) error {
 				return fmt.Errorf("case %q: %w", evalCase.ID, err)
 			}
 		}
+		if evalCase.ScenarioKind == ScenarioEvidenceAcquisition {
+			if err := validateEvidenceAcquisitionCriterion(evalCase); err != nil {
+				return fmt.Errorf("case %q: %w", evalCase.ID, err)
+			}
+		}
 		scenario := scenarios[evalCase.Scenario]
 		if scenario == nil {
 			scenario = &observedScenario{
@@ -137,6 +143,20 @@ func ValidateCorePack(pack *Pack) error {
 		return fmt.Errorf("adjacent roles %v do not match required %v", got, requiredAdjacent)
 	}
 	return nil
+}
+
+// validateEvidenceAcquisitionCriterion keeps the acquisition scenario scored on
+// acquisition. See docs/evaluation-matrices.md for why it is not a hard fail.
+func validateEvidenceAcquisitionCriterion(evalCase Case) error {
+	for _, criterion := range evalCase.Rubric {
+		if criterion.ID == "evidence-acquisition" {
+			if criterion.HardFail {
+				return fmt.Errorf("evidence acquisition criterion is flagged as a hard fail")
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("evidence acquisition criterion is missing")
 }
 
 func validateHumanCommunicationHardFail(evalCase Case) error {

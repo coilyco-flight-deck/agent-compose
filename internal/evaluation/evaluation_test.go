@@ -19,8 +19,8 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 24 {
-		t.Fatalf("evaluation cases = %d, want 24", len(pack.Cases))
+	if len(pack.Cases) != 27 {
+		t.Fatalf("evaluation cases = %d, want 27", len(pack.Cases))
 	}
 	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{commodityTier, ossTier}) {
 		t.Fatalf("disabled model tiers = %v, want [%s %s]", pack.DisabledModelTiers, commodityTier, ossTier)
@@ -34,7 +34,8 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 			t.Errorf("case %q has incomplete v2 identity: %+v", evalCase.ID, evalCase)
 		}
 		wantRubric := 4
-		if evalCase.ScenarioKind == ScenarioHumanCommunication {
+		if evalCase.ScenarioKind == ScenarioHumanCommunication ||
+			evalCase.ScenarioKind == ScenarioEvidenceAcquisition {
 			wantRubric = 5
 		}
 		if len(evalCase.Rubric) != wantRubric || !strings.Contains(evalCase.Prompt, "Do not name") {
@@ -396,7 +397,7 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
 		"Disabled model tiers: `commodity`, `oss`",
-		"## Scenario matrix (24 cases)",
+		"## Scenario matrix (27 cases)",
 		"### frontier-mission-repository-proof",
 		"### oss-personality-small-inconsistency",
 	} {
