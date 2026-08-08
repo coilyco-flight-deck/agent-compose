@@ -100,7 +100,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 	manifestPath := filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml")
 	skills, err := skillmount.ApplyWithCatalogs(
 		manifestPath,
-		cfg.SkillLoadPoints,
+		cascade.ResolveSkillLoadPoints(cfg),
 		filepath.Dir(paths.Config),
 		catalogs,
 	)

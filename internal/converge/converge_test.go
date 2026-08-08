@@ -15,6 +15,13 @@ import (
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 	t.Helper()
+	// Unset load points fall back to defaults resolved against $HOME. Anchor it
+	// beside the config so converge never reaches the developer's real home.
+	isolated := filepath.Join(filepath.Dir(paths.Config), "home")
+	if err := os.MkdirAll(isolated, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", isolated)
 	if raw, err := os.ReadFile(paths.Config); err == nil && !strings.Contains(string(raw), "operating_context:") {
 		root := filepath.Join(paths.ProjectsRoot, "test", "context")
 		if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "fixture"), 0o755); err != nil {
@@ -138,10 +145,13 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The fixture configures codex only, so claude arrives from the default
+	// skill load point and every managed skill is verified at both.
+	managed := 2 * (len(skillEntries) - 1 + len(identityEntries))
 	wantSkillSummary := fmt.Sprintf(
-		"skills  managed=%d load-points=1 verified=%d linked=0 removed=0 preserved=0",
-		len(skillEntries)-1+len(identityEntries),
-		len(skillEntries)-1+len(identityEntries),
+		"skills  managed=%d load-points=2 verified=%d linked=0 removed=0 preserved=0",
+		managed,
+		managed,
 	)
 	if !strings.Contains(out, wantSkillSummary) {
 		t.Fatalf("second converge must summarize the full skill check: %s", out)

@@ -33,7 +33,7 @@ type Config struct {
 	PersonSource         string              `yaml:"person_source"`
 	PersonalityLibraries []string            `yaml:"personality_libraries"`
 	RosterSources        []string            `yaml:"roster_sources"`
-	SkillLoadPoints      map[string]string   `yaml:"skill_load_points"`
+	SkillLoadPoints      map[string]RawValue `yaml:"skill_load_points"`
 	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
 	OperatingContext     []string            `yaml:"operating_context"`
 }
@@ -164,8 +164,30 @@ func DefaultLoadPoints() map[string]string {
 // ResolveLoadPoints merges config overrides over the defaults; falsy values
 // (null, false, empty) opt a harness out entirely.
 func ResolveLoadPoints(cfg *Config) map[string]string {
-	points := DefaultLoadPoints()
-	for harness, value := range cfg.LoadPoints {
+	return resolvePoints(DefaultLoadPoints(), cfg.LoadPoints)
+}
+
+// DefaultSkillLoadPoints mirrors DefaultLoadPoints for skills. Claude reads only
+// `.claude/skills`, never the portable directory; see docs/projection.md.
+func DefaultSkillLoadPoints() map[string]string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return map[string]string{}
+	}
+	return map[string]string{
+		"claude": filepath.Join(home, ".claude", "skills"),
+		"codex":  filepath.Join(home, ".agents", "skills"),
+	}
+}
+
+// ResolveSkillLoadPoints merges config overrides over the skill defaults, with
+// the same falsy opt-out as ResolveLoadPoints.
+func ResolveSkillLoadPoints(cfg *Config) map[string]string {
+	return resolvePoints(DefaultSkillLoadPoints(), cfg.SkillLoadPoints)
+}
+
+func resolvePoints(points map[string]string, overrides map[string]RawValue) map[string]string {
+	for harness, value := range overrides {
 		if value.truthy() {
 			points[harness] = expand(value.node.Value)
 		} else {
