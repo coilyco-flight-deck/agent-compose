@@ -24,6 +24,9 @@ type Options struct {
 	PersonPolicy         string
 	PersonSource         string
 	PersonalityLibraries []string
+	// OperatingBase is the host doctrine that leads the bundle's instructions,
+	// so a projected role no longer depends on a host-owned load point.
+	OperatingBase string
 }
 
 // RootSource names one trusted provider root selected by a host launcher.
@@ -96,7 +99,7 @@ func RunWithOptions(requestPath, outDir string, opts Options) (*Result, error) {
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
 	}
-	return materialize(req, p, sources, missing, outDir, externalOnly)
+	return materialize(req, p, sources, missing, outDir, externalOnly, "")
 }
 
 // RunRoots composes trusted absolute provider roots selected by a host
@@ -155,7 +158,7 @@ func RunRootsWithMissing(
 		}
 		sources = append(sources, source)
 	}
-	return materialize(req, p, sources, missing, outDir, hostExternalOnly)
+	return materialize(req, p, sources, missing, outDir, hostExternalOnly, opts.OperatingBase)
 }
 
 func materialize(
@@ -165,11 +168,13 @@ func materialize(
 	missing []schema.MissingSource,
 	outDir string,
 	externalOnly bool,
+	operatingBase string,
 ) (*Result, error) {
 	res, err := resolver.Resolve(req, p, sources, missing)
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
 	}
+	res.OperatingBase = operatingBase
 	b, err := bundle.Materialize(res, outDir)
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)

@@ -56,7 +56,7 @@ linked strict provider document without writes.
 ## Native skill roots
 
 Bare compose can also link authored skill catalogs into harness-native skill
-directories through `skill_load_points`, such as `codex: ~/.agents/skills`.
+directories through [`skill_load_points`](skill-load-points.md).
 
 Native skill linking uses the compiled residency set from
 `repository-plan.yaml`. Repositories contribute `.agents/skills`. The compiled

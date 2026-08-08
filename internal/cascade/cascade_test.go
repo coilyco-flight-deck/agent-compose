@@ -706,3 +706,45 @@ func readFile(t *testing.T, path string) string {
 	}
 	return string(raw)
 }
+
+// A config naming one harness must not silently unwire the other, which is how
+// claude lost its global skills.
+func TestResolveSkillLoadPointsDefaultsWireClaudeAndCodex(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	points := ResolveSkillLoadPoints(&Config{})
+	want := map[string]string{
+		"claude": filepath.Join(home, ".claude", "skills"),
+		"codex":  filepath.Join(home, ".agents", "skills"),
+	}
+	for harness, path := range want {
+		if points[harness] != path {
+			t.Fatalf("default skill load point for %s = %q, want %q", harness, points[harness], path)
+		}
+	}
+	if len(points) != len(want) {
+		t.Fatalf("default skill load points = %v, want exactly %v", points, want)
+	}
+}
+
+func TestResolveSkillLoadPointsHonorsOverrideAndOptOut(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	cfg := &Config{}
+	if err := decodeStrictYAML(
+		[]byte("skill_load_points:\n  codex: "+filepath.Join(home, "elsewhere")+"\n  claude: null\n"),
+		"test",
+		cfg,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	points := ResolveSkillLoadPoints(cfg)
+	if got := points["codex"]; got != filepath.Join(home, "elsewhere") {
+		t.Fatalf("configured codex skill load point = %q", got)
+	}
+	if _, wired := points["claude"]; wired {
+		t.Fatalf("a null skill load point must opt claude out entirely: %v", points)
+	}
+}

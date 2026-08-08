@@ -64,6 +64,7 @@ type Resolution struct {
 	Melds          []string
 	RolePurpose    string
 	RoleBriefing   string
+	OperatingBase  string
 	Instructions   []Selected
 	Skills         []Selected
 	CompiledBodies []Selected
