@@ -213,6 +213,66 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 	}
 }
 
+func TestResolveIgnoresComposedSkillsBoundToUndefinedRoles(t *testing.T) {
+	src := makeSource(t, "aos", nil)
+	for _, name := range []string{"coding-shape-cli", "tooling-ceo-platform-strategy"} {
+		dir := filepath.Join(src.Root, name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "COMPOSED.md"), []byte("# "+name+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// "exec" is staged by the provider but absent from this roster.
+	src.RoleSkills = map[string][]schema.ContentRef{
+		"engineer": {{
+			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
+		}},
+		"exec": {{
+			ID:         "tooling-ceo-platform-strategy",
+			Path:       "tooling-ceo-platform-strategy",
+			EntryPoint: "COMPOSED.md",
+		}},
+	}
+
+	res, err := Resolve(
+		testRequest(schema.DeliveryNativeSkills),
+		testPerson(),
+		[]*schema.Source{src},
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("a binding to an undefined role failed the whole resolution: %v", err)
+	}
+	var found bool
+	for _, skill := range res.Skills {
+		if skill.ID == "tooling-ceo-platform-strategy" {
+			t.Fatal("an undefined role's composed skill entered the resolution")
+		}
+		if skill.ID == "coding-shape-cli" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("requested role composed skill missing from %+v", res.Skills)
+	}
+	for _, decision := range res.Decisions {
+		if decision.Subject == "skill:tooling-ceo-platform-strategy" {
+			t.Fatalf("undefined role skill leaked into the decision trace: %+v", decision)
+		}
+	}
+}
+
+func TestResolveStillRejectsAnUndefinedRequestedRole(t *testing.T) {
+	src := makeSource(t, "aos", nil)
+	req := &schema.Request{Role: "exec", Delivery: schema.DeliveryNativeSkills}
+	_, err := Resolve(req, testPerson(), []*schema.Source{src}, nil)
+	if err == nil || !strings.Contains(err.Error(), "not defined") {
+		t.Fatalf("expected the requested role to stay fail-closed, got %v", err)
+	}
+}
+
 func TestResolveWarnsAndTracesOverlappingComposedSkillSelectors(t *testing.T) {
 	src := makeSource(t, "aos", nil)
 	skill := filepath.Join(src.Root, "writing-kai-voice")

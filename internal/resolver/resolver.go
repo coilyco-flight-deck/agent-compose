@@ -110,14 +110,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	if len(role.Personalities) == 0 {
 		return nil, fmt.Errorf("role %q defines no personalities", req.Role)
 	}
+	// Only the requested role's bindings are read, so a source may stage a
+	// role this roster does not define. See docs/kdl-contracts.md.
 	roleSkill := p.RoleSkillID(req.Role)
-	for _, src := range sources {
-		for _, roleName := range sortedKeys(src.RoleSkills) {
-			if _, ok := p.Roles[roleName]; !ok {
-				return nil, fmt.Errorf("source %q binds composed skills to undefined role %q", src.ID, roleName)
-			}
-		}
-	}
 
 	activeBySkill := make(map[string]string, len(role.Personalities))
 	personalityBySkill := make(map[string]string, len(p.Personalities))

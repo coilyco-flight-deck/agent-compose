@@ -53,7 +53,7 @@ Repository IDs are document-local, paths use `owner/repository`, and `skill` mar
 Selected skill-provider repositories fail closed when their checkout or `.agents/skills` catalogue is unavailable. Only trusted roots widen eligibility, and imported graphs do not recurse.
 See [role-scoped providers](role-scoped-providers.md) for resolution and provenance.
 
-Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or glob. Globs expand lexically. Invalid or overlapping selections fail.
+Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md` by exact name or glob. Globs expand lexically. Invalid or overlapping selections fail. A graph may bind skills to a role the roster does not define: only the requested role's bindings are read, so the rest stay inert rather than failing the compose, letting a provider stage a role ahead of the roster that ships it. A role named in the request must still exist in the roster.
 Materialization renames admitted entry points to `SKILL.md`. Nested `SKILL.md` files and ordinary/composed name collisions fail.
 The same root form works in requests, roster arguments, and `roster_sources`.
 Roster sources are optional overlays. The selected person source always
