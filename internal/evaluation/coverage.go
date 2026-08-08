@@ -15,8 +15,11 @@ var requiredScenarioKinds = []string{
 	ScenarioCompletionOwnership,
 	ScenarioPortfolioReplay,
 	ScenarioHumanCommunication,
-	ScenarioEvidenceAcquisition,
 }
+
+// evidenceMeld ties the acquisition scenario to the doctrine it evaluates, so
+// the roster decides which roles owe the case. See docs/evaluation-matrices.md.
+const evidenceMeld = "evidence"
 
 var requiredAdjacentRoles = map[string][]string{
 	"engineer": {"ops"},
@@ -128,6 +131,19 @@ func ValidateCorePack(pack *Pack) error {
 		if kinds[kind] == 0 {
 			return fmt.Errorf("missing %s scenario", kind)
 		}
+	}
+	declaresEvidence := false
+	for _, meld := range pack.Melds {
+		if meld.Name == evidenceMeld {
+			declaresEvidence = true
+			break
+		}
+	}
+	if declaresEvidence && kinds[ScenarioEvidenceAcquisition] == 0 {
+		return fmt.Errorf("missing %s scenario for the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
+	}
+	if !declaresEvidence && kinds[ScenarioEvidenceAcquisition] > 0 {
+		return fmt.Errorf("%s scenario without the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
 	}
 	for _, role := range requiredAdjacent {
 		if adjacent[role] == 0 {

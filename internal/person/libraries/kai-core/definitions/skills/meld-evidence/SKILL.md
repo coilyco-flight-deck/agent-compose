@@ -1,6 +1,6 @@
 ---
 name: meld-evidence
-description: Shared evidence-acquisition obligation. Melded into every role that must open the source settling a consequential claim instead of reasoning from whatever artifact is already nearby.
+description: Shared evidence-acquisition obligation. Melded into the roles whose diligence reaches past the context handed to them, so a consequential claim opens its settling source instead of resting on a nearby description of it.
 ---
 
 # Evidence acquisition

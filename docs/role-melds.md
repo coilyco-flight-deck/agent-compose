@@ -69,7 +69,7 @@ declaring role, retiring those results until an independently reviewed re-run.
 
 * `live-ops` - melded into engineer, qa, and ai, the roles sealed against live mutation. DevOps owns the opposite authority and does not meld it.
 * `comms` - melded into every role except creator, which owns the other side of the boundary.
-* `evidence` - melded into every role. Acquiring the source that settles a claim precedes ranking the evidence already held, and no role is exempt from opening it.
+* `evidence` - melded into engineer, exec, and ops, the roles whose diligence reaches past the context handed to them. QA treats the presented context as ground truth, Designer works from a preloaded style, Content Creator would be pulled toward crawling human content, Director assigns acquisition rather than performing it, and AI Engineer already carries a measured-evidence rule with its own stopping condition.
 
 ## See also
 

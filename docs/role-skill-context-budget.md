@@ -34,8 +34,8 @@ available to role-specific charter prose.
 
 ## Evidence meld
 
-The `evidence` meld binds all eight roles and spends 357 words of its own
-400-word ceiling. It charges no role body. Role prose is unchanged except exec,
+The `evidence` meld binds engineer, exec, and ops, and spends 357 words of its
+own 400-word ceiling. It charges no role body. Role prose is unchanged except exec,
 which grew 223 to 244 words when the shared acquisition obligation replaced its
 `Prefer primary evidence` clause and absorbed the strategist residue about
 measuring rather than assuming portfolio numbers. Every role body stays under

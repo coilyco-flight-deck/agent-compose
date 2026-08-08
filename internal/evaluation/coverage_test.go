@@ -57,6 +57,15 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
+		"evidence acquisition without the meld": func(candidate *Pack) {
+			var kept []MeldContext
+			for _, meld := range candidate.Melds {
+				if meld.Name != evidenceMeld {
+					kept = append(kept, meld)
+				}
+			}
+			candidate.Melds = kept
+		},
 		"evidence acquisition criterion dropped": func(candidate *Pack) {
 			for caseIndex := range candidate.Cases {
 				if candidate.Cases[caseIndex].ScenarioKind != ScenarioEvidenceAcquisition {
