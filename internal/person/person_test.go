@@ -1118,3 +1118,34 @@ func TestParseRejectsRolePersonalityCardinalityAndDuplicates(t *testing.T) {
 		})
 	}
 }
+
+func TestRosterProseFloorsRejectAThinnedEntry(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := p.source
+	role := p.Roles["engineer"]
+	role.Briefing = "Too short."
+	p.Roles["engineer"] = role
+	if err := validateRosterProseFloors(source, p); err == nil ||
+		!strings.Contains(err.Error(), "minimum is") {
+		t.Fatalf("thinned role body error = %v", err)
+	}
+}
+
+func TestRosterProseCeilingsAndFloorsBoundEveryShippedEntry(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The shipped roster must sit inside both bounds, which is what makes the
+	// floors a live gate rather than a constant nobody reaches.
+	for _, roleName := range p.RoleOrder {
+		words := roleSkillBodyWordCount(p.Roles[roleName].Briefing)
+		if words < minRoleSkillBodyWords || words > maxRoleSkillBodyWords {
+			t.Errorf("role %q body has %d words, bounds are %d..%d",
+				roleName, words, minRoleSkillBodyWords, maxRoleSkillBodyWords)
+		}
+	}
+}
