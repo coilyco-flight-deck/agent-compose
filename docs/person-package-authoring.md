@@ -16,22 +16,29 @@ definitions/skills/<skill>/SKILL.md
 ordered KDL fragment:
 
 ```text
-roles/01-builder.kdl
-[boundaries/01-shared-boundary.kdl]
-personalities/01-curious.kdl
-[inspirations/01-example.kdl]
+data/role-builder/role.kdl
+data/role-builder/SKILL.md
+[data/role-builder/evals.yaml]
+data/personality-curious/personality.kdl
+data/personality-curious/SKILL.md
+[data/boundary-shared-thing/boundary.kdl]
+[data/invariant/INVARIANT.md]
 ```
 
-The two-digit prefix controls order. The remaining filename must match the
-node slug. Every bound personality needs one definition directory, and the
-definitions directory may not contain extra skills. Each optional role method
-is declared in the role fragment and stored below that role's `skills/`
-directory. Method directories contain only `SKILL.md`. Each optional boundary is
-declared in its own fragment, stores its body beside the personality
-definitions, and must be referenced by at least one role. Its optional
-[owner](boundary-owners.md) names a defined role that must not declare
-the boundary.
-Symlinks are invalid anywhere in the package.
+Every first-class entity owns one flat directory named `<kind>-<slug>`, where
+kind is `role`, `personality`, `boundary`, or `inspiration`. Its KDL fragment is
+named for the kind, its body is `SKILL.md`, and a role may add `evals.yaml`. The
+directory slug must match the node slug.
+
+Each entity declares an `order`, which sequences the roster in place of the
+filename prefixes the layout used to carry. Order is data on the entity, so
+moving a directory never reorders anything. The loader strips it before parsing,
+so it never reaches the node model.
+
+The invariant lives at `data/invariant/INVARIANT.md`. Every bound personality
+needs its own directory, every boundary must be referenced by at least one role,
+and a boundary's [owner](boundary-owners.md) names a defined role that must not
+declare it. Symlinks are invalid anywhere in the package.
 
 The role, personality, identity, color, and model-tier validation applies
 unchanged. Inspiration relationships and their catalogue remain optional

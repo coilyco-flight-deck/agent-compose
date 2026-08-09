@@ -24,7 +24,7 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl roles definitions evaluations libraries
+//go:embed person.kdl data
 var embedded embed.FS
 
 const maxRoleSkillBodyWords = 400
@@ -368,22 +368,15 @@ func (p *Person) RoleDisplayName(roleName string) string {
 
 // Load returns the shipped roster:core package.
 func Load() (*Person, error) {
-	p, err := loadSource(embedded, "embedded core roster")
+	source, _, err := dataLayout(embedded, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
-	if p.evaluations, err = loadEvaluationAssets(embedded); err != nil {
-		return nil, err
-	}
-	librarySource, err := fs.Sub(embedded, "libraries/kai-core")
-	if err != nil {
-		return nil, fmt.Errorf("open embedded personality library: %w", err)
-	}
-	library, id, err := loadLibrarySource(librarySource, "embedded core personality library")
+	p, err := loadSource(source, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
-	if err := mergeLoadedLibrary(p, library, id, librarySource); err != nil {
+	if p.evaluations, err = loadEvaluationAssets(source); err != nil {
 		return nil, err
 	}
 	if err := validateResolvedPerson(p); err != nil {
@@ -1357,15 +1350,12 @@ func Source(p *Person) (*schema.Source, error) {
 	source := p.source
 	strictDefinitions := true
 	if source == nil {
-		library, err := fs.Sub(embedded, "libraries/kai-core")
-		if err != nil {
-			return nil, fmt.Errorf("open embedded personality library: %w", err)
-		}
-		overlay, err := definitionOverlay(embedded, map[string]Personality{}, map[string]Boundary{})
+		projected, _, err := dataLayout(embedded, "embedded core roster")
 		if err != nil {
 			return nil, err
 		}
-		if err := appendDefinitions(overlay, library, p.Personalities, p.Boundaries); err != nil {
+		overlay, err := definitionOverlay(projected, p.Personalities, p.Boundaries)
+		if err != nil {
 			return nil, err
 		}
 		source = overlay
