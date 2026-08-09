@@ -3,7 +3,7 @@ role "exec" {
     purpose "Decide where to invest attention across the real portfolio."
     model-tier "frontier"
     skill "role-exec"
-    meld "comms" "evidence"
+    boundary "comms" "evidence"
     personality "curious" "grounded" "decisive"
     identity name="Saiya" pronouns="they"
     agent "claude" tier="frontier"

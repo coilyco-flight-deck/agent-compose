@@ -57,7 +57,7 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 	table.WriteString("signal and selects the closest role. Later task shape does not change the role.\n")
 	table.WriteString("An eligible inferred native role changes only under the explicit policy below.\n")
 	table.WriteString("Before acting, each agent loads the selected role skill and every personality\n")
-	table.WriteString("skill named by that role's complete ordered meld. Other role and personality\n")
+	table.WriteString("skill named by that role's complete ordered boundary. Other role and personality\n")
 	table.WriteString("skills stay inactive unless the native interactive policy activates them. Role\n")
 	table.WriteString("methods stay lazy and apply only when the active role and task both match.\n\n")
 	table.WriteString(renderNativeAdaptationPolicy(p))
@@ -101,12 +101,12 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 			}
 			files[".agents/skills/"+method+"/SKILL.md"] = raw
 		}
-		for _, meld := range role.Melds {
-			raw, ok := p.MeldSkillDefinition(meld)
+		for _, boundary := range role.Boundaries {
+			raw, ok := p.BoundarySkillDefinition(boundary)
 			if !ok {
-				return nil, fmt.Errorf("render role %q: meld skill %q is missing", roleName, meld)
+				return nil, fmt.Errorf("render role %q: boundary skill %q is missing", roleName, boundary)
 			}
-			files[".agents/skills/"+p.Melds[meld].Skill+"/SKILL.md"] = raw
+			files[".agents/skills/"+p.Boundaries[boundary].Skill+"/SKILL.md"] = raw
 		}
 	}
 	files["AGENTS.COMPOSE.md"] = []byte(table.String())

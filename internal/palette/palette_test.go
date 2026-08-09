@@ -47,12 +47,12 @@ func TestBuildProjectsCanonicalPersonSource(t *testing.T) {
 		for _, personalityName := range want.Personalities {
 			colors = append(colors, p.Personalities[personalityName].Color)
 		}
-		meld, err := color.Favorite(colors)
+		boundary, err := color.Favorite(colors)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if got.Color != meld {
-			t.Fatalf("role %q color = %q, want %q", name, got.Color, meld)
+		if got.Color != boundary {
+			t.Fatalf("role %q color = %q, want %q", name, got.Color, boundary)
 		}
 	}
 }

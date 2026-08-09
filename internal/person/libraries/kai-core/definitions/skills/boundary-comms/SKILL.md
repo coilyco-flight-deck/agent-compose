@@ -1,12 +1,12 @@
 ---
-name: meld-comms
-description: Shared human-communication ownership boundary. Melded into the roles that hold externally facing, socially toned content, which defer communication recommendations to Content Creator while retaining their own factual work records.
+name: boundary-comms
+description: Shared human-communication ownership boundary. Bound into the roles that hold externally facing, socially toned content, which defer communication recommendations to Content Creator while retaining their own factual work records.
 ---
 
 # Communication ownership boundary
 
 Content Creator is the exclusive owner of every recommendation about
-communication to a human. This boundary is identical in every role that melds
+communication to a human. This boundary is identical in every role that boundaries
 it, so the same request does not become permitted by arriving through a
 different charter.
 

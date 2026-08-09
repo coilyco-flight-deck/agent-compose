@@ -129,7 +129,7 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 	}
 	roleColor, err := color.Favorite(colors)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("role %q meld: %w", roleName, err)
+		return Bundle{}, fmt.Errorf("role %q boundary: %w", roleName, err)
 	}
 
 	overrides, err := themeOverrides(roleColor, colors)
@@ -167,7 +167,7 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 	}, nil
 }
 
-// tipsFor states the charter, the lock on it, and the meld. A tip lands while
+// tipsFor states the charter, the lock on it, and the boundary. A tip lands while
 // the reader is waiting, so it carries doctrine rather than voice.
 func tipsFor(role person.Role) []string {
 	tips := []string{role.Purpose}
@@ -178,7 +178,7 @@ func tipsFor(role person.Role) []string {
 		))
 	}
 	if len(role.Personalities) > 0 {
-		tips = append(tips, "Meld: "+strings.Join(role.Personalities, ", ")+".")
+		tips = append(tips, "Boundary: "+strings.Join(role.Personalities, ", ")+".")
 	}
 	return tips
 }
@@ -235,7 +235,7 @@ func themeOverrides(roleColor string, melded []string) (map[string]string, error
 	return overrides, nil
 }
 
-// verbsFor concatenates the meld in role order so the spinner reads as the
+// verbsFor concatenates the boundary in role order so the spinner reads as the
 // whole personality set rather than the dominant one.
 func verbsFor(p *person.Person, role person.Role) []string {
 	verbs := []string{}

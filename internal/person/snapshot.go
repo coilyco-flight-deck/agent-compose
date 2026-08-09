@@ -23,8 +23,8 @@ type Snapshot struct {
 	Person           string                  `json:"person"`
 	RoleOrder        []string                `json:"role_order"`
 	Roles            map[string]SnapshotRole `json:"roles"`
-	MeldOrder        []string                `json:"meld_order,omitempty"`
-	Melds            map[string]Meld         `json:"melds,omitempty"`
+	BoundaryOrder    []string                `json:"boundary_order,omitempty"`
+	Boundaries       map[string]Boundary     `json:"boundaries,omitempty"`
 	Personalities    map[string]Personality  `json:"personalities"`
 	Expressions      []string                `json:"expressions"`
 	InspirationOrder []string                `json:"inspiration_order"`
@@ -80,8 +80,8 @@ func BuildSnapshot(p *Person) (*Snapshot, error) {
 		Person:           p.Name,
 		RoleOrder:        append([]string(nil), p.RoleOrder...),
 		Roles:            roles,
-		MeldOrder:        append([]string(nil), p.MeldOrder...),
-		Melds:            p.Melds,
+		BoundaryOrder:    append([]string(nil), p.BoundaryOrder...),
+		Boundaries:       p.Boundaries,
 		Personalities:    p.Personalities,
 		Expressions:      ExpressionVocabulary(),
 		InspirationOrder: append([]string(nil), p.InspirationOrder...),
@@ -222,7 +222,7 @@ func ValidateSnapshotV4(snapshot *SnapshotV4) error {
 			seenRoles[affinity.Role] = true
 			if !slices.Equal(affinity.Personalities, role.Personalities) ||
 				!slices.Contains(affinity.Personalities, name) {
-				return fmt.Errorf("personality %q affinity for role %q has inconsistent meld", name, affinity.Role)
+				return fmt.Errorf("personality %q affinity for role %q has inconsistent boundary", name, affinity.Role)
 			}
 		}
 		for roleName, role := range snapshot.Roles {

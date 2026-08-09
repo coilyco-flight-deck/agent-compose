@@ -64,5 +64,5 @@ belongs in the composed context, never in the theme.
 
 `agent-compose native-ui` emits a theme and settings fragment per role.
 [`examples/claude-native-ui/`](../examples/claude-native-ui/README.md) is the
-checked-in result for `roster:core`, and its README explains how a meld becomes
+checked-in result for `roster:core`, and its README explains how a boundary becomes
 a theme.

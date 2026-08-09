@@ -14,7 +14,7 @@ role methods remain lazy until a matching task triggers them.
 
 In an eligible directly steered session, an explicit user request naming a
 valid rendered role slug switches immediately without a second confirmation.
-The agent loads the target charter and meld, announces the role, and stops
+The agent loads the target charter and boundary, announces the role, and stops
 acting from the prior charter. The switched role remains inferred and persists
 until another explicit switch or session end. This permits later switches and
 a return to an earlier role.

@@ -16,11 +16,11 @@ var requiredScenarioKinds = []string{
 	ScenarioPortfolioReplay,
 }
 
-// Each meld ties a scenario kind to the doctrine it evaluates, so the roster
+// Each boundary ties a scenario kind to the doctrine it evaluates, so the roster
 // decides which roles owe the case. See docs/evaluation-matrices.md.
 const (
-	evidenceMeld = "evidence"
-	commsMeld    = "comms"
+	evidenceBoundary = "evidence"
+	commsBoundary    = "comms"
 )
 
 var requiredAdjacentRoles = map[string][]string{
@@ -135,35 +135,35 @@ func ValidateCorePack(pack *Pack) error {
 		}
 	}
 	for _, bound := range []struct {
-		meld string
-		kind string
-		// A counterpart holds the other side of the boundary, so it owes the
+		boundary string
+		kind     string
+		// A owner holds the other side of the boundary, so it owes the
 		// case without ever receiving the body.
-		counterpartOwes bool
+		ownerOwes bool
 	}{
-		{meld: evidenceMeld, kind: ScenarioEvidenceAcquisition},
-		{meld: commsMeld, kind: ScenarioHumanCommunication, counterpartOwes: true},
+		{boundary: evidenceBoundary, kind: ScenarioEvidenceAcquisition},
+		{boundary: commsBoundary, kind: ScenarioHumanCommunication, ownerOwes: true},
 	} {
 		owes := false
-		for _, meld := range pack.Melds {
-			if meld.Name == bound.meld {
+		for _, boundary := range pack.Boundaries {
+			if boundary.Name == bound.boundary {
 				owes = true
 				break
 			}
 		}
-		if bound.counterpartOwes {
-			for _, meld := range pack.CounterpartMelds {
-				if meld == bound.meld {
+		if bound.ownerOwes {
+			for _, boundary := range pack.OwnedBoundaries {
+				if boundary == bound.boundary {
 					owes = true
 					break
 				}
 			}
 		}
 		if owes && kinds[bound.kind] == 0 {
-			return fmt.Errorf("missing %s scenario for the %q meld", bound.kind, bound.meld)
+			return fmt.Errorf("missing %s scenario for the %q boundary", bound.kind, bound.boundary)
 		}
 		if !owes && kinds[bound.kind] > 0 {
-			return fmt.Errorf("%s scenario without the %q meld", bound.kind, bound.meld)
+			return fmt.Errorf("%s scenario without the %q boundary", bound.kind, bound.boundary)
 		}
 	}
 	for _, role := range requiredAdjacent {

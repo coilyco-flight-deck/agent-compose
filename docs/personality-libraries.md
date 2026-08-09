@@ -49,8 +49,8 @@ release identifiers, or fetch instructions.
 ## Conflicts and compatibility
 
 Roles reference personality slugs, not a library name. A profile may therefore
-meld local and admitted personalities. A role may have any nonempty ordered
-meld, including one personality.
+boundary local and admitted personalities. A role may have any nonempty ordered
+boundary, including one personality.
 
 Byte-identical personality definitions deduplicate. A divergent duplicate slug
 or duplicate skill binding fails before materialization. Missing personality
@@ -59,7 +59,7 @@ visible as ordered candidate sets.
 
 Generated v1-compatible `person.json` remains available. The additive
 `person.v4.json` and `personality-index.md` provide aliases, affinities,
-logical provenance, and derived melds for consumers that need them.
+logical provenance, and derived boundaries for consumers that need them.
 
 ## Cues and affinities
 

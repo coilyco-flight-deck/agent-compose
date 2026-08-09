@@ -47,7 +47,7 @@ type Manifest struct {
 	RoleSkillDigest string                       `json:"role_skill_digest"`
 	ModelTier       string                       `json:"model_tier"`
 	Personalities   []string                     `json:"personalities"`
-	Melds           []string                     `json:"melds,omitempty"`
+	Boundaries      []string                     `json:"boundaries,omitempty"`
 	Color           string                       `json:"color"`
 	Identity        RoleIdentity                 `json:"identity,omitempty"`
 	Sources         []string                     `json:"sources"`
@@ -234,7 +234,7 @@ func write(res *resolver.Resolution, root string) error {
 		RoleSkillDigest: role.SkillDigest,
 		ModelTier:       res.Request.ModelTier,
 		Personalities:   res.Personalities,
-		Melds:           res.Melds,
+		Boundaries:      res.Boundaries,
 		Color:           res.FavoriteColor,
 		Identity:        identity,
 		Sources:         res.SourceIDs,

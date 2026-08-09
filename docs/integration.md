@@ -27,8 +27,8 @@ Agent-compose renders the selected person package into a roster artifact under
 `~/.agent-compose/sources/`, a directory the cascade walks as a source root,
 containing an `AGENTS.COMPOSE.md` entry plus lazy-loaded role and personality
 skills. The entry carries the invariant, admitted overlay instructions,
-adaptation bootstrap, and cards with role identity and harness selectors,
-melds, emblems, colors, cues, and skill ids.
+adaptation bootstrap, and cards with role identity, harness selectors,
+boundaries, emblems, colors, cues, and skill ids.
 Host config may select one
 [external person package](person-packages.md), which replaces the embedded
 default before this artifact is rendered.
@@ -40,7 +40,7 @@ changes require confirmation. The default needs no external source.
 
 Running `agent-compose cascade` then carries the table into every harness's
 global load point - one binary, no Python. Global bootstrap context loads at
-session start. The selected role and meld skills load before action instead of
+session start. The selected role and boundary skills load before action rather than
 every long-form body loading eagerly. Two agents sharing a (harness, role)
 pair share a routing seat. Every harness for a role uses the same identity.
 

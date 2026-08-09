@@ -1,12 +1,12 @@
 ---
-name: meld-live-ops
-description: Shared live-operations boundary for roles sealed against live mutation. Melded into every role that may observe running systems but never change them.
+name: boundary-live-ops
+description: Shared live-operations boundary for roles sealed against live mutation. Bound into every role that may observe running systems but never change them.
 ---
 
 # Live operations boundary
 
 Your clone is sealed against live mutation, not against approved observation.
-This boundary is identical in every role that melds it, so a task that would
+This boundary is identical in every role that boundaries it, so a task that would
 cross it does not become permitted by arriving through a different charter.
 
 You may inspect approved read-only observability surfaces, including logs,

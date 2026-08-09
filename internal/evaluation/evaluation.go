@@ -42,9 +42,9 @@ type PersonalityContext struct {
 	Definition string `yaml:"definition"`
 }
 
-// MeldContext carries one shared doctrine body into the evaluated context, so
-// doctrine that left the briefing still reaches the driver. See docs/role-melds.md.
-type MeldContext struct {
+// BoundaryContext carries one shared doctrine body into the evaluated context, so
+// doctrine that left the briefing still reaches the driver. See docs/role-boundaries.md.
+type BoundaryContext struct {
 	Name       string `yaml:"name"`
 	Skill      string `yaml:"skill"`
 	Summary    string `yaml:"summary"`
@@ -105,19 +105,19 @@ type EvaluationPolicy struct {
 }
 
 type Pack struct {
-	Format          string        `yaml:"format"`
-	Person          string        `yaml:"person"`
-	Role            string        `yaml:"role"`
-	RoleSkill       string        `yaml:"role_skill"`
-	RoleSkillSource string        `yaml:"role_skill_source"`
-	RoleSkillDigest string        `yaml:"role_skill_digest"`
-	Seat            person.Seat   `yaml:"seat"`
-	Purpose         string        `yaml:"purpose"`
-	Briefing        string        `yaml:"briefing"`
-	Melds           []MeldContext `yaml:"melds,omitempty"`
+	Format          string            `yaml:"format"`
+	Person          string            `yaml:"person"`
+	Role            string            `yaml:"role"`
+	RoleSkill       string            `yaml:"role_skill"`
+	RoleSkillSource string            `yaml:"role_skill_source"`
+	RoleSkillDigest string            `yaml:"role_skill_digest"`
+	Seat            person.Seat       `yaml:"seat"`
+	Purpose         string            `yaml:"purpose"`
+	Briefing        string            `yaml:"briefing"`
+	Boundaries      []BoundaryContext `yaml:"boundaries,omitempty"`
 	// Coverage metadata, not delivered doctrine. Kept out of the rendered pack
 	// and its digest so both keep describing what the driver receives.
-	CounterpartMelds    []string             `json:"-" yaml:"-"`
+	OwnedBoundaries     []string             `json:"-" yaml:"-"`
 	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
@@ -246,17 +246,17 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
-	melds := make([]MeldContext, 0, len(role.Melds))
-	for _, name := range role.Melds {
-		binding, bound := p.Melds[name]
+	boundaries := make([]BoundaryContext, 0, len(role.Boundaries))
+	for _, name := range role.Boundaries {
+		binding, bound := p.Boundaries[name]
 		if !bound {
-			return nil, fmt.Errorf("evaluation meld %q has no catalog binding", name)
+			return nil, fmt.Errorf("evaluation boundary %q has no catalog binding", name)
 		}
-		raw, ok := p.MeldSkillDefinition(name)
+		raw, ok := p.BoundarySkillDefinition(name)
 		if !ok {
-			return nil, fmt.Errorf("evaluation meld %q has no definition", name)
+			return nil, fmt.Errorf("evaluation boundary %q has no definition", name)
 		}
-		melds = append(melds, MeldContext{
+		boundaries = append(boundaries, BoundaryContext{
 			Name:       name,
 			Skill:      binding.Skill,
 			Summary:    binding.Summary,
@@ -264,12 +264,12 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		})
 	}
 
-	// A counterpart holds the other side of a boundary without receiving its
+	// A owner holds the other side of a boundary without receiving its
 	// body, so the pack records the relationship rather than the doctrine.
-	counterparts := []string{}
-	for _, name := range p.MeldOrder {
-		if p.Melds[name].Counterpart == roleName {
-			counterparts = append(counterparts, name)
+	owners := []string{}
+	for _, name := range p.BoundaryOrder {
+		if p.Boundaries[name].Owner == roleName {
+			owners = append(owners, name)
 		}
 	}
 
@@ -287,8 +287,8 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Seat:                seat,
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
-		Melds:               melds,
-		CounterpartMelds:    counterparts,
+		Boundaries:          boundaries,
+		OwnedBoundaries:     owners,
 		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
@@ -596,7 +596,7 @@ func humanCommunicationCriterion() Criterion {
 }
 
 // evidenceAcquisitionCriterion scores acquisition of the settling source
-// instead of a conclusion drawn from a description of it. See docs/role-melds.md.
+// instead of a conclusion drawn from a description of it. See docs/role-boundaries.md.
 func evidenceAcquisitionCriterion() Criterion {
 	return Criterion{
 		ID:       "evidence-acquisition",

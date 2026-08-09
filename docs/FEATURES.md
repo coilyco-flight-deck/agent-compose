@@ -17,7 +17,7 @@ Inventory of what ships today.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap
-  at 400 words, and [role melds](role-melds.md) share doctrine under a
+  at 400 words, and [role boundaries](role-boundaries.md) share doctrine under a
   separate cap.
 
 ## Load-point projection

@@ -42,5 +42,5 @@ The executable test suite runs the same profile through compose, verification,
 export, describe, evaluation, overlay, roster, palette, v3 and v4 snapshots,
 and every catalogue projection. It also proves the arbitrary
 `chatbot-sonnet-low` seat, `they` pronouns, package-local plus shared-library
-meld, single-personality meld, unused catalogue personality, role skills, and
+boundary, single-personality meld, unused catalogue personality, role skills, and
 copy-contract provenance.

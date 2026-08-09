@@ -104,7 +104,7 @@ func TestEachRoleClaimsExactlyOneSubagentSlot(t *testing.T) {
 	}
 }
 
-func TestSpinnerVerbsCoverTheWholeMeld(t *testing.T) {
+func TestSpinnerVerbsCoverTheWholeBoundary(t *testing.T) {
 	p := selected(t)
 	bundles, err := Build(p, Options{})
 	if err != nil {
@@ -250,7 +250,7 @@ func TestTipsCarryCharterAndKeepHarnessDefaults(t *testing.T) {
 			t.Errorf("role %q emits tips but leaves them disabled", bundle.Role)
 		}
 		if len(tips.Tips) != 3 {
-			t.Errorf("role %q has %d tips, want purpose, charter, and meld", bundle.Role, len(tips.Tips))
+			t.Errorf("role %q has %d tips, want purpose, charter, and boundary", bundle.Role, len(tips.Tips))
 		}
 		role := p.Roles[bundle.Role]
 		if tips.Tips[0] != role.Purpose {
@@ -261,7 +261,7 @@ func TestTipsCarryCharterAndKeepHarnessDefaults(t *testing.T) {
 		}
 		for _, personality := range role.Personalities {
 			if !strings.Contains(tips.Tips[2], personality) {
-				t.Errorf("role %q meld tip omits %q", bundle.Role, personality)
+				t.Errorf("role %q boundary tip omits %q", bundle.Role, personality)
 			}
 		}
 	}

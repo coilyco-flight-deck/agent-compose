@@ -345,7 +345,7 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 				t.Fatal(err)
 			}
 			rolePersonalities := role.Personalities
-			wantCount := len(rolePersonalities) + len(role.Melds) + len(role.Methods) + 1
+			wantCount := len(rolePersonalities) + len(role.Boundaries) + len(role.Methods) + 1
 			if len(res.Skills) != wantCount {
 				t.Fatalf("selected %d skills, want %d: %+v", len(res.Skills), wantCount, res.Skills)
 			}
@@ -354,19 +354,19 @@ func TestEmbeddedRolePersonalitiesSelectBoundSkills(t *testing.T) {
 			if res.Skills[0].ID != p.RoleSkillID(roleName) {
 				t.Fatalf("selected role skill = %q, want %q", res.Skills[0].ID, p.RoleSkillID(roleName))
 			}
-			for i, meldName := range role.Melds {
-				if want := p.Melds[meldName].Skill; res.Skills[i+1].ID != want {
-					t.Fatalf("selected meld skill %d = %q, want %q", i+1, res.Skills[i+1].ID, want)
+			for i, boundaryName := range role.Boundaries {
+				if want := p.Boundaries[boundaryName].Skill; res.Skills[i+1].ID != want {
+					t.Fatalf("selected boundary skill %d = %q, want %q", i+1, res.Skills[i+1].ID, want)
 				}
 			}
 			for i, personalityName := range rolePersonalities {
-				index := len(role.Melds) + i + 1
+				index := len(role.Boundaries) + i + 1
 				if want := p.Personalities[personalityName].Skill; res.Skills[index].ID != want {
 					t.Fatalf("selected skill %d = %q, want %q", index, res.Skills[index].ID, want)
 				}
 			}
 			for i, method := range role.Methods {
-				index := len(role.Melds) + len(rolePersonalities) + i + 1
+				index := len(role.Boundaries) + len(rolePersonalities) + i + 1
 				if res.Skills[index].ID != method {
 					t.Fatalf("selected method skill %d = %q, want %q", index, res.Skills[index].ID, method)
 				}

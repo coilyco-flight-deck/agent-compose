@@ -86,7 +86,7 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	}
 }
 
-func TestValidateCoreMeldsRejectsUnbalancedRoster(t *testing.T) {
+func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 	t.Run("wrong slot count", func(t *testing.T) {
 		p, err := Load()
 		if err != nil {
@@ -184,80 +184,80 @@ func TestLoadRoleSkillsEnforcesAuthoredBodyWordLimit(t *testing.T) {
 	}
 }
 
-// TestMeldBodiesDoNotConsumeTheRoleWordBudget is the load-bearing guarantee:
+// TestBoundaryBodiesDoNotConsumeTheRoleWordBudget is the load-bearing guarantee:
 // shared doctrine must not compete with the charter for the same 400 words.
-func TestMeldBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
+func TestBoundaryBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
 	files := fstest.MapFS{
 		"roles/builder/SKILL.md": {
 			Data: roleSkillWordLimitFixture(maxRoleSkillBodyWords),
 		},
-		"definitions/skills/meld-shared/SKILL.md": {
-			Data: meldWordLimitFixture(maxMeldSkillBodyWords),
+		"definitions/skills/boundary-shared/SKILL.md": {
+			Data: boundaryWordLimitFixture(maxBoundarySkillBodyWords),
 		},
 	}
 	p := &Person{
 		Name:      "fixture",
 		RoleOrder: []string{"builder"},
 		Roles: map[string]Role{
-			"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+			"builder": {Skill: "role-builder", Boundaries: []string{"shared"}},
 		},
-		MeldOrder: []string{"shared"},
-		Melds: map[string]Meld{
-			"shared": {Skill: "meld-shared", Summary: "shared fixture doctrine"},
+		BoundaryOrder: []string{"shared"},
+		Boundaries: map[string]Boundary{
+			"shared": {Skill: "boundary-shared", Summary: "shared fixture doctrine"},
 		},
 	}
 	if err := loadRoleSkills(files, p); err != nil {
-		t.Fatalf("role skill at its word limit failed alongside a meld: %v", err)
+		t.Fatalf("role skill at its word limit failed alongside a boundary: %v", err)
 	}
-	if err := loadMeldSkills(files, p); err != nil {
-		t.Fatalf("meld at its own word limit failed: %v", err)
+	if err := loadBoundarySkills(files, p); err != nil {
+		t.Fatalf("boundary at its own word limit failed: %v", err)
 	}
-	// Role at its cap plus meld at its own proves the meld is additive.
+	// Role at its cap plus boundary at its own proves the boundary is additive.
 	if got := roleSkillBodyWordCount(p.Roles["builder"].Briefing); got != maxRoleSkillBodyWords {
 		t.Fatalf("role briefing word count = %d, want %d", got, maxRoleSkillBodyWords)
 	}
-	if _, ok := p.MeldSkillDefinition("shared"); !ok {
-		t.Fatal("meld body did not load")
+	if _, ok := p.BoundarySkillDefinition("shared"); !ok {
+		t.Fatal("boundary body did not load")
 	}
 
 	over := fstest.MapFS{
-		"definitions/skills/meld-shared/SKILL.md": {
-			Data: meldWordLimitFixture(maxMeldSkillBodyWords + 1),
+		"definitions/skills/boundary-shared/SKILL.md": {
+			Data: boundaryWordLimitFixture(maxBoundarySkillBodyWords + 1),
 		},
 	}
-	err := loadMeldSkills(over, p)
+	err := loadBoundarySkills(over, p)
 	if err == nil || !strings.Contains(err.Error(), "maximum is 400") {
-		t.Fatalf("meld over its own word limit error = %v", err)
+		t.Fatalf("boundary over its own word limit error = %v", err)
 	}
 }
 
-func TestValidateMeldCounterpartsRejectsIncoherentPairs(t *testing.T) {
+func TestValidateBoundaryOwnersRejectsIncoherentPairs(t *testing.T) {
 	for name, p := range map[string]*Person{
-		"unknown counterpart": {
+		"unknown owner": {
 			RoleOrder: []string{"builder"},
 			Roles: map[string]Role{
-				"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+				"builder": {Skill: "role-builder", Boundaries: []string{"shared"}},
 			},
-			MeldOrder: []string{"shared"},
-			Melds: map[string]Meld{
-				"shared": {Skill: "meld-shared", Counterpart: "absent"},
+			BoundaryOrder: []string{"shared"},
+			Boundaries: map[string]Boundary{
+				"shared": {Skill: "boundary-shared", Owner: "absent"},
 			},
 		},
-		"counterpart declares the meld": {
+		"owner declares the boundary": {
 			RoleOrder: []string{"builder", "mirror"},
 			Roles: map[string]Role{
-				"builder": {Skill: "role-builder", Melds: []string{"shared"}},
-				"mirror":  {Skill: "role-mirror", Melds: []string{"shared"}},
+				"builder": {Skill: "role-builder", Boundaries: []string{"shared"}},
+				"mirror":  {Skill: "role-mirror", Boundaries: []string{"shared"}},
 			},
-			MeldOrder: []string{"shared"},
-			Melds: map[string]Meld{
-				"shared": {Skill: "meld-shared", Counterpart: "mirror"},
+			BoundaryOrder: []string{"shared"},
+			Boundaries: map[string]Boundary{
+				"shared": {Skill: "boundary-shared", Owner: "mirror"},
 			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			if err := validateMeldCounterparts(p); err == nil {
-				t.Fatal("incoherent meld counterpart passed validation")
+			if err := validateBoundaryOwners(p); err == nil {
+				t.Fatal("incoherent boundary owner passed validation")
 			}
 		})
 	}
@@ -265,23 +265,23 @@ func TestValidateMeldCounterpartsRejectsIncoherentPairs(t *testing.T) {
 	coherent := &Person{
 		RoleOrder: []string{"builder", "mirror"},
 		Roles: map[string]Role{
-			"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+			"builder": {Skill: "role-builder", Boundaries: []string{"shared"}},
 			"mirror":  {Skill: "role-mirror"},
 		},
-		MeldOrder: []string{"shared"},
-		Melds: map[string]Meld{
-			"shared": {Skill: "meld-shared", Counterpart: "mirror"},
+		BoundaryOrder: []string{"shared"},
+		Boundaries: map[string]Boundary{
+			"shared": {Skill: "boundary-shared", Owner: "mirror"},
 		},
 	}
-	if err := validateMeldCounterparts(coherent); err != nil {
-		t.Fatalf("coherent meld counterpart rejected: %v", err)
+	if err := validateBoundaryOwners(coherent); err != nil {
+		t.Fatalf("coherent boundary owner rejected: %v", err)
 	}
 }
 
-func meldWordLimitFixture(words int) []byte {
+func boundaryWordLimitFixture(words int) []byte {
 	body := strings.TrimSpace(strings.Repeat("word ", words))
 	return []byte(
-		"---\nname: meld-shared\ndescription: Shared fixture doctrine.\n---\n\n" + body + "\n",
+		"---\nname: boundary-shared\ndescription: Shared fixture doctrine.\n---\n\n" + body + "\n",
 	)
 }
 
@@ -335,11 +335,11 @@ func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Methods belong to one role and melds are shared, so both counts derive
+	// Methods belong to one role and boundaries are shared, so both counts derive
 	// from the loaded model rather than a second copy of the roster policy.
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		want := 1 + len(role.Methods) + len(role.Melds)
+		want := 1 + len(role.Methods) + len(role.Boundaries)
 		if got := len(src.RoleSkills[roleName]); got != want {
 			t.Errorf("role %q selected %d person skills, want %d", roleName, got, want)
 		}

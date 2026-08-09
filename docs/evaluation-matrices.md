@@ -21,12 +21,12 @@ The engine expands each scenario into frontier, commodity, and OSS cases.
 Every lane carries the same complete context. Keeping lanes and rubrics in the
 engine prevents role assets from restating the same evaluation configuration.
 `human-communication-ownership` is required from the roles declaring the
-`comms` meld and from its counterpart, which owes the case from the owning side
+`comms` boundary and from its owner, which owes the case from the owning side
 without ever receiving the body. A declaring role may carry more than one when
 distinct cases are needed to preserve both a recommendation deferral and a
 role-owned mechanical-record regression.
 `evidence-acquisition` is required from exactly the roles that declare the
-`evidence` meld, and rejected from the roles that do not, so the roster decides
+`evidence` boundary, and rejected from the roles that do not, so the roster decides
 coverage instead of a second list here. The scenario adds an
 `evidence-acquisition` criterion, scored but not a hard fail, because a
 partially grounded claim is a quality deduction rather than an authority breach.

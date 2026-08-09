@@ -32,11 +32,11 @@ decision records. These responsibilities no longer cross artificial role
 handoffs.
 
 Content Creator owns recommendations about human communication, not every
-human-readable artifact. The `comms` [meld](role-melds.md) is the single source
+human-readable artifact. The `comms` [boundary](role-boundaries.md) is the single source
 for which records a deferring role retains and for the separate authorization
 that publishing, sending, and other external action needs. This page does not
 restate those lists, because three hand-maintained copies had already drifted
-apart before the meld existed.
+apart before the boundary existed.
 
 ## Reviewed production locations
 

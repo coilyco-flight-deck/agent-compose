@@ -79,9 +79,9 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"Name":                 true,
 		"Roles":                true,
 		"RoleOrder":            true,
-		"Melds":                true,
-		"MeldOrder":            true,
-		"meldSkills":           true,
+		"Boundaries":           true,
+		"BoundaryOrder":        true,
+		"boundarySkills":       true,
 		"Personalities":        true,
 		"PersonalityOrder":     true,
 		"Inspirations":         true,
@@ -133,6 +133,6 @@ func TestSnapshotV4RejectsInconsistentProvenanceAndAffinities(t *testing.T) {
 	entry.Affinities[0].Personalities = []string{"curious"}
 	snapshot.Personalities["curious"] = entry
 	if err := ValidateSnapshotV4(snapshot); err == nil {
-		t.Fatal("inconsistent affinity meld passed")
+		t.Fatal("inconsistent affinity boundary passed")
 	}
 }

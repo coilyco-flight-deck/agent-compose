@@ -1,12 +1,12 @@
 ---
-name: meld-evidence
-description: Shared evidence-acquisition obligation. Melded into the roles whose diligence reaches past the context handed to them, so a consequential claim opens its settling source instead of resting on a nearby description of it.
+name: boundary-evidence
+description: Shared evidence-acquisition obligation. Bound into the roles whose diligence reaches past the context handed to them, so a consequential claim opens its settling source instead of resting on a nearby description of it.
 ---
 
 # Evidence acquisition
 
 Ranking the evidence you hold comes second. Acquiring it comes first. This
-obligation is identical in every role that melds it, so a claim does not become
+obligation is identical in every role that boundaries it, so a claim does not become
 grounded by arriving through a different charter.
 
 Before you make a consequential claim, name the source that would settle it and

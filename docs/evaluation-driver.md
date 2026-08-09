@@ -59,7 +59,7 @@ real systems and should be treated as an experiment, not as evidence.
 ## Reviewer
 
 The reviewer scores in sessions resolved from the pack's reviewer policy. It
-receives the role contract with any melded doctrine, the case prompt, the
+receives the role contract with any boundary doctrine, the case prompt, the
 rubric, and one preserved answer. It never learns which arm produced it, never
 sees a competing answer, and runs sealed because it judges text and cannot act.
 

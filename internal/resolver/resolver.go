@@ -61,7 +61,7 @@ type Resolution struct {
 	Request        *schema.Request
 	Person         *person.Person
 	Personalities  []string
-	Melds          []string
+	Boundaries     []string
 	RolePurpose    string
 	RoleBriefing   string
 	OperatingBase  string
@@ -143,7 +143,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Request:       req,
 		Person:        p,
 		Personalities: append([]string(nil), role.Personalities...),
-		Melds:         append([]string(nil), role.Melds...),
+		Boundaries:    append([]string(nil), role.Boundaries...),
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
@@ -179,12 +179,12 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
 		})
 	}
-	for _, name := range role.Melds {
+	for _, name := range role.Boundaries {
 		res.decide(Decision{
-			Subject: "meld:" + name, Kind: "profile", Source: p.ProviderID(),
+			Subject: "boundary:" + name, Kind: "profile", Source: p.ProviderID(),
 			Outcome: OutcomeSelected,
 			Reason: fmt.Sprintf(
-				"role %q melds shared doctrine %q, which every role that declares it activates identically",
+				"role %q boundaries shared doctrine %q, which every role that declares it activates identically",
 				req.Role, name),
 		})
 	}
@@ -336,14 +336,14 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	} else {
 		return nil, fmt.Errorf("role %q binds skill %q, but no admitted source provides it", req.Role, roleSkill)
 	}
-	for _, name := range role.Melds {
-		binding, ok := p.Melds[name]
+	for _, name := range role.Boundaries {
+		binding, ok := p.Boundaries[name]
 		if !ok {
-			return nil, fmt.Errorf("role %q names meld %q without a catalog binding", req.Role, name)
+			return nil, fmt.Errorf("role %q names boundary %q without a catalog binding", req.Role, name)
 		}
 		selected, found := selectedBySkill[binding.Skill]
 		if !found {
-			return nil, fmt.Errorf("meld %q binds skill %q, but no admitted source provides it", name, binding.Skill)
+			return nil, fmt.Errorf("boundary %q binds skill %q, but no admitted source provides it", name, binding.Skill)
 		}
 		if added[binding.Skill] {
 			continue

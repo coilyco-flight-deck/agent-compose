@@ -13,7 +13,7 @@ The intended product accepts a role, a model tier, a delivery mode, and
 optional capability sources. The role activates its ordered three-personality
 default meld.
 Agent-compose resolves the selected role skill, role methods, shared
-[role melds](docs/role-melds.md), and every bound personality
+[role boundaries](docs/role-boundaries.md), and every bound personality
 skill from the selected person package, tells the agent every component and
 melded favorite color through a compact identity card, and emits an immutable
 context bundle.
@@ -23,8 +23,8 @@ context bundle.
 Agent-compose owns the context boundary and its bundled public-safe Core
 Roster:
 
-* canonical role skills, role-bound methods, and shared doctrine melds plus role-driven personality meld resolution with host-only
-  [native adaptation](docs/native-adaptation.md) for inferred roles and melds
+* canonical role skills, role-bound methods, and shared doctrine boundaries plus role-driven personality meld resolution with host-only
+  [native adaptation](docs/native-adaptation.md) for inferred roles and boundaries
 * Content Creator-owned audience research, proof, community continuity,
   decision support, and communication, with external action separately authorized
 * one selected roster package, with `roster:core` as the zero-config default

@@ -56,16 +56,16 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 	if len(packs) != len(p.RoleOrder) {
 		t.Fatalf("Core Roster packs = %d, want loader role count %d", len(packs), len(p.RoleOrder))
 	}
-	// The comms meld and its counterpart decide which roles owe a communication
+	// The comms boundary and its owner decide which roles owe a communication
 	// case, so the expectation is read from the pack rather than restated here.
 	bound := 0
 	for _, pack := range packs {
 		owes := false
-		for _, meld := range pack.Melds {
-			owes = owes || meld.Name == commsMeld
+		for _, boundary := range pack.Boundaries {
+			owes = owes || boundary.Name == commsBoundary
 		}
-		for _, meld := range pack.CounterpartMelds {
-			owes = owes || meld == commsMeld
+		for _, boundary := range pack.OwnedBoundaries {
+			owes = owes || boundary == commsBoundary
 		}
 		if !owes {
 			continue
