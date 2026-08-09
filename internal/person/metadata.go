@@ -25,9 +25,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "**Role methods // `%s`**\n", strings.Join(role.Methods, "` // `"))
 	}
-	meldSkills := p.RoleMeldSkillIDs(roleName)
-	if len(meldSkills) > 0 {
-		fmt.Fprintf(&out, "**Shared doctrine // `%s`**\n", strings.Join(meldSkills, "` // `"))
+	boundarySkills := p.RoleBoundarySkillIDs(roleName)
+	if len(boundarySkills) > 0 {
+		fmt.Fprintf(&out, "**Boundaries // `%s`**\n", strings.Join(boundarySkills, "` // `"))
 	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if role.Identity != nil {
@@ -70,20 +70,24 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 		}
 		fmt.Fprintf(&out, "%s\n\n", description)
 	}
-	if len(role.Melds) > 0 {
-		out.WriteString("## Shared doctrine\n\n")
-		for _, name := range role.Melds {
-			binding, exists := p.Melds[name]
+	if active := p.RoleActiveBoundaries(roleName); len(active) > 0 {
+		out.WriteString("## Boundaries\n\n")
+		for _, name := range active {
+			binding, exists := p.Boundaries[name]
 			if !exists {
-				return "", fmt.Errorf("render role identity card: meld %q is not defined", name)
+				return "", fmt.Errorf("render role identity card: boundary %q is not defined", name)
 			}
-			fmt.Fprintf(&out, "* `%s` - %s\n", binding.Skill, binding.Summary)
+			side := "you defer this"
+			if binding.Owner == roleName {
+				side = "you own this"
+			}
+			fmt.Fprintf(&out, "* `%s` - %s. %s\n", binding.Skill, side, binding.Summary)
 		}
 		out.WriteString("\n")
 	}
 	out.WriteString("## Active doctrine\n\nBefore acting, load:\n\n")
 	fmt.Fprintf(&out, "* `%s`\n", roleSkill)
-	for _, skill := range meldSkills {
+	for _, skill := range boundarySkills {
 		fmt.Fprintf(&out, "* `%s`\n", skill)
 	}
 	for _, name := range role.Personalities {

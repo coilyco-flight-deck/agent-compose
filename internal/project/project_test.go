@@ -395,10 +395,10 @@ func selectedFixtureSkills(t *testing.T, roleName string) []string {
 	if !ok {
 		t.Fatalf("fixture role %q is absent", roleName)
 	}
-	skills := make([]string, 0, len(role.Personalities)+len(role.Melds)+2)
+	skills := make([]string, 0, len(role.Personalities)+len(role.Boundaries)+2)
 	skills = append(skills, p.RoleSkillID(roleName))
-	for _, meldName := range role.Melds {
-		skills = append(skills, p.Melds[meldName].Skill)
+	for _, boundaryName := range role.Boundaries {
+		skills = append(skills, p.Boundaries[boundaryName].Skill)
 	}
 	for _, personalityName := range role.Personalities {
 		skills = append(skills, p.Personalities[personalityName].Skill)
@@ -412,9 +412,9 @@ func skillHeading(skillID string) string {
 	if skillID == "fixture-review" {
 		return "# Fixture review"
 	}
-	// A meld body carries an authored doctrine title rather than a title derived
+	// A boundary body carries an authored doctrine title rather than a title derived
 	// from its id, so its frontmatter name is the identity worth asserting.
-	if strings.HasPrefix(skillID, "meld-") {
+	if strings.HasPrefix(skillID, "boundary-") {
 		return "name: " + skillID
 	}
 	if strings.HasPrefix(skillID, "role-") {

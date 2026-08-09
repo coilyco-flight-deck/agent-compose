@@ -39,23 +39,23 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
-		"evidence acquisition without the meld": func(candidate *Pack) {
-			var kept []MeldContext
-			for _, meld := range candidate.Melds {
-				if meld.Name != evidenceMeld {
-					kept = append(kept, meld)
+		"external validation without the boundary": func(candidate *Pack) {
+			var kept []BoundaryContext
+			for _, boundary := range candidate.Boundaries {
+				if boundary.Name != externalBoundary {
+					kept = append(kept, boundary)
 				}
 			}
-			candidate.Melds = kept
+			candidate.Boundaries = kept
 		},
-		"evidence acquisition criterion dropped": func(candidate *Pack) {
+		"external validation criterion dropped": func(candidate *Pack) {
 			for caseIndex := range candidate.Cases {
-				if candidate.Cases[caseIndex].ScenarioKind != ScenarioEvidenceAcquisition {
+				if candidate.Cases[caseIndex].ScenarioKind != ScenarioExternalValidation {
 					continue
 				}
 				var kept []Criterion
 				for _, criterion := range candidate.Cases[caseIndex].Rubric {
-					if criterion.ID != "evidence-acquisition" {
+					if criterion.ID != "external-validation-deferral" {
 						kept = append(kept, criterion)
 					}
 				}
@@ -83,12 +83,12 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 
 func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 	// The engineer pack no longer declares comms, so communication coverage is
-	// exercised against a declaring role and against the counterpart.
+	// exercised against a declaring role and against the owner.
 	declaring, err := Build("ops", "codex")
 	if err != nil {
 		t.Fatal(err)
 	}
-	counterpart, err := Build("creator", "codex")
+	owner, err := Build("creator", "codex")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 			}
 			candidate.Cases = kept
 		}},
-		"counterpart missing the boundary": {base: counterpart, mutate: func(candidate *Pack) {
+		"owner missing the boundary": {base: owner, mutate: func(candidate *Pack) {
 			var kept []Case
 			for _, evalCase := range candidate.Cases {
 				if evalCase.ScenarioKind != ScenarioHumanCommunication {
@@ -114,17 +114,14 @@ func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 			}
 			candidate.Cases = kept
 		}},
-		"counterpart relationship dropped": {base: counterpart, mutate: func(candidate *Pack) {
-			candidate.CounterpartMelds = nil
-		}},
-		"boundary without the meld": {base: declaring, mutate: func(candidate *Pack) {
-			var kept []MeldContext
-			for _, meld := range candidate.Melds {
-				if meld.Name != commsMeld {
-					kept = append(kept, meld)
+		"boundary without the boundary": {base: declaring, mutate: func(candidate *Pack) {
+			var kept []BoundaryContext
+			for _, boundary := range candidate.Boundaries {
+				if boundary.Name != commsBoundary {
+					kept = append(kept, boundary)
 				}
 			}
-			candidate.Melds = kept
+			candidate.Boundaries = kept
 		}},
 		"boundary is not a hard fail": {base: declaring, mutate: func(candidate *Pack) {
 			for caseIndex := range candidate.Cases {
@@ -144,8 +141,7 @@ func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			candidate := *test.base
 			candidate.Cases = append([]Case(nil), test.base.Cases...)
-			candidate.Melds = append([]MeldContext(nil), test.base.Melds...)
-			candidate.CounterpartMelds = append([]string(nil), test.base.CounterpartMelds...)
+			candidate.Boundaries = append([]BoundaryContext(nil), test.base.Boundaries...)
 			for index := range candidate.Cases {
 				candidate.Cases[index].Rubric = append(
 					[]Criterion(nil),

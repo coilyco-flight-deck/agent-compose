@@ -74,14 +74,14 @@ func Build(p *person.Person) (Document, error) {
 			}
 			colors = append(colors, personality.Color)
 		}
-		meld, err := color.Favorite(colors)
+		boundary, err := color.Favorite(colors)
 		if err != nil {
-			return Document{}, fmt.Errorf("role %q meld: %w", roleName, err)
+			return Document{}, fmt.Errorf("role %q boundary: %w", roleName, err)
 		}
 		doc.Roles = append(doc.Roles, Role{
 			Name:          roleName,
 			Personalities: append([]string(nil), role.Personalities...),
-			Color:         meld,
+			Color:         boundary,
 		})
 	}
 	return doc, nil

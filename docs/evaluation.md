@@ -18,12 +18,12 @@ Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evalua
 
 Agent Compose emits prompts and context, never model calls, credentials, scores,
 or authority. `--person-source` selects one complete external package. The Core
-AI role's [evaluation methods](role-methods.md) guide cross-role suite curation
+[role boundaries](role-boundaries.md) decide which roles owe a boundary case
 without replacing this pack or reviewer contract.
 
 Execution packs are ephemeral. Their digest binds the exact role, personality,
-[meld](role-melds.md), policy, and case context used by one durable review
-record. Editing a shared meld retires every declaring role's results.
+[boundary](role-boundaries.md), policy, and case context used by one durable review
+record. Editing a shared boundary retires every declaring role's results.
 
 The [evaluation policy](evaluation-policy.md) defines model capability,
 reasoning effort, session isolation, review, and evidence requirements.

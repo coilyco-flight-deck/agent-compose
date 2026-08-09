@@ -45,11 +45,11 @@ func TestVerifyNativeAndCompiledBundles(t *testing.T) {
 			}
 			// Identities cover the personalities, the melded shared doctrine,
 			// the role charter, and the one ordinary fixture skill.
-			wantIdentities := len(verified.Manifest.Personalities) + len(verified.Manifest.Melds) + 2
+			wantIdentities := len(verified.Manifest.Personalities) + len(verified.Manifest.Boundaries) + 2
 			if len(verified.Identities) != wantIdentities {
-				t.Fatalf("identities = %+v, want %d covering personalities %v and melds %v",
+				t.Fatalf("identities = %+v, want %d covering personalities %v and boundaries %v",
 					verified.Identities, wantIdentities,
-					verified.Manifest.Personalities, verified.Manifest.Melds)
+					verified.Manifest.Personalities, verified.Manifest.Boundaries)
 			}
 			var foundOrdinary bool
 			for _, identity := range verified.Identities {

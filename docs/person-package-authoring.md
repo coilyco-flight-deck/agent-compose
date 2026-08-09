@@ -17,7 +17,7 @@ ordered KDL fragment:
 
 ```text
 roles/01-builder.kdl
-[melds/01-shared-boundary.kdl]
+[boundaries/01-shared-boundary.kdl]
 personalities/01-curious.kdl
 [inspirations/01-example.kdl]
 ```
@@ -26,11 +26,11 @@ The two-digit prefix controls order. The remaining filename must match the
 node slug. Every bound personality needs one definition directory, and the
 definitions directory may not contain extra skills. Each optional role method
 is declared in the role fragment and stored below that role's `skills/`
-directory. Method directories contain only `SKILL.md`. Each optional meld is
+directory. Method directories contain only `SKILL.md`. Each optional boundary is
 declared in its own fragment, stores its body beside the personality
 definitions, and must be referenced by at least one role. Its optional
-[counterpart](meld-counterparts.md) names a defined role that must not declare
-the meld.
+[owner](boundary-owners.md) names a defined role that must not declare
+the boundary.
 Symlinks are invalid anywhere in the package.
 
 The role, personality, identity, color, and model-tier validation applies
@@ -46,4 +46,4 @@ transport credentials or launcher authority.
 * [person-packages.md](person-packages.md) - selection and machine use.
 * [person-contract.md](person-contract.md) - KDL policy schema.
 * [role-methods.md](role-methods.md) - method binding and delivery.
-* [role-melds.md](role-melds.md) - shared doctrine binding and delivery.
+* [role-boundaries.md](role-boundaries.md) - shared doctrine binding and delivery.

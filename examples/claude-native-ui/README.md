@@ -28,11 +28,11 @@ restarting. Settings changes need a fresh session.
 
 ## How a role becomes a theme
 
-The role color is the OKLab meld of its personality colors, the same math the
+The role color is the OKLab boundary of its personality colors, the same math the
 palette explorer and status line already use. It carries the frame: the prompt
 border, the Clawd mascot body, and the assistant accent.
 
-Each personality in the meld then carries one interaction the frame contains.
+Each personality in the boundary then carries one interaction the frame contains.
 
 * The first carries what the agent offers, so it colors skills and auto-accept.
 * The middle carries what the agent asks for, so it colors permissions and the
@@ -64,7 +64,7 @@ the role, and a test against the
 
 ## Spinner tips
 
-Three per role: the purpose, the charter lock naming the seat, and the meld. A
+Three per role: the purpose, the charter lock naming the seat, and the boundary. A
 tip lands while the reader is waiting rather than reading, so it carries
 doctrine and not voice. `excludeDefault` stays false, because Claude Code's own
 tips teach the harness and a role has no business hiding them.

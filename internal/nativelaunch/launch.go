@@ -29,9 +29,9 @@ const (
 // Options supplies the host-owned selection and filesystem anchors for one
 // native role launch.
 type Options struct {
-	Role            string
-	Harness         string
-	ModelTier       string
+	Role      string
+	Harness   string
+	ModelTier string
 	CWD       string
 	TargetDir string
 	// RuntimeHome is the session-scoped home a launch consumer staged. When set,
@@ -72,7 +72,7 @@ type repository struct {
 	selection repositoryplan.Selection
 }
 
-// Refresh resolves eligible providers, composes the complete role meld, and
+// Refresh resolves eligible providers, composes the complete role boundary, and
 // transactionally projects the result at the selected harness load points.
 func Refresh(opts Options) (*Result, error) {
 	if err := validateHarness(opts.Harness); err != nil {

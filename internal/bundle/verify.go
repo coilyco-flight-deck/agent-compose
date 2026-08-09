@@ -328,17 +328,17 @@ func verifyTraceProfiles(trace *Trace, manifest *Manifest) error {
 			return fmt.Errorf("bundle trace does not select manifest profile %q", subject)
 		}
 	}
-	for _, meld := range manifest.Melds {
-		subject := "meld:" + meld
+	for _, boundary := range manifest.Boundaries {
+		subject := "boundary:" + boundary
 		if !found[subject] {
 			return fmt.Errorf("bundle trace does not select manifest profile %q", subject)
 		}
 	}
-	expected := 1 + len(manifest.Personalities) + len(manifest.Melds)
+	expected := 1 + len(manifest.Personalities) + len(manifest.Boundaries)
 	if selected != expected {
 		return fmt.Errorf(
-			"bundle trace selects %d profiles, expected role, %d personalities, and %d melds",
-			selected, len(manifest.Personalities), len(manifest.Melds))
+			"bundle trace selects %d profiles, expected role, %d personalities, and %d boundaries",
+			selected, len(manifest.Personalities), len(manifest.Boundaries))
 	}
 	return nil
 }

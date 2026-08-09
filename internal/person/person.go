@@ -29,16 +29,23 @@ var embedded embed.FS
 
 const maxRoleSkillBodyWords = 400
 
-// maxMeldSkillBodyWords bounds one shared doctrine body separately from the
-// role charter that melds it. See docs/role-melds.md.
-const maxMeldSkillBodyWords = 400
+// maxBoundarySkillBodyWords bounds each side of a boundary separately from the
+// role charter that declares it. See docs/role-boundaries.md.
+const maxBoundarySkillBodyWords = 400
+
+// Both sides of a boundary live in one body under conditional headings, so the
+// reader self-selects. See docs/boundary-owners.md.
+const (
+	boundaryOwnHeading   = "## If you own this boundary"
+	boundaryDeferHeading = "## If you defer this boundary"
+)
 
 var personSections = []struct {
 	directory string
 	node      string
 }{
 	{directory: "roles", node: "role"},
-	{directory: "melds", node: "meld"},
+	{directory: "boundaries", node: "boundary"},
 	{directory: "personalities", node: "personality"},
 	{directory: "inspirations", node: "inspiration"},
 }
@@ -47,7 +54,7 @@ var librarySections = []struct {
 	directory string
 	node      string
 }{
-	{directory: "melds", node: "meld"},
+	{directory: "boundaries", node: "boundary"},
 	{directory: "personalities", node: "personality"},
 	{directory: "inspirations", node: "inspiration"},
 }
@@ -86,7 +93,7 @@ type Role struct {
 	SkillSource         string         `json:"skill_source"`
 	SkillDigest         string         `json:"skill_digest"`
 	Methods             []string       `json:"methods,omitempty"`
-	Melds               []string       `json:"melds,omitempty"`
+	Boundaries          []string       `json:"boundaries,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
 	Identity            *AgentIdentity `json:"identity,omitempty"`
@@ -145,14 +152,14 @@ type SoundMark struct {
 	Pulse   string `json:"pulse"`
 }
 
-// Meld binds one shared doctrine body that any number of roles may activate.
-// Its optional counterpart is described in docs/meld-counterparts.md.
-type Meld struct {
-	Skill       string `json:"skill"`
-	Summary     string `json:"summary"`
-	Counterpart string `json:"counterpart,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Digest      string `json:"digest,omitempty"`
+// Boundary binds one shared doctrine body that any number of roles may activate.
+// Its optional owner is described in docs/boundary-owners.md.
+type Boundary struct {
+	Skill   string `json:"skill"`
+	Summary string `json:"summary"`
+	Owner   string `json:"owner,omitempty"`
+	Source  string `json:"source,omitempty"`
+	Digest  string `json:"digest,omitempty"`
 }
 
 // Personality binds the definition, visual and sensory identity primitives,
@@ -249,12 +256,12 @@ func (p *Person) personalityOrder() []string {
 	return names
 }
 
-func (p *Person) meldOrder() []string {
-	if len(p.MeldOrder) == len(p.Melds) {
-		return append([]string(nil), p.MeldOrder...)
+func (p *Person) boundaryOrder() []string {
+	if len(p.BoundaryOrder) == len(p.Boundaries) {
+		return append([]string(nil), p.BoundaryOrder...)
 	}
-	names := make([]string, 0, len(p.Melds))
-	for name := range p.Melds {
+	names := make([]string, 0, len(p.Boundaries))
+	for name := range p.Boundaries {
 		names = append(names, name)
 	}
 	sort.Strings(names)
@@ -318,8 +325,8 @@ type Person struct {
 	Name                 string                 `json:"person"`
 	Roles                map[string]Role        `json:"roles"`
 	RoleOrder            []string               `json:"role_order"`
-	Melds                map[string]Meld        `json:"melds,omitempty"`
-	MeldOrder            []string               `json:"meld_order,omitempty"`
+	Boundaries           map[string]Boundary    `json:"boundaries,omitempty"`
+	BoundaryOrder        []string               `json:"boundary_order,omitempty"`
 	Personalities        map[string]Personality `json:"personalities"`
 	PersonalityOrder     []string               `json:"personality_order"`
 	Inspirations         map[string]Inspiration `json:"inspirations"`
@@ -330,7 +337,7 @@ type Person struct {
 	evaluations          map[string][]byte
 	roleSkills           map[string][]byte
 	roleMethods          map[string]map[string][]byte
-	meldSkills           map[string][]byte
+	boundarySkills       map[string][]byte
 	source               fs.FS
 }
 
@@ -385,10 +392,10 @@ func Load() (*Person, error) {
 	if err := validateNoUnusedPersonalities(p); err != nil {
 		return nil, err
 	}
-	if err := validateNoUnusedMelds(p); err != nil {
+	if err := validateNoUnusedBoundaries(p); err != nil {
 		return nil, err
 	}
-	if err := validateMeldCounterparts(p); err != nil {
+	if err := validateBoundaryOwners(p); err != nil {
 		return nil, err
 	}
 	if err := validateCorePersonalityMelds(p); err != nil {
@@ -510,7 +517,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 			p.PersonalityLibraries[name] = p.localSourceID()
 		}
 	}
-	overlay, err := definitionOverlay(p.source, p.Personalities, p.Melds)
+	overlay, err := definitionOverlay(p.source, p.Personalities, p.Boundaries)
 	if err != nil {
 		return nil, err
 	}
@@ -528,7 +535,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 }
 
 func mergeLoadedLibrary(p *Person, library *Person, id string, source fs.FS) error {
-	overlay, err := definitionOverlay(p.source, p.Personalities, p.Melds)
+	overlay, err := definitionOverlay(p.source, p.Personalities, p.Boundaries)
 	if err != nil {
 		return err
 	}
@@ -566,23 +573,23 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 		p.PersonalityLibraries[name] = id
 		p.PersonalityOrder = append(p.PersonalityOrder, name)
 	}
-	for _, name := range library.meldOrder() {
-		binding := library.Melds[name]
-		if existing, exists := p.Melds[name]; exists {
+	for _, name := range library.boundaryOrder() {
+		binding := library.Boundaries[name]
+		if existing, exists := p.Boundaries[name]; exists {
 			if existing.Skill != binding.Skill || existing.Summary != binding.Summary {
-				return fmt.Errorf("meld %q conflicts between profile libraries", name)
+				return fmt.Errorf("boundary %q conflicts between profile libraries", name)
 			}
 			continue
 		}
-		for otherName, other := range p.Melds {
+		for otherName, other := range p.Boundaries {
 			if other.Skill == binding.Skill && otherName != name {
-				return fmt.Errorf("meld skill %q conflicts between %q and %q", binding.Skill, otherName, name)
+				return fmt.Errorf("boundary skill %q conflicts between %q and %q", binding.Skill, otherName, name)
 			}
 		}
-		p.Melds[name] = binding
-		p.MeldOrder = append(p.MeldOrder, name)
-		if raw, ok := library.meldSkills[name]; ok {
-			p.meldSkills[name] = append([]byte(nil), raw...)
+		p.Boundaries[name] = binding
+		p.BoundaryOrder = append(p.BoundaryOrder, name)
+		if raw, ok := library.boundarySkills[name]; ok {
+			p.boundarySkills[name] = append([]byte(nil), raw...)
 		}
 	}
 	for _, name := range library.InspirationOrder {
@@ -593,7 +600,7 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 		p.Inspirations[name] = inspiration
 		p.InspirationOrder = append(p.InspirationOrder, name)
 	}
-	if err := appendDefinitions(overlay, librarySource, library.Personalities, library.Melds); err != nil {
+	if err := appendDefinitions(overlay, librarySource, library.Personalities, library.Boundaries); err != nil {
 		return err
 	}
 	p.Libraries[id] = "admitted-local"
@@ -612,9 +619,9 @@ func validateResolvedPerson(p *Person) error {
 				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, personalityName)
 			}
 		}
-		for _, meldName := range p.Roles[roleName].Melds {
-			if _, ok := p.Melds[meldName]; !ok {
-				return fmt.Errorf("role %q: meld %q has no catalog binding", roleName, meldName)
+		for _, boundaryName := range p.Roles[roleName].Boundaries {
+			if _, ok := p.Boundaries[boundaryName]; !ok {
+				return fmt.Errorf("role %q: boundary %q has no catalog binding", roleName, boundaryName)
 			}
 		}
 		ref := p.Roles[roleName].Inspiration.ID
@@ -648,45 +655,74 @@ func validateNoUnusedPersonalities(p *Person) error {
 	return nil
 }
 
-// validateNoUnusedMelds keeps shared doctrine anchored to at least one role, so
-// a meld cannot linger after the last role drops its reference.
-func validateNoUnusedMelds(p *Person) error {
+// validateNoUnusedBoundaries keeps shared doctrine anchored to at least one role, so
+// a boundary cannot linger after the last role drops its reference.
+func validateNoUnusedBoundaries(p *Person) error {
 	used := map[string]bool{}
 	for _, roleName := range p.RoleOrder {
-		for _, meldName := range p.Roles[roleName].Melds {
-			used[meldName] = true
+		for _, boundaryName := range p.Roles[roleName].Boundaries {
+			used[boundaryName] = true
 		}
 	}
 	var unused []string
-	for _, meldName := range p.meldOrder() {
-		if !used[meldName] {
-			unused = append(unused, meldName)
+	for _, boundaryName := range p.boundaryOrder() {
+		if !used[boundaryName] {
+			unused = append(unused, boundaryName)
 		}
 	}
 	if len(unused) != 0 {
-		return fmt.Errorf("core roster has unused melds: %s", strings.Join(unused, ", "))
+		return fmt.Errorf("core roster has unused boundaries: %s", strings.Join(unused, ", "))
 	}
 	return nil
 }
 
-// validateMeldCounterparts keeps a two-sided meld coherent. The counterpart
-// holds the other side, so it must exist and must not declare the body.
-func validateMeldCounterparts(p *Person) error {
-	for _, meldName := range p.meldOrder() {
-		counterpart := p.Melds[meldName].Counterpart
-		if counterpart == "" {
-			continue
+// validateBoundaryBodySides requires both sides and bounds each separately, so
+// one long half cannot crowd out the other.
+func validateBoundaryBodySides(boundaryName, body string) error {
+	own := strings.Index(body, boundaryOwnHeading)
+	defer_ := strings.Index(body, boundaryDeferHeading)
+	if own < 0 || defer_ < 0 {
+		return fmt.Errorf(
+			"boundary %q skill body needs both %q and %q sections",
+			boundaryName, boundaryOwnHeading, boundaryDeferHeading,
+		)
+	}
+	if own > defer_ {
+		return fmt.Errorf("boundary %q skill body states the defer side before the own side", boundaryName)
+	}
+	for label, section := range map[string]string{
+		"own":   body[own:defer_],
+		"defer": body[defer_:],
+	} {
+		_, prose, _ := strings.Cut(section, "\n")
+		if words := roleSkillBodyWordCount(prose); words > maxBoundarySkillBodyWords {
+			return fmt.Errorf(
+				"boundary %q %s side has %d words, maximum is %d",
+				boundaryName, label, words, maxBoundarySkillBodyWords,
+			)
 		}
-		role, ok := p.Roles[counterpart]
+	}
+	return nil
+}
+
+// validateBoundaryOwners keeps a two-sided boundary coherent. An owner receives
+// the body by owning it, never by declaring it.
+func validateBoundaryOwners(p *Person) error {
+	for _, boundaryName := range p.boundaryOrder() {
+		owner := p.Boundaries[boundaryName].Owner
+		if owner == "" {
+			return fmt.Errorf("boundary %q has no owner", boundaryName)
+		}
+		role, ok := p.Roles[owner]
 		if !ok {
-			return fmt.Errorf("meld %q names unknown counterpart %q", meldName, counterpart)
+			return fmt.Errorf("boundary %q names unknown owner %q", boundaryName, owner)
 		}
-		for _, declared := range role.Melds {
-			if declared == meldName {
+		for _, declared := range role.Boundaries {
+			if declared == boundaryName {
 				return fmt.Errorf(
-					"meld %q counterpart %q also declares it",
-					meldName,
-					counterpart,
+					"boundary %q owner %q also declares it",
+					boundaryName,
+					owner,
 				)
 			}
 		}
@@ -792,9 +828,9 @@ func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 	if err != nil {
 		return nil, "", fmt.Errorf("parse personality library %q: %w", id, err)
 	}
-	// A library may publish shared doctrine, so its meld bodies are read and
+	// A library may publish shared doctrine, so its boundary bodies are read and
 	// bounded here rather than only in the consuming package.
-	if err := loadMeldSkills(source, library); err != nil {
+	if err := loadBoundarySkills(source, library); err != nil {
 		return nil, "", fmt.Errorf("personality library %q: %w", id, err)
 	}
 	return library, id, nil
@@ -803,9 +839,9 @@ func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
 	var out bytes.Buffer
 	fmt.Fprintf(&out, "person %q {\n", id)
-	for _, directory := range []string{"melds", "personalities", "inspirations"} {
+	for _, directory := range []string{"boundaries", "personalities", "inspirations"} {
 		entries, err := fs.ReadDir(source, directory)
-		if os.IsNotExist(err) && (directory == "inspirations" || directory == "melds") {
+		if os.IsNotExist(err) && (directory == "inspirations" || directory == "boundaries") {
 			continue
 		}
 		if err != nil {
@@ -835,10 +871,10 @@ func equalPersonality(left, right Personality) bool {
 }
 
 func definitionOverlay(
-	base fs.FS, personalities map[string]Personality, melds map[string]Meld,
+	base fs.FS, personalities map[string]Personality, boundaries map[string]Boundary,
 ) (fstest.MapFS, error) {
 	overlay := fstest.MapFS{}
-	if err := appendDefinitions(overlay, base, personalities, melds); err != nil {
+	if err := appendDefinitions(overlay, base, personalities, boundaries); err != nil {
 		return nil, err
 	}
 	return overlay, nil
@@ -848,7 +884,7 @@ func appendDefinitions(
 	overlay fstest.MapFS,
 	source fs.FS,
 	personalities map[string]Personality,
-	melds map[string]Meld,
+	boundaries map[string]Boundary,
 ) error {
 	for _, binding := range personalities {
 		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
@@ -861,14 +897,14 @@ func appendDefinitions(
 		}
 		overlay[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
 	}
-	for _, binding := range melds {
+	for _, binding := range boundaries {
 		path := "definitions/skills/" + binding.Skill + "/SKILL.md"
 		raw, err := fs.ReadFile(source, path)
 		if err != nil {
-			return fmt.Errorf("meld skill %q: read definition: %w", binding.Skill, err)
+			return fmt.Errorf("boundary skill %q: read definition: %w", binding.Skill, err)
 		}
 		if existing, ok := overlay[path]; ok && !bytes.Equal(existing.Data, raw) {
-			return fmt.Errorf("meld definition %q conflicts between local libraries", binding.Skill)
+			return fmt.Errorf("boundary definition %q conflicts between local libraries", binding.Skill)
 		}
 		overlay[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
 	}
@@ -897,7 +933,7 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 	if err := loadRoleMethods(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
-	if err := loadMeldSkills(source, p); err != nil {
+	if err := loadBoundarySkills(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := addCopyContractProvenance(p); err != nil {
@@ -987,60 +1023,78 @@ func loadRoleSkills(source fs.FS, p *Person) error {
 	return nil
 }
 
-// loadMeldSkills reads each shared doctrine body and bounds it against the meld
+// loadBoundarySkills reads each shared doctrine body and bounds it against the boundary
 // budget. The body never enters Role.Briefing, so it spends no role budget.
-func loadMeldSkills(source fs.FS, p *Person) error {
-	p.meldSkills = map[string][]byte{}
-	for _, meldName := range p.MeldOrder {
-		meld := p.Melds[meldName]
-		path := "definitions/skills/" + meld.Skill + "/SKILL.md"
+func loadBoundarySkills(source fs.FS, p *Person) error {
+	p.boundarySkills = map[string][]byte{}
+	for _, boundaryName := range p.BoundaryOrder {
+		boundary := p.Boundaries[boundaryName]
+		path := "definitions/skills/" + boundary.Skill + "/SKILL.md"
 		raw, err := fs.ReadFile(source, path)
 		if err != nil {
-			return fmt.Errorf("meld %q skill %q: read definition: %w", meldName, meld.Skill, err)
+			return fmt.Errorf("boundary %q skill %q: read definition: %w", boundaryName, boundary.Skill, err)
 		}
-		if err := validateSkillDefinition(meld.Skill, raw); err != nil {
+		if err := validateSkillDefinition(boundary.Skill, raw); err != nil {
 			return err
 		}
 		body, err := skillBody(raw)
 		if err != nil {
-			return fmt.Errorf("meld %q skill %q: %w", meldName, meld.Skill, err)
+			return fmt.Errorf("boundary %q skill %q: %w", boundaryName, boundary.Skill, err)
 		}
-		if words := roleSkillBodyWordCount(body); words > maxMeldSkillBodyWords {
-			return fmt.Errorf(
-				"meld %q skill body has %d words, maximum is %d",
-				meldName,
-				words,
-				maxMeldSkillBodyWords,
-			)
+		if err := validateBoundaryBodySides(boundaryName, body); err != nil {
+			return err
 		}
 		digest := sha256.Sum256(raw)
-		meld.Source = p.ProviderID() + ":meld:" + meldName
-		meld.Digest = fmt.Sprintf("sha256:%x", digest)
-		p.Melds[meldName] = meld
-		p.meldSkills[meldName] = append([]byte(nil), raw...)
+		boundary.Source = p.ProviderID() + ":boundary:" + boundaryName
+		boundary.Digest = fmt.Sprintf("sha256:%x", digest)
+		p.Boundaries[boundaryName] = boundary
+		p.boundarySkills[boundaryName] = append([]byte(nil), raw...)
 	}
 	return nil
 }
 
-// MeldSkillDefinition returns the raw shared doctrine skill for one meld.
-func (p *Person) MeldSkillDefinition(meldName string) ([]byte, bool) {
-	raw, ok := p.meldSkills[meldName]
+// BoundarySkillDefinition returns the raw shared doctrine skill for one boundary.
+func (p *Person) BoundarySkillDefinition(boundaryName string) ([]byte, bool) {
+	raw, ok := p.boundarySkills[boundaryName]
 	if !ok {
 		return nil, false
 	}
 	return append([]byte(nil), raw...), true
 }
 
-// RoleMeldSkillIDs returns the meld skill ids one role activates, in declared
-// order, so callers can name them without loading their bodies.
-func (p *Person) RoleMeldSkillIDs(roleName string) []string {
+// RoleOwnedBoundaries returns the boundaries this role owns. An owner receives
+// the body without declaring it. See docs/boundary-owners.md.
+func (p *Person) RoleOwnedBoundaries(roleName string) []string {
+	owned := make([]string, 0, 1)
+	for _, name := range p.boundaryOrder() {
+		if p.Boundaries[name].Owner == roleName {
+			owned = append(owned, name)
+		}
+	}
+	return owned
+}
+
+// RoleActiveBoundaries returns every boundary whose body this role receives,
+// declared first and then owned.
+func (p *Person) RoleActiveBoundaries(roleName string) []string {
 	role, ok := p.Roles[roleName]
 	if !ok {
 		return nil
 	}
-	ids := make([]string, 0, len(role.Melds))
-	for _, meldName := range role.Melds {
-		binding, exists := p.Melds[meldName]
+	active := append([]string(nil), role.Boundaries...)
+	return append(active, p.RoleOwnedBoundaries(roleName)...)
+}
+
+// RoleBoundarySkillIDs returns the boundary skill ids one role activates, in
+// declared then owned order, so callers can name them without loading bodies.
+func (p *Person) RoleBoundarySkillIDs(roleName string) []string {
+	if _, ok := p.Roles[roleName]; !ok {
+		return nil
+	}
+	active := p.RoleActiveBoundaries(roleName)
+	ids := make([]string, 0, len(active))
+	for _, boundaryName := range active {
+		binding, exists := p.Boundaries[boundaryName]
 		if !exists {
 			continue
 		}
@@ -1307,11 +1361,11 @@ func Source(p *Person) (*schema.Source, error) {
 		if err != nil {
 			return nil, fmt.Errorf("open embedded personality library: %w", err)
 		}
-		overlay, err := definitionOverlay(embedded, map[string]Personality{}, map[string]Meld{})
+		overlay, err := definitionOverlay(embedded, map[string]Personality{}, map[string]Boundary{})
 		if err != nil {
 			return nil, err
 		}
-		if err := appendDefinitions(overlay, library, p.Personalities, p.Melds); err != nil {
+		if err := appendDefinitions(overlay, library, p.Personalities, p.Boundaries); err != nil {
 			return nil, err
 		}
 		source = overlay
@@ -1346,18 +1400,18 @@ func Source(p *Person) (*schema.Source, error) {
 		return nil, fmt.Errorf("person %q personality invariant is empty", p.Name)
 	}
 
-	// The definitions tree carries personality and meld bodies alike, so the
+	// The definitions tree carries personality and boundary bodies alike, so the
 	// canonical set spans both catalogs.
-	expected := make(map[string]bool, len(p.Personalities)+len(p.Melds))
-	canonicalSkills := make([]string, 0, len(p.Personalities)+len(p.Melds))
+	expected := make(map[string]bool, len(p.Personalities)+len(p.Boundaries))
+	canonicalSkills := make([]string, 0, len(p.Personalities)+len(p.Boundaries))
 	for _, binding := range p.Personalities {
 		expected[binding.Skill] = true
 		canonicalSkills = append(canonicalSkills, binding.Skill)
 	}
-	meldSkills := make(map[string]bool, len(p.Melds))
-	for _, binding := range p.Melds {
+	boundarySkills := make(map[string]bool, len(p.Boundaries))
+	for _, binding := range p.Boundaries {
 		expected[binding.Skill] = true
-		meldSkills[binding.Skill] = true
+		boundarySkills[binding.Skill] = true
 		canonicalSkills = append(canonicalSkills, binding.Skill)
 	}
 	sort.Strings(canonicalSkills)
@@ -1450,21 +1504,21 @@ func Source(p *Person) (*schema.Source, error) {
 				EntryPoint: "SKILL.md",
 			})
 		}
-		for _, meldName := range p.Roles[roleName].Melds {
-			binding, ok := p.Melds[meldName]
+		for _, boundaryName := range p.RoleActiveBoundaries(roleName) {
+			binding, ok := p.Boundaries[boundaryName]
 			if !ok {
-				return nil, fmt.Errorf("person %q role %q has no meld binding %q", p.Name, roleName, meldName)
+				return nil, fmt.Errorf("person %q role %q has no boundary binding %q", p.Name, roleName, boundaryName)
 			}
-			raw, ok := p.MeldSkillDefinition(meldName)
+			raw, ok := p.BoundarySkillDefinition(boundaryName)
 			if !ok {
-				return nil, fmt.Errorf("person %q role %q has no meld skill %q", p.Name, roleName, meldName)
+				return nil, fmt.Errorf("person %q role %q has no boundary skill %q", p.Name, roleName, boundaryName)
 			}
 			path := "skills/" + binding.Skill + "/SKILL.md"
-			// Several roles share one meld body, so an identical repeat is the
+			// Several roles share one boundary body, so an identical repeat is the
 			// expected case and only a differing body is a real collision.
 			if existing, collision := files[path]; collision && !bytes.Equal(existing.Data, raw) {
 				return nil, fmt.Errorf(
-					"person %q role %q meld skill %q collides with another person skill",
+					"person %q role %q boundary skill %q collides with another person skill",
 					p.Name, roleName, binding.Skill,
 				)
 			}
@@ -1517,16 +1571,16 @@ func parse(raw []byte) (*Person, error) {
 		return nil, fmt.Errorf("person source provider node needs one name argument")
 	}
 	p := &Person{
-		ProviderKind:  doc.Nodes[0].Name(),
-		Name:          args[0].String(),
-		Roles:         map[string]Role{},
-		Melds:         map[string]Meld{},
-		Personalities: map[string]Personality{},
-		Inspirations:  map[string]Inspiration{},
-		roleSkills:    map[string][]byte{},
-		roleMethods:   map[string]map[string][]byte{},
-		meldSkills:    map[string][]byte{},
-		Raw:           raw,
+		ProviderKind:   doc.Nodes[0].Name(),
+		Name:           args[0].String(),
+		Roles:          map[string]Role{},
+		Boundaries:     map[string]Boundary{},
+		Personalities:  map[string]Personality{},
+		Inspirations:   map[string]Inspiration{},
+		roleSkills:     map[string][]byte{},
+		roleMethods:    map[string]map[string][]byte{},
+		boundarySkills: map[string][]byte{},
+		Raw:            raw,
 	}
 	for _, n := range root.Children().Nodes {
 		switch n.Name() {
@@ -1616,22 +1670,22 @@ func parse(raw []byte) (*Person, error) {
 						}
 					}
 					role.Methods = append(role.Methods, method)
-				case "meld":
+				case "boundary":
 					margs := c.Arguments()
 					if len(margs) == 0 {
-						return nil, fmt.Errorf("role %q: meld needs at least one shared doctrine id", name)
+						return nil, fmt.Errorf("role %q: boundary needs at least one shared doctrine id", name)
 					}
 					for _, a := range margs {
-						meld := a.String()
-						if !validSemanticToken(meld) {
-							return nil, fmt.Errorf("role %q: meld needs one stable doctrine id", name)
+						boundary := a.String()
+						if !validSemanticToken(boundary) {
+							return nil, fmt.Errorf("role %q: boundary needs one stable doctrine id", name)
 						}
-						for _, existing := range role.Melds {
-							if existing == meld {
-								return nil, fmt.Errorf("role %q repeats meld %q", name, meld)
+						for _, existing := range role.Boundaries {
+							if existing == boundary {
+								return nil, fmt.Errorf("role %q repeats boundary %q", name, boundary)
 							}
 						}
-						role.Melds = append(role.Melds, meld)
+						role.Boundaries = append(role.Boundaries, boundary)
 					}
 				case "personality":
 					for _, a := range c.Arguments() {
@@ -1795,47 +1849,48 @@ func parse(raw []byte) (*Person, error) {
 			}
 			p.Roles[name] = role
 			p.RoleOrder = append(p.RoleOrder, name)
-		case "meld":
+		case "boundary":
 			margs := n.Arguments()
 			if len(margs) != 1 {
-				return nil, fmt.Errorf("person meld node needs one name argument")
+				return nil, fmt.Errorf("person boundary node needs one name argument")
 			}
-			meldName := margs[0].String()
-			if !validSemanticToken(meldName) {
-				return nil, fmt.Errorf("person meld %q needs a stable doctrine id", meldName)
+			boundaryName := margs[0].String()
+			if !validSemanticToken(boundaryName) {
+				return nil, fmt.Errorf("person boundary %q needs a stable doctrine id", boundaryName)
 			}
-			if _, dup := p.Melds[meldName]; dup {
-				return nil, fmt.Errorf("person meld %q declared twice", meldName)
+			if _, dup := p.Boundaries[boundaryName]; dup {
+				return nil, fmt.Errorf("person boundary %q declared twice", boundaryName)
 			}
-			meldSkill := n.Prop("skill")
-			if !meldSkill.IsValid() {
-				return nil, fmt.Errorf("meld %q needs a skill property", meldName)
+			boundarySkill := n.Prop("skill")
+			if !boundarySkill.IsValid() {
+				return nil, fmt.Errorf("boundary %q needs a skill property", boundaryName)
 			}
-			if meldSkill.String() != "meld-"+meldName {
+			if boundarySkill.String() != "boundary-"+boundaryName {
 				return nil, fmt.Errorf(
-					"meld %q skill %q must be meld-%s", meldName, meldSkill.String(), meldName,
+					"boundary %q skill %q must be boundary-%s", boundaryName, boundarySkill.String(), boundaryName,
 				)
 			}
-			meldSummary := n.Prop("summary")
-			if !meldSummary.IsValid() || strings.TrimSpace(meldSummary.String()) == "" {
-				return nil, fmt.Errorf("meld %q needs a summary property", meldName)
+			boundarySummary := n.Prop("summary")
+			if !boundarySummary.IsValid() || strings.TrimSpace(boundarySummary.String()) == "" {
+				return nil, fmt.Errorf("boundary %q needs a summary property", boundaryName)
 			}
 			if children := n.Children(); children != nil && len(children.Nodes) > 0 {
-				return nil, fmt.Errorf("meld %q accepts no child nodes", meldName)
+				return nil, fmt.Errorf("boundary %q accepts no child nodes", boundaryName)
 			}
-			counterpart := ""
-			if prop := n.Prop("counterpart"); prop.IsValid() {
-				counterpart = strings.TrimSpace(prop.String())
-				if !validSemanticToken(counterpart) {
-					return nil, fmt.Errorf("meld %q counterpart needs a stable role id", meldName)
-				}
+			ownerProp := n.Prop("owner")
+			if !ownerProp.IsValid() {
+				return nil, fmt.Errorf("boundary %q needs an owner property", boundaryName)
 			}
-			p.Melds[meldName] = Meld{
-				Skill:       meldSkill.String(),
-				Summary:     strings.TrimSpace(meldSummary.String()),
-				Counterpart: counterpart,
+			owner := strings.TrimSpace(ownerProp.String())
+			if !validSemanticToken(owner) {
+				return nil, fmt.Errorf("boundary %q owner needs a stable role id", boundaryName)
 			}
-			p.MeldOrder = append(p.MeldOrder, meldName)
+			p.Boundaries[boundaryName] = Boundary{
+				Skill:   boundarySkill.String(),
+				Summary: strings.TrimSpace(boundarySummary.String()),
+				Owner:   owner,
+			}
+			p.BoundaryOrder = append(p.BoundaryOrder, boundaryName)
 		case "personality":
 			pargs := n.Arguments()
 			if len(pargs) != 1 {

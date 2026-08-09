@@ -1,6 +1,6 @@
 # Role skills
 
-Each person profile owns one ordinary role skill. KDL keeps compact identity data and leaves long-form doctrine in the skill body. It may also own [role methods](role-methods.md) set by the package's cross-role policy, and activate [role melds](role-melds.md) sharing doctrine outside its budget.
+Each person profile owns one ordinary role skill. KDL keeps compact identity data and leaves long-form doctrine in the skill body. It may also own [role methods](role-methods.md) set by the package's cross-role policy, and activate [role boundaries](role-boundaries.md) sharing doctrine outside its budget.
 
 ## Profile layout
 

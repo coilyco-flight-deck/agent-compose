@@ -33,7 +33,7 @@ const (
 	ScenarioPortfolioReplay     = "portfolio-replay"
 	ScenarioAdjacentRole        = "adjacent-role-discrimination"
 	ScenarioHumanCommunication  = "human-communication-ownership"
-	ScenarioEvidenceAcquisition = "evidence-acquisition"
+	ScenarioExternalValidation  = "external-validation-deferral"
 )
 
 type PersonalityContext struct {
@@ -42,9 +42,9 @@ type PersonalityContext struct {
 	Definition string `yaml:"definition"`
 }
 
-// MeldContext carries one shared doctrine body into the evaluated context, so
-// doctrine that left the briefing still reaches the driver. See docs/role-melds.md.
-type MeldContext struct {
+// BoundaryContext carries one shared doctrine body into the evaluated context, so
+// doctrine that left the briefing still reaches the driver. See docs/role-boundaries.md.
+type BoundaryContext struct {
 	Name       string `yaml:"name"`
 	Skill      string `yaml:"skill"`
 	Summary    string `yaml:"summary"`
@@ -105,19 +105,18 @@ type EvaluationPolicy struct {
 }
 
 type Pack struct {
-	Format          string        `yaml:"format"`
-	Person          string        `yaml:"person"`
-	Role            string        `yaml:"role"`
-	RoleSkill       string        `yaml:"role_skill"`
-	RoleSkillSource string        `yaml:"role_skill_source"`
-	RoleSkillDigest string        `yaml:"role_skill_digest"`
-	Seat            person.Seat   `yaml:"seat"`
-	Purpose         string        `yaml:"purpose"`
-	Briefing        string        `yaml:"briefing"`
-	Melds           []MeldContext `yaml:"melds,omitempty"`
+	Format          string            `yaml:"format"`
+	Person          string            `yaml:"person"`
+	Role            string            `yaml:"role"`
+	RoleSkill       string            `yaml:"role_skill"`
+	RoleSkillSource string            `yaml:"role_skill_source"`
+	RoleSkillDigest string            `yaml:"role_skill_digest"`
+	Seat            person.Seat       `yaml:"seat"`
+	Purpose         string            `yaml:"purpose"`
+	Briefing        string            `yaml:"briefing"`
+	Boundaries      []BoundaryContext `yaml:"boundaries,omitempty"`
 	// Coverage metadata, not delivered doctrine. Kept out of the rendered pack
 	// and its digest so both keep describing what the driver receives.
-	CounterpartMelds    []string             `json:"-" yaml:"-"`
 	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
@@ -246,31 +245,23 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
-	melds := make([]MeldContext, 0, len(role.Melds))
-	for _, name := range role.Melds {
-		binding, bound := p.Melds[name]
+	active := p.RoleActiveBoundaries(roleName)
+	boundaries := make([]BoundaryContext, 0, len(active))
+	for _, name := range active {
+		binding, bound := p.Boundaries[name]
 		if !bound {
-			return nil, fmt.Errorf("evaluation meld %q has no catalog binding", name)
+			return nil, fmt.Errorf("evaluation boundary %q has no catalog binding", name)
 		}
-		raw, ok := p.MeldSkillDefinition(name)
+		raw, ok := p.BoundarySkillDefinition(name)
 		if !ok {
-			return nil, fmt.Errorf("evaluation meld %q has no definition", name)
+			return nil, fmt.Errorf("evaluation boundary %q has no definition", name)
 		}
-		melds = append(melds, MeldContext{
+		boundaries = append(boundaries, BoundaryContext{
 			Name:       name,
 			Skill:      binding.Skill,
 			Summary:    binding.Summary,
 			Definition: markdownBody(string(raw)),
 		})
-	}
-
-	// A counterpart holds the other side of a boundary without receiving its
-	// body, so the pack records the relationship rather than the doctrine.
-	counterparts := []string{}
-	for _, name := range p.MeldOrder {
-		if p.Melds[name].Counterpart == roleName {
-			counterparts = append(counterparts, name)
-		}
 	}
 
 	generic, err := parseGenericMatrix(genericMatrixAsset)
@@ -287,8 +278,7 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Seat:                seat,
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
-		Melds:               melds,
-		CounterpartMelds:    counterparts,
+		Boundaries:          boundaries,
 		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
@@ -460,7 +450,7 @@ func validateScenario(scenario Scenario) error {
 		ScenarioCompletionOwnership,
 		ScenarioPortfolioReplay,
 		ScenarioHumanCommunication,
-		ScenarioEvidenceAcquisition:
+		ScenarioExternalValidation:
 		if scenario.AdjacentRole != "" {
 			return fmt.Errorf("scenario %q cannot name an adjacent role", scenario.ID)
 		}
@@ -560,8 +550,8 @@ func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, err
 			if scenario.Kind == ScenarioHumanCommunication {
 				rubric = append(rubric, humanCommunicationCriterion())
 			}
-			if scenario.Kind == ScenarioEvidenceAcquisition {
-				rubric = append(rubric, evidenceAcquisitionCriterion())
+			if scenario.Kind == ScenarioExternalValidation {
+				rubric = append(rubric, externalValidationCriterion())
 			}
 			if scenario.ReviewerQuestion != "" {
 				question = scenario.ReviewerQuestion
@@ -595,11 +585,11 @@ func humanCommunicationCriterion() Criterion {
 	}
 }
 
-// evidenceAcquisitionCriterion scores acquisition of the settling source
-// instead of a conclusion drawn from a description of it. See docs/role-melds.md.
-func evidenceAcquisitionCriterion() Criterion {
+// externalValidationCriterion scores acquisition of the settling source
+// instead of a conclusion drawn from a description of it. See docs/role-boundaries.md.
+func externalValidationCriterion() Criterion {
 	return Criterion{
-		ID:       "evidence-acquisition",
+		ID:       "external-validation-deferral",
 		Question: "Does the response name and open the source that would settle its consequential claim before making it, rather than concluding from a description of that source?",
 		Scale: ScoreScale{
 			Strong:  "The response names the authoritative source, treats reading it as required work before the claim, and marks anything it cannot ground as inference with the observation that would settle it.",

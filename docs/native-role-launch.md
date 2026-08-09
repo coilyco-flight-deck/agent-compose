@@ -29,7 +29,7 @@ projection layout.
 The resulting bundle contains only the assigned role skill, its role methods,
 complete ordered personality meld, ordinary admitted skills, and composed skills
 bound to that role. Startup instructions require the harness to read the role
-and meld skills before acting. Another role requires another launch.
+and boundary skills before acting. Another role requires another launch.
 
 Before the harness starts, the launcher prints routine composition status at
 normal speed, then renders the canonical role transcript as the final
@@ -44,7 +44,7 @@ plain.
 
 Bare interactive Codex launches also supply an initial prompt asking the active
 Codex seat to introduce itself from the loaded identity card and personality
-meld, then invite the user's task. Codex options such as AOS's workspace trust
+boundary, then invite the user's task. Codex options such as AOS's workspace trust
 override or an explicit model selection may precede that prompt. An explicit
 positional prompt, subcommand, or unknown option passes through unprompted. A
 Claude launch instead carries [identity flags](claude-launch-identity.md).

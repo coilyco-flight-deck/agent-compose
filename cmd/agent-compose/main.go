@@ -579,7 +579,7 @@ func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
 	for _, entry := range entries {
 		fmt.Fprintf(
 			&text,
-			"%s // %s // %s // meld: %s // color: %s\n",
+			"%s // %s // %s // boundary: %s // color: %s\n",
 			entry.Slug,
 			entry.Skill,
 			entry.Purpose,

@@ -19,40 +19,36 @@ the deliberately simple `ceil(bytes / 4)` heuristic.
 measurements. The released baseline is retained here because rerunning a newer
 binary cannot reconstruct an older renderer.
 
-## Meld extraction
+## Boundary extraction
 
 Extracting the shared communication and live-operations boundaries into
-[role melds](role-melds.md) freed 602 words of role body prose across the eight
+[role boundaries](role-boundaries.md) freed 602 words of role body prose across the eight
 Core Roster roles, from 2,759 to 2,157, a 22% reduction. Per role: engineer 295
 to 180, director 318 to 195, qa 298 to 196, ops 394 to 264, design 395 to 364,
 exec 288 to 226, ai 369 to 330, and creator unchanged at 402 because it owns
 the communication boundary rather than deferring to it.
 
-The melded bodies are additive rather than deducted. Each is bounded by its own
+The boundary bodies are additive rather than deducted. Each is bounded by its own
 400-word ceiling and never enters `Role.Briefing`, so the freed budget is
 available to role-specific charter prose.
 
-## Comms rescope
+## Boundary rescope
 
-Dropping the no-invention paragraph, which is a roster-wide honesty rule rather
-than a communication boundary, took `comms` from 259 to 227 words. The meld now
-binds design, exec, and ops instead of seven roles. Role bodies are unchanged,
-since the four unbound roles carried no comms prose to restore.
+Measured after the rename, the slug changes, and the owner sections. Each side
+of a boundary is bounded separately at 400 words:
 
-## Evidence meld
+* `modify-live-system` - own 112, defer 234
+* `suggest-human-comms` - own 111, defer 141
+* `seek-external-validation` - own 157, defer 178
 
-The `evidence` meld binds engineer, exec, and ops, and spends 357 words of its
-own 400-word ceiling. It charges no role body. Role prose is unchanged except exec,
-which grew 223 to 244 words when the shared acquisition obligation replaced its
-`Prefer primary evidence` clause and absorbed the strategist residue about
-measuring rather than assuming portfolio numbers. Every role body stays under
-its 400-word ceiling, and Core Roster role prose totals 2,159 words. These
-counts come from the loader's own body counter, so they differ by a word or two
-from the extraction figures above, which were measured with a separate tool.
+Owner prose left the charters that duplicated it. Content Creator fell from 399
+to 318 words and is no longer one word under its ceiling, DevOps from 262 to
+252, and Executive Strategist from 244 to 220 once the boundary took the claim
+that outward reach is its work.
 
 ## See also
 
-* [role melds](role-melds.md) - shared doctrine and its separate budget.
+* [role boundaries](role-boundaries.md) - shared doctrine and its separate budget.
 * [role skills](role-briefings.md) - source and loading contract.
 * [features](FEATURES.md) - shipped capability inventory.
 * [issue-suite run journal](run-115.md) - current one-shot execution state.

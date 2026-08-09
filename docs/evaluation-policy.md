@@ -36,7 +36,7 @@ must be complete.
 
 ## Re-earning a baseline
 
-Editing a role, a meld, or the policy retires every affected record, because
+Editing a role, a boundary, or the policy retires every affected record, because
 the pack digest it was bound to no longer exists. `ward exec
 evaluation-baseline` re-earns the baseline in one pass: render packs, drive
 every active case, review the preserved responses, then write the records

@@ -15,25 +15,22 @@ Supported Core Roster scenario kinds are:
 * `portfolio-replay`
 * `adjacent-role-discrimination`
 * `human-communication-ownership`
-* `evidence-acquisition`
+* `external-validation-deferral`
 
 The engine expands each scenario into frontier, commodity, and OSS cases.
 Every lane carries the same complete context. Keeping lanes and rubrics in the
 engine prevents role assets from restating the same evaluation configuration.
-`human-communication-ownership` is required from the roles declaring the
-`comms` meld and from its counterpart, which owes the case from the owning side
-without ever receiving the body. A declaring role may carry more than one when
-distinct cases are needed to preserve both a recommendation deferral and a
-role-owned mechanical-record regression.
-`evidence-acquisition` is required from exactly the roles that declare the
-`evidence` meld, and rejected from the roles that do not, so the roster decides
-coverage instead of a second list here. The scenario adds an
-`evidence-acquisition` criterion, scored but not a hard fail, because a
+A boundary-bound kind is required from every role that receives that boundary,
+which is the roles declaring it plus its owner, and rejected from roles that do
+not, so the roster decides coverage instead of a second list here.
+`human-communication-ownership` belongs to `suggest-human-comms` and
+`external-validation-deferral` to `seek-external-validation`. A role may carry
+more than one when distinct cases are needed, as with a recommendation deferral
+beside a role-owned mechanical-record regression. The
+`external-validation-deferral` criterion is scored but not a hard fail, since a
 partially grounded claim is a quality deduction rather than an authority breach.
 Case prompts are the only context a driver session receives, so these cases
-score whether the response treats opening the authoritative source as required
-work, not whether a file was read. Staging real artifacts for a driver to open
-is a separate methodology change.
+score stated behavior rather than observed tool use.
 A pack-level
 `disabled_model_tiers` marker temporarily pauses a lane without deleting its
 cases or changing role-owned scenario files.

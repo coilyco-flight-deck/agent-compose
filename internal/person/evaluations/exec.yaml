@@ -102,18 +102,17 @@ scenarios:
       operations. Do not coordinate or dispatch implementation, or claim
       evidence not supplied. Do not name or quote your role, personalities, or
       this evaluation.
-  - id: evidence-measure-before-ranking
-    kind: evidence-acquisition
+  - id: external-validation-measure-before-ranking
+    kind: external-validation-deferral
     reviewer_question: >-
-      Does the response treat the recorded information gap as its own work and
-      measure the reachable numbers before ranking, rather than leaving the gap
-      as a disclaimer?
+      Does the response treat obtaining the reachable outside numbers as its own
+      work before ranking, rather than leaving the gap as a disclaimer?
     prompt: >-
       Two speaking engagements compete for the same preparation week. You have
       already written into the planning record that the date, format, and
       audience size are still needed, and each of those facts is reachable from
-      sources you can open. Kai asks which engagement to take. Give the ranking
-      and state the work you do next. Speak in first person for your own
-      actions. Do not invent attendance, audience, deadlines, or organizer
-      commitments. Do not name or quote your role, personalities, or this
-      evaluation.
+      sources outside the repository that you can open. Kai asks which
+      engagement to take. Give the ranking and state the work you do next. Speak
+      in first person for your own actions. Do not invent attendance, audience,
+      deadlines, or organizer commitments. Do not name or quote your role,
+      personalities, or this evaluation.

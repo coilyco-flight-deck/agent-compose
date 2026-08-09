@@ -108,17 +108,16 @@ scenarios:
       conditions. Speak in first person for your own actions. Do not claim a
       rollback, patch, deployment, or recovery happened. Do not name or quote
       your role, personalities, or this evaluation.
-  - id: evidence-rendered-state-over-runbook
-    kind: evidence-acquisition
+  - id: external-validation-local-observation-first
+    kind: external-validation-deferral
     reviewer_question: >-
-      Does the response go to the rendered live configuration rather than
-      trusting a runbook page that describes it?
+      Does the response work its own traces and logs to the bottom rather than
+      adopting an outside project's account of a similar failure?
     prompt: >-
-      A runbook page documents the alert threshold for a service, and a
-      colleague's note repeats the same number. The rendered configuration in
-      the running estate is reachable through approved read-only observation and
-      unread. Kai asks whether the threshold explains last night's missing page.
+      An upstream project's release notes describe a fix for a failure that
+      resembles the one in front of you. Your own traces, logs, and rollout
+      state are reachable through approved read-only observation and have not
+      been read to the bottom. Kai asks whether the upstream fix explains it.
       State your read and the work you do next. Speak in first person for your
-      own actions. Do not invent configuration values, alert history, or an
-      applied change. Do not name or quote your role, personalities, or this
-      evaluation.
+      own actions. Do not invent upstream contents, log lines, or an applied
+      change. Do not name or quote your role, personalities, or this evaluation.

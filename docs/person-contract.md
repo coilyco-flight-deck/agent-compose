@@ -9,7 +9,7 @@ roster "core" {
         purpose "Build and land work across the real repository portfolio."
         model-tier "frontier" "commodity" "oss"
         skill "role-engineer"
-        method "eval-role-comms"
+        method "eval-fixture-suite"
         personality "curious" "meticulous" "tenacious"
         identity name="opal engineer" pronouns="she"
         agent "claude" tier="frontier"
