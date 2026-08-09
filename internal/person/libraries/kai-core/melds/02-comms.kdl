@@ -1,1 +1,1 @@
-meld "comms" skill="meld-comms" summary="Content Creator owns communication recommendations, you keep factual work records"
+meld "comms" skill="meld-comms" counterpart="creator" summary="Content Creator owns communication recommendations, you keep factual work records"

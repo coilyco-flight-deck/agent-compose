@@ -105,16 +105,19 @@ type EvaluationPolicy struct {
 }
 
 type Pack struct {
-	Format              string               `yaml:"format"`
-	Person              string               `yaml:"person"`
-	Role                string               `yaml:"role"`
-	RoleSkill           string               `yaml:"role_skill"`
-	RoleSkillSource     string               `yaml:"role_skill_source"`
-	RoleSkillDigest     string               `yaml:"role_skill_digest"`
-	Seat                person.Seat          `yaml:"seat"`
-	Purpose             string               `yaml:"purpose"`
-	Briefing            string               `yaml:"briefing"`
-	Melds               []MeldContext        `yaml:"melds,omitempty"`
+	Format          string        `yaml:"format"`
+	Person          string        `yaml:"person"`
+	Role            string        `yaml:"role"`
+	RoleSkill       string        `yaml:"role_skill"`
+	RoleSkillSource string        `yaml:"role_skill_source"`
+	RoleSkillDigest string        `yaml:"role_skill_digest"`
+	Seat            person.Seat   `yaml:"seat"`
+	Purpose         string        `yaml:"purpose"`
+	Briefing        string        `yaml:"briefing"`
+	Melds           []MeldContext `yaml:"melds,omitempty"`
+	// Coverage metadata, not delivered doctrine. Kept out of the rendered pack
+	// and its digest so both keep describing what the driver receives.
+	CounterpartMelds    []string             `json:"-" yaml:"-"`
 	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
@@ -261,6 +264,15 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		})
 	}
 
+	// A counterpart holds the other side of a boundary without receiving its
+	// body, so the pack records the relationship rather than the doctrine.
+	counterparts := []string{}
+	for _, name := range p.MeldOrder {
+		if p.Melds[name].Counterpart == roleName {
+			counterparts = append(counterparts, name)
+		}
+	}
+
 	generic, err := parseGenericMatrix(genericMatrixAsset)
 	if err != nil {
 		return nil, fmt.Errorf("parse embedded generic evaluation asset: %w", err)
@@ -276,6 +288,7 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
 		Melds:               melds,
+		CounterpartMelds:    counterparts,
 		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,

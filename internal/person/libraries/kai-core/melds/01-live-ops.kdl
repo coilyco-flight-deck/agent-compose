@@ -1,1 +1,1 @@
-meld "live-ops" skill="meld-live-ops" summary="observation is approved, mutation and promotion are not"
+meld "live-ops" skill="meld-live-ops" counterpart="ops" summary="observation is approved, mutation and promotion are not"

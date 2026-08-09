@@ -14,12 +14,14 @@ var requiredScenarioKinds = []string{
 	ScenarioAuthorityBoundary,
 	ScenarioCompletionOwnership,
 	ScenarioPortfolioReplay,
-	ScenarioHumanCommunication,
 }
 
-// evidenceMeld ties the acquisition scenario to the doctrine it evaluates, so
-// the roster decides which roles owe the case. See docs/evaluation-matrices.md.
-const evidenceMeld = "evidence"
+// Each meld ties a scenario kind to the doctrine it evaluates, so the roster
+// decides which roles owe the case. See docs/evaluation-matrices.md.
+const (
+	evidenceMeld = "evidence"
+	commsMeld    = "comms"
+)
 
 var requiredAdjacentRoles = map[string][]string{
 	"engineer": {"ops"},
@@ -132,18 +134,37 @@ func ValidateCorePack(pack *Pack) error {
 			return fmt.Errorf("missing %s scenario", kind)
 		}
 	}
-	declaresEvidence := false
-	for _, meld := range pack.Melds {
-		if meld.Name == evidenceMeld {
-			declaresEvidence = true
-			break
+	for _, bound := range []struct {
+		meld string
+		kind string
+		// A counterpart holds the other side of the boundary, so it owes the
+		// case without ever receiving the body.
+		counterpartOwes bool
+	}{
+		{meld: evidenceMeld, kind: ScenarioEvidenceAcquisition},
+		{meld: commsMeld, kind: ScenarioHumanCommunication, counterpartOwes: true},
+	} {
+		owes := false
+		for _, meld := range pack.Melds {
+			if meld.Name == bound.meld {
+				owes = true
+				break
+			}
 		}
-	}
-	if declaresEvidence && kinds[ScenarioEvidenceAcquisition] == 0 {
-		return fmt.Errorf("missing %s scenario for the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
-	}
-	if !declaresEvidence && kinds[ScenarioEvidenceAcquisition] > 0 {
-		return fmt.Errorf("%s scenario without the %q meld", ScenarioEvidenceAcquisition, evidenceMeld)
+		if bound.counterpartOwes {
+			for _, meld := range pack.CounterpartMelds {
+				if meld == bound.meld {
+					owes = true
+					break
+				}
+			}
+		}
+		if owes && kinds[bound.kind] == 0 {
+			return fmt.Errorf("missing %s scenario for the %q meld", bound.kind, bound.meld)
+		}
+		if !owes && kinds[bound.kind] > 0 {
+			return fmt.Errorf("%s scenario without the %q meld", bound.kind, bound.meld)
+		}
 	}
 	for _, role := range requiredAdjacent {
 		if adjacent[role] == 0 {

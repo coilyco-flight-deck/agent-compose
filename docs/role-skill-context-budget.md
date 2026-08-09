@@ -32,6 +32,13 @@ The melded bodies are additive rather than deducted. Each is bounded by its own
 400-word ceiling and never enters `Role.Briefing`, so the freed budget is
 available to role-specific charter prose.
 
+## Comms rescope
+
+Dropping the no-invention paragraph, which is a roster-wide honesty rule rather
+than a communication boundary, took `comms` from 259 to 227 words. The meld now
+binds design, exec, and ops instead of seven roles. Role bodies are unchanged,
+since the four unbound roles carried no comms prose to restore.
+
 ## Evidence meld
 
 The `evidence` meld binds engineer, exec, and ops, and spends 357 words of its

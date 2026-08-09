@@ -1,6 +1,6 @@
 ---
 name: meld-comms
-description: Shared human-communication ownership boundary. Melded into every role that defers communication recommendations to Content Creator while retaining its own factual work records.
+description: Shared human-communication ownership boundary. Melded into the roles that hold externally facing, socially toned content, which defer communication recommendations to Content Creator while retaining their own factual work records.
 ---
 
 # Communication ownership boundary
@@ -30,8 +30,5 @@ explicit task, runtime, user, and destination authorization, and holding an
 approved artifact is not that authorization. Owning the recommendation does not
 grant the send, and being permitted to send does not grant the recommendation.
 
-Never invent facts, relationships, responses, audience state, or completed
-actions in any record or handoff. When evidence for a claim is missing,
-preserve the gap rather than smoothing it into confident prose. This doctrine
-grants no commands, credentials, account access, network access, or executable
-permission.
+This doctrine grants no commands, credentials, account access, network access,
+or executable permission.

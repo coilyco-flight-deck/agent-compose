@@ -231,6 +231,53 @@ func TestMeldBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
 	}
 }
 
+func TestValidateMeldCounterpartsRejectsIncoherentPairs(t *testing.T) {
+	for name, p := range map[string]*Person{
+		"unknown counterpart": {
+			RoleOrder: []string{"builder"},
+			Roles: map[string]Role{
+				"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+			},
+			MeldOrder: []string{"shared"},
+			Melds: map[string]Meld{
+				"shared": {Skill: "meld-shared", Counterpart: "absent"},
+			},
+		},
+		"counterpart declares the meld": {
+			RoleOrder: []string{"builder", "mirror"},
+			Roles: map[string]Role{
+				"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+				"mirror":  {Skill: "role-mirror", Melds: []string{"shared"}},
+			},
+			MeldOrder: []string{"shared"},
+			Melds: map[string]Meld{
+				"shared": {Skill: "meld-shared", Counterpart: "mirror"},
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if err := validateMeldCounterparts(p); err == nil {
+				t.Fatal("incoherent meld counterpart passed validation")
+			}
+		})
+	}
+
+	coherent := &Person{
+		RoleOrder: []string{"builder", "mirror"},
+		Roles: map[string]Role{
+			"builder": {Skill: "role-builder", Melds: []string{"shared"}},
+			"mirror":  {Skill: "role-mirror"},
+		},
+		MeldOrder: []string{"shared"},
+		Melds: map[string]Meld{
+			"shared": {Skill: "meld-shared", Counterpart: "mirror"},
+		},
+	}
+	if err := validateMeldCounterparts(coherent); err != nil {
+		t.Fatalf("coherent meld counterpart rejected: %v", err)
+	}
+}
+
 func meldWordLimitFixture(words int) []byte {
 	body := strings.TrimSpace(strings.Repeat("word ", words))
 	return []byte(

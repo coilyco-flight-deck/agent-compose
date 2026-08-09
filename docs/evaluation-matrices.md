@@ -20,7 +20,9 @@ Supported Core Roster scenario kinds are:
 The engine expands each scenario into frontier, commodity, and OSS cases.
 Every lane carries the same complete context. Keeping lanes and rubrics in the
 engine prevents role assets from restating the same evaluation configuration.
-A role may carry more than one `human-communication-ownership` scenario when
+`human-communication-ownership` is required from the roles declaring the
+`comms` meld and from its counterpart, which owes the case from the owning side
+without ever receiving the body. A declaring role may carry more than one when
 distinct cases are needed to preserve both a recommendation deferral and a
 role-owned mechanical-record regression.
 `evidence-acquisition` is required from exactly the roles that declare the

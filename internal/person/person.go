@@ -146,12 +146,13 @@ type SoundMark struct {
 }
 
 // Meld binds one shared doctrine body that any number of roles may activate.
-// It carries obligation, so it declares no visual primitives and no color.
+// Its optional counterpart is described in docs/meld-counterparts.md.
 type Meld struct {
-	Skill   string `json:"skill"`
-	Summary string `json:"summary"`
-	Source  string `json:"source,omitempty"`
-	Digest  string `json:"digest,omitempty"`
+	Skill       string `json:"skill"`
+	Summary     string `json:"summary"`
+	Counterpart string `json:"counterpart,omitempty"`
+	Source      string `json:"source,omitempty"`
+	Digest      string `json:"digest,omitempty"`
 }
 
 // Personality binds the definition, visual and sensory identity primitives,
@@ -385,6 +386,9 @@ func Load() (*Person, error) {
 		return nil, err
 	}
 	if err := validateNoUnusedMelds(p); err != nil {
+		return nil, err
+	}
+	if err := validateMeldCounterparts(p); err != nil {
 		return nil, err
 	}
 	if err := validateCorePersonalityMelds(p); err != nil {
@@ -661,6 +665,31 @@ func validateNoUnusedMelds(p *Person) error {
 	}
 	if len(unused) != 0 {
 		return fmt.Errorf("core roster has unused melds: %s", strings.Join(unused, ", "))
+	}
+	return nil
+}
+
+// validateMeldCounterparts keeps a two-sided meld coherent. The counterpart
+// holds the other side, so it must exist and must not declare the body.
+func validateMeldCounterparts(p *Person) error {
+	for _, meldName := range p.meldOrder() {
+		counterpart := p.Melds[meldName].Counterpart
+		if counterpart == "" {
+			continue
+		}
+		role, ok := p.Roles[counterpart]
+		if !ok {
+			return fmt.Errorf("meld %q names unknown counterpart %q", meldName, counterpart)
+		}
+		for _, declared := range role.Melds {
+			if declared == meldName {
+				return fmt.Errorf(
+					"meld %q counterpart %q also declares it",
+					meldName,
+					counterpart,
+				)
+			}
+		}
 	}
 	return nil
 }
@@ -1794,9 +1823,17 @@ func parse(raw []byte) (*Person, error) {
 			if children := n.Children(); children != nil && len(children.Nodes) > 0 {
 				return nil, fmt.Errorf("meld %q accepts no child nodes", meldName)
 			}
+			counterpart := ""
+			if prop := n.Prop("counterpart"); prop.IsValid() {
+				counterpart = strings.TrimSpace(prop.String())
+				if !validSemanticToken(counterpart) {
+					return nil, fmt.Errorf("meld %q counterpart needs a stable role id", meldName)
+				}
+			}
 			p.Melds[meldName] = Meld{
-				Skill:   meldSkill.String(),
-				Summary: strings.TrimSpace(meldSummary.String()),
+				Skill:       meldSkill.String(),
+				Summary:     strings.TrimSpace(meldSummary.String()),
+				Counterpart: counterpart,
 			}
 			p.MeldOrder = append(p.MeldOrder, meldName)
 		case "personality":
