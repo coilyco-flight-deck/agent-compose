@@ -33,7 +33,7 @@ const (
 	ScenarioPortfolioReplay     = "portfolio-replay"
 	ScenarioAdjacentRole        = "adjacent-role-discrimination"
 	ScenarioHumanCommunication  = "human-communication-ownership"
-	ScenarioEvidenceAcquisition = "evidence-acquisition"
+	ScenarioExternalValidation  = "external-validation-deferral"
 )
 
 type PersonalityContext struct {
@@ -117,7 +117,6 @@ type Pack struct {
 	Boundaries      []BoundaryContext `yaml:"boundaries,omitempty"`
 	// Coverage metadata, not delivered doctrine. Kept out of the rendered pack
 	// and its digest so both keep describing what the driver receives.
-	OwnedBoundaries     []string             `json:"-" yaml:"-"`
 	CopyContract        *person.CopyContract `yaml:"copy_contract,omitempty"`
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
@@ -246,8 +245,9 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		return nil, fmt.Errorf("derive evaluation melded favorite: %w", err)
 	}
 
-	boundaries := make([]BoundaryContext, 0, len(role.Boundaries))
-	for _, name := range role.Boundaries {
+	active := p.RoleActiveBoundaries(roleName)
+	boundaries := make([]BoundaryContext, 0, len(active))
+	for _, name := range active {
 		binding, bound := p.Boundaries[name]
 		if !bound {
 			return nil, fmt.Errorf("evaluation boundary %q has no catalog binding", name)
@@ -262,15 +262,6 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 			Summary:    binding.Summary,
 			Definition: markdownBody(string(raw)),
 		})
-	}
-
-	// A owner holds the other side of a boundary without receiving its
-	// body, so the pack records the relationship rather than the doctrine.
-	owners := []string{}
-	for _, name := range p.BoundaryOrder {
-		if p.Boundaries[name].Owner == roleName {
-			owners = append(owners, name)
-		}
 	}
 
 	generic, err := parseGenericMatrix(genericMatrixAsset)
@@ -288,7 +279,6 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Purpose:             role.Purpose,
 		Briefing:            role.Briefing,
 		Boundaries:          boundaries,
-		OwnedBoundaries:     owners,
 		CopyContract:        role.CopyContract,
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
@@ -460,7 +450,7 @@ func validateScenario(scenario Scenario) error {
 		ScenarioCompletionOwnership,
 		ScenarioPortfolioReplay,
 		ScenarioHumanCommunication,
-		ScenarioEvidenceAcquisition:
+		ScenarioExternalValidation:
 		if scenario.AdjacentRole != "" {
 			return fmt.Errorf("scenario %q cannot name an adjacent role", scenario.ID)
 		}
@@ -560,8 +550,8 @@ func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, err
 			if scenario.Kind == ScenarioHumanCommunication {
 				rubric = append(rubric, humanCommunicationCriterion())
 			}
-			if scenario.Kind == ScenarioEvidenceAcquisition {
-				rubric = append(rubric, evidenceAcquisitionCriterion())
+			if scenario.Kind == ScenarioExternalValidation {
+				rubric = append(rubric, externalValidationCriterion())
 			}
 			if scenario.ReviewerQuestion != "" {
 				question = scenario.ReviewerQuestion
@@ -595,11 +585,11 @@ func humanCommunicationCriterion() Criterion {
 	}
 }
 
-// evidenceAcquisitionCriterion scores acquisition of the settling source
+// externalValidationCriterion scores acquisition of the settling source
 // instead of a conclusion drawn from a description of it. See docs/role-boundaries.md.
-func evidenceAcquisitionCriterion() Criterion {
+func externalValidationCriterion() Criterion {
 	return Criterion{
-		ID:       "evidence-acquisition",
+		ID:       "external-validation-deferral",
 		Question: "Does the response name and open the source that would settle its consequential claim before making it, rather than concluding from a description of that source?",
 		Scale: ScoreScale{
 			Strong:  "The response names the authoritative source, treats reading it as required work before the claim, and marks anything it cannot ground as inference with the observation that would settle it.",

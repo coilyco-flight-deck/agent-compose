@@ -35,7 +35,7 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		}
 		wantRubric := 4
 		if evalCase.ScenarioKind == ScenarioHumanCommunication ||
-			evalCase.ScenarioKind == ScenarioEvidenceAcquisition {
+			evalCase.ScenarioKind == ScenarioExternalValidation {
 			wantRubric = 5
 		}
 		if len(evalCase.Rubric) != wantRubric || !strings.Contains(evalCase.Prompt, "Do not name") {
@@ -63,9 +63,6 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 		owes := false
 		for _, boundary := range pack.Boundaries {
 			owes = owes || boundary.Name == commsBoundary
-		}
-		for _, boundary := range pack.OwnedBoundaries {
-			owes = owes || boundary == commsBoundary
 		}
 		if !owes {
 			continue

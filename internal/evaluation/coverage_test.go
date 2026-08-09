@@ -39,23 +39,23 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 			}
 			candidate.Cases = kept
 		},
-		"evidence acquisition without the boundary": func(candidate *Pack) {
+		"external validation without the boundary": func(candidate *Pack) {
 			var kept []BoundaryContext
 			for _, boundary := range candidate.Boundaries {
-				if boundary.Name != evidenceBoundary {
+				if boundary.Name != externalBoundary {
 					kept = append(kept, boundary)
 				}
 			}
 			candidate.Boundaries = kept
 		},
-		"evidence acquisition criterion dropped": func(candidate *Pack) {
+		"external validation criterion dropped": func(candidate *Pack) {
 			for caseIndex := range candidate.Cases {
-				if candidate.Cases[caseIndex].ScenarioKind != ScenarioEvidenceAcquisition {
+				if candidate.Cases[caseIndex].ScenarioKind != ScenarioExternalValidation {
 					continue
 				}
 				var kept []Criterion
 				for _, criterion := range candidate.Cases[caseIndex].Rubric {
-					if criterion.ID != "evidence-acquisition" {
+					if criterion.ID != "external-validation-deferral" {
 						kept = append(kept, criterion)
 					}
 				}
@@ -114,9 +114,6 @@ func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 			}
 			candidate.Cases = kept
 		}},
-		"owner relationship dropped": {base: owner, mutate: func(candidate *Pack) {
-			candidate.OwnedBoundaries = nil
-		}},
 		"boundary without the boundary": {base: declaring, mutate: func(candidate *Pack) {
 			var kept []BoundaryContext
 			for _, boundary := range candidate.Boundaries {
@@ -145,7 +142,6 @@ func TestValidateCorePackRejectsCommunicationDriftForBoundRoles(t *testing.T) {
 			candidate := *test.base
 			candidate.Cases = append([]Case(nil), test.base.Cases...)
 			candidate.Boundaries = append([]BoundaryContext(nil), test.base.Boundaries...)
-			candidate.OwnedBoundaries = append([]string(nil), test.base.OwnedBoundaries...)
 			for index := range candidate.Cases {
 				candidate.Cases[index].Rubric = append(
 					[]Criterion(nil),

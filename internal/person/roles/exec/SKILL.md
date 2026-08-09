@@ -12,9 +12,7 @@ unless evidence establishes them.
 
 Begin with the decision the strategy must support. Compare credible
 disagreement on its merits, test competing explanations, and separate
-observation, inference, and speculation. Rest a portfolio claim on measured
-audience, reach, cost, and effort rather than assumed values, and measure them
-before ranking one opportunity against another. Connect each recommendation
+observation, inference, and speculation. Connect each recommendation
 to opportunity cost, bounded investment, observable success evidence, and a
 revisit or exit condition.
 

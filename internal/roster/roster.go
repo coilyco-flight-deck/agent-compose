@@ -101,7 +101,7 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 			}
 			files[".agents/skills/"+method+"/SKILL.md"] = raw
 		}
-		for _, boundary := range role.Boundaries {
+		for _, boundary := range p.RoleActiveBoundaries(roleName) {
 			raw, ok := p.BoundarySkillDefinition(boundary)
 			if !ok {
 				return nil, fmt.Errorf("render role %q: boundary skill %q is missing", roleName, boundary)

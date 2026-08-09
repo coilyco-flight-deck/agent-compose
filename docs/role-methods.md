@@ -11,8 +11,7 @@ Declare method ids in the owning role fragment:
 ```kdl
 role "ai" {
     skill "role-ai"
-    method "eval-role-comms"
-    method "eval-role-live-ops"
+    method "eval-fixture-suite"
 }
 ```
 
@@ -40,18 +39,12 @@ skills so an inferred interactive role can activate it. The roster instruction
 keeps methods inactive until both the current role and task match. Assigned AOS
 launches consume the verified bundle and own no copy of the method source.
 
-## Core AI evaluation methods
+## Core Roster methods
 
-The Core Roster AI Engineer owns two cross-role evaluation methods:
-
-* `eval-role-comms` derives communication-owner, role-owned factual-record,
-  factual-handoff, advice, and delivery-gate coverage from the selected package.
-* `eval-role-live-ops` derives observation, mutation, promotion, after-state,
-  rollback, recovery, and operator-handoff coverage from canonical policy.
-
-Both methods preserve pack provenance, isolated runs, raw failures, independent
-review, and QA acceptance. Live-operations cases use offline fixtures. Neither
-method grants communication, deployment, credential, or runtime authority.
+The Core Roster declares none. The two evaluation methods it carried were
+scaffolding for the boundaries in #254 and retired with them. The primitive
+stays available to any package whose roster policy needs a single-owner
+procedure.
 
 A method is owned by exactly one role. When the same procedure binds several
 roles, use a [role boundary](role-boundaries.md) instead.

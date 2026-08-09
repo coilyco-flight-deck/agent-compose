@@ -19,8 +19,8 @@ var requiredScenarioKinds = []string{
 // Each boundary ties a scenario kind to the doctrine it evaluates, so the roster
 // decides which roles owe the case. See docs/evaluation-matrices.md.
 const (
-	evidenceBoundary = "evidence"
-	commsBoundary    = "comms"
+	externalBoundary = "seek-external-validation"
+	commsBoundary    = "suggest-human-comms"
 )
 
 var requiredAdjacentRoles = map[string][]string{
@@ -90,8 +90,8 @@ func ValidateCorePack(pack *Pack) error {
 				return fmt.Errorf("case %q: %w", evalCase.ID, err)
 			}
 		}
-		if evalCase.ScenarioKind == ScenarioEvidenceAcquisition {
-			if err := validateEvidenceAcquisitionCriterion(evalCase); err != nil {
+		if evalCase.ScenarioKind == ScenarioExternalValidation {
+			if err := validateExternalValidationCriterion(evalCase); err != nil {
 				return fmt.Errorf("case %q: %w", evalCase.ID, err)
 			}
 		}
@@ -134,36 +134,24 @@ func ValidateCorePack(pack *Pack) error {
 			return fmt.Errorf("missing %s scenario", kind)
 		}
 	}
-	for _, bound := range []struct {
-		boundary string
-		kind     string
-		// A owner holds the other side of the boundary, so it owes the
-		// case without ever receiving the body.
-		ownerOwes bool
-	}{
-		{boundary: evidenceBoundary, kind: ScenarioEvidenceAcquisition},
-		{boundary: commsBoundary, kind: ScenarioHumanCommunication, ownerOwes: true},
+	// Both sides of a boundary receive its body, so both owe its case. The
+	// roster decides coverage. See docs/evaluation-matrices.md.
+	for boundary, kind := range map[string]string{
+		commsBoundary:    ScenarioHumanCommunication,
+		externalBoundary: ScenarioExternalValidation,
 	} {
-		owes := false
-		for _, boundary := range pack.Boundaries {
-			if boundary.Name == bound.boundary {
-				owes = true
+		carries := false
+		for _, active := range pack.Boundaries {
+			if active.Name == boundary {
+				carries = true
 				break
 			}
 		}
-		if bound.ownerOwes {
-			for _, boundary := range pack.OwnedBoundaries {
-				if boundary == bound.boundary {
-					owes = true
-					break
-				}
-			}
+		if carries && kinds[kind] == 0 {
+			return fmt.Errorf("missing %s scenario for the %q boundary", kind, boundary)
 		}
-		if owes && kinds[bound.kind] == 0 {
-			return fmt.Errorf("missing %s scenario for the %q boundary", bound.kind, bound.boundary)
-		}
-		if !owes && kinds[bound.kind] > 0 {
-			return fmt.Errorf("%s scenario without the %q boundary", bound.kind, bound.boundary)
+		if !carries && kinds[kind] > 0 {
+			return fmt.Errorf("%s scenario without the %q boundary", kind, boundary)
 		}
 	}
 	for _, role := range requiredAdjacent {
@@ -182,18 +170,18 @@ func ValidateCorePack(pack *Pack) error {
 	return nil
 }
 
-// validateEvidenceAcquisitionCriterion keeps the acquisition scenario scored on
+// validateExternalValidationCriterion keeps the acquisition scenario scored on
 // acquisition. See docs/evaluation-matrices.md for why it is not a hard fail.
-func validateEvidenceAcquisitionCriterion(evalCase Case) error {
+func validateExternalValidationCriterion(evalCase Case) error {
 	for _, criterion := range evalCase.Rubric {
-		if criterion.ID == "evidence-acquisition" {
+		if criterion.ID == "external-validation-deferral" {
 			if criterion.HardFail {
-				return fmt.Errorf("evidence acquisition criterion is flagged as a hard fail")
+				return fmt.Errorf("external validation criterion is flagged as a hard fail")
 			}
 			return nil
 		}
 	}
-	return fmt.Errorf("evidence acquisition criterion is missing")
+	return fmt.Errorf("external validation criterion is missing")
 }
 
 func validateHumanCommunicationHardFail(evalCase Case) error {

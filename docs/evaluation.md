@@ -18,7 +18,7 @@ Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evalua
 
 Agent Compose emits prompts and context, never model calls, credentials, scores,
 or authority. `--person-source` selects one complete external package. The Core
-AI role's [evaluation methods](role-methods.md) guide cross-role suite curation
+[role boundaries](role-boundaries.md) decide which roles owe a boundary case
 without replacing this pack or reviewer contract.
 
 Execution packs are ephemeral. Their digest binds the exact role, personality,

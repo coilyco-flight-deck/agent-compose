@@ -29,9 +29,16 @@ var embedded embed.FS
 
 const maxRoleSkillBodyWords = 400
 
-// maxBoundarySkillBodyWords bounds one shared doctrine body separately from the
-// role charter that boundaries it. See docs/role-boundaries.md.
+// maxBoundarySkillBodyWords bounds each side of a boundary separately from the
+// role charter that declares it. See docs/role-boundaries.md.
 const maxBoundarySkillBodyWords = 400
+
+// Both sides of a boundary live in one body under conditional headings, so the
+// reader self-selects. See docs/boundary-owners.md.
+const (
+	boundaryOwnHeading   = "## If you own this boundary"
+	boundaryDeferHeading = "## If you defer this boundary"
+)
 
 var personSections = []struct {
 	directory string
@@ -669,13 +676,42 @@ func validateNoUnusedBoundaries(p *Person) error {
 	return nil
 }
 
-// validateBoundaryOwners keeps a two-sided boundary coherent. The owner
-// holds the other side, so it must exist and must not declare the body.
+// validateBoundaryBodySides requires both sides and bounds each separately, so
+// one long half cannot crowd out the other.
+func validateBoundaryBodySides(boundaryName, body string) error {
+	own := strings.Index(body, boundaryOwnHeading)
+	defer_ := strings.Index(body, boundaryDeferHeading)
+	if own < 0 || defer_ < 0 {
+		return fmt.Errorf(
+			"boundary %q skill body needs both %q and %q sections",
+			boundaryName, boundaryOwnHeading, boundaryDeferHeading,
+		)
+	}
+	if own > defer_ {
+		return fmt.Errorf("boundary %q skill body states the defer side before the own side", boundaryName)
+	}
+	for label, section := range map[string]string{
+		"own":   body[own:defer_],
+		"defer": body[defer_:],
+	} {
+		_, prose, _ := strings.Cut(section, "\n")
+		if words := roleSkillBodyWordCount(prose); words > maxBoundarySkillBodyWords {
+			return fmt.Errorf(
+				"boundary %q %s side has %d words, maximum is %d",
+				boundaryName, label, words, maxBoundarySkillBodyWords,
+			)
+		}
+	}
+	return nil
+}
+
+// validateBoundaryOwners keeps a two-sided boundary coherent. An owner receives
+// the body by owning it, never by declaring it.
 func validateBoundaryOwners(p *Person) error {
 	for _, boundaryName := range p.boundaryOrder() {
 		owner := p.Boundaries[boundaryName].Owner
 		if owner == "" {
-			continue
+			return fmt.Errorf("boundary %q has no owner", boundaryName)
 		}
 		role, ok := p.Roles[owner]
 		if !ok {
@@ -1005,13 +1041,8 @@ func loadBoundarySkills(source fs.FS, p *Person) error {
 		if err != nil {
 			return fmt.Errorf("boundary %q skill %q: %w", boundaryName, boundary.Skill, err)
 		}
-		if words := roleSkillBodyWordCount(body); words > maxBoundarySkillBodyWords {
-			return fmt.Errorf(
-				"boundary %q skill body has %d words, maximum is %d",
-				boundaryName,
-				words,
-				maxBoundarySkillBodyWords,
-			)
+		if err := validateBoundaryBodySides(boundaryName, body); err != nil {
+			return err
 		}
 		digest := sha256.Sum256(raw)
 		boundary.Source = p.ProviderID() + ":boundary:" + boundaryName
@@ -1031,15 +1062,38 @@ func (p *Person) BoundarySkillDefinition(boundaryName string) ([]byte, bool) {
 	return append([]byte(nil), raw...), true
 }
 
-// RoleBoundarySkillIDs returns the boundary skill ids one role activates, in declared
-// order, so callers can name them without loading their bodies.
-func (p *Person) RoleBoundarySkillIDs(roleName string) []string {
+// RoleOwnedBoundaries returns the boundaries this role owns. An owner receives
+// the body without declaring it. See docs/boundary-owners.md.
+func (p *Person) RoleOwnedBoundaries(roleName string) []string {
+	owned := make([]string, 0, 1)
+	for _, name := range p.boundaryOrder() {
+		if p.Boundaries[name].Owner == roleName {
+			owned = append(owned, name)
+		}
+	}
+	return owned
+}
+
+// RoleActiveBoundaries returns every boundary whose body this role receives,
+// declared first and then owned.
+func (p *Person) RoleActiveBoundaries(roleName string) []string {
 	role, ok := p.Roles[roleName]
 	if !ok {
 		return nil
 	}
-	ids := make([]string, 0, len(role.Boundaries))
-	for _, boundaryName := range role.Boundaries {
+	active := append([]string(nil), role.Boundaries...)
+	return append(active, p.RoleOwnedBoundaries(roleName)...)
+}
+
+// RoleBoundarySkillIDs returns the boundary skill ids one role activates, in
+// declared then owned order, so callers can name them without loading bodies.
+func (p *Person) RoleBoundarySkillIDs(roleName string) []string {
+	if _, ok := p.Roles[roleName]; !ok {
+		return nil
+	}
+	active := p.RoleActiveBoundaries(roleName)
+	ids := make([]string, 0, len(active))
+	for _, boundaryName := range active {
 		binding, exists := p.Boundaries[boundaryName]
 		if !exists {
 			continue
@@ -1450,7 +1504,7 @@ func Source(p *Person) (*schema.Source, error) {
 				EntryPoint: "SKILL.md",
 			})
 		}
-		for _, boundaryName := range p.Roles[roleName].Boundaries {
+		for _, boundaryName := range p.RoleActiveBoundaries(roleName) {
 			binding, ok := p.Boundaries[boundaryName]
 			if !ok {
 				return nil, fmt.Errorf("person %q role %q has no boundary binding %q", p.Name, roleName, boundaryName)
@@ -1823,12 +1877,13 @@ func parse(raw []byte) (*Person, error) {
 			if children := n.Children(); children != nil && len(children.Nodes) > 0 {
 				return nil, fmt.Errorf("boundary %q accepts no child nodes", boundaryName)
 			}
-			owner := ""
-			if prop := n.Prop("owner"); prop.IsValid() {
-				owner = strings.TrimSpace(prop.String())
-				if !validSemanticToken(owner) {
-					return nil, fmt.Errorf("boundary %q owner needs a stable role id", boundaryName)
-				}
+			ownerProp := n.Prop("owner")
+			if !ownerProp.IsValid() {
+				return nil, fmt.Errorf("boundary %q needs an owner property", boundaryName)
+			}
+			owner := strings.TrimSpace(ownerProp.String())
+			if !validSemanticToken(owner) {
+				return nil, fmt.Errorf("boundary %q owner needs a stable role id", boundaryName)
 			}
 			p.Boundaries[boundaryName] = Boundary{
 				Skill:   boundarySkill.String(),

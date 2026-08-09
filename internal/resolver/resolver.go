@@ -143,7 +143,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		Request:       req,
 		Person:        p,
 		Personalities: append([]string(nil), role.Personalities...),
-		Boundaries:    append([]string(nil), role.Boundaries...),
+		Boundaries:    p.RoleActiveBoundaries(req.Role),
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
@@ -179,13 +179,17 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
 		})
 	}
-	for _, name := range role.Boundaries {
+	for _, name := range p.RoleActiveBoundaries(req.Role) {
+		relationship := "defers"
+		if p.Boundaries[name].Owner == req.Role {
+			relationship = "owns"
+		}
 		res.decide(Decision{
 			Subject: "boundary:" + name, Kind: "profile", Source: p.ProviderID(),
 			Outcome: OutcomeSelected,
 			Reason: fmt.Sprintf(
-				"role %q boundaries shared doctrine %q, which every role that declares it activates identically",
-				req.Role, name),
+				"role %q %s boundary %q, whose body is identical on both sides",
+				req.Role, relationship, name),
 		})
 	}
 	for _, m := range missing {
@@ -336,7 +340,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	} else {
 		return nil, fmt.Errorf("role %q binds skill %q, but no admitted source provides it", req.Role, roleSkill)
 	}
-	for _, name := range role.Boundaries {
+	for _, name := range p.RoleActiveBoundaries(req.Role) {
 		binding, ok := p.Boundaries[name]
 		if !ok {
 			return nil, fmt.Errorf("role %q names boundary %q without a catalog binding", req.Role, name)

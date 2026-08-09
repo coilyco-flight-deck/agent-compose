@@ -1,36 +1,34 @@
 # Role boundaries
 
-A boundary is one shared doctrine body that any number of roles activate
-identically. Use one when the same obligation binds several roles and restating
-it per charter would let the copies drift apart. A body every role declares is
-a roster-wide rule, not a boundary.
+A boundary is one behavior removed from several roles and allocated to exactly
+one owner. Use one when restating that allocation per charter would let the
+copies drift apart. A body every role declares is a roster-wide rule instead.
 
 ## Why boundaries exist
 
-Role skill bodies have a 400-word ceiling. Before boundaries, every role sharing the
-communication-ownership or live-operations boundary restated it in its own
-charter, so shared policy competed with role-specific prose for one budget.
-Extracting both freed 602 words across the Core Roster, a 22% reduction, with no
-doctrine removed. A boundary body is bounded separately and never enters the briefing.
+Role skill bodies have a 400-word ceiling. Before boundaries, every role sharing
+an allocation restated it in its own charter, so shared policy competed with
+role-specific prose for one budget. Extraction freed 602 words across the Core
+Roster with no doctrine lost, and each side is bounded separately.
 
 ## How a boundary differs from its neighbours
 
-* Personality - shared and eager like a boundary, but carries disposition, a color, and identity primitives. A personality never overrides a role obligation.
-* Method - progressive disclosure like an ordinary skill, but owned by exactly one role and inactive until role and task both match.
-* Boundary - shared by many roles, eagerly active, and carries obligation rather than disposition or procedure.
+* Personality - shared and eager too, but carries disposition, a color, and identity primitives, and never overrides a role obligation.
+* Method - progressive disclosure, owned by exactly one role, inactive until role and task both match.
+* Boundary - one behavior removed from several roles and allocated to exactly one owner.
 
 ## Package layout
 
 Declare the catalog entry in a library, then reference it from each role:
 
 ```kdl
-boundary "live-ops" skill="boundary-live-ops" owner="ops" summary="observation is approved, mutation and promotion are not"
+boundary "modify-live-system" skill="boundary-modify-live-system" owner="ops" summary="DevOps changes running systems, other roles observe and hand the action over"
 ```
 
 ```kdl
 role "engineer" {
     skill "role-engineer"
-    boundary "live-ops" "evidence"
+    boundary "modify-live-system" "seek-external-validation"
     personality "curious" "meticulous" "tenacious"
 }
 ```
@@ -38,20 +36,19 @@ role "engineer" {
 Store each body beside the personality definitions:
 
 ```text
-libraries/kai-core/boundaries/01-live-ops.kdl
-libraries/kai-core/definitions/skills/boundary-live-ops/SKILL.md
+libraries/kai-core/boundaries/01-modify-live-system.kdl
+libraries/kai-core/definitions/skills/boundary-modify-live-system/SKILL.md
 ```
 
 The catalog id, `skill` property, and frontmatter name must agree, so boundary
-`live-ops` binds `boundary-live-ops`. An unreferenced boundary fails loading.
+`modify-live-system` binds `boundary-modify-live-system`. An unreferenced boundary fails loading.
 
 ## Selection and delivery
 
-Agent Compose selects a boundary with every role that declares it. The identity card
-names boundary skills under `Shared doctrine` and lists them in `Active doctrine`
-between the charter and the personalities, so the agent loads them before acting.
-Native delivery installs each body once as an ordinary skill, and compiled
-delivery appends the same bodies. Sharing one body is expected, not a collision.
+Agent Compose selects a boundary with every role that declares it and with its
+owner. The identity card lists them under `Boundaries`, marking each as owned or
+deferred, and repeats them in `Active doctrine` so the agent loads them before
+acting. Sharing one body is expected, not a collision.
 
 The bundle manifest records the selected boundaries, the decision trace carries one
 `boundary:<id>` entry per role, and bundle verification fails when the manifest and
@@ -59,16 +56,19 @@ trace disagree.
 
 ## Evaluation
 
-Packs carry boundary bodies in a `boundaries` block beside the briefing, so doctrine
-that left a charter still reaches the driver rather than scoring an incomplete
-role. Changing a body moves the pack digest for every declaring role, retiring
-those results until an independently reviewed re-run.
+Packs carry boundary bodies in a `boundaries` block beside the briefing, so
+doctrine that left a charter still reaches the driver rather than scoring an
+incomplete role. Both sides receive the body, so both owe its case. Changing a
+body moves the pack digest for every role on either side, retiring those results
+until an independently reviewed re-run.
 
 ## Core Roster boundaries
 
-* `live-ops` - bound into engineer, qa, and ai, the roles sealed against live mutation. Owner DevOps holds the opposite authority.
-* `comms` - bound into design, exec, and ops, the roles holding externally facing content that carries a social tone. Owner Content Creator owns the recommendations they defer.
-* `evidence` - bound into engineer, exec, and ops, the roles whose diligence reaches past the context handed to them. No owner, since no role owns the opposite. QA, Designer, Content Creator, Director, and AI Engineer are excluded, each because acquisition would override a designated source or duplicate a rule the charter already carries.
+Each slug names the behavior that moves, not the domain it sits in.
+
+* `modify-live-system`, owner DevOps - deferred by engineer, qa, and ai, the roles sealed against live mutation.
+* `suggest-human-comms`, owner Content Creator - deferred by design, exec, and ops, the roles holding externally facing content that carries a social tone.
+* `seek-external-validation`, owner Executive Strategist - deferred by engineer, director, qa, ops, design, and ai. Content Creator neither defers nor owns it, since its charter already sends it outside for audience evidence.
 
 ## See also
 

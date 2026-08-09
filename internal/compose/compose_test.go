@@ -156,15 +156,15 @@ func TestAIRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, method := range []string{"eval-role-comms", "eval-role-live-ops"} {
-				mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/"+method+"/SKILL.md")
+			for _, boundary := range []string{"boundary-modify-live-system", "boundary-seek-external-validation"} {
+				mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/"+boundary+"/SKILL.md")
 			}
 			if delivery == schema.DeliveryCompiled {
 				raw, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "delivery", "compiled.md"))
 				if err != nil {
 					t.Fatal(err)
 				}
-				for _, heading := range []string{"# Role Communication Evaluation", "# Role Live Operations Evaluation"} {
+				for _, heading := range []string{"# Boundary: modify live system", "# Boundary: seek external validation"} {
 					if !strings.Contains(string(raw), heading) {
 						t.Errorf("compiled AI context omitted %q", heading)
 					}

@@ -17,9 +17,6 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		t.Fatal(err)
 	}
 	ai := p.Roles["ai"]
-	if got := strings.Join(ai.Methods, ","); got != "eval-role-comms,eval-role-live-ops" {
-		t.Fatalf("AI role methods = %q", got)
-	}
 	for _, method := range ai.Methods {
 		if raw, ok := p.RoleMethodDefinition("ai", method); !ok ||
 			!strings.Contains(string(raw), "\nname: "+method+"\n") {
@@ -233,6 +230,16 @@ func TestBoundaryBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
 
 func TestValidateBoundaryOwnersRejectsIncoherentPairs(t *testing.T) {
 	for name, p := range map[string]*Person{
+		"missing owner": {
+			RoleOrder: []string{"builder"},
+			Roles: map[string]Role{
+				"builder": {Skill: "role-builder", Boundaries: []string{"shared"}},
+			},
+			BoundaryOrder: []string{"shared"},
+			Boundaries: map[string]Boundary{
+				"shared": {Skill: "boundary-shared"},
+			},
+		},
 		"unknown owner": {
 			RoleOrder: []string{"builder"},
 			Roles: map[string]Role{
@@ -281,7 +288,9 @@ func TestValidateBoundaryOwnersRejectsIncoherentPairs(t *testing.T) {
 func boundaryWordLimitFixture(words int) []byte {
 	body := strings.TrimSpace(strings.Repeat("word ", words))
 	return []byte(
-		"---\nname: boundary-shared\ndescription: Shared fixture doctrine.\n---\n\n" + body + "\n",
+		"---\nname: boundary-shared\ndescription: Shared fixture doctrine.\n---\n\n" +
+			boundaryOwnHeading + "\n\nowner side.\n\n" +
+			boundaryDeferHeading + "\n\n" + body + "\n",
 	)
 }
 
@@ -339,13 +348,10 @@ func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
 	// from the loaded model rather than a second copy of the roster policy.
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		want := 1 + len(role.Methods) + len(role.Boundaries)
+		want := 1 + len(role.Methods) + len(p.RoleActiveBoundaries(roleName))
 		if got := len(src.RoleSkills[roleName]); got != want {
 			t.Errorf("role %q selected %d person skills, want %d", roleName, got, want)
 		}
-	}
-	if len(p.Roles["ai"].Methods) == 0 {
-		t.Fatal("AI role lost its owned methods")
 	}
 	for roleName, role := range p.Roles {
 		if roleName != "ai" && len(role.Methods) != 0 {

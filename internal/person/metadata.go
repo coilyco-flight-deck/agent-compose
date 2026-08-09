@@ -27,7 +27,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	}
 	boundarySkills := p.RoleBoundarySkillIDs(roleName)
 	if len(boundarySkills) > 0 {
-		fmt.Fprintf(&out, "**Shared doctrine // `%s`**\n", strings.Join(boundarySkills, "` // `"))
+		fmt.Fprintf(&out, "**Boundaries // `%s`**\n", strings.Join(boundarySkills, "` // `"))
 	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if role.Identity != nil {
@@ -70,14 +70,18 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 		}
 		fmt.Fprintf(&out, "%s\n\n", description)
 	}
-	if len(role.Boundaries) > 0 {
-		out.WriteString("## Shared doctrine\n\n")
-		for _, name := range role.Boundaries {
+	if active := p.RoleActiveBoundaries(roleName); len(active) > 0 {
+		out.WriteString("## Boundaries\n\n")
+		for _, name := range active {
 			binding, exists := p.Boundaries[name]
 			if !exists {
 				return "", fmt.Errorf("render role identity card: boundary %q is not defined", name)
 			}
-			fmt.Fprintf(&out, "* `%s` - %s\n", binding.Skill, binding.Summary)
+			side := "you defer this"
+			if binding.Owner == roleName {
+				side = "you own this"
+			}
+			fmt.Fprintf(&out, "* `%s` - %s. %s\n", binding.Skill, side, binding.Summary)
 		}
 		out.WriteString("\n")
 	}
