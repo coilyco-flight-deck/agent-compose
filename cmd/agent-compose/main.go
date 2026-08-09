@@ -38,7 +38,9 @@ import (
 // version is stamped by the release build via -ldflags; dev builds say dev.
 var version = "dev"
 
-const nativeCodexIntroductionPrompt = "Introduce yourself now as the active Codex seat for your assigned role. Use your loaded identity card and personality meld, keep the introduction warm and concise, then ask what the user would like to work on."
+// nativeCodexIntroductionPrompt trails the composed introduction, which names
+// the seat first so a session list does not open on identical text (#233).
+const nativeCodexIntroductionPrompt = "Introduce yourself now as the active Codex seat, drawing on your loaded identity card and personality meld. Keep it warm and concise, then ask what the human would like to work on."
 
 // dispatchArgs makes the acompose install name behave as the compose verb,
 // so the daily command is dash-free and stutter-free.
@@ -991,8 +993,9 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
 	return execReal(nativeHarnessCommand(harness, args[2:], nativeIdentity{
-		SeatName: result.SeatName,
-		Settings: result.HarnessSettings,
+		SeatName:     result.SeatName,
+		Settings:     result.HarnessSettings,
+		Introduction: result.Introduction,
 	}))
 }
 
@@ -1071,15 +1074,20 @@ func acknowledgeNativeLaunch(
 // nativeIdentity carries the composed surfaces a harness can accept as launch
 // arguments rather than as installed host state.
 type nativeIdentity struct {
-	SeatName string
-	Settings string
+	SeatName     string
+	Settings     string
+	Introduction string
 }
 
 func nativeHarnessCommand(harness string, args []string, identity nativeIdentity) []string {
 	command := append([]string{harness}, nativeIdentityArgs(harness, args, identity)...)
 	command = append(command, args...)
 	if harness == "codex" && codexAcceptsInitialPrompt(args) {
-		command = append(command, nativeCodexIntroductionPrompt)
+		prompt := nativeCodexIntroductionPrompt
+		if identity.Introduction != "" {
+			prompt = identity.Introduction + " " + prompt
+		}
+		command = append(command, prompt)
 	}
 	return command
 }

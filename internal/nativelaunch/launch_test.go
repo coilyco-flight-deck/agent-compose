@@ -252,7 +252,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !strings.Contains(string(instructions), "assigned the `design` role") {
+			if !strings.Contains(string(instructions), "assigned you the `design` role") {
 				t.Fatalf("assigned role missing from instructions:\n%s", instructions)
 			}
 			skills := []string{
@@ -737,7 +737,7 @@ func TestRefreshProjectsIntoRuntimeHomeAtGlobalLoadPoints(t *testing.T) {
 			if err != nil {
 				t.Fatalf("instructions missing from the runtime home: %v", err)
 			}
-			if !strings.Contains(string(instructions), "assigned the `design` role") {
+			if !strings.Contains(string(instructions), "assigned you the `design` role") {
 				t.Fatalf("assigned role missing from instructions:\n%s", instructions)
 			}
 			skill := filepath.Join(home, filepath.FromSlash(tc.skills), "role-design", "SKILL.md")

@@ -61,6 +61,9 @@ type Result struct {
 	// HarnessSettings is the emitted settings fragment for harnesses that read
 	// one as a launch argument. Empty when the harness has no such surface.
 	HarnessSettings string
+	// Introduction names who this session is before it asks for anything, so a
+	// session list does not show identical openings. See docs/native-role-launch.md.
+	Introduction string
 }
 
 // HarnessSettingsFile is the bundle-relative fragment the Claude launch path
@@ -144,6 +147,7 @@ func Refresh(opts Options) (*Result, error) {
 		ModelTier:       modelTier,
 		Sources:         roots,
 		SeatName:        seatName(composed, opts.Harness, opts.Role),
+		Introduction:    introduction(composed, opts.Harness, opts.Role),
 		HarnessSettings: settings,
 	}, nil
 }
@@ -171,6 +175,42 @@ func emitHarnessSettings(composed *compose.Result, harness, role string) (string
 		return "", fmt.Errorf("write native UI settings for role %q: %w", role, err)
 	}
 	return path, nil
+}
+
+// introduction renders the identity-led opener, falling back to the role
+// alone when no seat name resolves. See docs/native-role-launch.md.
+func introduction(composed *compose.Result, harness, role string) string {
+	p := composed.Resolution.Person
+	if p == nil {
+		return ""
+	}
+	selected, ok := p.Roles[role]
+	if !ok {
+		return ""
+	}
+	displayName := p.RoleDisplayName(role)
+	traits := strings.Join(selected.Personalities, ", ")
+	if last := strings.LastIndex(traits, ", "); last >= 0 {
+		traits = traits[:last] + ", and " + traits[last+2:]
+	}
+	subject := displayName
+	if traits != "" {
+		subject = traits + " " + displayName
+	}
+	name := ""
+	for _, seat := range selected.Seats {
+		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {
+			name = seat.Name
+			break
+		}
+	}
+	if name == "" && selected.Identity != nil {
+		name = selected.Identity.Name
+	}
+	if name == "" {
+		return "You are the " + subject + "."
+	}
+	return name + ", you are the " + subject + "."
 }
 
 // seatName resolves the launch annotation: the selected seat's own name wins,
