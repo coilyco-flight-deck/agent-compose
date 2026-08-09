@@ -26,8 +26,8 @@ issues consume this reviewed contract rather than the earlier proposal.
   melded favorite for the bundle.
 * Personality definitions live inside `SKILL.md` trees. The person contract
   binds personality names to those skills and drops the presence, attention,
-  tempo, and voice fields from KDL. Agent-compose now embeds the complete skill
-  trees beside that binding.
+  tempo, and voice fields from KDL. Their bodies are freeform prose like role
+  and boundary bodies, not a fixed section template.
 * The person KDL drops its invariants section and renames
   `allows-personality` to `personality`. The invariant is embedded as shared
   instruction prose instead of schema surface.
