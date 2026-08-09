@@ -1,0 +1,11 @@
+personality "diplomatic" skill="personality-diplomatic" color="#19a9b0" motif="silk" {
+    order 5
+    emblem { name "bridge"; emoji "🌉"; glyph "⇄" }
+    form { silhouette "arch"; geometry "balanced-curves"; motion "reciprocal" }
+    sound-mark { timbre "bell-pair"; contour "converging"; pulse "call-response" }
+    verb "Bridging" "Smoothing" "Brokering" "Weaving" "Convening" "Ferrying"
+    alias "tactful"
+    alias "consensus-seeking"
+    alias "bridge-building"
+    alias "measured"
+}

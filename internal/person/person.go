@@ -24,10 +24,21 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
-//go:embed person.kdl roles definitions evaluations libraries
+//go:embed person.kdl data
 var embedded embed.FS
 
-const maxRoleSkillBodyWords = 400
+const (
+	minRoleSkillBodyWords = 140
+	maxRoleSkillBodyWords = 400
+)
+
+// Personality and boundary prose carry their own bounds. A floor keeps an entry
+// from thinning into a label. See docs/role-skill-context-budget.md.
+const (
+	minPersonalitySkillBodyWords = 120
+	maxPersonalitySkillBodyWords = 320
+	minBoundarySideWords         = 80
+)
 
 // maxBoundarySkillBodyWords bounds each side of a boundary separately from the
 // role charter that declares it. See docs/role-boundaries.md.
@@ -368,23 +379,19 @@ func (p *Person) RoleDisplayName(roleName string) string {
 
 // Load returns the shipped roster:core package.
 func Load() (*Person, error) {
-	p, err := loadSource(embedded, "embedded core roster")
+	source, _, err := dataLayout(embedded, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
-	if p.evaluations, err = loadEvaluationAssets(embedded); err != nil {
-		return nil, err
-	}
-	librarySource, err := fs.Sub(embedded, "libraries/kai-core")
-	if err != nil {
-		return nil, fmt.Errorf("open embedded personality library: %w", err)
-	}
-	library, id, err := loadLibrarySource(librarySource, "embedded core personality library")
+	p, err := loadSource(source, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
-	if err := mergeLoadedLibrary(p, library, id, librarySource); err != nil {
+	if p.evaluations, err = loadEvaluationAssets(source); err != nil {
 		return nil, err
+	}
+	if err := validateRosterProseFloors(source, p); err != nil {
+		return nil, fmt.Errorf("embedded core roster: %w", err)
 	}
 	if err := validateResolvedPerson(p); err != nil {
 		return nil, err
@@ -695,7 +702,8 @@ func validateBoundaryBodySides(boundaryName, body string) error {
 		"defer": body[defer_:],
 	} {
 		_, prose, _ := strings.Cut(section, "\n")
-		if words := roleSkillBodyWordCount(prose); words > maxBoundarySkillBodyWords {
+		words := roleSkillBodyWordCount(prose)
+		if words > maxBoundarySkillBodyWords {
 			return fmt.Errorf(
 				"boundary %q %s side has %d words, maximum is %d",
 				boundaryName, label, words, maxBoundarySkillBodyWords,
@@ -918,6 +926,78 @@ func appendDefinitions(
 	return nil
 }
 
+// validatePersonalityBodies bounds each personality body. External libraries
+// supply their own definitions, so a missing one is not an error here.
+func validatePersonalityBodies(source fs.FS, p *Person) error {
+	for name, binding := range p.Personalities {
+		raw, err := fs.ReadFile(source, "definitions/skills/"+binding.Skill+"/SKILL.md")
+		if err != nil {
+			continue
+		}
+		body, err := skillBody(raw)
+		if err != nil {
+			return fmt.Errorf("personality %q skill %q: %w", name, binding.Skill, err)
+		}
+		words := roleSkillBodyWordCount(body)
+		if words > maxPersonalitySkillBodyWords {
+			return fmt.Errorf(
+				"personality %q skill body has %d words, maximum is %d",
+				name, words, maxPersonalitySkillBodyWords,
+			)
+		}
+	}
+	return nil
+}
+
+// validateRosterProseFloors keeps a shipped entry from thinning into a label.
+// The ceilings bind every package, the floors bind the roster this repo ships.
+func validateRosterProseFloors(source fs.FS, p *Person) error {
+	for _, roleName := range p.roleOrder() {
+		words := roleSkillBodyWordCount(p.Roles[roleName].Briefing)
+		if words < minRoleSkillBodyWords {
+			return fmt.Errorf("role %q body has %d words, minimum is %d", roleName, words, minRoleSkillBodyWords)
+		}
+	}
+	for name, binding := range p.Personalities {
+		raw, err := fs.ReadFile(source, "definitions/skills/"+binding.Skill+"/SKILL.md")
+		if err != nil {
+			continue
+		}
+		body, err := skillBody(raw)
+		if err != nil {
+			return err
+		}
+		if words := roleSkillBodyWordCount(body); words < minPersonalitySkillBodyWords {
+			return fmt.Errorf("personality %q body has %d words, minimum is %d", name, words, minPersonalitySkillBodyWords)
+		}
+	}
+	for _, boundaryName := range p.boundaryOrder() {
+		raw, ok := p.BoundarySkillDefinition(boundaryName)
+		if !ok {
+			continue
+		}
+		body, err := skillBody(raw)
+		if err != nil {
+			return err
+		}
+		own := strings.Index(body, boundaryOwnHeading)
+		defer_ := strings.Index(body, boundaryDeferHeading)
+		if own < 0 || defer_ < 0 {
+			continue
+		}
+		for label, section := range map[string]string{"own": body[own:defer_], "defer": body[defer_:]} {
+			_, prose, _ := strings.Cut(section, "\n")
+			if words := roleSkillBodyWordCount(prose); words < minBoundarySideWords {
+				return fmt.Errorf(
+					"boundary %q %s side has %d words, minimum is %d",
+					boundaryName, label, words, minBoundarySideWords,
+				)
+			}
+		}
+	}
+	return nil
+}
+
 func loadSource(source fs.FS, label string) (*Person, error) {
 	raw, err := assemblePersonSource(source, label)
 	if err != nil {
@@ -934,6 +1014,9 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := loadBoundarySkills(source, p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
+	if err := validatePersonalityBodies(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := addCopyContractProvenance(p); err != nil {
@@ -1357,15 +1440,12 @@ func Source(p *Person) (*schema.Source, error) {
 	source := p.source
 	strictDefinitions := true
 	if source == nil {
-		library, err := fs.Sub(embedded, "libraries/kai-core")
-		if err != nil {
-			return nil, fmt.Errorf("open embedded personality library: %w", err)
-		}
-		overlay, err := definitionOverlay(embedded, map[string]Personality{}, map[string]Boundary{})
+		projected, _, err := dataLayout(embedded, "embedded core roster")
 		if err != nil {
 			return nil, err
 		}
-		if err := appendDefinitions(overlay, library, p.Personalities, p.Boundaries); err != nil {
+		overlay, err := definitionOverlay(projected, p.Personalities, p.Boundaries)
+		if err != nil {
 			return nil, err
 		}
 		source = overlay

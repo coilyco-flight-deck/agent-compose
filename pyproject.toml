@@ -1,7 +1,7 @@
 [tool.agentic-os.documentation-layout]
 # Contract fixtures model bundle trees. Embedded definitions are product
 # assets validated by the person loader, not repository documentation.
-excludes = ["testdata/contracts/**", "internal/person/definitions/**", "internal/person/libraries/**", "internal/person/roles/**"]
+excludes = ["testdata/contracts/**", "internal/person/data/**"]
 
 [tool.agentic-os.code-comments]
 excludes = [".pre-commit-config.yaml"]

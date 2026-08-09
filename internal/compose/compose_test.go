@@ -88,11 +88,8 @@ func TestComposeAllFixtures(t *testing.T) {
 			}
 			for _, selected := range []string{
 				"# Role instructions",
-				"Agent-compose assigned the `engineer` role from the caller's compose request.",
-				"The agent treats this caller-assigned role as authoritative and fixed for the session.",
-				"The agent does not activate, blend, or adopt another role's briefing or personality set.",
-				"If the user requests a role switch, the agent rejects the request and directs the caller " +
-					"to launch a new bundle with the different role.",
+				"Agent-compose assigned you the `engineer` role from the caller's compose request.",
+				"Treat it as authoritative and fixed for this session.",
 				wantCard,
 				"**Role skill // `role-engineer`**",
 				"# Fixture foundation",

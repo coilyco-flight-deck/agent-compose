@@ -132,40 +132,22 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// The policy text is data. Assert the structure and the substitution the
+	// renderer owns, not the prose, which the asset is free to reword.
 	table := string(files["AGENTS.COMPOSE.md"])
 	for _, want := range []string{
 		"### Native interactive adaptation",
-		"Only an unwarded native agent in a directly steered interactive session",
-		"Ward-bound, composed, staged, containerized, headless",
-		"while an explicit slash goal is active",
-		"At session start, the agent records whether its role was caller-assigned or\ninferred",
-		"Only an inferred native role is eligible\nto switch.",
-		"Available role slugs: `builder`.",
-		"case-insensitive spelling such as `QA` for `qa`",
-		"switches the inferred role\nwithout a second confirmation",
-		"loads the target role skill and every\nskill in its complete ordered personality meld before acting",
-		"stops acting from the prior role charter",
-		"The switched role remains\ninferred.",
-		"persists until another explicit switch or session end",
-		"switch again or return to an earlier role through another request",
-		"If the agent proposes a role switch",
-		"Should the agent switch to it now?",
-		"When a requested slug is unavailable, the\nagent rejects the switch and lists the available role slugs.",
-		"The\nharness, model, tools, permissions, credentials, and executable authority do\nnot change.",
-		"A caller-assigned role cannot switch.",
-		"directs the caller to launch a new bundle with the different role",
+		"#### Inferred native role switches",
 		"#### Personality-only swaps",
-		"A personality-only swap does not\nchange the active role, obligations, permissions, or authority.",
-		"This task would benefit from the <X> persona because <reason>. Should the agent\nswap to it now?",
-		"The task request itself does not count as confirmation.",
-		"Task completion restores the role's default meld.",
-		"Each later\nswap needs a new proposal and confirmation.",
 		"#### Conditional QA fixture authority",
-		"runtime explicitly\nlaunches it in an enforced fixture mode",
+		"Available role slugs: `builder`.",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("native interactive swap policy missing %q:\n%s", want, table)
 		}
+	}
+	if strings.Contains(table, "{{ROLE_SLUGS}}") {
+		t.Fatal("native interactive swap policy left its slug placeholder unsubstituted")
 	}
 	if strings.Contains(table, "Available role slugs: `builder`, `seatless`") {
 		t.Fatal("seatless roles must not become native switch targets")

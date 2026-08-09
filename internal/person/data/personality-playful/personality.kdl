@@ -1,0 +1,11 @@
+personality "playful" skill="personality-playful" color="#e882e1" motif="confetti" {
+    order 7
+    emblem { name "ferris-wheel"; emoji "🎡"; glyph "✦" }
+    form { silhouette "carnival-wheel"; geometry "radial-spokes"; motion "spinning" }
+    sound-mark { timbre "toy-piano"; contour "zigzag-rise"; pulse "syncopated-three" }
+    verb "Whirling" "Skylarking" "Cavorting" "Fiddling" "Confettiing" "Gamboling"
+    alias "whimsical"
+    alias "lighthearted"
+    alias "fun"
+    alias "mischievous"
+}

@@ -46,6 +46,20 @@ to 318 words and is no longer one word under its ceiling, DevOps from 262 to
 252, and Executive Strategist from 244 to 220 once the boundary took the claim
 that outward reach is its work.
 
+## Bounds on every shipped entry
+
+Ceilings bind every person package, since they protect the context budget of
+whoever loads it. Floors bind the roster this repo ships, since they are an
+editorial standard rather than a consumer protection, and an external package
+with deliberately terse prose is not wrong.
+
+* role body - 140 to 400 words. Shipped range 178 to 362.
+* personality body - 120 to 320 words. Shipped range 150 to 270.
+* boundary side - 80 to 400 words. Shipped range 105 to 228.
+
+Evaluation matrices carry no bounds. They are fixtures rather than doctrine, and
+their length follows the case they describe.
+
 ## See also
 
 * [role boundaries](role-boundaries.md) - shared doctrine and its separate budget.
