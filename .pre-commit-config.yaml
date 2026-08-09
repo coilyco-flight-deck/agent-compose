@@ -1,13 +1,15 @@
 repos:
   # BEGIN managed by agentic-os/scripts/apply-agentic-os-hooks.py
   - repo: https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os
-    rev: v0.253.0
+    rev: aos-precommit-v0.16.0
     hooks:
       - id: catalog-doc-size
       - id: catalog-trifecta
       - id: documentation-layout
       - id: context-load-points
       - id: code-comments
+      - id: actions-run-one-line
+      - id: source-doc-refs
       - id: catalog-block-present
       - id: check-skills
       - id: dead-cross-links
@@ -33,9 +35,17 @@ repos:
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.12
     hooks:
+      # Forgejo workflows use GitHub Actions syntax; no exclude split is needed yet.
+      # LOCAL DEVIATION, agentic-os#984: actionlint only auto-loads its config
+      # for a project with .github/workflows, which this repo does not have, so
+      # the custom `docker` runner label needs the flag. Re-apply restores it.
       - id: actionlint
         files: ^\.forgejo/workflows/.*\.(ya?ml)$
         args: [-config-file, .github/actionlint.yaml]
+  - repo: https://code.forgejo.org/forgejo/runner
+    rev: v12.10.1
+    hooks:
+      - id: forgejo-runner-validate
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
