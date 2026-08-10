@@ -87,14 +87,16 @@ def test_adjacency_reasons_become_the_case_descriptors() -> None:
     assert fit["engineer-fit-within"] == "engineer's own work"
 
 
-def test_personality_adds_a_composed_case_beside_the_isolated_traits() -> None:
+def test_personality_is_one_case_per_trait_with_no_composed_case() -> None:
     personality = [slot for slot in derive(ROSTER) if slot.kind is Kind.PERSONALITY]
     engineer = [slot.id for slot in personality if slot.role == "engineer"]
-    assert engineer == [
-        "engineer-per-curious",
-        "engineer-per-meticulous",
-        "engineer-per-meld",
-    ]
+    assert engineer == ["engineer-per-curious", "engineer-per-meticulous"]
+
+
+def test_a_trait_case_names_the_peers_it_is_composed_alongside() -> None:
+    slots = {slot.id: slot.descriptor for slot in derive(ROSTER)}
+    assert slots["engineer-per-curious"] == "curious, composed alongside meticulous"
+    assert slots["ops-per-grounded"] == "grounded"
 
 
 def test_board_size_is_a_consequence_of_the_roster() -> None:
@@ -102,7 +104,7 @@ def test_board_size_is_a_consequence_of_the_roster() -> None:
     counts = {kind: sum(1 for slot in slots if slot.kind is kind) for kind in Kind}
     assert counts[Kind.BOUNDARY] == 6
     assert counts[Kind.ROLE_FIT] == 5
-    assert counts[Kind.PERSONALITY] == 7
+    assert counts[Kind.PERSONALITY] == 4
 
 
 def test_boundary_abbreviations_come_from_the_slug() -> None:

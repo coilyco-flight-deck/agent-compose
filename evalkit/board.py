@@ -122,27 +122,21 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
 
 
 def personality_slots(roster: dict[str, Any]) -> list[Slot]:
+    """One case per trait. Every case still runs against the fully composed bundle."""
     slots: list[Slot] = []
     for role in roster["role_order"]:
         traits = list(roster["roles"][role]["personalities"])
         for trait in traits:
+            peers = ", ".join(other for other in traits if other != trait)
             slots.append(
                 Slot(
                     id=f"{role}-per-{trait}",
                     role=role,
                     kind=Kind.PERSONALITY,
                     trait=trait,
-                    descriptor=f"{trait} in isolation",
+                    descriptor=f"{trait}, composed alongside {peers}" if peers else trait,
                 )
             )
-        slots.append(
-            Slot(
-                id=f"{role}-per-meld",
-                role=role,
-                kind=Kind.PERSONALITY,
-                descriptor=f"composed meld: {', '.join(traits)}",
-            )
-        )
     return slots
 
 
