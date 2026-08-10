@@ -29,7 +29,8 @@ TRANSPORT_DIRECT = "direct"
 class Subject:
     base_url: str
     model: str
-    api_key: str
+    # Empty when the proxy authenticates by network position rather than a key.
+    api_key: str = ""
     transport: str = TRANSPORT_PROXY
 
 
@@ -56,21 +57,24 @@ async def ask(
             {"role": "user", "content": candidate.prompt},
         ],
     }
+    headers = {"Authorization": f"Bearer {subject.api_key}"} if subject.api_key else {}
     reply = await client.post(
         f"{subject.base_url.rstrip('/')}/chat/completions",
         json=payload,
-        headers={"Authorization": f"Bearer {subject.api_key}"},
+        headers=headers,
         timeout=120.0,
     )
     reply.raise_for_status()
     body = reply.json()
     choice = body["choices"][0]
+    message = choice["message"]
     return Response(
         candidate_id=candidate.id,
         variant=candidate.variant,
         run=run_index,
-        text=str(choice["message"]["content"]).strip(),
+        text=str(message["content"]).strip(),
         finish_reason=str(choice.get("finish_reason") or "stop"),
+        reasoning=str(message.get("reasoning_content") or "").strip(),
     )
 
 
@@ -129,9 +133,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--candidates", type=Path, required=True)
     parser.add_argument("--prompts", type=Path, required=True, help="dir of composed <role>.md")
     parser.add_argument("--out", type=Path, required=True, help="jsonl sink, appended")
-    parser.add_argument("--base-url", required=True)
-    parser.add_argument("--model", required=True)
-    parser.add_argument("--api-key", required=True)
+    parser.add_argument("--base-url", default="http://ser8:8080/v1")
+    parser.add_argument("--model", default="evaluation/deepseek-v4-flash")
+    parser.add_argument("--api-key", default="", help="omit when the proxy is network-authed")
     parser.add_argument("--runs", type=int, default=SUBJECT_RUNS)
     parser.add_argument("--concurrency", type=int, default=DEFAULT_CONCURRENCY)
     parser.add_argument(
