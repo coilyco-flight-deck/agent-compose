@@ -63,6 +63,12 @@ commands:
   evalkit-board:
     run: sh scripts/eval-board.sh
     description: Print the flat eval case list the current roster implies.
+  evalkit-prompts:
+    run: sh scripts/eval-prompts.sh
+    description: Compose one bundle per role and write its delivery as the eval system prompt.
+  evalkit-smoke:
+    run: sh scripts/eval-smoke.sh
+    description: Send one live request through Agent Proxy to prove the eval transport works.
   evalkit-check:
     run: sh scripts/evalkit-check.sh
     description: Lint, format-check, type-check, and test the evalkit Python package.

@@ -106,6 +106,9 @@ class Response:
     run: int
     text: str
     finish_reason: str = "stop"
+    # Reasoning models return this beside the answer. Preserved as evidence,
+    # never graded, and never counted against the word cap.
+    reasoning: str = ""
 
     @property
     def words(self) -> int:
@@ -119,16 +122,20 @@ class Response:
             run=int(raw["run"]),
             text=str(raw["text"]),
             finish_reason=str(raw.get("finish_reason", "stop")),
+            reasoning=str(raw.get("reasoning", "")),
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "candidate_id": self.candidate_id,
             "variant": self.variant,
             "run": self.run,
             "text": self.text,
             "finish_reason": self.finish_reason,
         }
+        if self.reasoning:
+            payload["reasoning"] = self.reasoning
+        return payload
 
 
 @dataclass(frozen=True)
