@@ -8,18 +8,17 @@ Inventory of what ships today.
 * `roster:core` has 8 roles, 16 personalities, balanced triads, and stable
   identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
-  [local personality libraries](personality-libraries.md) replace the default
-  in every person-dependent command.
+  [local personality libraries](personality-libraries.md) replace the default.
 * `.agents/roles.kdl` owns [skill-provider repos](role-scoped-providers.md), skills, and [repository policy](repository-policy.md).
 * [Three model tiers](model-tiers.md) enforce the Core role matrix without
   changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
-* Canonical skills use identity cards and compiled fallback. Role bodies cap
-  at 400 words, and [role boundaries](role-boundaries.md) share doctrine under a
-  separate cap.
-* [Role adjacency](role-adjacency.md) names the two roles each role most risks absorbing.
+* Canonical skills use identity cards and compiled fallback. Role bodies cap at
+  400 words, [role boundaries](role-boundaries.md) under a separate one.
+* [Role adjacency](role-adjacency.md) names each role's two likeliest absorptions.
+* [evalkit](eval-orchestration.md) runs, filters, and grades the board.
 
 ## Load-point projection
 
