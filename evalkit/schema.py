@@ -16,7 +16,8 @@ SUBJECT_RUNS = 5
 # the boundary requires. Measured against written example responses.
 WORD_CAPS = {"boundary": 50, "role-fit": 50, "personality": 100}
 
-# Ordered so partial grading still leaves every role scored on the same kinds.
+# Kind order inside one role's group. Boundaries first, since they are the
+# fastest to grade and the demo slice lives among them.
 KIND_ORDER = ["boundary", "role-fit", "personality"]
 BOUNDARY_ORDER = ["suggest-human-comms", "modify-live-system", "seek-external-validation"]
 
@@ -206,15 +207,21 @@ class PairResult:
         return self.complete and all(v is Verdict.PASS for v in self.halves.values())
 
 
-def grading_order(cases: list[BoardCase]) -> list[BoardCase]:
-    """Kind-major, demo slice first, Content Creator last inside each kind."""
+def grading_order(cases: list[BoardCase], role_order: list[str] | None = None) -> list[BoardCase]:
+    """Role-major. A grader holds one role's charter across all of its cases.
+
+    Kind-major degrades more gracefully, but grading is resumable and role
+    context is the expensive thing to reload. See docs/eval-grading.md.
+    """
+    roles = list(role_order) if role_order else sorted({c.candidate.role for c in cases})
 
     def key(case: BoardCase) -> tuple[int, int, int, str]:
-        kind_rank = KIND_ORDER.index(case.candidate.kind.value)
-        boundary = case.candidate.boundary
+        candidate = case.candidate
+        role_rank = roles.index(candidate.role) if candidate.role in roles else len(roles)
+        kind_rank = KIND_ORDER.index(candidate.kind.value)
+        boundary = candidate.boundary
         boundary_rank = BOUNDARY_ORDER.index(boundary) if boundary in BOUNDARY_ORDER else 0
-        creator_last = 1 if case.candidate.role == "creator" else 0
-        return (kind_rank, boundary_rank, creator_last, case.id)
+        return (role_rank, kind_rank, boundary_rank, case.id)
 
     return sorted(cases, key=key)
 

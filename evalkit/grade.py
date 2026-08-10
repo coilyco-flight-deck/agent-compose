@@ -7,11 +7,13 @@ everything already graded. See docs/eval-orchestration.md.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import termios
 import time
 import tty
 from pathlib import Path
+from typing import Any
 
 import yaml
 from rich.console import Console
@@ -48,6 +50,31 @@ def load_board(path: Path) -> list[BoardCase]:
     return [BoardCase.from_dict(entry) for entry in raw.get("board", [])]
 
 
+def role_header(console: Console, roster: dict[str, Any], role: str) -> None:
+    """Printed once per role group, so the charter is loaded rather than implied."""
+    spec = roster.get("roles", {}).get(role)
+    if not spec:
+        return
+    lines = [f"[bold]{spec.get('display_name', role)}[/bold]  {spec.get('purpose', '')}"]
+
+    owned = [
+        name
+        for name, boundary in roster.get("boundaries", {}).items()
+        if boundary.get("owner") == role
+    ]
+    deferred = list(spec.get("boundaries", []))
+    if owned:
+        lines.append("owns: " + ", ".join(owned))
+    if deferred:
+        lines.append("defers: " + ", ".join(deferred))
+    if spec.get("personalities"):
+        lines.append("personalities: " + ", ".join(spec["personalities"]))
+    for adjacent in spec.get("adjacents", []):
+        lines.append(f"adjacent {adjacent['role']}: {adjacent['reason']}")
+
+    console.print(Panel("\n".join(lines), border_style="bright_white", title="role"))
+
+
 def load_grades(path: Path) -> dict[str, Grade]:
     if not path.exists():
         return {}
@@ -66,9 +93,18 @@ def save_grades(path: Path, grades: dict[str, Grade]) -> None:
     path.write_text(yaml.safe_dump(payload, sort_keys=False, width=100))
 
 
-def render(console: Console, case: BoardCase, position: int, total: int, started: float) -> None:
+def render(
+    console: Console,
+    case: BoardCase,
+    position: int,
+    total: int,
+    started: float,
+    roster: dict[str, Any] | None = None,
+) -> None:
     candidate = case.candidate
     console.clear()
+    if roster:
+        role_header(console, roster, candidate.role)
 
     header = Table.grid(padding=(0, 2))
     header.add_column(style="bold")
@@ -110,16 +146,22 @@ def render(console: Console, case: BoardCase, position: int, total: int, started
         )
 
 
-def grade_session(board: list[BoardCase], grades: dict[str, Grade], out: Path) -> bool:
+def grade_session(
+    board: list[BoardCase],
+    grades: dict[str, Grade],
+    out: Path,
+    roster: dict[str, Any] | None = None,
+) -> bool:
     """Returns False when the grader quit before finishing."""
     console = Console()
-    pending = [case for case in grading_order(board) if case.id not in grades]
+    role_order = list(roster.get("role_order", [])) if roster else None
+    pending = [case for case in grading_order(board, role_order) if case.id not in grades]
     started = time.monotonic()
 
     for index, case in enumerate(pending, start=1):
         keys = PASS_FAIL_KEYS if case.candidate.scored_pass_fail else PERSONALITY_KEYS
         while True:
-            render(console, case, index, len(pending), started)
+            render(console, case, index, len(pending), started, roster)
             key = read_key().lower()
             if key == "q":
                 return False
@@ -169,15 +211,20 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Grade the behavior board by hand.")
     parser.add_argument("--board", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--roster", type=Path, help="person.json, for the per-role header")
+    parser.add_argument("--role", action="append", help="grade only these roles, repeatable")
     parser.add_argument("--summary", action="store_true", help="print results and exit")
     args = parser.parse_args(argv)
 
     board = load_board(args.board)
+    if args.role:
+        board = [case for case in board if case.candidate.role in set(args.role)]
     grades = load_grades(args.out)
+    roster = json.loads(args.roster.read_text()) if args.roster else None
     console = Console()
 
     if not args.summary:
-        finished = grade_session(board, grades, args.out)
+        finished = grade_session(board, grades, args.out, roster)
         if not finished:
             console.print("\n[yellow]stopped early, grades saved[/yellow]")
 

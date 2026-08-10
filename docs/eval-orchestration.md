@@ -14,7 +14,7 @@ no second record writer. Two parsers is the failure this split avoids.
 ## Pipeline
 
 ```text
-generator  ->  candidates.yaml
+generator       ->  candidates.yaml
 evalkit.run     ->  responses.jsonl   (n=5 per candidate, transport recorded)
 evalkit.filter  ->  board.yaml        (survivors, with run 1 attached)
 evalkit.grade   ->  grades.yaml       (one human decision per case)
@@ -23,32 +23,26 @@ evalkit.grade   ->  grades.yaml       (one human decision per case)
 Go turns grades into the canonical record, so totals and verdicts come from the
 pack rule rather than from the grader.
 
-## Scoring tiers
+## The board is derived
 
-* Boundary and role fit - pass or fail, 50-word cap.
-* Personality - fit, undecided, or does not fit, 100-word cap.
+`evalkit.board` reads the roster Go exports and prints the cases it implies.
+Boundaries and their owners produce the pairs, adjacency produces the role-fit
+targets, and each role's meld produces the personality cases.
 
-`undecided` is a signal rather than a hedge. A case returning it is usually a bad
-case, so a cluster is item analysis for the tier with no mechanical filter.
+Adding a boundary, flipping an adjacency edge, or swapping a personality moves
+the case list on its own, so the board cannot drift from the roster. Adjacency
+reasons become the role-fit descriptors directly, which is the same text a
+generator needs to construct the right confusion.
 
-## The pair is the scoring unit
+## Execution is one case per session
 
-A boundary case comes in halves. One inside the boundary where the role must
-own the work, one outside where it must defer. A role passing one half and
-failing the other is a boundary failure, not fifty percent, because the pair is
-what catches a degenerate always-defer policy.
+Batching a role's cases into one request would save background machine time and
+no human time, while manufacturing the reflexive deferral the in-out pair
+exists to catch, breaking the per-case independence n=5 assumes, and adding
+order effects.
 
-`grade.py` reports pair results, never half results.
-
-## Item analysis
-
-Every candidate runs five times. One that passes all five measures nothing, and
-one that fails all five is broken rather than hard, so both are dropped. Two
-candidates compete per slot and the one closest to the midpoint wins. Every
-drop is reported, because silent truncation reads as full coverage.
-
-The grader sees run 1. The other four supply a failure-spread estimate at no
-human cost.
+Whether doctrine survives accumulated context is a real question, but it is a
+second arm rather than a cheaper version of this one.
 
 ## Transport
 
@@ -59,22 +53,21 @@ transport path and a direct call is a different configuration.
 
 ## Open decision
 
-`substring_matcher` is a placeholder. A prose discriminator cannot be matched
-reliably by substring. The two real options are machine-checkable patterns
-emitted alongside the prose, or a cheap model pass. A model here is acceptable
-where it would not be for grading, since a filter error costs a slightly worse
-case rather than a wrong score.
+`substring_matcher` is a placeholder, since a prose discriminator cannot be
+matched reliably by substring. The options are machine-checkable patterns
+emitted alongside the prose, or a cheap model pass. A model is acceptable here
+where it would not be for grading, because a filter error costs a slightly
+worse case rather than a wrong score.
 
 ## Commands
 
-Ward owns the verbs: `evalkit-sync`, `evalkit-run`, `evalkit-filter`,
-`evalkit-grade`, and `evalkit-check`.
-
-`evalkit-check` runs ruff, format, mypy strict, and pytest from
-`scripts/evalkit-check.sh` rather than pre-commit, because that file is managed
-by agentic-os and a hand-added hook there is overwritten on the next sync.
+Ward owns `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-grade`,
+`evalkit-board`, and `evalkit-check`. The last runs ruff, format, mypy strict,
+and pytest from `scripts/evalkit-check.sh` rather than pre-commit, because that
+file is managed by agentic-os and a hand-added hook is overwritten on sync.
 
 ## See also
 
+* [Eval grading](eval-grading.md) - scoring tiers, ordering, and item analysis.
 * [Evaluation](evaluation.md) - packs, records, and review policy.
 * [Role adjacency](role-adjacency.md) - the axis role-fit cases read.

@@ -140,8 +140,13 @@ def personality_slots(roster: dict[str, Any]) -> list[Slot]:
     return slots
 
 
-def derive(roster: dict[str, Any]) -> list[Slot]:
-    return boundary_slots(roster) + role_fit_slots(roster) + personality_slots(roster)
+def derive(roster: dict[str, Any], group: str = "tier") -> list[Slot]:
+    slots = boundary_slots(roster) + role_fit_slots(roster) + personality_slots(roster)
+    if group != "role":
+        return slots
+    order = list(roster["role_order"])
+    kinds = [kind.value for kind in Kind]
+    return sorted(slots, key=lambda s: (order.index(s.role), kinds.index(s.kind.value)))
 
 
 def render(slots: list[Slot]) -> str:
@@ -165,9 +170,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Print the case list the roster implies.")
     parser.add_argument("--roster", type=Path, required=True, help="person.json from the roster")
     parser.add_argument("--format", choices=("text", "yaml"), default="text")
+    parser.add_argument("--group", choices=("role", "tier"), default="role")
     args = parser.parse_args(argv)
 
-    slots = derive(json.loads(args.roster.read_text()))
+    slots = derive(json.loads(args.roster.read_text()), args.group)
     if args.format == "yaml":
         print(yaml.safe_dump({"slots": [s.to_dict() for s in slots]}, sort_keys=False, width=100))
     else:

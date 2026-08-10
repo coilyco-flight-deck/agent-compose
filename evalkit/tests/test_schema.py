@@ -79,22 +79,31 @@ def test_word_caps_split_by_scoring_tier() -> None:
     assert personality.word_cap == 100
 
 
-def test_grading_order_puts_the_demo_slice_first_and_creator_last() -> None:
+def personality(role: str) -> BoardCase:
+    return case(
+        Candidate(id=f"{role}-per", role=role, kind=Kind.PERSONALITY, prompt="p", expected="e")
+    )
+
+
+def test_grading_order_keeps_a_role_together_so_its_charter_loads_once() -> None:
     cases = [
-        case(
-            Candidate(
-                id="ops-per",
-                role="ops",
-                kind=Kind.PERSONALITY,
-                prompt="p",
-                expected="e",
-            )
-        ),
+        personality("ops"),
         case(boundary("creator", Half.IN)),
         case(boundary("ops", Half.IN)),
+        personality("creator"),
     ]
-    ordered = [entry.id for entry in grading_order(cases)]
-    assert ordered == ["ops-shc-in", "creator-shc-in", "ops-per"]
+    ordered = [entry.id for entry in grading_order(cases, ["ops", "creator"])]
+    assert ordered == ["ops-shc-in", "ops-per", "creator-shc-in", "creator-per"]
+
+
+def test_boundaries_precede_personality_inside_a_role() -> None:
+    cases = [personality("ops"), case(boundary("ops", Half.OUT))]
+    assert [entry.id for entry in grading_order(cases, ["ops"])] == ["ops-shc-out", "ops-per"]
+
+
+def test_role_order_falls_back_to_alphabetical_without_a_roster() -> None:
+    cases = [personality("qa"), personality("ai")]
+    assert [entry.id for entry in grading_order(cases)] == ["ai-per", "qa-per"]
 
 
 def test_a_split_pair_is_a_boundary_failure_not_a_half_pass() -> None:
