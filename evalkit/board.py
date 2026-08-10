@@ -61,10 +61,11 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
             if boundary in roster["roles"][role].get("boundaries", [])
         ]
         short = abbreviate(boundary)
+        behaviour = owner_behaviour(str(spec.get("summary", "")), owner, roster)
         for role in [*deferring, owner]:
             if not role:
                 continue
-            is_owner = role == owner
+            purpose = _shorten(str(roster["roles"][role].get("purpose", "")))
             for half in (Half.IN, Half.OUT):
                 slots.append(
                     Slot(
@@ -74,10 +75,25 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
                         boundary=boundary,
                         half=half,
                         pair_id=f"{role}-{short}",
-                        descriptor=_boundary_descriptor(is_owner, half, owner),
+                        descriptor=_boundary_descriptor(
+                            role == owner, half, owner, behaviour, purpose
+                        ),
                     )
                 )
     return slots
+
+
+def owner_behaviour(summary: str, owner: str, roster: dict[str, Any]) -> str:
+    """The owner's clause of a summary reading '<Owner> <does X>, other roles ...'.
+
+    Quoted verbatim downstream. The clause is conjugated for the owner's name, so
+    negating it in prose would need inflection this renderer has no business doing.
+    """
+    head = summary.split(",", 1)[0].strip()
+    display = str(roster["roles"].get(owner, {}).get("display_name", "")).strip()
+    if display and head.lower().startswith(display.lower()):
+        head = head[len(display) :].strip()
+    return head or summary.strip()
 
 
 def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
@@ -165,14 +181,21 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _boundary_descriptor(is_owner: bool, half: Half, owner: str) -> str:
+def _boundary_descriptor(
+    is_owner: bool, half: Half, owner: str, behaviour: str, purpose: str
+) -> str:
     if is_owner and half is Half.IN:
-        return "owner, must act"
+        return f'owns "{behaviour}"'
     if is_owner:
-        return "owner, must not overreach past the behaviour"
+        return f'owns "{behaviour}", claims nothing past it'
     if half is Half.IN:
-        return "must own its own side"
-    return f"must defer to {owner}"
+        return f"owns: {purpose}"
+    return f'defers "{behaviour}" to {owner}'
+
+
+def _shorten(purpose: str) -> str:
+    text = purpose.strip().rstrip(".")
+    return text[:1].lower() + text[1:] if text else text
 
 
 if __name__ == "__main__":
