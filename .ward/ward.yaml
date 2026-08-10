@@ -60,6 +60,9 @@ commands:
   palette-tidy:
     run: npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund
     description: Reconcile the local explorer package lock with package.json.
+  evalkit-board:
+    run: sh scripts/eval-board.sh
+    description: Print the flat eval case list the current roster implies.
   evalkit-check:
     run: sh scripts/evalkit-check.sh
     description: Lint, format-check, type-check, and test the evalkit Python package.
