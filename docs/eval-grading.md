@@ -56,5 +56,6 @@ baseline.
 
 ## See also
 
+* [Eval references](eval-references.md) - where this method comes from.
 * [Eval orchestration](eval-orchestration.md) - the pipeline and its seam.
 * [Evaluation](evaluation.md) - packs, records, and review policy.
