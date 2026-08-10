@@ -105,7 +105,7 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
                 role=role,
                 kind=Kind.ROLE_FIT,
                 target="within",
-                descriptor=f"{role}'s own work",
+                descriptor=f"{role} correctly identifies work it should own",
             )
         )
         for adjacent in roster["roles"][role].get("adjacents", []):

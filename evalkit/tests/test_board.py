@@ -84,7 +84,7 @@ def test_a_summary_without_the_expected_shape_survives_intact() -> None:
 def test_adjacency_reasons_become_the_case_descriptors() -> None:
     fit = {slot.id: slot.descriptor for slot in derive(ROSTER) if slot.kind is Kind.ROLE_FIT}
     assert fit["engineer-fit-ops"] == "deploying instead of handing back"
-    assert fit["engineer-fit-within"] == "engineer's own work"
+    assert fit["engineer-fit-within"] == "engineer correctly identifies work it should own"
 
 
 def test_personality_is_one_case_per_trait_with_no_composed_case() -> None:
