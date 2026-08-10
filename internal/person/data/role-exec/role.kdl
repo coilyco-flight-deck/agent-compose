@@ -5,6 +5,8 @@ role "exec" {
     model-tier "frontier"
     skill "role-exec"
     boundary "suggest-human-comms"
+    adjacent "director" reason="directing how committed work executes instead of deciding where attention goes"
+    adjacent "creator" reason="speaking outside on the portfolio's behalf instead of reaching outside for evidence"
     personality "curious" "grounded" "decisive"
     identity name="Saiya" pronouns="they"
     agent "claude" tier="frontier"
