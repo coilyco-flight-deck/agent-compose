@@ -285,6 +285,154 @@ func TestValidateBoundaryOwnersRejectsIncoherentPairs(t *testing.T) {
 	}
 }
 
+func TestValidateRoleAdjacentsRejectsIncompleteGraphs(t *testing.T) {
+	for name, p := range map[string]*Person{
+		"out-degree below the fixed width": {
+			RoleOrder: []string{"builder", "mirror"},
+			Roles: map[string]Role{
+				"builder": {
+					Skill:     "role-builder",
+					Adjacents: []Adjacent{{Role: "mirror", Reason: "absorbs review"}},
+				},
+				"mirror": {
+					Skill: "role-mirror",
+					Adjacents: []Adjacent{
+						{Role: "builder", Reason: "absorbs build"},
+						{Role: "builder", Reason: "duplicate is caught at parse"},
+					},
+				},
+			},
+		},
+		"partial roster leaves a role undeclared": {
+			RoleOrder: []string{"builder", "mirror", "scribe"},
+			Roles: map[string]Role{
+				"builder": {
+					Skill: "role-builder",
+					Adjacents: []Adjacent{
+						{Role: "mirror", Reason: "absorbs review"},
+						{Role: "scribe", Reason: "absorbs the record"},
+					},
+				},
+				"mirror": {
+					Skill: "role-mirror",
+					Adjacents: []Adjacent{
+						{Role: "builder", Reason: "absorbs build"},
+						{Role: "scribe", Reason: "absorbs the record"},
+					},
+				},
+				"scribe": {Skill: "role-scribe"},
+			},
+		},
+		"unknown adjacent target": {
+			RoleOrder: []string{"builder", "mirror"},
+			Roles: map[string]Role{
+				"builder": {
+					Skill: "role-builder",
+					Adjacents: []Adjacent{
+						{Role: "mirror", Reason: "absorbs review"},
+						{Role: "absent", Reason: "names nothing"},
+					},
+				},
+				"mirror": {
+					Skill: "role-mirror",
+					Adjacents: []Adjacent{
+						{Role: "builder", Reason: "absorbs build"},
+						{Role: "builder", Reason: "duplicate is caught at parse"},
+					},
+				},
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if err := validateRoleAdjacents(p); err == nil {
+				t.Fatal("incomplete adjacency graph passed validation")
+			}
+		})
+	}
+
+	complete := &Person{
+		RoleOrder: []string{"builder", "mirror", "builder2"},
+		Roles: map[string]Role{
+			"builder": {
+				Skill: "role-builder",
+				Adjacents: []Adjacent{
+					{Role: "mirror", Reason: "absorbs review"},
+					{Role: "builder2", Reason: "absorbs the second thing"},
+				},
+			},
+			"mirror": {
+				Skill: "role-mirror",
+				Adjacents: []Adjacent{
+					{Role: "builder", Reason: "absorbs build"},
+					{Role: "builder2", Reason: "absorbs the second thing"},
+				},
+			},
+			"builder2": {
+				Skill: "role-builder2",
+				Adjacents: []Adjacent{
+					{Role: "builder", Reason: "absorbs build"},
+					{Role: "mirror", Reason: "absorbs review"},
+				},
+			},
+		},
+	}
+	if err := validateRoleAdjacents(complete); err != nil {
+		t.Fatalf("complete adjacency graph rejected: %v", err)
+	}
+}
+
+// An external person package authored before the adjacency axis keeps loading.
+// Adjacency is all-or-nothing across a roster rather than required of every one.
+func TestValidateRoleAdjacentsSkipsRostersWithoutAdjacency(t *testing.T) {
+	p := &Person{
+		RoleOrder: []string{"builder", "mirror"},
+		Roles: map[string]Role{
+			"builder": {Skill: "role-builder"},
+			"mirror":  {Skill: "role-mirror"},
+		},
+	}
+	if err := validateRoleAdjacents(p); err != nil {
+		t.Fatalf("roster without adjacency rejected: %v", err)
+	}
+}
+
+// The core roster is the thing the evaluation board reads adjacency from, so a
+// missing edge there is a silently thinner board rather than a load failure.
+func TestCoreRosterDeclaresACompleteAdjacencyGraph(t *testing.T) {
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, roleName := range p.roleOrder() {
+		role := p.Roles[roleName]
+		if len(role.Adjacents) != adjacentsPerRole {
+			t.Fatalf(
+				"core role %q declares %d adjacent roles, want %d",
+				roleName,
+				len(role.Adjacents),
+				adjacentsPerRole,
+			)
+		}
+		for _, adjacent := range role.Adjacents {
+			if adjacent.Role == roleName {
+				t.Fatalf("core role %q names itself adjacent", roleName)
+			}
+			if _, ok := p.Roles[adjacent.Role]; !ok {
+				t.Fatalf(
+					"core role %q names unknown adjacent %q", roleName, adjacent.Role,
+				)
+			}
+			if strings.TrimSpace(adjacent.Reason) == "" {
+				t.Fatalf(
+					"core role %q adjacent %q carries no reason",
+					roleName,
+					adjacent.Role,
+				)
+			}
+		}
+	}
+}
+
 func boundaryWordLimitFixture(words int) []byte {
 	body := strings.TrimSpace(strings.Repeat("word ", words))
 	return []byte(

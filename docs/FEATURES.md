@@ -19,6 +19,7 @@ Inventory of what ships today.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap
   at 400 words, and [role boundaries](role-boundaries.md) share doctrine under a
   separate cap.
+* [Role adjacency](role-adjacency.md) names the two roles each role most risks absorbing.
 
 ## Load-point projection
 

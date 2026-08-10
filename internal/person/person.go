@@ -44,6 +44,10 @@ const (
 // role charter that declares it. See docs/role-boundaries.md.
 const maxBoundarySkillBodyWords = 400
 
+// adjacentsPerRole fixes the out-degree of the role adjacency graph, so the
+// roster chooses its sharpest confusions. See docs/role-adjacency.md.
+const adjacentsPerRole = 2
+
 // Both sides of a boundary live in one body under conditional headings, so the
 // reader self-selects. See docs/boundary-owners.md.
 const (
@@ -105,6 +109,7 @@ type Role struct {
 	SkillDigest         string         `json:"skill_digest"`
 	Methods             []string       `json:"methods,omitempty"`
 	Boundaries          []string       `json:"boundaries,omitempty"`
+	Adjacents           []Adjacent     `json:"adjacents,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
 	Identity            *AgentIdentity `json:"identity,omitempty"`
@@ -112,6 +117,13 @@ type Role struct {
 	Inspiration         InspirationRef `json:"inspiration,omitempty"`
 	SupportedModelTiers []string       `json:"supported_model_tiers,omitempty"`
 	CopyContract        *CopyContract  `json:"copy_contract,omitempty"`
+}
+
+// Adjacent names one role whose work this role most risks absorbing. The reason
+// is generator input rather than commentary. See docs/role-adjacency.md.
+type Adjacent struct {
+	Role   string `json:"role"`
+	Reason string `json:"reason"`
 }
 
 // SupportsModelTier keeps packages authored before the tier axis compatible.
@@ -403,6 +415,9 @@ func Load() (*Person, error) {
 		return nil, err
 	}
 	if err := validateBoundaryOwners(p); err != nil {
+		return nil, err
+	}
+	if err := validateRoleAdjacents(p); err != nil {
 		return nil, err
 	}
 	if err := validateCorePersonalityMelds(p); err != nil {
@@ -731,6 +746,40 @@ func validateBoundaryOwners(p *Person) error {
 					"boundary %q owner %q also declares it",
 					boundaryName,
 					owner,
+				)
+			}
+		}
+	}
+	return nil
+}
+
+// validateRoleAdjacents keeps the graph complete. Adjacency is deliberately
+// directed, so do not add a symmetry check. See docs/role-adjacency.md.
+func validateRoleAdjacents(p *Person) error {
+	declared := false
+	for _, roleName := range p.roleOrder() {
+		if len(p.Roles[roleName].Adjacents) > 0 {
+			declared = true
+			break
+		}
+	}
+	if !declared {
+		return nil
+	}
+	for _, roleName := range p.roleOrder() {
+		adjacents := p.Roles[roleName].Adjacents
+		if len(adjacents) != adjacentsPerRole {
+			return fmt.Errorf(
+				"role %q declares %d adjacent roles, needs exactly %d",
+				roleName,
+				len(adjacents),
+				adjacentsPerRole,
+			)
+		}
+		for _, adjacent := range adjacents {
+			if _, ok := p.Roles[adjacent.Role]; !ok {
+				return fmt.Errorf(
+					"role %q names unknown adjacent role %q", roleName, adjacent.Role,
 				)
 			}
 		}
@@ -1767,6 +1816,33 @@ func parse(raw []byte) (*Person, error) {
 						}
 						role.Boundaries = append(role.Boundaries, boundary)
 					}
+				case "adjacent":
+					aargs := c.Arguments()
+					if len(aargs) != 1 {
+						return nil, fmt.Errorf("role %q: adjacent needs one role id", name)
+					}
+					target := aargs[0].String()
+					if !validSemanticToken(target) {
+						return nil, fmt.Errorf("role %q: adjacent needs one stable role id", name)
+					}
+					if target == name {
+						return nil, fmt.Errorf("role %q: adjacent cannot name itself", name)
+					}
+					for _, existing := range role.Adjacents {
+						if existing.Role == target {
+							return nil, fmt.Errorf("role %q repeats adjacent %q", name, target)
+						}
+					}
+					reason := c.Prop("reason")
+					if !reason.IsValid() || strings.TrimSpace(reason.String()) == "" {
+						return nil, fmt.Errorf(
+							"role %q: adjacent %q needs a reason property", name, target,
+						)
+					}
+					role.Adjacents = append(role.Adjacents, Adjacent{
+						Role:   target,
+						Reason: strings.TrimSpace(reason.String()),
+					})
 				case "personality":
 					for _, a := range c.Arguments() {
 						role.Personalities = append(role.Personalities, a.String())
