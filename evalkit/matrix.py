@@ -14,16 +14,16 @@ from typing import Any
 
 import yaml
 
-from evalkit.schema import BOUNDARY_ORDER, Half, Kind
+from evalkit.schema import BOUNDARY_ORDER, Half, TestType
 
 
 @dataclass(frozen=True)
 class Slot:
-    """One case the board must contain, before anyone authors its prompt."""
+    """One sample the dataset must contain, before anyone authors it."""
 
     id: str
     role: str
-    kind: Kind
+    test_type: TestType
     descriptor: str
     boundary: str | None = None
     half: Half | None = None
@@ -32,7 +32,11 @@ class Slot:
     trait: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {"id": self.id, "role": self.role, "kind": self.kind.value}
+        payload: dict[str, Any] = {
+            "id": self.id,
+            "role": self.role,
+            "test_type": self.test_type.value,
+        }
         for key in ("boundary", "pair_id", "target", "trait"):
             value = getattr(self, key)
             if value:
@@ -71,7 +75,7 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
                     Slot(
                         id=f"{role}-{short}-{half.value}",
                         role=role,
-                        kind=Kind.BOUNDARY,
+                        test_type=TestType.BOUNDARY,
                         boundary=boundary,
                         half=half,
                         pair_id=f"{role}-{short}",
@@ -103,7 +107,7 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
             Slot(
                 id=f"{role}-fit-within",
                 role=role,
-                kind=Kind.ROLE_FIT,
+                test_type=TestType.ROLE_FIT,
                 target="within",
                 descriptor=f"{role} correctly identifies work it should own",
             )
@@ -113,7 +117,7 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
                 Slot(
                     id=f"{role}-fit-{adjacent['role']}",
                     role=role,
-                    kind=Kind.ROLE_FIT,
+                    test_type=TestType.ROLE_FIT,
                     target=str(adjacent["role"]),
                     descriptor=str(adjacent["reason"]),
                 )
@@ -132,7 +136,7 @@ def personality_slots(roster: dict[str, Any]) -> list[Slot]:
                 Slot(
                     id=f"{role}-per-{trait}",
                     role=role,
-                    kind=Kind.PERSONALITY,
+                    test_type=TestType.PERSONALITY,
                     trait=trait,
                     descriptor=f"{trait}, composed alongside {peers}" if peers else trait,
                 )
@@ -145,8 +149,8 @@ def derive(roster: dict[str, Any], group: str = "tier") -> list[Slot]:
     if group != "role":
         return slots
     order = list(roster["role_order"])
-    kinds = [kind.value for kind in Kind]
-    return sorted(slots, key=lambda s: (order.index(s.role), kinds.index(s.kind.value)))
+    types = [test_type.value for test_type in TestType]
+    return sorted(slots, key=lambda s: (order.index(s.role), types.index(s.test_type.value)))
 
 
 def render(slots: list[Slot]) -> str:
@@ -157,7 +161,7 @@ def render(slots: list[Slot]) -> str:
     tiers: dict[str, int] = {}
     per_role: dict[str, int] = {}
     for slot in slots:
-        tiers[slot.kind.value] = tiers.get(slot.kind.value, 0) + 1
+        tiers[slot.test_type.value] = tiers.get(slot.test_type.value, 0) + 1
         per_role[slot.role] = per_role.get(slot.role, 0) + 1
 
     lines.append("")

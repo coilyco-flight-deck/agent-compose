@@ -22,7 +22,7 @@ recommendations were independently already in place here.
 ## Platforms
 
 * [Phoenix annotation](eval-ref-phoenix.md) - the human annotation surface, so
-  the platform equivalent of `evalkit.grade`.
+  the platform equivalent of `evalkit.annotate`.
   <https://arize.com/docs/phoenix/tracing/how-to-tracing/feedback-and-annotations/annotating-in-the-ui>
 * [Inspect](eval-ref-inspect.md) - dataset, task, solver, scorer, so the
   platform equivalent of `evalkit.run` and `evalkit.filter`.
@@ -47,7 +47,7 @@ The two blogs converge, independently of the papers, on three things this
 system does:
 
 * Binary pass or fail beats a point scale wherever a case has a right answer.
-* A single expert grader beats a distributed panel.
+* A single expert annotator beats a distributed panel.
 * A custom annotation interface beats an off-the-shelf platform at this stage.
 
 That convergence is the reason no platform was adopted. It is a recommended
@@ -55,5 +55,5 @@ practice rather than a shortcut, and the references say so directly.
 
 ## See also
 
-* [Eval grading](eval-grading.md) - scoring tiers, ordering, and item analysis.
+* [Eval annotation](eval-annotation.md) - scoring tiers, ordering, and item analysis.
 * [Eval orchestration](eval-orchestration.md) - the pipeline and its seam.

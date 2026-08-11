@@ -2,7 +2,7 @@
 
 `evalkit` is the Python half of the evaluation system. Go owns what a pack is
 and what a valid record is. Python owns running the subject, filtering
-candidates, and putting a case in front of a human.
+samples, and putting a case in front of a human.
 
 ## Why the seam sits here
 
@@ -14,23 +14,23 @@ no second record writer. Two parsers is the failure this split avoids.
 ## Pipeline
 
 ```text
-generator       ->  candidates.yaml
-evalkit.run     ->  responses.jsonl   (n=5 per candidate, transport recorded)
-evalkit.filter  ->  board.yaml        (survivors, with run 1 attached)
-evalkit.grade   ->  grades.yaml       (one human decision per case)
+generator       ->  samples.yaml
+evalkit.run     ->  responses.jsonl   (n=5 per sample, transport recorded)
+evalkit.filter  ->  dataset.yaml        (survivors, with run 1 attached)
+evalkit.annotate   ->  annotations.yaml       (one human decision per case)
 ```
 
-Go turns grades into the canonical record, so totals and verdicts come from the
-pack rule rather than from the grader.
+Go turns annotations into the canonical record, so totals and verdicts come from the
+pack rule rather than from the annotator.
 
-## The board is derived
+## The dataset is derived
 
-`evalkit.board` reads the roster Go exports and prints the cases it implies.
+`evalkit.matrix` reads the roster Go exports and prints the cases it implies.
 Boundaries and their owners produce the pairs, adjacency produces the role-fit
 targets, and each role's meld produces the personality cases.
 
 Adding a boundary, flipping an adjacency edge, or swapping a personality moves
-the case list on its own, so the board cannot drift from the roster. Adjacency
+the sample list on its own, so the dataset cannot drift from the roster. Adjacency
 reasons become the role-fit descriptors directly, which is the same text a
 generator needs to construct the right confusion.
 
@@ -56,18 +56,18 @@ transport path and a direct call is a different configuration.
 `substring_matcher` is a placeholder, since a prose discriminator cannot be
 matched reliably by substring. The options are machine-checkable patterns
 emitted alongside the prose, or a cheap model pass. A model is acceptable here
-where it would not be for grading, because a filter error costs a slightly
+where it would not be for annotation, because a filter error costs a slightly
 worse case rather than a wrong score.
 
 ## Commands
 
-Ward owns `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-grade`,
-`evalkit-board`, and `evalkit-check`. The last runs ruff, format, mypy strict,
+Ward owns `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-annotate`,
+`evalkit-matrix`, and `evalkit-check`. The last runs ruff, format, mypy strict,
 and pytest from `scripts/evalkit-check.sh` rather than pre-commit, because that
 file is managed by agentic-os and a hand-added hook is overwritten on sync.
 
 ## See also
 
-* [Eval grading](eval-grading.md) - scoring tiers, ordering, and item analysis.
+* [Eval annotation](eval-annotation.md) - scoring tiers, ordering, and item analysis.
 * [Evaluation](evaluation.md) - packs, records, and review policy.
 * [Role adjacency](role-adjacency.md) - the axis role-fit cases read.

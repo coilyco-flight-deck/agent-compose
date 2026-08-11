@@ -26,8 +26,8 @@ human-aligned eval.
 
 ## How it relates to this eval
 
-This is `evalkit.grade` with a vendor's name on it. Categorical annotation is
-the pass-or-fail and three-way tiers, freeform is the note on a deduction, and
+This is `evalkit.annotate` with a vendor's name on it. Categorical annotation is
+the pass-or-fail and three-way tiers, freeform is the critique on a deduction, and
 the export-to-dataset path is what a future judge calibration would use if
 human labels ever become a gold set for an automated evaluator.
 

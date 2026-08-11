@@ -1,6 +1,6 @@
-"""Item analysis. Keeps candidates that discriminate and drops the rest.
+"""Item analysis. Keeps samples that discriminate and drops the rest.
 
-A candidate every subject run passes measures nothing, and one every run fails
+A sample every subject run passes measures nothing, and one every run fails
 is broken rather than hard. See docs/eval-orchestration.md.
 """
 
@@ -15,9 +15,9 @@ from typing import Protocol
 
 import yaml
 
-from evalkit.schema import BoardCase, Candidate, Kind, Response
+from evalkit.schema import DatasetEntry, Response, Sample, TestType
 
-# A candidate discriminates when it neither passes nor fails every run.
+# A sample discriminates when it neither passes nor fails every run.
 MIN_FAILURES = 1
 MAX_FAILURES = 4
 
@@ -27,7 +27,7 @@ IDEAL_FAILURES = (2, 3)
 
 @dataclass(frozen=True)
 class Dropped:
-    candidate_id: str
+    sample_id: str
     variant: int
     reason: str
 
@@ -36,7 +36,7 @@ class Dropped:
 class FilterReport:
     """Silent truncation reads as full coverage, so every drop is recorded."""
 
-    kept: list[BoardCase]
+    kept: list[DatasetEntry]
     dropped: list[Dropped]
 
     @property
@@ -45,7 +45,7 @@ class FilterReport:
 
 
 class Matcher(Protocol):
-    """Decides whether one response exhibits its candidate's failure signal."""
+    """Decides whether one response exhibits its sample's failure signal."""
 
     def __call__(self, discriminator: str, response: str) -> bool: ...
 
@@ -55,72 +55,71 @@ def failure_count(discriminator: str, responses: list[Response], matcher: Matche
 
 
 def run(
-    candidates: list[Candidate],
+    samples: list[Sample],
     responses: list[Response],
     matcher: Matcher,
 ) -> FilterReport:
-    by_candidate: dict[tuple[str, int], list[Response]] = defaultdict(list)
+    by_sample: dict[tuple[str, int], list[Response]] = defaultdict(list)
     for response in responses:
-        by_candidate[(response.candidate_id, response.variant)].append(response)
+        by_sample[(response.sample_id, response.variant)].append(response)
 
-    kept: list[BoardCase] = []
+    kept: list[DatasetEntry] = []
     dropped: list[Dropped] = []
-    scored: dict[str, list[tuple[Candidate, int, str]]] = defaultdict(list)
+    scored: dict[str, list[tuple[Sample, int, str]]] = defaultdict(list)
 
-    for candidate in candidates:
-        runs = sorted(by_candidate[(candidate.id, candidate.variant)], key=lambda r: r.run)
+    for sample in samples:
+        runs = sorted(by_sample[(sample.id, sample.variant)], key=lambda r: r.run)
         if not runs:
-            dropped.append(Dropped(candidate.id, candidate.variant, "no subject runs"))
+            dropped.append(Dropped(sample.id, sample.variant, "no subject runs"))
             continue
         first = runs[0].text
 
-        if not candidate.scored_pass_fail:
-            kept.append(BoardCase(candidate=candidate, response=first, failure_count=0))
+        if not sample.binary_label:
+            kept.append(DatasetEntry(sample=sample, output=first, failure_count=0))
             continue
 
-        assert candidate.discriminator is not None
-        failures = failure_count(candidate.discriminator, runs, matcher)
+        assert sample.discriminator is not None
+        failures = failure_count(sample.discriminator, runs, matcher)
         if failures < MIN_FAILURES:
-            dropped.append(Dropped(candidate.id, candidate.variant, "every run passed"))
+            dropped.append(Dropped(sample.id, sample.variant, "every run passed"))
             continue
         if failures > MAX_FAILURES:
-            dropped.append(Dropped(candidate.id, candidate.variant, "every run failed"))
+            dropped.append(Dropped(sample.id, sample.variant, "every run failed"))
             continue
-        scored[_slot(candidate)].append((candidate, failures, first))
+        scored[_slot(sample)].append((sample, failures, first))
 
     for slot, entries in scored.items():
         winner = min(entries, key=lambda entry: _distance(entry[1]))
-        for candidate, _, _ in entries:
-            if candidate.variant != winner[0].variant:
-                dropped.append(Dropped(candidate.id, candidate.variant, f"lost slot {slot}"))
-        kept.append(BoardCase(candidate=winner[0], response=winner[2], failure_count=winner[1]))
+        for sample, _, _ in entries:
+            if sample.variant != winner[0].variant:
+                dropped.append(Dropped(sample.id, sample.variant, f"lost slot {slot}"))
+        kept.append(DatasetEntry(sample=winner[0], output=winner[2], failure_count=winner[1]))
 
     return FilterReport(kept=_drop_broken_pairs(kept, dropped), dropped=dropped)
 
 
-def _drop_broken_pairs(kept: list[BoardCase], dropped: list[Dropped]) -> list[BoardCase]:
+def _drop_broken_pairs(kept: list[DatasetEntry], dropped: list[Dropped]) -> list[DatasetEntry]:
     """A pair whose halves behave identically is broken, or its bundle is."""
     halves: dict[str, set[str]] = defaultdict(set)
     for case in kept:
-        candidate = case.candidate
-        if candidate.kind is Kind.BOUNDARY and candidate.pair_id and candidate.half:
-            halves[candidate.pair_id].add(candidate.half.value)
+        sample = case.sample
+        if sample.test_type is TestType.BOUNDARY and sample.pair_id and sample.half:
+            halves[sample.pair_id].add(sample.half.value)
 
-    survivors: list[BoardCase] = []
-    for case in kept:
-        pair_id = case.candidate.pair_id
-        if case.candidate.kind is Kind.BOUNDARY and pair_id and halves[pair_id] != {"in", "out"}:
-            dropped.append(
-                Dropped(case.candidate.id, case.candidate.variant, f"pair {pair_id} incomplete")
-            )
+    survivors: list[DatasetEntry] = []
+    for entry in kept:
+        sample = entry.sample
+        broken = halves[sample.pair_id] != {"in", "out"} if sample.pair_id else False
+        if sample.test_type is TestType.BOUNDARY and sample.pair_id and broken:
+            dropped.append(Dropped(sample.id, sample.variant, f"pair {sample.pair_id} incomplete"))
             continue
-        survivors.append(case)
+        survivors.append(entry)
     return survivors
 
 
-def _slot(candidate: Candidate) -> str:
-    parts = [candidate.role, candidate.kind.value]
-    for value in (candidate.boundary, candidate.half, candidate.target, candidate.trait):
+def _slot(sample: Sample) -> str:
+    parts = [sample.role, sample.test_type.value]
+    for value in (sample.boundary, sample.half, sample.target, sample.trait):
         if value:
             parts.append(str(value))
     return ":".join(parts)
@@ -147,24 +146,26 @@ def load_responses(path: Path) -> list[Response]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Pick the board from scored candidates.")
-    parser.add_argument("--candidates", type=Path, required=True)
+    parser = argparse.ArgumentParser(
+        description="Pick the dataset from the samples that discriminate."
+    )
+    parser.add_argument("--samples", type=Path, required=True)
     parser.add_argument("--responses", type=Path, required=True, help="jsonl from evalkit.run")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    raw = yaml.safe_load(args.candidates.read_text()) or {}
-    candidates = [Candidate.from_dict(entry) for entry in raw.get("candidates", [])]
-    report = run(candidates, load_responses(args.responses), substring_matcher)
+    raw = yaml.safe_load(args.samples.read_text()) or {}
+    samples = [Sample.from_dict(entry) for entry in raw.get("samples", [])]
+    report = run(samples, load_responses(args.responses), substring_matcher)
 
     args.out.write_text(
         yaml.safe_dump(
-            {"board": [case.to_dict() for case in report.kept]}, sort_keys=False, width=100
+            {"dataset": [entry.to_dict() for entry in report.kept]}, sort_keys=False, width=100
         )
     )
     print(report.summary)
     for drop in report.dropped:
-        print(f"  dropped {drop.candidate_id} v{drop.variant}: {drop.reason}")
+        print(f"  dropped {drop.sample_id} v{drop.variant}: {drop.reason}")
     return 0
 
 

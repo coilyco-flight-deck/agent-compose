@@ -34,6 +34,8 @@ files = ["evalkit"]
 
 [tool.pytest.ini_options]
 testpaths = ["evalkit/tests"]
+# TestType is CheckList vocabulary, not a test class.
+python_classes = []
 
 [tool.agentic-os.documentation-layout]
 # Contract fixtures model bundle trees. Embedded definitions are product
