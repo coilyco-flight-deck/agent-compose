@@ -28,8 +28,9 @@ recommendations were independently already in place here.
   platform equivalent of `evalkit.run` and `evalkit.filter`.
   <https://inspect.aisi.org.uk/>
 
-The two cover different halves rather than competing. Both are referenced for
-orientation and neither is adopted. Adoption remains the open decision in
+The two cover different halves rather than competing. Inspect is adopted for
+the run leg. Phoenix stays a reference, since annotation is local. A review UI
+remains the open decision in
 <https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>.
 
 ## Blogs

@@ -12,7 +12,7 @@ def boundary_entry(role: str, half: Half) -> DatasetEntry:
             test_type=TestType.BOUNDARY,
             prompt="p",
             target="t",
-            discriminator="d",
+            discriminator=[r"d"],
             boundary="suggest-human-comms",
             half=half,
             pair_id=f"{role}-shc",

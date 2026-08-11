@@ -14,10 +14,11 @@ no second record writer. Two parsers is the failure this split avoids.
 ## Pipeline
 
 ```text
-generator       ->  samples.yaml
-evalkit.run     ->  responses.jsonl   (n=5 per sample, transport recorded)
-evalkit.filter  ->  dataset.yaml        (survivors, with run 1 attached)
-evalkit.annotate   ->  annotations.yaml       (one human decision per case)
+generator         ->  samples.yaml
+inspect eval      ->  .eval log      (five epochs per sample, unscored)
+evalkit.filter    ->  dataset.yaml   (survivors, epoch 1 attached)
+evalkit.annotate  ->  annotations.yaml
+evalkit.taxonomy  ->  failure modes, ranked
 ```
 
 Go turns annotations into the canonical record, so totals and verdicts come from the
@@ -51,13 +52,18 @@ transport that produces a measured result. `--direct` exists for incident
 isolation, marks its output, and warns, because Agent Proxy sits inside the
 transport path and a direct call is a different configuration.
 
-## Open decision
+## Discriminators are patterns
 
-`substring_matcher` is a placeholder, since a prose discriminator cannot be
-matched reliably by substring. The options are machine-checkable patterns
-emitted alongside the prose, or a cheap model pass. A model is acceptable here
-where it would not be for annotation, because a filter error costs a slightly
-worse case rather than a wrong score.
+A sample's `discriminator` is a list of regexes describing the failing
+behaviour. Any match counts as a failure, matching is case-insensitive and
+multiline, and every pattern is compiled at load so a bad regex fails before a
+run rather than during one.
+
+Patterns rather than prose, so item analysis is deterministic and needs no
+model in the loop. A pattern will miss failures a reader would catch, but the
+filter only decides whether a sample discriminates. The human annotation is
+the measurement, so a miss costs a slightly worse sample rather than a wrong
+label.
 
 ## Commands
 

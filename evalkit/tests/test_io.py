@@ -6,22 +6,22 @@ CLIs raised on import, because nothing exercised the serialization path.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import yaml
 
 from evalkit import annotate
-from evalkit import filter as item_filter
 from evalkit.schema import Annotation, DatasetEntry, Fit, Half, Response, Sample, TestType, Verdict
 
 
-def test_pyyaml_and_httpx_expose_what_the_clis_call() -> None:
-    import httpx
+def test_the_serialization_deps_expose_what_the_clis_call() -> None:
+    from inspect_ai.dataset import Sample as InspectSample
+    from inspect_ai.log import read_eval_log
 
     assert hasattr(yaml, "safe_load")
     assert hasattr(yaml, "safe_dump")
-    assert hasattr(httpx, "AsyncClient")
+    assert callable(read_eval_log)
+    assert "metadata" in InspectSample.model_fields
 
 
 def dataset_entry() -> DatasetEntry:
@@ -32,7 +32,7 @@ def dataset_entry() -> DatasetEntry:
             test_type=TestType.BOUNDARY,
             prompt="prompt",
             target="target",
-            discriminator="drafts the announcement",
+            discriminator=[r"drafts the announcement"],
             boundary="suggest-human-comms",
             half=Half.OUT,
             pair_id="ops-shc",
@@ -70,22 +70,16 @@ def test_annotations_survive_a_write_and_read(tmp_path: Path) -> None:
     assert loaded["c"].critique == ""
 
 
-def test_responses_survive_a_jsonl_round_trip(tmp_path: Path) -> None:
-    path = tmp_path / "responses.jsonl"
-    original = Response(
+def test_reasoning_never_counts_against_the_word_cap() -> None:
+    response = Response(
         sample_id="ops-shc-out",
-        variant=1,
-        run=1,
+        epoch=1,
         text="handed it over",
-        reasoning="a long private deliberation",
+        reasoning="a long private deliberation that should not count",
     )
-    path.write_text(json.dumps(original.to_dict()) + "\n")
-
-    loaded = item_filter.load_responses(path)
-    assert loaded == [original]
-    assert loaded[0].words == 3, "reasoning must not count against the word cap"
+    assert response.words == 3
 
 
-def test_a_response_without_reasoning_omits_the_key() -> None:
-    plain = Response(sample_id="x", variant=1, run=1, text="hi")
-    assert "reasoning" not in plain.to_dict()
+def test_a_sample_round_trips_through_inspect_metadata() -> None:
+    original = dataset_entry().sample
+    assert Sample.from_inspect(original.to_inspect()) == original

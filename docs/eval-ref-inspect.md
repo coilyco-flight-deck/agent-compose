@@ -35,7 +35,15 @@ Where it diverges: Inspect's scorer is normally programmatic or model-graded,
 and this eval puts a human there. That difference is the point rather than a
 gap, so the comparison is worth drawing explicitly rather than eliding.
 
-Referenced for orientation, not adopted. Adoption remains the open decision in
+**Adopted for the run leg.** `evalkit/task.py` is an Inspect task, `--epochs`
+replaced the hand-rolled n=5 fan-out, and the `.eval` log replaced a jsonl
+sink. `inspect view` comes along as a browser surface.
+
+Annotation stays outside it, which Inspect supports directly: `--no-score`
+produces a log of unscored samples, and its score-editing API exists for
+"applying manual review adjustments".
+
+Adopting a review UI remains separate and open in
 <https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>.
 
 ## See also

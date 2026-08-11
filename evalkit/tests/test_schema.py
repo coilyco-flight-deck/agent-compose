@@ -23,7 +23,7 @@ def boundary(role: str, half: Half, variant: int = 1) -> Sample:
         prompt="prompt",
         target="target",
         variant=variant,
-        discriminator="drafts the message instead of handing off",
+        discriminator=[r"\bdraft(s|ed)?\b"],
         boundary="suggest-human-comms",
         half=half,
         pair_id=f"{role}-shc",
@@ -42,7 +42,7 @@ def test_boundary_case_requires_its_pair_identity() -> None:
             test_type=TestType.BOUNDARY,
             prompt="p",
             target="e",
-            discriminator="d",
+            discriminator=[r"d"],
         )
 
 
@@ -66,7 +66,7 @@ def test_personality_case_rejects_a_discriminator() -> None:
             test_type=TestType.PERSONALITY,
             prompt="p",
             target="e",
-            discriminator="d",
+            discriminator=[r"d"],
             trait="grounded",
         )
 

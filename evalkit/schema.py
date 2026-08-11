@@ -7,11 +7,15 @@ and critique are Phoenix's and Hamel's. See docs/eval-references.md.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-SUBJECT_RUNS = 5
+from inspect_ai.dataset import Sample as InspectSample
+from pydantic import BaseModel, ConfigDict, model_validator
+
+SUBJECT_EPOCHS = 5
 
 # Below this the suggest-human-comms out-half drops the factual handoff, which
 # the boundary requires. Measured against written example responses.
@@ -21,6 +25,20 @@ WORD_CAPS = {"boundary": 50, "role-fit": 50, "personality": 100}
 # fastest to annotate and the demo slice lives among them.
 TEST_TYPE_ORDER = ["boundary", "role-fit", "personality"]
 BOUNDARY_ORDER = ["suggest-human-comms", "modify-live-system", "seek-external-validation"]
+
+# Domain fields ride in Inspect's metadata, since its Sample carries only
+# input, target, id, and metadata.
+METADATA_FIELDS = (
+    "role",
+    "test_type",
+    "variant",
+    "discriminator",
+    "boundary",
+    "half",
+    "pair_id",
+    "against",
+    "trait",
+)
 
 
 class TestType(StrEnum):
@@ -57,9 +75,10 @@ LABEL_SETS: dict[str, dict[str, Verdict | Fit]] = {
 DEDUCTIONS: frozenset[Verdict | Fit] = frozenset({Verdict.FAIL, Fit.NO_FIT, Fit.UNDECIDED})
 
 
-@dataclass(frozen=True)
-class Sample:
+class Sample(BaseModel):
     """One authored case: an input, and a target that says what passing means."""
+
+    model_config = ConfigDict(frozen=True, extra="ignore")
 
     id: str
     role: str
@@ -67,7 +86,9 @@ class Sample:
     prompt: str
     target: str
     variant: int = 1
-    discriminator: str | None = None
+    # Machine-checkable patterns for the failing behaviour. Any match is a
+    # failure. Regex rather than prose, so item analysis is deterministic.
+    discriminator: list[str] | None = None
     boundary: str | None = None
     half: Half | None = None
     pair_id: str | None = None
@@ -75,7 +96,8 @@ class Sample:
     against: str | None = None
     trait: str | None = None
 
-    def __post_init__(self) -> None:
+    @model_validator(mode="after")
+    def _check_shape(self) -> Sample:
         if self.test_type is TestType.BOUNDARY and not (
             self.boundary and self.half and self.pair_id
         ):
@@ -86,6 +108,14 @@ class Sample:
             raise ValueError(f"{self.id}: binary-label sample needs a discriminator")
         if not self.binary_label and self.discriminator:
             raise ValueError(f"{self.id}: personality sample cannot carry a discriminator")
+        for pattern in self.discriminator or []:
+            try:
+                re.compile(pattern)
+            except re.error as error:
+                raise ValueError(
+                    f"{self.id}: discriminator {pattern!r} is not a regex: {error}"
+                ) from error
+        return self
 
     @property
     def binary_label(self) -> bool:
@@ -99,31 +129,34 @@ class Sample:
     def word_cap(self) -> int:
         return WORD_CAPS[self.test_type.value]
 
+    def to_inspect(self) -> InspectSample:
+        """Inspect carries input, target, and id. Everything else is metadata."""
+        metadata = {
+            key: (value.value if isinstance(value, StrEnum) else value)
+            for key, value in ((k, getattr(self, k)) for k in METADATA_FIELDS)
+            if value is not None
+        }
+        return InspectSample(id=self.id, input=self.prompt, target=self.target, metadata=metadata)
+
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> Sample:
+    def from_inspect(cls, sample: InspectSample) -> Sample:
+        metadata = dict(sample.metadata or {})
         return cls(
-            id=str(raw["id"]),
-            role=str(raw["role"]),
-            test_type=TestType(raw["test_type"]),
-            prompt=str(raw["prompt"]).strip(),
-            target=str(raw["target"]).strip(),
-            variant=int(raw.get("variant", 1)),
-            discriminator=_optional(raw.get("discriminator")),
-            boundary=_optional(raw.get("boundary")),
-            half=Half(raw["half"]) if raw.get("half") else None,
-            pair_id=_optional(raw.get("pair_id")),
-            against=_optional(raw.get("against")),
-            trait=_optional(raw.get("trait")),
+            id=str(sample.id),
+            prompt=str(sample.input),
+            target=str(sample.target),
+            **metadata,
         )
 
 
-@dataclass(frozen=True)
-class Response:
-    """One subject run. Five per sample feed the filter."""
+class Response(BaseModel):
+    """One subject run. Inspect calls the repetition an epoch."""
+
+    model_config = ConfigDict(frozen=True)
 
     sample_id: str
-    variant: int
-    run: int
+    variant: int = 1
+    epoch: int
     text: str
     finish_reason: str = "stop"
     # Reasoning models return this beside the answer. Preserved as evidence,
@@ -134,71 +167,37 @@ class Response:
     def words(self) -> int:
         return len(self.text.split())
 
-    @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> Response:
-        return cls(
-            sample_id=str(raw["sample_id"]),
-            variant=int(raw["variant"]),
-            run=int(raw["run"]),
-            text=str(raw["text"]),
-            finish_reason=str(raw.get("finish_reason", "stop")),
-            reasoning=str(raw.get("reasoning", "")),
-        )
 
-    def to_dict(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "sample_id": self.sample_id,
-            "variant": self.variant,
-            "run": self.run,
-            "text": self.text,
-            "finish_reason": self.finish_reason,
-        }
-        if self.reasoning:
-            payload["reasoning"] = self.reasoning
-        return payload
-
-
-@dataclass(frozen=True)
-class DatasetEntry:
+class DatasetEntry(BaseModel):
     """A sample that survived the filter, carrying the output to annotate."""
+
+    model_config = ConfigDict(frozen=True)
 
     sample: Sample
     output: str
-    failure_count: int
+    failure_count: int = 0
 
     @property
     def id(self) -> str:
         return self.sample.id
 
     def to_dict(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "id": self.sample.id,
-            "role": self.sample.role,
-            "test_type": self.sample.test_type.value,
-            "prompt": self.sample.prompt,
-            "target": self.sample.target,
-            "output": self.output,
-            "failure_count": self.failure_count,
-        }
-        for key in ("discriminator", "boundary", "pair_id", "against", "trait"):
-            value = getattr(self.sample, key)
-            if value:
-                payload[key] = value
-        if self.sample.half:
-            payload["half"] = self.sample.half.value
+        """Flattened so a dataset file reads as one record per sample."""
+        payload = self.sample.model_dump(mode="json", exclude_none=True)
+        payload["output"] = self.output
+        payload["failure_count"] = self.failure_count
         return payload
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> DatasetEntry:
         return cls(
-            sample=Sample.from_dict(raw),
+            sample=Sample.model_validate(raw),
             output=str(raw["output"]),
             failure_count=int(raw.get("failure_count", 0)),
         )
 
 
-@dataclass
-class Annotation:
+class Annotation(BaseModel):
     """One human decision. A critique is recorded only on a deduction.
 
     RULERS anchors every score to a verbatim quote from the input. `evidence`
@@ -247,7 +246,7 @@ def annotation_order(
     """Role-major, so an annotator holds one charter across a role's samples.
 
     Test-type-major degrades more gracefully, but annotation is resumable and
-    role context is the expensive thing to reload. See docs/eval-grading.md.
+    role context is the expensive thing to reload. See docs/eval-annotation.md.
     """
     roles = list(role_order) if role_order else sorted({e.sample.role for e in dataset})
 
@@ -280,10 +279,3 @@ def pair_results(
         if sample.half:
             pair.halves[sample.half.value] = annotation.label
     return sorted(pairs.values(), key=lambda p: p.pair_id)
-
-
-def _optional(value: Any) -> str | None:
-    if value is None:
-        return None
-    text = str(value).strip()
-    return text or None
