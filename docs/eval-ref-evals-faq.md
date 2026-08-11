@@ -29,9 +29,9 @@ revised, most recently 18 July 2026.
 
 Three of its recommendations are decisions already taken here:
 
-* One expert grader rather than a panel. Kai is the single grader, and that is
+* One expert annotator rather than a panel. Kai is the single annotator, and that is
   a design choice rather than a staffing limit.
-* A custom grading interface. `evalkit.grade` is one case per screen and one
+* A custom grading interface. `evalkit.annotate` is one case per screen and one
   keystroke per decision, which is exactly the bespoke-tool argument.
 * Binary judgments for anything with a right answer.
 
@@ -42,4 +42,4 @@ annotation surface is the recommended practice for this stage.
 ## See also
 
 * [Eval references](eval-references.md) - the full reference set.
-* [Eval grading](eval-grading.md) - scoring tiers, ordering, and item analysis.
+* [Eval annotation](eval-annotation.md) - scoring tiers, ordering, and item analysis.

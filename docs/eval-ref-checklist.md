@@ -29,9 +29,9 @@ Three test types:
 
 ## How it relates to this eval
 
-The board is a CheckList matrix. Roles are the capabilities, kinds are the test
-types, and each cell carries a pass rate rather than one aggregate score. That
-is why `evalkit.board` derives cases from the roster instead of holding a list:
+The dataset is a CheckList matrix. Roles are the capabilities, test types are
+the columns, and each cell carries a pass rate rather than one aggregate score. That
+is why `evalkit.matrix` derives cases from the roster instead of holding a list:
 the matrix is the artifact, and the cases are what fills it.
 
 The boundary in-out pair is a Directional Expectation test. The perturbation is
@@ -43,6 +43,6 @@ engineers, since "unit tests for behavior" needs no further translation.
 ## See also
 
 * [Eval references](eval-references.md) - the full reference set.
-* [Eval grading](eval-grading.md) - scoring tiers and the pair rule.
+* [Eval annotation](eval-annotation.md) - scoring tiers and the pair rule.
 * Contrast sets, the narrower precedent for the pair specifically:
   <https://aclanthology.org/2020.findings-emnlp.117/>

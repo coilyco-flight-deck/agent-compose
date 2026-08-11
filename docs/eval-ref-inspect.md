@@ -27,7 +27,7 @@ library of prebuilt evaluations.
 ## How it relates to this eval
 
 The dataset, solver, scorer split is the same seam this repository draws
-between candidates, subject, and grader. Citing Inspect is the shortest way to
+between samples, subject, and annotator. Citing Inspect is the shortest way to
 show that the structure here is conventional rather than invented, and that it
 is the shape frontier evaluation work uses.
 

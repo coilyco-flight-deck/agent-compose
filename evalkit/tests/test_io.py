@@ -11,9 +11,9 @@ from pathlib import Path
 
 import yaml
 
+from evalkit import annotate
 from evalkit import filter as item_filter
-from evalkit import grade
-from evalkit.schema import BoardCase, Candidate, Fit, Grade, Half, Kind, Response, Verdict
+from evalkit.schema import Annotation, DatasetEntry, Fit, Half, Response, Sample, TestType, Verdict
 
 
 def test_pyyaml_and_httpx_expose_what_the_clis_call() -> None:
@@ -24,56 +24,56 @@ def test_pyyaml_and_httpx_expose_what_the_clis_call() -> None:
     assert hasattr(httpx, "AsyncClient")
 
 
-def board_case() -> BoardCase:
-    return BoardCase(
-        candidate=Candidate(
+def dataset_entry() -> DatasetEntry:
+    return DatasetEntry(
+        sample=Sample(
             id="ops-shc-out",
             role="ops",
-            kind=Kind.BOUNDARY,
+            test_type=TestType.BOUNDARY,
             prompt="prompt",
-            expected="expected",
+            target="target",
             discriminator="drafts the announcement",
             boundary="suggest-human-comms",
             half=Half.OUT,
             pair_id="ops-shc",
         ),
-        response="handed it over",
+        output="handed it over",
         failure_count=2,
     )
 
 
-def test_a_board_survives_a_write_and_read(tmp_path: Path) -> None:
-    path = tmp_path / "board.yaml"
-    original = board_case()
-    path.write_text(yaml.safe_dump({"board": [original.to_dict()]}, sort_keys=False))
+def test_a_dataset_survives_a_write_and_read(tmp_path: Path) -> None:
+    path = tmp_path / "dataset.yaml"
+    original = dataset_entry()
+    path.write_text(yaml.safe_dump({"dataset": [original.to_dict()]}, sort_keys=False))
 
-    loaded = grade.load_board(path)
+    loaded = annotate.load_dataset(path)
     assert len(loaded) == 1
-    assert loaded[0].candidate == original.candidate
-    assert loaded[0].response == original.response
+    assert loaded[0].sample == original.sample
+    assert loaded[0].output == original.output
     assert loaded[0].failure_count == original.failure_count
 
 
-def test_grades_survive_a_write_and_read(tmp_path: Path) -> None:
-    path = tmp_path / "grades.yaml"
-    grades = {
-        "a": Grade(id="a", verdict=Verdict.FAIL, note="drafted it"),
-        "b": Grade(id="b", verdict=Fit.UNDECIDED, note="case was ambiguous"),
-        "c": Grade(id="c", verdict=Verdict.PASS),
+def test_annotations_survive_a_write_and_read(tmp_path: Path) -> None:
+    path = tmp_path / "annotations.yaml"
+    annotations = {
+        "a": Annotation(id="a", label=Verdict.FAIL, critique="drafted it"),
+        "b": Annotation(id="b", label=Fit.UNDECIDED, critique="case was ambiguous"),
+        "c": Annotation(id="c", label=Verdict.PASS),
     }
-    grade.save_grades(path, grades)
+    annotate.save_annotations(path, annotations)
 
-    loaded = grade.load_grades(path)
-    assert loaded["a"].verdict is Verdict.FAIL
-    assert loaded["a"].note == "drafted it"
-    assert loaded["b"].verdict is Fit.UNDECIDED
-    assert loaded["c"].note == ""
+    loaded = annotate.load_annotations(path)
+    assert loaded["a"].label is Verdict.FAIL
+    assert loaded["a"].critique == "drafted it"
+    assert loaded["b"].label is Fit.UNDECIDED
+    assert loaded["c"].critique == ""
 
 
 def test_responses_survive_a_jsonl_round_trip(tmp_path: Path) -> None:
     path = tmp_path / "responses.jsonl"
     original = Response(
-        candidate_id="ops-shc-out",
+        sample_id="ops-shc-out",
         variant=1,
         run=1,
         text="handed it over",
@@ -87,5 +87,5 @@ def test_responses_survive_a_jsonl_round_trip(tmp_path: Path) -> None:
 
 
 def test_a_response_without_reasoning_omits_the_key() -> None:
-    plain = Response(candidate_id="x", variant=1, run=1, text="hi")
+    plain = Response(sample_id="x", variant=1, run=1, text="hi")
     assert "reasoning" not in plain.to_dict()

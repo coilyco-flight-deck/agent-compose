@@ -60,9 +60,9 @@ commands:
   palette-tidy:
     run: npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund
     description: Reconcile the local explorer package lock with package.json.
-  evalkit-board:
-    run: sh scripts/eval-board.sh
-    description: Print the flat eval case list the current roster implies.
+  evalkit-matrix:
+    run: sh scripts/eval-matrix.sh
+    description: Print the capability by test-type matrix the current roster implies.
   evalkit-prompts:
     run: sh scripts/eval-prompts.sh
     description: Compose one bundle per role and write its delivery as the eval system prompt.
@@ -77,13 +77,16 @@ commands:
     description: Reconcile the evalkit virtualenv with pyproject.toml.
   evalkit-run:
     run: uv run python -m evalkit.run
-    description: Run the eval subject across every candidate at n=5 through Agent Proxy.
+    description: Run the eval subject across every sample at n=5 through Agent Proxy.
   evalkit-filter:
     run: uv run python -m evalkit.filter
-    description: Apply item analysis and pick the surviving board from the candidates.
-  evalkit-grade:
-    run: uv run python -m evalkit.grade
-    description: Grade the behavior board by hand, one keystroke per case.
+    description: Apply item analysis and pick the surviving dataset from the samples.
+  evalkit-taxonomy:
+    run: uv run python -m evalkit.taxonomy
+    description: Cluster annotation critiques into a ranked failure taxonomy.
+  evalkit-annotate:
+    run: uv run python -m evalkit.annotate
+    description: Annotate the eval dataset by hand, one keystroke per sample.
   release-build:
     run: sh scripts/release-build.sh
     description: Cross-compile version-stamped release binaries into dist/.

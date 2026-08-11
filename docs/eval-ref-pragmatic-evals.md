@@ -34,13 +34,13 @@ In the freely readable portion:
 
 The binary-judgment argument is the boundary and role-fit tiers. Those cases
 have a right answer, so scoring them across four graded dimensions would
-manufacture grader discretion where none is warranted.
+manufacture annotator discretion where none is warranted.
 
-Error analysis is what the notes on deductions accumulate toward. The board
+Error analysis is what the critiques on deductions accumulate toward. The board
 produces failure categories rather than a single score, which is the same
 output the guide's open-then-axial coding aims at.
 
 ## See also
 
 * [Eval references](eval-references.md) - the full reference set.
-* [Eval grading](eval-grading.md) - scoring tiers and the pair rule.
+* [Eval annotation](eval-annotation.md) - scoring tiers and the pair rule.

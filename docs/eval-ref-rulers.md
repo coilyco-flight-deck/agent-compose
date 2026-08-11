@@ -46,5 +46,5 @@ followed the paper.
 ## See also
 
 * [Eval references](eval-references.md) - the full reference set.
-* [Eval grading](eval-grading.md) - scoring tiers and item analysis.
+* [Eval annotation](eval-annotation.md) - scoring tiers and item analysis.
 * [Evaluation policy](evaluation-policy.md) - the digest and retirement rules.
