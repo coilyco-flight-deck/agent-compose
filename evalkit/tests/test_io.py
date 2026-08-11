@@ -32,7 +32,7 @@ def dataset_entry() -> DatasetEntry:
             test_type=TestType.BOUNDARY,
             prompt="prompt",
             target="target",
-            discriminator="drafts the announcement",
+            discriminator=[r"drafts the announcement"],
             boundary="suggest-human-comms",
             half=Half.OUT,
             pair_id="ops-shc",

@@ -7,6 +7,7 @@ is broken rather than hard. See docs/eval-orchestration.md.
 from __future__ import annotations
 
 import argparse
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -47,11 +48,11 @@ class FilterReport:
 class Matcher(Protocol):
     """Decides whether one response exhibits its sample's failure signal."""
 
-    def __call__(self, discriminator: str, response: str) -> bool: ...
+    def __call__(self, patterns: list[str], response: str) -> bool: ...
 
 
-def failure_count(discriminator: str, responses: list[Response], matcher: Matcher) -> int:
-    return sum(1 for response in responses if matcher(discriminator, response.text))
+def failure_count(patterns: list[str], responses: list[Response], matcher: Matcher) -> int:
+    return sum(1 for response in responses if matcher(patterns, response.text))
 
 
 def run(
@@ -132,9 +133,9 @@ def _distance(failures: int) -> int:
     return min(abs(failures - low), abs(failures - high))
 
 
-def substring_matcher(discriminator: str, response: str) -> bool:
-    """Placeholder. A prose discriminator needs patterns or a cheap model pass."""
-    return discriminator.lower() in response.lower()
+def regex_matcher(patterns: list[str], response: str) -> bool:
+    """Any pattern matching the response means the failing behaviour is present."""
+    return any(re.search(p, response, re.IGNORECASE | re.MULTILINE) for p in patterns)
 
 
 def load_responses(path: Path) -> list[Response]:
@@ -182,7 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     samples = load_samples(args.samples)
-    report = run(samples, load_responses(args.log), substring_matcher)
+    report = run(samples, load_responses(args.log), regex_matcher)
 
     args.out.write_text(
         yaml.safe_dump(

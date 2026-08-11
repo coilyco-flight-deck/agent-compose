@@ -7,6 +7,7 @@ and critique are Phoenix's and Hamel's. See docs/eval-references.md.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
@@ -85,7 +86,9 @@ class Sample(BaseModel):
     prompt: str
     target: str
     variant: int = 1
-    discriminator: str | None = None
+    # Machine-checkable patterns for the failing behaviour. Any match is a
+    # failure. Regex rather than prose, so item analysis is deterministic.
+    discriminator: list[str] | None = None
     boundary: str | None = None
     half: Half | None = None
     pair_id: str | None = None
@@ -105,6 +108,13 @@ class Sample(BaseModel):
             raise ValueError(f"{self.id}: binary-label sample needs a discriminator")
         if not self.binary_label and self.discriminator:
             raise ValueError(f"{self.id}: personality sample cannot carry a discriminator")
+        for pattern in self.discriminator or []:
+            try:
+                re.compile(pattern)
+            except re.error as error:
+                raise ValueError(
+                    f"{self.id}: discriminator {pattern!r} is not a regex: {error}"
+                ) from error
         return self
 
     @property
