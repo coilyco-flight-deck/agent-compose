@@ -7,13 +7,13 @@ is broken rather than hard. See docs/eval-orchestration.md.
 from __future__ import annotations
 
 import argparse
-import json
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
 import yaml
+from inspect_ai.log import read_eval_log
 
 from evalkit.schema import DatasetEntry, Response, Sample, TestType
 
@@ -68,7 +68,7 @@ def run(
     scored: dict[str, list[tuple[Sample, int, str]]] = defaultdict(list)
 
     for sample in samples:
-        runs = sorted(by_sample[(sample.id, sample.variant)], key=lambda r: r.run)
+        runs = sorted(by_sample[(sample.id, sample.variant)], key=lambda r: r.epoch)
         if not runs:
             dropped.append(Dropped(sample.id, sample.variant, "no subject runs"))
             continue
@@ -138,11 +138,38 @@ def substring_matcher(discriminator: str, response: str) -> bool:
 
 
 def load_responses(path: Path) -> list[Response]:
+    """Read subject outputs from an Inspect eval log, one Response per epoch."""
+    log = read_eval_log(str(path))
+    if log.status != "success":
+        raise SystemExit(f"eval log status is {log.status}, refusing to filter it")
     responses: list[Response] = []
-    for line in path.read_text().splitlines():
-        if line.strip():
-            responses.append(Response.from_dict(json.loads(line)))
+    for sample in log.samples or []:
+        metadata = sample.metadata or {}
+        message = sample.output.choices[0].message if sample.output.choices else None
+        responses.append(
+            Response(
+                sample_id=str(sample.id),
+                variant=int(metadata.get("variant", 1)),
+                epoch=int(sample.epoch),
+                text=(sample.output.completion or "").strip(),
+                finish_reason=str(getattr(message, "stop_reason", "") or "stop"),
+                reasoning=_reasoning(message),
+            )
+        )
     return responses
+
+
+def load_samples(path: Path) -> list[Sample]:
+    raw = yaml.safe_load(path.read_text()) or {}
+    return [Sample.model_validate(entry) for entry in raw.get("samples", [])]
+
+
+def _reasoning(message: object) -> str:
+    content = getattr(message, "content", None)
+    if isinstance(content, list):
+        parts = [getattr(c, "reasoning", "") for c in content]
+        return "\n".join(p for p in parts if p).strip()
+    return ""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -150,13 +177,12 @@ def main(argv: list[str] | None = None) -> int:
         description="Pick the dataset from the samples that discriminate."
     )
     parser.add_argument("--samples", type=Path, required=True)
-    parser.add_argument("--responses", type=Path, required=True, help="jsonl from evalkit.run")
+    parser.add_argument("--log", type=Path, required=True, help=".eval log from inspect eval")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    raw = yaml.safe_load(args.samples.read_text()) or {}
-    samples = [Sample.from_dict(entry) for entry in raw.get("samples", [])]
-    report = run(samples, load_responses(args.responses), substring_matcher)
+    samples = load_samples(args.samples)
+    report = run(samples, load_responses(args.log), substring_matcher)
 
     args.out.write_text(
         yaml.safe_dump(

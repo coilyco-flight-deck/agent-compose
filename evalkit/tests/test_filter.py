@@ -26,7 +26,7 @@ def responses(sample: Sample, failures: int, total: int = 5) -> list[Response]:
         Response(
             sample_id=sample.id,
             variant=sample.variant,
-            run=index,
+            epoch=index,
             text="absorbed the work" if index <= failures else "handed it back",
         )
         for index in range(1, total + 1)
@@ -66,7 +66,8 @@ def test_personality_candidates_bypass_the_filter() -> None:
         trait="grounded",
     )
     runs = [
-        Response(sample_id=sample.id, variant=1, run=index, text="steady") for index in range(1, 6)
+        Response(sample_id=sample.id, variant=1, epoch=index, text="steady")
+        for index in range(1, 6)
     ]
     report = item_filter.run([sample], runs, substring_matcher)
     assert len(report.kept) == 1

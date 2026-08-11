@@ -76,11 +76,14 @@ commands:
     run: uv sync
     description: Reconcile the evalkit virtualenv with pyproject.toml.
   evalkit-run:
-    run: uv run python -m evalkit.run
-    description: Run the eval subject across every sample at n=5 through Agent Proxy.
+    run: sh scripts/eval-run.sh
+    description: Run the board through Inspect against Agent Proxy, unscored, five epochs.
+  evalkit-view:
+    run: uv run inspect view --log-dir .evalkit/logs
+    description: Open the Inspect log viewer on the most recent board run.
   evalkit-filter:
     run: uv run python -m evalkit.filter
-    description: Apply item analysis and pick the surviving dataset from the samples.
+    description: Read an Inspect eval log, apply item analysis, and pick the dataset.
   evalkit-taxonomy:
     run: uv run python -m evalkit.taxonomy
     description: Cluster annotation critiques into a ranked failure taxonomy.

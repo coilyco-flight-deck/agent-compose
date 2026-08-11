@@ -14,10 +14,11 @@ no second record writer. Two parsers is the failure this split avoids.
 ## Pipeline
 
 ```text
-generator       ->  samples.yaml
-evalkit.run     ->  responses.jsonl   (n=5 per sample, transport recorded)
-evalkit.filter  ->  dataset.yaml        (survivors, with run 1 attached)
-evalkit.annotate   ->  annotations.yaml       (one human decision per case)
+generator         ->  samples.yaml
+inspect eval      ->  .eval log      (five epochs per sample, unscored)
+evalkit.filter    ->  dataset.yaml   (survivors, epoch 1 attached)
+evalkit.annotate  ->  annotations.yaml
+evalkit.taxonomy  ->  failure modes, ranked
 ```
 
 Go turns annotations into the canonical record, so totals and verdicts come from the
