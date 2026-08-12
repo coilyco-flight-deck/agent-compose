@@ -4,3 +4,4 @@
 [default.extend-words]
 mis = "mis"
 unparseable = "unparseable"
+RTO = "RTO"
