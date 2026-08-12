@@ -357,7 +357,6 @@ type Person struct {
 	Raw                  []byte                 `json:"-"`
 	Libraries            map[string]string      `json:"-"`
 	PersonalityLibraries map[string]string      `json:"-"`
-	evaluations          map[string][]byte
 	roleSkills           map[string][]byte
 	roleMethods          map[string]map[string][]byte
 	boundarySkills       map[string][]byte
@@ -397,9 +396,6 @@ func Load() (*Person, error) {
 	}
 	p, err := loadSource(source, "embedded core roster")
 	if err != nil {
-		return nil, err
-	}
-	if p.evaluations, err = loadEvaluationAssets(source); err != nil {
 		return nil, err
 	}
 	if err := validateRosterProseFloors(source, p); err != nil {
@@ -464,46 +460,11 @@ func LoadDirectoryWithLibraries(root string, libraries ...string) (*Person, erro
 	if err != nil {
 		return nil, err
 	}
-	if p.evaluations, err = loadEvaluationAssets(os.DirFS(absolute)); err != nil {
-		return nil, err
-	}
 	local, err := discoverLibraries(absolute)
 	if err != nil {
 		return nil, err
 	}
 	return mergeLibraries(p, append(local, libraries...))
-}
-
-// EvaluationAsset returns one complete profile-owned evaluation matrix.
-func (p *Person) EvaluationAsset(role string) ([]byte, bool) {
-	raw, ok := p.evaluations[role]
-	return append([]byte(nil), raw...), ok
-}
-
-func loadEvaluationAssets(source fs.FS) (map[string][]byte, error) {
-	entries, err := fs.ReadDir(source, "evaluations")
-	if os.IsNotExist(err) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("read profile evaluations: %w", err)
-	}
-	assets := map[string][]byte{}
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".yaml") {
-			return nil, fmt.Errorf("profile evaluations has unexpected entry %q", entry.Name())
-		}
-		role := strings.TrimSuffix(entry.Name(), ".yaml")
-		if !validSemanticToken(role) {
-			return nil, fmt.Errorf("profile evaluation filename %q is not a role slug", entry.Name())
-		}
-		raw, err := fs.ReadFile(source, "evaluations/"+entry.Name())
-		if err != nil {
-			return nil, err
-		}
-		assets[role] = raw
-	}
-	return assets, nil
 }
 
 func discoverLibraries(root string) ([]string, error) {
@@ -630,11 +591,6 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 }
 
 func validateResolvedPerson(p *Person) error {
-	for roleName := range p.evaluations {
-		if _, ok := p.Roles[roleName]; !ok {
-			return fmt.Errorf("evaluation matrix %q has no profile role", roleName)
-		}
-	}
 	for _, roleName := range p.roleOrder() {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {

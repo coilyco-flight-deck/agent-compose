@@ -30,8 +30,7 @@ Roster:
 * host doctrine convergence and native skill installation
 * bundle inspection, validation, and compatibility reporting
 * compact text and JSON identity overlays with caller-supplied state
-* deterministic Markdown and YAML behavior evaluation packs, YAML scored
-  baselines, and a generated compact scorecard
+* a roster-derived behavior board, run through Inspect and graded by hand
 
 Knowledge providers own reusable doctrine, general skills, capability sources,
 and editorial validation. Agent-compose combines those sources with its
@@ -139,7 +138,7 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
 * [docs/v2-migration.md](docs/v2-migration.md) - v1 provider and role destinations.
 * [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
-* [docs/evaluation.md](docs/evaluation.md) - deterministic human behavior review.
+* [docs/evaluation.md](docs/evaluation.md) - the generator, subject, grader triple.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared catalog structure.

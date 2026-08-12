@@ -152,11 +152,22 @@ def render(
     console.print(f"{hints}    [bold]s[/bold] skip    [bold]q[/bold] quit")
 
 
+def ask(console: Console, label: str, hint: str) -> str:
+    """Styled prompt printed first, then a bare readline.
+
+    console.input hands readline a prompt carrying ANSI colour codes, readline
+    miscounts the cursor column, and an answer long enough to wrap overwrites
+    itself. An empty prompt leaves readline nothing to miscount.
+    """
+    console.print(f"[bold]{label}[/bold] ({hint})")
+    return input("> ").strip()
+
+
 def collect_evidence(console: Console, output: str) -> tuple[str, str]:
     """RULERS anchors a deduction to a verbatim span, verified against the output."""
-    critique = console.input("[bold]critique[/bold] (what it did wrong): ").strip()
+    critique = ask(console, "critique", "what it did wrong")
     while True:
-        evidence = console.input("[bold]evidence[/bold] (verbatim quote, blank to skip): ").strip()
+        evidence = ask(console, "evidence", "verbatim quote, blank to skip")
         if not evidence or evidence.lower() in output.lower():
             return critique, evidence
         console.print("[red]not found verbatim in the output[/red]")
@@ -215,13 +226,19 @@ def summarize(
             table.add_row(pair.pair_id, pair.role, pair.boundary, result)
         console.print(table)
 
+    # Only this dataset's ids. An annotations file outlives a case rename, so
+    # counting the whole file reports more grades than there are cases.
+    ids = {entry.id for entry in dataset}
+    current = {key: value for key, value in annotations.items() if key in ids}
     counts: dict[str, int] = {}
-    for annotation in annotations.values():
+    for annotation in current.values():
         counts[annotation.label.value] = counts.get(annotation.label.value, 0) + 1
     console.print(
-        f"\nannotated {len(annotations)} of {len(dataset)}: "
+        f"\nannotated {len(current)} of {len(dataset)}: "
         + ", ".join(f"{value} {key}" for key, value in sorted(counts.items()))
     )
+    if stale := len(annotations) - len(current):
+        console.print(f"[yellow]{stale} annotations are for ids not in this dataset[/yellow]")
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -43,5 +43,5 @@ beside the same list in KDL is the drift this design removes.
 ## See also
 
 * [Role boundaries](role-boundaries.md) - the primitive and its budget.
-* [Evaluation matrices](evaluation-matrices.md) - the coverage each side owes.
+* [Evaluation](evaluation.md) - the coverage each side owes.
 * [Person package authoring](person-package-authoring.md) - complete layout.

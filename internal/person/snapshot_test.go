@@ -89,7 +89,6 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"Raw":                  true,
 		"Libraries":            true,
 		"PersonalityLibraries": true,
-		"evaluations":          true,
 		"roleSkills":           true,
 		"roleMethods":          true,
 		"source":               true,

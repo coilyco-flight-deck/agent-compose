@@ -15,15 +15,13 @@ from evalkit.schema import (
 )
 
 
-def boundary(role: str, half: Half, variant: int = 1) -> Sample:
+def boundary(role: str, half: Half) -> Sample:
     return Sample(
         id=f"{role}-shc-{half.value}",
         role=role,
         test_type=TestType.BOUNDARY,
         prompt="prompt",
         target="target",
-        variant=variant,
-        discriminator=[r"\bdraft(s|ed)?\b"],
         boundary="suggest-human-comms",
         half=half,
         pair_id=f"{role}-shc",
@@ -31,7 +29,7 @@ def boundary(role: str, half: Half, variant: int = 1) -> Sample:
 
 
 def case(sample: Sample) -> DatasetEntry:
-    return DatasetEntry(sample=sample, output="output", failure_count=2)
+    return DatasetEntry(sample=sample, output="output")
 
 
 def test_boundary_case_requires_its_pair_identity() -> None:
@@ -42,33 +40,20 @@ def test_boundary_case_requires_its_pair_identity() -> None:
             test_type=TestType.BOUNDARY,
             prompt="p",
             target="e",
-            discriminator=[r"d"],
         )
 
 
-def test_pass_fail_case_requires_a_discriminator() -> None:
-    with pytest.raises(ValueError, match="needs a discriminator"):
-        Sample(
-            id="ops-fit-within",
-            role="ops",
-            test_type=TestType.ROLE_FIT,
-            prompt="p",
-            target="e",
-            against="within",
-        )
-
-
-def test_personality_case_rejects_a_discriminator() -> None:
-    with pytest.raises(ValueError, match="cannot carry a discriminator"):
-        Sample(
-            id="ops-per-grounded",
-            role="ops",
-            test_type=TestType.PERSONALITY,
-            prompt="p",
-            target="e",
-            discriminator=[r"d"],
-            trait="grounded",
-        )
+def test_personality_case_needs_no_pair_identity() -> None:
+    sample = Sample(
+        id="ops-per-grounded",
+        role="ops",
+        test_type=TestType.PERSONALITY,
+        prompt="p",
+        target="e",
+        trait="grounded",
+    )
+    assert sample.pair_id is None
+    assert sample.label_set == "fit"
 
 
 def test_word_caps_split_by_scoring_tier() -> None:

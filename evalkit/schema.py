@@ -7,7 +7,6 @@ and critique are Phoenix's and Hamel's. See docs/eval-references.md.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
@@ -31,8 +30,6 @@ BOUNDARY_ORDER = ["suggest-human-comms", "modify-live-system", "seek-external-va
 METADATA_FIELDS = (
     "role",
     "test_type",
-    "variant",
-    "discriminator",
     "boundary",
     "half",
     "pair_id",
@@ -85,10 +82,6 @@ class Sample(BaseModel):
     test_type: TestType
     prompt: str
     target: str
-    variant: int = 1
-    # Machine-checkable patterns for the failing behaviour. Any match is a
-    # failure. Regex rather than prose, so item analysis is deterministic.
-    discriminator: list[str] | None = None
     boundary: str | None = None
     half: Half | None = None
     pair_id: str | None = None
@@ -104,17 +97,6 @@ class Sample(BaseModel):
             raise ValueError(f"{self.id}: boundary sample needs boundary, half, and pair_id")
         if self.test_type is TestType.ROLE_FIT and not self.against:
             raise ValueError(f"{self.id}: role-fit sample needs an against")
-        if self.binary_label and not self.discriminator:
-            raise ValueError(f"{self.id}: binary-label sample needs a discriminator")
-        if not self.binary_label and self.discriminator:
-            raise ValueError(f"{self.id}: personality sample cannot carry a discriminator")
-        for pattern in self.discriminator or []:
-            try:
-                re.compile(pattern)
-            except re.error as error:
-                raise ValueError(
-                    f"{self.id}: discriminator {pattern!r} is not a regex: {error}"
-                ) from error
         return self
 
     @property
@@ -155,7 +137,6 @@ class Response(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     sample_id: str
-    variant: int = 1
     epoch: int
     text: str
     finish_reason: str = "stop"
@@ -169,13 +150,12 @@ class Response(BaseModel):
 
 
 class DatasetEntry(BaseModel):
-    """A sample that survived the filter, carrying the output to annotate."""
+    """An authored sample carrying the output to annotate."""
 
     model_config = ConfigDict(frozen=True)
 
     sample: Sample
     output: str
-    failure_count: int = 0
 
     @property
     def id(self) -> str:
@@ -185,7 +165,6 @@ class DatasetEntry(BaseModel):
         """Flattened so a dataset file reads as one record per sample."""
         payload = self.sample.model_dump(mode="json", exclude_none=True)
         payload["output"] = self.output
-        payload["failure_count"] = self.failure_count
         return payload
 
     @classmethod
@@ -193,7 +172,6 @@ class DatasetEntry(BaseModel):
         return cls(
             sample=Sample.model_validate(raw),
             output=str(raw["output"]),
-            failure_count=int(raw.get("failure_count", 0)),
         )
 
 

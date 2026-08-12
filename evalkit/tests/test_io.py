@@ -32,13 +32,11 @@ def dataset_entry() -> DatasetEntry:
             test_type=TestType.BOUNDARY,
             prompt="prompt",
             target="target",
-            discriminator=[r"drafts the announcement"],
             boundary="suggest-human-comms",
             half=Half.OUT,
             pair_id="ops-shc",
         ),
         output="handed it over",
-        failure_count=2,
     )
 
 
@@ -51,7 +49,6 @@ def test_a_dataset_survives_a_write_and_read(tmp_path: Path) -> None:
     assert len(loaded) == 1
     assert loaded[0].sample == original.sample
     assert loaded[0].output == original.output
-    assert loaded[0].failure_count == original.failure_count
 
 
 def test_annotations_survive_a_write_and_read(tmp_path: Path) -> None:

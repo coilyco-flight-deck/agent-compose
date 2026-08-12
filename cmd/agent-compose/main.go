@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -19,7 +18,6 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/converge"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/home"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
@@ -228,73 +226,6 @@ func main() {
 				Usage:     "verify that a bundle is complete and safe to consume",
 				ArgsUsage: "<bundle-dir>",
 				Action:    runVerify,
-			},
-			{
-				Name:  "evaluation",
-				Usage: "emit deterministic frontier, commodity, and OSS human-review packs",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:  "role",
-						Value: "engineer",
-						Usage: "canonical role under evaluation",
-					},
-					&cli.StringFlag{
-						Name:  "seat",
-						Value: "codex",
-						Usage: "harness seat held constant across the comparison",
-					},
-					&cli.StringFlag{
-						Name:  "format",
-						Value: "markdown",
-						Usage: "output format: markdown or yaml",
-					},
-					&cli.StringFlag{
-						Name:  "person-source",
-						Usage: "external roster-package root (defaults to embedded roster:core)",
-					},
-					&cli.StringSliceFlag{
-						Name:  "personality-library",
-						Usage: "additional local personality-library root (repeatable)",
-					},
-					&cli.BoolFlag{
-						Name:  "all",
-						Usage: "emit the complete validated Core Roster matrix",
-					},
-					&cli.StringFlag{
-						Name:  "out-dir",
-						Usage: "empty directory receiving --all packs and their digest index",
-					},
-				},
-				Action: runEvaluation,
-			},
-			{
-				Name:  "scorecard",
-				Usage: "render a compact Markdown page from scored evaluation records",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:  "results",
-						Value: "evaluations/latest",
-						Usage: "directory containing scored evaluation YAML",
-					},
-					&cli.StringFlag{
-						Name:  "seat",
-						Value: "codex",
-						Usage: "include records for this harness seat",
-					},
-					&cli.StringFlag{
-						Name:  "out",
-						Usage: "write the page to this path instead of standard output",
-					},
-					&cli.BoolFlag{
-						Name:  "check",
-						Usage: "fail when the output path does not match the generated page",
-					},
-					&cli.BoolFlag{
-						Name:  "historical",
-						Usage: "render preserved records without comparing them to the current roster",
-					},
-				},
-				Action: runScorecard,
 			},
 			{
 				Name:  "overlay",
@@ -628,171 +559,6 @@ func catalogAffinityRoles(affinities []person.PersonalityMeld) string {
 func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
 	expressions := person.ExpressionVocabulary()
 	return writeCatalog(expressions, cmd.Bool("json"), strings.Join(expressions, "\n")+"\n")
-}
-
-func runEvaluation(_ context.Context, cmd *cli.Command) error {
-	if cmd.Bool("all") {
-		if cmd.String("person-source") != "" || len(cmd.StringSlice("personality-library")) > 0 {
-			return fmt.Errorf("evaluation --all is limited to the embedded Core Roster")
-		}
-		if cmd.String("out-dir") == "" {
-			return fmt.Errorf("evaluation --all requires --out-dir")
-		}
-		packs, err := evaluation.BuildCorePacks(cmd.String("seat"))
-		if err != nil {
-			return err
-		}
-		return writeEvaluationPacks(packs, cmd.String("format"), cmd.String("out-dir"))
-	}
-	if cmd.String("out-dir") != "" {
-		return fmt.Errorf("evaluation --out-dir requires --all")
-	}
-	p, external, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
-	if err != nil {
-		return err
-	}
-	var pack *evaluation.Pack
-	if external {
-		pack, err = evaluation.BuildFor(p, cmd.String("role"), cmd.String("seat"))
-	} else {
-		pack, err = evaluation.Build(cmd.String("role"), cmd.String("seat"))
-	}
-	if err != nil {
-		return err
-	}
-	raw, err := evaluationOutput(pack, cmd.String("format"))
-	if err != nil {
-		return err
-	}
-	_, err = os.Stdout.Write(raw)
-	return err
-}
-
-type evaluationPackIndex struct {
-	Format string                     `json:"format"`
-	Seat   string                     `json:"seat"`
-	Packs  []evaluationPackIndexEntry `json:"packs"`
-}
-
-type evaluationPackIndexEntry struct {
-	Role       string `json:"role"`
-	File       string `json:"file"`
-	Cases      int    `json:"cases"`
-	PackDigest string `json:"pack_digest"`
-}
-
-func writeEvaluationPacks(packs []*evaluation.Pack, format, output string) error {
-	if format != "yaml" && format != "markdown" {
-		return fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
-	}
-	if err := os.MkdirAll(output, 0o755); err != nil {
-		return fmt.Errorf("create evaluation output directory: %w", err)
-	}
-	entries, err := os.ReadDir(output)
-	if err != nil {
-		return fmt.Errorf("read evaluation output directory: %w", err)
-	}
-	if len(entries) != 0 {
-		return fmt.Errorf("evaluation output directory must be empty")
-	}
-	extension := ".md"
-	if format == "yaml" {
-		extension = ".yaml"
-	}
-	index := evaluationPackIndex{
-		Format: "agent-compose.evaluation-index.v1",
-	}
-	for _, pack := range packs {
-		if index.Seat == "" {
-			index.Seat = pack.Seat.Selector()
-		} else if index.Seat != pack.Seat.Selector() {
-			return fmt.Errorf("evaluation packs mix seats")
-		}
-		raw, err := evaluationOutput(pack, format)
-		if err != nil {
-			return err
-		}
-		digest, err := evaluation.PackDigest(pack)
-		if err != nil {
-			return err
-		}
-		name := pack.Role + "-" + pack.Seat.Selector() + extension
-		if err := os.WriteFile(filepath.Join(output, name), raw, 0o644); err != nil {
-			return fmt.Errorf("write evaluation pack %q: %w", name, err)
-		}
-		index.Packs = append(index.Packs, evaluationPackIndexEntry{
-			Role:       pack.Role,
-			File:       name,
-			Cases:      len(pack.Cases),
-			PackDigest: digest,
-		})
-	}
-	rawIndex, err := json.MarshalIndent(index, "", "  ")
-	if err != nil {
-		return fmt.Errorf("marshal evaluation pack index: %w", err)
-	}
-	rawIndex = append(rawIndex, '\n')
-	if err := os.WriteFile(filepath.Join(output, "index.json"), rawIndex, 0o644); err != nil {
-		return fmt.Errorf("write evaluation pack index: %w", err)
-	}
-	return nil
-}
-
-func writeScorecard(stdout io.Writer, raw []byte, output string, check bool) error {
-	if output == "" {
-		if check {
-			return fmt.Errorf("scorecard --check requires --out")
-		}
-		_, err := stdout.Write(raw)
-		return err
-	}
-	if check {
-		current, err := os.ReadFile(output)
-		if err != nil {
-			return fmt.Errorf("read committed scorecard: %w", err)
-		}
-		if !bytes.Equal(current, raw) {
-			return fmt.Errorf(
-				"scorecard is stale: rerun ward exec evaluation-scorecard",
-			)
-		}
-		return nil
-	}
-	if err := os.WriteFile(output, raw, 0o644); err != nil {
-		return fmt.Errorf("write scorecard: %w", err)
-	}
-	return nil
-}
-
-func evaluationOutput(pack *evaluation.Pack, format string) ([]byte, error) {
-	switch format {
-	case "markdown":
-		return evaluation.Markdown(pack), nil
-	case "yaml":
-		return evaluation.MarshalYAML(pack)
-	default:
-		return nil, fmt.Errorf("evaluation --format must be markdown or yaml, got %q", format)
-	}
-}
-
-func runScorecard(_ context.Context, cmd *cli.Command) error {
-	var raw []byte
-	var err error
-	if cmd.Bool("historical") {
-		raw, err = evaluation.MarkdownHistoricalScorecard(
-			cmd.String("results"),
-			cmd.String("seat"),
-		)
-	} else {
-		raw, err = evaluation.MarkdownScorecard(
-			cmd.String("results"),
-			cmd.String("seat"),
-		)
-	}
-	if err != nil {
-		return err
-	}
-	return writeScorecard(os.Stdout, raw, cmd.String("out"), cmd.Bool("check"))
 }
 
 func runOverlay(_ context.Context, cmd *cli.Command) error {

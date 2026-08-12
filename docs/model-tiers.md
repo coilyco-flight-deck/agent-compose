@@ -37,10 +37,19 @@ appropriate tier and controls the supplied context.
 
 ## Evaluation state
 
-Evaluation packs retain all three lanes so matrix changes remain visible.
-Role-incompatible lanes are disabled. Commodity and OSS execution also stays
-disabled until independently reviewed evidence admits those lanes. AI Engineer
-remains frontier-only until a complete lower-tier evidence lane passes.
+**Deployment tier and tested tier are separate.** Everything above is a
+deployment compatibility claim, and it is unchanged. Roles are still used on
+frontier and OSS models, Content Creator's OSS Discord seat included.
+
+The behavior board tests one tier: `commodity`, currently DeepSeek. It does not
+read a role's declared tier and does not expand into lanes. Model tier does not
+change selected context, so one subject measures the composed text for every
+role, including the four declared frontier-only.
+
+What this costs, stated rather than assumed: the board produces no evidence
+about how a role behaves on a frontier or OSS model. A tier-comparison arm is a
+separate question from the release gate, and answering it would mean running
+the same board against another subject.
 
 ## See also
 
