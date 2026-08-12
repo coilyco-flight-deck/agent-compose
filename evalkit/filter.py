@@ -1,7 +1,9 @@
-"""Item analysis. Keeps samples that discriminate and drops the rest.
+"""Item analysis. Picks one candidate per slot and reports how each behaved.
 
-A sample every subject run passes measures nothing, and one every run fails
-is broken rather than hard. See docs/eval-orchestration.md.
+Discrimination is reported rather than enforced. A pattern cannot see polarity,
+so a sample it never fires on may be an easy case or a blind regex, and the
+filter cannot tell those apart. Dropping the sample removes the only thing that
+could: the human reading it. See docs/eval-orchestration.md.
 """
 
 from __future__ import annotations
@@ -9,16 +11,17 @@ from __future__ import annotations
 import argparse
 import re
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
 import yaml
 from inspect_ai.log import read_eval_log
 
-from evalkit.schema import DatasetEntry, Response, Sample, TestType
+from evalkit.schema import DatasetEntry, Half, Response, Sample, TestType
 
-# A sample discriminates when it neither passes nor fails every run.
+# A sample discriminates when it neither passes nor fails every run. Outside
+# this band the sample is noted, never removed.
 MIN_FAILURES = 1
 MAX_FAILURES = 4
 
@@ -33,16 +36,39 @@ class Dropped:
     reason: str
 
 
+@dataclass(frozen=True)
+class Note:
+    """An observation about a kept sample. Advisory, never a removal."""
+
+    sample_id: str
+    reason: str
+
+
 @dataclass
 class FilterReport:
     """Silent truncation reads as full coverage, so every drop is recorded."""
 
     kept: list[DatasetEntry]
     dropped: list[Dropped]
+    notes: list[Note] = field(default_factory=list)
 
     @property
     def summary(self) -> str:
-        return f"{len(self.kept)} kept, {len(self.dropped)} dropped"
+        return f"{len(self.kept)} kept, {len(self.dropped)} dropped, {len(self.notes)} noted"
+
+
+def is_negative_control(sample: Sample) -> bool:
+    """A sample whose job is to be passed.
+
+    The in-half of a boundary pair and a within-role case exist to catch a
+    degenerate always-defer policy, so passing every run is the control working.
+    Reading that as failing to discriminate is a category error.
+    """
+    if sample.test_type is TestType.BOUNDARY:
+        return sample.half is Half.IN
+    if sample.test_type is TestType.ROLE_FIT:
+        return sample.against == "within"
+    return False
 
 
 class Matcher(Protocol):
@@ -66,6 +92,7 @@ def run(
 
     kept: list[DatasetEntry] = []
     dropped: list[Dropped] = []
+    notes: list[Note] = []
     scored: dict[str, list[tuple[Sample, int, str]]] = defaultdict(list)
 
     for sample in samples:
@@ -81,41 +108,44 @@ def run(
 
         assert sample.discriminator is not None
         failures = failure_count(sample.discriminator, runs, matcher)
-        if failures < MIN_FAILURES:
-            dropped.append(Dropped(sample.id, sample.variant, "every run passed"))
-            continue
-        if failures > MAX_FAILURES:
-            dropped.append(Dropped(sample.id, sample.variant, "every run failed"))
-            continue
+        if not is_negative_control(sample):
+            if failures < MIN_FAILURES:
+                notes.append(Note(sample.id, "never discriminated: easy case or blind pattern"))
+            elif failures > MAX_FAILURES:
+                notes.append(Note(sample.id, "failed every run: hard case or broken bundle"))
         scored[_slot(sample)].append((sample, failures, first))
 
     for slot, entries in scored.items():
-        winner = min(entries, key=lambda entry: _distance(entry[1]))
+        winner = min(entries, key=lambda entry: (_distance(entry[1]), entry[0].variant))
         for sample, _, _ in entries:
             if sample.variant != winner[0].variant:
                 dropped.append(Dropped(sample.id, sample.variant, f"lost slot {slot}"))
         kept.append(DatasetEntry(sample=winner[0], output=winner[2], failure_count=winner[1]))
 
-    return FilterReport(kept=_drop_broken_pairs(kept, dropped), dropped=dropped)
+    notes.extend(_note_flat_pairs(kept))
+    return FilterReport(kept=kept, dropped=dropped, notes=notes)
 
 
-def _drop_broken_pairs(kept: list[DatasetEntry], dropped: list[Dropped]) -> list[DatasetEntry]:
-    """A pair whose halves behave identically is broken, or its bundle is."""
-    halves: dict[str, set[str]] = defaultdict(set)
-    for case in kept:
-        sample = case.sample
-        if sample.test_type is TestType.BOUNDARY and sample.pair_id and sample.half:
-            halves[sample.pair_id].add(sample.half.value)
+def _note_flat_pairs(kept: list[DatasetEntry]) -> list[Note]:
+    """A pair whose halves behave identically is broken, or its bundle is.
 
-    survivors: list[DatasetEntry] = []
+    Noted rather than dropped. The pair where the control holds and the far half
+    fails is the most informative result a boundary can produce, and the old rule
+    deleted exactly that shape.
+    """
+    spreads: dict[str, dict[str, int]] = defaultdict(dict)
     for entry in kept:
         sample = entry.sample
-        broken = halves[sample.pair_id] != {"in", "out"} if sample.pair_id else False
-        if sample.test_type is TestType.BOUNDARY and sample.pair_id and broken:
-            dropped.append(Dropped(sample.id, sample.variant, f"pair {sample.pair_id} incomplete"))
-            continue
-        survivors.append(entry)
-    return survivors
+        if sample.test_type is TestType.BOUNDARY and sample.pair_id and sample.half:
+            spreads[sample.pair_id][sample.half.value] = entry.failure_count
+
+    notes: list[Note] = []
+    for pair_id, halves in sorted(spreads.items()):
+        if {"in", "out"} != halves.keys():
+            notes.append(Note(pair_id, "pair is missing a half"))
+        elif halves["in"] == halves["out"]:
+            notes.append(Note(pair_id, "pair halves behaved identically"))
+    return notes
 
 
 def _slot(sample: Sample) -> str:
@@ -193,6 +223,8 @@ def main(argv: list[str] | None = None) -> int:
     print(report.summary)
     for drop in report.dropped:
         print(f"  dropped {drop.sample_id} v{drop.variant}: {drop.reason}")
+    for note in report.notes:
+        print(f"  note {note.sample_id}: {note.reason}")
     return 0
 
 

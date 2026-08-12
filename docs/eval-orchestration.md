@@ -16,7 +16,7 @@ no second record writer. Two parsers is the failure this split avoids.
 ```text
 generator         ->  samples.yaml
 inspect eval      ->  .eval log      (five epochs per sample, unscored)
-evalkit.filter    ->  dataset.yaml   (survivors, epoch 1 attached)
+evalkit.filter    ->  dataset.yaml   (one candidate per slot, epoch 1 attached)
 evalkit.annotate  ->  annotations.yaml
 evalkit.taxonomy  ->  failure modes, ranked
 ```
@@ -60,10 +60,11 @@ multiline, and every pattern is compiled at load so a bad regex fails before a
 run rather than during one.
 
 Patterns rather than prose, so item analysis is deterministic and needs no
-model in the loop. A pattern will miss failures a reader would catch, but the
-filter only decides whether a sample discriminates. The human annotation is
-the measurement, so a miss costs a slightly worse sample rather than a wrong
-label.
+model in the loop. A pattern will miss failures a reader would catch, which is
+exactly why a pattern never removes a sample. It produces a failure count, the
+filter picks one candidate per slot on it, and everything authored reaches the
+annotator. A dropped sample is not a slightly worse sample, it is an ungraded
+one. See [eval annotation](eval-annotation.md).
 
 ## Commands
 
