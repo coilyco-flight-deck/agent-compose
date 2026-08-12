@@ -1,7 +1,6 @@
 # agent-compose
 
-agent-compose (usually `acompose`) is a framework for composing roles, personalities,
-and skills into agent personas.
+`$ acompose` is an agent role and personality framework.
 
 The intended product accepts a role, a model tier, a delivery mode, and
 optional capability sources. The role activates its ordered three-personality
