@@ -1,5 +1,7 @@
 # agent-compose
 
+![agent-compose and $ acompose, an agent role and personality framework](assets/banner/agent-compose-banner.jpg)
+
 `$ acompose` is an agent role and personality framework.
 
 The intended product accepts a role, a model tier, a delivery mode, and
