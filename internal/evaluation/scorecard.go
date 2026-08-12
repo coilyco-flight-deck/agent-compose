@@ -12,9 +12,6 @@ import (
 )
 
 const (
-	frontierTier         = schema.ModelTierFrontier
-	commodityTier        = schema.ModelTierCommodity
-	ossTier              = schema.ModelTierOSS
 	roleDimension        = "role-understanding"
 	personalityDimension = "personality-expression"
 	adjacentDimension    = "adjacent-role-discrimination"
@@ -28,23 +25,21 @@ type scorecardCell struct {
 }
 
 type scorecardModel struct {
-	name     string
-	disabled bool
-	cells    map[string]*scorecardCell
+	name  string
+	cells map[string]*scorecardCell
 }
 
+// One lane. A record carries the subject tier it ran against, and an archived
+// record keeps whatever tier it was earned on. See docs/model-tiers.md.
 type scorecardResult struct {
-	role      string
-	frontier  []*scorecardModel
-	commodity []*scorecardModel
-	oss       []*scorecardModel
+	role   string
+	tier   string
+	models []*scorecardModel
 }
 
 type scorecardRow struct {
-	role      string
-	frontier  *scorecardModel
-	commodity *scorecardModel
-	oss       *scorecardModel
+	role  string
+	model *scorecardModel
 }
 
 // MarkdownScorecard validates scored result files and renders one compact page.
@@ -98,7 +93,6 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 			)
 		}
 		var packCases []Case
-		disabledTiers := make(map[string]bool)
 		if historical {
 			packCases, err = historicalScorecardCases(result)
 			if err != nil {
@@ -113,37 +107,41 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 				return nil, fmt.Errorf("validate scorecard result %q: %w", entry.Name(), err)
 			}
 			packCases = pack.Cases
-			for _, tier := range pack.DisabledModelTiers {
-				disabledTiers[tier] = true
-			}
 		}
 
-		models := map[string]map[string]*scorecardModel{
-			frontierTier:  {},
-			commodityTier: {},
-			ossTier:       {},
-		}
+		lane := make(map[string]*scorecardModel)
+		resultTier := ""
 		cases := make(map[string]Case, len(packCases))
 		for _, evalCase := range packCases {
 			cases[evalCase.ID] = evalCase
 		}
 		for _, scored := range result.Cases {
 			evalCase := cases[scored.ID]
-			tierModels, ok := models[evalCase.ModelTier]
-			if !ok {
+			if !schema.IsModelTier(evalCase.ModelTier) {
 				return nil, fmt.Errorf(
 					"scorecard result %q has unsupported model tier %q",
 					entry.Name(),
 					evalCase.ModelTier,
 				)
 			}
-			model := tierModels[scored.Model]
+			if resultTier == "" {
+				resultTier = evalCase.ModelTier
+			}
+			if evalCase.ModelTier != resultTier {
+				return nil, fmt.Errorf(
+					"scorecard result %q mixes tiers %q and %q",
+					entry.Name(),
+					resultTier,
+					evalCase.ModelTier,
+				)
+			}
+			model := lane[scored.Model]
 			if model == nil {
 				model = &scorecardModel{
 					name:  scored.Model,
 					cells: make(map[string]*scorecardCell),
 				}
-				tierModels[scored.Model] = model
+				lane[scored.Model] = model
 			}
 			cellKey := evalCase.Dimension
 			if evalCase.ScenarioKind == ScenarioAdjacentRole {
@@ -166,26 +164,10 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 			}
 		}
 
-		frontier := sortedScorecardModels(models[frontierTier])
-		commodity := sortedScorecardModels(models[commodityTier])
-		oss := sortedScorecardModels(models[ossTier])
-		if disabledTiers[frontierTier] && len(frontier) == 0 {
-			frontier = disabledScorecardModels()
-		}
-		if disabledTiers[ossTier] && len(oss) == 0 {
-			oss = disabledScorecardModels()
-		}
-		if disabledTiers[commodityTier] && len(commodity) == 0 {
-			commodity = disabledScorecardModels()
-		}
-		if historical && len(commodity) == 0 {
-			commodity = disabledScorecardModels()
-		}
 		card := scorecardResult{
-			role:      result.Role,
-			frontier:  frontier,
-			commodity: commodity,
-			oss:       oss,
+			role:   result.Role,
+			tier:   resultTier,
+			models: sortedScorecardModels(lane),
 		}
 		if err := validateScorecardResult(card); err != nil {
 			return nil, fmt.Errorf("scorecard result %q: %w", entry.Name(), err)
@@ -199,39 +181,24 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 	}
 
 	var rows []scorecardRow
-	frontierModels := make(map[string]bool)
-	commodityModels := make(map[string]bool)
-	ossModels := make(map[string]bool)
+	laneModels := make(map[string]bool)
+	tiers := make(map[string]bool)
 	for _, result := range results {
-		for _, frontier := range result.frontier {
-			frontierModels[frontier.name] = true
-			for _, commodity := range result.commodity {
-				commodityModels[commodity.name] = true
-				for _, oss := range result.oss {
-					ossModels[oss.name] = true
-					rows = append(rows, scorecardRow{
-						role: result.role, frontier: frontier,
-						commodity: commodity, oss: oss,
-					})
-				}
-			}
+		tiers[result.tier] = true
+		for _, model := range result.models {
+			laneModels[model.name] = true
+			rows = append(rows, scorecardRow{role: result.role, model: model})
 		}
 	}
 	sort.Slice(rows, func(i, j int) bool {
 		if rows[i].role != rows[j].role {
 			return rows[i].role < rows[j].role
 		}
-		if rows[i].frontier.name != rows[j].frontier.name {
-			return rows[i].frontier.name < rows[j].frontier.name
-		}
-		if rows[i].commodity.name != rows[j].commodity.name {
-			return rows[i].commodity.name < rows[j].commodity.name
-		}
-		return rows[i].oss.name < rows[j].oss.name
+		return rows[i].model.name < rows[j].model.name
 	})
 
 	dateList := sortedKeys(dates)
-	uniformModels := len(frontierModels) == 1 && len(commodityModels) == 1 && len(ossModels) == 1
+	uniformModels := len(laneModels) == 1
 	hasAdjacent := scorecardHasAdjacent(rows)
 	var out bytes.Buffer
 	out.WriteString("<!-- generated by agent-compose scorecard. Do not edit. -->\n\n")
@@ -242,14 +209,9 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 		strings.Join(dateList, ", "),
 		seat,
 	)
+	fmt.Fprintf(&out, " // %s", strings.Join(sortedKeys(tiers), ", "))
 	if uniformModels {
-		fmt.Fprintf(
-			&out,
-			" // F %s // C %s // O %s",
-			sortedKeys(frontierModels)[0],
-			sortedKeys(commodityModels)[0],
-			sortedKeys(ossModels)[0],
-		)
+		fmt.Fprintf(&out, " %s", sortedKeys(laneModels)[0])
 	}
 	fmt.Fprintf(
 		&out,
@@ -260,105 +222,39 @@ func markdownScorecard(resultsDir, seat string, historical bool) ([]byte, error)
 		maximumPoints,
 	)
 
-	if uniformModels && hasAdjacent {
-		out.WriteString("| role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |\n")
-		out.WriteString("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
-	} else if uniformModels {
-		out.WriteString("| role | FR | FP | CR | CP | OR | OP | Σ |\n")
-		out.WriteString("|---|---:|---:|---:|---:|---:|---:|---:|\n")
-	} else if hasAdjacent {
-		out.WriteString("| role | F model | C model | O model | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |\n")
-		out.WriteString("|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
-	} else {
-		out.WriteString("| role | F model | C model | O model | FR | FP | CR | CP | OR | OP | Σ |\n")
-		out.WriteString("|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|\n")
+	header := []string{"role"}
+	align := []string{"---"}
+	if !uniformModels {
+		header = append(header, "model")
+		align = append(align, "---")
 	}
+	header = append(header, "R", "P")
+	align = append(align, "---:", "---:")
+	if hasAdjacent {
+		header = append(header, "A")
+		align = append(align, "---:")
+	}
+	header = append(header, "Σ")
+	align = append(align, "---:")
+	fmt.Fprintf(&out, "| %s |\n|%s|\n", strings.Join(header, " | "), strings.Join(align, "|"))
+
 	for _, row := range rows {
-		fr := row.frontier.cells[roleDimension]
-		fp := row.frontier.cells[personalityDimension]
-		fa := row.frontier.cells[adjacentDimension]
-		cr := row.commodity.cells[roleDimension]
-		cp := row.commodity.cells[personalityDimension]
-		ca := row.commodity.cells[adjacentDimension]
-		or := row.oss.cells[roleDimension]
-		op := row.oss.cells[personalityDimension]
-		oa := row.oss.cells[adjacentDimension]
-		total, maximum := scorecardRowTotal(row)
-		if uniformModels && hasAdjacent {
-			fmt.Fprintf(
-				&out,
-				"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d/%d |\n",
-				markdownCell(row.role),
-				formatScorecardCell(fr),
-				formatScorecardCell(fp),
-				formatScorecardCell(fa),
-				formatScorecardCell(cr),
-				formatScorecardCell(cp),
-				formatScorecardCell(ca),
-				formatScorecardCell(or),
-				formatScorecardCell(op),
-				formatScorecardCell(oa),
-				total,
-				maximum,
-			)
-			continue
+		cells := []string{markdownCell(row.role)}
+		if !uniformModels {
+			cells = append(cells, markdownCell(row.model.name))
 		}
-		if uniformModels {
-			fmt.Fprintf(
-				&out,
-				"| %s | %s | %s | %s | %s | %s | %s | %d/%d |\n",
-				markdownCell(row.role),
-				formatScorecardCell(fr),
-				formatScorecardCell(fp),
-				formatScorecardCell(cr),
-				formatScorecardCell(cp),
-				formatScorecardCell(or),
-				formatScorecardCell(op),
-				total,
-				maximum,
-			)
-			continue
-		}
-		if hasAdjacent {
-			fmt.Fprintf(
-				&out,
-				"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d/%d |\n",
-				markdownCell(row.role),
-				markdownCell(row.frontier.name),
-				markdownCell(row.commodity.name),
-				markdownCell(row.oss.name),
-				formatScorecardCell(fr),
-				formatScorecardCell(fp),
-				formatScorecardCell(fa),
-				formatScorecardCell(cr),
-				formatScorecardCell(cp),
-				formatScorecardCell(ca),
-				formatScorecardCell(or),
-				formatScorecardCell(op),
-				formatScorecardCell(oa),
-				total,
-				maximum,
-			)
-			continue
-		}
-		fmt.Fprintf(
-			&out,
-			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d/%d |\n",
-			markdownCell(row.role),
-			markdownCell(row.frontier.name),
-			markdownCell(row.commodity.name),
-			markdownCell(row.oss.name),
-			formatScorecardCell(fr),
-			formatScorecardCell(fp),
-			formatScorecardCell(cr),
-			formatScorecardCell(cp),
-			formatScorecardCell(or),
-			formatScorecardCell(op),
-			total,
-			maximum,
+		cells = append(cells,
+			formatScorecardCell(row.model.cells[roleDimension]),
+			formatScorecardCell(row.model.cells[personalityDimension]),
 		)
+		if hasAdjacent {
+			cells = append(cells, formatScorecardCell(row.model.cells[adjacentDimension]))
+		}
+		total, maximum := scorecardRowTotal(row)
+		cells = append(cells, fmt.Sprintf("%d/%d", total, maximum))
+		fmt.Fprintf(&out, "| %s |\n", strings.Join(cells, " | "))
 	}
-	out.WriteString("\n`F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality")
+	out.WriteString("\n`R` role // `P` personality")
 	if hasAdjacent {
 		out.WriteString(" // `A` adjacent-role discrimination")
 	}
@@ -452,31 +348,17 @@ func sortedScorecardModels(models map[string]*scorecardModel) []*scorecardModel 
 	return out
 }
 
-func disabledScorecardModels() []*scorecardModel {
-	return []*scorecardModel{{
-		name:     "disabled",
-		disabled: true,
-		cells:    make(map[string]*scorecardCell),
-	}}
-}
-
 func validateScorecardResult(result scorecardResult) error {
-	if len(result.frontier) == 0 || len(result.commodity) == 0 || len(result.oss) == 0 {
-		return fmt.Errorf("frontier, commodity, and OSS models are required")
+	if len(result.models) == 0 {
+		return fmt.Errorf("result has no scored model")
 	}
-	for _, models := range [][]*scorecardModel{result.frontier, result.commodity, result.oss} {
-		for _, model := range models {
-			if model.disabled {
-				continue
-			}
-			for _, dimension := range []string{roleDimension, personalityDimension} {
-				if model.cells[dimension] == nil {
-					return fmt.Errorf(
-						"model %q has no %s score",
-						model.name,
-						dimension,
-					)
-				}
+	if !schema.IsModelTier(result.tier) {
+		return fmt.Errorf("result tier %q is unsupported", result.tier)
+	}
+	for _, model := range result.models {
+		for _, dimension := range []string{roleDimension, personalityDimension} {
+			if model.cells[dimension] == nil {
+				return fmt.Errorf("model %q has no %s score", model.name, dimension)
 			}
 		}
 	}
@@ -499,20 +381,7 @@ func formatScorecardCell(cell *scorecardCell) string {
 
 func allCellsUseDefaultTotal(rows []scorecardRow) bool {
 	for _, row := range rows {
-		for _, cell := range []*scorecardCell{
-			row.frontier.cells[roleDimension],
-			row.frontier.cells[personalityDimension],
-			row.frontier.cells[adjacentDimension],
-			row.commodity.cells[roleDimension],
-			row.commodity.cells[personalityDimension],
-			row.commodity.cells[adjacentDimension],
-			row.oss.cells[roleDimension],
-			row.oss.cells[personalityDimension],
-			row.oss.cells[adjacentDimension],
-		} {
-			if cell == nil {
-				continue
-			}
+		for _, cell := range row.model.cells {
 			if cell.maximum != defaultCellMaximum {
 				return false
 			}
@@ -523,9 +392,7 @@ func allCellsUseDefaultTotal(rows []scorecardRow) bool {
 
 func scorecardHasAdjacent(rows []scorecardRow) bool {
 	for _, row := range rows {
-		if row.frontier.cells[adjacentDimension] != nil ||
-			row.commodity.cells[adjacentDimension] != nil ||
-			row.oss.cells[adjacentDimension] != nil {
+		if row.model.cells[adjacentDimension] != nil {
 			return true
 		}
 	}
@@ -535,11 +402,9 @@ func scorecardHasAdjacent(rows []scorecardRow) bool {
 func scorecardRowTotal(row scorecardRow) (int, int) {
 	total := 0
 	maximum := 0
-	for _, model := range []*scorecardModel{row.frontier, row.commodity, row.oss} {
-		for _, cell := range model.cells {
-			total += cell.total
-			maximum += cell.maximum
-		}
+	for _, cell := range row.model.cells {
+		total += cell.total
+		maximum += cell.maximum
 	}
 	return total, maximum
 }

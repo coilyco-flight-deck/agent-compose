@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
+func TestBuildEmitsCoreV2SingleTierMatrix(t *testing.T) {
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
@@ -19,11 +19,11 @@ func TestBuildEmitsCoreV2ThreeTierMatrix(t *testing.T) {
 		pack.Seat.Harness != "codex" || pack.Seat.Name == "" {
 		t.Fatalf("evaluation identity = %+v", pack)
 	}
-	if len(pack.Cases) != 21 {
-		t.Fatalf("evaluation cases = %d, want 21", len(pack.Cases))
+	if len(pack.Cases) != 7 {
+		t.Fatalf("evaluation cases = %d, want 7", len(pack.Cases))
 	}
-	if !reflect.DeepEqual(pack.DisabledModelTiers, []string{commodityTier, ossTier}) {
-		t.Fatalf("disabled model tiers = %v, want [%s %s]", pack.DisabledModelTiers, commodityTier, ossTier)
+	if pack.SubjectModelTier != SubjectModelTier {
+		t.Fatalf("subject model tier = %q, want %q", pack.SubjectModelTier, SubjectModelTier)
 	}
 	if err := ValidateCorePack(pack); err != nil {
 		t.Fatal(err)
@@ -68,7 +68,7 @@ func TestBuildCorePacksValidatesEveryRoleAndAdjacentPair(t *testing.T) {
 			continue
 		}
 		bound++
-		communication := caseForScenarioKind(t, pack, frontierTier, ScenarioHumanCommunication)
+		communication := caseForScenarioKind(t, pack, SubjectModelTier, ScenarioHumanCommunication)
 		if err := validateHumanCommunicationHardFail(communication); err != nil {
 			t.Errorf("role %q communication case: %v", pack.Role, err)
 		}
@@ -88,7 +88,7 @@ func TestBuildCarriesMechanicalCommunicationRegressions(t *testing.T) {
 		}
 		found := false
 		for _, evalCase := range pack.Cases {
-			if evalCase.ModelTier != frontierTier || evalCase.Scenario != scenarioID {
+			if evalCase.ModelTier != SubjectModelTier || evalCase.Scenario != scenarioID {
 				continue
 			}
 			found = true
@@ -195,7 +195,7 @@ func TestBuildForCustomRoleReplacesCompleteMatrix(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(generic.Cases) != 6 || generic.Cases[0].ID != "frontier-role-understanding" {
+	if len(generic.Cases) != 2 || generic.Cases[0].ID != "commodity-role-understanding" {
 		t.Fatalf("role without a custom matrix did not receive generic fallback: %+v", generic.Cases)
 	}
 }
@@ -261,7 +261,7 @@ func TestBuildUsesDiscordNativeContentCreatorCases(t *testing.T) {
 			t.Errorf("Content Creator case %q omits its evidence boundary: %q", evalCase.ID, evalCase.Prompt)
 		}
 	}
-	rolePrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioMissionFit).Prompt
+	rolePrompt := caseForScenarioKind(t, pack, SubjectModelTier, ScenarioMissionFit).Prompt
 	for _, want := range []string{
 		"reusable proof",
 		"community-state record",
@@ -272,7 +272,7 @@ func TestBuildUsesDiscordNativeContentCreatorCases(t *testing.T) {
 			t.Errorf("Content Creator role prompt omitted %q: %q", want, rolePrompt)
 		}
 	}
-	personalityPrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioPersonality).Prompt
+	personalityPrompt := caseForScenarioKind(t, pack, SubjectModelTier, ScenarioPersonality).Prompt
 	for _, want := range []string{
 		"strong narrative",
 		"promising audience signal",
@@ -290,7 +290,7 @@ func TestBuildUsesDesignerPageExperienceBoundaryCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rolePrompt := caseForScenarioKind(t, pack, frontierTier, ScenarioAuthorityBoundary).Prompt
+	rolePrompt := caseForScenarioKind(t, pack, SubjectModelTier, ScenarioAuthorityBoundary).Prompt
 	for _, want := range []string{
 		"/orgs and three static organization detail routes",
 		"places ./orgs in its top navigation",
@@ -308,7 +308,7 @@ func TestBuildUsesDesignerPageExperienceBoundaryCases(t *testing.T) {
 			t.Errorf("Designer role prompt omitted %q: %q", want, rolePrompt)
 		}
 	}
-	if caseForScenarioKind(t, pack, ossTier, ScenarioAuthorityBoundary).Prompt != rolePrompt {
+	if caseForScenarioKind(t, pack, SubjectModelTier, ScenarioAuthorityBoundary).Prompt != rolePrompt {
 		t.Fatal("Designer frontier and OSS role cases exercise different boundaries")
 	}
 }
@@ -407,13 +407,18 @@ func TestYAMLAndMarkdownAreDeterministic(t *testing.T) {
 	markdown := string(Markdown(pack))
 	for _, want := range []string{
 		"# Agent-compose behavior evaluation",
-		"Disabled model tiers: `commodity`, `oss`",
-		"## Scenario matrix (21 cases)",
-		"### frontier-mission-repository-proof",
-		"### oss-personality-small-inconsistency",
+		"Subject model tier: `" + SubjectModelTier + "`",
+		"## Scenario matrix (7 cases)",
+		"### " + SubjectModelTier + "-mission-repository-proof",
+		"### " + SubjectModelTier + "-personality-small-inconsistency",
 	} {
 		if !strings.Contains(markdown, want) {
 			t.Errorf("Markdown evaluation omitted %q", want)
+		}
+	}
+	for _, retired := range []string{"frontier-", "oss-"} {
+		if strings.Contains(markdown, retired) {
+			t.Errorf("Markdown evaluation still carries the retired %q lane", retired)
 		}
 	}
 }

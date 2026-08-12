@@ -17,8 +17,9 @@ reviewer, and any retries.
 
 ## Release gating
 
-Frontier cases gate release. Commodity and OSS evidence remains visible when
-present and controls whether those lanes can be enabled.
+The `commodity` subject lane gates release. It is the only lane the board runs,
+so no second lane waits to be enabled and none merely informs. An archived
+record keeps whatever tier it was earned on and renders in historical mode.
 
 ## Unreviewed driver output
 

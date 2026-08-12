@@ -245,7 +245,7 @@ func TestValidateResultRequiresCompleteV2RetryProvenance(t *testing.T) {
 
 	result.Provenance.RetryProvenance = &RetryProvenance{
 		Attempts: []RetryAttempt{{
-			Case:    caseForScenarioKind(t, pack, ossTier, ScenarioMissionFit).ID,
+			Case:    caseForScenarioKind(t, pack, SubjectModelTier, ScenarioMissionFit).ID,
 			Attempt: 1,
 			Outcome: "transport-timeout",
 			Reason:  "The model endpoint returned no bytes before the deadline.",
@@ -371,28 +371,23 @@ func TestValidateResultAcceptsCompleteMultipleModelsPerTier(t *testing.T) {
 	}
 }
 
-func TestValidateResultAllowsDisabledTierToBeOmitted(t *testing.T) {
+// One lane means there is no lane left to omit. Every authored case owes a
+// scored case, and a short result is incomplete rather than partially disabled.
+func TestValidateResultRejectsAnIncompleteSubjectLane(t *testing.T) {
 	t.Parallel()
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
 	}
 	result := passingResult(pack)
-	kept := result.Cases[:0]
-	for _, scored := range result.Cases {
-		if !strings.HasPrefix(scored.ID, ossTier+"-") {
-			kept = append(kept, scored)
-		}
-	}
-	result.Cases = kept
 	if err := ValidateResult(result, pack); err != nil {
-		t.Fatalf("frontier-only result failed while OSS is disabled: %v", err)
+		t.Fatalf("complete subject-lane result failed validation: %v", err)
 	}
 
 	result.Cases = result.Cases[1:]
 	if err := ValidateResult(result, pack); err == nil ||
-		!strings.Contains(err.Error(), "missing frontier case") {
-		t.Fatalf("incomplete active tier error = %v", err)
+		!strings.Contains(err.Error(), "missing "+SubjectModelTier+" case") {
+		t.Fatalf("incomplete subject lane error = %v", err)
 	}
 }
 
@@ -405,16 +400,16 @@ func TestValidateResultRejectsIncompleteOrRepeatedModelCases(t *testing.T) {
 	result := passingResult(pack)
 	var candidate ScoredCase
 	for _, scored := range result.Cases {
-		if scored.ID == caseForScenarioKind(t, pack, ossTier, ScenarioMissionFit).ID {
+		if scored.ID == caseForScenarioKind(t, pack, SubjectModelTier, ScenarioMissionFit).ID {
 			candidate = scored
-			candidate.Model = "incomplete-oss-model"
+			candidate.Model = "incomplete-second-model"
 			break
 		}
 	}
 	result.Cases = append(result.Cases, candidate)
 	if err := ValidateResult(result, pack); err == nil ||
-		!strings.Contains(err.Error(), "is missing oss case") {
-		t.Fatalf("incomplete OSS model error = %v", err)
+		!strings.Contains(err.Error(), "is missing "+SubjectModelTier+" case") {
+		t.Fatalf("incomplete second model error = %v", err)
 	}
 
 	result = passingResult(pack)

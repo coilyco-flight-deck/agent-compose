@@ -1,5 +1,5 @@
 // Package evaluation renders deterministic human-review packs for role and
-// personality behavior across frontier, commodity, and OSS model tiers.
+// personality behavior against one subject model tier.
 package evaluation
 
 import (
@@ -21,9 +21,9 @@ var genericMatrixAsset []byte
 
 const Format = "agent-compose.evaluation-pack.v2"
 
-// nonFrontierEvaluationsEnabled preserves disabled commodity and OSS cases
-// until those lanes have evaluation evidence.
-const nonFrontierEvaluationsEnabled = false
+// The one tier the board runs against. A role's own model-tier declaration is a
+// deployment claim and is deliberately not consulted. See docs/model-tiers.md.
+const SubjectModelTier = schema.ModelTierCommodity
 
 const (
 	ScenarioMissionFit          = "mission-fit"
@@ -121,7 +121,7 @@ type Pack struct {
 	Personalities       []PersonalityContext `yaml:"personalities"`
 	MeldedFavoriteColor string               `yaml:"melded_favorite_color"`
 	Invariant           string               `yaml:"invariant"`
-	DisabledModelTiers  []string             `yaml:"disabled_model_tiers,omitempty"`
+	SubjectModelTier    string               `yaml:"subject_model_tier"`
 	EvaluationPolicy    EvaluationPolicy     `yaml:"evaluation_policy"`
 	RunProtocol         []string             `yaml:"run_protocol"`
 	ReviewRule          ReviewRule           `yaml:"review_rule"`
@@ -283,16 +283,11 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		Personalities:       contexts,
 		MeldedFavoriteColor: favorite,
 		Invariant:           strings.TrimSpace(string(invariant)),
+		SubjectModelTier:    SubjectModelTier,
 		EvaluationPolicy:    generic.EvaluationPolicy,
 		RunProtocol:         generic.RunProtocol,
 		ReviewRule:          generic.ReviewRule,
 		Cases:               generic.Cases,
-	}
-	for _, tier := range schema.ModelTiers() {
-		if !role.SupportsModelTier(tier) ||
-			(!nonFrontierEvaluationsEnabled && tier != schema.ModelTierFrontier) {
-			pack.DisabledModelTiers = append(pack.DisabledModelTiers, tier)
-		}
 	}
 	pack.Cases, err = casesForProfile(generic, generic, roleName)
 	if err != nil {
@@ -322,18 +317,6 @@ func build(p *person.Person, roleName, harness string) (*Pack, error) {
 		}
 	}
 	return pack, nil
-}
-
-func (pack *Pack) modelTierDisabled(tier string) bool {
-	if pack == nil {
-		return false
-	}
-	for _, disabled := range pack.DisabledModelTiers {
-		if disabled == tier {
-			return true
-		}
-	}
-	return false
 }
 
 func parseGenericMatrix(raw []byte) (profileMatrix, error) {
@@ -535,39 +518,38 @@ func casesForProfile(generic, profile profileMatrix, roleName string) ([]Case, e
 }
 
 func casesForScenarios(generic profileMatrix, scenarios []Scenario) ([]Case, error) {
-	lanes := schema.ModelTiers()
-	cases := make([]Case, 0, len(lanes)*len(scenarios))
-	for _, tier := range lanes {
-		for _, scenario := range scenarios {
-			dimension := roleDimension
-			question := generic.RoleQuestion
-			rubric := append([]Criterion(nil), generic.RoleRubric...)
-			if scenario.Kind == ScenarioPersonality {
-				dimension = personalityDimension
-				question = generic.PersonalityQuestion
-				rubric = append([]Criterion(nil), generic.PersonalityRubric...)
-			}
-			if scenario.Kind == ScenarioHumanCommunication {
-				rubric = append(rubric, humanCommunicationCriterion())
-			}
-			if scenario.Kind == ScenarioExternalValidation {
-				rubric = append(rubric, externalValidationCriterion())
-			}
-			if scenario.ReviewerQuestion != "" {
-				question = scenario.ReviewerQuestion
-			}
-			cases = append(cases, Case{
-				ID:               tier + "-" + scenario.ID,
-				ModelTier:        tier,
-				Dimension:        dimension,
-				Scenario:         scenario.ID,
-				ScenarioKind:     scenario.Kind,
-				AdjacentRole:     scenario.AdjacentRole,
-				Prompt:           scenario.Prompt,
-				ReviewerQuestion: question,
-				Rubric:           rubric,
-			})
+	cases := make([]Case, 0, len(scenarios))
+	for _, scenario := range scenarios {
+		dimension := roleDimension
+		question := generic.RoleQuestion
+		rubric := append([]Criterion(nil), generic.RoleRubric...)
+		if scenario.Kind == ScenarioPersonality {
+			dimension = personalityDimension
+			question = generic.PersonalityQuestion
+			rubric = append([]Criterion(nil), generic.PersonalityRubric...)
 		}
+		if scenario.Kind == ScenarioHumanCommunication {
+			rubric = append(rubric, humanCommunicationCriterion())
+		}
+		if scenario.Kind == ScenarioExternalValidation {
+			rubric = append(rubric, externalValidationCriterion())
+		}
+		if scenario.ReviewerQuestion != "" {
+			question = scenario.ReviewerQuestion
+		}
+		cases = append(cases, Case{
+			// The tier still prefixes the id so an archived record and a current
+			// one keep the same shape. See historicalCaseShape.
+			ID:               SubjectModelTier + "-" + scenario.ID,
+			ModelTier:        SubjectModelTier,
+			Dimension:        dimension,
+			Scenario:         scenario.ID,
+			ScenarioKind:     scenario.Kind,
+			AdjacentRole:     scenario.AdjacentRole,
+			Prompt:           scenario.Prompt,
+			ReviewerQuestion: question,
+			Rubric:           rubric,
+		})
 	}
 	return cases, nil
 }

@@ -17,16 +17,8 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	result := passingResult(pack)
 	result.Provenance.EvaluatedAt = "2026-07-30"
 	for index := range result.Cases {
-		evalCase := pack.Cases[index]
-		switch evalCase.ModelTier {
-		case frontierTier:
-			result.Cases[index].Model = "frontier-test"
-		case commodityTier:
-			result.Cases[index].Model = "commodity-test"
-		case ossTier:
-			result.Cases[index].Model = "oss-test"
-		}
-		if evalCase.ModelTier == ossTier && evalCase.Dimension == roleDimension {
+		result.Cases[index].Model = "subject-test"
+		if pack.Cases[index].Dimension == roleDimension {
 			result.Cases[index].Scores[0].Score = 0
 			result.Cases[index].Total -= 2
 			result.Cases[index].Passed = false
@@ -54,13 +46,20 @@ func TestMarkdownScorecardRendersValidatedResults(t *testing.T) {
 	}
 	for _, want := range []string{
 		"# Evaluation scorecard",
-		"F frontier-test // C commodity-test // O oss-test // 15/21 pass // 162/174 points",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | 42/42✓ | 8✓ | 8✓ | 32/42× | 8✓ | 6× | 162/174 |",
-		"`F` frontier // `C` commodity // `O` OSS // `R` role // `P` personality // `A` adjacent-role discrimination",
+		"2026-07-30 // seat codex // " + SubjectModelTier + " subject-test",
+		"| role | R | P | A | Σ |",
+		"| engineer |",
+		"`R` role // `P` personality // `A` adjacent-role discrimination",
 	} {
 		if !strings.Contains(string(first), want) {
 			t.Errorf("scorecard omitted %q:\n%s", want, first)
 		}
+	}
+	if strings.Contains(string(first), "frontier") || strings.Contains(string(first), "OSS") {
+		t.Errorf("scorecard still renders a retired lane:\n%s", first)
+	}
+	if !strings.Contains(string(first), "×") {
+		t.Errorf("scorecard lost the failing role cell:\n%s", first)
 	}
 }
 
@@ -72,48 +71,40 @@ func TestMarkdownScorecardRequiresSelectedResults(t *testing.T) {
 	}
 }
 
-func TestMarkdownScorecardMarksDisabledNonFrontierTiers(t *testing.T) {
+// A record earned on one subject cannot silently carry a case from another, or
+// the single lane would sum two different measurements.
+func TestMarkdownScorecardRejectsMixedTiers(t *testing.T) {
 	t.Parallel()
-	pack, err := Build("engineer", "codex")
-	if err != nil {
-		t.Fatal(err)
-	}
-	result := passingResult(pack)
-	result.Provenance.EvaluatedAt = "2026-08-04"
-	kept := result.Cases[:0]
-	for _, scored := range result.Cases {
-		if !strings.HasPrefix(scored.ID, frontierTier+"-") {
-			continue
-		}
-		scored.Model = "frontier-test"
-		kept = append(kept, scored)
-	}
-	result.Cases = kept
-	raw, err := MarshalResult(result, pack)
-	if err != nil {
-		t.Fatal(err)
-	}
-	root := t.TempDir()
-	if err := os.WriteFile(filepath.Join(root, "engineer-codex.yaml"), raw, 0o600); err != nil {
-		t.Fatal(err)
-	}
-
-	scorecard, err := MarkdownScorecard(root, "codex")
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, want := range []string{
-		"F frontier-test // C disabled // O disabled // 7/7 pass // 58/58 points",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | - | - | - | 58/58 |",
-	} {
-		if !strings.Contains(string(scorecard), want) {
-			t.Errorf("disabled-tier scorecard omitted %q:\n%s", want, scorecard)
-		}
+	root := historicalFixture(t, func(result *ScoredResult) {
+		_, scenario, _ := strings.Cut(result.Cases[0].ID, "-")
+		result.Cases[0].ID = "frontier-" + scenario
+	})
+	if _, err := MarkdownHistoricalScorecard(root, "codex"); err == nil ||
+		!strings.Contains(err.Error(), "mixes tiers") {
+		t.Fatalf("mixed-tier scorecard error = %v", err)
 	}
 }
 
 func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	t.Parallel()
+	root := historicalFixture(t, nil)
+	scorecard, err := MarkdownHistoricalScorecard(root, "codex")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"| role | R | P | A | Σ |",
+		"| engineer |",
+		SubjectModelTier + " fixture-model",
+	} {
+		if !strings.Contains(string(scorecard), want) {
+			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)
+		}
+	}
+}
+
+func historicalFixture(t *testing.T, mutate func(*ScoredResult)) string {
+	t.Helper()
 	pack, err := Build("engineer", "codex")
 	if err != nil {
 		t.Fatal(err)
@@ -121,14 +112,9 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	result := passingResult(pack)
 	result.Format = ResultFormatV2
 	result.Provenance.PackDigest = "sha256:historical-fixture"
-	kept := result.Cases[:0]
-	for _, scored := range result.Cases {
-		if strings.HasPrefix(scored.ID, commodityTier+"-") {
-			continue
-		}
-		kept = append(kept, scored)
+	if mutate != nil {
+		mutate(result)
 	}
-	result.Cases = kept
 	raw, err := marshalYAML(result)
 	if err != nil {
 		t.Fatal(err)
@@ -137,18 +123,5 @@ func TestMarkdownHistoricalScorecardInfersV2ScenarioShape(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "engineer-codex.yaml"), raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
-
-	scorecard, err := MarkdownHistoricalScorecard(root, "codex")
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, want := range []string{
-		"F fixture-model // C disabled // O fixture-model // 14/14 pass // 116/116 points",
-		"| role | FR | FP | FA | CR | CP | CA | OR | OP | OA | Σ |",
-		"| engineer | 42/42✓ | 8✓ | 8✓ | - | - | - | 42/42✓ | 8✓ | 8✓ | 116/116 |",
-	} {
-		if !strings.Contains(string(scorecard), want) {
-			t.Errorf("historical scorecard omitted %q:\n%s", want, scorecard)
-		}
-	}
+	return root
 }

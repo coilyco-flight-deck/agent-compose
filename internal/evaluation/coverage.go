@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 var requiredScenarioKinds = []string{
@@ -75,15 +74,19 @@ func ValidateCorePack(pack *Pack) error {
 		kind     string
 		adjacent string
 		prompt   string
-		tiers    map[string]bool
 	}
 	scenarios := make(map[string]*observedScenario)
 	for _, evalCase := range pack.Cases {
 		if evalCase.Scenario == "" || evalCase.ScenarioKind == "" {
 			return fmt.Errorf("case %q has no v2 scenario identity", evalCase.ID)
 		}
-		if !schema.IsModelTier(evalCase.ModelTier) {
-			return fmt.Errorf("case %q has unsupported tier %q", evalCase.ID, evalCase.ModelTier)
+		if evalCase.ModelTier != SubjectModelTier {
+			return fmt.Errorf(
+				"case %q runs tier %q, want the %q subject",
+				evalCase.ID,
+				evalCase.ModelTier,
+				SubjectModelTier,
+			)
 		}
 		if evalCase.ScenarioKind == ScenarioHumanCommunication {
 			if err := validateHumanCommunicationHardFail(evalCase); err != nil {
@@ -95,35 +98,19 @@ func ValidateCorePack(pack *Pack) error {
 				return fmt.Errorf("case %q: %w", evalCase.ID, err)
 			}
 		}
-		scenario := scenarios[evalCase.Scenario]
-		if scenario == nil {
-			scenario = &observedScenario{
-				kind:     evalCase.ScenarioKind,
-				adjacent: evalCase.AdjacentRole,
-				prompt:   evalCase.Prompt,
-				tiers:    make(map[string]bool),
-			}
-			scenarios[evalCase.Scenario] = scenario
+		if scenarios[evalCase.Scenario] != nil {
+			return fmt.Errorf("scenario %q is repeated", evalCase.Scenario)
 		}
-		if scenario.kind != evalCase.ScenarioKind ||
-			scenario.adjacent != evalCase.AdjacentRole ||
-			scenario.prompt != evalCase.Prompt {
-			return fmt.Errorf("scenario %q differs between model tiers", evalCase.Scenario)
+		scenarios[evalCase.Scenario] = &observedScenario{
+			kind:     evalCase.ScenarioKind,
+			adjacent: evalCase.AdjacentRole,
+			prompt:   evalCase.Prompt,
 		}
-		if scenario.tiers[evalCase.ModelTier] {
-			return fmt.Errorf("scenario %q repeats tier %q", evalCase.Scenario, evalCase.ModelTier)
-		}
-		scenario.tiers[evalCase.ModelTier] = true
 	}
 
 	kinds := make(map[string]int)
 	adjacent := make(map[string]int)
-	for id, scenario := range scenarios {
-		for _, tier := range schema.ModelTiers() {
-			if !scenario.tiers[tier] {
-				return fmt.Errorf("scenario %q does not cover model tier %q", id, tier)
-			}
-		}
+	for _, scenario := range scenarios {
 		kinds[scenario.kind]++
 		if scenario.kind == ScenarioAdjacentRole {
 			adjacent[scenario.adjacent]++

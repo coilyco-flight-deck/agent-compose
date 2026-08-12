@@ -31,11 +31,14 @@ reasoning effort, session isolation, review, and evidence requirements.
 ## Core Roster matrix
 
 Each role owns mission, personality, authority, completion, portfolio replay,
-and adjacent-role scenarios. Each expands unchanged into `frontier`,
-`commodity`, and `oss` model-tier lanes with the same complete context. Packs
-currently mark commodity and OSS in `disabled_model_tiers`, so runners skip
-those cases without deleting the matrix. A role-incompatible tier remains
-disabled even when the global lane is enabled.
+and adjacent-role scenarios. Each becomes exactly one case against the single
+`commodity` subject tier.
+
+The board does not read a role's own `model-tier` declaration. That declaration
+is a deployment compatibility claim and roles still run on frontier and OSS
+models, tested or not. Model tier does not change selected context, so one
+subject measures the composed text for every role. See
+[model-tiers.md](model-tiers.md).
 
 Every Core Roster role also owns a human-communication scenario. Non-Creator
 cases cover email, private messages, public and social posts, interviews,
@@ -51,9 +54,9 @@ Paired scenarios cover the declared Strategist, Director, Content Creator,
 Designer, Engineer, Ops, and AI Engineer boundaries. QA has no other approved
 adjacent pair.
 
-The loader rejects incomplete kinds or tiers, tier-dependent prompt drift,
-duplicates, and incorrect adjacent-role targets. External packages retain the
-generic fallback or may provide a complete custom matrix.
+The loader rejects incomplete kinds, a case off the subject tier, duplicates,
+and incorrect adjacent-role targets. External packages retain the generic
+fallback or may provide a complete custom matrix.
 
 ## Review records
 

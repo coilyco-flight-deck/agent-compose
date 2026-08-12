@@ -10,8 +10,8 @@ Inventory of what ships today.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality-libraries.md) replace the default.
 * `.agents/roles.kdl` owns [skill-provider repos](role-scoped-providers.md), skills, and [repository policy](repository-policy.md).
-* [Three model tiers](model-tiers.md) enforce the Core role matrix without
-  changing selected context.
+* [Three model tiers](model-tiers.md) declare Core role deployment
+  compatibility without changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with context budgets.
 * Atomic materialization verifies staged and reused bundles.
@@ -42,9 +42,8 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) ships Core matrices, compact review records,
-  and independently reviewed scorecards.
-  `disabled_model_tiers` pauses a lane without deleting its matrix.
+* [Evaluation](evaluation.md) ships Core matrices, compact review records, and
+  reviewed scorecards on one `commodity` subject tier.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.
   Redirects and `NO_COLOR` stay plain.

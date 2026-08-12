@@ -386,9 +386,6 @@ func ValidateResult(result *ScoredResult, pack *Pack) error {
 	}
 	for tier, expectedCases := range expectedByTier {
 		if len(observed[tier]) == 0 {
-			if pack.modelTierDisabled(tier) {
-				continue
-			}
 			return fmt.Errorf("result has no %s model", tier)
 		}
 		for model, modelCases := range observed[tier] {

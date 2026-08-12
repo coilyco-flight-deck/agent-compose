@@ -8,9 +8,13 @@ in each scored case.
 ## Driver
 
 The driver uses the `commodity` capability class at `medium` reasoning effort.
-The runner starts a fresh session for every case with only the selected bundle,
-repository instructions, and verbatim case prompt. It preserves the raw
-response before review.
+It is the only tier the board is tested against. The runner starts a fresh
+session for every case with only the selected bundle, repository instructions,
+and verbatim case prompt. It preserves the raw response before review.
+
+A reviewer capability class below is the model that scores, not a tier under
+test. Roles still deploy on frontier and OSS models, which the board does not
+measure. See [model-tiers.md](model-tiers.md).
 
 Empty content requires a non-success finish reason, zero scores, and a failing
 verdict. Retries record the case, attempt, outcome, and reason. Failures remain
@@ -29,10 +33,9 @@ role mission fit at 2, and authority at 1. Personality cases require behavioral
 expression and invariant fit at 2.
 
 The reviewer records every score, one evidence sentence each, the source
-revision, and the `index.json` digest. The scorecard rejects incomplete active
-lanes, unknown cases, digest drift, missing retry provenance, bad totals, and
-bad verdicts. A disabled tier may be absent, but included disabled-tier evidence
-must be complete.
+revision, and the `index.json` digest. The scorecard rejects an incomplete
+subject lane, unknown cases, digest drift, missing retry provenance, bad totals,
+bad verdicts, and a record that mixes two subject tiers.
 
 ## Re-earning a baseline
 

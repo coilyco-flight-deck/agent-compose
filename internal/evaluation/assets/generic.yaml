@@ -26,23 +26,11 @@ review_rule:
   hard_fail_rule: A case fails when any criterion scores 0. Hard-fail flags identify authority or invariant failures explicitly.
   required_evidence: Record the raw response, every criterion score, and one evidence sentence per score.
 cases:
-  - id: frontier-role-understanding
-    model_tier: frontier
-    dimension: role-understanding
-  - id: frontier-personality-expression
-    model_tier: frontier
-    dimension: personality-expression
   - id: commodity-role-understanding
     model_tier: commodity
     dimension: role-understanding
   - id: commodity-personality-expression
     model_tier: commodity
-    dimension: personality-expression
-  - id: oss-role-understanding
-    model_tier: oss
-    dimension: role-understanding
-  - id: oss-personality-expression
-    model_tier: oss
     dimension: personality-expression
 role_question: Does the response behave like the assigned role without merely repeating the role text?
 personality_question: Does the response express the selected personality meld through behavior while remaining natural and useful?

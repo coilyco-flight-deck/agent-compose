@@ -3,6 +3,8 @@ package evaluation
 import (
 	"strings"
 	"testing"
+
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
 
 func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
@@ -11,24 +13,11 @@ func TestValidateCorePackRejectsCoverageAndPairDrift(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, mutate := range map[string]func(*Pack){
-		"missing tier": func(candidate *Pack) {
-			var kept []Case
-			for _, evalCase := range candidate.Cases {
-				if evalCase.ModelTier == ossTier &&
-					evalCase.ScenarioKind == ScenarioMissionFit {
-					continue
-				}
-				kept = append(kept, evalCase)
-			}
-			candidate.Cases = kept
+		"case off the subject tier": func(candidate *Pack) {
+			candidate.Cases[0].ModelTier = schema.ModelTierFrontier
 		},
-		"tier prompt drift": func(candidate *Pack) {
-			for index := range candidate.Cases {
-				if candidate.Cases[index].ModelTier == ossTier {
-					candidate.Cases[index].Prompt += " drift"
-					return
-				}
-			}
+		"repeated scenario": func(candidate *Pack) {
+			candidate.Cases = append(candidate.Cases, candidate.Cases[0])
 		},
 		"missing adjacent role": func(candidate *Pack) {
 			var kept []Case
