@@ -4,15 +4,6 @@
 
 `$ acompose` is an agent role and personality framework.
 
-The intended product accepts a role, a model tier, a delivery mode, and
-optional capability sources. The role activates its ordered three-personality
-default meld.
-Agent-compose resolves the selected role skill, role methods, shared
-[role boundaries](docs/role-boundaries.md), and every bound personality
-skill from the selected person package, tells the agent every component and
-melded favorite color through a compact identity card, and emits an immutable
-context bundle.
-
 ## Ownership boundary
 
 Agent-compose owns the context boundary and its bundled public-safe Core
