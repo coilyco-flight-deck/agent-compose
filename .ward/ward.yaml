@@ -88,7 +88,7 @@ commands:
     run: uv run python -m evalkit.taxonomy
     description: Cluster annotation critiques into a ranked failure taxonomy.
   evalkit-annotate:
-    run: uv run python -m evalkit.annotate
+    run: sh scripts/eval-annotate.sh
     description: Annotate the eval dataset by hand, one keystroke per sample.
   release-build:
     run: sh scripts/release-build.sh
