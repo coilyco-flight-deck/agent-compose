@@ -100,6 +100,15 @@ renderer-verified [`docs/evaluation-scores.md`](docs/evaluation-scores.md).
 Update [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant
 capability actually ships.
 
+## Checkout residency
+
+This repo is not in Agent Compose's `repository-plan.yaml`, so it has no
+resident checkout under `~/projects/<owner>/`. That is intentional. Work it
+from a task-scoped temporary clone, and remove that clone once the work lands.
+
+A temporary root can be purged at any time, so commit and push before pausing,
+switching tasks, or ending a session. The remote is the only durable artifact.
+
 ## See also
 
 * [README.md](README.md) - human-facing product boundary and status.
