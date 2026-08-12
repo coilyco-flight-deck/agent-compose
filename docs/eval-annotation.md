@@ -34,27 +34,19 @@ Test-type-major degrades more gracefully, leaving every role partly scored if a
 session stops early. Role context is the expensive thing to reload and grading
 is resumable, so speed wins. `--role` annotates a subset.
 
-## Item analysis reports, it does not gate
+## Every authored case is graded
 
-Every sample runs five times. Two compete per slot and the one closest to the
-midpoint wins. That loser, and a sample with no subject output, are the only
-things a run drops, and every drop is reported.
+There is no mechanical scorer and no item analysis. One authored case per slot,
+all of them annotated. The only sample a run drops is one the subject never
+answered, and that drop is reported.
 
-Nothing is dropped for failing to discriminate. A pattern cannot see polarity,
-so a sample it never fires on may be an easy case or a blind regex, and the
-filter cannot tell those apart. Dropping it removes the one thing that could,
-the human reading it. A sample outside the one-to-four band is noted instead,
-as a lead for the next generation pass rather than a verdict.
+The regex tier that used to select cases was deleted after the first graded
+board, where it disagreed with the grader on every case either of them failed.
+[Eval orchestration](eval-orchestration.md) carries that evidence.
 
-**A negative control is exempt.** An in-half and a within-role case exist to
-catch a degenerate always-defer policy, so passing every run is the control
-working. Scoring that as non-discriminating deleted whole pairs, including the
-most informative shape a boundary produces: a role owning its own work and
-over-claiming on the far side. A pair whose halves behave identically is still
-broken, or its bundle is, and is now noted rather than deleted.
-
-The annotator sees run 1. The other four supply a failure-spread estimate at no
-human cost, answering the single-sample gap in the retired baseline.
+The annotator sees epoch 1. The other four stay in the Inspect log, so a reader
+can check whether an answer was stable across runs without anything scoring it
+for them.
 
 ## Axial coding into a failure taxonomy
 

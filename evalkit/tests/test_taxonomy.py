@@ -12,13 +12,11 @@ def boundary_entry(role: str, half: Half) -> DatasetEntry:
             test_type=TestType.BOUNDARY,
             prompt="p",
             target="t",
-            discriminator=[r"d"],
             boundary="suggest-human-comms",
             half=half,
             pair_id=f"{role}-shc",
         ),
         output="drafted the notice",
-        failure_count=2,
     )
 
 
@@ -33,7 +31,6 @@ def personality_entry(role: str, trait: str) -> DatasetEntry:
             trait=trait,
         ),
         output="flat",
-        failure_count=0,
     )
 
 

@@ -16,7 +16,7 @@ no second record writer. Two parsers is the failure this split avoids.
 ```text
 generator         ->  samples.yaml
 inspect eval      ->  .eval log      (five epochs per sample, unscored)
-evalkit.filter    ->  dataset.yaml   (one candidate per slot, epoch 1 attached)
+evalkit.filter    ->  dataset.yaml   (epoch 1 attached to every sample)
 evalkit.annotate  ->  annotations.yaml
 evalkit.taxonomy  ->  failure modes, ranked
 ```
@@ -31,19 +31,17 @@ Boundaries and their owners produce the pairs, adjacency produces the role-fit
 targets, and each role's meld produces the personality cases.
 
 Adding a boundary, flipping an adjacency edge, or swapping a personality moves
-the sample list on its own, so the dataset cannot drift from the roster. Adjacency
-reasons become the role-fit descriptors directly, which is the same text a
-generator needs to construct the right confusion.
+the sample list on its own, so the dataset cannot drift from the roster.
+Adjacency reasons become the role-fit descriptors directly, which is the same
+text a generator needs to construct the right confusion.
 
 ## Execution is one case per session
 
 Batching a role's cases into one request would save background machine time and
-no human time, while manufacturing the reflexive deferral the in-out pair
-exists to catch, breaking the per-case independence n=5 assumes, and adding
-order effects.
-
-Whether doctrine survives accumulated context is a real question, but it is a
-second arm rather than a cheaper version of this one.
+no human time, while manufacturing the reflexive deferral the in-out pair exists
+to catch, breaking per-case independence, and adding order effects. Whether
+doctrine survives accumulated context is a real question, but it is a second arm
+rather than a cheaper version of this one.
 
 ## Transport
 
@@ -52,19 +50,20 @@ transport that produces a measured result. `--direct` exists for incident
 isolation, marks its output, and warns, because Agent Proxy sits inside the
 transport path and a direct call is a different configuration.
 
-## Discriminators are patterns
+## There is no mechanical scorer
 
-A sample's `discriminator` is a list of regexes describing the failing
-behaviour. Any match counts as a failure, matching is case-insensitive and
-multiline, and every pattern is compiled at load so a bad regex fails before a
-run rather than during one.
+Samples carried a `discriminator`, a list of regexes for the failing behaviour,
+and item analysis used the match count to pick which samples reached the
+annotator. The first human-graded board removed it. Across nine pass-or-fail
+cases the patterns and the grader agreed on nothing that mattered: one false
+positive, two false negatives, and six agreements on cases where nothing
+happened. A follow-up probe repeated it, three detectors disagreeing with each
+other and with a reading of the same twenty responses.
 
-Patterns rather than prose, so item analysis is deterministic and needs no
-model in the loop. A pattern will miss failures a reader would catch, which is
-exactly why a pattern never removes a sample. It produces a failure count, the
-filter picks one candidate per slot on it, and everything authored reaches the
-annotator. A dropped sample is not a slightly worse sample, it is an ungraded
-one. See [eval annotation](eval-annotation.md).
+It measured something, but not what the grading measures, so it was deleted
+rather than tuned. One authored case per slot now, since the match count was
+also the only rule for choosing between candidates. Epochs stay at five, with
+the annotator seeing epoch 1 and the rest left in the log as evidence.
 
 ## Commands
 
