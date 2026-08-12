@@ -29,8 +29,13 @@ at banner size.
 
 On the 1280 form, from which the 2560 scales exactly: cell 32 with a 3 seam,
 the fold at 6 cells, lattice contour 2 cells thick, secondary contours every 6.
-Ground weight 0.12, lattice 0.8, secondary 0.34. Light rises to the right in
-four quantized steps from 0.3 to 1.0.
+Ground weight 0.10, lattice 0.50, secondary 0.22. Light rises to the right in
+four quantized steps from 0.3 to 1.0, and the pattern fades to a quarter over
+the outer 45 percent of the height at the top and bottom edges.
+
+Those last two are why the banner sits in a README rather than on it. A first
+cut ran the lattice to 0.8 and hard to every edge, which reads well on its own
+and reads as a slab dropped onto the page. A banner is judged where it lands.
 
 Four numbers there are load-bearing rather than cosmetic.
 
