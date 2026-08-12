@@ -1,13 +1,7 @@
 # agent-compose
 
-Agent-compose is the context substrate between knowledge providers and native
-or isolated agent harnesses. It selects, compiles, and installs the context an
-agent starts with while keeping executable authority outside the bundle. The
-public product is intentionally opinionated: its first-party **Core Roster**
-provides eight public-safe roles, sixteen personalities, seats, compatibility,
-and evaluation context. An independent deployment can select one complete
-external package instead, with no role or definition inheritance from that
-default.
+agent-compose (usually `acompose`) is a framework for composing roles, personalities,
+and skills into agent personas.
 
 The intended product accepts a role, a model tier, a delivery mode, and
 optional capability sources. The role activates its ordered three-personality
