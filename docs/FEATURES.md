@@ -42,8 +42,8 @@ Inventory of what ships today.
 * [Catalogues and export](catalogues-and-export.md) provide inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) ships Core matrices, compact review records, and
-  reviewed scorecards on one `commodity` subject tier.
+* [Evaluation](evaluation.md) derives the board from the roster and grades it
+  by hand, with no mechanical scorer in the loop.
 * [V2 migration](v2-migration.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.
   Redirects and `NO_COLOR` stay plain.

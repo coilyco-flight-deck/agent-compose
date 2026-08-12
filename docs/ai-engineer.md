@@ -21,5 +21,5 @@ Lower model tiers remain disabled until their complete evaluation lanes pass.
 The role may draft deterministic packs and preserve evidence gaps without
 fabricating scores, raw responses, hardware facts, or operational state.
 
-See [model tiers](model-tiers.md), [evaluation matrices](evaluation-matrices.md),
+See [model tiers](model-tiers.md), [evaluation](evaluation.md),
 and [role-scoped providers](role-scoped-providers.md).

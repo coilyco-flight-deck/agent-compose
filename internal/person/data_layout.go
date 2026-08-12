@@ -92,11 +92,6 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 		}
 		projected[path] = &fstest.MapFile{Data: body, Mode: 0o644}
 	}
-	if kind == "role" {
-		if evals, err := fs.ReadFile(source, dir+"/evals.yaml"); err == nil {
-			projected["evaluations/"+slug+".yaml"] = &fstest.MapFile{Data: evals, Mode: 0o644}
-		}
-	}
 	return nil
 }
 

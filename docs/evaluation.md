@@ -1,73 +1,48 @@
 # Behavior evaluation
 
-`agent-compose evaluation` emits deterministic, self-contained execution
-packs:
+How role and personality behavior is measured. The board is derived from the
+roster, run against one subject, and graded by a human.
 
-```text
-agent-compose evaluation --role engineer --seat codex
-agent-compose evaluation --person-source ./person --role builder --seat codex
-agent-compose evaluation --all --seat codex --format yaml --out-dir <empty-dir>
-```
+## The triple
 
-Markdown is the one-role default. YAML uses
-`agent-compose.evaluation-pack.v2`. `--all` validates every Core Roster pack,
-writes one file per role, and writes `index.json` with exact digests. Its output
-directory must be empty.
+Three parties, none holding two seats.
 
-Repository development uses `AGENT_COMPOSE_EVALUATION_OUT=<dir> ward exec evaluation-packs`; `<dir>` must be empty.
+* **Generator** - authors candidate cases. Currently an agent working with Kai.
+* **Subject** - produces responses. `evaluation/deepseek-v4-flash` through
+  Agent Proxy, at the `commodity` tier.
+* **Grader** - scores them. Kai, by hand.
 
-Agent Compose emits prompts and context, never model calls, credentials, scores,
-or authority. `--person-source` selects one complete external package. The Core
-[role boundaries](role-boundaries.md) decide which roles owe a boundary case
-without replacing this pack or reviewer contract.
-
-Execution packs are ephemeral. Their digest binds the exact role, personality,
-[boundary](role-boundaries.md), policy, and case context used by one durable review
-record. Editing a shared boundary retires every declaring role's results.
-
-The [evaluation policy](evaluation-policy.md) defines model capability,
-reasoning effort, session isolation, review, and evidence requirements.
-
-## Core Roster matrix
-
-Each role owns mission, personality, authority, completion, portfolio replay,
-and adjacent-role scenarios. Each becomes exactly one case against the single
-`commodity` subject tier.
-
-The board does not read a role's own `model-tier` declaration. That declaration
-is a deployment compatibility claim and roles still run on frontier and OSS
-models, tested or not. Model tier does not change selected context, so one
+A role's own `model-tier` declaration is a deployment compatibility claim and is
+not what the board tests. Model tier does not change selected context, so one
 subject measures the composed text for every role. See
 [model-tiers.md](model-tiers.md).
 
-Every Core Roster role also owns a human-communication scenario. Non-Creator
-cases cover email, private messages, public and social posts, interviews,
-meetings, and community conversations. They require the role to stop before
-drafting or advising and give Content Creator only a factual handoff. Additional Ops,
-Engineer, QA, and Director regressions require an authorized factual rollout
-ledger, implementation checkpoint, verdict, or decision record without
-deferring that mechanical artifact to Content Creator. Content Creator's
-matching case requires complete recommendations without claiming send,
-publication, account, moderation, or commitment authority.
+## What replaced the driver and reviewer
 
-Paired scenarios cover the declared Strategist, Director, Content Creator,
-Designer, Engineer, Ops, and AI Engineer boundaries. QA has no other approved
-adjacent pair.
+An earlier system drove cases with one model and scored them with another, then
+recorded rubric totals against a digest-bound pack. It was retired for three
+reasons recorded in `agent-compose#262`: the release-gating lane could not fail,
+the lane judged itself because producer and reviewer shared a model, and no
+measured agreement with a human grader existed.
 
-The loader rejects incomplete kinds, a case off the subject tier, duplicates,
-and incorrect adjacent-role targets. External packages retain the generic
-fallback or may provide a complete custom matrix.
+A regex tier survived into the replacement and was deleted too, after the first
+human-graded board showed it disagreeing with the grader on every case where
+either of them deviated from a pass. There is now no mechanical scorer anywhere
+in the loop.
 
-## Review records
+Retired records are preserved rather than deleted. `evaluations/retired-*`
+holds the last baseline earned under the old contract, and
+`evaluations/pilot/` holds graded pilot boards and probes.
 
-[Review records](evaluation-records.md) own the compact v3 format, its
-provenance requirements, release gating, and unreviewed driver output.
+## Running it
+
+`evalkit` owns the pipeline and [eval orchestration](eval-orchestration.md)
+describes it. [Eval annotation](eval-annotation.md) covers labels, ordering, and
+what reaches the grader.
 
 ## See also
 
-* [role-briefings.md](role-briefings.md) - role operating charters.
-* [person-packages.md](person-packages.md) - independent evaluation context.
-* [evaluation-matrices.md](evaluation-matrices.md) - profile-owned matrices.
-* [evaluation-policy.md](evaluation-policy.md) - driver and reviewer contract.
-* [evaluation-driver.md](evaluation-driver.md) - executable driver and reviewer.
-* [evaluation-scorecard.md](evaluation-scorecard.md) - validated aggregate view.
+* [eval-orchestration.md](eval-orchestration.md) - the pipeline and its seam.
+* [eval-annotation.md](eval-annotation.md) - scoring tiers and ordering.
+* [eval-references.md](eval-references.md) - where the method comes from.
+* [role-adjacency.md](role-adjacency.md) - the axis role-fit cases read.

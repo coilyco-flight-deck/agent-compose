@@ -11,7 +11,6 @@ import (
 	"slices"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -433,13 +432,6 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 			ID:     selected.Source + ":skill:" + selected.ID,
 			Digest: fmt.Sprintf("sha256:%x", digest),
 		})
-	}
-	evaluationAssets, err := evaluation.EffectiveAssetDigests(res.Person, roleName)
-	if err != nil {
-		return nil, err
-	}
-	for _, asset := range evaluationAssets {
-		content = append(content, ContentDigest{ID: asset.ID, Digest: asset.Digest})
 	}
 	slices.SortFunc(content, func(left, right ContentDigest) int {
 		return strings.Compare(left.ID, right.ID)

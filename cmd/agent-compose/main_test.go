@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -15,7 +14,6 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/evaluation"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativelaunch"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/overlay"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/palette"
@@ -25,24 +23,6 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
-
-func TestEvaluationOutputUsesYAML(t *testing.T) {
-	t.Parallel()
-	pack, err := evaluation.Build("engineer", "codex")
-	if err != nil {
-		t.Fatal(err)
-	}
-	raw, err := evaluationOutput(pack, "yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.HasPrefix(string(raw), "format: agent-compose.evaluation-pack.v2\n") {
-		t.Fatalf("evaluation output is not YAML:\n%s", raw)
-	}
-	if _, err := evaluationOutput(pack, "json"); err == nil {
-		t.Fatal("legacy JSON evaluation output remains accepted")
-	}
-}
 
 func TestConfigValidateRejectsRemovedRoleProviderKeys(t *testing.T) {
 	valid := filepath.Join(t.TempDir(), "agent-compose.yaml")
@@ -71,78 +51,6 @@ func TestConfigValidateRejectsRemovedRoleProviderKeys(t *testing.T) {
 	}
 }
 
-func TestWriteEvaluationPacksEmitsCompleteDigestIndex(t *testing.T) {
-	t.Parallel()
-	packs, err := evaluation.BuildCorePacks("codex")
-	if err != nil {
-		t.Fatal(err)
-	}
-	output := t.TempDir()
-	if err := writeEvaluationPacks(packs, "yaml", output); err != nil {
-		t.Fatal(err)
-	}
-	entries, err := os.ReadDir(output)
-	if err != nil {
-		t.Fatal(err)
-	}
-	profile, err := person.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(entries) != len(profile.RoleOrder)+1 {
-		t.Fatalf("evaluation output entries = %d, want loader role count plus index %d", len(entries), len(profile.RoleOrder)+1)
-	}
-	index, err := os.ReadFile(filepath.Join(output, "index.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, want := range []string{
-		`"format": "agent-compose.evaluation-index.v1"`,
-		`"role": "engineer"`,
-		`"role": "creator"`,
-		`"pack_digest": "sha256:`,
-	} {
-		if !strings.Contains(string(index), want) {
-			t.Errorf("evaluation index omitted %q:\n%s", want, index)
-		}
-	}
-	if err := writeEvaluationPacks(packs, "yaml", output); err == nil ||
-		!strings.Contains(err.Error(), "must be empty") {
-		t.Fatalf("non-empty output directory error = %v", err)
-	}
-}
-
-func TestWriteScorecardSupportsOutputAndFreshnessCheck(t *testing.T) {
-	t.Parallel()
-	raw := []byte("# scorecard\n")
-	var stdout bytes.Buffer
-	if err := writeScorecard(&stdout, raw, "", false); err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(stdout.Bytes(), raw) {
-		t.Fatalf("scorecard stdout = %q", stdout.Bytes())
-	}
-
-	output := filepath.Join(t.TempDir(), "SCORECARD.md")
-	if err := writeScorecard(&stdout, raw, output, false); err != nil {
-		t.Fatal(err)
-	}
-	if err := writeScorecard(&stdout, raw, output, true); err != nil {
-		t.Fatalf("fresh scorecard failed check: %v", err)
-	}
-	if err := os.WriteFile(output, []byte("stale\n"), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := writeScorecard(&stdout, raw, output, true); err == nil ||
-		!strings.Contains(err.Error(), "stale") {
-		t.Fatalf("stale scorecard error = %v", err)
-	}
-	if err := writeScorecard(&stdout, raw, "", true); err == nil ||
-		!strings.Contains(err.Error(), "requires --out") {
-		t.Fatalf("missing output check error = %v", err)
-	}
-}
-
 func TestExternalPersonProfileExampleExercisesEveryPersonSurface(t *testing.T) {
 	profile := filepath.Join("..", "..", "examples", "person-profile")
 	library := filepath.Join("..", "..", "examples", "shared-personality-library")
@@ -167,10 +75,6 @@ func TestExternalPersonProfileExampleExercisesEveryPersonSurface(t *testing.T) {
 	}
 	if _, err := describe.Bundle(result.Bundle.Dir, describe.Options{}); err != nil {
 		t.Fatal(err)
-	}
-	pack, err := evaluation.BuildFor(p, "bulk-captioner", "chatbot-sonnet-low")
-	if err != nil || len(pack.Cases) != 1 {
-		t.Fatalf("example evaluation failed: cases=%v err=%v", pack, err)
 	}
 	projected, err := overlay.Build(p, "bulk-captioner", "chatbot-sonnet-low", "available")
 	if err != nil || projected.Seat.Pronouns != "they" {
