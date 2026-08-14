@@ -2,7 +2,7 @@
 
 ![agent-compose and $ acompose, an agent role and personality framework](assets/banner/agent-compose-banner.jpg)
 
-`$ acompose` is an agent role and personality framework.
+`$ acompose` creates eval driven agent role and personas 
 
 ## Ownership boundary
 
