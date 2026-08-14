@@ -1,6 +1,6 @@
 # agent-compose
 
-![agent-compose and $ acompose, an agent role and personality framework](assets/banner/agent-compose-banner.jpg)
+![agent-compose and $ acompose, eval driven agent roles and personas](assets/banner/agent-compose-banner.jpg)
 
 `$ acompose` creates eval driven agent role and personas 
 
