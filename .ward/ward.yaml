@@ -94,5 +94,3 @@ commands:
     run: sh scripts/release-impact-test.sh
     description: Exercise documentation, result, product, hold, and manual release fixtures.
 
-agent:
-  workflow: merge-remote-main
