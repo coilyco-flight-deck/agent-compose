@@ -90,8 +90,70 @@ func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
 	}
 }
 
+// A caller may name the seat it composes. See docs/person-contract.md for why
+// that is identity rather than a role redefinition.
+func TestParseRequestAcceptsASeatIdentityOverride(t *testing.T) {
+	path := writeRequest(t, `compose {
+    role "ops"
+    identity name="Echo" pronouns="it"
+    delivery "native-skills"
+}`)
+	req, err := ParseRequest(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req.Identity == nil {
+		t.Fatal("identity override was dropped")
+	}
+	if req.Identity.Name != "Echo" || req.Identity.Pronouns != "it" {
+		t.Fatalf("identity = %+v", req.Identity)
+	}
+}
+
+// Absent stays absent, or every existing bundle silently gains an override
+// nobody wrote.
+func TestParseRequestLeavesIdentityUnsetWhenUnnamed(t *testing.T) {
+	path := writeRequest(t, `compose {
+    role "ops"
+    delivery "native-skills"
+}`)
+	req, err := ParseRequest(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req.Identity != nil {
+		t.Fatalf("identity = %+v, want nil", req.Identity)
+	}
+}
+
 func TestParseRequestFailsClosed(t *testing.T) {
 	cases := map[string]string{
+		"identity without pronouns": `compose {
+    role "engineer"
+    delivery "native-skills"
+    identity name="Echo"
+}`,
+		"identity without name": `compose {
+    role "engineer"
+    delivery "native-skills"
+    identity pronouns="it"
+}`,
+		"identity with a blank name": `compose {
+    role "engineer"
+    delivery "native-skills"
+    identity name="   " pronouns="it"
+}`,
+		"identity taking an argument": `compose {
+    role "engineer"
+    delivery "native-skills"
+    identity "Echo" pronouns="it"
+}`,
+		"duplicate identity": `compose {
+    role "engineer"
+    delivery "native-skills"
+    identity name="Echo" pronouns="it"
+    identity name="Olaf" pronouns="he"
+}`,
 		"unknown node": `compose {
     role "engineer"
     delivery "native-skills"

@@ -25,11 +25,11 @@ fallback. Omitting both selects `roster:core`, unless the host guard supplies it
 
 The role activates its personality set, ordinary skills, and composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
 `model-tier` is `frontier`, `commodity`, or `oss`, defaults to `frontier`, and must be supported by the role.
-Model tier never changes selected context. Every supported tier receives the
-complete role, personality, ordinary-skill, and composed-skill selection.
+Model tier never changes selected context: every supported tier receives the complete role, personality, ordinary-skill, and composed-skill selection.
 
 Legacy `density "full"` is ignored and other densities fail. Sources run in
-request order. `root` and `declaration` only locate files.
+request order, and `root` and `declaration` only locate files. Optional
+`identity` renames the composed seat, in [seat identity](seat-identity.md).
 
 ## Capability sources
 

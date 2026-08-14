@@ -8,6 +8,28 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
+// OverrideRoleIdentity renames a role's seat and changes nothing else about the
+// role. Seats move with it, and why is docs/seat-identity.md.
+func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
+	name = strings.TrimSpace(name)
+	pronouns = strings.TrimSpace(pronouns)
+	if name == "" || pronouns == "" {
+		return fmt.Errorf("override role identity: %q needs both a name and pronouns", roleName)
+	}
+	role, ok := p.Roles[roleName]
+	if !ok {
+		return fmt.Errorf("override role identity: role %q is not defined", roleName)
+	}
+	role.Identity = &AgentIdentity{Name: name, Pronouns: pronouns}
+	for index := range role.Seats {
+		role.Seats[index].Name = name
+		role.Seats[index].Pronouns = pronouns
+	}
+	// Roles is a map of structs, so the local copy has to be stored back.
+	p.Roles[roleName] = role
+	return nil
+}
+
 // RenderRoleIdentityCard keeps identity texture visible while long-form role
 // and personality doctrine remains lazy-loaded from ordinary skills.
 func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, error) {

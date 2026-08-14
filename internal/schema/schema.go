@@ -43,8 +43,16 @@ type Request struct {
 	Role                 string
 	Delivery             string
 	ModelTier            string
+	Identity             *IdentityOverride
 	Sources              []SourceLocator
 	Repositories         []RepositorySelection
+}
+
+// IdentityOverride renames the seat a request composes. It says who is
+// speaking, never what the role is. See docs/person-contract.md.
+type IdentityOverride struct {
+	Name     string
+	Pronouns string
 }
 
 // IsModelTier reports whether value belongs to the complete stable model-tier
@@ -267,6 +275,28 @@ func ParseRequest(path string) (*Request, error) {
 					path,
 					legacyDensityFull,
 				)
+			}
+		case "identity":
+			// Deliberately the same shape as a role's own identity node in a
+			// person package, so one grammar covers both. See person.go.
+			if seen[n.Name()] {
+				return nil, fmt.Errorf("request %s: duplicate identity node", path)
+			}
+			seen[n.Name()] = true
+			if len(n.Arguments()) != 0 {
+				return nil, fmt.Errorf("request %s: identity takes name and pronouns properties", path)
+			}
+			identityName := n.Prop("name")
+			pronouns := n.Prop("pronouns")
+			if !identityName.IsValid() || strings.TrimSpace(identityName.String()) == "" {
+				return nil, fmt.Errorf("request %s: identity needs a name property", path)
+			}
+			if !pronouns.IsValid() || strings.TrimSpace(pronouns.String()) == "" {
+				return nil, fmt.Errorf("request %s: identity needs a pronouns property", path)
+			}
+			req.Identity = &IdentityOverride{
+				Name:     strings.TrimSpace(identityName.String()),
+				Pronouns: strings.TrimSpace(pronouns.String()),
 			}
 		case "source":
 			id, err := oneStringArg(n)

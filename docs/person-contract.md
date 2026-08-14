@@ -75,6 +75,6 @@ activates its role skill, methods, and ordered personality set. See
 [role-skill delivery](role-briefings.md).
 
 A private overlay may add scoped instructions or selection rules. It may not
-redefine selected roles, personalities, seats, definitions, or role
-personality sets. An external person package replaces the embedded default as
-one unit. AOS owns no copy of either package or its personality definitions.
+redefine selected roles, personalities, definitions, or role personality sets.
+Naming the seat is the one exception: [seat identity](seat-identity.md).
+An external package replaces the embedded default as one unit, and AOS owns no copy of either package.

@@ -439,6 +439,58 @@ func TestRepeatedRunsReuseWithoutRewriting(t *testing.T) {
 	}
 }
 
+// The override has to reach the rendered card, the seats, and the bundle key.
+// Parsing it and dropping it downstream is the failure worth a test.
+func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
+	dir := t.TempDir()
+	request := filepath.Join(dir, "request.kdl")
+	if err := os.WriteFile(request, []byte(`compose {
+    role "ops"
+    identity name="Echo" pronouns="it"
+    delivery "native-skills"
+}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	renamed, err := Run(request, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	instructions, err := os.ReadFile(
+		filepath.Join(renamed.Bundle.Dir, "content", "instructions.md"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(instructions), "**Agent // Echo (it)**") {
+		t.Fatalf("identity card kept the role's own seat:\n%s", instructions)
+	}
+	// The shipped seat name must be gone rather than merely joined.
+	if strings.Contains(string(instructions), "Olaf") {
+		t.Fatal("identity card carries both the override and the role's seat")
+	}
+	// Seats back the statusline, overlay, and manifest, so they move together.
+	for _, seat := range readManifest(t, renamed.Bundle.Dir).Identity.Seats {
+		if seat.Name != "Echo" || seat.Pronouns != "it" {
+			t.Fatalf("manifest seat %q = %s (%s)", seat.Key, seat.Name, seat.Pronouns)
+		}
+	}
+
+	baseline := filepath.Join(dir, "baseline.kdl")
+	if err := os.WriteFile(baseline, []byte(`compose {
+    role "ops"
+    delivery "native-skills"
+}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plain, err := Run(baseline, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plain.Bundle.Key == renamed.Bundle.Key {
+		t.Fatal("a renamed seat must not reuse the unrenamed bundle")
+	}
+}
+
 func TestDifferentDeliveriesGetDifferentBundles(t *testing.T) {
 	out := t.TempDir()
 	a, err := Run(fixture(t, "native.kdl"), out)

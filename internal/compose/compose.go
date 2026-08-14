@@ -170,6 +170,13 @@ func materialize(
 	externalOnly bool,
 	operatingBase string,
 ) (*Result, error) {
+	// Applied here because both entry points funnel through materialize, and
+	// everything downstream reads the identity off the person.
+	if req.Identity != nil {
+		if err := p.OverrideRoleIdentity(req.Role, req.Identity.Name, req.Identity.Pronouns); err != nil {
+			return nil, wrapPolicyError(err, externalOnly)
+		}
+	}
 	res, err := resolver.Resolve(req, p, sources, missing)
 	if err != nil {
 		return nil, wrapPolicyError(err, externalOnly)
