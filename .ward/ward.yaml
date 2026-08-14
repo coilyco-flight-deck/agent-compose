@@ -93,4 +93,3 @@ commands:
   release-impact-test:
     run: sh scripts/release-impact-test.sh
     description: Exercise documentation, result, product, hold, and manual release fixtures.
-
