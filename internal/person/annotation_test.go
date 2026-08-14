@@ -29,6 +29,30 @@ func TestSeatAnnotation(t *testing.T) {
 	}
 }
 
+// Appended, never interleaved: every documented form stays a prefix of the
+// annotated one, so a surface with no id renders exactly what it did before.
+func TestWithShortID(t *testing.T) {
+	for name, test := range map[string]struct {
+		display string
+		shortID string
+		want    string
+	}{
+		"annotated":     {"Angie [she] (Engineer)", "uz86", "Angie [she] (Engineer) uz86"},
+		"label only":    {"Angie [she]", "uz86", "Angie [she] uz86"},
+		"role fallback": {"engineer", "uz86", "engineer uz86"},
+		"no id":         {"Angie [she]", "", "Angie [she]"},
+		"no display":    {"", "uz86", ""},
+		"neither":       {"", "", ""},
+		"padded input":  {" Angie [she] ", " uz86 ", "Angie [she] uz86"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if got := WithShortID(test.display, test.shortID); got != test.want {
+				t.Errorf("WithShortID = %q, want %q", got, test.want)
+			}
+		})
+	}
+}
+
 func TestSeatLabelStopsShortOfTheRole(t *testing.T) {
 	if got := SeatLabel("Angie", "she"); got != "Angie [she]" {
 		t.Errorf("SeatLabel = %q, want Angie [she]", got)

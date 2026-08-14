@@ -29,6 +29,17 @@ func SeatLabel(name, pronouns string) string {
 	return name
 }
 
+// WithShortID appends the session's dictatable short id: `Angie [she]` becomes
+// `Angie [she] uz86`. Ephemeral surfaces only. See docs/seat-identity.md.
+func WithShortID(display, shortID string) string {
+	display = strings.TrimSpace(display)
+	shortID = strings.TrimSpace(shortID)
+	if display == "" || shortID == "" {
+		return display
+	}
+	return display + " " + shortID
+}
+
 // SubjectPronoun narrows an authored pronoun value to the subject form, since a
 // package writes either the bare subject or the pair.
 func SubjectPronoun(pronouns string) string {

@@ -34,6 +34,13 @@ shape. `role.Personalities` also drives the melded favorite color, the nativeui
 theme tokens, and a validator requiring exactly three personalities on a core
 role. Filtering a meld is several seams; a name is one.
 
+## The dictatable short id
+
+Terminal surfaces append the running session's short id to the rendered name
+(`Angie [she] (Engineer) uz86`), so a human can name one agent out loud among
+several. Read from `AOS_NATIVE_SESSION`, never minted. See
+[the dictatable short id](short-id.md).
+
 ## The invariant this sits beside
 
 [The person contract](person-contract.md) says an overlay may not redefine

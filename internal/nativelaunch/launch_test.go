@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/describe"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -283,6 +284,7 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 // The seat name and the settings fragment are the two surfaces a Claude session
 // receives as launch arguments, so Refresh resolves both without host mutation.
 func TestRefreshEmitsClaudeLaunchIdentity(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "")
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)
@@ -329,6 +331,7 @@ func TestRefreshEmitsClaudeLaunchIdentity(t *testing.T) {
 // Only Claude Code reads a settings fragment as a launch argument. Every other
 // harness still resolves a seat name, since that is identity, not a file.
 func TestRefreshWithholdsSettingsFromOtherHarnesses(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "")
 	projects := filepath.Join(t.TempDir(), "projects")
 	provider := filepath.Join(projects, "example", "provider")
 	writeProvider(t, provider, true)

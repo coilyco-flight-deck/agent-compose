@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -226,19 +227,28 @@ func seatName(composed *compose.Result, harness, role string) string {
 		return role
 	}
 	displayName := p.RoleDisplayName(role)
+	// Becomes the harness `--name` flag, which is ephemeral per launch rather
+	// than a bundle artifact a later session reads. See docs/seat-identity.md.
+	shortID := agentid.FromEnv()
 	for _, seat := range selected.Seats {
 		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {
-			return person.SeatAnnotation(seat.Name, seat.Pronouns, displayName)
+			return person.WithShortID(
+				person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
+				shortID,
+			)
 		}
 	}
 	if selected.Identity != nil && selected.Identity.Name != "" {
-		return person.SeatAnnotation(
-			selected.Identity.Name,
-			selected.Identity.Pronouns,
-			displayName,
+		return person.WithShortID(
+			person.SeatAnnotation(
+				selected.Identity.Name,
+				selected.Identity.Pronouns,
+				displayName,
+			),
+			shortID,
 		)
 	}
-	return role
+	return person.WithShortID(role, shortID)
 }
 
 func validateHarness(harness string) error {

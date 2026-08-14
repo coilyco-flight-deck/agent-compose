@@ -51,7 +51,8 @@ Inventory of what ships today.
 ## Identity surfaces
 
 * [Identity renderers](statusline.md) cover the palette, overlays, an
-  `acompose statusline` health row, and `--subagent` agent-panel rows.
+  `acompose statusline` row, `--subagent` rows, and the session
+  [short id](short-id.md): `Angie [she] uz86`.
 * [`native-ui`](claude-native-ui-surfaces.md) emits per-role Claude Code themes.
 
 ## Roster artifact and cascade

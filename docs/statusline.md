@@ -7,11 +7,11 @@ self-suppresses when no projection applies.
 The ordinary row carries the composition facts worth keeping visible:
 
 ```text
-🧭 🪨 📐 ⛏️  opal engineer [she] // engineer@codex // frontier // 99 skills / ~96k catalog // ✓ composed
+🧭 🪨 📐 ⛏️  opal engineer [she] uz86 // engineer@codex // frontier // 99 skills / ~96k catalog // ✓ composed
 ```
 
-* Personality emblems and the named seat, with its subject pronoun, come from
-  the selected immutable bundle. The `--name` annotation adds the role label.
+* Emblems and the named seat with its subject pronoun come from the bundle;
+  `uz86` is the session [short id](short-id.md). `--name` adds the role label.
 * `role@harness` names the actual projection choice instead of inferring role
   from the current task.
 * Model tier records the role compatibility boundary Agent Compose evaluated.

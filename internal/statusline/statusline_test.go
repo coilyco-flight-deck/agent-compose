@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
@@ -13,6 +14,7 @@ import (
 )
 
 func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "")
 	target := t.TempDir()
 	bundleDir := t.TempDir()
 	writeJSON(t, filepath.Join(target, ".agent-compose", "projection.json"), project.Projection{
@@ -56,6 +58,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 }
 
 func TestRenderSurfacesOnlyWarningClassifiedSkippedSources(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "")
 	target := t.TempDir()
 	bundleDir := t.TempDir()
 	writeJSON(t, filepath.Join(target, ".agent-compose", "projection.json"), project.Projection{
@@ -84,6 +87,7 @@ func TestRenderSurfacesOnlyWarningClassifiedSkippedSources(t *testing.T) {
 }
 
 func TestRenderSuppressesWhenNoProjectionExists(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "")
 	got, err := Render(Options{Target: t.TempDir()})
 	if err != nil {
 		t.Fatal(err)

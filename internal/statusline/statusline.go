@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -51,7 +52,7 @@ func render(
 	if modelTier == "" {
 		modelTier = schema.ModelTierFrontier
 	}
-	seatName := seatDisplayName(manifest, projection.Layout)
+	seatName := sessionSeatDisplayName(manifest, projection.Layout)
 
 	marks := personalityMarks(manifest, opts)
 	if marks == "" {
@@ -93,6 +94,12 @@ func seatDisplayName(manifest *bundle.Manifest, layout string) string {
 		return person.SeatLabel(seat.Name, seat.Pronouns)
 	}
 	return manifest.Role
+}
+
+// sessionSeatDisplayName adds the short id, which the subagent rows omit: it
+// names the session, so every row would repeat it. See docs/statusline.md.
+func sessionSeatDisplayName(manifest *bundle.Manifest, layout string) string {
+	return person.WithShortID(seatDisplayName(manifest, layout), agentid.FromEnv())
 }
 
 func selectedSeat(seats []person.Seat, layout string) person.Seat {
