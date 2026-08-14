@@ -4,7 +4,7 @@ Inventory of what ships today.
 
 ## Composition engine
 
-* `agent-compose compose` turns a KDL request into an immutable offline bundle.
+* `agent-compose compose` turns a KDL request into an immutable bundle.
 * `roster:core` has 8 roles, 16 personalities, balanced triads, and stable
   identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
@@ -50,9 +50,9 @@ Inventory of what ships today.
 
 ## Identity surfaces
 
-* [Identity renderers](statusline.md) cover the palette, overlays, an
-  `acompose statusline` row, `--subagent` rows, and the session
-  [short id](short-id.md): `Angie [she] uz86`.
+* [Identity renderers](statusline.md) cover the palette, overlays, the
+  `acompose statusline` row, `--subagent` rows, and the
+  [short id](short-id.md). [`whoami`](whoami.md) prints it.
 * [`native-ui`](claude-native-ui-surfaces.md) emits per-role Claude Code themes.
 
 ## Roster artifact and cascade

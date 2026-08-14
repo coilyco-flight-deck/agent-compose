@@ -148,6 +148,19 @@ func main() {
 				Action: runStatusline,
 			},
 			{
+				Name:      "whoami",
+				Usage:     "print what this session calls itself, for a SessionStart hook",
+				ArgsUsage: "",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "target",
+						Value: ".",
+						Usage: "file or directory used to find the nearest projection",
+					},
+				},
+				Action: runWhoami,
+			},
+			{
 				Name:            "launch",
 				Usage:           "launch one native harness with a caller-assigned role bundle",
 				ArgsUsage:       "<role> <harness> [harness arguments...]",
@@ -786,6 +799,19 @@ func runStatusline(_ context.Context, cmd *cli.Command) error {
 	}
 	if rendered != "" {
 		fmt.Fprintln(cmd.Root().Writer, rendered)
+	}
+	return nil
+}
+
+// runWhoami prints the composed name and nothing else, so a shell hook can use
+// it without parsing. Silence means no projection. See docs/whoami.md.
+func runWhoami(_ context.Context, cmd *cli.Command) error {
+	name, err := statusline.Whoami(statusline.Options{Target: cmd.String("target")})
+	if err != nil {
+		return err
+	}
+	if name != "" {
+		fmt.Fprintln(cmd.Root().Writer, name)
 	}
 	return nil
 }
