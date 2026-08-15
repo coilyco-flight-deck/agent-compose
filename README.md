@@ -2,7 +2,7 @@
 
 ![agent-compose and $ acompose, eval driven agent roles and personas](assets/banner/agent-compose-banner.jpg)
 
-`$ acompose` creates eval driven agent role and personas 
+`$ acompose` creates eval driven agent roles and personas.
 
 ## Ownership boundary
 
