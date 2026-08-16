@@ -9,7 +9,7 @@ Authority, safety, and completion remain outside personality.
 From the repository root:
 
 ```sh
-ward exec palette-serve
+just palette-serve
 ```
 
 Ward generates `web/personality-palette/public/palette.json` from the embedded
@@ -19,11 +19,11 @@ uncommitted.
 
 The remaining lifecycle verbs are:
 
-* `ward exec palette-build` - type-check and build the production assets.
-* `ward exec palette-test` - build and verify the generated artifact.
-* `ward exec palette-tidy` - reconcile `package-lock.json`.
+* `just palette-build` - type-check and build the production assets.
+* `just palette-test` - build and verify the generated artifact.
+* `just palette-tidy` - reconcile `package-lock.json`.
 
-`ward exec test` includes the palette test, so every release validates the
+`just test` includes the palette test, so every release validates the
 committed explorer.
 
 ## Data ownership

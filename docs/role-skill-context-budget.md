@@ -15,7 +15,7 @@ the deliberately simple `ceil(bytes / 4)` heuristic.
   reduction. The role and personality bodies remain present as selected
   skills, and compiled delivery still embeds them.
 
-`ward exec test` runs `scripts/context-budget.sh` and reports the current
+`just test` runs `scripts/context-budget.sh` and reports the current
 measurements. The released baseline is retained here because rerunning a newer
 binary cannot reconstruct an older renderer.
 

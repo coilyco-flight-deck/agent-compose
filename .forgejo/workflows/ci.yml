@@ -2,7 +2,7 @@
 # the main push, in the same job that tags and publishes, so a bad merge was
 # only discoverable after it landed and took the release pipeline with it.
 #
-# Runs the same `ward exec test` the release job runs, so a pull request gets
+# Runs the same `just test` the release job runs, so a pull request gets
 # exactly the check that is going to gate it after merge rather than a lighter
 # approximation that can disagree.
 #
@@ -12,7 +12,7 @@
 # This cancels superseded runs and release.yml deliberately does not: a
 # superseded pull request has nothing left to prove, a release does.
 #
-# The cache is here because `ward exec test` ends with `pre-commit run
+# The cache is here because `just test` ends with `pre-commit run
 # --all-files`, so hook environments dominate a cold run.
 
 name: ci
@@ -45,4 +45,4 @@ jobs:
             pre-commit-${{ runner.os }}-
 
       - name: Validate the pull request
-        run: ward exec test
+        run: just test

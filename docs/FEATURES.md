@@ -13,7 +13,7 @@ Inventory of what ships today.
 * [Three model tiers](model-tiers.md) declare Core role deployment
   compatibility without changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
-* Resolver traces provider and content outcomes with context budgets.
+* Resolver traces provider and content outcomes with budgets.
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   400 words, [role boundaries](role-boundaries.md) under a separate one.
@@ -38,7 +38,7 @@ Inventory of what ships today.
 * `agent-compose describe` renders a collapsible decision tree. `--why`
   follows one item from consideration to outcome.
 * `agent-compose diff` reports semantic changes. `verify` checks entry points,
-  delivery, trace integrity, and selected identities.
+  delivery, traces, and selected identities.
 * [Catalogues and export](catalogues-and-export.md) provide inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
@@ -68,11 +68,12 @@ Inventory of what ships today.
   Ward smoke proves idempotence.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
 * [Release](release.md) publishes unreleased product deltas, including
-  roll-forward recovery, under a version hold.
+  roll-forward recovery, under a hold.
 
 ## See also
 
 * [../README.md](../README.md) - product boundary and current status.
 * [../AGENTS.md](../AGENTS.md) - repo-specific operating rules.
-* [../.ward/ward.yaml](../.ward/ward.yaml) - allowlisted development commands.
-* [Catalog trifecta](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared structure.
+* [../justfile](../justfile) - development recipes.
+* [../.ward/ward.yaml](../.ward/ward.yaml) - catalog metadata.
+* [Catalog trifecta](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md).
