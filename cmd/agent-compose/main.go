@@ -1058,9 +1058,8 @@ func printVerification(w io.Writer, verification *bundle.Verification) {
 		len(verification.Identities), verification.Files)
 }
 
-// roleAttributionEnv carries the composed role to the git attribution shim.
-// Empty role yields nothing, so an unattributed launch stays unattributed
-// rather than stamping a wrong one.
+// roleAttributionEnv attributes the composed role. Empty yields nothing,
+// because a wrong role is worse than none.
 func roleAttributionEnv(role string) []string {
 	if strings.TrimSpace(role) == "" {
 		return nil
