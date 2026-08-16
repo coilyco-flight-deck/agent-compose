@@ -44,6 +44,7 @@ testpaths = ["evalkit/tests"]
 python_classes = []
 
 [tool.agentic-os.documentation-layout]
+band = "large"
 # Contract fixtures model bundle trees. Embedded definitions are product
 # assets validated by the person loader, not repository documentation.
 # .evalkit is the gitignored run cache. The hook walks the filesystem instead
