@@ -57,9 +57,9 @@ and refusing on it would block an export that is safe.
 ## Commands
 
 ```
-ward exec evalkit-export -- <run-dir>
-ward exec evalkit-export -- <run-dir> --format yaml --out run.yaml
-ward exec evalkit-export -- <run-dir> --include-private
+just evalkit-export <run-dir>
+just evalkit-export <run-dir> --format yaml --out run.yaml
+just evalkit-export <run-dir> --include-private
 ```
 
 ## Related

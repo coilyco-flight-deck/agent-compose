@@ -50,7 +50,7 @@ jobs:
             pre-commit-${{ runner.os }}-
 
       - name: Validate the release commit
-        run: ward exec test
+        run: just test
 
       - id: impact
         name: Classify product release impact

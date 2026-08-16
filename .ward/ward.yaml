@@ -1,98 +1,15 @@
-# Catalog schema: coilyco-flight-deck/agentic-os.
+# Catalog metadata for the cross-repo knowledge graph.
+#
+# Dev verbs used to live here as a `commands:` block. They are recipes in the
+# repo-root justfile now, per coilysiren/inbox#366. This file survives only
+# because check_catalog_block pins this exact path and catalog-trifecta wants
+# README, AGENTS, and FEATURES to link it, both upstream in agentic-os. See
+# agentic-os#1081.
+#
+# `ward` stays in dependsOn: this repo still names it as a catalog dependency
+# even though it no longer runs a verb through it.
 catalog:
   description: "agent-compose - personality-engine context composition and delivery."
   dependsOn:
     - forgejo.coilysiren.me/coilyco-flight-deck/agentic-os
     - forgejo.coilysiren.me/coilyco-flight-deck/ward
-
-commands:
-  smoke:
-    run: sh scripts/smoke.sh
-    description: Build acompose and report isolated host convergence stages.
-  smoke-verbose:
-    run: sh scripts/smoke.sh --verbose
-    description: Run the smoke with captured acompose convergence transcripts.
-  test:
-    run: sh scripts/test.sh
-    description: Run Go and palette tests, then the pre-commit suite.
-  build:
-    run: go build ./...
-    description: Compile every package.
-  lint:
-    run: go vet ./...
-    description: Run Go static analysis.
-  fmt:
-    run: gofmt -w .
-    description: Format Go source files.
-  install:
-    run: go install ./cmd/agent-compose
-    description: Install the agent-compose binary into GOBIN.
-  tidy:
-    run: go mod tidy
-    description: Reconcile go.mod and go.sum with the source imports.
-  pre-commit:
-    run: pre-commit run --all-files
-    description: Run the complete pre-commit suite explicitly.
-  harness-refresh:
-    run: go test ./internal/nativeui -run TestVendoredHarnessData -update -v
-    description: Re-extract the vendored Claude Code verb and theme-token lists from the installed binary.
-  palette-build:
-    run: sh scripts/palette-web.sh build
-    description: Generate canonical palette data and build the local explorer.
-  palette-test:
-    run: sh scripts/palette-web.sh test
-    description: Type-check, build, and verify the local palette explorer.
-  palette-serve:
-    run: sh scripts/palette-web.sh dev
-    description: Generate canonical palette data and serve the local explorer.
-  palette-tidy:
-    run: npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund
-    description: Reconcile the local explorer package lock with package.json.
-  evalkit-matrix:
-    run: sh scripts/eval-matrix.sh
-    description: Print the capability by test-type matrix the current roster implies.
-  evalkit-prompts:
-    run: sh scripts/eval-prompts.sh
-    description: Compose one bundle per role and write its delivery as the eval system prompt.
-  evalkit-smoke:
-    run: sh scripts/eval-smoke.sh
-    description: Send one live request through Agent Proxy to prove the eval transport works.
-  evalkit-check:
-    run: sh scripts/evalkit-check.sh
-    description: Lint, format-check, type-check, and test the evalkit Python package.
-  evalkit-sync:
-    run: uv sync
-    description: Reconcile the evalkit virtualenv with pyproject.toml.
-  evalkit-run:
-    run: sh scripts/eval-run.sh
-    description: Run the board through Inspect against Agent Proxy, unscored, five epochs.
-  evalkit-view:
-    run: uv run inspect view --log-dir .evalkit/logs
-    description: Open the Inspect log viewer on the most recent board run.
-  evalkit-export:
-    run: uv run python -m evalkit.export
-    description: Project a committed run into a display payload. One way, and refuses anything unsafe for a public surface.
-  evalkit-filter:
-    run: uv run python -m evalkit.filter
-    description: Read an Inspect eval log and build the dataset the annotator grades.
-  evalkit-taxonomy:
-    run: uv run python -m evalkit.taxonomy
-    description: Cluster annotation critiques into a ranked failure taxonomy.
-  evalkit-annotate:
-    run: sh scripts/eval-annotate.sh
-    description: Annotate the eval dataset by hand, one keystroke per sample.
-  release-build:
-    run: sh scripts/release-build.sh
-    description: Cross-compile version-stamped release binaries into dist/.
-  release-package:
-    run: sh scripts/render-packaging.sh
-    description: Render the brew formula and scoop manifest from dist/ binaries.
-  release-package-test:
-    run: sh scripts/render-packaging-test.sh
-    description: Render v2 fixture package metadata and inspect its public contract.
-  release-impact:
-    run: sh scripts/release-impact.sh
-    description: Decide whether one validated revision should publish a product release.
-  release-impact-test:
-    run: sh scripts/release-impact-test.sh
-    description: Exercise documentation, result, product, hold, and manual release fixtures.

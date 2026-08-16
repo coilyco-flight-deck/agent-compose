@@ -47,20 +47,20 @@ package layout land together so the code never precedes its public boundary.
 
 ## Commands
 
-Route development through Ward using [`.ward/ward.yaml`](.ward/ward.yaml). The
+Route development through just using the [justfile](justfile). The
 current command surface is:
 
-* `ward exec smoke` / `smoke-verbose` - test isolated host convergence.
-* `ward exec test` - run all repository validation (Go tests plus hooks).
-* `ward exec build` / `fmt` / `lint` / `install` / `tidy` - Go engine verbs.
-* `ward exec pre-commit` - explicit spelling of the hook sweep alone.
+* `just smoke` / `smoke-verbose` - test isolated host convergence.
+* `just test` - run all repository validation (Go tests plus hooks).
+* `just build` / `fmt` / `lint` / `install` / `tidy` - Go engine verbs.
+* `just pre-commit` - explicit spelling of the hook sweep alone.
 
 Do not invoke a language tool that has no verb here. Add new build, test,
-lint, and install verbs to `.ward/ward.yaml` before using them.
+lint, and install verbs to the justfile before using them.
 
 ## Validation
 
-Run `ward exec test` before every commit. The agentic-os hook catalog enforces
+Run `just test` before every commit. The agentic-os hook catalog enforces
 the documentation trifecta, flat docs, cross-links, public-safe prose, comment
 discipline, and secret scanning. Add focused engine tests with each executable
 slice once implementation begins.
@@ -117,5 +117,6 @@ switching tasks, or ending a session. The remote is the only durable artifact.
 
 * [README.md](README.md) - human-facing product boundary and status.
 * [docs/FEATURES.md](docs/FEATURES.md) - current shipped inventory.
-* [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
+* [justfile](justfile) - development recipes.
+* [`.ward/ward.yaml`](.ward/ward.yaml) - catalog metadata only.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

@@ -106,21 +106,21 @@ bare for host convergence, `acompose -- <command>` for refresh-then-exec.
 Release binaries (darwin-arm64, linux-amd64/arm64, windows-amd64) also attach
 to tagged
 [Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
-directly. From source, `ward exec install` builds into GOBIN.
+directly. From source, `just install` builds into GOBIN.
 `agent-compose version` reports the build you are running.
 Every push to canonical `main` validates and publishes the next minor release.
 
 ## Development
 
-Development commands are declared in [`.ward/ward.yaml`](.ward/ward.yaml).
-`ward exec test` runs the Go and palette tests plus the full pre-commit sweep.
-`ward exec smoke` builds the real `acompose` entry point and converges an
+Development commands are recipes in the [justfile](justfile).
+`just test` runs the Go and palette tests plus the full pre-commit sweep.
+`just smoke` builds the real `acompose` entry point and converges an
 isolated temporary home twice, covering roster, cascade, skills, load points,
 and idempotence without touching live host state or the network. It reports each
-stage. `ward exec smoke-verbose` also prints both captured convergence transcripts.
+stage. `just smoke-verbose` also prints both captured convergence transcripts.
 `build`, `lint`, `install`, and `tidy` cover the remaining Go verbs.
 
-`ward exec palette-serve` generates browser data from the embedded person
+`just palette-serve` generates browser data from the embedded person
 source and starts the local explorer. `palette-build`, `palette-test`, and
 `palette-tidy` cover its remaining development lifecycle. See
 [the personality palette walkthrough](docs/personality-palette.md).
@@ -140,5 +140,6 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
 * [docs/evaluation.md](docs/evaluation.md) - the generator, subject, grader triple.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
-* [`.ward/ward.yaml`](.ward/ward.yaml) - allowlisted development commands.
+* [justfile](justfile) - development recipes.
+* [`.ward/ward.yaml`](.ward/ward.yaml) - catalog metadata only.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared catalog structure.

@@ -24,7 +24,7 @@ no longer knows, because a renamed token leaves every base at once.
 ## Refreshing
 
 ```sh
-ward exec harness-refresh
+just harness-refresh
 ```
 
 That runs the extraction against the Claude Code binary on `PATH` and rewrites

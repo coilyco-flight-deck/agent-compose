@@ -43,4 +43,4 @@ version.
 * [../README.md](../README.md) - installation and product status.
 * [FEATURES.md](FEATURES.md) - shipped capability inventory.
 * [evaluation.md](evaluation.md) - behavioral release gates.
-* [../.ward/ward.yaml](../.ward/ward.yaml) - local release verbs.
+* [../justfile](../justfile) - local release recipes.

@@ -60,7 +60,7 @@ that test instead of quietly blanking a role's identity on a user's terminal.
 
 Drift is detected by content, not by version. The test re-extracts both vendored
 lists from the installed binary on every run and skips when Claude Code is
-absent, so an upgrade that changes neither list stays quiet. `ward exec
+absent, so an upgrade that changes neither list stays quiet. `just
 harness-refresh` rewrites them. The method and its limits live in
 [harness vendoring](harness-vendoring.md).
 

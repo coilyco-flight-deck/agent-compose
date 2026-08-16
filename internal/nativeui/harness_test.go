@@ -208,7 +208,7 @@ func compareVendored(t *testing.T, name, label string, extracted []string) {
 	added, removed := difference(extracted, vendored), difference(vendored, extracted)
 	t.Errorf(
 		"vendored %s list is stale: %d added %v, %d removed %v. "+
-			"Refresh with `ward exec harness-refresh` and review what changed.",
+			"Refresh with `just harness-refresh` and review what changed.",
 		label, len(added), added, len(removed), removed,
 	)
 }
