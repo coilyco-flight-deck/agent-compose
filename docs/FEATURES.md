@@ -69,6 +69,9 @@ Inventory of what ships today.
 * [Local skill catalogues](local-skill-catalogues.md) consume AOS roots.
 * [Release](release.md) publishes unreleased product deltas, including
   roll-forward recovery, under a version hold.
+* Pull requests run `ward exec test`, the same validation the release job
+  runs on a main push, so a merge cannot be the first thing that reports a
+  failure.
 
 ## See also
 
