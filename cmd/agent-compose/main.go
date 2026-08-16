@@ -771,7 +771,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
-	return execReal(nativeHarnessCommand(harness, args[2:], nativeIdentity{
+	return execRealWithRole(role, nativeHarnessCommand(harness, args[2:], nativeIdentity{
 		SeatName:     result.SeatName,
 		Settings:     result.HarnessSettings,
 		Introduction: result.Introduction,
@@ -1058,6 +1058,21 @@ func printVerification(w io.Writer, verification *bundle.Verification) {
 		len(verification.Identities), verification.Files)
 }
 
+// roleAttributionEnv carries the composed role to the git attribution shim.
+// Empty role yields nothing, so an unattributed launch stays unattributed
+// rather than stamping a wrong one.
+func roleAttributionEnv(role string) []string {
+	if strings.TrimSpace(role) == "" {
+		return nil
+	}
+	return []string{launch.AttributionRoleEnv + "=" + role}
+}
+
+// execRealWithRole execs the target with the role attributed, if there is one.
+func execRealWithRole(role string, argv []string) error {
+	return execReal(argv, roleAttributionEnv(role)...)
+}
+
 // refreshThenExec is the absorbed launch verb: refresh context, then hand
 // the process to the real command, sentinel-guarded against recursion.
 func refreshThenExec(cmd *cli.Command, requestPath string, command []string) error {
@@ -1101,6 +1116,14 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 	if err != nil {
 		return err
 	}
+	// A fallback launch reuses a projection this run did not compose, so the
+	// role it would name is not known to be this session's.
+	composedRole := ""
+	if !result.Fallback && result.BundleDir != "" {
+		if manifest, err := bundle.ReadManifest(result.BundleDir); err == nil {
+			composedRole = manifest.Role
+		}
+	}
 	if result.Fallback {
 		fmt.Fprintf(os.Stderr, "agent-compose: WARNING: refresh failed (%s); launching with the last-known-good projection\n", result.Warning)
 	} else {
@@ -1112,7 +1135,7 @@ func refreshThenExec(cmd *cli.Command, requestPath string, command []string) err
 		fmt.Fprintf(os.Stderr, "agent-compose: context refreshed (%s bundle, %d files) for %s\n",
 			state, result.Projected, cmd.String("target"))
 	}
-	return execReal(command)
+	return execRealWithRole(composedRole, command)
 }
 
 func printCompositionWarnings(w io.Writer, warnings []string) {

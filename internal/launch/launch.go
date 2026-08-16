@@ -14,6 +14,11 @@ import (
 // sees it and skips refresh instead of recursing.
 const EnvSentinel = "AGENT_COMPOSE_LAUNCH"
 
+// AttributionRoleEnv carries the composed role to the git attribution shim,
+// which stamps it as an Agent-Role trailer. Per-session because the host
+// projection is global. See coilysiren/inbox#362.
+const AttributionRoleEnv = "AGENT_GIT_ATTRIBUTION_ROLE"
+
 type Options struct {
 	RequestPath  string
 	Layout       string
