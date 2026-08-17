@@ -373,11 +373,12 @@ func resolveRoots(
 		}
 		sourceIDs[id] = true
 		roots = append(roots, compose.RootSource{
-			ID:     id,
-			Root:   root,
-			Reason: repo.selection.Reason,
-			Scope:  providerScope(repo.selection.Scope),
-			Skills: append([]string(nil), repo.selection.Skills...),
+			ID:            id,
+			Root:          root,
+			Reason:        repo.selection.Reason,
+			Scope:         providerScope(repo.selection.Scope),
+			Skills:        append([]string(nil), repo.selection.Skills...),
+			BindingSkills: append([]string(nil), repo.selection.BindingSkills...),
 		})
 	}
 	if len(roots) == 0 {

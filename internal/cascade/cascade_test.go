@@ -748,3 +748,82 @@ func TestResolveSkillLoadPointsHonorsOverrideAndOptOut(t *testing.T) {
 		t.Fatalf("a null skill load point must opt claude out entirely: %v", points)
 	}
 }
+
+func TestRoleBindingSelectorReachesTheRepositoryPlan(t *testing.T) {
+	e := newEnv(t)
+	aosk := filepath.Join(e.projects, "example", "aosk")
+	lore := filepath.Join(e.projects, "example", "lore")
+	for root, skills := range map[string][]string{
+		aosk: {"repo-aosk"},
+		lore: {"lore-rule-voice", "lore-self-bio", "lore-third-party-nda"},
+	} {
+		for _, skill := range skills {
+			dir := filepath.Join(root, ".agents", "skills", skill)
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# "+skill+"\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	source := filepath.Join(aosk, "AGENTS.COMPOSE.md")
+	if err := os.WriteFile(source, []byte("# AOSK\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(aosk, ".agents", "roles.kdl"), []byte(`repositories {
+    repository lore path="example/lore" {
+        skill "lore-*"
+    }
+}
+roles {
+    role engineer {
+        use-repository lore
+    }
+    role creator {
+        use-repository lore {
+            skill "lore-self-*"
+        }
+    }
+}
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ensureGitRepository(t, aosk)
+
+	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
+	if code, out, errOut := e.run(t, false); code != 0 {
+		t.Fatalf("run failed: %s %s", out, errOut)
+	}
+	manifest, err := repositoryplan.Load(filepath.Join(filepath.Dir(e.paths.Composed), "repository-plan.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	find := func(role string) repositoryplan.Selection {
+		t.Helper()
+		for _, selection := range manifest.Roles[role] {
+			if selection.Name == "lore" {
+				return selection
+			}
+		}
+		t.Fatalf("role %q has no lore selection: %+v", role, manifest.Roles[role])
+		return repositoryplan.Selection{}
+	}
+
+	creator := find("creator")
+	if !slices.Equal(creator.BindingSkills, []string{"lore-self-*"}) {
+		t.Fatalf("creator binding selector = %+v", creator)
+	}
+	if !slices.Equal(creator.Skills, []string{"lore-*"}) {
+		t.Fatalf("creator must keep the definition selector intact: %+v", creator)
+	}
+	if engineer := find("engineer"); engineer.BindingSkills != nil {
+		t.Fatalf("engineer must carry no binding selector: %+v", engineer)
+	}
+	for _, selection := range manifest.Residency {
+		if selection.BindingSkills != nil {
+			t.Fatalf("role-union residency must not carry one role's narrowing: %+v", selection)
+		}
+	}
+}

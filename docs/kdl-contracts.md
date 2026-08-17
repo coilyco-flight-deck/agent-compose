@@ -44,13 +44,26 @@ roles {
         use-repository hardware
         composed-skill "coding-*"
     }
+    role "creator" {
+        use-repository hardware {
+            skill "machine-laptop-*"
+        }
+    }
 }
 ```
 
 Repository IDs are document-local, paths use `owner/repository`, and `skill`
 marks a selected repository as an ordinary-skill provider with a bounded
 catalogue, failing closed when its checkout or `.agents/skills` catalogue is
-unavailable. Only trusted roots widen eligibility, imported graphs do not
+unavailable. A `use-repository` or `use-provider` binding may carry its own
+`skill` children, which narrow that one role's reach within what the definition
+already admits. The binding runs as a second pass over the definition's
+selection, so it can only subtract. A binding pattern reaching past the
+definition matches nothing and fails, exactly like any other unmatched pattern.
+Overlap and empty-selector rules apply to the binding's own patterns, and
+omitting the children leaves the role receiving whatever the definition admits.
+Two roles mounting one definition therefore no longer have to receive the same
+set, which is what lets a repository hold material one role must not reach. Only trusted roots widen eligibility, imported graphs do not
 recurse, and [role selection](role-selection.md) covers resolution and
 provenance. Each `composed-skill` admits `.agents/composed/<name>/COMPOSED.md`
 by exact name or glob, globs expand lexically, and invalid or overlapping

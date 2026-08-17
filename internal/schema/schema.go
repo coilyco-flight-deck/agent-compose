@@ -102,9 +102,11 @@ type ProviderDefinition struct {
 }
 
 // ProviderUse binds one document-local skill-provider repository to a role.
+// Skills narrows within the definition's selector for this role alone.
 type ProviderUse struct {
 	Provider string
 	Required bool
+	Skills   []string
 }
 
 // RepositoryDefinition names one logical repository policy target. Optional
@@ -116,8 +118,10 @@ type RepositoryDefinition struct {
 }
 
 // RepositoryUse is one reference to a document-local repository definition.
+// Skills narrows within the definition's selector for this role alone.
 type RepositoryUse struct {
 	Repository string
+	Skills     []string
 }
 
 // RepositorySelection carries one immutable repository identity and its
@@ -150,9 +154,16 @@ type Source struct {
 	SelectorReason   string
 }
 
-// SelectOrdinarySkills applies a role-provider selector after LoadSource has
-// validated the provider's complete ordinary and composed catalogues.
-func SelectOrdinarySkills(source *Source, patterns []string) error {
+// SelectOrdinarySkills applies a definition's selector, then a role binding's
+// over the result so it narrows only. See docs/kdl-contracts.md.
+func SelectOrdinarySkills(source *Source, definition, binding []string) error {
+	if err := applySkillSelector(source, definition); err != nil {
+		return err
+	}
+	return applySkillSelector(source, binding)
+}
+
+func applySkillSelector(source *Source, patterns []string) error {
 	if patterns == nil {
 		return nil
 	}
@@ -173,12 +184,18 @@ func SelectOrdinarySkills(source *Source, patterns []string) error {
 	for _, id := range excluded {
 		source.ExcludedSkills = append(source.ExcludedSkills, refs[id])
 	}
-	source.SelectorReason = fmt.Sprintf(
+	reason := fmt.Sprintf(
 		"ordinary skill selector %s admitted %d of %d catalogue skills",
 		strings.Join(patterns, ", "),
 		len(selected),
 		len(ids),
 	)
+	// A binding selector runs as a second pass, so both narrowings stay legible
+	// in the trace rather than the last one overwriting the first.
+	if source.SelectorReason != "" {
+		reason = source.SelectorReason + " // " + reason
+	}
+	source.SelectorReason = reason
 	return nil
 }
 
@@ -829,10 +846,16 @@ func parseRoleGraph(path string, composed map[string]string) (
 					}
 					required = value.Bool()
 				}
-				if len(child.Children().Nodes) > 0 {
-					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q provider %q: use-provider accepts no children", role, providerID)
+				bindingSkills, err := parseSkillSelectorChildren(
+					fmt.Sprintf("provider role %q provider %q", role, providerID),
+					child.Children().Nodes,
+				)
+				if err != nil {
+					return nil, nil, nil, nil, nil, nil, nil, nil, err
 				}
-				uses[role] = append(uses[role], ProviderUse{Provider: providerID, Required: required})
+				uses[role] = append(uses[role], ProviderUse{
+					Provider: providerID, Required: required, Skills: bindingSkills,
+				})
 			case "use-repository":
 				repositoryID, err := oneStringArg(child)
 				if err != nil {
@@ -845,8 +868,15 @@ func parseRoleGraph(path string, composed map[string]string) (
 				if seenRepositories[repositoryID] {
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q repeats repository %q", role, repositoryID)
 				}
-				if len(child.Properties()) > 0 || len(child.Children().Nodes) > 0 {
+				if len(child.Properties()) > 0 {
 					return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q repository %q: use-repository accepts only one argument", role, repositoryID)
+				}
+				bindingSkills, err := parseSkillSelectorChildren(
+					fmt.Sprintf("provider role %q repository %q", role, repositoryID),
+					child.Children().Nodes,
+				)
+				if err != nil {
+					return nil, nil, nil, nil, nil, nil, nil, nil, err
 				}
 				seenRepositories[repositoryID] = true
 				if definition.Skills != nil {
@@ -854,9 +884,13 @@ func parseRoleGraph(path string, composed map[string]string) (
 						return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q repeats provider %q", role, repositoryID)
 					}
 					seenProviders[repositoryID] = true
-					uses[role] = append(uses[role], ProviderUse{Provider: repositoryID, Required: true})
+					uses[role] = append(uses[role], ProviderUse{
+						Provider: repositoryID, Required: true, Skills: bindingSkills,
+					})
 				} else {
-					roleRepos[role] = append(roleRepos[role], RepositoryUse{Repository: repositoryID})
+					roleRepos[role] = append(roleRepos[role], RepositoryUse{
+						Repository: repositoryID, Skills: bindingSkills,
+					})
 				}
 			default:
 				return nil, nil, nil, nil, nil, nil, nil, nil, fmt.Errorf("provider role %q: unknown node %q", role, child.Name())
