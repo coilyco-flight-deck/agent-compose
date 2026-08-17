@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-aos-eval = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git", tag = "aos-eval-v0.1.1", subdirectory = "aos-eval" }
+aos-eval = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git", tag = "aos-eval-v0.2.0", subdirectory = "aos-eval" }
 
 [dependency-groups]
 dev = [
