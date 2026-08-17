@@ -3,13 +3,17 @@ name = "evalkit"
 version = "0.1.0"
 description = "Eval orchestration and human grading for the agent-compose behavior board."
 requires-python = ">=3.12"
+# The grading half lives in aos-eval, shared with sirens-echo. What stays a
+# direct dependency here is the runner: Inspect and its model transport.
 dependencies = [
+    "aos-eval>=0.1.1",
     "inspect-ai>=0.3.255",
     "openai>=2.53.0",
-    "pydantic>=2.13.4",
     "pyyaml>=6.0",
-    "rich>=13.7",
 ]
+
+[tool.uv.sources]
+aos-eval = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git", tag = "aos-eval-v0.1.1", subdirectory = "aos-eval" }
 
 [dependency-groups]
 dev = [
@@ -40,8 +44,6 @@ files = ["evalkit"]
 
 [tool.pytest.ini_options]
 testpaths = ["evalkit/tests"]
-# TestType is CheckList vocabulary, not a test class.
-python_classes = []
 
 [tool.agentic-os.documentation-layout]
 band = "large"

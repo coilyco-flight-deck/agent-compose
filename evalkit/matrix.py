@@ -13,8 +13,11 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from aos_eval.schema import AGENT_COMPOSE, Half
 
-from evalkit.schema import BOUNDARY_ORDER, Half, TestType
+# The taxonomy is the profile's, not this module's. Unpacking by arity means
+# a fourth test type fails loudly here rather than being silently unranked.
+BOUNDARY, ROLE_FIT, PERSONALITY = (spec.name for spec in AGENT_COMPOSE.test_types)
 
 
 @dataclass(frozen=True)
@@ -23,7 +26,7 @@ class Slot:
 
     id: str
     role: str
-    test_type: TestType
+    test_type: str
     descriptor: str
     boundary: str | None = None
     half: Half | None = None
@@ -35,7 +38,7 @@ class Slot:
         payload: dict[str, Any] = {
             "id": self.id,
             "role": self.role,
-            "test_type": self.test_type.value,
+            "test_type": self.test_type,
         }
         for key in ("boundary", "pair_id", "target", "trait"):
             value = getattr(self, key)
@@ -53,7 +56,7 @@ def abbreviate(slug: str) -> str:
 
 def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
     slots: list[Slot] = []
-    order = [name for name in BOUNDARY_ORDER if name in roster.get("boundaries", {})]
+    order = [name for name in AGENT_COMPOSE.boundary_order if name in roster.get("boundaries", {})]
     order += [name for name in roster.get("boundary_order", []) if name not in order]
 
     for boundary in order:
@@ -75,7 +78,7 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
                     Slot(
                         id=f"{role}-{short}-{half.value}",
                         role=role,
-                        test_type=TestType.BOUNDARY,
+                        test_type=BOUNDARY,
                         boundary=boundary,
                         half=half,
                         pair_id=f"{role}-{short}",
@@ -107,7 +110,7 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
             Slot(
                 id=f"{role}-fit-within",
                 role=role,
-                test_type=TestType.ROLE_FIT,
+                test_type=ROLE_FIT,
                 target="within",
                 descriptor=f"{role} correctly identifies work it should own",
             )
@@ -117,7 +120,7 @@ def role_fit_slots(roster: dict[str, Any]) -> list[Slot]:
                 Slot(
                     id=f"{role}-fit-{adjacent['role']}",
                     role=role,
-                    test_type=TestType.ROLE_FIT,
+                    test_type=ROLE_FIT,
                     target=str(adjacent["role"]),
                     descriptor=str(adjacent["reason"]),
                 )
@@ -136,7 +139,7 @@ def personality_slots(roster: dict[str, Any]) -> list[Slot]:
                 Slot(
                     id=f"{role}-per-{trait}",
                     role=role,
-                    test_type=TestType.PERSONALITY,
+                    test_type=PERSONALITY,
                     trait=trait,
                     descriptor=f"{trait}, composed alongside {peers}" if peers else trait,
                 )
@@ -149,8 +152,7 @@ def derive(roster: dict[str, Any], group: str = "tier") -> list[Slot]:
     if group != "role":
         return slots
     order = list(roster["role_order"])
-    types = [test_type.value for test_type in TestType]
-    return sorted(slots, key=lambda s: (order.index(s.role), types.index(s.test_type.value)))
+    return sorted(slots, key=lambda s: (order.index(s.role), AGENT_COMPOSE.rank(s.test_type)))
 
 
 def render(slots: list[Slot]) -> str:
@@ -161,7 +163,7 @@ def render(slots: list[Slot]) -> str:
     tiers: dict[str, int] = {}
     per_role: dict[str, int] = {}
     for slot in slots:
-        tiers[slot.test_type.value] = tiers.get(slot.test_type.value, 0) + 1
+        tiers[slot.test_type] = tiers.get(slot.test_type, 0) + 1
         per_role[slot.role] = per_role.get(slot.role, 0) + 1
 
     lines.append("")

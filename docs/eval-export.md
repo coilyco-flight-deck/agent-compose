@@ -1,6 +1,6 @@
 # Eval export
 
-`evalkit.export` projects a committed run into a display payload. **One way,
+`aos-eval export` projects a committed run into a display payload. **One way,
 and nothing returns.** Committed records stay canonical, so the surface reading
 this payload is a rebuildable projection rather than a second home for
 evidence.
@@ -10,7 +10,7 @@ Deployment target and its reasoning:
 
 ## Why one way
 
-The display target is presentation, not review. `evalkit.annotate` remains the
+The display target is presentation, not review. `aos-eval annotate` remains the
 grading surface, and nothing is authored in the projection, so nothing has to
 come back. That removes the round trip
 [agent-compose#213](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213)

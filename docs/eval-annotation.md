@@ -50,7 +50,7 @@ for them.
 
 ## Axial coding into a failure taxonomy
 
-A critique is an open code. `evalkit.taxonomy` is the axial step: it groups
+A critique is an open code. `aos-eval taxonomy` is the axial step: it groups
 every deduction by its structural axis, then by shared critique terms, and ranks
 by frequency. The output is a list of failure modes rather than a score, which
 is what you act on, and both practitioner references call error analysis the
@@ -64,6 +64,12 @@ mode of the samples themselves rather than of the roles.
 A deduction records a critique and, where one exists, a verbatim span from the
 output, verified before it is accepted, so a critique is auditable rather than
 impressionistic. RULERS uses the same rule to catch hallucinated justification.
+
+## Authoring fails before grading does
+
+The shared `Sample` enforces only what is true of every deployment, so
+`evalkit.filter.load_samples` validates against this repo's profile and refuses
+a board whose cases would otherwise read as coverage they do not have.
 
 ## See also
 

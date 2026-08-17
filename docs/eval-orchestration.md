@@ -1,8 +1,9 @@
 # Eval orchestration
 
 `evalkit` is the Python half of the evaluation system. Go owns what a pack is
-and what a valid record is. Python owns running the subject, filtering
-samples, and putting a case in front of a human.
+and what a valid record is. `aos-eval` owns grading, shared with sirens-echo
+so the pairing rule has one implementation. What stays here is the runner and
+the roster-derived case list, with `evalkit.inspect_bridge` as the seam.
 
 ## Why the seam sits here
 
@@ -16,9 +17,9 @@ no second record writer. Two parsers is the failure this split avoids.
 ```text
 generator         ->  samples.yaml
 inspect eval      ->  .eval log      (five epochs per sample, unscored)
-evalkit.filter    ->  dataset.yaml   (epoch 1 attached to every sample)
-evalkit.annotate  ->  annotations.yaml
-evalkit.taxonomy  ->  failure modes, ranked
+evalkit.filter      ->  dataset.yaml   (epoch 1 attached to every sample)
+aos-eval annotate   ->  annotations.yaml
+aos-eval taxonomy   ->  failure modes, ranked
 ```
 
 Go turns annotations into the canonical record, so totals and verdicts come from the
@@ -67,7 +68,7 @@ the annotator seeing epoch 1 and the rest left in the log as evidence.
 
 ## Commands
 
-Ward owns `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-annotate`,
+The justfile carries `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-annotate`,
 `evalkit-matrix`, and `evalkit-check`. The last runs ruff, format, mypy strict,
 and pytest from `scripts/evalkit-check.sh` rather than pre-commit, because that
 file is managed by agentic-os and a hand-added hook is overwritten on sync.

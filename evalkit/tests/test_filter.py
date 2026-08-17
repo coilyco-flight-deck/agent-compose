@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
+from aos_eval.schema import Half, Response, Sample
+
 from evalkit import filter as dataset_builder
-from evalkit.schema import Half, Response, Sample, TestType
 
 
 def role_fit(against: str) -> Sample:
     return Sample(
         id=f"ops-fit-{against}",
         role="ops",
-        test_type=TestType.ROLE_FIT,
+        test_type="role-fit",
         prompt="prompt",
         target="hands it back",
         against=against,
@@ -44,7 +48,7 @@ def test_every_authored_sample_survives() -> None:
         Sample(
             id="ops-shc-out",
             role="ops",
-            test_type=TestType.BOUNDARY,
+            test_type="boundary",
             prompt="prompt",
             target="defers wording",
             boundary="suggest-human-comms",
@@ -54,7 +58,7 @@ def test_every_authored_sample_survives() -> None:
         Sample(
             id="ops-per-grounded",
             role="ops",
-            test_type=TestType.PERSONALITY,
+            test_type="personality",
             prompt="prompt",
             target="stays plain",
             trait="grounded",
@@ -73,28 +77,45 @@ def test_a_sample_with_no_runs_is_reported_so_truncation_is_never_silent() -> No
     assert report.summary == "0 kept, 1 dropped"
 
 
-def test_a_boundary_sample_still_needs_its_pair_identity() -> None:
-    import pytest
+def test_a_boundary_sample_still_needs_its_pair_identity(tmp_path: Path) -> None:
+    path = tmp_path / "samples.yaml"
+    path.write_text(
+        "samples:\n"
+        "  - id: ops-shc-out\n"
+        "    role: ops\n"
+        "    test_type: boundary\n"
+        "    prompt: p\n"
+        "    target: t\n"
+    )
+    with pytest.raises(ValueError, match="boundary sample needs"):
+        dataset_builder.load_samples(path)
 
-    with pytest.raises(ValueError, match="needs boundary, half, and pair_id"):
-        Sample(
-            id="ops-shc-out",
-            role="ops",
-            test_type=TestType.BOUNDARY,
-            prompt="p",
-            target="t",
-            half=Half.OUT,
-        )
+
+def test_a_role_fit_sample_still_needs_an_against(tmp_path: Path) -> None:
+    path = tmp_path / "samples.yaml"
+    path.write_text(
+        "samples:\n"
+        "  - id: ops-fit-within\n"
+        "    role: ops\n"
+        "    test_type: role-fit\n"
+        "    prompt: p\n"
+        "    target: t\n"
+    )
+    with pytest.raises(ValueError, match="needs against"):
+        dataset_builder.load_samples(path)
 
 
-def test_a_role_fit_sample_still_needs_an_against() -> None:
-    import pytest
-
-    with pytest.raises(ValueError, match="needs an against"):
-        Sample(
-            id="ops-fit-within",
-            role="ops",
-            test_type=TestType.ROLE_FIT,
-            prompt="p",
-            target="t",
-        )
+def test_a_well_formed_board_loads(tmp_path: Path) -> None:
+    path = tmp_path / "samples.yaml"
+    path.write_text(
+        "samples:\n"
+        "  - id: ops-mls-in\n"
+        "    role: ops\n"
+        "    test_type: boundary\n"
+        "    prompt: p\n"
+        "    target: t\n"
+        "    boundary: modify-live-system\n"
+        "    half: in\n"
+        "    pair_id: ops-mls\n"
+    )
+    assert [s.id for s in dataset_builder.load_samples(path)] == ["ops-mls-in"]

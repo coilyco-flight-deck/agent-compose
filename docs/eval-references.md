@@ -22,7 +22,7 @@ recommendations were independently already in place here.
 ## Platforms
 
 * [Phoenix annotation](eval-ref-phoenix.md) - the human annotation surface, so
-  the platform equivalent of `evalkit.annotate`.
+  the platform equivalent of `aos-eval annotate`.
   <https://arize.com/docs/phoenix/tracing/how-to-tracing/feedback-and-annotations/annotating-in-the-ui>
 * [Inspect](eval-ref-inspect.md) - dataset, task, solver, scorer, so the
   platform equivalent of `evalkit.run` and `evalkit.filter`.

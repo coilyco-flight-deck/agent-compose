@@ -13,20 +13,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import yaml
 from inspect_ai import Task, task
 from inspect_ai.dataset import MemoryDataset
 from inspect_ai.solver import generate, system_message
 
-from evalkit.schema import Sample
+from evalkit.filter import load_samples
+from evalkit.inspect_bridge import to_inspect
 
 DEFAULT_SAMPLES = Path("samples.yaml")
 DEFAULT_PROMPTS = Path(".evalkit/prompts")
-
-
-def load_samples(path: Path) -> list[Sample]:
-    raw = yaml.safe_load(path.read_text()) or {}
-    return [Sample.model_validate(entry) for entry in raw.get("samples", [])]
 
 
 def load_system_prompts(directory: Path) -> dict[str, str]:
@@ -47,7 +42,7 @@ def board(samples: str | Path = DEFAULT_SAMPLES, prompts: str | Path = DEFAULT_P
     # message is resolved per sample from its own role metadata.
     entries = []
     for sample in authored:
-        inspect_sample = sample.to_inspect()
+        inspect_sample = to_inspect(sample)
         inspect_sample.metadata = dict(inspect_sample.metadata or {})
         inspect_sample.metadata["system_prompt"] = composed[sample.role]
         entries.append(inspect_sample)
