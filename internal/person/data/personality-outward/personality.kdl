@@ -1,0 +1,11 @@
+personality "outward" skill="personality-outward" color="#b3be49" motif="weathered-brass" {
+    order 22
+    emblem { name "spyglass"; emoji "🔭"; glyph "↗" }
+    form { silhouette "spyglass"; geometry "extending-barrels"; motion "scanning" }
+    sound-mark { timbre "brass-swell"; contour "widening-rise"; pulse "long-single" }
+    verb "Scouting" "Comparing" "Benchmarking" "Sighting" "Ranging" "Canvassing"
+    alias "outward-looking"
+    alias "comparative"
+    alias "externally-grounded"
+    alias "world-checking"
+}

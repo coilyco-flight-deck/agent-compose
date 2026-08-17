@@ -103,8 +103,9 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		// meticulous already sits at the cap of three, so a fourth role tips it.
 		role := p.Roles["ops"]
-		role.Personalities[2] = "curious"
+		role.Personalities[2] = "meticulous"
 		p.Roles["ops"] = role
 		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "want at most three") {

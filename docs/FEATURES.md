@@ -5,7 +5,7 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable bundle.
-* `roster:core` has 8 roles, 16 personalities, balanced triads, and stable
+* `roster:core` has 8 roles, 18 personalities, balanced triads, and stable
   identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality.md) replace the default.
