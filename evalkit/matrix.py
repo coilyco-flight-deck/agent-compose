@@ -1,7 +1,7 @@
 """Derive the case list from the roster Go exports.
 
 The board is a consequence of the roster, not a hand-maintained list. Adding a
-boundary or changing adjacency changes this output. See docs/eval-orchestration.md.
+boundary or changing adjacency changes this output. See docs/eval-pipeline.md.
 """
 
 from __future__ import annotations

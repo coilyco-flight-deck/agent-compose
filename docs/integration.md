@@ -55,7 +55,7 @@ instructions keep the caller-selected role fixed under the
 [same contract](role-selection.md). A switch requires a new bundle. A
 composition adapter can use an empty private target under the
 [staged-home contract](staged-home.md).
-[Role-scoped bundles](role-scoped-providers.md) project unchanged in either tier.
+[Role-scoped bundles](role-selection.md) project unchanged in either tier.
 
 ## Migration state
 
@@ -73,4 +73,4 @@ Hosts must reconcile hand-edited snapshots into sources before cutover.
 * [person-packages.md](person-packages.md) - external package selection.
 * [role-briefings.md](role-briefings.md) - role charter delivery.
 * [architecture.md](architecture.md) - composition inputs and ownership.
-* [repository-policy.md](repository-policy.md) - the compiler and consumer seam.
+* [repository-policy.md](repository-plan.md) - the compiler and consumer seam.

@@ -41,7 +41,7 @@ func TestSeatNameCarriesTheShortID(t *testing.T) {
 }
 
 // A bundle is read by later sessions, so a baked id would name the wrong agent
-// and fork the cache. See docs/short-id.md.
+// and fork the cache. See docs/whoami.md.
 func TestShortIDNeverReachesPersistedBundleArtifacts(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "uz86")
 	result := shortIDRefresh(t)

@@ -228,7 +228,7 @@ func seatName(composed *compose.Result, harness, role string) string {
 	}
 	displayName := p.RoleDisplayName(role)
 	// Becomes the harness `--name` flag, which is ephemeral per launch rather
-	// than a bundle artifact a later session reads. See docs/seat-identity.md.
+	// than a bundle artifact a later session reads. See docs/identity.md.
 	shortID := agentid.FromEnv()
 	for _, seat := range selected.Seats {
 		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {

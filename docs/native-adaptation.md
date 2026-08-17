@@ -1,11 +1,15 @@
 # Native adaptation
 
+How a native session adapts, including personality swaps.
+
+## Native adaptation
+
 The host roster supports two context-only adaptations for an unwarded native
 agent in a directly steered interactive session. An inferred role may switch,
 and any active role may temporarily adopt a different catalog personality
 boundary. Neither behavior changes executable authority.
 
-## Shared eligibility
+### Shared eligibility
 
 Both policies require certain live interaction. They are unavailable in a
 Ward-bound, composed, staged, containerized, headless, unattended, long-burn,
@@ -15,7 +19,7 @@ active.
 The generated roster lists every valid native role target from the selected
 person package. Roles without a named seat stay outside that list.
 
-## Inferred role switches
+### Inferred role switches
 
 At session start, the agent records whether its role was assigned by a caller
 or inferred from the initial substantive request. Only an inferred role may
@@ -38,14 +42,14 @@ asks a separate confirmation:
 The agent waits for an explicit yes. An unknown target fails with the valid
 role slugs so the user can correct the request.
 
-## Caller-assigned roles
+### Caller-assigned roles
 
 A caller-assigned role remains fixed. The agent rejects a role-switch request
 and directs the caller to launch a new bundle with the different role.
 Native bundles materialize only the assigned role skill, role methods, and boundary.
 Compiled bundles inline those same selected bodies, which preserves this boundary.
 
-## Personality-only swaps
+### Personality-only swaps
 
 The agent may propose a goal-fit catalog personality or meld when it would
 materially improve the current task. It names the candidate and reason, then
@@ -62,7 +66,7 @@ Confirmation covers only the current task. Task completion restores the
 role's default meld, and every later personality swap needs a new proposal and
 confirmation. Personality adaptation never changes the active role.
 
-## Authority boundary
+### Authority boundary
 
 A native role switch changes only the active charter and personality meld. A
 personality swap changes only the boundary. The harness, model, tools, permissions,
@@ -72,9 +76,8 @@ QA remains read-only around live systems unless runtime policy explicitly
 grants an enforced disposable fixture mode. A role or personality switch does
 not create, retain, or broaden that authority.
 
-## See also
+## Native personality swaps
 
-* [Role selection](role-selection.md) - inferred and assigned role origins.
-* [Role briefings](role-briefings.md) - role charter and boundary delivery.
-* [Role methods](role-methods.md) - task-triggered role procedures.
-* [Integration](integration.md) - native roster and isolated bundle paths.
+Personality-only swaps now live inside the broader
+[native adaptation contract](native-adaptation.md), alongside explicit role
+switching for eligible inferred native roles.

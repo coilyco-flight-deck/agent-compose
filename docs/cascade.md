@@ -42,7 +42,7 @@ removed on convergence.
 Each configured load point (claude and codex by default, others via
 `load_points`, `null` to opt out) is symlinked at its harness's composed
 file, backing up any pre-existing regular file to `.bak`. The strict
-[`repository-plan.yaml`](repository-policy.md) is emitted beside the composed
+[`repository-plan.yaml`](repository-plan.md) is emitted beside the composed
 output. It compiles operating context, global policy, role policy, provider
 uses, and resident-only pins from trusted KDL with sealed input provenance.
 See [Repository plan](repository-plan.md).
@@ -56,7 +56,7 @@ linked strict provider document without writes.
 ## Native skill roots
 
 Bare compose can also link authored skill catalogs into harness-native skill
-directories through [`skill_load_points`](skill-load-points.md).
+directories through [`skill_load_points`](skill-selectors.md).
 
 Native skill linking uses the compiled residency set from
 `repository-plan.yaml`. Repositories contribute `.agents/skills`. The compiled
@@ -68,11 +68,11 @@ gating, and per-repo capability pulls remain rollout policy outside this
 substrate operation.
 
 `skill_catalog_manifest` projects AOS-verified roots without network work.
-[Local skill catalogues](local-skill-catalogues.md) define the trust contract.
+[Local skill catalogues](skill-catalogues.md) define the trust contract.
 
 ## See also
 
 * [integration.md](integration.md) - how roster and cascade fit together.
-* [repository-policy.md](repository-policy.md) - strict repository grammar and projections.
+* [repository-policy.md](repository-plan.md) - strict repository grammar and projections.
 * [projection.md](projection.md) - repo and home load-point projection.
-* [local-skill-catalogues.md](local-skill-catalogues.md) - AOS local-root handoff.
+* [local-skill-catalogues.md](skill-catalogues.md) - AOS local-root handoff.

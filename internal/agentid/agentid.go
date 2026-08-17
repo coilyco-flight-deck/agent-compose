@@ -1,6 +1,6 @@
 // Package agentid reads the dictatable short id naming one running agent
 // session, so a terminal surface can show which agent it is looking at.
-// Contract and rationale: docs/seat-identity.md.
+// Contract and rationale: docs/identity.md.
 package agentid
 
 import (

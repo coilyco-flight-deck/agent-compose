@@ -8,10 +8,10 @@ who wants a tool to open. A blog reaches the working engineer who reads neither.
 
 ## Papers
 
-* [CheckList](eval-ref-checklist.md) - behavioral testing as a capability by
+* [CheckList](eval-ref-papers.md) - behavioral testing as a capability by
   test-type matrix, modelled on unit tests. ACL 2020.
   <https://arxiv.org/abs/2005.04118>
-* [RULERS](eval-ref-rulers.md) - versioned immutable criteria, evidence-anchored
+* [RULERS](eval-ref-platforms.md) - versioned immutable criteria, evidence-anchored
   scoring, calibration to human grading boundaries. January 2026.
   <https://arxiv.org/abs/2601.08654>
 
@@ -21,10 +21,10 @@ recommendations were independently already in place here.
 
 ## Platforms
 
-* [Phoenix annotation](eval-ref-phoenix.md) - the human annotation surface, so
+* [Phoenix annotation](eval-ref-platforms.md) - the human annotation surface, so
   the platform equivalent of `aos-eval annotate`.
   <https://arize.com/docs/phoenix/tracing/how-to-tracing/feedback-and-annotations/annotating-in-the-ui>
-* [Inspect](eval-ref-inspect.md) - dataset, task, solver, scorer, so the
+* [Inspect](eval-ref-platforms.md) - dataset, task, solver, scorer, so the
   platform equivalent of `evalkit.run` and `evalkit.filter`.
   <https://inspect.aisi.org.uk/>
 
@@ -35,10 +35,10 @@ remains the open decision in
 
 ## Blogs
 
-* [A pragmatic guide to LLM evals for devs](eval-ref-pragmatic-evals.md) -
+* [A pragmatic guide to LLM evals for devs](eval-ref-papers.md) -
   Orosz and Husain, December 2025. Partly paywalled, free through section 3.
   <https://newsletter.pragmaticengineer.com/p/evals>
-* [LLM Evals, Everything You Need to Know](eval-ref-evals-faq.md) - Husain and
+* [LLM Evals, Everything You Need to Know](eval-ref-papers.md) - Husain and
   Shankar, May 2025, revised through July 2026.
   <https://hamel.dev/blog/posts/evals-faq/>
 
@@ -56,5 +56,5 @@ practice rather than a shortcut, and the references say so directly.
 
 ## See also
 
-* [Eval annotation](eval-annotation.md) - scoring tiers, ordering, and item analysis.
-* [Eval orchestration](eval-orchestration.md) - the pipeline and its seam.
+* [Eval annotation](evaluation.md) - scoring tiers, ordering, and item analysis.
+* [Eval orchestration](eval-pipeline.md) - the pipeline and its seam.

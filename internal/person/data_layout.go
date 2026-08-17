@@ -11,7 +11,7 @@ import (
 )
 
 // Entity data lives in one flat data/<kind>-<slug>/ directory per first-class
-// entity. See docs/person-package-authoring.md.
+// entity. See docs/person-packages.md.
 const dataRoot = "data"
 
 var entityOrder = regexp.MustCompile(`(?m)^\s*order[ =](\d+)\s*$|(?m)\s+order=(\d+)`)

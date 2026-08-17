@@ -25,7 +25,7 @@ capability files reached through source locators.
 Consumers map concrete models into the stable tiers. Claude and Codex are
 frontier examples, DeepSeek is commodity, and Ornith or Mistral are OSS.
 The Core Roster applies those tiers through its
-[role compatibility matrix](model-tiers.md).
+[role compatibility matrix](harness-vendoring.md).
 
 ## Policy ownership
 
@@ -33,7 +33,7 @@ Agent-compose embeds the eleven-role Core Roster, `roster:core`, as its
 public-safe default. A caller may
 select one complete [external package](person-packages.md) instead. Selection
 is exclusive. The package owns identity policy and
-[role methods](role-methods.md). Capability sources add knowledge but cannot
+[role methods](role-briefings.md). Capability sources add knowledge but cannot
 redefine package names or bodies.
 
 Personality definitions live inside person-package skills. Agent-compose

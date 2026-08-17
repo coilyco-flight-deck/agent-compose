@@ -30,7 +30,7 @@ func SeatLabel(name, pronouns string) string {
 }
 
 // WithShortID appends the session's dictatable short id: `Angie [she]` becomes
-// `Angie [she] uz86`. Ephemeral surfaces only. See docs/seat-identity.md.
+// `Angie [she] uz86`. Ephemeral surfaces only. See docs/identity.md.
 func WithShortID(display, shortID string) string {
 	display = strings.TrimSpace(display)
 	shortID = strings.TrimSpace(shortID)

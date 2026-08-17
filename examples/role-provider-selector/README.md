@@ -8,5 +8,5 @@ Agent Compose first validates the provider's complete catalogue. It then
 requires every pattern to match at least one skill and rejects overlaps. Use
 `skill "*"` when the role should receive the whole ordinary catalogue.
 
-See [Role-scoped skill providers](../../docs/role-scoped-providers.md) for the
+See [Role-scoped skill providers](../../docs/role-selection.md) for the
 full configuration and trace contract.
