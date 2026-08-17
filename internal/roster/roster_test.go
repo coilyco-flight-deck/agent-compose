@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
@@ -44,6 +43,9 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := p.ResolveFavoriteColors(); err != nil {
+		t.Fatal(err)
+	}
 	return p, []*schema.Source{src}
 }
 
@@ -55,13 +57,7 @@ func TestRenderDispatchTable(t *testing.T) {
 	}
 
 	table := string(files["AGENTS.COMPOSE.md"])
-	melded, err := color.Favorite([]string{
-		p.Personalities["bright"].Color,
-		p.Personalities["pending"].Color,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	melded := p.Roles["builder"].FavoriteColor
 	for _, want := range []string{
 		"# Personality invariant",
 		"# Fixture foundation",

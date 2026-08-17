@@ -113,17 +113,22 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		}
 	})
 
-	t.Run("duplicate favorite color", func(t *testing.T) {
+	t.Run("favorite colors too close", func(t *testing.T) {
 		p, err := Load()
 		if err != nil {
 			t.Fatal(err)
 		}
+		// Two roles melding the same personalities land on the same anchor, so
+		// the spread step can only separate them by twice the drift cap.
 		role := p.Roles["director"]
 		role.Personalities = append([]string(nil), p.Roles["engineer"].Personalities...)
 		p.Roles["director"] = role
+		if err := p.ResolveFavoriteColors(); err != nil {
+			t.Fatal(err)
+		}
 		if err := validateCorePersonalityMelds(p); err == nil ||
-			!strings.Contains(err.Error(), "share melded favorite color") {
-			t.Fatalf("favorite-color validation error = %v", err)
+			!strings.Contains(err.Error(), "apart at their closest") {
+			t.Fatalf("favorite-color separation error = %v", err)
 		}
 	})
 }

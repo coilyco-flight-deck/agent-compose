@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -67,15 +66,7 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 		if len(role.Seats) == 0 {
 			continue
 		}
-		colors := make([]string, 0, len(role.Personalities))
-		for _, personalityName := range role.Personalities {
-			colors = append(colors, p.Personalities[personalityName].Color)
-		}
-		melded, err := color.Favorite(colors)
-		if err != nil {
-			return nil, fmt.Errorf("render role %q favorite color: %w", roleName, err)
-		}
-		card, err := p.RenderRoleIdentityCard(roleName, melded)
+		card, err := p.RenderRoleIdentityCard(roleName, role.FavoriteColor)
 		if err != nil {
 			return nil, err
 		}
@@ -213,12 +204,8 @@ func personalityLine(p *person.Person, role person.Role, bodies map[string][]byt
 		}
 		parts = append(parts, entry)
 	}
-	favorite, err := color.Favorite(colors)
-	if err != nil {
-		return "", err
-	}
 	return "Melded personalities: " + strings.Join(parts, "; ") +
-		". Melded favorite color: " + favorite + ".\n", nil
+		". Melded favorite color: " + role.FavoriteColor + ".\n", nil
 }
 
 // personalityBodies pulls each bound skill's SKILL.md from the first source
