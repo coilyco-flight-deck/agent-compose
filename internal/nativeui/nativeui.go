@@ -127,10 +127,7 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 		}
 		colors = append(colors, personality.Color)
 	}
-	roleColor, err := color.Favorite(colors)
-	if err != nil {
-		return Bundle{}, fmt.Errorf("role %q boundary: %w", roleName, err)
-	}
+	roleColor := role.FavoriteColor
 
 	overrides, err := themeOverrides(roleColor, colors)
 	if err != nil {

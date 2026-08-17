@@ -206,14 +206,7 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 		t.Fatal(err)
 	}
 	role := p.Roles["engineer"]
-	componentColors := make([]string, 0, len(role.Personalities))
-	for _, personalityName := range role.Personalities {
-		componentColors = append(componentColors, p.Personalities[personalityName].Color)
-	}
-	favoriteColor, err := color.Favorite(componentColors)
-	if err != nil {
-		t.Fatal(err)
-	}
+	favoriteColor := role.FavoriteColor
 	trueColor, err := p.RenderRoleTranscript("engineer", favoriteColor, RoleTranscriptOptions{
 		Color: true, TrueColor: true,
 	})
@@ -251,14 +244,7 @@ func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
 	}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		var colors []string
-		for _, name := range role.Personalities {
-			colors = append(colors, p.Personalities[name].Color)
-		}
-		favorite, err := color.Favorite(colors)
-		if err != nil {
-			t.Fatal(err)
-		}
+		favorite := role.FavoriteColor
 		metadata, err := p.RenderRoleMetadata(roleName, favorite)
 		if err != nil {
 			t.Fatal(err)

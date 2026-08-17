@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
 )
@@ -134,10 +133,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		activeSkills = append(activeSkills, binding.Skill)
 		colors = append(colors, binding.Color)
 	}
-	favorite, err := color.Favorite(colors)
-	if err != nil {
-		return nil, fmt.Errorf("derive favorite color for role %q: %w", req.Role, err)
-	}
+	favorite := role.FavoriteColor
 
 	res := &Resolution{
 		Request:       req,

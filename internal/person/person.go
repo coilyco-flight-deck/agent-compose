@@ -112,6 +112,7 @@ type Role struct {
 	Adjacents           []Adjacent     `json:"adjacents,omitempty"`
 	Briefing            string         `json:"briefing"`
 	Personalities       []string       `json:"personalities"`
+	FavoriteColor       string         `json:"favorite_color,omitempty"`
 	Identity            *AgentIdentity `json:"identity,omitempty"`
 	Seats               []Seat         `json:"seats"`
 	Inspiration         InspirationRef `json:"inspiration,omitempty"`
@@ -401,7 +402,7 @@ func Load() (*Person, error) {
 	if err := validateRosterProseFloors(source, p); err != nil {
 		return nil, fmt.Errorf("embedded core roster: %w", err)
 	}
-	if err := validateResolvedPerson(p); err != nil {
+	if err := resolveAndValidatePerson(p); err != nil {
 		return nil, err
 	}
 	if err := validateNoUnusedPersonalities(p); err != nil {
@@ -489,7 +490,7 @@ func discoverLibraries(root string) ([]string, error) {
 
 func mergeLibraries(p *Person, roots []string) (*Person, error) {
 	if len(roots) == 0 {
-		return p, validateResolvedPerson(p)
+		return p, resolveAndValidatePerson(p)
 	}
 	if p.Libraries == nil {
 		p.Libraries = map[string]string{p.localSourceID(): "profile-local"}
@@ -514,7 +515,7 @@ func mergeLibraries(p *Person, roots []string) (*Person, error) {
 		}
 	}
 	p.source = overlay
-	return p, validateResolvedPerson(p)
+	return p, resolveAndValidatePerson(p)
 }
 
 func mergeLoadedLibrary(p *Person, library *Person, id string, source fs.FS) error {
@@ -590,7 +591,41 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 	return nil
 }
 
-func validateResolvedPerson(p *Person) error {
+// ResolveFavoriteColors derives every role's favorite together. Load applies
+// it; a hand-built Person must call it before rendering any role color.
+func (p *Person) ResolveFavoriteColors() error {
+	order := p.roleOrder()
+	groups := make([][]string, 0, len(order))
+	for _, roleName := range order {
+		components := make([]string, 0, len(p.Roles[roleName].Personalities))
+		for _, name := range p.Roles[roleName].Personalities {
+			binding, ok := p.Personalities[name]
+			if !ok {
+				return fmt.Errorf("role %q: personality %q has no catalog binding", roleName, name)
+			}
+			components = append(components, binding.Color)
+		}
+		if len(components) == 0 {
+			return fmt.Errorf("role %q has no personalities to derive a favorite color from", roleName)
+		}
+		groups = append(groups, components)
+	}
+	favorites, err := color.Favorites(groups)
+	if err != nil {
+		return fmt.Errorf("derive role favorite colors: %w", err)
+	}
+	for index, roleName := range order {
+		role := p.Roles[roleName]
+		role.FavoriteColor = favorites[index]
+		p.Roles[roleName] = role
+	}
+	return nil
+}
+
+func resolveAndValidatePerson(p *Person) error {
+	if err := p.ResolveFavoriteColors(); err != nil {
+		return err
+	}
 	for _, roleName := range p.roleOrder() {
 		for _, personalityName := range p.Roles[roleName].Personalities {
 			if _, ok := p.Personalities[personalityName]; !ok {
@@ -743,6 +778,10 @@ func validateRoleAdjacents(p *Person) error {
 	return nil
 }
 
+// Identical melds derive barely 0.06 apart, so this floor catches them while
+// leaving room under the roster's usual 0.13. See docs/personality.md.
+const minFavoriteSeparation = 0.08
+
 func validateCorePersonalityMelds(p *Person) error {
 	usage := map[string]int{}
 	colors := map[string]string{}
@@ -755,15 +794,10 @@ func validateCorePersonalityMelds(p *Person) error {
 				len(role.Personalities),
 			)
 		}
-		components := make([]string, 0, len(role.Personalities))
 		for _, name := range role.Personalities {
 			usage[name]++
-			components = append(components, p.Personalities[name].Color)
 		}
-		favorite, err := color.Favorite(components)
-		if err != nil {
-			return fmt.Errorf("core role %q favorite color: %w", roleName, err)
-		}
+		favorite := role.FavoriteColor
 		if err := color.Legible(favorite); err != nil {
 			return fmt.Errorf("core role %q favorite color: %w", roleName, err)
 		}
@@ -776,6 +810,22 @@ func validateCorePersonalityMelds(p *Person) error {
 			)
 		}
 		colors[favorite] = roleName
+	}
+	favorites := make([]string, 0, len(p.RoleOrder))
+	for _, roleName := range p.RoleOrder {
+		favorites = append(favorites, p.Roles[roleName].FavoriteColor)
+	}
+	separation, err := color.MinSeparation(favorites)
+	if err != nil {
+		return fmt.Errorf("core role favorite colors: %w", err)
+	}
+	if separation < minFavoriteSeparation {
+		return fmt.Errorf(
+			"core role favorite colors are %.4f apart at their closest, want at least %.4f: "+
+				"two roles meld nearly the same personalities",
+			separation,
+			minFavoriteSeparation,
+		)
 	}
 	for name, count := range usage {
 		if count > 3 {

@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
 const (
@@ -32,10 +30,9 @@ type Snapshot struct {
 }
 
 // SnapshotRole embeds the canonical role so future role fields enter the
-// export automatically, then adds its deterministic derived favorite color.
+// export automatically, FavoriteColor among them.
 type SnapshotRole struct {
 	Role
-	FavoriteColor string `json:"favorite_color"`
 }
 
 // BuildSnapshot converts the loaded person model without maintaining a second
@@ -50,22 +47,15 @@ func BuildSnapshot(p *Person) (*Snapshot, error) {
 		if !ok {
 			return nil, fmt.Errorf("build person snapshot: role order names missing role %q", name)
 		}
-		colors := make([]string, 0, len(role.Personalities))
 		for _, personalityName := range role.Personalities {
-			binding, ok := p.Personalities[personalityName]
-			if !ok {
+			if _, ok := p.Personalities[personalityName]; !ok {
 				return nil, fmt.Errorf(
 					"build person snapshot: role %q names missing personality %q",
 					name, personalityName,
 				)
 			}
-			colors = append(colors, binding.Color)
 		}
-		favorite, err := color.Favorite(colors)
-		if err != nil {
-			return nil, fmt.Errorf("build person snapshot: role %q favorite color: %w", name, err)
-		}
-		roles[name] = SnapshotRole{Role: role, FavoriteColor: favorite}
+		roles[name] = SnapshotRole{Role: role}
 	}
 	if len(roles) != len(p.Roles) {
 		return nil, fmt.Errorf(

@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
@@ -74,10 +73,7 @@ func Build(p *person.Person) (Document, error) {
 			}
 			colors = append(colors, personality.Color)
 		}
-		boundary, err := color.Favorite(colors)
-		if err != nil {
-			return Document{}, fmt.Errorf("role %q boundary: %w", roleName, err)
-		}
+		boundary := role.FavoriteColor
 		doc.Roles = append(doc.Roles, Role{
 			Name:          roleName,
 			Personalities: append([]string(nil), role.Personalities...),

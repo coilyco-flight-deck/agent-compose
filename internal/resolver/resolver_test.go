@@ -11,7 +11,7 @@ import (
 )
 
 func testPerson() *person.Person {
-	return &person.Person{
+	p := &person.Person{
 		Name: "kai",
 		Roles: map[string]person.Role{
 			"engineer": {
@@ -31,6 +31,10 @@ func testPerson() *person.Person {
 		},
 		Raw: []byte("person \"kai\"\n"),
 	}
+	if err := p.ResolveFavoriteColors(); err != nil {
+		panic(err)
+	}
+	return p
 }
 
 func testRequest(delivery string) *schema.Request {

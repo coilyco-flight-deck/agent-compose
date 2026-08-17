@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 )
 
 func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
@@ -49,14 +47,7 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 		if !reflect.DeepEqual(got.Role, want) {
 			t.Fatalf("snapshot role %q = %+v, want %+v", name, got.Role, want)
 		}
-		colors := make([]string, 0, len(want.Personalities))
-		for _, personalityName := range want.Personalities {
-			colors = append(colors, p.Personalities[personalityName].Color)
-		}
-		favorite, err := color.Favorite(colors)
-		if err != nil {
-			t.Fatal(err)
-		}
+		favorite := want.FavoriteColor
 		if got.FavoriteColor != favorite {
 			t.Fatalf("snapshot role %q favorite = %q, want %q", name, got.FavoriteColor, favorite)
 		}

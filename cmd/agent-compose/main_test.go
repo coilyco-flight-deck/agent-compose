@@ -293,14 +293,7 @@ func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 	t.Helper()
 	personalities := p.Roles["engineer"].Personalities
-	colors := make([]string, 0, len(personalities))
-	for _, personalityName := range personalities {
-		colors = append(colors, p.Personalities[personalityName].Color)
-	}
-	favoriteColor, err := color.Favorite(colors)
-	if err != nil {
-		t.Fatal(err)
-	}
+	favoriteColor := p.Roles["engineer"].FavoriteColor
 	return &compose.Result{
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{

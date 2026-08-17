@@ -317,6 +317,23 @@ func main() {
 				Action: runRoster,
 			},
 			{
+				Name:   "palette-snapshot",
+				Hidden: true,
+				Usage:  "regenerate the committed role palette page, or verify it is current",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "out",
+						Usage: "write the page to this path",
+						Value: palette.SnapshotPath,
+					},
+					&cli.BoolFlag{
+						Name:  "check",
+						Usage: "fail when the committed page is stale instead of rewriting it",
+					},
+				},
+				Action: runPaletteSnapshot,
+			},
+			{
 				Name:   "palette-data",
 				Hidden: true,
 				Usage:  "render canonical personality and role colors for the local palette explorer",
@@ -1221,6 +1238,22 @@ func runRoster(_ context.Context, cmd *cli.Command) error {
 	}
 	fmt.Printf("roster artifact: %d files under %s\n", len(result.Files), outDir)
 	return nil
+}
+
+func runPaletteSnapshot(_ context.Context, cmd *cli.Command) error {
+	p, err := person.Load()
+	if err != nil {
+		return err
+	}
+	rendered, err := palette.RenderSnapshot(p)
+	if err != nil {
+		return err
+	}
+	out := cmd.String("out")
+	if cmd.Bool("check") {
+		return palette.CheckSnapshot(out, rendered)
+	}
+	return palette.WriteSnapshot(out, rendered)
 }
 
 func runPaletteData(_ context.Context, cmd *cli.Command) error {

@@ -79,6 +79,203 @@ func Favorite(hexes []string) (string, error) {
 	return fromOKLab(blend), nil
 }
 
+// driftCap limits how far Favorites may move a group's color from its own
+// blend. shareWeight sets how sharply a shared component is discounted.
+const (
+	driftCap     = 0.03
+	spreadRounds = 400
+	spreadStep   = 0.004
+	shareWeight  = 2
+)
+
+// Favorites derives every group's color together, weighting each component by
+// how few groups share it, then spreading the results. See RenderSnapshot.
+func Favorites(groups [][]string) ([]string, error) {
+	if len(groups) == 0 {
+		return nil, fmt.Errorf("favorites needs at least one group")
+	}
+	shared := map[string]int{}
+	for _, group := range groups {
+		seen := map[string]bool{}
+		for _, hex := range group {
+			if !seen[hex] {
+				shared[hex]++
+				seen[hex] = true
+			}
+		}
+	}
+	anchors := make([]okLab, 0, len(groups))
+	for index, group := range groups {
+		weights := make([]float64, 0, len(group))
+		for _, hex := range group {
+			weights = append(weights, 1/math.Pow(float64(shared[hex]), shareWeight))
+		}
+		blended, err := weightedBlend(group, weights)
+		if err != nil {
+			return nil, fmt.Errorf("group %d: %w", index, err)
+		}
+		anchors = append(anchors, blended)
+	}
+	spread := spreadApart(anchors)
+	out := make([]string, 0, len(spread))
+	for index, lab := range spread {
+		hex := fromOKLab(lab)
+		if err := Legible(hex); err != nil {
+			return nil, fmt.Errorf("group %d: %w", index, err)
+		}
+		out = append(out, hex)
+	}
+	return out, nil
+}
+
+// MinSeparation reports the smallest OKLab distance between any two of the
+// colors, so a caller can assert a palette stays tellable apart.
+func MinSeparation(hexes []string) (float64, error) {
+	if len(hexes) < 2 {
+		return math.Inf(1), nil
+	}
+	labs := make([]okLab, 0, len(hexes))
+	for _, hex := range hexes {
+		lab, err := toOKLab(hex)
+		if err != nil {
+			return 0, err
+		}
+		labs = append(labs, lab)
+	}
+	return minSeparation(labs), nil
+}
+
+func weightedBlend(hexes []string, weights []float64) (okLab, error) {
+	var sum okLab
+	total := 0.0
+	minComponentChroma := math.Inf(1)
+	for index, hex := range hexes {
+		lab, err := toOKLab(hex)
+		if err != nil {
+			return okLab{}, err
+		}
+		w := weights[index]
+		sum.L += w * lab.L
+		sum.A += w * lab.A
+		sum.B += w * lab.B
+		total += w
+		minComponentChroma = math.Min(minComponentChroma, lab.chroma())
+	}
+	blend := okLab{L: sum.L / total, A: sum.A / total, B: sum.B / total}
+	if c := blend.chroma(); c > 0 && c < minComponentChroma {
+		scale := minComponentChroma / c
+		blend.A *= scale
+		blend.B *= scale
+	}
+	return settle(blend), nil
+}
+
+// spreadApart walks every group away from its nearest neighbor, projecting
+// back inside its drift ball each time, and keeps the best round it saw.
+func spreadApart(anchors []okLab) []okLab {
+	current := append([]okLab(nil), anchors...)
+	best := append([]okLab(nil), anchors...)
+	bestSeparation := minSeparation(current)
+	for round := 0; round < spreadRounds; round++ {
+		for index := range current {
+			nearest, distance := -1, math.Inf(1)
+			for other := range current {
+				if other == index {
+					continue
+				}
+				if d := separation(current[index], current[other]); d < distance {
+					nearest, distance = other, d
+				}
+			}
+			if nearest < 0 {
+				continue
+			}
+			current[index] = project(step(current[index], current[nearest]), anchors[index])
+		}
+		if s := minSeparation(current); s > bestSeparation {
+			bestSeparation = s
+			best = append([]okLab(nil), current...)
+		}
+	}
+	return best
+}
+
+func step(from, away okLab) okLab {
+	dL, dA, dB := from.L-away.L, from.A-away.A, from.B-away.B
+	norm := math.Sqrt(dL*dL + dA*dA + dB*dB)
+	if norm < 1e-9 {
+		dL, dA, dB, norm = 1, 0, 0, 1
+	}
+	return okLab{
+		L: from.L + dL*spreadStep/norm,
+		A: from.A + dA*spreadStep/norm,
+		B: from.B + dB*spreadStep/norm,
+	}
+}
+
+func project(candidate, anchor okLab) okLab {
+	dL, dA, dB := candidate.L-anchor.L, candidate.A-anchor.A, candidate.B-anchor.B
+	if drift := math.Sqrt(dL*dL + dA*dA + dB*dB); drift > driftCap {
+		scale := driftCap / drift
+		candidate = okLab{
+			L: anchor.L + dL*scale,
+			A: anchor.A + dA*scale,
+			B: anchor.B + dB*scale,
+		}
+	}
+	return settle(candidate)
+}
+
+// settle clamps lightness into the band, pulls chroma down until the color is
+// representable, then lifts it back over the gray floor.
+func settle(lab okLab) okLab {
+	lab.L = math.Max(minL, math.Min(maxL, lab.L))
+	for attempt := 0; attempt < 64 && !inGamut(lab); attempt++ {
+		lab.A *= 0.98
+		lab.B *= 0.98
+	}
+	if c := lab.chroma(); c > 0 && c < minChroma {
+		scale := minChroma / c
+		lab.A *= scale
+		lab.B *= scale
+	}
+	return lab
+}
+
+func separation(a, b okLab) float64 {
+	return math.Sqrt(sqf(a.L-b.L) + sqf(a.A-b.A) + sqf(a.B-b.B))
+}
+
+func minSeparation(labs []okLab) float64 {
+	lowest := math.Inf(1)
+	for i := 0; i < len(labs); i++ {
+		for j := i + 1; j < len(labs); j++ {
+			lowest = math.Min(lowest, separation(labs[i], labs[j]))
+		}
+	}
+	return lowest
+}
+
+func inGamut(lab okLab) bool {
+	l := cube(lab.L + 0.3963377774*lab.A + 0.2158037573*lab.B)
+	m := cube(lab.L - 0.1055613458*lab.A - 0.0638541728*lab.B)
+	s := cube(lab.L - 0.0894841775*lab.A - 1.2914855480*lab.B)
+	for _, channel := range []float64{
+		4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+		-1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+		-0.0041960863*l - 0.7034186147*m + 1.7076147010*s,
+	} {
+		if channel < -0.0001 || channel > 1.0001 {
+			return false
+		}
+	}
+	return true
+}
+
+func sqf(v float64) float64 {
+	return v * v
+}
+
 // Shimmer lightens a color for the paired highlight token a terminal theme
 // pulses against the base. Lightness is raised, hue and chroma are untouched.
 func Shimmer(hex string) (string, error) {

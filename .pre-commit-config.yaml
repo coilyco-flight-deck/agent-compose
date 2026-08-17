@@ -58,3 +58,15 @@ repos:
       - id: typos
         args: []
   # END managed by agentic-os/scripts/apply-agentic-os-hooks.py
+
+  # Repo-local: the derived role palette needs agent-compose's own colour math,
+  # so it cannot live in the agentic-os catalog.
+  - repo: local
+    hooks:
+      - id: role-palette-snapshot
+        name: role palette snapshot is current
+        description: "Regenerate internal/palette/role-palette.txt. Role colours are derived from the whole roster at once, so one roster edit moves several of them."
+        entry: go run ./cmd/agent-compose palette-snapshot
+        language: system
+        pass_filenames: false
+        files: ^(internal/person/data/.*|internal/color/color\.go|internal/palette/snapshot\.go|internal/palette/role-palette\.txt)$

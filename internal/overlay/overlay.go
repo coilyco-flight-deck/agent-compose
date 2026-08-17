@@ -8,7 +8,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
@@ -92,11 +91,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 			SoundMark: binding.SoundMark,
 		})
 	}
-	favorite, err := color.Favorite(colors)
-	if err != nil {
-		return nil, fmt.Errorf("build overlay: role %q favorite color: %w", roleName, err)
-	}
-	doc.FavoriteColor = favorite
+	doc.FavoriteColor = role.FavoriteColor
 	return doc, nil
 }
 

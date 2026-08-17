@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
@@ -40,14 +39,7 @@ func TestComposeAllFixtures(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantPersonalities := p.Roles["engineer"].Personalities
-	var componentColors []string
-	for _, personalityName := range wantPersonalities {
-		componentColors = append(componentColors, p.Personalities[personalityName].Color)
-	}
-	wantColor, err := color.Favorite(componentColors)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wantColor := p.Roles["engineer"].FavoriteColor
 	cases := map[string]string{
 		"native.kdl":   "native-skills",
 		"compiled.kdl": "compiled",

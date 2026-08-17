@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
 )
 
@@ -43,14 +42,7 @@ func TestBuildProjectsCanonicalPersonSource(t *testing.T) {
 		if got.Name != name || !reflect.DeepEqual(got.Personalities, want.Personalities) {
 			t.Fatalf("role[%d] = %#v, want %q with %q", index, got, name, want.Personalities)
 		}
-		var colors []string
-		for _, personalityName := range want.Personalities {
-			colors = append(colors, p.Personalities[personalityName].Color)
-		}
-		boundary, err := color.Favorite(colors)
-		if err != nil {
-			t.Fatal(err)
-		}
+		boundary := want.FavoriteColor
 		if got.Color != boundary {
 			t.Fatalf("role %q color = %q, want %q", name, got.Color, boundary)
 		}
