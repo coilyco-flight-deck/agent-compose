@@ -2,7 +2,7 @@
 
 Phoenix is a read-only display surface here: nothing is authored in it, so
 nothing returns from it. Committed records stay canonical. See
-coilyco-bridge/deploy#572 and docs/eval-export.md.
+coilyco-bridge/deploy#572 and docs/eval-pipeline.md.
 """
 
 from __future__ import annotations

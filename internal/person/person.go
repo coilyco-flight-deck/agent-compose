@@ -33,7 +33,7 @@ const (
 )
 
 // Personality and boundary prose carry their own bounds. A floor keeps an entry
-// from thinning into a label. See docs/role-skill-context-budget.md.
+// from thinning into a label. See docs/ai-engineer.md.
 const (
 	minPersonalitySkillBodyWords = 120
 	maxPersonalitySkillBodyWords = 320
@@ -45,11 +45,11 @@ const (
 const maxBoundarySkillBodyWords = 400
 
 // adjacentsPerRole fixes the out-degree of the role adjacency graph, so the
-// roster chooses its sharpest confusions. See docs/role-adjacency.md.
+// roster chooses its sharpest confusions. See docs/role-boundaries.md.
 const adjacentsPerRole = 2
 
 // Both sides of a boundary live in one body under conditional headings, so the
-// reader self-selects. See docs/boundary-owners.md.
+// reader self-selects. See docs/ownership.md.
 const (
 	boundaryOwnHeading   = "## If you own this boundary"
 	boundaryDeferHeading = "## If you defer this boundary"
@@ -120,7 +120,7 @@ type Role struct {
 }
 
 // Adjacent names one role whose work this role most risks absorbing. The reason
-// is generator input rather than commentary. See docs/role-adjacency.md.
+// is generator input rather than commentary. See docs/role-boundaries.md.
 type Adjacent struct {
 	Role   string `json:"role"`
 	Reason string `json:"reason"`
@@ -176,7 +176,7 @@ type SoundMark struct {
 }
 
 // Boundary binds one shared doctrine body that any number of roles may activate.
-// Its optional owner is described in docs/boundary-owners.md.
+// Its optional owner is described in docs/ownership.md.
 type Boundary struct {
 	Skill   string `json:"skill"`
 	Summary string `json:"summary"`
@@ -710,7 +710,7 @@ func validateBoundaryOwners(p *Person) error {
 }
 
 // validateRoleAdjacents keeps the graph complete. Adjacency is deliberately
-// directed, so do not add a symmetry check. See docs/role-adjacency.md.
+// directed, so do not add a symmetry check. See docs/role-boundaries.md.
 func validateRoleAdjacents(p *Person) error {
 	declared := false
 	for _, roleName := range p.roleOrder() {
@@ -1151,7 +1151,7 @@ func (p *Person) BoundarySkillDefinition(boundaryName string) ([]byte, bool) {
 }
 
 // RoleOwnedBoundaries returns the boundaries this role owns. An owner receives
-// the body without declaring it. See docs/boundary-owners.md.
+// the body without declaring it. See docs/ownership.md.
 func (p *Person) RoleOwnedBoundaries(roleName string) []string {
 	owned := make([]string, 0, 1)
 	for _, name := range p.boundaryOrder() {

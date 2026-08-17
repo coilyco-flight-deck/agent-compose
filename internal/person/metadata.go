@@ -9,7 +9,7 @@ import (
 )
 
 // OverrideRoleIdentity renames a role's seat and changes nothing else about the
-// role. Seats move with it, and why is docs/seat-identity.md.
+// role. Seats move with it, and why is docs/identity.md.
 func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
 	name = strings.TrimSpace(name)
 	pronouns = strings.TrimSpace(pronouns)

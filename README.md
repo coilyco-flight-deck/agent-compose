@@ -20,11 +20,11 @@ Roster:
 * complete selected-role terminal metadata, including role-stable agent
   identity, harness selectors, personality primitives, and renderer expressions
 * ordinary and role-composed skill selection
-* [three stable model tiers](docs/model-tiers.md) with fail-closed per-role
+* [three stable model tiers](docs/harness-vendoring.md) with fail-closed per-role
   compatibility and identical selected context across supported tiers
 * native-skill and compiled-context delivery with source entry-point promotion
 * local ordinary-skill catalogues projected through one native path
-* [role-scoped providers](docs/role-scoped-providers.md) for assigned bundles
+* [role-scoped providers](docs/role-selection.md) for assigned bundles
 * immutable bundle materialization and caching
 * harness load-point adapters and launch-time refresh
 * host doctrine convergence and native skill installation
@@ -63,7 +63,7 @@ See [person packages](docs/person-packages.md).
 Current releases ship the Go composition engine, verified deterministic
 bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
-package-manager distribution. Trusted roots use `.agents/roles.kdl` for skill-provider repositories, composed skills, and strict [repository policy](docs/repository-policy.md).
+package-manager distribution. Trusted roots use `.agents/roles.kdl` for skill-provider repositories, composed skills, and strict [repository policy](docs/repository-plan.md).
 Cascade compiles one availability and residency plan. Verified bundles retain repository provenance for launch consumers. Imported graphs do not recurse. The
 default `roster:core` provider supplies the personality invariant, all 16
 canonical definitions, and AI Engineer's cross-role evaluation methods, so its
@@ -123,7 +123,7 @@ stage. `just smoke-verbose` also prints both captured convergence transcripts.
 `just palette-serve` generates browser data from the embedded person
 source and starts the local explorer. `palette-build`, `palette-test`, and
 `palette-tidy` cover its remaining development lifecycle. See
-[the personality palette walkthrough](docs/personality-palette.md).
+[the personality palette walkthrough](docs/personality.md).
 
 ## License
 
@@ -136,8 +136,8 @@ Agent-compose is available under the [MIT License](LICENSE).
 * [docs/architecture.md](docs/architecture.md) - shipped composition boundary.
 * [docs/staged-home.md](docs/staged-home.md) - provider-neutral adapter handoff.
 * [docs/person-packages.md](docs/person-packages.md) - independent roster and evaluation packages.
-* [docs/v2-migration.md](docs/v2-migration.md) - v1 provider and role destinations.
-* [docs/catalogues-and-export.md](docs/catalogues-and-export.md) - rich profile inspection, reproducible archives, and logical content diff.
+* [docs/release.md](docs/release.md) - v1 provider and role destinations.
+* [docs/skill-catalogues.md](docs/skill-catalogues.md) - rich profile inspection, reproducible archives, and logical content diff.
 * [docs/evaluation.md](docs/evaluation.md) - the generator, subject, grader triple.
 * [docs/release.md](docs/release.md) - automatic Forgejo release pipeline.
 * [justfile](justfile) - development recipes.

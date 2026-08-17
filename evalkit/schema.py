@@ -224,7 +224,7 @@ def annotation_order(
     """Role-major, so an annotator holds one charter across a role's samples.
 
     Test-type-major degrades more gracefully, but annotation is resumable and
-    role context is the expensive thing to reload. See docs/eval-annotation.md.
+    role context is the expensive thing to reload. See docs/evaluation.md.
     """
     roles = list(role_order) if role_order else sorted({e.sample.role for e in dataset})
 

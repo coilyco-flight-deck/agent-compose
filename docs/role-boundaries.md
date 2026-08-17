@@ -73,8 +73,8 @@ Each slug names the behavior that moves, not the domain it sits in.
 ## See also
 
 * [Role skills](role-briefings.md) - charter and progressive-disclosure model.
-* [Boundary owners](boundary-owners.md) - the two-sided relationship.
-* [Role methods](role-methods.md) - single-owner lazy procedures.
-* [Personality libraries](personality-libraries.md) - the shared disposition axis.
-* [Role-skill context budget](role-skill-context-budget.md) - measured budget effects.
+* [Boundary owners](ownership.md) - the two-sided relationship.
+* [Role methods](role-briefings.md) - single-owner lazy procedures.
+* [Personality libraries](personality.md) - the shared disposition axis.
+* [Role-skill context budget](ai-engineer.md) - measured budget effects.
 * [Evaluation](evaluation.md) - deterministic packs and review policy.

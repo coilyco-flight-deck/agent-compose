@@ -64,6 +64,6 @@ future mobile surfaces without turning identity data into observability.
 
 ## See also
 
-* [identity-primitives.md](identity-primitives.md) - renderer semantics.
+* [identity-primitives.md](identity.md) - renderer semantics.
 * [person-packages.md](person-packages.md) - external package selection.
-* [person-snapshot.md](person-snapshot.md) - complete person export.
+* [person-snapshot.md](person-contract.md) - complete person export.

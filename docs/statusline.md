@@ -11,7 +11,7 @@ The ordinary row carries the composition facts worth keeping visible:
 ```
 
 * Emblems and the named seat with its subject pronoun come from the bundle;
-  `uz86` is the session [short id](short-id.md). `--name` adds the role label.
+  `uz86` is the session [short id](whoami.md). `--name` adds the role label.
 * `role@harness` names the actual projection choice instead of inferring role
   from the current task.
 * Model tier records the role compatibility boundary Agent Compose evaluated.
@@ -76,5 +76,5 @@ this with no host mutation. It survives `--safe-mode` with the session row.
 
 * [Native role launch](native-role-launch.md) - how assigned bundles are composed and projected.
 * [Projection](projection.md) - load-point and ownership sidecar contract.
-* [Catalogues and export](catalogues-and-export.md) - detailed inspection beyond the compact row.
+* [Catalogues and export](skill-catalogues.md) - detailed inspection beyond the compact row.
 * [FEATURES.md](FEATURES.md) - shipped capability inventory.

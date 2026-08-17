@@ -15,8 +15,8 @@ Arguments pass through. Long form: `agent-compose launch <role> <harness>`.
 ## Selection
 
 Launch reads the selected role from
-[`repository-plan.yaml`](repository-policy.md). It admits operating context,
-global repositories, role repositories, and [role-scoped providers](role-scoped-providers.md).
+[`repository-plan.yaml`](repository-plan.md). It admits operating context,
+global repositories, role repositories, and [role-scoped providers](role-selection.md).
 Required providers fail closed. Optional exclusions stay traced.
 
 Model tier is a launch-consumer runtime fact. Agent Compose defaults it to
@@ -77,4 +77,4 @@ inferred-role native path for compatibility.
 * [Integration](integration.md) - host and isolated delivery tiers.
 * [Role selection](role-selection.md) - inferred and caller-assigned roles.
 * [Projection](projection.md) - harness load points and ownership.
-* [Repository policy](repository-policy.md) - availability and residency.
+* [Repository policy](repository-plan.md) - availability and residency.

@@ -74,6 +74,6 @@ is the most-absorbed role, and DevOps is defended by none because
 ## See also
 
 * [Role boundaries](role-boundaries.md) - shared behavior allocated to one owner.
-* [Boundary owners](boundary-owners.md) - the two-sided relationship.
+* [Boundary owners](ownership.md) - the two-sided relationship.
 * [Role skills](role-briefings.md) - charter and progressive-disclosure model.
 * [Evaluation](evaluation.md) - deterministic packs and review policy.

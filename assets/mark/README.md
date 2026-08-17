@@ -1,3 +1,3 @@
 # Mark
 
-The agent-compose spool mark. See [docs/compose-mark.md](../../docs/compose-mark.md).
+The agent-compose spool mark. See [docs/compose-marks.md](../../docs/compose-marks.md).

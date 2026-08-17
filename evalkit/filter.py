@@ -4,7 +4,7 @@ There is no mechanical scorer here. A regex tier used to select which samples
 reached the annotator, and on the first graded board it disagreed with the
 grader on every case where either of them deviated from a pass. It measured
 something, but not what the grading measures, so it was removed rather than
-tuned. See docs/eval-orchestration.md.
+tuned. See docs/eval-pipeline.md.
 
 The annotator sees epoch 1. The other epochs stay in the Inspect log as
 evidence a reader can open.
