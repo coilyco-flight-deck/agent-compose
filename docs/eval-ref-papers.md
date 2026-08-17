@@ -71,7 +71,7 @@ Three of its recommendations are decisions already taken here:
 
 * One expert annotator rather than a panel. Kai is the single annotator, and that is
   a design choice rather than a staffing limit.
-* A custom grading interface. `evalkit.annotate` is one case per screen and one
+* A custom grading interface. `aos-eval annotate` is one case per screen and one
   keystroke per decision, which is exactly the bespoke-tool argument.
 * Binary judgments for anything with a right answer.
 

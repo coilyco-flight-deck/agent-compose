@@ -96,7 +96,11 @@ for them.
 
 ### Axial coding into a failure taxonomy
 
-A critique is an open code. `evalkit.taxonomy` is the axial step: it groups
+The shared `Sample` enforces only what is true of every deployment, so
+`evalkit.filter.load_samples` validates against this repo's profile and refuses
+a board whose cases would otherwise read as coverage they do not have.
+
+A critique is an open code. `aos-eval taxonomy` is the axial step: it groups
 every deduction by its structural axis, then by shared critique terms, and ranks
 by frequency. The output is a list of failure modes rather than a score, which
 is what you act on, and both practitioner references call error analysis the

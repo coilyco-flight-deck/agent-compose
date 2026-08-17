@@ -18,7 +18,7 @@ Inventory of what ships today.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   400 words, [role boundaries](role-boundaries.md) under a separate one.
 * [Role adjacency](role-boundaries.md) names each role's two likeliest absorptions.
-* [evalkit](eval-pipeline.md) runs, filters, and grades the board.
+* [evalkit](eval-pipeline.md) runs the board, `aos-eval` grades it.
 
 ## Load-point projection
 

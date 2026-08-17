@@ -3,8 +3,9 @@
 ## Eval orchestration
 
 `evalkit` is the Python half of the evaluation system. Go owns what a pack is
-and what a valid record is, and Python owns running the subject, filtering
-samples, and putting a case in front of a human. Orchestration changes often and
+and what a valid record is, `aos-eval` owns grading, shared with sirens-echo so
+the pairing rule has one implementation, and what stays here is the runner plus
+the roster-derived case list. Orchestration changes often and
 is throwaway, contracts change rarely and are load-bearing, and the rule keeping
 that seam honest is that **Python consumes what Go emits and never restates
 it.** No second pack schema, coverage rule, or record writer: two parsers is the
@@ -15,9 +16,9 @@ failure this split avoids.
 ```text
 generator         ->  samples.yaml
 inspect eval      ->  .eval log      (five epochs per sample, unscored)
-evalkit.filter    ->  dataset.yaml   (epoch 1 attached to every sample)
-evalkit.annotate  ->  annotations.yaml
-evalkit.taxonomy  ->  failure modes, ranked
+evalkit.filter      ->  dataset.yaml   (epoch 1 attached to every sample)
+aos-eval annotate   ->  annotations.yaml
+aos-eval taxonomy   ->  failure modes, ranked
 ```
 
 Go turns annotations into the canonical record, so totals and verdicts come
@@ -59,14 +60,14 @@ with the annotator seeing epoch 1 and the rest left in the log as evidence.
 
 ### Commands
 
-Ward owns `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-annotate`,
+The justfile carries `evalkit-sync`, `evalkit-run`, `evalkit-filter`, `evalkit-annotate`,
 `evalkit-matrix`, and `evalkit-check`. The last runs ruff, format, mypy strict,
 and pytest from `scripts/evalkit-check.sh` rather than pre-commit, since that
 file is managed by agentic-os and a hand-added hook is lost on sync.
 
 ## Eval export
 
-`evalkit.export` projects a committed run into a display payload. **One way,
+`aos-eval export` projects a committed run into a display payload. **One way,
 and nothing returns.** Committed records stay canonical, so the surface reading
 this payload is a rebuildable projection rather than a second home for
 evidence. Deployment target and its reasoning:
@@ -74,7 +75,7 @@ evidence. Deployment target and its reasoning:
 
 ### Why one way and what it reads and what it emits and the grader's own notes are withheld and it refuses rather than redacts and commands
 
-The display target is presentation, not review. `evalkit.annotate` remains the
+The display target is presentation, not review. `aos-eval annotate` remains the
 grading surface, and nothing is authored in the projection, so nothing has to
 come back. That removes the round trip
 [agent-compose#213](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213)

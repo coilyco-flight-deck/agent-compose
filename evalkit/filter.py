@@ -1,60 +1,21 @@
-"""Turn an Inspect eval log into the dataset a human annotates.
+"""Read an Inspect eval log and build the dataset a human annotates.
 
-There is no mechanical scorer here. A regex tier used to select which samples
-reached the annotator, and on the first graded board it disagreed with the
-grader on every case where either of them deviated from a pass. It measured
-something, but not what the grading measures, so it was removed rather than
-tuned. See docs/eval-pipeline.md.
-
-The annotator sees epoch 1. The other epochs stay in the Inspect log as
-evidence a reader can open.
+The join and its drop report live in `aos_eval.dataset`, shared with every
+other runner. What stays here is the part only Inspect can do: reading its log
+format. The annotator sees epoch 1, and the other epochs stay in the log as
+evidence a reader can open. See docs/eval-pipeline.md.
 """
 
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+from aos_eval.dataset import DatasetReport, build, validate
+from aos_eval.io import save_dataset
+from aos_eval.schema import AGENT_COMPOSE, Response, Sample
 from inspect_ai.log import read_eval_log
-
-from evalkit.schema import DatasetEntry, Response, Sample
-
-
-@dataclass(frozen=True)
-class Dropped:
-    sample_id: str
-    reason: str
-
-
-@dataclass
-class DatasetReport:
-    """Silent truncation reads as full coverage, so every drop is recorded."""
-
-    kept: list[DatasetEntry]
-    dropped: list[Dropped]
-
-    @property
-    def summary(self) -> str:
-        return f"{len(self.kept)} kept, {len(self.dropped)} dropped"
-
-
-def run(samples: list[Sample], responses: list[Response]) -> DatasetReport:
-    by_sample: dict[str, list[Response]] = defaultdict(list)
-    for response in responses:
-        by_sample[response.sample_id].append(response)
-
-    kept: list[DatasetEntry] = []
-    dropped: list[Dropped] = []
-    for sample in samples:
-        runs = sorted(by_sample[sample.id], key=lambda r: r.epoch)
-        if not runs:
-            dropped.append(Dropped(sample.id, "no subject runs"))
-            continue
-        kept.append(DatasetEntry(sample=sample, output=runs[0].text))
-    return DatasetReport(kept=kept, dropped=dropped)
 
 
 def load_responses(path: Path) -> list[Response]:
@@ -78,8 +39,22 @@ def load_responses(path: Path) -> list[Response]:
 
 
 def load_samples(path: Path) -> list[Sample]:
+    """Authoring is where a malformed case must fail.
+
+    The shared Sample stays portable across profiles, so it enforces only what
+    is true of every deployment. A board case that omits a field this profile
+    requires is not a portability question, it is an unauthored case that would
+    read as graded coverage.
+    """
     raw = yaml.safe_load(path.read_text()) or {}
-    return [Sample.model_validate(entry) for entry in raw.get("samples", [])]
+    samples = [Sample.model_validate(entry) for entry in raw.get("samples", [])]
+    if problems := validate(samples, AGENT_COMPOSE):
+        raise ValueError("\n".join(problems))
+    return samples
+
+
+def run(samples: list[Sample], responses: list[Response]) -> DatasetReport:
+    return build(samples, responses)
 
 
 def _reasoning(message: object) -> str:
@@ -97,14 +72,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    samples = load_samples(args.samples)
-    report = run(samples, load_responses(args.log))
+    report = build(load_samples(args.samples), load_responses(args.log))
+    save_dataset(args.out, report.kept)
 
-    args.out.write_text(
-        yaml.safe_dump(
-            {"dataset": [entry.to_dict() for entry in report.kept]}, sort_keys=False, width=100
-        )
-    )
     print(report.summary)
     for drop in report.dropped:
         print(f"  dropped {drop.sample_id}: {drop.reason}")

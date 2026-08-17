@@ -15,7 +15,7 @@ cleanup() { rm -rf "$render_dir"; }
 trap cleanup EXIT HUP INT TERM
 go run ./cmd/agent-compose roster --out "$render_dir" >/dev/null
 
-uv run python -m evalkit.annotate \
+uv run aos-eval annotate \
   --dataset "$dataset" \
   --out "$out" \
   --roster "$render_dir/person.json" \

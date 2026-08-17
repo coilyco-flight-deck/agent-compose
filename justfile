@@ -103,7 +103,7 @@ evalkit-view *ARGS:
 
 # Project a committed run into a display payload. One way, and refuses anything unsafe for a public surface.
 evalkit-export *ARGS:
-    @uv run python -m evalkit.export "$@"
+    @uv run aos-eval export "$@"
 
 # Read an Inspect eval log and build the dataset the annotator grades.
 evalkit-filter *ARGS:
@@ -111,7 +111,7 @@ evalkit-filter *ARGS:
 
 # Cluster annotation critiques into a ranked failure taxonomy.
 evalkit-taxonomy *ARGS:
-    @uv run python -m evalkit.taxonomy "$@"
+    @uv run aos-eval taxonomy "$@"
 
 # Annotate the eval dataset by hand, one keystroke per sample.
 evalkit-annotate *ARGS:

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from evalkit.matrix import abbreviate, derive
-from evalkit.schema import TestType
+from evalkit.matrix import BOUNDARY, PERSONALITY, ROLE_FIT, abbreviate, derive
 
 ROSTER: dict[str, Any] = {
     "role_order": ["engineer", "ops", "creator"],
@@ -40,7 +39,7 @@ ROSTER: dict[str, Any] = {
 
 
 def test_the_owner_gets_a_pair_alongside_every_deferring_role() -> None:
-    boundary = [slot for slot in derive(ROSTER) if slot.test_type is TestType.BOUNDARY]
+    boundary = [slot for slot in derive(ROSTER) if slot.test_type == BOUNDARY]
     assert [slot.id for slot in boundary] == [
         "engineer-shc-in",
         "engineer-shc-out",
@@ -55,7 +54,7 @@ def test_a_role_declaring_no_boundary_still_owns_one_as_its_owner() -> None:
     creator = {
         slot.id: slot.descriptor
         for slot in derive(ROSTER)
-        if slot.role == "creator" and slot.test_type is TestType.BOUNDARY
+        if slot.role == "creator" and slot.test_type == BOUNDARY
     }
     assert creator["creator-shc-in"] == 'owns "recommends communication"'
     assert creator["creator-shc-out"] == 'owns "recommends communication", claims nothing past it'
@@ -83,13 +82,13 @@ def test_a_summary_without_the_expected_shape_survives_intact() -> None:
 
 def test_adjacency_reasons_become_the_case_descriptors() -> None:
     slots = derive(ROSTER)
-    fit = {s.id: s.descriptor for s in slots if s.test_type is TestType.ROLE_FIT}
+    fit = {s.id: s.descriptor for s in slots if s.test_type == ROLE_FIT}
     assert fit["engineer-fit-ops"] == "deploying instead of handing back"
     assert fit["engineer-fit-within"] == "engineer correctly identifies work it should own"
 
 
 def test_personality_is_one_case_per_trait_with_no_composed_case() -> None:
-    personality = [slot for slot in derive(ROSTER) if slot.test_type is TestType.PERSONALITY]
+    personality = [slot for slot in derive(ROSTER) if slot.test_type == PERSONALITY]
     engineer = [slot.id for slot in personality if slot.role == "engineer"]
     assert engineer == ["engineer-per-curious", "engineer-per-meticulous"]
 
@@ -102,10 +101,13 @@ def test_a_trait_case_names_the_peers_it_is_composed_alongside() -> None:
 
 def test_board_size_is_a_consequence_of_the_roster() -> None:
     slots = derive(ROSTER)
-    counts = {kind: sum(1 for slot in slots if slot.test_type is kind) for kind in TestType}
-    assert counts[TestType.BOUNDARY] == 6
-    assert counts[TestType.ROLE_FIT] == 5
-    assert counts[TestType.PERSONALITY] == 4
+    counts = {
+        kind: sum(1 for slot in slots if slot.test_type == kind)
+        for kind in (BOUNDARY, ROLE_FIT, PERSONALITY)
+    }
+    assert counts[BOUNDARY] == 6
+    assert counts[ROLE_FIT] == 5
+    assert counts[PERSONALITY] == 4
 
 
 def test_boundary_abbreviations_come_from_the_slug() -> None:
