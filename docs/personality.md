@@ -108,7 +108,7 @@ visibly if that presentation list drifts from the canonical catalog.
 
 The explorer provides:
 
-* the full sixteen-personality spectrum with emblem, motif, form, and sound
+* the full eighteen-personality spectrum with emblem, motif, form, and sound
 * role filters with complete personality melds
 * component colors and the derived role boundary
 * day and night previews

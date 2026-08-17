@@ -1,0 +1,11 @@
+personality "empirical" skill="personality-empirical" color="#2ed1aa" motif="annealed-steel" {
+    order 23
+    emblem { name "burette"; emoji "🧪"; glyph "≡" }
+    form { silhouette "burette"; geometry "graduated-column"; motion "titrating" }
+    sound-mark { timbre "glass-tap"; contour "level-hold"; pulse "measured-two" }
+    verb "Measuring" "Isolating" "Replicating" "Calibrating" "Recording" "Controlling"
+    alias "evidence-producing"
+    alias "experimental"
+    alias "measurement-first"
+    alias "reproducible"
+}

@@ -15,7 +15,7 @@ role "exec" {
     display-name "Executive Strategist"
     purpose "Decide where to invest attention across the real portfolio."
     skill "role-exec"
-    personality "curious" "grounded" "decisive"
+    personality "outward" "grounded" "decisive"
 }
 ```
 
