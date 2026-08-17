@@ -43,6 +43,9 @@ type Selection struct {
 	Skills     []string `yaml:"skills,omitempty"`
 	Name       string   `yaml:"name,omitempty"`
 	DeclaredBy string   `yaml:"declared_by,omitempty"`
+	// Narrows within Skills for the owning role only, so it never rides along
+	// onto a role-union residency entry.
+	BindingSkills []string `yaml:"binding_skills,omitempty"`
 }
 
 type Plan struct {
@@ -370,6 +373,7 @@ func validateSelectionsNode(node *yaml.Node, owner string) error {
 			"reason",
 			"required",
 			"skills",
+			"binding_skills",
 			"name",
 			"declared_by",
 		); err != nil {
@@ -389,13 +393,17 @@ func validateSelectionsNode(node *yaml.Node, owner string) error {
 				return err
 			}
 		}
-		if value, exists := fields["skills"]; exists {
-			skills, err := sequenceItems(value, entry+" skills")
+		for _, field := range []string{"skills", "binding_skills"} {
+			value, exists := fields[field]
+			if !exists {
+				continue
+			}
+			skills, err := sequenceItems(value, entry+" "+field)
 			if err != nil {
 				return err
 			}
 			for skillIndex, skill := range skills {
-				if err := requireString(skill, fmt.Sprintf("%s skills entry %d", entry, skillIndex)); err != nil {
+				if err := requireString(skill, fmt.Sprintf("%s %s entry %d", entry, field, skillIndex)); err != nil {
 					return err
 				}
 			}
@@ -528,12 +536,21 @@ func selectionsNode(selections []Selection) *yaml.Node {
 		if selection.Required {
 			fields = append(fields, stringNode("required"), boolNode(selection.Required))
 		}
-		if len(selection.Skills) > 0 {
-			skills := make([]*yaml.Node, 0, len(selection.Skills))
-			for _, skill := range selection.Skills {
-				skills = append(skills, stringNode(skill))
+		for _, selector := range []struct {
+			key      string
+			patterns []string
+		}{
+			{"skills", selection.Skills},
+			{"binding_skills", selection.BindingSkills},
+		} {
+			if len(selector.patterns) == 0 {
+				continue
 			}
-			fields = append(fields, stringNode("skills"), sequenceNode(skills...))
+			patterns := make([]*yaml.Node, 0, len(selector.patterns))
+			for _, pattern := range selector.patterns {
+				patterns = append(patterns, stringNode(pattern))
+			}
+			fields = append(fields, stringNode(selector.key), sequenceNode(patterns...))
 		}
 		if selection.Name != "" {
 			fields = append(fields, stringNode("name"), stringNode(selection.Name))

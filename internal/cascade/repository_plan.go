@@ -87,7 +87,7 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 				if loadErr != nil {
 					return "", fmt.Errorf("load provider %q declared by %s: %w", id, graph.relative, loadErr)
 				}
-				if selectErr := schema.SelectOrdinarySkills(providerSource, definition.Skills); selectErr != nil {
+				if selectErr := schema.SelectOrdinarySkills(providerSource, definition.Skills, nil); selectErr != nil {
 					return "", fmt.Errorf("select provider %q declared by %s: %w", id, graph.relative, selectErr)
 				}
 			} else if !os.IsNotExist(statErr) {
@@ -165,7 +165,9 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 			}
 			for _, use := range graph.source.RoleRepos[role] {
 				definition := graph.source.Repositories[use.Repository]
-				if err := add(repositorySelection(definition.Path, repositoryDefinitions[graph.root][use.Repository], graph.relative, "role", fmt.Sprintf("repository policy makes this repository available to role %q", role))); err != nil {
+				selection := repositorySelection(definition.Path, repositoryDefinitions[graph.root][use.Repository], graph.relative, "role", fmt.Sprintf("repository policy makes this repository available to role %q", role))
+				selection.BindingSkills = append([]string(nil), use.Skills...)
+				if err := add(selection); err != nil {
 					return "", err
 				}
 			}
@@ -176,8 +178,9 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 					Path:     providerDefinitions[graph.root][use.Provider],
 					Source:   graph.relative, Scope: "provider", Required: use.Required,
 					Skills: append([]string(nil), definition.Skills...), Name: use.Provider,
-					DeclaredBy: graph.relative,
-					Reason:     fmt.Sprintf("role %q uses skill-provider repository %q declared by %s", role, use.Provider, graph.relative),
+					BindingSkills: append([]string(nil), use.Skills...),
+					DeclaredBy:    graph.relative,
+					Reason:        fmt.Sprintf("role %q uses skill-provider repository %q declared by %s", role, use.Provider, graph.relative),
 				}); err != nil {
 					return "", err
 				}
@@ -193,6 +196,9 @@ func RenderRepositoryPlan(cfg *Config, projects string) (string, error) {
 				copy := selection
 				copy.Scope = "role-union"
 				copy.Reason = "repository is selected by at least one canonical role"
+				// Residency is the union across roles, so one role's narrowing
+				// must not read as a property of the repository itself.
+				copy.BindingSkills = nil
 				residency[selection.Identity] = copy
 			}
 		}

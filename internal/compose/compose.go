@@ -31,11 +31,12 @@ type Options struct {
 
 // RootSource names one trusted provider root selected by a host launcher.
 type RootSource struct {
-	ID     string
-	Root   string
-	Reason string
-	Scope  string
-	Skills []string
+	ID            string
+	Root          string
+	Reason        string
+	Scope         string
+	Skills        []string
+	BindingSkills []string
 }
 
 type externalOnlyError struct {
@@ -150,7 +151,7 @@ func RunRootsWithMissing(
 		source.ID = root.ID
 		source.AdmissionReason = root.Reason
 		source.ProviderScope = root.Scope
-		if err := schema.SelectOrdinarySkills(source, root.Skills); err != nil {
+		if err := schema.SelectOrdinarySkills(source, root.Skills, root.BindingSkills); err != nil {
 			return nil, wrapPolicyError(
 				fmt.Errorf("source %q: %w", root.ID, err),
 				hostExternalOnly,
