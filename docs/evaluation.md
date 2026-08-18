@@ -10,8 +10,9 @@ exports, runs the subject, and writes the dataset.
 
 **`aos-eval`** is the grading half, shipped from `coilyco-flight-deck/agentic-os` so the pairing
 rule has one home. It holds no runner and no model client, so grading never spends a token and never
-touches a deployed system. Run `aos-eval help` for the exhaustive reference. sirens-echo is the
-second intended consumer and shares the boundary declaration shape today, not the dataset.
+touches a deployed system. Run `aos-eval help` for the exhaustive reference. sirens-echo grades
+through it too, against a live harness rather than a composed prompt, so the pairing rule below has
+one implementation across both.
 
 Go owns what a pack is and what a valid record is, and the rule keeping that seam honest is that
 **Python consumes what Go emits and never restates it**. No second pack schema, coverage rule, or
