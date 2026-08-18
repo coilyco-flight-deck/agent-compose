@@ -1,7 +1,7 @@
 """The Inspect task. Replaces a hand-rolled fan-out with `inspect eval`.
 
 Run it unscored, because the scorer is a human. Inspect calls the repetition an
-epoch, which is what n=5 was. See docs/eval-pipeline.md.
+epoch, which is what n=5 was. See docs/evaluation.md.
 
     AGENTPROXY_BASE_URL=http://ser8:8080/v1 \\
     inspect eval evalkit/task.py --model openai-api/agentproxy/evaluation/deepseek-v4-flash \\
