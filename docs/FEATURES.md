@@ -18,7 +18,6 @@ Inventory of what ships today.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   400 words, [role boundaries](role-boundaries.md) under a separate one.
 * [Role adjacency](role-boundaries.md) names each role's two likeliest absorptions.
-* [evalkit](eval-pipeline.md) runs the board, `aos-eval` grades it.
 
 ## Load-point projection
 
@@ -42,8 +41,9 @@ Inventory of what ships today.
 * [Catalogues and export](skill-catalogues.md) provide inspection,
   reproducible archives, and logical content diff.
 * `compose` renders complete role metadata. `--explain` adds decisions.
-* [Evaluation](evaluation.md) derives the board from the roster and grades it
-  by hand, with no mechanical scorer in the loop.
+* [Evaluation](evaluation.md) derives the board from the roster, runs it with
+  `evalkit`, and grades it by hand with the shared `aos-eval`. No mechanical
+  scorer anywhere in the loop.
 * [V2 migration](release.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.
   Redirects and `NO_COLOR` stay plain.

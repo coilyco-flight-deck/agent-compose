@@ -3,7 +3,7 @@
 The join and its drop report live in `aos_eval.dataset`, shared with every
 other runner. What stays here is the part only Inspect can do: reading its log
 format. The annotator sees epoch 1, and the other epochs stay in the log as
-evidence a reader can open. See docs/eval-pipeline.md.
+evidence a reader can open. See docs/evaluation.md.
 """
 
 from __future__ import annotations
