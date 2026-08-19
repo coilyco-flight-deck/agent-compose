@@ -84,6 +84,11 @@ that publishing, sending, and other external action needs. This page does not
 restate those lists, because three hand-maintained copies had already drifted
 apart before the boundary existed.
 
+## Omitting a boundary
+
+A deployment with no seat for the owning role composes without that boundary.
+See [boundary omission](boundary-omission.md).
+
 ### Reviewed production locations
 
 * `internal/evaluation/evaluation.go` - typed evaluation pack rendering,

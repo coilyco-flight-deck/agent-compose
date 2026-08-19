@@ -29,7 +29,9 @@ be supported by the role, and never changes selected context: every supported
 tier receives the complete selection. Legacy `density "full"` is ignored and
 other densities fail. Sources run in request order, `root` and `declaration`
 only locate files, and optional `identity` renames the composed seat
-([identity](identity.md)). The public AOS provider needs only its root.
+([identity](identity.md)). Optional `boundary-omit` drops defer-side boundaries
+whose owning seat this deployment does not have
+([boundary omission](boundary-omission.md)). The public AOS provider needs only its root.
 Agent-compose discovers ordinary skills and reads one `.agents/roles.kdl`
 graph:
 

@@ -66,7 +66,7 @@ func Render(p *person.Person, sources []*schema.Source, _ string) (map[string][]
 		if len(role.Seats) == 0 {
 			continue
 		}
-		card, err := p.RenderRoleIdentityCard(roleName, role.FavoriteColor)
+		card, err := p.RenderRoleIdentityCard(roleName, role.FavoriteColor, p.RoleActiveBoundaries(roleName))
 		if err != nil {
 			return nil, err
 		}

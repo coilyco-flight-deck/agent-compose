@@ -1,0 +1,7 @@
+// A single-seat deployment: engineer with no ops or exec to hand work to.
+compose {
+    role "engineer"
+    delivery "native-skills"
+    boundary-omit "modify-live-system" "seek-external-validation"
+    source "aos-public" declaration="source-public.kdl" required=#true
+}

@@ -74,7 +74,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			instructionText := string(instructions)
-			wantCard, err := p.RenderRoleIdentityCard("engineer", wantColor)
+			wantCard, err := p.RenderRoleIdentityCard("engineer", wantColor, p.RoleActiveBoundaries("engineer"))
 			if err != nil {
 				t.Fatal(err)
 			}

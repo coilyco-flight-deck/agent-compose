@@ -46,6 +46,9 @@ type Request struct {
 	Identity             *IdentityOverride
 	Sources              []SourceLocator
 	Repositories         []RepositorySelection
+	// BoundaryOmissions names defer-side boundaries this deployment does not
+	// compose. See docs/ownership.md.
+	BoundaryOmissions []string
 }
 
 // IdentityOverride renames the seat a request composes. It says who is
@@ -314,6 +317,22 @@ func ParseRequest(path string) (*Request, error) {
 			req.Identity = &IdentityOverride{
 				Name:     strings.TrimSpace(identityName.String()),
 				Pronouns: strings.TrimSpace(pronouns.String()),
+			}
+		case "boundary-omit":
+			if len(n.Arguments()) == 0 {
+				return nil, fmt.Errorf("request %s: boundary-omit needs at least one boundary name", path)
+			}
+			for _, arg := range n.Arguments() {
+				name := strings.TrimSpace(arg.String())
+				if name == "" {
+					return nil, fmt.Errorf("request %s: boundary-omit name cannot be empty", path)
+				}
+				for _, other := range req.BoundaryOmissions {
+					if other == name {
+						return nil, fmt.Errorf("request %s: duplicate boundary-omit %q", path, name)
+					}
+				}
+				req.BoundaryOmissions = append(req.BoundaryOmissions, name)
 			}
 		case "source":
 			id, err := oneStringArg(n)

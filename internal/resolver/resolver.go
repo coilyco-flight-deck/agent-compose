@@ -23,6 +23,42 @@ const (
 	ProviderCategoryRole      = "role-provider"
 )
 
+// composedBoundaries is the role's active set minus what this deployment
+// omitted. See docs/boundary-omission.md.
+func composedBoundaries(p *person.Person, req *schema.Request) ([]string, error) {
+	active := p.RoleActiveBoundaries(req.Role)
+	if len(req.BoundaryOmissions) == 0 {
+		return active, nil
+	}
+	inActive := map[string]bool{}
+	for _, name := range active {
+		inActive[name] = true
+	}
+	omitted := map[string]bool{}
+	for _, name := range req.BoundaryOmissions {
+		binding, defined := p.Boundaries[name]
+		if !defined {
+			return nil, fmt.Errorf("boundary-omit names unknown boundary %q", name)
+		}
+		// An owner losing its own boundary is a larger claim than a deferrer
+		// losing one, and nothing here is allowed to make it.
+		if binding.Owner == req.Role {
+			return nil, fmt.Errorf("boundary-omit %q is owned by role %q and cannot be omitted", name, req.Role)
+		}
+		if !inActive[name] {
+			return nil, fmt.Errorf("boundary-omit %q is not active for role %q", name, req.Role)
+		}
+		omitted[name] = true
+	}
+	kept := make([]string, 0, len(active))
+	for _, name := range active {
+		if !omitted[name] {
+			kept = append(kept, name)
+		}
+	}
+	return kept, nil
+}
+
 type Decision struct {
 	Subject string `json:"subject"`
 	Kind    string `json:"kind"`
@@ -135,11 +171,20 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	}
 	favorite := role.FavoriteColor
 
+	boundaries, err := composedBoundaries(p, req)
+	if err != nil {
+		return nil, err
+	}
+	omittedSkills := map[string]bool{}
+	for _, name := range req.BoundaryOmissions {
+		omittedSkills[p.Boundaries[name].Skill] = true
+	}
+
 	res := &Resolution{
 		Request:       req,
 		Person:        p,
 		Personalities: append([]string(nil), role.Personalities...),
-		Boundaries:    p.RoleActiveBoundaries(req.Role),
+		Boundaries:    append([]string(nil), boundaries...),
 		RolePurpose:   role.Purpose,
 		RoleBriefing:  role.Briefing,
 		FavoriteColor: favorite,
@@ -175,7 +220,16 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			Reason:  fmt.Sprintf("role %q activates its full personality set: %s", req.Role, strings.Join(role.Personalities, ", ")),
 		})
 	}
-	for _, name := range p.RoleActiveBoundaries(req.Role) {
+	for _, name := range req.BoundaryOmissions {
+		res.decide(Decision{
+			Subject: "boundary:" + name, Kind: "profile", Source: p.ProviderID(),
+			Outcome: OutcomeExcluded,
+			Reason: fmt.Sprintf(
+				"request omits boundary %q, whose owner %q is not a seat in this deployment",
+				name, p.Boundaries[name].Owner),
+		})
+	}
+	for _, name := range boundaries {
 		relationship := "defers"
 		if p.Boundaries[name].Owner == req.Role {
 			relationship = "owns"
@@ -319,6 +373,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			}
 		}
 		for _, ref := range src.RoleSkills[req.Role] {
+			if omittedSkills[ref.ID] {
+				continue
+			}
 			if err := considerSkill(
 				src,
 				ref,
@@ -336,7 +393,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 	} else {
 		return nil, fmt.Errorf("role %q binds skill %q, but no admitted source provides it", req.Role, roleSkill)
 	}
-	for _, name := range p.RoleActiveBoundaries(req.Role) {
+	for _, name := range boundaries {
 		binding, ok := p.Boundaries[name]
 		if !ok {
 			return nil, fmt.Errorf("role %q names boundary %q without a catalog binding", req.Role, name)

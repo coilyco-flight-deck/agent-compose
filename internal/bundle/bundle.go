@@ -248,7 +248,7 @@ func write(res *resolver.Resolution, root string) error {
 }
 
 func joinInstructions(res *resolver.Resolution) ([]byte, error) {
-	card, err := res.Person.RenderRoleIdentityCard(res.Request.Role, res.FavoriteColor)
+	card, err := res.Person.RenderRoleIdentityCard(res.Request.Role, res.FavoriteColor, res.Boundaries)
 	if err != nil {
 		return nil, err
 	}

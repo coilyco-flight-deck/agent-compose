@@ -32,7 +32,7 @@ func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
 
 // RenderRoleIdentityCard keeps identity texture visible while long-form role
 // and personality doctrine remains lazy-loaded from ordinary skills.
-func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, error) {
+func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries []string) (string, error) {
 	role, ok := p.Roles[roleName]
 	if !ok {
 		return "", fmt.Errorf("render role identity card: role %q is not defined", roleName)
@@ -47,7 +47,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "**Role methods // `%s`**\n", strings.Join(role.Methods, "` // `"))
 	}
-	boundarySkills := p.RoleBoundarySkillIDs(roleName)
+	boundarySkills := p.boundarySkillIDs(boundaries)
 	if len(boundarySkills) > 0 {
 		fmt.Fprintf(&out, "**Boundaries // `%s`**\n", strings.Join(boundarySkills, "` // `"))
 	}
@@ -92,9 +92,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string) (string, e
 		}
 		fmt.Fprintf(&out, "%s\n\n", description)
 	}
-	if active := p.RoleActiveBoundaries(roleName); len(active) > 0 {
+	if len(boundaries) > 0 {
 		out.WriteString("## Boundaries\n\n")
-		for _, name := range active {
+		for _, name := range boundaries {
 			binding, exists := p.Boundaries[name]
 			if !exists {
 				return "", fmt.Errorf("render role identity card: boundary %q is not defined", name)
@@ -432,4 +432,15 @@ func writeCredit(
 	fmt.Fprintf(out, "    * Impact fit: %s\n", inspiration.ImpactFit)
 	fmt.Fprintf(out, "    * Profile citation: `%s`\n", inspiration.ProfileCitation)
 	return nil
+}
+
+// boundarySkillIDs names the skills for one already-composed boundary set.
+func (p *Person) boundarySkillIDs(boundaries []string) []string {
+	ids := make([]string, 0, len(boundaries))
+	for _, name := range boundaries {
+		if binding, exists := p.Boundaries[name]; exists {
+			ids = append(ids, binding.Skill)
+		}
+	}
+	return ids
 }
