@@ -14,6 +14,7 @@ Inventory of what ships today.
   compatibility without changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with budgets.
+* `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have. See [boundary omission](boundary-omission.md).
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   400 words, [role boundaries](role-boundaries.md) under a separate one.
