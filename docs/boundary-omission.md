@@ -36,4 +36,3 @@ Three refusals keep the knob from meaning something it should not:
 The decision trace records each omission as an excluded profile decision. A
 bundle that quietly lacks a boundary is worse than one that never had it,
 because the review surface stops telling the truth.
-
