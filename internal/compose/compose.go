@@ -81,6 +81,10 @@ func RunWithOptions(requestPath, outDir string, opts Options) (*Result, error) {
 		personSource = filepath.Join(filepath.Dir(requestPath), req.PersonSource)
 	}
 	for _, library := range req.PersonalityLibraries {
+		if person.IsCoreLibrary(library) {
+			libraries = append(libraries, library)
+			continue
+		}
 		libraries = append(libraries, filepath.Join(filepath.Dir(requestPath), library))
 	}
 	if err := personpolicy.Validate(effectivePolicy(externalOnly), personSource); err != nil {

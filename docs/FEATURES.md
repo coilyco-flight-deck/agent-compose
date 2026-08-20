@@ -9,6 +9,9 @@ Inventory of what ships today.
   identities. [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality.md) replace the default.
+* `personality-library "roster:core"` lets an external package bind the
+  [embedded core personalities](personality.md) by slug instead of vendoring
+  their bodies. Roles, seats, and identity stay package-exclusive.
 * `.agents/roles.kdl` owns [skill-provider repos](role-selection.md), skills, and [repository policy](repository-plan.md).
 * [Three model tiers](harness-vendoring.md) declare Core role deployment
   compatibility without changing selected context.

@@ -840,6 +840,17 @@ func validateCorePersonalityMelds(p *Person) error {
 }
 
 func loadLibrary(root string) (*Person, string, fs.FS, error) {
+	if IsCoreLibrary(root) {
+		source, err := coreLibrarySource()
+		if err != nil {
+			return nil, "", nil, err
+		}
+		library, id, err := loadLibrarySource(source, coreLibraryLabel)
+		if err != nil {
+			return nil, "", nil, err
+		}
+		return library, id, source, nil
+	}
 	absolute, err := filepath.Abs(root)
 	if err != nil {
 		return nil, "", nil, err

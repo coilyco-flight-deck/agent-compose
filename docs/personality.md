@@ -42,9 +42,14 @@ records and personality references are validated as one complete graph.
 The profile discovers `libraries/` children in lexical order. Callers may admit
 further local roots with repeatable `--personality-library` flags,
 `personality-library` request nodes, or ordered host `personality_libraries`.
-Profile-local roots resolve first, followed by the caller order. All roots are
-local directories. Agent Compose does not accept URLs, git refs, release
-identifiers, or fetch instructions.
+Profile-local roots resolve first, followed by the caller order. Every root is a
+local directory or the reserved `roster:core` root below. Agent Compose does not
+accept URLs, git refs, release identifiers, or fetch instructions.
+
+The reserved root is a name rather than a path. Admitting it merges the shipped
+core personalities, so a package binds `meticulous` by slug and the binary
+supplies the body instead of the package vendoring it. Only that disposition
+axis crosses. Roles, seats, identity, and the invariant stay package-exclusive.
 
 ### Conflicts and compatibility
 
@@ -106,15 +111,10 @@ TypeScript layer owns only visual presentation metadata such as friendly color
 names, short associations, and spectrum ordering. Startup validation fails
 visibly if that presentation list drifts from the canonical catalog.
 
-The explorer provides:
-
-* the full eighteen-personality spectrum with emblem, motif, form, and sound
-* role filters with complete personality melds
-* component colors and the derived role boundary
-* day and night previews
-* spectrum and alphabetical ordering
-* one-click copying for component and melded colors
-* responsive layout and reduced-motion support
+The explorer shows the full eighteen-personality spectrum with emblem, motif,
+form, and sound, role filters with complete melds, component colors and the
+derived role boundary, day and night previews, spectrum and alphabetical
+ordering, one-click copying, and a responsive reduced-motion layout.
 
 The app is a framework-free Vite and TypeScript project under
 `web/personality-palette`. It is a local source tool, not a deployment target.

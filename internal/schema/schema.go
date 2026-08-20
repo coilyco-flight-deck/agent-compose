@@ -34,6 +34,10 @@ const (
 	ProviderScopeDefault = "default"
 	ProviderScopeHarness = "harness"
 	ProviderScopeRole    = "role"
+
+	// CoreLibraryRoot names the embedded personality library wherever a
+	// personality-library root is accepted. See docs/personality.md.
+	CoreLibraryRoot = "roster:core"
 )
 
 type Request struct {
@@ -247,7 +251,9 @@ func ParseRequest(path string) (*Request, error) {
 			if err != nil {
 				return nil, fmt.Errorf("request %s: %w", path, err)
 			}
-			if filepath.IsAbs(v) || strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`) {
+			// The reserved embedded root is a logical name, not a path to resolve.
+			if v != CoreLibraryRoot &&
+				(filepath.IsAbs(v) || strings.HasPrefix(v, "/") || strings.HasPrefix(v, `\`)) {
 				return nil, fmt.Errorf("request %s: personality-library path %q must be relative and clean", path, v)
 			}
 			req.PersonalityLibraries = append(req.PersonalityLibraries, v)

@@ -1367,6 +1367,10 @@ func loadHostPersonOptions(paths cascade.Paths) (compose.Options, error) {
 func resolveConfiguredPaths(values []string, configPath, home string) []string {
 	paths := make([]string, 0, len(values))
 	for _, value := range values {
+		if person.IsCoreLibrary(value) {
+			paths = append(paths, person.CoreLibraryRoot)
+			continue
+		}
 		paths = append(paths, cascade.ResolveConfiguredPath(value, configPath, home))
 	}
 	return paths
