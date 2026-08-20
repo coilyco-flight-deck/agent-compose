@@ -43,6 +43,41 @@ libraries/kai-core/definitions/skills/boundary-modify-live-system/SKILL.md
 The catalog id, `skill` property, and frontmatter name must agree, so boundary
 `modify-live-system` binds `boundary-modify-live-system`. An unreferenced boundary fails loading.
 
+## Three states, not two
+
+A role owns a boundary, defers it, or **holds it within a scope**. The third is a
+bounded grant rather than an absence, so it needs a declaration of its own: the
+limit text is the whole content, and a role that simply omits a boundary says
+nothing at all.
+
+```kdl
+role "gamedev" {
+    boundary "build-foundational-software" "seek-external-validation"
+    boundary-scoped "modify-live-backend" scope="a local world you run yourself, never a hosted surface"
+}
+```
+
+Scoping is not deferring, and the parser rejects a role that does both for one
+boundary. An owner may not scope its own boundary either, since it already
+receives the body by owning it and would be handed two contradictory sides.
+
+The scoped side of the body sits between the own and defer sides, under
+`## If you hold this boundary within a scope`. It is **optional**: a boundary
+nobody scopes needs no third section, which is what keeps packages authored
+before this axis loading unchanged. A role that scopes a boundary whose body
+lacks that section fails to load, so the grant can never arrive without its
+instructions.
+
+### What it buys the evaluation board
+
+A boundary is scored as a pair, the in-half proving the rule fires and the
+out-half proving it does not fire on the neighbouring case that must still be
+served. A scoped grant fits neither half, so it earns its own pair: a
+within-scope case proving the grant actually works, and a beyond-scope case
+proving the limit holds. That moves the measured question from *does the rule
+fire* to *does the grant hold its limits*, and "acted, but exceeded the scope"
+is the failure a binary model cannot see.
+
 ## Selection and delivery
 
 Agent Compose selects a boundary with every role that declares it and with its

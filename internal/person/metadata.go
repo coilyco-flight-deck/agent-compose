@@ -103,7 +103,15 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 			if binding.Owner == roleName {
 				side = "you own this"
 			}
-			fmt.Fprintf(&out, "* `%s` - %s. %s\n", binding.Skill, side, binding.Summary)
+			scopeText := ""
+			for _, scoped := range role.ScopedBoundaries {
+				if scoped.Name == name {
+					side = "you hold this within a scope"
+					scopeText = " Your scope: " + scoped.Scope
+					break
+				}
+			}
+			fmt.Fprintf(&out, "* `%s` - %s. %s%s\n", binding.Skill, side, binding.Summary, scopeText)
 		}
 		out.WriteString("\n")
 	}

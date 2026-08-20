@@ -51,8 +51,9 @@ const adjacentsPerRole = 2
 // Both sides of a boundary live in one body under conditional headings, so the
 // reader self-selects. See docs/ownership.md.
 const (
-	boundaryOwnHeading   = "## If you own this boundary"
-	boundaryDeferHeading = "## If you defer this boundary"
+	boundaryOwnHeading    = "## If you own this boundary"
+	boundaryScopedHeading = "## If you hold this boundary within a scope"
+	boundaryDeferHeading  = "## If you defer this boundary"
 )
 
 var personSections = []struct {
@@ -102,22 +103,30 @@ type InspirationRef struct {
 }
 
 type Role struct {
-	DisplayName         string         `json:"display_name"`
-	Purpose             string         `json:"purpose"`
-	Skill               string         `json:"skill"`
-	SkillSource         string         `json:"skill_source"`
-	SkillDigest         string         `json:"skill_digest"`
-	Methods             []string       `json:"methods,omitempty"`
-	Boundaries          []string       `json:"boundaries,omitempty"`
-	Adjacents           []Adjacent     `json:"adjacents,omitempty"`
-	Briefing            string         `json:"briefing"`
-	Personalities       []string       `json:"personalities"`
-	FavoriteColor       string         `json:"favorite_color,omitempty"`
-	Identity            *AgentIdentity `json:"identity,omitempty"`
-	Seats               []Seat         `json:"seats"`
-	Inspiration         InspirationRef `json:"inspiration,omitempty"`
-	SupportedModelTiers []string       `json:"supported_model_tiers,omitempty"`
-	CopyContract        *CopyContract  `json:"copy_contract,omitempty"`
+	DisplayName         string           `json:"display_name"`
+	Purpose             string           `json:"purpose"`
+	Skill               string           `json:"skill"`
+	SkillSource         string           `json:"skill_source"`
+	SkillDigest         string           `json:"skill_digest"`
+	Methods             []string         `json:"methods,omitempty"`
+	Boundaries          []string         `json:"boundaries,omitempty"`
+	ScopedBoundaries    []ScopedBoundary `json:"scoped_boundaries,omitempty"`
+	Adjacents           []Adjacent       `json:"adjacents,omitempty"`
+	Briefing            string           `json:"briefing"`
+	Personalities       []string         `json:"personalities"`
+	FavoriteColor       string           `json:"favorite_color,omitempty"`
+	Identity            *AgentIdentity   `json:"identity,omitempty"`
+	Seats               []Seat           `json:"seats"`
+	Inspiration         InspirationRef   `json:"inspiration,omitempty"`
+	SupportedModelTiers []string         `json:"supported_model_tiers,omitempty"`
+	CopyContract        *CopyContract    `json:"copy_contract,omitempty"`
+}
+
+// ScopedBoundary is a bounded grant, not an absence: the scope text is the
+// content, so the flat declared list cannot hold it. See docs/role-boundaries.md.
+type ScopedBoundary struct {
+	Name  string `json:"name"`
+	Scope string `json:"scope"`
 }
 
 // Adjacent names one role whose work this role most risks absorbing. The reason
@@ -411,6 +420,9 @@ func Load() (*Person, error) {
 	if err := validateNoUnusedBoundaries(p); err != nil {
 		return nil, err
 	}
+	if err := validateScopedBoundaryBodies(p); err != nil {
+		return nil, err
+	}
 	if err := validateBoundaryOwners(p); err != nil {
 		return nil, err
 	}
@@ -676,6 +688,9 @@ func validateNoUnusedBoundaries(p *Person) error {
 		for _, boundaryName := range p.Roles[roleName].Boundaries {
 			used[boundaryName] = true
 		}
+		for _, scoped := range p.Roles[roleName].ScopedBoundaries {
+			used[scoped.Name] = true
+		}
 	}
 	var unused []string
 	for _, boundaryName := range p.boundaryOrder() {
@@ -703,10 +718,19 @@ func validateBoundaryBodySides(boundaryName, body string) error {
 	if own > defer_ {
 		return fmt.Errorf("boundary %q skill body states the defer side before the own side", boundaryName)
 	}
-	for label, section := range map[string]string{
-		"own":   body[own:defer_],
-		"defer": body[defer_:],
-	} {
+	sections := map[string]string{"own": body[own:defer_], "defer": body[defer_:]}
+	// The scoped side stays optional so a boundary nobody scopes needs no
+	// third section, which keeps packages authored before the axis loading.
+	if scoped := strings.Index(body, boundaryScopedHeading); scoped >= 0 {
+		if scoped < own || scoped > defer_ {
+			return fmt.Errorf(
+				"boundary %q skill body states the scoped side outside own..defer order", boundaryName,
+			)
+		}
+		sections["own"] = body[own:scoped]
+		sections["scoped"] = body[scoped:defer_]
+	}
+	for label, section := range sections {
 		_, prose, _ := strings.Cut(section, "\n")
 		words := roleSkillBodyWordCount(prose)
 		if words > maxBoundarySkillBodyWords {
@@ -737,6 +761,43 @@ func validateBoundaryOwners(p *Person) error {
 					"boundary %q owner %q also declares it",
 					boundaryName,
 					owner,
+				)
+			}
+		}
+		for _, scoped := range role.ScopedBoundaries {
+			if scoped.Name == boundaryName {
+				return fmt.Errorf(
+					"boundary %q owner %q also scopes it",
+					boundaryName,
+					owner,
+				)
+			}
+		}
+	}
+	return nil
+}
+
+// validateScopedBoundaryBodies requires the scoped side exactly where a role
+// scopes the boundary, so a grant never arrives without its instructions.
+func validateScopedBoundaryBodies(p *Person) error {
+	for _, roleName := range p.roleOrder() {
+		for _, scoped := range p.Roles[roleName].ScopedBoundaries {
+			binding, defined := p.Boundaries[scoped.Name]
+			if !defined {
+				return fmt.Errorf("role %q scopes unknown boundary %q", roleName, scoped.Name)
+			}
+			raw, ok := p.BoundarySkillDefinition(scoped.Name)
+			if !ok {
+				continue
+			}
+			body, err := skillBody(raw)
+			if err != nil {
+				return err
+			}
+			if !strings.Contains(body, boundaryScopedHeading) {
+				return fmt.Errorf(
+					"role %q scopes boundary %q, whose skill %q has no %q section",
+					roleName, scoped.Name, binding.Skill, boundaryScopedHeading,
 				)
 			}
 		}
@@ -1231,6 +1292,9 @@ func (p *Person) RoleActiveBoundaries(roleName string) []string {
 		return nil
 	}
 	active := append([]string(nil), role.Boundaries...)
+	for _, scoped := range role.ScopedBoundaries {
+		active = append(active, scoped.Name)
+	}
 	return append(active, p.RoleOwnedBoundaries(roleName)...)
 }
 
@@ -1833,6 +1897,30 @@ func parse(raw []byte) (*Person, error) {
 						}
 						role.Boundaries = append(role.Boundaries, boundary)
 					}
+				case "boundary-scoped":
+					sargs := c.Arguments()
+					if len(sargs) != 1 {
+						return nil, fmt.Errorf("role %q: boundary-scoped needs one doctrine id", name)
+					}
+					boundary := sargs[0].String()
+					if !validSemanticToken(boundary) {
+						return nil, fmt.Errorf("role %q: boundary-scoped needs one stable doctrine id", name)
+					}
+					scope, err := requiredStringProp(c, "scope", "role "+name+" boundary-scoped "+boundary)
+					if err != nil {
+						return nil, err
+					}
+					for _, existing := range role.Boundaries {
+						if existing == boundary {
+							return nil, fmt.Errorf("role %q both defers and scopes boundary %q", name, boundary)
+						}
+					}
+					for _, existing := range role.ScopedBoundaries {
+						if existing.Name == boundary {
+							return nil, fmt.Errorf("role %q repeats scoped boundary %q", name, boundary)
+						}
+					}
+					role.ScopedBoundaries = append(role.ScopedBoundaries, ScopedBoundary{Name: boundary, Scope: scope})
 				case "adjacent":
 					aargs := c.Arguments()
 					if len(aargs) != 1 {
