@@ -47,8 +47,9 @@ version.
 Agent Compose v2 renames the baked provider from `person:kai` to
 `roster:core` and emits the Core Roster slugs, including AI Engineer as `ai`.
 This is an intentional major-version break. There are no compatibility aliases
-for old role identifiers. The Core Roster now returns to eight roles after
+for old role identifiers. The Core Roster returned to eight roles at that point, after
 audience-facing work proved more coherent as one Content Creator feedback loop.
+Game Developer joined later as the ninth.
 
 ### Role destinations
 

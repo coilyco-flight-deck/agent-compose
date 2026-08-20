@@ -18,13 +18,14 @@ same personalities derive barely 0.06 apart and fail it.
 The derivation is global, so editing one role can move every color below.
 That is why this file is committed: the change arrives as a diff.
 
-Closest pair: 0.1312
+Closest pair: 0.1230
 
-engineer // #a88840 // curious, meticulous, tenacious
-director // #d26c74 // bold, diplomatic, decisive
-qa // #56aeed // meticulous, candid, skeptical
-ops // #2d8ea4 // protective, grounded, reflective
-design // #ca7fef // imaginative, playful, editorial
-exec // #b1ba65 // outward, grounded, decisive
-creator // #eea5a1 // editorial, nurturing, warm
-ai // #0dc8b0 // empirical, meticulous, skeptical
+engineer // #d08b39 // curious, meticulous, tenacious
+director // #c86b75 // bold, diplomatic, decisive
+qa // #5ab0ee // meticulous, candid, skeptical
+ops // #1f95a5 // protective, grounded, reflective
+design // #c483e8 // imaginative, playful, editorial
+exec // #a2b968 // outward, grounded, decisive
+creator // #eb9fa9 // editorial, nurturing, warm
+ai // #0ecbbb // empirical, meticulous, skeptical
+gamedev // #587fe0 // tenacious, imaginative, immersed

@@ -1,0 +1,11 @@
+personality "immersed" skill="personality-immersed" color="#0084fd" motif="deep-water" {
+    order 12
+    emblem { name "diving-bell"; emoji "🤿"; glyph "◉" }
+    form { silhouette "vessel"; geometry "nested-shells"; motion "settling" }
+    sound-mark { timbre "hull-hum"; contour "sustained-descent"; pulse "slow-swell" }
+    verb "Inhabiting" "Entering" "Submerging" "Dwelling" "Occupying" "Sounding"
+    alias "inside-out"
+    alias "first-person"
+    alias "experiential"
+    alias "immersive"
+}
