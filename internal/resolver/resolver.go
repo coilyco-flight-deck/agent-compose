@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"fmt"
 	"io/fs"
@@ -324,8 +325,9 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 			if err != nil {
 				return nil, fmt.Errorf("source %q instruction %q: %w", src.ID, ref.ID, err)
 			}
+			body := normalizeEOL(raw)
 			if prior, dup := instructionBytes[ref.ID]; dup {
-				if string(prior) == string(raw) {
+				if string(prior) == string(body) {
 					res.decide(Decision{
 						Subject: "instruction:" + ref.ID, Kind: "instruction", Source: src.ID,
 						Outcome: OutcomeShadowed,
@@ -336,7 +338,7 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 				return nil, fmt.Errorf("instruction %q from %s conflicts with a different copy from %s; v0.1 fails non-identical collisions",
 					ref.ID, src.ID, instructionOwner[ref.ID])
 			}
-			instructionBytes[ref.ID] = raw
+			instructionBytes[ref.ID] = body
 			instructionOwner[ref.ID] = src.ID
 			res.Instructions = append(res.Instructions, Selected{
 				ID: ref.ID, Source: src.ID, Files: src.FileSystem(), Path: ref.Path,
@@ -599,14 +601,25 @@ func treeDigest(files fs.FS, root string) (string, error) {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(h, "%s\x00%d\x00", rel, len(raw))
-		h.Write(raw)
+		body := normalizeEOL(raw)
+		fmt.Fprintf(h, "%s\x00%d\x00", rel, len(body))
+		h.Write(body)
 		return nil
 	})
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+// normalizeEOL folds CRLF so two checkouts of the same commit digest equal.
+// A Windows checkout under core.autocrlf=true is not a content difference.
+// NUL means binary, which hashes raw.
+func normalizeEOL(raw []byte) []byte {
+	if bytes.IndexByte(raw, 0) >= 0 {
+		return raw
+	}
+	return bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))
 }
 
 func treeBytes(files fs.FS, root string) (int64, error) {

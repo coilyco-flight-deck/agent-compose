@@ -466,3 +466,21 @@ func TestMissingOptionalSourceLandsInTrace(t *testing.T) {
 		t.Fatalf("expected the missing optional source excluded in trace, decisions: %+v", res.Decisions)
 	}
 }
+
+func TestResolveShadowsCopiesThatDifferOnlyByLineEnding(t *testing.T) {
+	unix := makeSource(t, "aos", map[string]string{"fixture-review": "# Review\n\nBody.\n"})
+	windows := makeSource(t, "kai", map[string]string{"fixture-review": "# Review\r\n\r\nBody.\r\n"})
+	res, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{unix, windows}, nil)
+	if err != nil {
+		t.Fatalf("CRLF copy should shadow, not conflict: %v", err)
+	}
+	var shadowed bool
+	for _, d := range res.Decisions {
+		if d.Subject == "skill:fixture-review" && d.Source == windows.ID && d.Outcome == OutcomeShadowed {
+			shadowed = true
+		}
+	}
+	if !shadowed {
+		t.Fatalf("expected the CRLF copy shadowed, decisions: %+v", res.Decisions)
+	}
+}
