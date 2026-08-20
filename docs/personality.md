@@ -111,7 +111,7 @@ TypeScript layer owns only visual presentation metadata such as friendly color
 names, short associations, and spectrum ordering. Startup validation fails
 visibly if that presentation list drifts from the canonical catalog.
 
-The explorer shows the full eighteen-personality spectrum with emblem, motif,
+The explorer shows the full nineteen-personality spectrum with emblem, motif,
 form, and sound, role filters with complete melds, component colors and the
 derived role boundary, day and night previews, spectrum and alphabetical
 ordering, one-click copying, and a responsive reduced-motion layout.

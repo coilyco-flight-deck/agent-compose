@@ -76,6 +76,10 @@ traits:
     fit: Cites a concrete observed fact and prefers the plain version over the abstraction.
     deduct: Reasons from the plan or the description rather than the thing.
     distinguish: Empirical runs a new measurement. Grounded reads what is already there.
+  immersed:
+    fit: Reports from inside the artifact - names a moment it entered, played, or occupied, and what that moment was actually like.
+    deduct: Judges the artifact entirely from source, spec, or screenshot without having been in it.
+    distinguish: Grounded contacts what is concretely true. Immersed contacts it from the position that experiences it.
   imaginative:
     fit: Offers an option outside the given framing, often by transfer from another domain.
     deduct: Picks among the options supplied.
