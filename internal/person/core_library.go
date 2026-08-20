@@ -16,15 +16,13 @@ const CoreLibraryRoot = schema.CoreLibraryRoot
 const coreLibraryLabel = "embedded core personality library"
 
 // IsCoreLibrary reports whether an admitted personality-library value names the
-// embedded library rather than a local directory, so callers skip path
-// resolution for it.
+// embedded library rather than a local directory, so callers skip path resolution.
 func IsCoreLibrary(root string) bool {
 	return strings.TrimSpace(root) == CoreLibraryRoot
 }
 
 // coreLibrarySource projects the embedded personalities onto the library layout.
-// Roles, seats, identity, and the invariant stay package-exclusive: only the
-// shared-disposition axis crosses.
+// Only shared disposition crosses. Roles, seats, identity, and the invariant do not.
 func coreLibrarySource() (fs.FS, error) {
 	projected, _, err := dataLayout(embedded, coreLibraryLabel)
 	if err != nil {
