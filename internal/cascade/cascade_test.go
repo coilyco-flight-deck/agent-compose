@@ -711,7 +711,10 @@ func readFile(t *testing.T, path string) string {
 // claude lost its global skills.
 func TestResolveSkillLoadPointsDefaultsWireClaudeAndCodex(t *testing.T) {
 	home := t.TempDir()
+	// os.UserHomeDir reads USERPROFILE on Windows, so HOME alone leaks the
+	// developer real home into the defaults.
 	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
 
 	points := ResolveSkillLoadPoints(&Config{})
 	want := map[string]string{
@@ -730,7 +733,10 @@ func TestResolveSkillLoadPointsDefaultsWireClaudeAndCodex(t *testing.T) {
 
 func TestResolveSkillLoadPointsHonorsOverrideAndOptOut(t *testing.T) {
 	home := t.TempDir()
+	// os.UserHomeDir reads USERPROFILE on Windows, so HOME alone leaks the
+	// developer real home into the defaults.
 	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
 	cfg := &Config{}
 	if err := decodeStrictYAML(
 		[]byte("skill_load_points:\n  codex: "+filepath.Join(home, "elsewhere")+"\n  claude: null\n"),

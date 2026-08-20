@@ -11,18 +11,24 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-git -C "$fixture_root" init -q
-git -C "$fixture_root" config user.name Fixture
-git -C "$fixture_root" config user.email fixture@example.test
-git -C "$fixture_root" config commit.gpgSign false
-git -C "$fixture_root" config tag.gpgSign false
+# git -C wants a native path, and an MSYS mktemp path is not one, so each call
+# changes directory in a subshell instead.
+fixture_git() {
+  (cd "$fixture_root" && git "$@")
+}
+
+fixture_git init -q
+fixture_git config user.name Fixture
+fixture_git config user.email fixture@example.test
+fixture_git config commit.gpgSign false
+fixture_git config tag.gpgSign false
 mkdir -p "$fixture_root/cmd/tool" "$fixture_root/docs" "$fixture_root/evaluations/latest"
 printf 'package main\n' >"$fixture_root/cmd/tool/main.go"
 printf '# Guide\n' >"$fixture_root/docs/guide.md"
-git -C "$fixture_root" add .
-git -C "$fixture_root" commit -q -m base
-base=$(git -C "$fixture_root" rev-parse HEAD)
-git -C "$fixture_root" tag v1.0.0 "$base"
+fixture_git add .
+fixture_git commit -q -m base
+base=$(fixture_git rev-parse HEAD)
+fixture_git tag v1.0.0 "$base"
 
 expect() {
   expected=$1
@@ -41,42 +47,42 @@ expect() {
 }
 
 printf 'More docs.\n' >>"$fixture_root/docs/guide.md"
-git -C "$fixture_root" add docs/guide.md
-git -C "$fixture_root" commit -q -m docs
-docs_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add docs/guide.md
+fixture_git commit -q -m docs
+docs_revision=$(fixture_git rev-parse HEAD)
 expect false push "$base" "$docs_revision"
 
 printf 'format: fixture\n' >"$fixture_root/evaluations/latest/result.yaml"
-git -C "$fixture_root" add evaluations/latest/result.yaml
-git -C "$fixture_root" commit -q -m results
-results_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add evaluations/latest/result.yaml
+fixture_git commit -q -m results
+results_revision=$(fixture_git rev-parse HEAD)
 expect false push "$docs_revision" "$results_revision"
 
 printf '// product change\n' >>"$fixture_root/cmd/tool/main.go"
-git -C "$fixture_root" add cmd/tool/main.go
-git -C "$fixture_root" commit -q -m product
-product_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add cmd/tool/main.go
+fixture_git commit -q -m product
+product_revision=$(fixture_git rev-parse HEAD)
 expect true push "$results_revision" "$product_revision"
 expect true push 0000000000000000000000000000000000000000 "$product_revision"
 
 printf 'format: recovery\n' >"$fixture_root/evaluations/latest/result.yaml"
-git -C "$fixture_root" add evaluations/latest/result.yaml
-git -C "$fixture_root" commit -q -m recovery-results
-recovery_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add evaluations/latest/result.yaml
+fixture_git commit -q -m recovery-results
+recovery_revision=$(fixture_git rev-parse HEAD)
 expect true push "$product_revision" "$recovery_revision"
-git -C "$fixture_root" tag v1.1.0 "$recovery_revision"
+fixture_git tag v1.1.0 "$recovery_revision"
 
 printf 'Released docs.\n' >>"$fixture_root/docs/guide.md"
-git -C "$fixture_root" add docs/guide.md
-git -C "$fixture_root" commit -q -m released-docs
-released_docs_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add docs/guide.md
+fixture_git commit -q -m released-docs
+released_docs_revision=$(fixture_git rev-parse HEAD)
 expect false push "$recovery_revision" "$released_docs_revision"
 
 printf 'v2.0.0\n' >"$fixture_root/.release-major"
 printf '// held product change\n' >>"$fixture_root/cmd/tool/main.go"
-git -C "$fixture_root" add .release-major cmd/tool/main.go
-git -C "$fixture_root" commit -q -m held
-held_revision=$(git -C "$fixture_root" rev-parse HEAD)
+fixture_git add .release-major cmd/tool/main.go
+fixture_git commit -q -m held
+held_revision=$(fixture_git rev-parse HEAD)
 expect false push "$released_docs_revision" "$held_revision"
 expect true workflow_dispatch "$held_revision" "$held_revision"
 

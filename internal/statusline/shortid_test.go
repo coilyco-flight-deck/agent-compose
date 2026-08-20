@@ -1,6 +1,7 @@
 package statusline
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -89,9 +90,17 @@ func TestSessionRowDropsAMalformedSessionID(t *testing.T) {
 func TestSubagentRowsOmitTheShortID(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "uz86")
 	target := shortIDFixture(t)
-	request := `{"columns":72,"tasks":[{"id":"a","cwd":"` + target + `","status":"running"}]}`
+	// Marshaled, not concatenated: a Windows cwd carries backslashes that are
+	// invalid JSON string escapes.
+	request, err := json.Marshal(map[string]any{
+		"columns": 72,
+		"tasks":   []map[string]any{{"id": "a", "cwd": target, "status": "running"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	out, err := RenderSubagents(strings.NewReader(request), Options{})
+	out, err := RenderSubagents(strings.NewReader(string(request)), Options{})
 	if err != nil {
 		t.Fatal(err)
 	}

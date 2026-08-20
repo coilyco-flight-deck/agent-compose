@@ -76,6 +76,10 @@ type repository struct {
 	selection repositoryplan.Selection
 }
 
+// name is the message spelling of a selected repository. filepath.Rel yields
+// backslashes on Windows, and these strings name a logical owner/repository.
+func (r repository) name() string { return filepath.ToSlash(r.relative) }
+
 // Refresh resolves eligible providers, composes the complete role boundary, and
 // transactionally projects the result at the selected harness load points.
 func Refresh(opts Options) (*Result, error) {
@@ -319,13 +323,13 @@ func resolveRoots(
 				if repo.selection.Scope == "provider" {
 					reason := fmt.Sprintf(
 						"optional role provider %s for role %q is unavailable",
-						repo.relative,
+						repo.name(),
 						role,
 					)
 					if repo.selection.Required {
 						return nil, nil, nil, fmt.Errorf(
 							"required role provider %s for role %q is unavailable beneath %s",
-							repo.relative,
+							repo.name(),
 							role,
 							projectsRoot,
 						)
@@ -342,13 +346,13 @@ func resolveRoots(
 			if repo.selection.Scope == "provider" {
 				reason := fmt.Sprintf(
 					"optional role provider %s for role %q has no .agents/skills directory",
-					repo.relative,
+					repo.name(),
 					role,
 				)
 				if repo.selection.Required {
 					return nil, nil, nil, fmt.Errorf(
 						"required role provider %s for role %q has no .agents/skills directory",
-						repo.relative,
+						repo.name(),
 						role,
 					)
 				}

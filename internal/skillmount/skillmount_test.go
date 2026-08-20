@@ -1,7 +1,9 @@
 package skillmount
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +11,18 @@ import (
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
 )
+
+// notExistCause is this host own spelling of a missing-file errno, probed
+// rather than pinned because Windows and unix word it differently.
+func notExistCause(t *testing.T, dir string) string {
+	t.Helper()
+	_, err := os.Stat(filepath.Join(dir, "definitely-absent"))
+	var pathErr *fs.PathError
+	if !errors.As(err, &pathErr) {
+		t.Fatalf("probe for a missing path returned %v, want a *fs.PathError", err)
+	}
+	return pathErr.Err.Error()
+}
 
 func makeSkill(t *testing.T, repo, name string) string {
 	t.Helper()
@@ -257,7 +271,7 @@ func TestApplyWarnsAndRemovesOwnedLinkWhenSkillTargetDisappears(t *testing.T) {
 	}
 	if len(result.Warnings) != 1 ||
 		!strings.Contains(result.Warnings[0], fragile) ||
-		!strings.Contains(result.Warnings[0], "no such file") {
+		!strings.Contains(result.Warnings[0], notExistCause(t, dir)) {
 		t.Fatalf("warnings = %q, want vanished skill path and cause", result.Warnings)
 	}
 	if _, err := os.Lstat(filepath.Join(destination, "fragile")); !os.IsNotExist(err) {

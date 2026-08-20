@@ -612,9 +612,8 @@ func treeDigest(files fs.FS, root string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-// normalizeEOL folds CRLF so two checkouts of the same commit digest equal.
-// A Windows checkout under core.autocrlf=true is not a content difference.
-// NUL means binary, which hashes raw.
+// normalizeEOL folds CRLF so two checkouts of one commit digest equal, and
+// hashes raw when a NUL byte says the content is binary.
 func normalizeEOL(raw []byte) []byte {
 	if bytes.IndexByte(raw, 0) >= 0 {
 		return raw

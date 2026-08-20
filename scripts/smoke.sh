@@ -105,12 +105,18 @@ roles {
 }
 EOF
 
-git -C "$provider_dir" init -q
-git -C "$provider_dir" config user.name Fixture
-git -C "$provider_dir" config user.email fixture@example.test
-git -C "$provider_dir" config commit.gpgSign false
-git -C "$provider_dir" add .
-git -C "$provider_dir" commit -q -m fixture
+# git -C wants a native path, and an MSYS mktemp path is not one, so each call
+# changes directory in a subshell instead.
+provider_git() {
+  (cd "$provider_dir" && git "$@")
+}
+
+provider_git init -q
+provider_git config user.name Fixture
+provider_git config user.email fixture@example.test
+provider_git config commit.gpgSign false
+provider_git add .
+provider_git commit -q -m fixture
 
 cat >"$smoke_root/bin/codex" <<'EOF'
 #!/bin/sh

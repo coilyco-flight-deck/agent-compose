@@ -11,15 +11,21 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-git -C "$fixture_root" init -q
-git -C "$fixture_root" config user.name Fixture
-git -C "$fixture_root" config user.email fixture@example.test
-git -C "$fixture_root" config commit.gpgSign false
+# git -C wants a native path, and an MSYS mktemp path is not one, so each call
+# changes directory in a subshell instead.
+fixture_git() {
+  (cd "$fixture_root" && git "$@")
+}
+
+fixture_git init -q
+fixture_git config user.name Fixture
+fixture_git config user.email fixture@example.test
+fixture_git config commit.gpgSign false
 mkdir -p "$fixture_root/dist"
 printf 'fixture\n' >"$fixture_root/release-input"
-git -C "$fixture_root" add release-input
-git -C "$fixture_root" commit -q -m release
-git -C "$fixture_root" -c tag.gpgSign=false tag v2.0.0
+fixture_git add release-input
+fixture_git commit -q -m release
+fixture_git -c tag.gpgSign=false tag v2.0.0
 
 for artifact in \
   agent-compose-darwin-arm64 \

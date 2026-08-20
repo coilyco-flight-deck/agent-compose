@@ -1,1 +1,5 @@
+# go:embed bakes working-tree bytes into the binary, so a CRLF checkout ships
+# CRLF assets and the parsers that scan for "\nname: " stop matching.
+* text=auto eol=lf
+
 *.sh text eol=lf

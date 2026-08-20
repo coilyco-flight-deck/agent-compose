@@ -35,10 +35,14 @@ func TestLoadRejectsUnsafeYAMLAndInvalidProvenance(t *testing.T) {
 	}
 }
 
+// projectsRoot is built with filepath because a plan carries host paths, and
+// filepath.IsAbs rejects "/tmp/projects" on Windows, where absolute needs a volume.
 func TestMarshalProducesDeterministicYAML(t *testing.T) {
+	projectsRoot := filepath.Join(t.TempDir(), "projects")
+	context := filepath.Join(projectsRoot, "example", "context")
 	plan := Plan{
 		Format:       Format,
-		ProjectsRoot: "/tmp/projects",
+		ProjectsRoot: projectsRoot,
 		Inputs: []Input{{
 			Identity: "example/aosk",
 			Revision: fixtureRevision,
@@ -47,7 +51,7 @@ func TestMarshalProducesDeterministicYAML(t *testing.T) {
 		Roles: map[string][]Selection{
 			"engineer": {{
 				Identity: "example/context",
-				Path:     "/tmp/projects/example/context",
+				Path:     context,
 				Source:   "example/aosk",
 				Scope:    "global",
 				Reason:   "selected globally by repository policy",
@@ -55,7 +59,7 @@ func TestMarshalProducesDeterministicYAML(t *testing.T) {
 		},
 		Residency: []Selection{{
 			Identity: "example/context",
-			Path:     "/tmp/projects/example/context",
+			Path:     context,
 			Source:   "example/aosk",
 			Scope:    "role-union",
 			Reason:   "repository is selected by at least one canonical role",

@@ -15,13 +15,14 @@ import (
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 	t.Helper()
-	// Unset load points fall back to defaults resolved against $HOME. Anchor it
-	// beside the config so converge never reaches the developer's real home.
+	// Unset load points fall back to home-resolved defaults, so anchor HOME and
+	// USERPROFILE beside the config rather than the developer real home.
 	isolated := filepath.Join(filepath.Dir(paths.Config), "home")
 	if err := os.MkdirAll(isolated, 0o755); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv("HOME", isolated)
+	t.Setenv("USERPROFILE", isolated)
 	if raw, err := os.ReadFile(paths.Config); err == nil && !strings.Contains(string(raw), "operating_context:") {
 		root := filepath.Join(paths.ProjectsRoot, "test", "context")
 		if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "fixture"), 0o755); err != nil {

@@ -82,11 +82,38 @@ func installedHarness(t *testing.T) string {
 	if err != nil {
 		t.Skip("claude is not on PATH, so the vendored harness coupling cannot be checked")
 	}
-	resolved, err := filepath.EvalSymlinks(path)
-	if err != nil {
-		return path
+	if resolved, err := filepath.EvalSymlinks(path); err == nil {
+		path = resolved
 	}
-	return resolved
+	return followLauncherShim(t, path)
+}
+
+// A Windows npm install puts a .cmd launcher on PATH while the harness content
+// lives in the executable it names relative to %dp0%, the launcher own directory.
+func followLauncherShim(t *testing.T, launcher string) string {
+	t.Helper()
+	if !strings.EqualFold(filepath.Ext(launcher), ".cmd") {
+		return launcher
+	}
+	raw, err := os.ReadFile(launcher)
+	if err != nil {
+		t.Skipf("read launcher %s: %v", launcher, err)
+	}
+	const marker = "%dp0%"
+	target := ""
+	for _, quoted := range strings.Split(string(raw), `"`) {
+		if strings.HasPrefix(quoted, marker) && strings.HasSuffix(strings.ToLower(quoted), ".exe") {
+			target = filepath.Join(filepath.Dir(launcher), strings.TrimPrefix(quoted, marker))
+			break
+		}
+	}
+	if target == "" {
+		t.Skipf("launcher %s names no executable, so the vendored coupling cannot be checked", launcher)
+	}
+	if _, err := os.Stat(target); err != nil {
+		t.Skipf("launcher %s targets %s, which is unreadable: %v", launcher, target, err)
+	}
+	return target
 }
 
 func harnessVersion(t *testing.T, path string) string {
