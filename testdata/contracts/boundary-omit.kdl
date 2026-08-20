@@ -1,6 +1,7 @@
-// A single-seat deployment: engineer with no ops or exec to hand work to.
+// A single-seat deployment: qa with no ops or exec to hand work to. The role
+// owns no boundary, so every one it carries is a deferral that can be omitted.
 compose {
-    role "engineer"
+    role "qa"
     delivery "native-skills"
     boundary-omit "modify-live-system" "seek-external-validation"
     source "aos-public" declaration="source-public.kdl" required=#true

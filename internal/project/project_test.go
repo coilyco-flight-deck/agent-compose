@@ -400,6 +400,13 @@ func selectedFixtureSkills(t *testing.T, roleName string) []string {
 	for _, boundaryName := range role.Boundaries {
 		skills = append(skills, p.Boundaries[boundaryName].Skill)
 	}
+	// A role declares only the boundaries it defers, so an owner reaches its
+	// own boundary through the catalog instead.
+	for _, boundary := range p.Boundaries {
+		if boundary.Owner == roleName {
+			skills = append(skills, boundary.Skill)
+		}
+	}
 	for _, personalityName := range role.Personalities {
 		skills = append(skills, p.Personalities[personalityName].Skill)
 	}

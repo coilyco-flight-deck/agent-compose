@@ -66,7 +66,8 @@ until an independently reviewed re-run.
 
 Each slug names the behavior that moves, not the domain it sits in.
 
-* `modify-live-system`, owner DevOps - deferred by engineer, qa, and ai, the roles sealed against live mutation.
+* `modify-live-system`, owner DevOps - deferred by engineer, qa, ai, gamedev, and exec, the roles sealed against live mutation. Director keeps it, since directing committed work reaches as far as a release.
+* `build-software`, owner Engineer - deferred by exec, director, and creator, the roles that shape what software should do without producing it. Designer neither defers nor owns it, since its charter already grants a bounded visual-only slice.
 * `suggest-human-comms`, owner Content Creator - deferred by design, exec, and ops, the roles holding externally facing content that carries a social tone.
 * `seek-external-validation`, owner Executive Strategist - deferred by engineer, director, qa, ops, design, and ai. Content Creator neither defers nor owns it, since its charter already sends it outside for audience evidence.
 
