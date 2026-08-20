@@ -827,3 +827,40 @@ roles {
 		}
 	}
 }
+
+// Pins infrastructure#887: a forward-slash operating_context entry must load
+// on Windows as well as on unix.
+func TestLoadConfigAcceptsOperatingContextOnEverySeparator(t *testing.T) {
+	e := newEnv(t)
+	cfg, err := LoadConfig(e.write(
+		t,
+		"operating-context.yaml",
+		"operating_context:\n  - coilyco-flight-deck/agentic-os\n  - foo/bar\n",
+	))
+	if err != nil {
+		t.Fatalf("forward-slash operating_context rejected: %v", err)
+	}
+	if len(cfg.OperatingContext) != 2 {
+		t.Fatalf("operating_context did not survive load: %#v", cfg.OperatingContext)
+	}
+}
+
+func TestLoadConfigRejectsMalformedOperatingContext(t *testing.T) {
+	e := newEnv(t)
+	for name, body := range map[string]string{
+		"backslash separator": "operating_context:\n  - coilyco-flight-deck\agentic-os\n",
+		"absolute path":       "operating_context:\n  - /owner/repository\n",
+		"unclean path":        "operating_context:\n  - owner/../repository\n",
+		"trailing slash":      "operating_context:\n  - owner/repository/\n",
+		"single segment":      "operating_context:\n  - owner\n",
+		"three segments":      "operating_context:\n  - owner/repository/extra\n",
+		"empty entry":         "operating_context:\n  - \"\"\n",
+		"duplicate entry":     "operating_context:\n  - owner/repository\n  - owner/repository\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := LoadConfig(e.write(t, "reject-"+strings.ReplaceAll(name, " ", "-")+".yaml", body)); err == nil {
+				t.Fatal("malformed operating_context passed config loading")
+			}
+		})
+	}
+}

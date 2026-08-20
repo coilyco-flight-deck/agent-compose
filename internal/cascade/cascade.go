@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -102,11 +103,13 @@ func LoadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+// path.Clean, not filepath.Clean: these are logical owner/repository
+// identifiers, and filepath.Clean rejects every one of them on Windows.
 func validateConfiguredRepository(value string) error {
-	if value == "" || strings.Contains(value, `\`) || filepath.IsAbs(value) || filepath.Clean(value) != value {
+	if value == "" || strings.Contains(value, `\`) || strings.HasPrefix(value, "/") || path.Clean(value) != value {
 		return fmt.Errorf("repository %q must be a clean owner/repository path", value)
 	}
-	parts := strings.Split(filepath.ToSlash(value), "/")
+	parts := strings.Split(value, "/")
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		return fmt.Errorf("repository %q must have owner/repository form", value)
 	}
