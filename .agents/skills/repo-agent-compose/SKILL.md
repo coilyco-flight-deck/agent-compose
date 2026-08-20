@@ -1,6 +1,6 @@
 ---
 name: repo-agent-compose
-description: Context compiler that composes roles, personalities, skills, and tool inventories for AI-agent harnesses. Triggers - agent-compose, ai-agents, automation, llm, mcp
+description: Eval driven agent roles and personas. Triggers - agent-compose, ai-agents, automation, llm, mcp
 ---
 
 # repo-agent-compose
