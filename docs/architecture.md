@@ -4,6 +4,23 @@ Agent-compose sits between knowledge providers and context consumers. Providers
 author reusable knowledge. Agent-compose selects and installs it for a harness.
 Consumers supply runtime facts and executable authority outside the bundle.
 
+## Terminology
+
+Seven words carry this system. Three name what an agent is, four name how it is
+measured.
+
+* `role` - one seat with a purpose, a charter, and the work it owns. See [role briefings](role-briefings.md).
+* `personality` - a disposition a role melds. Two per core role, one signature and one bond shared with a sibling seat. See [personalities](personality.md).
+* `boundary` - one behavior removed from several roles and allocated to one owner. A role owns it, defers it, or holds it within a scope. See [role boundaries](role-boundaries.md).
+* `challenge` - one question put to a composed role, with a target saying what passing means. The roster derives it unwritten, and a human writes it.
+* `task` - one run putting the written challenges to the subject. Five epochs, unscored, because the grader is a human.
+* `annotation` - one human verdict on one answer, carrying a critique wherever it deducts.
+* `revision` - the edit a failure drives, in a charter, a boundary body, or the challenge itself.
+
+A role melds personalities and holds boundaries. The roster derives its
+challenges. You write them, run them as a task, annotate the answers, and the
+failures drive a revision. See [evaluation](evaluation.md).
+
 ## Composition inputs
 
 The caller supplies every input. Agent-compose infers nothing about the agent:
