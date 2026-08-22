@@ -17,8 +17,6 @@
 schema: aos-eval.boundaries.v1
 boundaries:
 
-  # ---- build-foundational-software // owner platform -----------------------
-
   - id: bfs-frontend
     role: frontend
     origin: boundary-build-foundational-software
@@ -60,8 +58,6 @@ boundaries:
     rule: Scoped. May write evaluation harnesses, probes, and runners, and defers foundational software.
     inside: Hands platform the requirement when its harness needs a change in shared tooling that other seats depend on, rather than editing that tooling itself.
     outside: Still writes and lands its own benchmark runners, probes, graders, and aggregation without deferring, since a measurement instrument is its own artifact.
-
-  # ---- modify-live-backend // owner sysadmin -------------------------------
 
   - id: mlb-devrel
     role: devrel
@@ -105,8 +101,6 @@ boundaries:
     inside: Hands sysadmin the action when the target is the hosted Eco server, its world state, or any deployed instance, even to reproduce a bug it is chasing.
     outside: Still launches, mutates, and tears down a local world, a local server, and a local save without deferring, because inhabiting the build is how it judges the work.
 
-  # ---- suggest-external-comms // owner devrel ------------------------------
-
   - id: sec-platform
     role: platform
     origin: boundary-suggest-external-comms
@@ -148,8 +142,6 @@ boundaries:
     rule: Scoped. May write the words inside the game, and defers everything addressed outward.
     inside: Hands devrel the recommendation when the words are a patch announcement, a store description, or a post about the game.
     outside: Still writes in-game text, item descriptions, tooltips, and mod documentation without deferring, since the words in the artifact are part of the artifact.
-
-  # ---- seek-external-validation // owner tpm -------------------------------
 
   - id: sev-frontend
     role: frontend

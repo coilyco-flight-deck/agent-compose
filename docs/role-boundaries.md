@@ -78,6 +78,10 @@ proving the limit holds. That moves the measured question from *does the rule
 fire* to *does the grant hold its limits*, and "acted, but exceeded the scope"
 is the failure a binary model cannot see.
 
+`evalkit.matrix` derives that pair from `scoped_boundaries`. Within-scope is the
+in-half and beyond-scope the out-half, so `in` means one thing in all three
+states, the role acting on its own territory.
+
 ## Selection and delivery
 
 Agent Compose selects a boundary with every role that declares it and with its

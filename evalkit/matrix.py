@@ -33,6 +33,7 @@ class Slot:
     pair_id: str | None = None
     target: str | None = None
     trait: str | None = None
+    scope: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -40,7 +41,7 @@ class Slot:
             "role": self.role,
             "test_type": self.test_type,
         }
-        for key in ("boundary", "pair_id", "target", "trait"):
+        for key in ("boundary", "pair_id", "target", "trait", "scope"):
             value = getattr(self, key)
             if value:
                 payload[key] = value
@@ -67,12 +68,14 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
             for role in roster["role_order"]
             if boundary in roster["roles"][role].get("boundaries", [])
         ]
+        scoped = scoped_grants(roster, boundary)
         short = abbreviate(boundary)
         behaviour = owner_behaviour(str(spec.get("summary", "")), owner, roster)
-        for role in [*deferring, owner]:
+        for role in [*deferring, *scoped, owner]:
             if not role:
                 continue
             purpose = _shorten(str(roster["roles"][role].get("purpose", "")))
+            scope = scoped.get(role)
             for half in (Half.IN, Half.OUT):
                 slots.append(
                     Slot(
@@ -82,12 +85,28 @@ def boundary_slots(roster: dict[str, Any]) -> list[Slot]:
                         boundary=boundary,
                         half=half,
                         pair_id=f"{role}-{short}",
+                        scope=scope,
                         descriptor=_boundary_descriptor(
-                            role == owner, half, owner, behaviour, purpose
+                            role == owner, half, owner, behaviour, purpose, scope
                         ),
                     )
                 )
     return slots
+
+
+def scoped_grants(roster: dict[str, Any], boundary: str) -> dict[str, str]:
+    """Roles holding one boundary within a scope, in roster order.
+
+    The grant is a third state rather than a weaker defer, so a scoped role
+    appears in neither `boundaries` nor the owner slot and would derive as
+    nothing without this. See docs/role-boundaries.md.
+    """
+    grants: dict[str, str] = {}
+    for role in roster["role_order"]:
+        for entry in roster["roles"][role].get("scoped_boundaries", []) or []:
+            if str(entry.get("name", "")) == boundary:
+                grants[role] = str(entry.get("scope", ""))
+    return grants
 
 
 def owner_behaviour(summary: str, owner: str, roster: dict[str, Any]) -> str:
@@ -188,12 +207,18 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _boundary_descriptor(
-    is_owner: bool, half: Half, owner: str, behaviour: str, purpose: str
+    is_owner: bool, half: Half, owner: str, behaviour: str, purpose: str, scope: str | None = None
 ) -> str:
     if is_owner and half is Half.IN:
         return f'owns "{behaviour}"'
     if is_owner:
         return f'owns "{behaviour}", claims nothing past it'
+    # A scoped grant keeps the in-half meaning it holds everywhere here, the
+    # role acting on its own territory. The territory is the grant's limit.
+    if scope:
+        if half is Half.IN:
+            return f'holds "{behaviour}" within: {scope}'
+        return f'defers "{behaviour}" past that scope to {owner}'
     if half is Half.IN:
         return f"owns: {purpose}"
     return f'defers "{behaviour}" to {owner}'

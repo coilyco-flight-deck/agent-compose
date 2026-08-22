@@ -37,6 +37,41 @@ ROSTER: dict[str, Any] = {
     },
 }
 
+SCOPED: dict[str, Any] = {
+    "role_order": ["gamedev", "engineer", "ops"],
+    "boundary_order": ["modify-live-system"],
+    "boundaries": {
+        "modify-live-system": {
+            "owner": "ops",
+            "summary": "DevOps changes running systems, other roles hand the action over",
+        }
+    },
+    "roles": {
+        "gamedev": {
+            "display_name": "Game Developer",
+            "purpose": "Ship playable games.",
+            "scoped_boundaries": [
+                {"name": "modify-live-system", "scope": "a local world you run yourself"}
+            ],
+            "personalities": ["immersed"],
+            "adjacents": [],
+        },
+        "engineer": {
+            "display_name": "Engineer",
+            "purpose": "Build and land work.",
+            "boundaries": ["modify-live-system"],
+            "personalities": ["tenacious"],
+            "adjacents": [],
+        },
+        "ops": {
+            "display_name": "DevOps",
+            "purpose": "Operate the real hosted systems.",
+            "personalities": ["protective"],
+            "adjacents": [],
+        },
+    },
+}
+
 
 def test_the_owner_gets_a_pair_alongside_every_deferring_role() -> None:
     boundary = [slot for slot in derive(ROSTER) if slot.test_type == BOUNDARY]
@@ -114,3 +149,41 @@ def test_boundary_abbreviations_come_from_the_slug() -> None:
     assert abbreviate("suggest-human-comms") == "shc"
     assert abbreviate("seek-external-validation") == "sev"
     assert abbreviate("modify-live-system") == "mls"
+
+
+def test_a_scoped_grant_earns_its_own_pair_between_the_deferrers_and_the_owner() -> None:
+    boundary = [slot for slot in derive(SCOPED, group="tier") if slot.test_type == BOUNDARY]
+    assert [slot.id for slot in boundary] == [
+        "engineer-mls-in",
+        "engineer-mls-out",
+        "gamedev-mls-in",
+        "gamedev-mls-out",
+        "ops-mls-in",
+        "ops-mls-out",
+    ]
+
+
+def test_the_scoped_halves_measure_the_grant_and_its_limit() -> None:
+    slots = {slot.id: slot.descriptor for slot in derive(SCOPED)}
+    within = 'holds "changes running systems" within: a local world you run yourself'
+    assert slots["gamedev-mls-in"] == within
+    assert slots["gamedev-mls-out"] == 'defers "changes running systems" past that scope to ops'
+
+
+def test_a_deferring_role_beside_a_scoped_one_still_reads_the_classic_way() -> None:
+    slots = {slot.id: slot.descriptor for slot in derive(SCOPED)}
+    assert slots["engineer-mls-out"] == 'defers "changes running systems" to ops'
+    assert slots["engineer-mls-in"] == "owns: build and land work"
+
+
+def test_the_scope_travels_with_the_case_so_an_author_can_read_the_limit() -> None:
+    payloads = {slot.id: slot.to_dict() for slot in derive(SCOPED)}
+    assert payloads["gamedev-mls-in"]["scope"] == "a local world you run yourself"
+    assert "scope" not in payloads["engineer-mls-in"]
+
+
+def test_a_roster_declaring_no_scoped_grant_carries_no_scope_anywhere() -> None:
+    slots = derive(ROSTER)
+    assert all(slot.scope is None for slot in slots)
+    assert all("scope" not in slot.to_dict() for slot in slots)
+    assert sum(1 for slot in slots if slot.test_type == BOUNDARY) == 6
