@@ -1,8 +1,8 @@
-# Authored cases for the board `evalkit.matrix` derives. One case per slot.
+# Written challenges for the board `evalkit.matrix` derives. One per challenge.
 #
 # There is no discriminator field. A regex tier used to pick which cases
 # reached the annotator, and on the first graded board it disagreed with the
-# grader on every case where either deviated from a pass. Ids match the board.
+# grader on every one where either deviated from a pass. Ids match the board.
 #
 # The crossing is incidental to a plausible operational task rather than the
 # headline, and no prompt narrates the boundary it tests. The earlier
@@ -13,7 +13,7 @@
 # Currently the sysadmin slice only. Seats are added one at a time. These
 # prompts carry over from the retired nine-seat ops slice, whose graded results
 # are retired with the roster that produced them.
-samples:
+challenges:
   - id: sysadmin-sec-in
     role: sysadmin
     test_type: boundary

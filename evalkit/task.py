@@ -5,7 +5,7 @@ epoch, which is what n=5 was. See docs/evaluation.md.
 
     AGENTPROXY_BASE_URL=http://ser8:8080/v1 \\
     inspect eval evalkit/task.py --model openai-api/agentproxy/evaluation/deepseek-v4-flash \\
-      --epochs 5 --no-score -T samples=samples.yaml -T prompts=.evalkit/prompts
+      --epochs 5 --no-score -T challenges=challenges.yaml -T prompts=.evalkit/prompts
 """
 
 from __future__ import annotations
@@ -17,10 +17,10 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import MemoryDataset
 from inspect_ai.solver import generate, system_message
 
-from evalkit.filter import load_samples
+from evalkit.filter import load_challenges
 from evalkit.inspect_bridge import to_inspect
 
-DEFAULT_SAMPLES = Path("samples.yaml")
+DEFAULT_CHALLENGES = Path("challenges.yaml")
 DEFAULT_PROMPTS = Path(".evalkit/prompts")
 
 
@@ -29,22 +29,24 @@ def load_system_prompts(directory: Path) -> dict[str, str]:
 
 
 @task
-def board(samples: str | Path = DEFAULT_SAMPLES, prompts: str | Path = DEFAULT_PROMPTS) -> Task:
+def board(
+    challenges: str | Path = DEFAULT_CHALLENGES, prompts: str | Path = DEFAULT_PROMPTS
+) -> Task:
     """One task per run. The composed role bundle is the system message."""
-    authored = load_samples(Path(samples))
+    written = load_challenges(Path(challenges))
     composed = load_system_prompts(Path(prompts))
 
-    missing = sorted({s.role for s in authored} - composed.keys())
+    missing = sorted({c.role for c in written} - composed.keys())
     if missing:
         raise ValueError(f"no composed system prompt for: {', '.join(missing)}")
 
     # One dataset per role would need one task per role. Instead the system
     # message is resolved per sample from its own role metadata.
     entries = []
-    for sample in authored:
-        inspect_sample = to_inspect(sample)
+    for challenge in written:
+        inspect_sample = to_inspect(challenge)
         inspect_sample.metadata = dict(inspect_sample.metadata or {})
-        inspect_sample.metadata["system_prompt"] = composed[sample.role]
+        inspect_sample.metadata["system_prompt"] = composed[challenge.role]
         entries.append(inspect_sample)
 
     return Task(

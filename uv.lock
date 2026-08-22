@@ -228,7 +228,7 @@ wheels = [
 [[package]]
 name = "aos-eval"
 version = "0.1.1"
-source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git?subdirectory=aos-eval&tag=aos-eval-v0.2.0#384018ee56f873f9fe299a6bba2c7d4fe3d9238e" }
+source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git?subdirectory=aos-eval&tag=aos-eval-v0.5.0#88967b9d4826142715d3c5bcb9283e5eb40a5ee2" }
 dependencies = [
     { name = "click" },
     { name = "pydantic" },
@@ -501,7 +501,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aos-eval", git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git?subdirectory=aos-eval&tag=aos-eval-v0.2.0" },
+    { name = "aos-eval", git = "https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os.git?subdirectory=aos-eval&tag=aos-eval-v0.5.0" },
     { name = "inspect-ai", specifier = ">=0.3.255" },
     { name = "openai", specifier = ">=2.53.0" },
     { name = "pyyaml", specifier = ">=6.0" },

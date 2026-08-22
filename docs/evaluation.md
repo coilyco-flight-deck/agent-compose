@@ -31,9 +31,9 @@ tiers](harness-vendoring.md).
 ## The pipeline
 
 ```text
-generator          ->  samples.yaml
-inspect eval       ->  .eval log      (five epochs per sample, unscored)
-evalkit.filter     ->  dataset.yaml   (epoch 1 attached to every sample)
+generator          ->  challenges.yaml
+inspect eval       ->  .eval log      (five epochs each, unscored)
+evalkit.filter     ->  dataset.yaml   (epoch 1 attached to every challenge)
 aos-eval annotate  ->  annotations.yaml
 aos-eval taxonomy  ->  failure modes, ranked
 ```
@@ -45,7 +45,7 @@ than from the annotator.
 
 `evalkit.matrix` reads the roster and prints the cases it implies. Boundaries and their owners produce
 the pairs, adjacency produces the role-fit targets, and each role's meld produces the personality cases,
-so adding a boundary, flipping an adjacency edge, or swapping a personality moves the sample list on its
+so adding a boundary, flipping an adjacency edge, or swapping a personality moves the challenge list on its
 own and the dataset cannot drift from the roster. Adjacency reasons become the role-fit descriptors
 directly, which is the text a generator needs to build the right confusion. Execution is one case per
 session, because batching a role's cases would save machine time and no human time while manufacturing
@@ -60,12 +60,12 @@ results rather than half results.
 
 ## There is no mechanical scorer
 
-Samples once carried a `discriminator`, a regex list for the failing behavior, and item analysis used
-the match count to pick which samples reached the annotator. Across nine pass-or-fail cases the patterns
+Challenges once carried a `discriminator`, a regex list for the failing behavior, and item analysis used
+the match count to pick which challenges reached the annotator. Across nine pass-or-fail ones the patterns
 and the grader agreed on nothing that mattered: one false positive, two false negatives, six agreements
 where nothing happened. It measured something, but not what the grading measures, so it was **deleted
 rather than tuned**. The model-graded predecessor went the same way in `agent-compose#262`, its gating
-lane unable to fail and its producer and reviewer sharing a model. One authored case per slot now, all
+lane unable to fail and its producer and reviewer sharing a model. One written challenge each now, all
 annotated, and the retired records stay under `evaluations/retired-*`. Epochs stay at five, the
 annotator sees epoch 1, and the rest stay in the log as a failure-spread estimate at no grading cost.
 
@@ -77,8 +77,8 @@ a deferring half drops the factual handoff its boundary requires, and 50 words f
 `undecided` is a signal rather than a hedge, so a cluster of it is item analysis for the one tier with no
 mechanical filter.
 
-Samples are ordered **role-major**, so an annotator loads one charter and holds it across that role's
-samples. `--roster` prints purpose, boundaries, adjacency reasons, and personalities once per group,
+Challenges are ordered **role-major**, so an annotator loads one charter and holds it across that role's
+challenges. `--roster` prints purpose, boundaries, adjacency reasons, and personalities per group,
 `--role` annotates a subset, and grading saves after every decision. A deduction records a critique and,
 where one exists, a verbatim span from the output, verified before it is accepted. `aos-eval taxonomy`
 is the axial step: it groups deductions by structural axis, then by shared critique terms, and ranks by

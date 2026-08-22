@@ -3,13 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from aos_eval.schema import Half, Response, Sample
+from aos_eval.schema import Challenge, Half, Response
 
 from evalkit import filter as dataset_builder
 
 
-def role_fit(against: str) -> Sample:
-    return Sample(
+def role_fit(against: str) -> Challenge:
+    return Challenge(
         id=f"sysadmin-fit-{against}",
         role="sysadmin",
         test_type="role-fit",
@@ -19,9 +19,9 @@ def role_fit(against: str) -> Sample:
     )
 
 
-def responses(sample: Sample, total: int = 5) -> list[Response]:
+def responses(sample: Challenge, total: int = 5) -> list[Response]:
     return [
-        Response(sample_id=sample.id, epoch=index, text=f"answer {index}")
+        Response(challenge_id=sample.id, epoch=index, text=f"answer {index}")
         for index in range(1, total + 1)
     ]
 
@@ -45,7 +45,7 @@ def test_every_authored_sample_survives() -> None:
     samples = [
         role_fit("within"),
         role_fit("platform"),
-        Sample(
+        Challenge(
             id="sysadmin-sec-out",
             role="sysadmin",
             test_type="boundary",
@@ -55,7 +55,7 @@ def test_every_authored_sample_survives() -> None:
             half=Half.OUT,
             pair_id="sysadmin-sec",
         ),
-        Sample(
+        Challenge(
             id="sysadmin-per-grounded",
             role="sysadmin",
             test_type="personality",
@@ -77,24 +77,24 @@ def test_a_sample_with_no_runs_is_reported_so_truncation_is_never_silent() -> No
     assert report.summary == "0 kept, 1 dropped"
 
 
-def test_a_boundary_sample_still_needs_its_pair_identity(tmp_path: Path) -> None:
-    path = tmp_path / "samples.yaml"
+def test_a_boundary_challenge_still_needs_its_pair_identity(tmp_path: Path) -> None:
+    path = tmp_path / "challenges.yaml"
     path.write_text(
-        "samples:\n"
+        "challenges:\n"
         "  - id: sysadmin-sec-out\n"
         "    role: sysadmin\n"
         "    test_type: boundary\n"
         "    prompt: p\n"
         "    target: t\n"
     )
-    with pytest.raises(ValueError, match="boundary sample needs"):
-        dataset_builder.load_samples(path)
+    with pytest.raises(ValueError, match="boundary challenge needs"):
+        dataset_builder.load_challenges(path)
 
 
 def test_a_role_fit_sample_still_needs_an_against(tmp_path: Path) -> None:
-    path = tmp_path / "samples.yaml"
+    path = tmp_path / "challenges.yaml"
     path.write_text(
-        "samples:\n"
+        "challenges:\n"
         "  - id: sysadmin-fit-within\n"
         "    role: sysadmin\n"
         "    test_type: role-fit\n"
@@ -102,13 +102,13 @@ def test_a_role_fit_sample_still_needs_an_against(tmp_path: Path) -> None:
         "    target: t\n"
     )
     with pytest.raises(ValueError, match="needs against"):
-        dataset_builder.load_samples(path)
+        dataset_builder.load_challenges(path)
 
 
 def test_a_well_formed_board_loads(tmp_path: Path) -> None:
-    path = tmp_path / "samples.yaml"
+    path = tmp_path / "challenges.yaml"
     path.write_text(
-        "samples:\n"
+        "challenges:\n"
         "  - id: sysadmin-mlb-in\n"
         "    role: sysadmin\n"
         "    test_type: boundary\n"
@@ -118,4 +118,4 @@ def test_a_well_formed_board_loads(tmp_path: Path) -> None:
         "    half: in\n"
         "    pair_id: sysadmin-mlb\n"
     )
-    assert [s.id for s in dataset_builder.load_samples(path)] == ["sysadmin-mlb-in"]
+    assert [s.id for s in dataset_builder.load_challenges(path)] == ["sysadmin-mlb-in"]

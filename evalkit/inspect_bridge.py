@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from aos_eval.schema import Sample
+from aos_eval.schema import Challenge
 from inspect_ai.dataset import Sample as InspectSample
 
 # Inspect's Sample carries only input, target, id, and metadata, so every
@@ -25,25 +25,28 @@ METADATA_FIELDS = (
 )
 
 
-def to_inspect(sample: Sample) -> InspectSample:
+def to_inspect(challenge: Challenge) -> InspectSample:
+    # An unwritten challenge has no prompt, so the runner is where that stops.
+    if not challenge.written:
+        raise ValueError(f"{challenge.id}: an unwritten challenge cannot be run")
     metadata = {
         key: (value.value if isinstance(value, StrEnum) else value)
-        for key, value in ((name, getattr(sample, name)) for name in METADATA_FIELDS)
+        for key, value in ((name, getattr(challenge, name)) for name in METADATA_FIELDS)
         if value is not None
     }
     return InspectSample(
-        id=sample.id,
-        input=sample.prompt,
-        target=sample.target,
+        id=challenge.id,
+        input=str(challenge.prompt),
+        target=str(challenge.target),
         metadata=metadata,
     )
 
 
-def from_inspect(sample: InspectSample) -> Sample:
-    metadata = dict(sample.metadata or {})
-    return Sample(
-        id=str(sample.id),
-        prompt=str(sample.input),
-        target=str(sample.target),
+def from_inspect(inspect_sample: InspectSample) -> Challenge:
+    metadata = dict(inspect_sample.metadata or {})
+    return Challenge(
+        id=str(inspect_sample.id),
+        prompt=str(inspect_sample.input),
+        target=str(inspect_sample.target),
         **metadata,
     )

@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 from aos_eval.dataset import DatasetReport, build, validate
 from aos_eval.io import save_dataset
-from aos_eval.schema import AGENT_COMPOSE, Response, Sample
+from aos_eval.schema import AGENT_COMPOSE, Challenge, Response
 from inspect_ai.log import read_eval_log
 
 
@@ -24,11 +24,12 @@ def load_responses(path: Path) -> list[Response]:
     if log.status != "success":
         raise SystemExit(f"eval log status is {log.status}, refusing to read it")
     responses: list[Response] = []
+    # Inspect calls its own dataset row a sample, so that noun stays here.
     for sample in log.samples or []:
         message = sample.output.choices[0].message if sample.output.choices else None
         responses.append(
             Response(
-                sample_id=str(sample.id),
+                challenge_id=str(sample.id),
                 epoch=int(sample.epoch),
                 text=(sample.output.completion or "").strip(),
                 finish_reason=str(getattr(message, "stop_reason", "") or "stop"),
@@ -38,23 +39,23 @@ def load_responses(path: Path) -> list[Response]:
     return responses
 
 
-def load_samples(path: Path) -> list[Sample]:
+def load_challenges(path: Path) -> list[Challenge]:
     """Authoring is where a malformed case must fail.
 
-    The shared Sample stays portable across profiles, so it enforces only what
+    The shared Challenge stays portable across profiles, so it enforces only what
     is true of every deployment. A board case that omits a field this profile
     requires is not a portability question, it is an unauthored case that would
     read as graded coverage.
     """
     raw = yaml.safe_load(path.read_text()) or {}
-    samples = [Sample.model_validate(entry) for entry in raw.get("samples", [])]
-    if problems := validate(samples, AGENT_COMPOSE):
+    written = [Challenge.model_validate(entry) for entry in raw.get("challenges", [])]
+    if problems := validate(written, AGENT_COMPOSE):
         raise ValueError("\n".join(problems))
-    return samples
+    return written
 
 
-def run(samples: list[Sample], responses: list[Response]) -> DatasetReport:
-    return build(samples, responses)
+def run(written: list[Challenge], responses: list[Response]) -> DatasetReport:
+    return build(written, responses)
 
 
 def _reasoning(message: object) -> str:
@@ -67,17 +68,17 @@ def _reasoning(message: object) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build the annotation dataset from a run.")
-    parser.add_argument("--samples", type=Path, required=True)
+    parser.add_argument("--challenges", type=Path, required=True)
     parser.add_argument("--log", type=Path, required=True, help=".eval log from inspect eval")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    report = build(load_samples(args.samples), load_responses(args.log))
+    report = build(load_challenges(args.challenges), load_responses(args.log))
     save_dataset(args.out, report.kept)
 
     print(report.summary)
     for drop in report.dropped:
-        print(f"  dropped {drop.sample_id}: {drop.reason}")
+        print(f"  dropped {drop.challenge_id}: {drop.reason}")
     return 0
 
 

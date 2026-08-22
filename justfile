@@ -113,7 +113,7 @@ evalkit-filter *ARGS:
 evalkit-taxonomy *ARGS:
     @uv run aos-eval taxonomy "$@"
 
-# Annotate the eval dataset by hand, one keystroke per sample.
+# Annotate the eval dataset by hand, one keystroke per challenge.
 evalkit-annotate *ARGS:
     @sh scripts/eval-annotate.sh "$@"
 

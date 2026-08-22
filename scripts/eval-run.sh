@@ -11,7 +11,7 @@ absolute() {
   esac
 }
 
-samples=$(absolute "${EVAL_SAMPLES:-samples.yaml}")
+challenges=$(absolute "${EVAL_CHALLENGES:-challenges.yaml}")
 prompts=$(absolute "${EVAL_PROMPTS:-.evalkit/prompts}")
 logs=$(absolute "${EVAL_LOGS:-.evalkit/logs}")
 epochs=${EVAL_EPOCHS:-5}
@@ -26,6 +26,6 @@ uv run inspect eval evalkit/task.py \
   --epochs "$epochs" \
   --no-score \
   --log-dir "$logs" \
-  -T samples="$samples" \
+  -T challenges="$challenges" \
   -T prompts="$prompts" \
   "$@"
