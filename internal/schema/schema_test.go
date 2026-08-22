@@ -20,7 +20,7 @@ func TestParseRequestFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if req.Role != "engineer" {
+	if req.Role != "platform" {
 		t.Fatalf("unexpected identity: %+v", req)
 	}
 	if req.Delivery != DeliveryNativeSkills {
@@ -38,7 +38,7 @@ func TestParseRequestAcceptsCanonicalModelTiers(t *testing.T) {
 	for _, tier := range ModelTiers() {
 		t.Run(tier, func(t *testing.T) {
 			path := writeRequest(t, `compose {
-    role "engineer"
+    role "platform"
     delivery "compiled"
     model-tier "`+tier+`"
 }`)
@@ -77,7 +77,7 @@ func writeRequest(t *testing.T, body string) string {
 
 func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
 	path := writeRequest(t, `compose {
-    role "engineer"
+    role "platform"
     delivery "compiled"
     density "full"
 }`)
@@ -85,7 +85,7 @@ func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if req.Role != "engineer" || req.Delivery != DeliveryCompiled {
+	if req.Role != "platform" || req.Delivery != DeliveryCompiled {
 		t.Fatalf("unexpected legacy request: %+v", req)
 	}
 }
@@ -94,7 +94,7 @@ func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
 // that is identity rather than a role redefinition.
 func TestParseRequestAcceptsASeatIdentityOverride(t *testing.T) {
 	path := writeRequest(t, `compose {
-    role "ops"
+    role "sysadmin"
     identity name="Echo" pronouns="it"
     delivery "native-skills"
 }`)
@@ -114,7 +114,7 @@ func TestParseRequestAcceptsASeatIdentityOverride(t *testing.T) {
 // nobody wrote.
 func TestParseRequestLeavesIdentityUnsetWhenUnnamed(t *testing.T) {
 	path := writeRequest(t, `compose {
-    role "ops"
+    role "sysadmin"
     delivery "native-skills"
 }`)
 	req, err := ParseRequest(path)
@@ -129,94 +129,94 @@ func TestParseRequestLeavesIdentityUnsetWhenUnnamed(t *testing.T) {
 func TestParseRequestFailsClosed(t *testing.T) {
 	cases := map[string]string{
 		"identity without pronouns": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     identity name="Echo"
 }`,
 		"identity without name": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     identity pronouns="it"
 }`,
 		"identity with a blank name": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     identity name="   " pronouns="it"
 }`,
 		"identity taking an argument": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     identity "Echo" pronouns="it"
 }`,
 		"duplicate identity": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     identity name="Echo" pronouns="it"
     identity name="Olaf" pronouns="he"
 }`,
 		"unknown node": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     privacy-scope "public"
 }`,
 		"duplicate scalar": `compose {
-    role "engineer"
+    role "platform"
     role "designer"
     delivery "native-skills"
 }`,
 		"bad delivery": `compose {
-    role "engineer"
+    role "platform"
     delivery "carrier-pigeon"
 }`,
 		"removed model class": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     model-class "low-context"
 }`,
 		"bad model tier": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     model-tier "premium"
 }`,
 		"retired brief density": `compose {
-    role "engineer"
+    role "platform"
     delivery "compiled"
     density "brief"
 }`,
 		"retired personality selector": `compose {
-    role "engineer"
-    personality "curious"
+    role "platform"
+    personality "tenacious"
     delivery "native-skills"
 }`,
 		"source without declaration": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public"
 }`,
 		"source with declaration and root": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public" declaration="source.kdl" root="."
 }`,
 		"source with empty root": `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public" root=""
 }`,
 		"absolute person source": `compose {
     person-source "/tmp/person"
-    role "engineer"
+    role "platform"
     delivery "native-skills"
 }`,
 		"external-only without person source": `compose {
     person-policy "external-only"
-    role "engineer"
+    role "platform"
     delivery "native-skills"
 }`,
 		"unknown person policy": `compose {
     person-policy "prefer-external"
     person-source "person"
-    role "engineer"
+    role "platform"
     delivery "native-skills"
 }`,
 		"invalid kdl": `compose { role "engineer`,
@@ -232,7 +232,7 @@ func TestParseRequestFailsClosed(t *testing.T) {
 
 func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 	required := writeRequest(t, `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "ghost" declaration="ghost.kdl" required=#true
 }`)
@@ -245,7 +245,7 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 	}
 
 	optional := writeRequest(t, `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "ghost" declaration="ghost.kdl"
 }`)
@@ -264,7 +264,7 @@ func TestLoadSourcesRequiredVersusOptional(t *testing.T) {
 
 func TestLoadSourcesRejectsEscapingPaths(t *testing.T) {
 	path := writeRequest(t, `compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "evil" declaration="../evil.kdl" required=#true
 }`)
@@ -327,7 +327,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		}
 	}
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role engineer {
+    role platform {
         composed-skill "coding-*"
     }
     role designer {
@@ -340,7 +340,7 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 
 	request := filepath.Join(root, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public" root="." required=#true
 }
@@ -370,10 +370,10 @@ func TestLoadInferredProviderRoot(t *testing.T) {
 		src.Skills[2].ID != "personality-calm" {
 		t.Fatalf("inferred ordinary skills must be sorted: %+v", src.Skills)
 	}
-	if len(src.RoleSkills["engineer"]) != 2 ||
-		src.RoleSkills["engineer"][0].ID != "coding-aws" ||
-		src.RoleSkills["engineer"][1].ID != "coding-shape-cli" ||
-		src.RoleSkills["engineer"][0].EntryPoint != "COMPOSED.md" ||
+	if len(src.RoleSkills["platform"]) != 2 ||
+		src.RoleSkills["platform"][0].ID != "coding-aws" ||
+		src.RoleSkills["platform"][1].ID != "coding-shape-cli" ||
+		src.RoleSkills["platform"][0].EntryPoint != "COMPOSED.md" ||
 		len(src.RoleSkills["designer"]) != 1 ||
 		src.RoleSkills["designer"][0].ID != "design-system" {
 		t.Fatalf("unexpected composed role skills: %+v", src.RoleSkills)
@@ -409,10 +409,10 @@ func TestLoadInferredProviderParsesRepositorySkillProviderGraph(t *testing.T) {
 }
 
 roles {
-    role engineer {
+    role platform {
         use-repository hardware
     }
-    role ops {
+    role sysadmin {
         use-repository hardware
         use-repository infrastructure
     }
@@ -430,7 +430,7 @@ roles {
 		!slices.Equal(hardware.Skills, []string{"compute-stack", "machine-*"}) {
 		t.Fatalf("hardware provider = %+v", hardware)
 	}
-	if got := source.RoleProviders["ops"]; len(got) != 2 ||
+	if got := source.RoleProviders["sysadmin"]; len(got) != 2 ||
 		got[0].Provider != "hardware" || !got[0].Required ||
 		got[1].Provider != "infrastructure" || !got[1].Required {
 		t.Fatalf("ops provider uses = %+v", got)
@@ -468,7 +468,7 @@ func TestLoadInferredProviderRejectsUnsafeComposedLayouts(t *testing.T) {
     }
 }
 roles {
-    role engineer {
+    role platform {
         use-repository hardware
     }
 }
@@ -477,17 +477,17 @@ roles {
 		); err != nil {
 			t.Fatal(err)
 		}
-		if source, err := LoadSource(root); err != nil || len(source.RoleProviders["engineer"]) != 1 {
+		if source, err := LoadSource(root); err != nil || len(source.RoleProviders["platform"]) != 1 {
 			t.Fatalf("provider-only graph must load, source=%+v err=%v", source, err)
 		}
 	})
 
 	for name, graph := range map[string]string{
-		"undeclared repository": `roles { role engineer { use-repository missing } }`,
+		"undeclared repository": `roles { role platform { use-repository missing } }`,
 		"invalid selector":      `repositories { repository hardware path="example/hardware" { skill "[" } } roles {}`,
 		"duplicate path":        `repositories { repository one path="example/hardware"; repository two path="example/hardware" } roles {}`,
 		"unsafe path":           `repositories { repository hardware path="../hardware" } roles {}`,
-		"unknown use property":  `repositories { repository hardware path="example/hardware" { skill "*" } } roles { role engineer { use-repository hardware required=#true } }`,
+		"unknown use property":  `repositories { repository hardware path="example/hardware" { skill "*" } } roles { role platform { use-repository hardware required=#true } }`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			root := makeProvider(t)
@@ -537,7 +537,7 @@ roles {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "engineer" {
+    role "platform" {
         composed-skill "missing"
     }
 }
@@ -555,7 +555,7 @@ roles {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "engineer" {
+    role "platform" {
         composed-skill "coding-*"
     }
 }
@@ -577,7 +577,7 @@ roles {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "engineer" {
+    role "platform" {
         composed-skill "coding-["
     }
 }
@@ -599,7 +599,7 @@ roles {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "engineer" {
+    role "platform" {
         composed-skill "coding-*"
         composed-skill "coding-shape-cli"
     }
@@ -611,13 +611,13 @@ roles {
 		if err != nil {
 			t.Fatal(err)
 		}
-		roleSkills := source.RoleSkills["engineer"]
+		roleSkills := source.RoleSkills["platform"]
 		if len(roleSkills) != 1 || roleSkills[0].ID != "coding-shape-cli" ||
 			!slices.Equal(roleSkills[0].Selectors, []string{"coding-*", "coding-shape-cli"}) {
 			t.Fatalf("overlapping composed-skill patterns must select one skill with complete provenance, got %+v", roleSkills)
 		}
 		wantOverlap := SelectorOverlap{
-			Role: "engineer", Skill: "coding-shape-cli",
+			Role: "platform", Skill: "coding-shape-cli",
 			Selectors: []string{"coding-*", "coding-shape-cli"},
 		}
 		if len(source.SelectorOverlaps) != 1 ||
@@ -651,8 +651,8 @@ func TestLoadSourceRepositoryPolicy(t *testing.T) {
     resident-only resident
 }
 roles {
-    role engineer { use-repository voice }
-    role qa {}
+    role platform { use-repository voice }
+    role eval {}
 }
 `
 	if err := os.WriteFile(roles, []byte(graph), 0o644); err != nil {
@@ -665,21 +665,21 @@ roles {
 	if source.Repositories["voice"].Path != "owner/voice" ||
 		len(source.GlobalRepos) != 1 || source.GlobalRepos[0].Repository != "lore" ||
 		len(source.ResidentRepos) != 1 || source.ResidentRepos[0].Repository != "resident" ||
-		len(source.RoleRepos["engineer"]) != 1 || source.RoleRepos["engineer"][0].Repository != "voice" {
+		len(source.RoleRepos["platform"]) != 1 || source.RoleRepos["platform"][0].Repository != "voice" {
 		t.Fatalf("repository policy = %+v", source)
 	}
-	if _, exists := source.RoleRepos["qa"]; !exists {
+	if _, exists := source.RoleRepos["eval"]; !exists {
 		t.Fatal("empty canonical role was omitted from repository policy")
 	}
 }
 
 func TestLoadSourceRepositoryPolicyFailsClosed(t *testing.T) {
 	for name, graph := range map[string]string{
-		"undeclared global":          `repositories { global missing } roles { role engineer {} }`,
-		"undeclared role repository": `repositories {} roles { role engineer { use-repository missing } }`,
-		"duplicate repository path":  `repositories { repository one path="owner/repo"; repository two path="owner/repo" } roles { role engineer {} }`,
-		"unsafe repository path":     `repositories { repository one path="../repo" } roles { role engineer {} }`,
-		"duplicate global":           `repositories { repository one path="owner/one"; global one; global one } roles { role engineer {} }`,
+		"undeclared global":          `repositories { global missing } roles { role platform {} }`,
+		"undeclared role repository": `repositories {} roles { role platform { use-repository missing } }`,
+		"duplicate repository path":  `repositories { repository one path="owner/repo"; repository two path="owner/repo" } roles { role platform {} }`,
+		"unsafe repository path":     `repositories { repository one path="../repo" } roles { role platform {} }`,
+		"duplicate global":           `repositories { repository one path="owner/one"; global one; global one } roles { role platform {} }`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			root := t.TempDir()

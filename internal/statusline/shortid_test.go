@@ -23,7 +23,7 @@ func shortIDFixture(t *testing.T) string {
 		Layout: "claude", Bundle: bundleDir, Files: []string{"CLAUDE.md"},
 	})
 	writeJSON(t, filepath.Join(bundleDir, "manifest.json"), bundle.Manifest{
-		Format: "agent-compose.bundle", Role: "engineer", ModelTier: "frontier",
+		Format: "agent-compose.bundle", Role: "platform", ModelTier: "frontier",
 		Color: "#b39258",
 		Identity: bundle.RoleIdentity{
 			Person: "core",
@@ -31,7 +31,7 @@ func shortIDFixture(t *testing.T) string {
 				{Key: "claude", Name: "Angie", Pronouns: "she"},
 			},
 			Personalities: []bundle.IdentityPersonality{
-				{Name: "curious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
+				{Name: "tenacious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
 			},
 		},
 	})

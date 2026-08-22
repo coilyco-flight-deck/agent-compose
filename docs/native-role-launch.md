@@ -4,10 +4,10 @@
 caller-assigned role bundle:
 
 ```sh
-acompose design codex
-acompose engineer claude --model opus
-acompose qa goose run
-acompose creator opencode
+acompose frontend codex
+acompose platform claude --model opus
+acompose eval goose run
+acompose devrel opencode
 ```
 
 Arguments pass through. Long form: `agent-compose launch <role> <harness>`.

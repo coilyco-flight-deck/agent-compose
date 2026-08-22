@@ -201,8 +201,8 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "compose", "--", "claude"},
 		},
 		"acompose role and harness inject launch": {
-			[]string{"acompose", "design", "codex", "--model", "gpt"},
-			[]string{"acompose", "launch", "design", "codex", "--model", "gpt"},
+			[]string{"acompose", "frontend", "codex", "--model", "gpt"},
+			[]string{"acompose", "launch", "frontend", "codex", "--model", "gpt"},
 		},
 		"acompose request and layout remain compose": {
 			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
@@ -233,10 +233,10 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := summaryFixture(t, p)
-	wantPersonalities := strings.Join(p.Roles["engineer"].Personalities, " // ")
+	wantPersonalities := strings.Join(p.Roles["platform"].Personalities, " // ")
 	wantColor := result.Resolution.FavoriteColor
-	wantIdentity := "agent identity: " + p.Roles["engineer"].Identity.Name +
-		" // pronouns: " + p.Roles["engineer"].Identity.Pronouns
+	wantIdentity := "agent identity: " + p.Roles["platform"].Identity.Name +
+		" // pronouns: " + p.Roles["platform"].Identity.Pronouns
 
 	var output strings.Builder
 	if err := printSummary(&output, result, person.RoleTranscriptOptions{}); err != nil {
@@ -246,10 +246,10 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	for _, want := range []string{
 		"request: model tier frontier // delivery native-skills",
 		"roster: core // provided by: roster:core",
-		"role: engineer",
+		"role: platform",
 		"personalities: " + wantPersonalities,
 		"melded color: " + wantColor,
-		"personality: curious",
+		"personality: tenacious",
 		wantIdentity,
 		"renderer expressions: available // listening // thinking",
 		"decisions: 1 selected // 1 excluded // 1 shadowed // 1 delivered",
@@ -282,9 +282,9 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 	var output strings.Builder
 	printCompositionWarnings(&output, []string{
-		`source "aos" provider role "creator" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once`,
+		`source "aos" provider role "devrel" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once`,
 	})
-	want := `agent-compose: warning: source "aos" provider role "creator" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once` + "\n"
+	want := `agent-compose: warning: source "aos" provider role "devrel" matched composed skill "writing-kai-voice" through selectors "*writing*", "*voice*", selected once` + "\n"
 	if output.String() != want {
 		t.Fatalf("warning output = %q, want %q", output.String(), want)
 	}
@@ -292,13 +292,13 @@ func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 
 func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 	t.Helper()
-	personalities := p.Roles["engineer"].Personalities
-	favoriteColor := p.Roles["engineer"].FavoriteColor
+	personalities := p.Roles["platform"].Personalities
+	favoriteColor := p.Roles["platform"].FavoriteColor
 	return &compose.Result{
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{
 			Request: &schema.Request{
-				Role:      "engineer",
+				Role:      "platform",
 				ModelTier: schema.ModelTierFrontier,
 				Delivery:  "native-skills",
 			},
@@ -339,7 +339,7 @@ func TestNativeHarnessCommandPreservesExplicitCodexWork(t *testing.T) {
 	t.Parallel()
 	for name, args := range map[string][]string{
 		"prompt":         {"help me debug this"},
-		"subcommand":     {"exec", "run the tests"},
+		"subcommand":     {"tpm", "run the tests"},
 		"unknown option": {"--future-option"},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -564,7 +564,7 @@ func TestPrintVerificationUsesBoundedCounts(t *testing.T) {
 	verification := &bundle.Verification{
 		Files: 128,
 		Identities: []bundle.Identity{
-			{Source: "roster:core", Skill: "personality-curious"},
+			{Source: "roster:core", Skill: "personality-tenacious"},
 			{Source: "aos-public", Skill: "coding-go"},
 		},
 	}

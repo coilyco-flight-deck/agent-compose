@@ -11,15 +11,15 @@ Each person profile owns one ordinary role skill. KDL keeps compact identity dat
 A role fragment binds a stable skill id:
 
 ```kdl
-role "exec" {
-    display-name "Executive Strategist"
-    purpose "Decide where to invest attention across the real portfolio."
-    skill "role-exec"
-    personality "outward" "grounded" "decisive"
+role "tpm" {
+    display-name "Technical Program Manager"
+    purpose "Decide what the portfolio does next, and carry each decision to its gate."
+    skill "role-tpm"
+    personality "decisive" "outward"
 }
 ```
 
-The body at `roles/exec/SKILL.md` needs ordinary frontmatter, matching
+The body at `roles/tpm/SKILL.md` needs ordinary frontmatter, matching
 `role-<slug>` metadata, three paragraphs, and at most 400 words after its
 title. V1.x packages may retain an inline `briefing`. The compatibility adapter
 projects it as an in-memory `role-<slug>` skill. A role cannot declare both
@@ -43,33 +43,30 @@ behavioral content stays equivalent without emitting unusable pointers.
 
 Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
-executable authority. Content Creator owns communication recommendations,
-including wording, tone, framing, timing, channel, reply strategy, and
-editorial fitness. It connects proof, audience research, community state,
-durable feedback, qualification, discovery, and decision support. Other roles
-retain mechanical records and defer only for recommendations. External action
-still requires task, runtime, and user authorization. The Engineer role owns
-repository-proven reusable software. Ops owns controlled running-system change,
-live verification, and rollback. QA remains read-only unless the runtime
-explicitly grants an enforced disposable fixture mode. No role skill grants
+executable authority. Developer Advocate (`devrel`) owns every recommendation
+about communication addressed outward, including wording, tone, framing,
+timing, channel, reply strategy, and editorial fitness. Other roles retain
+mechanical records and defer only for recommendations, and two hold a named
+scope over the words inside an artifact they own. External action still
+requires task, runtime, and user authorization. Developer Platform Engineer
+(`platform`) owns foundational software. Systems Administrator (`sysadmin`)
+owns controlled running-system change, live verification, and rollback. Agent
+Evaluation Engineer (`eval`) stays read-only around running backends unless the
+runtime grants an enforced disposable fixture mode. No role skill grants
 commands, credentials, mounts, network access, deployment, model selection, or
 permission.
 
-Designer (`design`) owns bounded, effect-tested experience definition and
-page-level work in existing graphical web apps. Static pages, focused routes,
-navigation, presentation, metadata, accessibility, and tests qualify when
-business rules and data flow stay unchanged. User-supplied labels and list
-items may be applied directly with native semantic HTML. Agent-authored
-meaning, content strategy, behavior, data flow, stateful workflows, validation,
-permissions, analytics, system routing, runtime data, terminal or procedural
-experiences, infrastructure, release, and live operations do not. Content
-Creator owns wording and strategy when copy is not supplied. Designer owns
-hierarchy, accessibility, and integration. Content Creator (`creator`) may land
-content-only repository changes, including human-facing literals embedded in
-code. The exception requires unchanged control flow, state, schemas, structured
-contracts, and executable behavior. Mixed content and behavior returns to
-Engineer. Content Creator accepts factual handoffs without absorbing another
-role's ledger or inferring authority to expose the result.
+Frontend Design Engineer (`frontend`) owns the surface a person navigates and
+builds it as well as shapes it: responsive presentation, components, tokens,
+static assets, semantic structure, focus treatment, metadata, empty states, and
+the route, rendering, accessibility, and navigation tests that hold them.
+Business rules, state machines, runtime data, APIs, persistence, permissions,
+migrations, and shared tooling are foundational software and return to
+platform. `devrel` may land content-only repository changes, including
+human-facing literals embedded in code. That exception requires unchanged
+control flow, state, schemas, structured contracts, and executable behavior.
+Technical Program Manager (`tpm`) owns code review as a gate decision, so a
+defect returns to the owning seat with evidence rather than with a patch.
 
 ## Role methods
 
@@ -82,8 +79,8 @@ policy and would become misleading if copied into a general knowledge provider.
 Declare method ids in the owning role fragment:
 
 ```kdl
-role "ai" {
-    skill "role-ai"
+role "eval" {
+    skill "role-eval"
     method "eval-fixture-suite"
 }
 ```
@@ -91,9 +88,9 @@ role "ai" {
 Store each body under that role:
 
 ```text
-roles/ai/SKILL.md
-roles/ai/skills/eval-role-comms/SKILL.md
-roles/ai/skills/eval-role-live-ops/SKILL.md
+roles/eval/SKILL.md
+roles/eval/skills/eval-role-comms/SKILL.md
+roles/eval/skills/eval-role-live-ops/SKILL.md
 ```
 
 Every method directory contains only `SKILL.md`. The frontmatter name matches

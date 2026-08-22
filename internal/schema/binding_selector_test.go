@@ -61,10 +61,10 @@ const bindingGraph = `repositories {
 }
 
 roles {
-    role engineer {
+    role platform {
         use-repository lore
     }
-    role creator {
+    role devrel {
         use-repository lore {
             skill "lore-self-*"
             skill "lore-rule-*"
@@ -76,14 +76,14 @@ roles {
 func TestBindingSelectorParsedOntoTheUse(t *testing.T) {
 	source := loadBindingSource(t, bindingGraph)
 
-	engineer := source.RoleProviders["engineer"]
-	if len(engineer) != 1 || engineer[0].Skills != nil {
-		t.Fatalf("engineer binding must carry no selector, got %+v", engineer)
+	platform := source.RoleProviders["platform"]
+	if len(platform) != 1 || platform[0].Skills != nil {
+		t.Fatalf("platform binding must carry no selector, got %+v", platform)
 	}
-	creator := source.RoleProviders["creator"]
-	if len(creator) != 1 ||
-		!slices.Equal(creator[0].Skills, []string{"lore-self-*", "lore-rule-*"}) {
-		t.Fatalf("creator binding selector = %+v", creator)
+	devrel := source.RoleProviders["devrel"]
+	if len(devrel) != 1 ||
+		!slices.Equal(devrel[0].Skills, []string{"lore-self-*", "lore-rule-*"}) {
+		t.Fatalf("devrel binding selector = %+v", devrel)
 	}
 }
 
@@ -91,7 +91,7 @@ func TestBindingSelectorNarrowsAndLeavesOtherRolesAlone(t *testing.T) {
 	definition := []string{"lore-*"}
 
 	narrowed := loadBindingSource(t, bindingGraph)
-	binding := narrowed.RoleProviders["creator"][0].Skills
+	binding := narrowed.RoleProviders["devrel"][0].Skills
 	if err := SelectOrdinarySkills(narrowed, definition, binding); err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func TestBindingSelectorNarrowsAndLeavesOtherRolesAlone(t *testing.T) {
 	// The same definition mounted by a role that declared no binding selector
 	// still receives everything the definition admits.
 	whole := loadBindingSource(t, bindingGraph)
-	if err := SelectOrdinarySkills(whole, definition, whole.RoleProviders["engineer"][0].Skills); err != nil {
+	if err := SelectOrdinarySkills(whole, definition, whole.RoleProviders["platform"][0].Skills); err != nil {
 		t.Fatal(err)
 	}
 	if got := selectedIDs(whole); !slices.Equal(got, bindingCatalogue) {
@@ -193,7 +193,7 @@ func TestBindingSelectorRejectsUnknownChildNode(t *testing.T) {
 }
 
 roles {
-    role creator {
+    role devrel {
         use-repository lore {
             provider "lore-self-*"
         }
@@ -213,7 +213,7 @@ func TestBindingSelectorOnUseProvider(t *testing.T) {
 }
 
 roles {
-    role creator {
+    role devrel {
         use-provider lore required=#true {
             skill "lore-self-*"
         }
@@ -221,7 +221,7 @@ roles {
 }
 `
 	source := loadBindingSource(t, graph)
-	uses := source.RoleProviders["creator"]
+	uses := source.RoleProviders["devrel"]
 	if len(uses) != 1 || !uses[0].Required ||
 		!slices.Equal(uses[0].Skills, []string{"lore-self-*"}) {
 		t.Fatalf("use-provider binding = %+v", uses)

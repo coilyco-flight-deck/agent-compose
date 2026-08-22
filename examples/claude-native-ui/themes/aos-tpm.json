@@ -1,0 +1,21 @@
+{
+  "name": "Technical Program Manager (Saiya)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#da6c74",
+    "autoAcceptShimmer": "#fd8b92",
+    "bashBorder": "#b3be49",
+    "briefLabelClaude": "#e36966",
+    "claude": "#e36966",
+    "claudeShimmer": "#ff8984",
+    "clawd_body": "#e36966",
+    "orange_FOR_SUBAGENTS_ONLY": "#e36966",
+    "permission": "#b3be49",
+    "permissionShimmer": "#d3df6b",
+    "promptBorder": "#e36966",
+    "promptBorderShimmer": "#ff8984",
+    "remember": "#b3be49",
+    "skill": "#da6c74",
+    "suggestion": "#b3be49"
+  }
+}

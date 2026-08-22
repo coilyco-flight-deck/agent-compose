@@ -35,8 +35,8 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 		},
 		RoleOrder: []string{"builder", "seatless"},
 		Personalities: map[string]person.Personality{
-			"bright":  {Skill: "personality-curious", Color: "#c87945"},
-			"pending": {Skill: "personality-reflective", Color: "#7d9fd3"},
+			"bright":  {Skill: "personality-tenacious", Color: "#c87945"},
+			"pending": {Skill: "personality-protective", Color: "#7d9fd3"},
 		},
 	}
 	src, err := schema.LoadSource(filepath.Join("..", "..", "testdata", "contracts", "source-public.kdl"))
@@ -76,7 +76,7 @@ func TestRenderDispatchTable(t *testing.T) {
 		"###  Bright",
 		"**#c87945 //  //  // **",
 		"* `role-builder`",
-		"* `personality-curious`",
+		"* `personality-tenacious`",
 	} {
 		if !strings.Contains(table, want) {
 			t.Fatalf("table missing %q:\n%s", want, table)
@@ -104,7 +104,7 @@ func TestRenderDispatchTable(t *testing.T) {
 		t.Fatalf("claude override eagerly imports identity doctrine:\n%s", override)
 	}
 
-	if !strings.Contains(string(files[".agents/skills/personality-curious/SKILL.md"]), "# Curious") {
+	if !strings.Contains(string(files[".agents/skills/personality-tenacious/SKILL.md"]), "# Tenacious") {
 		t.Fatal("personality body must carry the skill definition")
 	}
 	if !strings.Contains(string(files[".agents/skills/role-builder/SKILL.md"]), "You are a builder.") {
@@ -135,7 +135,7 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 		"### Native interactive adaptation",
 		"#### Inferred native role switches",
 		"#### Personality-only swaps",
-		"#### Conditional QA fixture authority",
+		"#### Conditional evaluation fixture authority",
 		"Available role slugs: `builder`.",
 	} {
 		if !strings.Contains(table, want) {
@@ -150,7 +150,7 @@ func TestRenderNativeInteractiveAdaptationPolicy(t *testing.T) {
 	}
 }
 
-func TestRenderDefaultSupportsExecToQASwitch(t *testing.T) {
+func TestRenderDefaultSupportsTPMToEvalSwitch(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -171,7 +171,7 @@ func TestRenderDefaultSupportsExecToQASwitch(t *testing.T) {
 	if !strings.Contains(table, wantTargets) {
 		t.Fatalf("default native switch targets drifted:\nwant %s\n\n%s", wantTargets, table)
 	}
-	for _, roleName := range []string{"exec", "qa"} {
+	for _, roleName := range []string{"tpm", "eval"} {
 		role := p.Roles[roleName]
 		if strings.Contains(table, role.Briefing) {
 			t.Fatalf("startup roster eagerly embedded role %q briefing:\n%s", roleName, table)
@@ -181,23 +181,23 @@ func TestRenderDefaultSupportsExecToQASwitch(t *testing.T) {
 		}
 	}
 
-	qaSection := renderedCard(t, table, "QA")
+	evalSection := renderedCard(t, table, "Agent Evaluation Engineer")
 	ordered := []string{
-		"# QA",
-		"**Role skill // `role-qa`**",
+		"# Agent Evaluation Engineer",
+		"**Role skill // `role-eval`**",
 		"## Personality meld",
-		"* `role-qa`",
+		"* `role-eval`",
 	}
-	for _, personalityName := range p.Roles["qa"].Personalities {
+	for _, personalityName := range p.Roles["eval"].Personalities {
 		ordered = append(ordered, "* `"+p.Personalities[personalityName].Skill+"`")
 	}
 	for i := 1; i < len(ordered); i++ {
-		if strings.Index(qaSection, ordered[i-1]) >= strings.Index(qaSection, ordered[i]) {
-			t.Fatalf("QA activation content is out of order: %q must precede %q", ordered[i-1], ordered[i])
+		if strings.Index(evalSection, ordered[i-1]) >= strings.Index(evalSection, ordered[i]) {
+			t.Fatalf("eval activation content is out of order: %q must precede %q", ordered[i-1], ordered[i])
 		}
 	}
-	if !strings.Contains(string(files[".agents/skills/role-qa/SKILL.md"]), "runtime explicitly grants fixture mode") {
-		t.Fatal("QA role skill omitted conditional fixture doctrine")
+	if !strings.Contains(string(files[".agents/skills/role-eval/SKILL.md"]), "You own the done-condition") {
+		t.Fatal("eval role skill omitted the done-condition it absorbed from qa")
 	}
 }
 

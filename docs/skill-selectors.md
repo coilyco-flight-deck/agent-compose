@@ -15,7 +15,7 @@ repositories {
     }
 }
 roles {
-    role engineer {
+    role platform {
         use-repository hardware
     }
 }

@@ -22,26 +22,26 @@ Roster with no doctrine lost, and each side is bounded separately.
 Declare the catalog entry in a library, then reference it from each role:
 
 ```kdl
-boundary "modify-live-system" skill="boundary-modify-live-system" owner="ops" summary="DevOps changes running systems, other roles observe and hand the action over"
+boundary "modify-live-backend" skill="boundary-modify-live-backend" owner="sysadmin" summary="Systems Administrator changes running backend systems, other roles observe and hand the action over"
 ```
 
 ```kdl
-role "engineer" {
-    skill "role-engineer"
-    boundary "modify-live-system" "seek-external-validation"
-    personality "curious" "meticulous" "tenacious"
+role "platform" {
+    skill "role-platform"
+    boundary "suggest-external-comms"
+    personality "tenacious" "grounded"
 }
 ```
 
 Store each body beside the personality definitions:
 
 ```text
-libraries/kai-core/boundaries/01-modify-live-system.kdl
-libraries/kai-core/definitions/skills/boundary-modify-live-system/SKILL.md
+libraries/kai-core/boundaries/01-modify-live-backend.kdl
+libraries/kai-core/definitions/skills/boundary-modify-live-backend/SKILL.md
 ```
 
 The catalog id, `skill` property, and frontmatter name must agree, so boundary
-`modify-live-system` binds `boundary-modify-live-system`. An unreferenced boundary fails loading.
+`modify-live-backend` binds `boundary-modify-live-backend`. An unreferenced boundary fails loading.
 
 ## Three states, not two
 
@@ -78,9 +78,8 @@ proving the limit holds. That moves the measured question from *does the rule
 fire* to *does the grant hold its limits*, and "acted, but exceeded the scope"
 is the failure a binary model cannot see.
 
-`evalkit.matrix` derives that pair from `scoped_boundaries`. Within-scope is the
-in-half and beyond-scope the out-half, so `in` means one thing in all three
-states, the role acting on its own territory.
+`evalkit.matrix` derives that pair from `scoped_boundaries`, within-scope as the
+in-half, so `in` means one thing in all three states: acting on own territory.
 
 ## Selection and delivery
 
@@ -103,12 +102,13 @@ until an independently reviewed re-run.
 
 ## Core Roster boundaries
 
-Each slug names the behavior that moves, not the domain it sits in.
+Each slug names the behavior that moves. Every boundary reaches all seven seats
+as one owner, two scoped, and four deferring, so a missing seat is a defect.
 
-* `modify-live-system`, owner DevOps - deferred by engineer, qa, ai, gamedev, and exec, the roles sealed against live mutation. Director keeps it, since directing committed work reaches as far as a release.
-* `build-software`, owner Engineer - deferred by exec, director, and creator, the roles that shape what software should do without producing it. Designer neither defers nor owns it, since its charter already grants a bounded visual-only slice.
-* `suggest-human-comms`, owner Content Creator - deferred by design, exec, and ops, the roles holding externally facing content that carries a social tone.
-* `seek-external-validation`, owner Executive Strategist - deferred by engineer, director, qa, ops, design, and ai. Content Creator neither defers nor owns it, since its charter already sends it outside for audience evidence.
+* `build-foundational-software`, owner platform - scoped for sysadmin and eval, who write estate configuration and measurement instruments. Deferred by frontend, gamedev, tpm, and devrel.
+* `modify-live-backend`, owner sysadmin - scoped for platform and gamedev, who run CI, local environments, and a local world. Deferred by devrel, eval, frontend, and tpm.
+* `suggest-external-comms`, owner devrel - scoped for frontend and gamedev, who write the words inside the artifact they own. Deferred by platform, sysadmin, eval, and tpm.
+* `seek-external-validation`, owner tpm - scoped for devrel and platform, who read their audience and audit a candidate dependency. Deferred by frontend, sysadmin, gamedev, and eval.
 
 ## See also
 
@@ -116,5 +116,5 @@ Each slug names the behavior that moves, not the domain it sits in.
 * [Boundary owners](ownership.md) - the two-sided relationship.
 * [Role methods](role-briefings.md) - single-owner lazy procedures.
 * [Personality libraries](personality.md) - the shared disposition axis.
-* [Role-skill context budget](ai-engineer.md) - measured budget effects.
+* [Role-skill context budget](eval-engineer.md) - measured budget effects.
 * [Evaluation](evaluation.md) - deterministic packs and review policy.

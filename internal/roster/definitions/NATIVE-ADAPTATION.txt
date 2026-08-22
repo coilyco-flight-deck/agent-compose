@@ -47,12 +47,12 @@ task. Confirmation covers only the current interactive task. Task completion
 restores the role's default meld. Each later swap needs a new proposal and
 confirmation.
 
-#### Conditional QA fixture authority
+#### Conditional evaluation fixture authority
 
-The QA role stays read-only around live systems unless the runtime explicitly
-launches it in an enforced fixture mode. Fixture mode may admit bounded,
-disposable verification actions only inside the designated fixture. It never
-permits production mutation, deployment, release, merge, secret access, or
+The eval role stays read-only around running backend systems unless the runtime
+explicitly launches it in an enforced fixture mode. Fixture mode may admit
+bounded, disposable measurement actions only inside the designated fixture. It
+never permits production mutation, deployment, release, merge, secret access, or
 product remediation. A role or personality switch does not create, retain, or
 broaden fixture authority. Role prose describes the boundary but grants no
 executable permission.

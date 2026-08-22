@@ -21,7 +21,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 		Layout: "codex", Bundle: bundleDir, Files: []string{"AGENTS.md"},
 	})
 	writeJSON(t, filepath.Join(bundleDir, "manifest.json"), bundle.Manifest{
-		Format: "agent-compose.bundle", Role: "engineer", ModelTier: "frontier",
+		Format: "agent-compose.bundle", Role: "platform", ModelTier: "frontier",
 		Color: "#959e5f",
 		Identity: bundle.RoleIdentity{
 			Person: "core",
@@ -29,7 +29,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 				{Key: "codex", Name: "opal engineer", Pronouns: "she"},
 			},
 			Personalities: []bundle.IdentityPersonality{
-				{Name: "curious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
+				{Name: "tenacious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
 				{Name: "grounded", Color: "#5fa87a", Emblem: person.Emblem{Emoji: "🪨"}},
 			},
 		},
@@ -51,7 +51,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "  🧭 🪨  opal engineer [she] // engineer@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
+	want := "  🧭 🪨  opal engineer [she] // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
 	if got != want {
 		t.Fatalf("statusline = %q, want %q", got, want)
 	}
@@ -65,7 +65,7 @@ func TestRenderSurfacesOnlyWarningClassifiedSkippedSources(t *testing.T) {
 		Layout: "claude", Bundle: bundleDir,
 	})
 	writeJSON(t, filepath.Join(bundleDir, "manifest.json"), bundle.Manifest{
-		Format: "agent-compose.bundle", Role: "ops",
+		Format: "agent-compose.bundle", Role: "sysadmin",
 	})
 	writeJSON(t, filepath.Join(bundleDir, "trace.json"), bundle.Trace{
 		Format: "agent-compose.trace",
@@ -80,7 +80,7 @@ func TestRenderSurfacesOnlyWarningClassifiedSkippedSources(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "  🧩  ops // ops@claude // frontier // 4 skills / ~900 catalog // ⚠ 1 source skipped"
+	want := "  🧩  sysadmin // sysadmin@claude // frontier // 4 skills / ~900 catalog // ⚠ 1 source skipped"
 	if got != want {
 		t.Fatalf("statusline = %q, want %q", got, want)
 	}

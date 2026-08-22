@@ -7,7 +7,7 @@ self-suppresses when no projection applies.
 The ordinary row carries the composition facts worth keeping visible:
 
 ```text
-🧭 🪨 📐 ⛏️  opal engineer [she] uz86 // engineer@codex // frontier // 99 skills / ~96k catalog // ✓ composed
+🧭 🪨 📐 ⛏️  opal platform [she] uz86 // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed
 ```
 
 * Emblems and the named seat with its subject pronoun come from the bundle;
@@ -62,7 +62,7 @@ identity. A row with no projection is omitted rather than decorated with a guess
 and an unreadable manifest warns for that row alone.
 
 ```text
-🧭 📐 ⛏️ Angie [she] // engineer@claude
+🧭 📐 ⛏️ Angie [she] // platform@claude
 ```
 
 Rows carry identity as text because Claude Code's eight subagent color slots are

@@ -14,10 +14,10 @@ func testPerson() *person.Person {
 	p := &person.Person{
 		Name: "kai",
 		Roles: map[string]person.Role{
-			"engineer": {
+			"platform": {
 				Purpose:       "Build.",
 				Briefing:      "You are an engineer.\n\nFinish the complete repository workflow.",
-				Personalities: []string{"curious", "grounded"},
+				Personalities: []string{"tenacious", "grounded"},
 			},
 			"writer": {
 				Purpose:       "Write.",
@@ -26,7 +26,7 @@ func testPerson() *person.Person {
 			},
 		},
 		Personalities: map[string]person.Personality{
-			"curious":  {Skill: "personality-curious", Color: "#d98e48"},
+			"tenacious":  {Skill: "personality-tenacious", Color: "#d98e48"},
 			"grounded": {Skill: "personality-grounded", Color: "#5fa87a"},
 		},
 		Raw: []byte("person \"kai\"\n"),
@@ -39,7 +39,7 @@ func testPerson() *person.Person {
 
 func testRequest(delivery string) *schema.Request {
 	return &schema.Request{
-		Role: "engineer", Delivery: delivery,
+		Role: "platform", Delivery: delivery,
 	}
 }
 
@@ -76,8 +76,8 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(res.Skills) != 4 ||
-		res.Skills[0].ID != "role-engineer" ||
-		res.Skills[1].ID != "personality-curious" ||
+		res.Skills[0].ID != "role-platform" ||
+		res.Skills[1].ID != "personality-tenacious" ||
 		res.Skills[2].ID != "personality-grounded" ||
 		res.Skills[3].ID != "fixture-review" {
 		t.Fatalf("expected role skill, personalities, then ordinary skills, got %+v", res.Skills)
@@ -85,7 +85,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 	if res.FavoriteColor == "" {
 		t.Fatal("expected a melded favorite color")
 	}
-	if res.RoleBriefing != testPerson().Roles["engineer"].Briefing {
+	if res.RoleBriefing != testPerson().Roles["platform"].Briefing {
 		t.Fatalf("role briefing = %q", res.RoleBriefing)
 	}
 	var selected, briefingSelected bool
@@ -93,7 +93,7 @@ func TestResolveSelectsPersonalityAndOrdinarySkills(t *testing.T) {
 		if d.Subject == "skill:fixture-review" && d.Outcome == OutcomeSelected {
 			selected = true
 		}
-		if d.Subject == "skill:role-engineer" &&
+		if d.Subject == "skill:role-platform" &&
 			d.Source == "person:kai" &&
 			d.Outcome == OutcomeSelected {
 			briefingSelected = true
@@ -150,12 +150,12 @@ func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 		t.Fatal(err)
 	}
 	oss := &schema.Request{
-		Role:      "exec",
+		Role:      "tpm",
 		Delivery:  schema.DeliveryNativeSkills,
 		ModelTier: schema.ModelTierOSS,
 	}
 	if _, err := Resolve(oss, p, nil, nil); err == nil ||
-		err.Error() != `role "exec" does not support model tier "oss"` {
+		err.Error() != `role "tpm" does not support model tier "oss"` {
 		t.Fatalf("OSS Executive Strategist error = %v", err)
 	}
 
@@ -178,7 +178,7 @@ func TestResolveComposesOnlyTheActiveRolesSkills(t *testing.T) {
 		}
 	}
 	src.RoleSkills = map[string][]schema.ContentRef{
-		"engineer": {{
+		"platform": {{
 			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
 		}},
 		"writer": {{
@@ -228,12 +228,12 @@ func TestResolveIgnoresComposedSkillsBoundToUndefinedRoles(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	// "exec" is staged by the provider but absent from this roster.
+	// "tpm" is staged by the provider but absent from this roster.
 	src.RoleSkills = map[string][]schema.ContentRef{
-		"engineer": {{
+		"platform": {{
 			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
 		}},
-		"exec": {{
+		"tpm": {{
 			ID:         "tooling-ceo-platform-strategy",
 			Path:       "tooling-ceo-platform-strategy",
 			EntryPoint: "COMPOSED.md",
@@ -270,7 +270,7 @@ func TestResolveIgnoresComposedSkillsBoundToUndefinedRoles(t *testing.T) {
 
 func TestResolveStillRejectsAnUndefinedRequestedRole(t *testing.T) {
 	src := makeSource(t, "aos", nil)
-	req := &schema.Request{Role: "exec", Delivery: schema.DeliveryNativeSkills}
+	req := &schema.Request{Role: "tpm", Delivery: schema.DeliveryNativeSkills}
 	_, err := Resolve(req, testPerson(), []*schema.Source{src}, nil)
 	if err == nil || !strings.Contains(err.Error(), "not defined") {
 		t.Fatalf("expected the requested role to stay fail-closed, got %v", err)
@@ -288,13 +288,13 @@ func TestResolveWarnsAndTracesOverlappingComposedSkillSelectors(t *testing.T) {
 	}
 	selectors := []string{"*writing*", "*voice*"}
 	src.RoleSkills = map[string][]schema.ContentRef{
-		"engineer": {{
+		"platform": {{
 			ID: "writing-kai-voice", Path: "writing-kai-voice",
 			EntryPoint: "COMPOSED.md", Selectors: selectors,
 		}},
 	}
 	src.SelectorOverlaps = []schema.SelectorOverlap{{
-		Role: "engineer", Skill: "writing-kai-voice", Selectors: selectors,
+		Role: "platform", Skill: "writing-kai-voice", Selectors: selectors,
 	}}
 
 	res, err := Resolve(
@@ -388,7 +388,7 @@ func TestResolveValidationFailures(t *testing.T) {
 		t.Fatalf("expected unknown role failure, got %v", err)
 	}
 	broken := testPerson()
-	broken.Roles["engineer"] = person.Role{
+	broken.Roles["platform"] = person.Role{
 		Purpose: "Build.", Briefing: "Build from evidence.\n\nValidate the result.",
 		Personalities: []string{"missing"},
 	}
@@ -396,7 +396,7 @@ func TestResolveValidationFailures(t *testing.T) {
 		t.Fatalf("expected missing catalog binding failure, got %v", err)
 	}
 	missingDefinition := testPerson()
-	missingDefinition.Personalities["curious"] = person.Personality{
+	missingDefinition.Personalities["tenacious"] = person.Personality{
 		Skill: "personality-absent", Color: "#d98e48",
 	}
 	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), missingDefinition, nil, nil); err == nil ||
@@ -429,7 +429,7 @@ func TestResolveShadowsIdenticalAndFailsConflicts(t *testing.T) {
 	}
 
 	conflict := makeSource(t, "aos", map[string]string{
-		"personality-curious": "# Different\n",
+		"personality-tenacious": "# Different\n",
 	})
 	if _, err := Resolve(testRequest(schema.DeliveryNativeSkills), testPerson(), []*schema.Source{conflict}, nil); err == nil || !strings.Contains(err.Error(), "conflicts") {
 		t.Fatalf("expected non-identical collision failure, got %v", err)

@@ -16,9 +16,9 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ai := p.Roles["ai"]
+	ai := p.Roles["eval"]
 	for _, method := range ai.Methods {
-		if raw, ok := p.RoleMethodDefinition("ai", method); !ok ||
+		if raw, ok := p.RoleMethodDefinition("eval", method); !ok ||
 			!strings.Contains(string(raw), "\nname: "+method+"\n") {
 			t.Errorf("AI role method %q is missing or mismatched", method)
 		}
@@ -89,11 +89,11 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		role := p.Roles["engineer"]
-		role.Personalities = append(role.Personalities, "grounded")
-		p.Roles["engineer"] = role
+		role := p.Roles["platform"]
+		role.Personalities = append(role.Personalities, "immersed")
+		p.Roles["platform"] = role
 		if err := validateCorePersonalityMelds(p); err == nil ||
-			!strings.Contains(err.Error(), "want exactly three") {
+			!strings.Contains(err.Error(), "want exactly 2") {
 			t.Fatalf("slot-count validation error = %v", err)
 		}
 	})
@@ -103,10 +103,10 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// meticulous already sits at the cap of three, so a fourth role tips it.
-		role := p.Roles["ops"]
-		role.Personalities[2] = "meticulous"
-		p.Roles["ops"] = role
+		// grounded bonds three seats already, so a fourth binding tips it.
+		role := p.Roles["frontend"]
+		role.Personalities[1] = "grounded"
+		p.Roles["frontend"] = role
 		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "want at most three") {
 			t.Fatalf("usage validation error = %v", err)
@@ -120,9 +120,9 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		}
 		// Two roles melding the same personalities land on the same anchor, so
 		// the spread step can only separate them by twice the drift cap.
-		role := p.Roles["director"]
-		role.Personalities = append([]string(nil), p.Roles["engineer"].Personalities...)
-		p.Roles["director"] = role
+		role := p.Roles["tpm"]
+		role.Personalities = append([]string(nil), p.Roles["devrel"].Personalities...)
+		p.Roles["tpm"] = role
 		if err := p.ResolveFavoriteColors(); err != nil {
 			t.Fatal(err)
 		}
@@ -508,7 +508,7 @@ func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
 		}
 	}
 	for roleName, role := range p.Roles {
-		if roleName != "ai" && len(role.Methods) != 0 {
+		if roleName != "eval" && len(role.Methods) != 0 {
 			t.Errorf("role %q owns methods, which only the AI role may declare", roleName)
 		}
 	}
@@ -524,7 +524,7 @@ func TestLookupCueUsesDeclaredAliasesAndPreservesAmbiguity(t *testing.T) {
 		want []string
 	}{
 		{cue: "calm", want: []string{"grounded"}},
-		{cue: " encouraging ", want: []string{"nurturing"}},
+		{cue: " welcoming ", want: []string{"warm"}},
 		{cue: "grounded", want: []string{"grounded"}},
 	} {
 		got, lookupErr := p.LookupCue(test.cue)
@@ -551,7 +551,7 @@ func TestLoadDirectoryKeepsExternalPersonIndependent(t *testing.T) {
 	if _, ok := p.Roles["builder"]; !ok {
 		t.Fatalf("external person omitted builder role: %+v", p.RoleOrder)
 	}
-	if _, inherited := p.Roles["engineer"]; inherited {
+	if _, inherited := p.Roles["platform"]; inherited {
 		t.Fatal("external person inherited the embedded engineer role")
 	}
 	src, err := Source(p)
@@ -1279,9 +1279,9 @@ func TestRosterProseFloorsRejectAThinnedEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 	source := p.source
-	role := p.Roles["engineer"]
+	role := p.Roles["platform"]
 	role.Briefing = "Too short."
-	p.Roles["engineer"] = role
+	p.Roles["platform"] = role
 	if err := validateRosterProseFloors(source, p); err == nil ||
 		!strings.Contains(err.Error(), "minimum is") {
 		t.Fatalf("thinned role body error = %v", err)

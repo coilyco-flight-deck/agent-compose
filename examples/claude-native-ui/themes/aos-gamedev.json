@@ -1,0 +1,21 @@
+{
+  "name": "Game Developer (Gale)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#0084fd",
+    "autoAcceptShimmer": "#39a5ff",
+    "bashBorder": "#b682ed",
+    "briefLabelClaude": "#637ffd",
+    "claude": "#637ffd",
+    "claudeShimmer": "#7f9fff",
+    "clawd_body": "#637ffd",
+    "permission": "#b682ed",
+    "permissionShimmer": "#d6a2ff",
+    "promptBorder": "#637ffd",
+    "promptBorderShimmer": "#7f9fff",
+    "purple_FOR_SUBAGENTS_ONLY": "#637ffd",
+    "remember": "#b682ed",
+    "skill": "#0084fd",
+    "suggestion": "#b682ed"
+  }
+}

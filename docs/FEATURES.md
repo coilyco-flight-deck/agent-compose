@@ -5,8 +5,10 @@ Inventory of what ships today.
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable bundle.
-* `roster:core` has 9 roles, 19 personalities, balanced triads, and stable
-  identities. [Role briefings](role-briefings.md) own each charter.
+* `roster:core` has 7 seats and 10 personalities. Each seat melds one signature
+  trait with one bond shared with a sibling seat, and every boundary reaches all
+  seven as one owner, two scoped, and four deferring.
+  [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
   [local personality libraries](personality.md) replace the default.
 * `personality-library "roster:core"` lets an external package bind the
@@ -17,7 +19,7 @@ Inventory of what ships today.
   compatibility without changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with budgets.
-* `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have. See [boundary omission](boundary-omission.md).
+* `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have, and refuses a scoped grant. See [boundary omission](boundary-omission.md).
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   400 words, [role boundaries](role-boundaries.md) under a separate one.

@@ -1,4 +1,4 @@
-# Boundary and creator ownership
+# Boundary and content ownership
 
 Who owns a boundary, and who owns created work.
 
@@ -44,7 +44,7 @@ that. Headings exist for the glance.
 Sections identify by relationship, never by role name. A role list in prose
 beside the same list in KDL is the drift this design removes.
 
-## Content Creator ownership
+## Product and engine ownership
 
 Agent Compose keeps executable parsing, validation, selection, deterministic
 rendering, and diagnostics in Go. Product prose and profile policy belong to
@@ -70,19 +70,18 @@ The engine supplies its complete generic matrix when a selected role has no
 profile asset. A profile matrix replaces that matrix as one complete unit. The
 loader does not merge fields, and a role cannot silently opt out.
 
-Content Creator owns one connected audience loop: reusable source artifacts,
-provenance, claim discipline, editorial recommendations, audience and contact
-research within accepted strategy, channel adaptation, community continuity,
-durable feedback, qualification, discovery support, evidence selection, and
-decision records. These responsibilities no longer cross artificial role
-handoffs.
+Developer Advocate owns one connected audience loop: reusable source artifacts,
+provenance, claim discipline, editorial recommendations, audience research,
+channel adaptation, community continuity, durable feedback, qualification,
+discovery support, evidence selection, and decision records. These
+responsibilities no longer cross artificial role handoffs.
 
-Content Creator owns recommendations about human communication, not every
-human-readable artifact. The `comms` [boundary](role-boundaries.md) is the single source
-for which records a deferring role retains and for the separate authorization
-that publishing, sending, and other external action needs. This page does not
-restate those lists, because three hand-maintained copies had already drifted
-apart before the boundary existed.
+It owns recommendations about communication addressed outward, not every
+human-readable artifact. `suggest-external-comms` is the single source for which
+records a deferring role retains, which words a scoped seat may write inside its
+own artifact, and for the separate authorization publishing and sending need.
+This page does not restate those lists, because three hand-maintained copies had
+already drifted apart before the boundary existed.
 
 ## Omitting a boundary
 

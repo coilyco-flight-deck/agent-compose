@@ -99,7 +99,7 @@ EOF
 
 cat >"$provider_dir/.agents/roles.kdl" <<'EOF'
 roles {
-    role design {
+    role frontend {
         composed-skill design-method
     }
 }
@@ -165,7 +165,7 @@ show_transcript "first convergence" "$first_output"
 
 roster_table="$state_dir/sources/personality/AGENTS.COMPOSE.md"
 roster_override="$state_dir/sources/personality/AGENTS.claude.md"
-roster_body="$state_dir/sources/personality/.agents/skills/personality-curious/SKILL.md"
+roster_body="$state_dir/sources/personality/.agents/skills/personality-tenacious/SKILL.md"
 person_snapshot="$state_dir/sources/personality/person.json"
 composed="$state_dir/COMPOSED.md"
 repository_plan="$state_dir/repository-plan.yaml"
@@ -173,8 +173,8 @@ skill_state="$state_dir/skill-mounts.json"
 for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
   "$repository_plan" "$skill_state" \
   "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md" \
-  "$load_points/skills/role-engineer/SKILL.md" \
-  "$load_points/skills/personality-curious/SKILL.md"; do
+  "$load_points/skills/role-platform/SKILL.md" \
+  "$load_points/skills/personality-tenacious/SKILL.md"; do
   assert_file "$path"
 done
 
@@ -225,25 +225,25 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" design codex --version
+    "$binary_exec" frontend codex --version
 ) >"$role_output" 2>&1; then
   cat "$role_output" >&2
   fail "assigned native role launch failed"
 fi
 
-assert_contains "$role_output" "agent-compose: assigned design to codex"
+assert_contains "$role_output" "agent-compose: assigned frontend to codex"
 assert_contains "$role_output" "role metadata"
-assert_contains "$role_output" "role: design"
+assert_contains "$role_output" "role: frontend"
 assert_contains "$role_output" "personality: imaginative"
 assert_contains "$role_output" "fake codex <--version>"
 for path in \
   "$launch_target/AGENTS.md" \
-  "$launch_target/.agents/skills/role-design/SKILL.md" \
+  "$launch_target/.agents/skills/role-frontend/SKILL.md" \
   "$launch_target/.agents/skills/personality-imaginative/SKILL.md" \
   "$launch_target/.agents/skills/design-method/SKILL.md"; do
   assert_file "$path"
 done
-assert_contains "$launch_target/AGENTS.md" 'assigned the `design` role'
+assert_contains "$launch_target/AGENTS.md" 'assigned the `frontend` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
 
@@ -253,7 +253,7 @@ if ! (
   unset AGENT_COMPOSE_LAUNCH
   env HOME="$native_root/home" USERPROFILE="$native_root/home" \
     PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
-    "$binary_exec" design codex
+    "$binary_exec" frontend codex
 ) >"$intro_output" 2>&1; then
   cat "$intro_output" >&2
   fail "bare Codex introduction launch failed"

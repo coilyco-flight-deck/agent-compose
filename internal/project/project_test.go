@@ -53,11 +53,11 @@ func TestProjectNativeLayouts(t *testing.T) {
 			}
 			if !strings.Contains(
 				readTarget(t, target, want.instructions),
-				"**Role skill // `role-engineer`**",
+				"**Role skill // `role-platform`**",
 			) {
 				t.Fatal("instructions load point missing the selected role identity card")
 			}
-			for _, identity := range selectedFixtureSkills(t, "engineer") {
+			for _, identity := range selectedFixtureSkills(t, "platform") {
 				skill := readTarget(t, target, want.skillsDir+"/"+identity+"/SKILL.md")
 				if !strings.Contains(skill, skillHeading(identity)) {
 					t.Fatalf("skill load point %s has wrong content:\n%s", identity, skill)
@@ -86,7 +86,7 @@ func TestProjectCompiledLayouts(t *testing.T) {
 				t.Fatal(err)
 			}
 			compiled := readTarget(t, target, instructions)
-			for _, identity := range selectedFixtureSkills(t, "engineer") {
+			for _, identity := range selectedFixtureSkills(t, "platform") {
 				if !strings.Contains(compiled, skillHeading(identity)) {
 					t.Fatalf("%s load point missing compiled prose for %s", layout, identity)
 				}
@@ -180,7 +180,7 @@ func TestHomeScopeProjection(t *testing.T) {
 	compiled := composeFixture(t, "compiled.kdl")
 	nativeBefore := treeFingerprint(t, native)
 	compiledBefore := treeFingerprint(t, compiled)
-	expectedIdentities := selectedFixtureSkills(t, "engineer")
+	expectedIdentities := selectedFixtureSkills(t, "platform")
 	cases := map[string]struct{ instructions, skillsDir string }{
 		"claude":   {".claude/CLAUDE.md", ".claude/skills"},
 		"codex":    {".codex/AGENTS.md", ".agents/skills"},
@@ -248,12 +248,12 @@ func TestReprojectionChangesDeliveryAndPreservesForeignFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, identity := range selectedFixtureSkills(t, "engineer") {
+	for _, identity := range selectedFixtureSkills(t, "platform") {
 		if _, err := os.Stat(filepath.Join(target, ".claude", "skills", identity)); !os.IsNotExist(err) {
 			t.Fatalf("stale native identity %s survived compiled re-projection: %v", identity, err)
 		}
 	}
-	if !strings.Contains(readTarget(t, target, "CLAUDE.md"), "# Curious") {
+	if !strings.Contains(readTarget(t, target, "CLAUDE.md"), "# Tenacious") {
 		t.Fatal("compiled re-projection omitted canonical personality prose")
 	}
 	if raw, _ := os.ReadFile(foreign); string(raw) != "keep me\n" {
@@ -400,8 +400,11 @@ func selectedFixtureSkills(t *testing.T, roleName string) []string {
 	for _, boundaryName := range role.Boundaries {
 		skills = append(skills, p.Boundaries[boundaryName].Skill)
 	}
-	// A role declares only the boundaries it defers, so an owner reaches its
-	// own boundary through the catalog instead.
+	// A role declares only the boundaries it defers, so a scoped grant and an
+	// owned boundary reach it through the catalog instead.
+	for _, scoped := range role.ScopedBoundaries {
+		skills = append(skills, p.Boundaries[scoped.Name].Skill)
+	}
 	for _, boundary := range p.Boundaries {
 		if boundary.Owner == roleName {
 			skills = append(skills, boundary.Skill)
@@ -424,9 +427,10 @@ func skillHeading(skillID string) string {
 	if strings.HasPrefix(skillID, "boundary-") {
 		return "name: " + skillID
 	}
+	// A role body is titled with its display name rather than its slug, so
+	// the frontmatter name is again the identity worth asserting.
 	if strings.HasPrefix(skillID, "role-") {
-		name := strings.TrimPrefix(skillID, "role-")
-		return "# " + strings.ToUpper(name[:1]) + name[1:]
+		return "name: " + skillID
 	}
 	name := strings.TrimPrefix(skillID, "personality-")
 	return "# " + strings.ToUpper(name[:1]) + name[1:]

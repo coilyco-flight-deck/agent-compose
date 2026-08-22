@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-sysadmin",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Shielding",
+      "Warding",
+      "Guarding",
+      "Sheltering",
+      "Buttressing",
+      "Tending",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Operate the real hosted systems and release surfaces.",
+      "Olaf holds the Systems Administrator charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: protective, grounded."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

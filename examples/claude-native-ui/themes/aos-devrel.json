@@ -1,0 +1,21 @@
+{
+  "name": "Developer Advocate (Gem)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#ff9c79",
+    "autoAcceptShimmer": "#ffbc98",
+    "bashBorder": "#b3be49",
+    "briefLabelClaude": "#f7ab5d",
+    "claude": "#f7ab5d",
+    "claudeShimmer": "#ffcb7e",
+    "clawd_body": "#f7ab5d",
+    "permission": "#b3be49",
+    "permissionShimmer": "#d3df6b",
+    "promptBorder": "#f7ab5d",
+    "promptBorderShimmer": "#ffcb7e",
+    "remember": "#b3be49",
+    "skill": "#ff9c79",
+    "suggestion": "#b3be49",
+    "yellow_FOR_SUBAGENTS_ONLY": "#f7ab5d"
+  }
+}

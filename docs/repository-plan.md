@@ -79,10 +79,10 @@ repositories {
 }
 
 roles {
-    role creator {
+    role devrel {
         use-repository voice-corpus
     }
-    role engineer { use-repository hardware }
+    role platform { use-repository hardware }
 }
 ```
 

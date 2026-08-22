@@ -7,17 +7,17 @@ may select one external package with the same contract:
 
 ```kdl
 roster "core" {
-    role "engineer" {
-        purpose "Build and land work across the real repository portfolio."
+    role "platform" {
+        purpose "Build and land the foundational software the estate is built on."
         model-tier "frontier" "commodity" "oss"
-        skill "role-engineer"
+        skill "role-platform"
         method "eval-fixture-suite"
-        personality "curious" "meticulous" "tenacious"
-        identity name="opal engineer" pronouns="she"
+        personality "tenacious" "grounded"
+        identity name="opal platform" pronouns="she"
         agent "claude" tier="frontier"
         agent "codex" tier="frontier"
     }
-    personality "curious" skill="personality-curious" color="#d98e48" motif="map-paper"
+    personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rope-fiber"
 }
 ```
 
@@ -26,12 +26,12 @@ into the [external layout](person-packages.md). The loader validates it before
 it becomes a source. A role names its display name, purpose, role skill,
 [methods](role-briefings.md), ordered personality meld, and seats. Its optional
 `model-tier` list restricts composition, while omission supports all three
-tiers. Core roles declare the list explicitly. Core uses exactly three per
+tiers. Core roles declare the list explicitly. Core uses exactly two per
 role, covers every canonical personality, caps usage at three roles, and
 requires legible, distinct derived colors. External packages retain any
 nonempty ordered meld. A [role skill](role-briefings.md) needs valid
 frontmatter, three paragraphs, and at most 400 body words after its leading
-title. Invalid sources fail loading. The default has nine roles and nineteen
+title. Invalid sources fail loading. The default has seven roles and ten
 personalities. Its explicit [role-by-tier matrix](harness-vendoring.md) groups
 complex, foundational, and high-security roles without changing their
 authority. A personality entry is a catalog binding from its canonical name to

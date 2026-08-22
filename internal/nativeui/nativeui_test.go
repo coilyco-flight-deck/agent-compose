@@ -135,7 +135,7 @@ func TestEveryPersonalityCarriesVerbs(t *testing.T) {
 }
 
 func TestSpinnerModeIsSelectable(t *testing.T) {
-	bundle, err := BuildRole(selected(t), "design", Options{SpinnerMode: "append"})
+	bundle, err := BuildRole(selected(t), "frontend", Options{SpinnerMode: "append"})
 	if err != nil {
 		t.Fatalf("build role: %v", err)
 	}

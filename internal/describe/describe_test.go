@@ -27,18 +27,18 @@ func TestBundleRendersSections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	personalitySet := strings.Join(p.Roles["engineer"].Personalities, "+")
+	personalitySet := strings.Join(p.Roles["platform"].Personalities, "+")
 	dir := composeFixture(t, "native.kdl")
 	out, err := Bundle(dir, Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	wants := []string{
-		"engineer/" + personalitySet,
+		"platform/" + personalitySet,
 		"melded #",
 		"\nprofile\n", "\nproviders\n", "\ncontext budget\n", "\nselection\n", "\ndelivery\n",
-		"role engineer", "roster:core defines this role",
-		"personality curious", "activates its full personality set",
+		"role platform", "roster:core defines this role",
+		"personality tenacious", "activates its full personality set",
 		"✓ roster:core", "(person-package/person)",
 		"✓ aos-public", "(catalogue/request)",
 		"skills //", "bytes // ~", "tokens",
@@ -46,7 +46,7 @@ func TestBundleRendersSections(t *testing.T) {
 		"→ content/skills",
 		"machine-readable trace: trace.json",
 	}
-	for _, personalityName := range p.Roles["engineer"].Personalities {
+	for _, personalityName := range p.Roles["platform"].Personalities {
 		wants = append(wants, "✓ skill "+p.Personalities[personalityName].Skill)
 	}
 	for _, want := range wants {
@@ -94,7 +94,7 @@ func TestWhyFollowsOneItem(t *testing.T) {
 		}
 	}
 
-	out, err = Why(dir, "personality-curious", Options{})
+	out, err = Why(dir, "personality-tenacious", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestDiffReportsSemanticChanges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	identity := "engineer/" + strings.Join(p.Roles["engineer"].Personalities, "+")
+	identity := "platform/" + strings.Join(p.Roles["platform"].Personalities, "+")
 	native := composeFixture(t, "native.kdl")
 	compiled := composeFixture(t, "compiled.kdl")
 
@@ -149,13 +149,13 @@ func TestDiffReportsLogicalProseAndIdentityChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	changed := map[string]bool{
-		"roster:core:role:engineer":          false,
-		"roster:core:role:engineer:identity": false,
+		"roster:core:role:platform":          false,
+		"roster:core:role:platform:identity": false,
 	}
 	for index := range manifest.Content {
 		if _, ok := changed[manifest.Content[index].ID]; ok {
 			manifest.Content[index].Digest = "sha256:" + strings.Repeat(
-				map[bool]string{true: "a", false: "b"}[manifest.Content[index].ID == "roster:core:role:engineer"],
+				map[bool]string{true: "a", false: "b"}[manifest.Content[index].ID == "roster:core:role:platform"],
 				64,
 			)
 			changed[manifest.Content[index].ID] = true
@@ -178,8 +178,8 @@ func TestDiffReportsLogicalProseAndIdentityChanges(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"roster:core:role:engineer ",
-		"roster:core:role:engineer:identity ",
+		"roster:core:role:platform ",
+		"roster:core:role:platform:identity ",
 		"sha256:",
 	} {
 		if !strings.Contains(out, want) {

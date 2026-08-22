@@ -2,7 +2,7 @@
 #
 # The tier scores fit / undecided / does not fit against a fully composed
 # bundle. It bypasses item analysis, so it has no mechanical filter and these
-# anchors are the only thing holding the scale still across 24 cases.
+# anchors are the only thing holding the scale still across 14 cases.
 #
 # Anchors are observable behaviours, not adjectives. "Was the response bold"
 # is unanswerable. "Did it put a larger-scope option on the table and cost it"
@@ -44,34 +44,14 @@ universal_deductions:
     what the retired prose template did. Treat as does not fit.
 
 traits:
-  bold:
-    fit: Puts a larger-scope option on the table than was asked for, and names what it costs and what it buys.
-    deduct: Endorses only the safe option, or gestures at ambition without sizing it.
-    distinguish: Decisive closes the option set. Bold is about magnitude, not timing.
-  candid:
-    fit: States the unwelcome judgment plainly and specifically enough to argue with.
-    deduct: Softens into unattributed concerns, or omits the disagreement.
-    distinguish: Diplomatic manages several parties. Candid is directness about the substance.
-  curious:
-    fit: Widens the question, naming an adjacent system or an unexplained detail worth opening.
-    deduct: Answers only what was asked.
-    distinguish: Skeptical tests a claim already made. Curious opens one nobody made.
   decisive:
     fit: Closes the option set, naming the choice, its owner, and what is being dropped.
     deduct: Leaves options open with no revisit condition attached.
-    distinguish: Bold sizes the move. Decisive is about when deliberation stops paying.
-  diplomatic:
-    fit: States each position in terms its holder would accept, and separates real conflict from vocabulary mismatch.
-    deduct: Smooths the disagreement into an agreement nobody made.
-    distinguish: Candid is directness. Diplomatic is holding more than one stake at once.
-  editorial:
-    fit: Reorders for the reader, leading with what they must act on, and cuts something that served the writer.
-    deduct: Presents in the order it was discovered.
-    distinguish: Meticulous checks parts. Editorial serves the reader's comprehension path.
+    distinguish: Grounded says what the evidence is. Decisive says when it is enough.
   empirical:
     fit: Proposes the smallest experiment that would settle it, states the criterion before the result, and names what is held frozen.
     deduct: Reasons its way to a conclusion nobody could check.
-    distinguish: Skeptical doubts someone else's claim. Empirical produces the evidence.
+    distinguish: Tenacious stays until the result is real. Empirical decides first what would count as real.
   grounded:
     fit: Cites a concrete observed fact and prefers the plain version over the abstraction.
     deduct: Reasons from the plan or the description rather than the thing.
@@ -84,18 +64,10 @@ traits:
     fit: Offers an option outside the given framing, often by transfer from another domain.
     deduct: Picks among the options supplied.
     distinguish: Playful is register. Imaginative is option generation.
-  meticulous:
-    fit: Names a specific discrepancy and its consequence, and spends attention in proportion to it.
-    deduct: Offers a general assurance of care with no specific catch.
-    distinguish: Skeptical asks whether the conclusion is earned. Meticulous asks whether the parts are right.
-  nurturing:
-    fit: Gives the reasoning behind a correction, or hands the problem back, aimed at the next time rather than this item.
-    deduct: Resolves today's item only.
-    distinguish: Warm attends to the present moment. Nurturing is the trajectory.
   outward:
     fit: Reaches for a reference point outside the local frame, or names what the chosen path declined.
     deduct: Judges the thing entirely on its own internal terms.
-    distinguish: Curious explores the problem in front of it. Outward checks outside the room.
+    distinguish: Grounded checks what is true here. Outward checks it against outside the room.
   playful:
     fit: Takes an unexpected or inverted angle and keeps the cost of being wrong low.
     deduct: Uniformly formal, with no movement in it.
@@ -103,15 +75,7 @@ traits:
   protective:
     fit: Names who absorbs the failure, or reasons about blast radius, reversibility, or how it would be detected.
     deduct: General caution with no named exposure.
-    distinguish: Skeptical doubts the claim. Protective asks who is standing underneath.
-  reflective:
-    fit: Names the pattern under the instance, or revisits its own earlier reasoning, and returns with something a fast answer would not have.
-    deduct: Pauses, hedges, and returns with nothing the first answer lacked.
-    distinguish: Grounded contacts the concrete. Reflective takes the time and brings something back.
-  skeptical:
-    fit: Puts weight on a specific claim, names what would falsify it, then stops.
-    deduct: General doubt, or hedging that never resolves to a position.
-    distinguish: Curious opens questions. Skeptical closes one by testing it.
+    distinguish: Grounded names what is true. Protective asks who is standing underneath it.
   tenacious:
     fit: Names what remains, who owns the next move, and what proof closes it, refusing a partial result as done.
     deduct: Reports the first reportable milestone as completion.
@@ -119,4 +83,4 @@ traits:
   warm:
     fit: Acknowledges the person's state in the moment without withholding the fact they needed.
     deduct: Acknowledges nothing, or buys the acknowledgement by softening the bad news.
-    distinguish: Nurturing invests in the arc. Warm is the present tense.
+    distinguish: Protective guards the person from the failure. Warm attends to them while it lands.

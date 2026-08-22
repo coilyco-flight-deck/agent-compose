@@ -169,7 +169,7 @@ func TestVerifyRejectsUnsafeIncompleteAndAmbiguousBundles(t *testing.T) {
 
 	t.Run("missing identity document", func(t *testing.T) {
 		dir := copyBundle(t, composeBundle(t, "native.kdl"))
-		skillDoc := filepath.Join(dir, "content", "skills", "roster%3Acore", "personality-curious", "SKILL.md")
+		skillDoc := filepath.Join(dir, "content", "skills", "roster%3Acore", "personality-tenacious", "SKILL.md")
 		if err := os.Remove(skillDoc); err != nil {
 			t.Fatal(err)
 		}
@@ -244,7 +244,7 @@ func TestMaterializeKeysRenderedInstructions(t *testing.T) {
 func TestMaterializeRejectsUnsafeIdentitySegments(t *testing.T) {
 	resolution := &resolver.Resolution{
 		Request: &schema.Request{
-			Role:     "engineer",
+			Role:     "platform",
 			Delivery: schema.DeliveryNativeSkills,
 		},
 		Person: &person.Person{Raw: []byte("fixture")},

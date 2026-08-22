@@ -219,7 +219,7 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "why",
-						Usage: "follow one item (e.g. skill:personality-curious) to its outcome",
+						Usage: "follow one item (e.g. skill:personality-tenacious) to its outcome",
 					},
 					&cli.BoolFlag{
 						Name:  "all",

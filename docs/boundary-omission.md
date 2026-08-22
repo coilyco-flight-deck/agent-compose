@@ -13,8 +13,8 @@ A request states the absence directly:
 
 ```kdl
 compose {
-    role "engineer"
-    boundary-omit "modify-live-system" "seek-external-validation"
+    role "eval"
+    boundary-omit "modify-live-backend" "seek-external-validation"
 }
 ```
 

@@ -222,13 +222,13 @@ func TestConcurrentDistinctRequestsStayIsolated(t *testing.T) {
 	for err := range errs {
 		t.Fatal(err)
 	}
-	if !strings.Contains(readFile(t, targetA, ".claude/skills/personality-curious/SKILL.md"), "# Curious") {
+	if !strings.Contains(readFile(t, targetA, ".claude/skills/personality-tenacious/SKILL.md"), "# Tenacious") {
 		t.Fatal("target A got the wrong personality")
 	}
-	if !strings.Contains(readFile(t, targetB, "CLAUDE.md"), "# Meticulous") {
+	if !strings.Contains(readFile(t, targetB, "CLAUDE.md"), "# Grounded") {
 		t.Fatal("target B got the wrong compiled personality")
 	}
-	if _, err := os.Stat(filepath.Join(targetB, ".claude", "skills", "personality-meticulous")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(targetB, ".claude", "skills", "personality-grounded")); !os.IsNotExist(err) {
 		t.Fatalf("target B unexpectedly received native skills: %v", err)
 	}
 }

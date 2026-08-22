@@ -42,6 +42,42 @@ bump. Remove the hold in a follow-up commit only after v2.0.0 and both package
 channels are verified. Removing the hold alone does not publish another
 version.
 
+## Agent Compose v3 roster migration
+
+v3 takes the Core Roster from nine seats to seven and renames every slug. There
+are no compatibility aliases either way, so the whole set moves in one break
+rather than drifting through two: `ai` and `engineer` named a technology and a
+generic category while every other slug named a practice.
+
+### Role destinations
+
+* `engineer` becomes `platform`, displayed as Developer Platform Engineer.
+* `ops` becomes `sysadmin`, displayed as Systems Administrator.
+* `ai` becomes `eval`, displayed as Agent Evaluation Engineer.
+* `design` becomes `frontend`, displayed as Frontend Design Engineer.
+* `creator` becomes `devrel`, displayed as Developer Advocate.
+* `gamedev` is unchanged.
+* `director` and `exec` merge into `tpm`, displayed as Technical Program
+  Manager, on the finding that they split on seniority rather than practice.
+* `qa` is cut. Its done-condition folds into `eval`, and code review folds into
+  `tpm` as a gate decision.
+
+Three boundaries rename with it: `build-software` to
+`build-foundational-software`, `modify-live-system` to `modify-live-backend`,
+and `suggest-human-comms` to `suggest-external-comms`. `modify-live-backend` is
+re-ownered to sysadmin and `seek-external-validation` to tpm. Every boundary now
+reaches all seven seats as one owner, two scoped, and four deferring.
+
+Melds drop from three traits to two, one signature plus one bond shared with a
+sibling seat, and the trait vocabulary falls from 19 to 10. The nine retired
+bodies are preserved verbatim at
+[#316](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/316).
+
+Update launch commands, Ward role selections, composed-skill bindings,
+`AGENT_GIT_ATTRIBUTION_ROLE`, per-role Claude themes, and evaluation inputs to
+the new identifiers. Scored records from earlier rosters remain historical
+evidence and retain their original role identities.
+
 ## Agent Compose v2 roster migration
 
 Agent Compose v2 renames the baked provider from `person:kai` to

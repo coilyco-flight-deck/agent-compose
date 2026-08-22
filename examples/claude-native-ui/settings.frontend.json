@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-frontend",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Whirling",
+      "Skylarking",
+      "Cavorting",
+      "Fiddling",
+      "Confettiing",
+      "Gamboling",
+      "Refracting",
+      "Kaleidoscoping",
+      "Conjuring",
+      "Dreaming",
+      "Envisaging",
+      "Blooming"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Shape and build the surfaces a person navigates.",
+      "Delphi holds the Frontend Design Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: playful, imaginative."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

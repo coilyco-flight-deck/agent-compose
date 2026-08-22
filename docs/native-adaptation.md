@@ -25,8 +25,8 @@ At session start, the agent records whether its role was assigned by a caller
 or inferred from the initial substantive request. Only an inferred role may
 switch.
 
-An explicit user request naming a valid target, such as `swap into QA`,
-activates `qa` without another confirmation. The agent loads the target role
+An explicit user request naming a valid target, such as `swap into eval`,
+activates `eval` without another confirmation. The agent loads the target role
 skill and every skill in its complete ordered personality meld before acting.
 Role methods become eligible only when the new role and task both match. The agent
 announces the new role, and stops following the prior charter. The new role remains inferred, so
@@ -72,7 +72,7 @@ A native role switch changes only the active charter and personality meld. A
 personality swap changes only the boundary. The harness, model, tools, permissions,
 credentials, obligations, and executable authority remain unchanged.
 
-QA remains read-only around live systems unless runtime policy explicitly
+The eval seat remains read-only around running backends unless runtime policy explicitly
 grants an enforced disposable fixture mode. A role or personality switch does
 not create, retain, or broaden that authority.
 

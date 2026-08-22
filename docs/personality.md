@@ -42,26 +42,25 @@ records and personality references are validated as one complete graph.
 The profile discovers `libraries/` children in lexical order. Callers may admit
 further local roots with repeatable `--personality-library` flags,
 `personality-library` request nodes, or ordered host `personality_libraries`.
-Profile-local roots resolve first, followed by the caller order. Every root is a
-local directory or the reserved `roster:core` root below. Agent Compose does not
-accept URLs, git refs, release identifiers, or fetch instructions.
+Profile-local roots resolve first, then the caller order. Every root is a local
+directory or the reserved `roster:core` root, and Agent Compose accepts no URLs,
+git refs, release identifiers, or fetch instructions.
 
 The reserved root is a name rather than a path. Admitting it merges the shipped
-core personalities, so a package binds `meticulous` by slug and the binary
-supplies the body instead of the package vendoring it. Only that disposition
-axis crosses. Roles, seats, identity, and the invariant stay package-exclusive.
+core personalities, so a package binds `grounded` by slug and the binary supplies
+the body. Only that disposition axis crosses: roles, seats, identity, and the
+invariant stay package-exclusive.
 
 ### Conflicts and compatibility
 
-Roles reference personality slugs, not a library name. A profile may therefore
-boundary local and admitted personalities. A role may have any nonempty ordered
-boundary, including one personality. Byte-identical personality definitions
-deduplicate. A divergent duplicate slug or duplicate skill binding fails before
-materialization. Missing personality references fail after all admitted
-libraries merge. Alias collisions remain visible as ordered candidate sets.
-Generated v1-compatible `person.json` remains available. The additive
-`person.v4.json` and `personality-index.md` provide aliases, affinities,
-logical provenance, and derived boundaries for consumers that need them.
+Roles reference personality slugs, not a library name, so a profile may meld
+local and admitted personalities. A role may have any nonempty ordered meld,
+including one personality. Byte-identical definitions deduplicate, a divergent
+duplicate slug or skill binding fails before materialization, and missing
+references fail after all admitted libraries merge. Alias collisions stay visible
+as ordered candidate sets. Generated v1-compatible `person.json` remains
+available, and the additive `person.v4.json` and `personality-index.md` add
+aliases, affinities, provenance, and derived melds.
 
 ### Cues and affinities
 
@@ -75,43 +74,41 @@ affinity list when no selected role uses it. A cue never changes a role,
 authority, permissions, or the native confirmation and lifetime rules for an
 interactive personality swap.
 
+## Signature and bond
+
+Each core role melds exactly two personalities: a signature no other seat holds,
+and a bond shared with its siblings. `grounded` bonds platform, sysadmin, and
+eval, the substrate seats. `imaginative` bonds frontend and gamedev, both making
+something a person enters. `outward` bonds tpm and devrel, both checking the
+local answer against the world outside. `color.Favorites` weights a component by
+`1/shared` squared, so a signature counts 1.0 and a three-seat bond about 0.11:
+the signature drives the color four to one and the bond only tints it. The
+roster measures 0.1590 at its closest pair against the 0.08 floor.
+
 ## Personality palette explorer
 
 The repository ships a local visual explorer for the canonical personality
-colors and each role's complete meld. It preserves color as expression only.
-Authority, safety, and completion remain outside personality.
+colors and each role's meld. It preserves color as expression only, and
+authority, safety, and completion remain outside personality. Run
+`just palette-serve` from the repository root.
 
-### Run it
-
-From the repository root:
-
-```sh
-just palette-serve
-```
-
-Ward generates `web/personality-palette/public/palette.json` from the embedded
-person source, installs the pinned browser toolchain, and starts Vite on its
-local address. The JSON, dependency directory, and production build stay
-uncommitted. The remaining lifecycle verbs are:
-
-* `just palette-build` - type-check and build the production assets.
-* `just palette-test` - build and verify the generated artifact.
-* `just palette-tidy` - reconcile `package-lock.json`.
-
-`just test` includes the palette test, so every release validates the
-committed explorer.
+That generates `web/personality-palette/public/palette.json` from the embedded
+person source, installs the pinned browser toolchain, and starts Vite locally.
+The JSON, dependency directory, and production build stay uncommitted.
+`palette-build`, `palette-test`, and `palette-tidy` carry the rest of the
+lifecycle, and `just test` includes the palette test.
 
 ### Data ownership and interaction
 
 The embedded KDL person source remains the only owner of personality colors,
 identity primitives, role membership, role order, and boundary inputs. The
-hidden `palette-data` command projects that source into versioned JSON. The Go
-color package derives each role's boundary before the browser sees it. The
-TypeScript layer owns only visual presentation metadata such as friendly color
-names, short associations, and spectrum ordering. Startup validation fails
-visibly if that presentation list drifts from the canonical catalog.
+hidden `palette-data` command projects that source into versioned JSON, and the
+Go color package derives each role's boundary before the browser sees it. The
+TypeScript layer owns only presentation metadata: friendly color names, short
+associations, and spectrum ordering. Startup validation fails visibly if that
+list drifts from the canonical catalog.
 
-The explorer shows the full nineteen-personality spectrum with emblem, motif,
+The explorer shows the full ten-personality spectrum with emblem, motif,
 form, and sound, role filters with complete melds, component colors and the
 derived role boundary, day and night previews, spectrum and alphabetical
 ordering, one-click copying, and a responsive reduced-motion layout.

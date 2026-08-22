@@ -68,7 +68,7 @@ A compose request may rename the seat it composes:
 
 ```kdl
 compose {
-    role "ops"
+    role "sysadmin"
     identity name="Echo" pronouns="it"
     delivery "native-skills"
 }
@@ -80,11 +80,11 @@ the role's own seat, which is what every existing request does.
 ### Why it exists
 
 A caller that already has an identity would otherwise carry two. Sirens Echo
-composes `ops` for its operator doctrine and answers as Sirens Echo, so without
+composes `sysadmin` for its operator doctrine and answers as Sirens Echo, so without
 this its prompt introduced Olaf as well — a name belonging to a different
 context, in a lane whose policy forbids describing itself at all. The
 alternative was a whole person package, which replaces the embedded roster as
-one unit. Copying eight roles to rename one seat makes every future roster
+one unit. Copying seven roles to rename one seat makes every future roster
 change something the copy has to chase.
 
 ### What it does not do
@@ -93,13 +93,13 @@ It renames. Skills, methods, personalities, boundaries, and model tiers are
 untouched, and no equivalent exists for any of them. The personality meld is
 the one people ask for next, and it is a different shape. `role.Personalities`
 also drives the melded favorite color, the nativeui theme tokens, and a
-validator requiring exactly three personalities on a core role. Filtering a
+validator requiring exactly two personalities on a core role. Filtering a
 meld is several seams; a name is one.
 
 ### The dictatable short id
 
 Terminal surfaces append the running session's short id to the rendered name
-(`Angie [she] (Engineer) uz86`), so a human can name one agent out loud among
+(`Angie [she] (Developer Platform Engineer) uz86`), so a human can name one agent out loud among
 several. Read from `AOS_NATIVE_SESSION`, never minted. See
 [the dictatable short id](whoami.md).
 

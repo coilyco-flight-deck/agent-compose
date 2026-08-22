@@ -6,17 +6,16 @@ import (
 	"testing"
 )
 
-// Roles sharing two of three personalities land on top of each other under a
-// per-group mean, which is the collision the roster-wide derivation breaks.
+// Roles sharing their bond trait collide under a per-group mean, which is what
+// the roster-wide derivation breaks. Shipped seven melds, signature first.
 var overlappingGroups = [][]string{
-	{"#d98e48", "#7d9fd3", "#8f8c47"}, // curious, meticulous, tenacious
-	{"#e1514e", "#19a9b0", "#da6c74"}, // bold, diplomatic, decisive
-	{"#7d9fd3", "#3dbfe2", "#5d8fd7"}, // meticulous, candid, skeptical
-	{"#009a85", "#5fa87a", "#787bd2"}, // protective, grounded, reflective
-	{"#b682ed", "#e882e1", "#4f9eb8"}, // imaginative, playful, editorial
-	{"#b3be49", "#5fa87a", "#da6c74"}, // outward, grounded, decisive
-	{"#4f9eb8", "#e996a2", "#ff9c79"}, // editorial, nurturing, warm
-	{"#2ed1aa", "#7d9fd3", "#5d8fd7"}, // empirical, meticulous, skeptical
+	{"#8f8c47", "#5fa87a"}, // tenacious, grounded
+	{"#009a85", "#5fa87a"}, // protective, grounded
+	{"#2ed1aa", "#5fa87a"}, // empirical, grounded
+	{"#e882e1", "#b682ed"}, // playful, imaginative
+	{"#0084fd", "#b682ed"}, // immersed, imaginative
+	{"#da6c74", "#b3be49"}, // decisive, outward
+	{"#ff9c79", "#b3be49"}, // warm, outward
 }
 
 func uniformCentroids(t *testing.T, groups [][]string) []string {
@@ -98,9 +97,9 @@ func TestFavoritesStayLegibleAndNearTheirOwnBlend(t *testing.T) {
 
 func TestFavoritesCannotRescueIdenticalGroups(t *testing.T) {
 	groups := [][]string{
-		{"#d98e48", "#7d9fd3", "#8f8c47"},
-		{"#d98e48", "#7d9fd3", "#8f8c47"},
-		{"#009a85", "#5fa87a", "#787bd2"},
+		{"#8f8c47", "#5fa87a"},
+		{"#8f8c47", "#5fa87a"},
+		{"#e882e1", "#b682ed"},
 	}
 	derived, err := Favorites(groups)
 	if err != nil {

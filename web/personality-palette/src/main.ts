@@ -44,25 +44,16 @@ type SortMode = "spectrum" | "alphabetical";
 type Theme = "day" | "night";
 
 const presentation: Presentation[] = [
-  { name: "bold", colorName: "crimson", association: "decisive heat" },
   { name: "decisive", colorName: "rose red", association: "committed cut" },
   { name: "warm", colorName: "coral", association: "open welcome" },
-  { name: "curious", colorName: "amber", association: "warm discovery" },
   { name: "outward", colorName: "brass yellow", association: "outside check" },
   { name: "tenacious", colorName: "weathered olive", association: "durable grip" },
   { name: "grounded", colorName: "sage", association: "steady growth" },
   { name: "protective", colorName: "emerald", association: "trusted shelter" },
   { name: "empirical", colorName: "aquamarine", association: "measured result" },
-  { name: "diplomatic", colorName: "teal", association: "balanced exchange" },
-  { name: "editorial", colorName: "ink blue", association: "usable clarity" },
-  { name: "candid", colorName: "cyan", association: "clear air" },
   { name: "immersed", colorName: "deep azure", association: "inside view" },
-  { name: "skeptical", colorName: "steel blue", association: "tested claim" },
-  { name: "meticulous", colorName: "measured blue", association: "considered precision" },
-  { name: "reflective", colorName: "indigo", association: "quiet depth" },
   { name: "imaginative", colorName: "violet", association: "visible possibility" },
   { name: "playful", colorName: "magenta", association: "electric delight" },
-  { name: "nurturing", colorName: "gentle rose", association: "patient care" },
 ];
 
 const appElement = document.querySelector<HTMLDivElement>("#app");

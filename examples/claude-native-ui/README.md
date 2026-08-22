@@ -19,8 +19,8 @@ only the theme file installed. See
 
 ## Trying one
 
-1. Copy `themes/aos-design.json` to `~/.claude/themes/aos-design.json`.
-2. Select it with `/theme`, or merge `settings.design.json` into
+1. Copy `themes/aos-frontend.json` to `~/.claude/themes/aos-frontend.json`.
+2. Select it with `/theme`, or merge `settings.frontend.json` into
    `~/.claude/settings.json`.
 
 The theme directory is watched, so an edit to a theme file applies without
@@ -34,11 +34,10 @@ border, the Clawd mascot body, and the assistant accent.
 
 Each personality in the boundary then carries one interaction the frame contains.
 
-* The first carries what the agent offers, so it colors skills and auto-accept.
-* The middle carries what the agent asks for, so it colors permissions and the
-  bash input border.
-* The last carries what the agent annotates back, so it colors suggestions and
-  memory.
+* The signature carries what the agent offers, so it colors skills and
+  auto-accept.
+* The bond carries what the agent asks for and annotates back, so it colors
+  permissions, the bash input border, suggestions, and memory.
 
 Text, background, and every diff and severity token stay at base values. Role
 identity is worth a border, never a contrast regression, and a test enforces
@@ -52,9 +51,9 @@ The `subagentStatusLine` row therefore carries the identity as text.
 ## Spinner verbs
 
 Verbs live on the personality in the person source, six each, so a role's
-spinner vocabulary is the concatenation of its meld in role order. Design gets
-refracting and conjuring from imaginative, whirling and doodling from playful,
-kerning and redlining from editorial.
+spinner vocabulary is the concatenation of its meld in role order. Frontend gets
+whirling and doodling from playful, then refracting and conjuring from
+imaginative.
 
 `replace` is the default, which discards Claude Code's own vocabulary and makes
 the role unmistakable. Pass `--spinner-mode append` to keep both. No authored

@@ -20,8 +20,11 @@ func TestBoundaryOmitLeavesNoTraceInTheBundle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compose: %v", err)
 	}
-	if m := readManifest(t, result.Bundle.Dir); len(m.Boundaries) != 0 {
-		t.Fatalf("manifest still claims boundaries: %v", m.Boundaries)
+	// Every seat owns or scopes at least one boundary, so the manifest keeps
+	// the scoped grant and loses only the deferrals the request named.
+	m := readManifest(t, result.Bundle.Dir)
+	if len(m.Boundaries) != 1 || m.Boundaries[0] != "build-foundational-software" {
+		t.Fatalf("manifest boundaries = %v, want the scoped grant alone", m.Boundaries)
 	}
 	instructions, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "content", "instructions.md"))
 	if err != nil {
@@ -30,21 +33,24 @@ func TestBoundaryOmitLeavesNoTraceInTheBundle(t *testing.T) {
 	// Naming a boundary whose body is absent is the failure this replaces, so
 	// the card has to lose the name and not merely the prose.
 	for _, absent := range []string{
-		"boundary-modify-live-system",
+		"boundary-modify-live-backend",
+		"boundary-suggest-external-comms",
 		"boundary-seek-external-validation",
-		"## Boundaries",
 	} {
 		if strings.Contains(string(instructions), absent) {
 			t.Errorf("identity card still carries %q", absent)
 		}
+	}
+	if !strings.Contains(string(instructions), "you hold this within a scope") {
+		t.Error("identity card lost the scoped grant the request never omitted")
 	}
 	skills := filepath.Join(result.Bundle.Dir, "content", "skills")
 	matches, err := filepath.Glob(filepath.Join(skills, "*", "boundary-*"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(matches) != 0 {
-		t.Fatalf("bundle still ships boundary skills: %v", matches)
+	if len(matches) != 1 || !strings.HasSuffix(matches[0], "boundary-build-foundational-software") {
+		t.Fatalf("bundle boundary skills = %v, want the scoped grant alone", matches)
 	}
 }
 
@@ -63,7 +69,8 @@ func TestBoundaryOmitIsRecordedInTheDecisionTrace(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		"boundary:modify-live-system",
+		"boundary:modify-live-backend",
+		"boundary:suggest-external-comms",
 		"boundary:seek-external-validation",
 	} {
 		if !excluded[want] {
@@ -80,11 +87,13 @@ func TestBoundaryOmitRefusesWhatItCannotMean(t *testing.T) {
 	cases := map[string]struct {
 		role, omit, want string
 	}{
-		"unknown boundary": {"engineer", "no-such-boundary", "unknown boundary"},
+		"unknown boundary": {"platform", "no-such-boundary", "unknown boundary"},
 		// An owner losing its own boundary is a larger claim than a deferrer
 		// losing one, and this knob is not allowed to make it.
-		"owned by the role": {"ops", "modify-live-system", "is owned by role"},
-		"not active for it": {"engineer", "suggest-human-comms", "is not active for role"},
+		"owned by the role": {"sysadmin", "modify-live-backend", "is owned by role"},
+		// A grant is a permission, so omitting it would widen the seat. Every
+		// seat now touches every boundary, so this replaces the inactive case.
+		"held within a scope": {"platform", "modify-live-backend", "is held within a scope"},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {

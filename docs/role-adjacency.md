@@ -5,9 +5,10 @@ why. It is the axis the evaluation board reads to author role-fit cases.
 
 ## Directed, not symmetric
 
-Absorption risk runs one way. DevOps sequencing follow-up work after an
-incident is a live confusion, while the Director rarely reaches for a runbook.
-Declaring that pair symmetrically would buy a case nobody fails.
+Absorption risk runs one way. The Systems Administrator sequencing follow-up
+work after an incident is a live confusion, while the Technical Program Manager
+rarely reaches for a runbook. Declaring that pair symmetrically would buy a case
+nobody fails.
 
 So a role names who it drifts toward, and the reverse edge is a separate
 decision. Do not add a symmetry check.
@@ -32,12 +33,13 @@ which.
 Declare one node per edge, since each edge carries its own reason:
 
 ```kdl
-role "ops" {
-    skill "role-ops"
-    boundary "suggest-human-comms" "seek-external-validation"
-    adjacent "engineer" reason="implementing the fix instead of handing it back"
-    adjacent "director" reason="sequencing and assigning follow-up work after an incident instead of surfacing it as findings"
-    personality "protective" "grounded" "reflective"
+role "sysadmin" {
+    skill "role-sysadmin"
+    boundary "suggest-external-comms" "seek-external-validation"
+    boundary-scoped "build-foundational-software" scope="executable configuration only your own estate consumes"
+    adjacent "platform" reason="implementing the fix instead of handing it back with observed evidence"
+    adjacent "tpm" reason="sequencing follow-up work after an incident instead of surfacing it as findings"
+    personality "protective" "grounded"
 }
 ```
 
@@ -50,26 +52,27 @@ A boundary removes one behavior from several roles and allocates it to an
 owner, so it already tests each member against that owner. Adjacency covers the
 confusions no boundary allocates.
 
-Spend adjacency slots accordingly. DevOps defers `seek-external-validation` to
-the Executive Strategist, so an `ops` edge pointed at `exec` would restate a
-case the boundary tier already owns.
+Spend adjacency slots accordingly. An edge earns its slot when it points where
+no boundary reaches: at a seat that owns none, or at a gap the allocation leaves
+open. Two of the fourteen below name a confusion the owner's boundary already
+blocks, which is not wrong but tests compliance rather than something new.
 
 ## Core Roster graph
 
 ```text
-engineer -> qa, ai
-qa       -> engineer, ai
-ops      -> engineer, director
-ai       -> engineer, qa
-director -> exec, engineer
-exec     -> director, creator
-design   -> creator, engineer
-creator  -> design, exec
+platform -> sysadmin, eval
+sysadmin -> platform, tpm
+eval     -> platform, gamedev
+frontend -> devrel, gamedev
+gamedev  -> frontend, sysadmin
+tpm      -> devrel, eval
+devrel   -> frontend, tpm
 ```
 
-In-degree is deliberately uneven. Engineer is defended by five edges because it
-is the most-absorbed role, and DevOps is defended by none because
-`modify-live-system` already seals engineer, qa, and ai against live mutation.
+In-degree is even at two for every seat. The nine-seat roster had Engineer
+absorbed by five of nine edges, a gravity well the seven-seat allocation
+removes: `build-foundational-software` now seals the seats that used to spend an
+edge on "might implement it".
 
 ## See also
 

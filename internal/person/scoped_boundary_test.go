@@ -2,16 +2,39 @@ package person
 
 import "testing"
 
-// The scoped axis is additive, so the shipped roster must keep loading with no
-// role declaring it. Everything below drives the axis through fixtures.
-func TestShippedRosterLoadsWithoutScopedBoundaries(t *testing.T) {
+// Every boundary reaches all seven seats: one owner, two scoped, four deferring.
+// A seat missing from one is the oversight the third state exists to prevent.
+func TestEveryBoundaryAllocatesTheWholeRoster(t *testing.T) {
 	p, err := Load()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, roleName := range p.RoleOrder {
-		if got := len(p.Roles[roleName].ScopedBoundaries); got != 0 {
-			t.Errorf("role %q declares %d scoped boundaries, want 0 before the axis is used", roleName, got)
+	for _, boundaryName := range p.BoundaryOrder {
+		owner, scoped, deferring := 0, 0, 0
+		for _, roleName := range p.RoleOrder {
+			role := p.Roles[roleName]
+			if p.Boundaries[boundaryName].Owner == roleName {
+				owner++
+			}
+			for _, entry := range role.ScopedBoundaries {
+				if entry.Name == boundaryName {
+					scoped++
+					if entry.Scope == "" {
+						t.Errorf("role %q scopes %q with no limit text", roleName, boundaryName)
+					}
+				}
+			}
+			for _, declared := range role.Boundaries {
+				if declared == boundaryName {
+					deferring++
+				}
+			}
+		}
+		if owner != 1 || scoped != 2 || deferring != 4 {
+			t.Errorf(
+				"boundary %q reaches %d owner, %d scoped, %d deferring, want 1, 2, 4",
+				boundaryName, owner, scoped, deferring,
+			)
 		}
 	}
 }

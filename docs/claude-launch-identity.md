@@ -11,7 +11,7 @@ converged before the session starts.
   name wins, then the role-owned agent identity, then the role.
 
   ```text
-  Angie [she] (Engineer)
+  Angie [she] (Developer Platform Engineer)
   ```
 
   The annotation is the seat name, the seat's subject pronoun in brackets, and
@@ -37,7 +37,7 @@ whole settings half of a role's native UI, and the launch path never writes into
 host state to dress a session.
 
 Selection through that tier is observed, not inferred. A session launched with
-the engineer fragment renders the engineer theme even when the user settings file
+the platform fragment renders the platform theme even when the user settings file
 selects a different custom theme.
 
 ## Caller precedence

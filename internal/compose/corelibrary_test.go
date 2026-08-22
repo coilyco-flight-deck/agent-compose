@@ -21,7 +21,7 @@ func coreBindingRequest(t *testing.T, libraries ...string) string {
 	rebind(t, filepath.Join(profile, "roles", "01-bulk-captioner.kdl"),
 		`personality "local-guide" "shared-care"`, `personality "local-guide"`)
 	rebind(t, filepath.Join(profile, "roles", "02-caption-review.kdl"),
-		`personality "local-guide"`, `personality "skeptical"`)
+		`personality "local-guide"`, `personality "empirical"`)
 	body := "compose {\n    person-source \".\"\n"
 	for _, library := range libraries {
 		body += fmt.Sprintf("    personality-library %q\n", library)
@@ -51,7 +51,7 @@ func rebind(t *testing.T, path, from, to string) {
 
 func TestComposeRequestAdmitsTheEmbeddedCorePersonalityLibrary(t *testing.T) {
 	if _, err := Run(coreBindingRequest(t), t.TempDir()); err == nil ||
-		!strings.Contains(err.Error(), `personality "skeptical" has no catalog binding`) {
+		!strings.Contains(err.Error(), `personality "empirical" has no catalog binding`) {
 		t.Fatalf("unreferenced core personality must fail, got %v", err)
 	}
 
@@ -60,7 +60,7 @@ func TestComposeRequestAdmitsTheEmbeddedCorePersonalityLibrary(t *testing.T) {
 		t.Fatalf("reserved core root rejected: %v", err)
 	}
 	manifest := readManifest(t, result.Bundle.Dir)
-	if len(manifest.Personalities) != 1 || manifest.Personalities[0] != "skeptical" {
+	if len(manifest.Personalities) != 1 || manifest.Personalities[0] != "empirical" {
 		t.Fatalf("composed personalities = %+v", manifest.Personalities)
 	}
 	// Package selection stays exclusive: only the disposition axis crossed.
@@ -70,13 +70,13 @@ func TestComposeRequestAdmitsTheEmbeddedCorePersonalityLibrary(t *testing.T) {
 		}
 	}
 	body, err := os.ReadFile(filepath.Join(
-		result.Bundle.Dir, "content", "skills", "person%3Aexample", "personality-skeptical", "SKILL.md",
+		result.Bundle.Dir, "content", "skills", "person%3Aexample", "personality-empirical", "SKILL.md",
 	))
 	if err != nil {
 		t.Fatalf("core personality body did not materialize: %v", err)
 	}
 	want, err := os.ReadFile(filepath.Join(
-		"..", "person", "data", "personality-skeptical", "SKILL.md",
+		"..", "person", "data", "personality-empirical", "SKILL.md",
 	))
 	if err != nil {
 		t.Fatal(err)

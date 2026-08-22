@@ -108,9 +108,9 @@ func TestSnapshotV4RejectsInconsistentProvenanceAndAffinities(t *testing.T) {
 	if err := ValidateSnapshotV4(snapshot); err != nil {
 		t.Fatal(err)
 	}
-	entry := snapshot.Personalities["curious"]
+	entry := snapshot.Personalities["tenacious"]
 	entry.Digest = "bad"
-	snapshot.Personalities["curious"] = entry
+	snapshot.Personalities["tenacious"] = entry
 	if err := ValidateSnapshotV4(snapshot); err == nil {
 		t.Fatal("invalid personality provenance passed")
 	}
@@ -119,9 +119,9 @@ func TestSnapshotV4RejectsInconsistentProvenanceAndAffinities(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	entry = snapshot.Personalities["curious"]
-	entry.Affinities[0].Personalities = []string{"curious"}
-	snapshot.Personalities["curious"] = entry
+	entry = snapshot.Personalities["tenacious"]
+	entry.Affinities[0].Personalities = []string{"tenacious"}
+	snapshot.Personalities["tenacious"] = entry
 	if err := ValidateSnapshotV4(snapshot); err == nil {
 		t.Fatal("inconsistent affinity boundary passed")
 	}

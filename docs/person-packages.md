@@ -93,8 +93,8 @@ ordered KDL fragment:
 data/role-builder/role.kdl
 data/role-builder/SKILL.md
 [data/role-builder/evals.yaml]
-data/personality-curious/personality.kdl
-data/personality-curious/SKILL.md
+data/personality-tenacious/personality.kdl
+data/personality-tenacious/SKILL.md
 [data/boundary-shared-thing/boundary.kdl]
 [data/invariant/INVARIANT.md]
 ```

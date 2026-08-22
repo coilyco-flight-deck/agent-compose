@@ -39,7 +39,7 @@ func TestWithShortID(t *testing.T) {
 	}{
 		"annotated":     {"Angie [she] (Engineer)", "uz86", "Angie [she] (Engineer) uz86"},
 		"label only":    {"Angie [she]", "uz86", "Angie [she] uz86"},
-		"role fallback": {"engineer", "uz86", "engineer uz86"},
+		"role fallback": {"platform", "uz86", "platform uz86"},
 		"no id":         {"Angie [she]", "", "Angie [she]"},
 		"no display":    {"", "uz86", ""},
 		"neither":       {"", "", ""},

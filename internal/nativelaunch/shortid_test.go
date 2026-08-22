@@ -18,7 +18,7 @@ func shortIDRefresh(t *testing.T) *Result {
 	writeManifest(t, manifest, projects, provider)
 
 	result, err := Refresh(Options{
-		Role:      "design",
+		Role:      "frontend",
 		Harness:   "claude",
 		CWD:       projects,
 		TargetDir: t.TempDir(),
@@ -35,7 +35,7 @@ func shortIDRefresh(t *testing.T) *Result {
 func TestSeatNameCarriesTheShortID(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "uz86")
 	result := shortIDRefresh(t)
-	if result.SeatName != "Delphi [she] (Designer) uz86" {
+	if result.SeatName != "Delphi [she] (Frontend Design Engineer) uz86" {
 		t.Errorf("seat name = %q, want it annotated with uz86", result.SeatName)
 	}
 }

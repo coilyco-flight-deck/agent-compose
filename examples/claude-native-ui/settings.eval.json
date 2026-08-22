@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-eval",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Measuring",
+      "Isolating",
+      "Replicating",
+      "Calibrating",
+      "Recording",
+      "Controlling",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Measure how agents, models, and inference actually behave on real hardware.",
+      "Lucia holds the Agent Evaluation Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: empirical, grounded."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

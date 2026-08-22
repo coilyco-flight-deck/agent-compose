@@ -46,6 +46,16 @@ func composedBoundaries(p *person.Person, req *schema.Request) ([]string, error)
 		if binding.Owner == req.Role {
 			return nil, fmt.Errorf("boundary-omit %q is owned by role %q and cannot be omitted", name, req.Role)
 		}
+		// A scoped grant is a bounded permission rather than a deferral, so
+		// dropping it widens the role instead of narrowing the deployment.
+		for _, scoped := range p.Roles[req.Role].ScopedBoundaries {
+			if scoped.Name == name {
+				return nil, fmt.Errorf(
+					"boundary-omit %q is held within a scope by role %q and cannot be omitted",
+					name, req.Role,
+				)
+			}
+		}
 		if !inActive[name] {
 			return nil, fmt.Errorf("boundary-omit %q is not active for role %q", name, req.Role)
 		}
@@ -231,15 +241,23 @@ func Resolve(req *schema.Request, p *person.Person, sources []*schema.Source, mi
 		})
 	}
 	for _, name := range boundaries {
+		// The trace names which of the three sides the role received, because
+		// a scoped grant reading as a deferral hides a permission.
 		relationship := "defers"
 		if p.Boundaries[name].Owner == req.Role {
 			relationship = "owns"
+		}
+		for _, scoped := range p.Roles[req.Role].ScopedBoundaries {
+			if scoped.Name == name {
+				relationship = "holds within a scope"
+				break
+			}
 		}
 		res.decide(Decision{
 			Subject: "boundary:" + name, Kind: "profile", Source: p.ProviderID(),
 			Outcome: OutcomeSelected,
 			Reason: fmt.Sprintf(
-				"role %q %s boundary %q, whose body is identical on both sides",
+				"role %q %s boundary %q, whose body is identical on every side",
 				req.Role, relationship, name),
 		})
 	}

@@ -29,7 +29,7 @@ func writeProjectedRole(t *testing.T, target, layout, role, seat, pronouns strin
 				{Key: layout, Name: seat, Pronouns: pronouns},
 			},
 			Personalities: []bundle.IdentityPersonality{
-				{Name: "curious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
+				{Name: "tenacious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
 				{Name: "tenacious", Color: "#8f8c47", Emblem: person.Emblem{Emoji: "⛏️"}},
 			},
 		},
@@ -61,7 +61,7 @@ func decodeRows(t *testing.T, rendered string) []SubagentRow {
 
 func TestRenderSubagentsDecoratesEveryRowFromItsOwnDirectory(t *testing.T) {
 	engineer := t.TempDir()
-	writeProjectedRole(t, engineer, "claude", "engineer", "Angie", "she")
+	writeProjectedRole(t, engineer, "claude", "platform", "Angie", "she")
 	qa := t.TempDir()
 	writeProjectedRole(t, qa, "claude", "qa", "Quail", "they")
 
@@ -84,7 +84,7 @@ func TestRenderSubagentsDecoratesEveryRowFromItsOwnDirectory(t *testing.T) {
 	if len(rows) != 2 {
 		t.Fatalf("rows = %d, want 2", len(rows))
 	}
-	if want := "🧭 ⛏️ Angie [she] // engineer@claude"; rows[0].Content != want {
+	if want := "🧭 ⛏️ Angie [she] // platform@claude"; rows[0].Content != want {
 		t.Errorf("row 1 content = %q, want %q", rows[0].Content, want)
 	}
 	if want := "🧭 ⛏️ Quail [they] // qa@claude"; rows[1].Content != want {
@@ -94,7 +94,7 @@ func TestRenderSubagentsDecoratesEveryRowFromItsOwnDirectory(t *testing.T) {
 
 func TestRenderSubagentsSkipsRowsWithoutAProjection(t *testing.T) {
 	projected := t.TempDir()
-	writeProjectedRole(t, projected, "claude", "engineer", "Angie", "she")
+	writeProjectedRole(t, projected, "claude", "platform", "Angie", "she")
 
 	request, err := json.Marshal(SubagentRequest{Tasks: []SubagentTask{
 		{ID: "task-1", CWD: projected},
@@ -117,7 +117,7 @@ func TestRenderSubagentsSkipsRowsWithoutAProjection(t *testing.T) {
 
 func TestRenderSubagentsFallsBackToTargetWhenRowHasNoDirectory(t *testing.T) {
 	projected := t.TempDir()
-	writeProjectedRole(t, projected, "codex", "ops", "Olaf", "he")
+	writeProjectedRole(t, projected, "codex", "sysadmin", "Olaf", "he")
 
 	request, err := json.Marshal(SubagentRequest{Tasks: []SubagentTask{{ID: "task-1"}}})
 	if err != nil {
@@ -135,7 +135,7 @@ func TestRenderSubagentsFallsBackToTargetWhenRowHasNoDirectory(t *testing.T) {
 	if len(rows) != 1 {
 		t.Fatalf("rows = %d, want 1", len(rows))
 	}
-	if want := "🧭 ⛏️ Olaf [he] // ops@codex"; rows[0].Content != want {
+	if want := "🧭 ⛏️ Olaf [he] // sysadmin@codex"; rows[0].Content != want {
 		t.Errorf("content = %q, want %q", rows[0].Content, want)
 	}
 }
@@ -163,7 +163,7 @@ func TestRenderSubagentsReportsAnUnreadableCompositionPerRow(t *testing.T) {
 
 func TestRenderSubagentsPaintsOnlyWhenColorIsRequested(t *testing.T) {
 	target := t.TempDir()
-	writeProjectedRole(t, target, "claude", "engineer", "Angie", "she")
+	writeProjectedRole(t, target, "claude", "platform", "Angie", "she")
 	request, err := json.Marshal(SubagentRequest{Tasks: []SubagentTask{{ID: "task-1", CWD: target}}})
 	if err != nil {
 		t.Fatal(err)
@@ -208,7 +208,7 @@ func TestRenderSubagentsEmitsNothingForAnEmptyTickList(t *testing.T) {
 // sends more than this package declares.
 func TestRenderSubagentsIgnoresUnknownTickFields(t *testing.T) {
 	target := t.TempDir()
-	writeProjectedRole(t, target, "claude", "engineer", "Angie", "she")
+	writeProjectedRole(t, target, "claude", "platform", "Angie", "she")
 	raw := `{"columns":80,"version":"2.1.221","tasks":[{"id":"task-1","cwd":` +
 		mustJSON(t, target) +
 		`,"model":"opus","effort":"high","tokenSamples":[1,2],"unknown":{"a":1}}]}`

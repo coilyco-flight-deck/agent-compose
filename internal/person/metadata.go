@@ -107,7 +107,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 			for _, scoped := range role.ScopedBoundaries {
 				if scoped.Name == name {
 					side = "you hold this within a scope"
-					scopeText = " Your scope: " + scoped.Scope
+					scopeText = ". Your scope: " + scoped.Scope
 					break
 				}
 			}

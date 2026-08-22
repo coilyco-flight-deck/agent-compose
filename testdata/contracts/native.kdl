@@ -1,5 +1,5 @@
 compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public" declaration="source-public.kdl" required=#true
 }

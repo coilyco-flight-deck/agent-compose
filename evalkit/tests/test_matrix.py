@@ -1,35 +1,38 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+import yaml
 
 from evalkit.matrix import BOUNDARY, PERSONALITY, ROLE_FIT, abbreviate, derive
 
 ROSTER: dict[str, Any] = {
-    "role_order": ["engineer", "ops", "creator"],
-    "boundary_order": ["suggest-human-comms"],
+    "role_order": ["platform", "sysadmin", "devrel"],
+    "boundary_order": ["suggest-external-comms"],
     "boundaries": {
-        "suggest-human-comms": {
-            "owner": "creator",
-            "summary": "Content Creator recommends communication, other roles keep records",
+        "suggest-external-comms": {
+            "owner": "devrel",
+            "summary": "Developer Advocate recommends communication, other roles keep records",
         }
     },
     "roles": {
-        "engineer": {
-            "display_name": "Engineer",
+        "platform": {
+            "display_name": "Developer Platform Engineer",
             "purpose": "Build and land work across the portfolio.",
-            "boundaries": ["suggest-human-comms"],
-            "personalities": ["curious", "meticulous"],
-            "adjacents": [{"role": "ops", "reason": "deploying instead of handing back"}],
+            "boundaries": ["suggest-external-comms"],
+            "personalities": ["tenacious", "grounded"],
+            "adjacents": [{"role": "sysadmin", "reason": "deploying instead of handing back"}],
         },
-        "ops": {
-            "display_name": "DevOps",
+        "sysadmin": {
+            "display_name": "Systems Administrator",
             "purpose": "Operate the real hosted systems.",
-            "boundaries": ["suggest-human-comms"],
+            "boundaries": ["suggest-external-comms"],
             "personalities": ["grounded"],
-            "adjacents": [{"role": "engineer", "reason": "implementing the fix"}],
+            "adjacents": [{"role": "platform", "reason": "implementing the fix"}],
         },
-        "creator": {
-            "display_name": "Content Creator",
+        "devrel": {
+            "display_name": "Developer Advocate",
             "purpose": "Turn work into content.",
             "personalities": ["warm"],
             "adjacents": [],
@@ -38,12 +41,12 @@ ROSTER: dict[str, Any] = {
 }
 
 SCOPED: dict[str, Any] = {
-    "role_order": ["gamedev", "engineer", "ops"],
-    "boundary_order": ["modify-live-system"],
+    "role_order": ["gamedev", "platform", "sysadmin"],
+    "boundary_order": ["modify-live-backend"],
     "boundaries": {
-        "modify-live-system": {
-            "owner": "ops",
-            "summary": "DevOps changes running systems, other roles hand the action over",
+        "modify-live-backend": {
+            "owner": "sysadmin",
+            "summary": "Systems Administrator changes running systems, others hand it over",
         }
     },
     "roles": {
@@ -51,20 +54,20 @@ SCOPED: dict[str, Any] = {
             "display_name": "Game Developer",
             "purpose": "Ship playable games.",
             "scoped_boundaries": [
-                {"name": "modify-live-system", "scope": "a local world you run yourself"}
+                {"name": "modify-live-backend", "scope": "a local world you run yourself"}
             ],
             "personalities": ["immersed"],
             "adjacents": [],
         },
-        "engineer": {
-            "display_name": "Engineer",
+        "platform": {
+            "display_name": "Developer Platform Engineer",
             "purpose": "Build and land work.",
-            "boundaries": ["modify-live-system"],
+            "boundaries": ["modify-live-backend"],
             "personalities": ["tenacious"],
             "adjacents": [],
         },
-        "ops": {
-            "display_name": "DevOps",
+        "sysadmin": {
+            "display_name": "Systems Administrator",
             "purpose": "Operate the real hosted systems.",
             "personalities": ["protective"],
             "adjacents": [],
@@ -76,32 +79,32 @@ SCOPED: dict[str, Any] = {
 def test_the_owner_gets_a_pair_alongside_every_deferring_role() -> None:
     boundary = [slot for slot in derive(ROSTER) if slot.test_type == BOUNDARY]
     assert [slot.id for slot in boundary] == [
-        "engineer-shc-in",
-        "engineer-shc-out",
-        "ops-shc-in",
-        "ops-shc-out",
-        "creator-shc-in",
-        "creator-shc-out",
+        "platform-sec-in",
+        "platform-sec-out",
+        "sysadmin-sec-in",
+        "sysadmin-sec-out",
+        "devrel-sec-in",
+        "devrel-sec-out",
     ]
 
 
 def test_a_role_declaring_no_boundary_still_owns_one_as_its_owner() -> None:
-    creator = {
+    devrel = {
         slot.id: slot.descriptor
         for slot in derive(ROSTER)
-        if slot.role == "creator" and slot.test_type == BOUNDARY
+        if slot.role == "devrel" and slot.test_type == BOUNDARY
     }
-    assert creator["creator-shc-in"] == 'owns "recommends communication"'
-    assert creator["creator-shc-out"] == 'owns "recommends communication", claims nothing past it'
+    assert devrel["devrel-sec-in"] == 'owns "recommends communication"'
+    assert devrel["devrel-sec-out"] == 'owns "recommends communication", claims nothing past it'
 
 
 def test_a_deferring_half_names_the_owner_behaviour_and_an_owning_half_names_purpose() -> None:
     slots = {slot.id: slot.descriptor for slot in derive(ROSTER)}
-    assert slots["ops-shc-out"] == 'defers "recommends communication" to creator'
-    assert slots["ops-shc-in"] == "owns: operate the real hosted systems"
+    assert slots["sysadmin-sec-out"] == 'defers "recommends communication" to devrel'
+    assert slots["sysadmin-sec-in"] == "owns: operate the real hosted systems"
 
 
-def test_the_owner_clause_drops_the_display_name_that_conjugates_it() -> None:
+def test_the_owner_clause_drsysadmin_the_display_name_that_conjugates_it() -> None:
     from evalkit.matrix import owner_behaviour
 
     summary = "Executive Strategist reaches outside the local frame, other roles do not"
@@ -118,20 +121,20 @@ def test_a_summary_without_the_expected_shape_survives_intact() -> None:
 def test_adjacency_reasons_become_the_case_descriptors() -> None:
     slots = derive(ROSTER)
     fit = {s.id: s.descriptor for s in slots if s.test_type == ROLE_FIT}
-    assert fit["engineer-fit-ops"] == "deploying instead of handing back"
-    assert fit["engineer-fit-within"] == "engineer correctly identifies work it should own"
+    assert fit["platform-fit-sysadmin"] == "deploying instead of handing back"
+    assert fit["platform-fit-within"] == "platform correctly identifies work it should own"
 
 
 def test_personality_is_one_case_per_trait_with_no_composed_case() -> None:
     personality = [slot for slot in derive(ROSTER) if slot.test_type == PERSONALITY]
-    engineer = [slot.id for slot in personality if slot.role == "engineer"]
-    assert engineer == ["engineer-per-curious", "engineer-per-meticulous"]
+    platform = [slot.id for slot in personality if slot.role == "platform"]
+    assert platform == ["platform-per-tenacious", "platform-per-grounded"]
 
 
 def test_a_trait_case_names_the_peers_it_is_composed_alongside() -> None:
     slots = {slot.id: slot.descriptor for slot in derive(ROSTER)}
-    assert slots["engineer-per-curious"] == "curious, composed alongside meticulous"
-    assert slots["ops-per-grounded"] == "grounded"
+    assert slots["platform-per-tenacious"] == "tenacious, composed alongside grounded"
+    assert slots["sysadmin-per-grounded"] == "grounded"
 
 
 def test_board_size_is_a_consequence_of_the_roster() -> None:
@@ -146,40 +149,41 @@ def test_board_size_is_a_consequence_of_the_roster() -> None:
 
 
 def test_boundary_abbreviations_come_from_the_slug() -> None:
-    assert abbreviate("suggest-human-comms") == "shc"
+    assert abbreviate("suggest-external-comms") == "sec"
     assert abbreviate("seek-external-validation") == "sev"
-    assert abbreviate("modify-live-system") == "mls"
+    assert abbreviate("modify-live-backend") == "mlb"
 
 
 def test_a_scoped_grant_earns_its_own_pair_between_the_deferrers_and_the_owner() -> None:
     boundary = [slot for slot in derive(SCOPED, group="tier") if slot.test_type == BOUNDARY]
     assert [slot.id for slot in boundary] == [
-        "engineer-mls-in",
-        "engineer-mls-out",
-        "gamedev-mls-in",
-        "gamedev-mls-out",
-        "ops-mls-in",
-        "ops-mls-out",
+        "platform-mlb-in",
+        "platform-mlb-out",
+        "gamedev-mlb-in",
+        "gamedev-mlb-out",
+        "sysadmin-mlb-in",
+        "sysadmin-mlb-out",
     ]
 
 
 def test_the_scoped_halves_measure_the_grant_and_its_limit() -> None:
     slots = {slot.id: slot.descriptor for slot in derive(SCOPED)}
     within = 'holds "changes running systems" within: a local world you run yourself'
-    assert slots["gamedev-mls-in"] == within
-    assert slots["gamedev-mls-out"] == 'defers "changes running systems" past that scope to ops'
+    assert slots["gamedev-mlb-in"] == within
+    beyond = 'defers "changes running systems" past that scope to sysadmin'
+    assert slots["gamedev-mlb-out"] == beyond
 
 
 def test_a_deferring_role_beside_a_scoped_one_still_reads_the_classic_way() -> None:
     slots = {slot.id: slot.descriptor for slot in derive(SCOPED)}
-    assert slots["engineer-mls-out"] == 'defers "changes running systems" to ops'
-    assert slots["engineer-mls-in"] == "owns: build and land work"
+    assert slots["platform-mlb-out"] == 'defers "changes running systems" to sysadmin'
+    assert slots["platform-mlb-in"] == "owns: build and land work"
 
 
 def test_the_scope_travels_with_the_case_so_an_author_can_read_the_limit() -> None:
     payloads = {slot.id: slot.to_dict() for slot in derive(SCOPED)}
-    assert payloads["gamedev-mls-in"]["scope"] == "a local world you run yourself"
-    assert "scope" not in payloads["engineer-mls-in"]
+    assert payloads["gamedev-mlb-in"]["scope"] == "a local world you run yourself"
+    assert "scope" not in payloads["platform-mlb-in"]
 
 
 def test_a_roster_declaring_no_scoped_grant_carries_no_scope_anywhere() -> None:
@@ -187,3 +191,27 @@ def test_a_roster_declaring_no_scoped_grant_carries_no_scope_anywhere() -> None:
     assert all(slot.scope is None for slot in slots)
     assert all("scope" not in slot.to_dict() for slot in slots)
     assert sum(1 for slot in slots if slot.test_type == BOUNDARY) == 6
+
+
+BOARD = Path(__file__).resolve().parents[2] / "evaluations" / "reflow-v3" / "boundaries.yaml"
+
+
+def _board() -> list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = yaml.safe_load(BOARD.read_text())["boundaries"]
+    return entries
+
+
+def test_every_declared_pair_is_named_the_way_the_matrix_derives_it() -> None:
+    for entry in _board():
+        origin = str(entry["origin"]).removeprefix("boundary-")
+        assert entry["id"] == f"{entry['role']}-{abbreviate(origin)}"
+
+
+def test_the_board_declares_six_non_owner_seats_for_each_of_four_boundaries() -> None:
+    board = _board()
+    per_origin: dict[str, set[str]] = {}
+    for entry in board:
+        per_origin.setdefault(str(entry["origin"]), set()).add(str(entry["role"]))
+    assert len(board) == 24
+    assert len(per_origin) == 4
+    assert all(len(roles) == 6 for roles in per_origin.values())

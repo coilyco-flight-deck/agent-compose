@@ -109,10 +109,10 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 		t.Fatalf("dispatch table incomplete:\n%s", composed)
 	}
 	identityRoot := filepath.Join(dir, "sources", "personality", ".agents", "skills")
-	if _, err := os.Stat(filepath.Join(identityRoot, "personality-curious", "SKILL.md")); err != nil {
+	if _, err := os.Stat(filepath.Join(identityRoot, "personality-tenacious", "SKILL.md")); err != nil {
 		t.Fatal("personality skills must land in the roster identity catalog")
 	}
-	if _, err := os.Stat(filepath.Join(identityRoot, "role-engineer", "SKILL.md")); err != nil {
+	if _, err := os.Stat(filepath.Join(identityRoot, "role-platform", "SKILL.md")); err != nil {
 		t.Fatal("role skills must land in the roster identity catalog")
 	}
 	personSnapshot := readFile(t, filepath.Join(dir, "sources", "personality", "person.json"))
@@ -127,8 +127,8 @@ func TestConvergeComposesRosterIntoCascade(t *testing.T) {
 	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "coding-go")); err != nil || target != expectedSkillTarget {
 		t.Fatalf("skill root must mount before cascade: target=%q err=%v", target, err)
 	}
-	expectedRoleTarget := filepath.Join(identityRoot, "role-engineer")
-	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "role-engineer")); err != nil || target != expectedRoleTarget {
+	expectedRoleTarget := filepath.Join(identityRoot, "role-platform")
+	if target, err := os.Readlink(filepath.Join(dir, "links", "skills", "role-platform")); err != nil || target != expectedRoleTarget {
 		t.Fatalf("role skill must mount through the native skill catalog: target=%q err=%v", target, err)
 	}
 	code, out, _ = run(t, paths)

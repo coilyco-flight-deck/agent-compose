@@ -1,0 +1,21 @@
+{
+  "name": "Systems Administrator (Olaf)",
+  "base": "dark",
+  "overrides": {
+    "autoAccept": "#009a85",
+    "autoAcceptShimmer": "#3ebaa3",
+    "bashBorder": "#5fa87a",
+    "briefLabelClaude": "#009895",
+    "claude": "#009895",
+    "claudeShimmer": "#3eb8b4",
+    "clawd_body": "#009895",
+    "cyan_FOR_SUBAGENTS_ONLY": "#009895",
+    "permission": "#5fa87a",
+    "permissionShimmer": "#7ec898",
+    "promptBorder": "#009895",
+    "promptBorderShimmer": "#3eb8b4",
+    "remember": "#5fa87a",
+    "skill": "#009a85",
+    "suggestion": "#5fa87a"
+  }
+}

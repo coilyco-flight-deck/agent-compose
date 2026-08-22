@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-tpm",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Snipping",
+      "Shearing",
+      "Committing",
+      "Closing",
+      "Choosing",
+      "Trimming",
+      "Scouting",
+      "Comparing",
+      "Benchmarking",
+      "Sighting",
+      "Ranging",
+      "Canvassing"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Decide what the portfolio does next, and carry each decision to its gate.",
+      "Saiya holds the Technical Program Manager charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: decisive, outward."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

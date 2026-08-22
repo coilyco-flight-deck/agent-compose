@@ -7,17 +7,17 @@
 ```json
 {
   "format": "agent-compose.bundle",
-  "role": "engineer",
-  "role_skill": "role-engineer",
-  "role_skill_source": "roster:core:role:engineer",
+  "role": "platform",
+  "role_skill": "role-platform",
+  "role_skill_source": "roster:core:role:platform",
   "role_skill_digest": "sha256:<digest>",
   "model_tier": "frontier",
-  "personalities": ["curious", "grounded", "meticulous"],
+  "personalities": ["tenacious", "grounded"],
   "color": "#90a66a",
   "sources": ["roster:core", "aos-public"],
   "content": [
     {
-      "id": "roster:core:role:engineer:identity",
+      "id": "roster:core:role:platform:identity",
       "digest": "sha256:<digest>"
     }
   ],

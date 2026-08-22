@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-platform",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Grappling",
+      "Hauling",
+      "Gripping",
+      "Persisting",
+      "Digging",
+      "Anchoring",
+      "Settling",
+      "Stacking",
+      "Rooting",
+      "Steadying",
+      "Leveling",
+      "Weighing"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Build and land the foundational software the rest of the estate is built on.",
+      "Angie holds the Developer Platform Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: tenacious, grounded."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

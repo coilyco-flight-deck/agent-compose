@@ -33,7 +33,7 @@ const (
 )
 
 // Personality and boundary prose carry their own bounds. A floor keeps an entry
-// from thinning into a label. See docs/ai-engineer.md.
+// from thinning into a label. See docs/eval-engineer.md.
 const (
 	minPersonalitySkillBodyWords = 120
 	maxPersonalitySkillBodyWords = 320
@@ -839,20 +839,25 @@ func validateRoleAdjacents(p *Person) error {
 	return nil
 }
 
-// Identical melds derive barely 0.06 apart, so this floor catches them while
-// leaving room under the roster's usual 0.13. See docs/personality.md.
+// Identical melds derive barely 0.06 apart, and the roster measures 0.1590, so
+// two-component blends leave this floor slack. See docs/personality.md.
 const minFavoriteSeparation = 0.08
+
+// personalitiesPerRole is one signature trait plus one bond shared with a
+// sibling seat. See docs/personality.md.
+const personalitiesPerRole = 2
 
 func validateCorePersonalityMelds(p *Person) error {
 	usage := map[string]int{}
 	colors := map[string]string{}
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
-		if len(role.Personalities) != 3 {
+		if len(role.Personalities) != personalitiesPerRole {
 			return fmt.Errorf(
-				"core role %q has %d personalities, want exactly three",
+				"core role %q has %d personalities, want exactly %d",
 				roleName,
 				len(role.Personalities),
+				personalitiesPerRole,
 			)
 		}
 		for _, name := range role.Personalities {
@@ -1112,7 +1117,12 @@ func validateRosterProseFloors(source fs.FS, p *Person) error {
 		if own < 0 || defer_ < 0 {
 			continue
 		}
-		for label, section := range map[string]string{"own": body[own:defer_], "defer": body[defer_:]} {
+		sections := map[string]string{"own": body[own:defer_], "defer": body[defer_:]}
+		if scoped := strings.Index(body, boundaryScopedHeading); scoped >= 0 {
+			sections["own"] = body[own:scoped]
+			sections["scoped"] = body[scoped:defer_]
+		}
+		for label, section := range sections {
 			_, prose, _ := strings.Cut(section, "\n")
 			if words := roleSkillBodyWordCount(prose); words < minBoundarySideWords {
 				return fmt.Errorf(

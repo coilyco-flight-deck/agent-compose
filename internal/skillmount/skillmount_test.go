@@ -52,7 +52,7 @@ func writeEligibility(t *testing.T, path string, defaults []string, harnesses ma
 	raw := marshalPlan(t, repositoryplan.Plan{
 		Format: repositoryplan.Format, ProjectsRoot: filepath.Dir(path),
 		Inputs: testInputs("test/policy"),
-		Roles:  map[string][]repositoryplan.Selection{"ops": selections}, Residency: selections,
+		Roles:  map[string][]repositoryplan.Selection{"sysadmin": selections}, Residency: selections,
 	})
 	if err := os.WriteFile(path, raw, 0o644); err != nil {
 		t.Fatal(err)
@@ -70,7 +70,7 @@ func TestRepositoryPlanRoleProviderOrderingAndStrictLoading(t *testing.T) {
 		Format: repositoryplan.Format, ProjectsRoot: dir,
 		Inputs: testInputs("example/aosk"),
 		Roles: map[string][]repositoryplan.Selection{
-			"ops": {
+			"sysadmin": {
 				{Identity: "example/default", Path: defaultProvider, Source: "example/aosk", Scope: "operating-context", Reason: "test"},
 				{Identity: "example/harness", Path: harnessProvider, Source: "example/aosk", Scope: "global", Reason: "test"},
 				{Identity: "example/role-one", Path: roleOne, Source: "example/aosk", Scope: "provider", Reason: "test", Required: true, Skills: []string{"compute-stack", "machine-*"}, Name: "hardware", DeclaredBy: "example/aosk"},
@@ -89,7 +89,7 @@ func TestRepositoryPlanRoleProviderOrderingAndStrictLoading(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	providers := manifest.Roles["ops"]
+	providers := manifest.Roles["sysadmin"]
 	want := []string{defaultProvider, harnessProvider, roleOne, roleTwo}
 	if len(providers) != len(want) {
 		t.Fatalf("providers = %+v, want %v", providers, want)

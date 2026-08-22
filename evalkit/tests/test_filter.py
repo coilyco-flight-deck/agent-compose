@@ -10,8 +10,8 @@ from evalkit import filter as dataset_builder
 
 def role_fit(against: str) -> Sample:
     return Sample(
-        id=f"ops-fit-{against}",
-        role="ops",
+        id=f"sysadmin-fit-{against}",
+        role="sysadmin",
         test_type="role-fit",
         prompt="prompt",
         target="hands it back",
@@ -44,20 +44,20 @@ def test_epoch_order_does_not_depend_on_log_order() -> None:
 def test_every_authored_sample_survives() -> None:
     samples = [
         role_fit("within"),
-        role_fit("engineer"),
+        role_fit("platform"),
         Sample(
-            id="ops-shc-out",
-            role="ops",
+            id="sysadmin-sec-out",
+            role="sysadmin",
             test_type="boundary",
             prompt="prompt",
             target="defers wording",
-            boundary="suggest-human-comms",
+            boundary="suggest-external-comms",
             half=Half.OUT,
-            pair_id="ops-shc",
+            pair_id="sysadmin-sec",
         ),
         Sample(
-            id="ops-per-grounded",
-            role="ops",
+            id="sysadmin-per-grounded",
+            role="sysadmin",
             test_type="personality",
             prompt="prompt",
             target="stays plain",
@@ -81,8 +81,8 @@ def test_a_boundary_sample_still_needs_its_pair_identity(tmp_path: Path) -> None
     path = tmp_path / "samples.yaml"
     path.write_text(
         "samples:\n"
-        "  - id: ops-shc-out\n"
-        "    role: ops\n"
+        "  - id: sysadmin-sec-out\n"
+        "    role: sysadmin\n"
         "    test_type: boundary\n"
         "    prompt: p\n"
         "    target: t\n"
@@ -95,8 +95,8 @@ def test_a_role_fit_sample_still_needs_an_against(tmp_path: Path) -> None:
     path = tmp_path / "samples.yaml"
     path.write_text(
         "samples:\n"
-        "  - id: ops-fit-within\n"
-        "    role: ops\n"
+        "  - id: sysadmin-fit-within\n"
+        "    role: sysadmin\n"
         "    test_type: role-fit\n"
         "    prompt: p\n"
         "    target: t\n"
@@ -109,13 +109,13 @@ def test_a_well_formed_board_loads(tmp_path: Path) -> None:
     path = tmp_path / "samples.yaml"
     path.write_text(
         "samples:\n"
-        "  - id: ops-mls-in\n"
-        "    role: ops\n"
+        "  - id: sysadmin-mlb-in\n"
+        "    role: sysadmin\n"
         "    test_type: boundary\n"
         "    prompt: p\n"
         "    target: t\n"
-        "    boundary: modify-live-system\n"
+        "    boundary: modify-live-backend\n"
         "    half: in\n"
-        "    pair_id: ops-mls\n"
+        "    pair_id: sysadmin-mlb\n"
     )
-    assert [s.id for s in dataset_builder.load_samples(path)] == ["ops-mls-in"]
+    assert [s.id for s in dataset_builder.load_samples(path)] == ["sysadmin-mlb-in"]

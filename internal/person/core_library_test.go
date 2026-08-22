@@ -19,7 +19,7 @@ func coreBindingProfile(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rebound := strings.Replace(string(raw), `personality "local-guide"`, `personality "meticulous"`, 1)
+	rebound := strings.Replace(string(raw), `personality "local-guide"`, `personality "grounded"`, 1)
 	if rebound == string(raw) {
 		t.Fatal("example profile no longer binds local-guide, so the fixture needs updating")
 	}
@@ -34,7 +34,7 @@ func TestExternalProfileBindsCorePersonalitiesWithoutVendoring(t *testing.T) {
 	library := filepath.Join("..", "..", "examples", "shared-personality-library")
 
 	if _, err := LoadDirectoryWithLibraries(profile, library); err == nil ||
-		!strings.Contains(err.Error(), `personality "meticulous" has no catalog binding`) {
+		!strings.Contains(err.Error(), `personality "grounded" has no catalog binding`) {
 		t.Fatalf("unreferenced core personality must fail, got %v", err)
 	}
 
@@ -42,20 +42,20 @@ func TestExternalProfileBindsCorePersonalitiesWithoutVendoring(t *testing.T) {
 	if err != nil {
 		t.Fatalf("core personality reference rejected: %v", err)
 	}
-	binding, bound := p.Personalities["meticulous"]
-	if !bound || binding.Skill != "personality-meticulous" {
-		t.Fatalf("meticulous did not merge: %+v", p.Personalities)
+	binding, bound := p.Personalities["grounded"]
+	if !bound || binding.Skill != "personality-grounded" {
+		t.Fatalf("grounded did not merge: %+v", p.Personalities)
 	}
-	if p.PersonalityLibraries["meticulous"] != CoreLibraryRoot {
-		t.Fatalf("provenance = %q, want %q", p.PersonalityLibraries["meticulous"], CoreLibraryRoot)
+	if p.PersonalityLibraries["grounded"] != CoreLibraryRoot {
+		t.Fatalf("provenance = %q, want %q", p.PersonalityLibraries["grounded"], CoreLibraryRoot)
 	}
 
 	// The body is the whole point: it must arrive from the binary, byte for byte.
-	got, err := fs.ReadFile(p.source, "definitions/skills/personality-meticulous/SKILL.md")
+	got, err := fs.ReadFile(p.source, "definitions/skills/personality-grounded/SKILL.md")
 	if err != nil {
 		t.Fatalf("core personality body is absent: %v", err)
 	}
-	want, err := fs.ReadFile(embedded, "data/personality-meticulous/SKILL.md")
+	want, err := fs.ReadFile(embedded, "data/personality-grounded/SKILL.md")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestCoreLibraryCrossesPersonalitiesOnly(t *testing.T) {
 	if p.Name != "example" || p.ProviderID() != "person:example" {
 		t.Fatalf("core admission changed package identity: %q %q", p.Name, p.ProviderID())
 	}
-	for _, role := range []string{"engineer", "ai", "ops", "director"} {
+	for _, role := range []string{"platform", "eval", "sysadmin", "director"} {
 		if _, inherited := p.Roles[role]; inherited {
 			t.Fatalf("core admission leaked role %q", role)
 		}

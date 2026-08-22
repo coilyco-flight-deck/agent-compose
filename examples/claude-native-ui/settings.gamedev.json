@@ -1,0 +1,33 @@
+{
+  "theme": "custom:aos-gamedev",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Inhabiting",
+      "Entering",
+      "Submerging",
+      "Dwelling",
+      "Occupying",
+      "Sounding",
+      "Refracting",
+      "Kaleidoscoping",
+      "Conjuring",
+      "Dreaming",
+      "Envisaging",
+      "Blooming"
+    ]
+  },
+  "spinnerTipsEnabled": true,
+  "spinnerTipsOverride": {
+    "excludeDefault": false,
+    "tips": [
+      "Ship playable games: the code, the assets, and the build that carries both.",
+      "Gale holds the Game Developer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Boundary: immersed, imaginative."
+    ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "acompose statusline --subagent --color"
+  }
+}

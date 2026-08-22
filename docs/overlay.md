@@ -12,7 +12,7 @@ Supply a role, harness seat, and renderer state:
 ```sh
 agent-compose overlay \
   --person-source ./person \
-  --role engineer \
+  --role platform \
   --seat codex \
   --expression acting
 ```
@@ -42,7 +42,7 @@ source.
 session, so a window title, a status row, and a launch flag never drift apart:
 
 ```text
-Angie [she] (Engineer)
+Angie [she] (Developer Platform Engineer)
 ```
 
 Agent Compose owns the shape. A renderer that has the document shows the field

@@ -126,11 +126,11 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := p.RenderRoleTranscript("engineer", "#90a66a", RoleTranscriptOptions{})
+	got, err := p.RenderRoleTranscript("platform", "#90a66a", RoleTranscriptOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	role := p.Roles["engineer"]
+	role := p.Roles["platform"]
 	personalityMetadata := strings.Index(got, "personality metadata")
 	rendererExpressions := strings.Index(got, "renderer expressions:")
 	roleMetadata := strings.Index(got, "role metadata")
@@ -142,7 +142,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	for _, want := range []string{
 		"role metadata",
 		"roster: core // provided by: roster:core",
-		"role: engineer",
+		"role: platform",
 		"purpose: " + role.Purpose,
 		"agent identity: " + role.Identity.Name + " // pronouns: " + role.Identity.Pronouns,
 		"personalities: " + strings.Join(role.Personalities, " // "),
@@ -205,9 +205,9 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	role := p.Roles["engineer"]
+	role := p.Roles["platform"]
 	favoriteColor := role.FavoriteColor
-	trueColor, err := p.RenderRoleTranscript("engineer", favoriteColor, RoleTranscriptOptions{
+	trueColor, err := p.RenderRoleTranscript("platform", favoriteColor, RoleTranscriptOptions{
 		Color: true, TrueColor: true,
 	})
 	if err != nil {
@@ -226,7 +226,7 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 			t.Errorf("truecolor transcript missing %q:\n%q", want, trueColor)
 		}
 	}
-	fallback, err := p.RenderRoleTranscript("engineer", favoriteColor, RoleTranscriptOptions{
+	fallback, err := p.RenderRoleTranscript("platform", favoriteColor, RoleTranscriptOptions{
 		Color: true,
 	})
 	if err != nil {

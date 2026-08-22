@@ -38,8 +38,8 @@ func TestComposeAllFixtures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantPersonalities := p.Roles["engineer"].Personalities
-	wantColor := p.Roles["engineer"].FavoriteColor
+	wantPersonalities := p.Roles["platform"].Personalities
+	wantColor := p.Roles["platform"].FavoriteColor
 	cases := map[string]string{
 		"native.kdl":   "native-skills",
 		"compiled.kdl": "compiled",
@@ -52,7 +52,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			m := readManifest(t, result.Bundle.Dir)
-			if m.Format != "agent-compose.bundle" || m.Role != "engineer" ||
+			if m.Format != "agent-compose.bundle" || m.Role != "platform" ||
 				m.ModelTier != schema.ModelTierFrontier ||
 				!slices.Equal(m.Personalities, wantPersonalities) ||
 				m.Delivery.Mode != want {
@@ -74,27 +74,27 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			instructionText := string(instructions)
-			wantCard, err := p.RenderRoleIdentityCard("engineer", wantColor, p.RoleActiveBoundaries("engineer"))
+			wantCard, err := p.RenderRoleIdentityCard("platform", wantColor, p.RoleActiveBoundaries("platform"))
 			if err != nil {
 				t.Fatal(err)
 			}
 			for _, selected := range []string{
 				"# Role instructions",
-				"Agent-compose assigned you the `engineer` role from the caller's compose request.",
+				"Agent-compose assigned you the `platform` role from the caller's compose request.",
 				"Treat it as authoritative and fixed for this session.",
 				wantCard,
-				"**Role skill // `role-engineer`**",
+				"**Role skill // `role-platform`**",
 				"# Fixture foundation",
 			} {
 				if !strings.Contains(instructionText, selected) {
 					t.Fatalf("instructions missing %q:\n%s", selected, instructionText)
 				}
 			}
-			if strings.Contains(instructionText, p.Roles["engineer"].Briefing) {
+			if strings.Contains(instructionText, p.Roles["platform"].Briefing) {
 				t.Fatalf("native startup instructions eagerly embedded the role skill body:\n%s", instructionText)
 			}
 			for _, roleName := range p.RoleOrder {
-				if roleName == "engineer" {
+				if roleName == "platform" {
 					continue
 				}
 				if strings.Contains(instructionText, p.Roles[roleName].Briefing) {
@@ -102,7 +102,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				}
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
-			mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/role-engineer/SKILL.md")
+			mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/role-platform/SKILL.md")
 			for _, personalityName := range wantPersonalities {
 				skillPath := "content/skills/roster%3Acore/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
@@ -116,7 +116,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if !strings.Contains(string(compiled), p.Roles["engineer"].Briefing) ||
+				if !strings.Contains(string(compiled), p.Roles["platform"].Briefing) ||
 					!strings.Contains(string(compiled), wantCard) {
 					t.Fatalf("compiled context omitted role card or skill body:\n%s", compiled)
 				}
@@ -129,12 +129,12 @@ func TestComposeAllFixtures(t *testing.T) {
 	}
 }
 
-func TestAIRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
+func TestEvalRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 	for _, delivery := range []string{schema.DeliveryNativeSkills, schema.DeliveryCompiled} {
 		t.Run(delivery, func(t *testing.T) {
 			result, err := RunRoots(
 				&schema.Request{
-					Role:      "ai",
+					Role:      "eval",
 					ModelTier: schema.ModelTierFrontier,
 					Delivery:  delivery,
 				},
@@ -145,7 +145,7 @@ func TestAIRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, boundary := range []string{"boundary-modify-live-system", "boundary-seek-external-validation"} {
+			for _, boundary := range []string{"boundary-modify-live-backend", "boundary-seek-external-validation"} {
 				mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/"+boundary+"/SKILL.md")
 			}
 			if delivery == schema.DeliveryCompiled {
@@ -153,9 +153,9 @@ func TestAIRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				for _, heading := range []string{"# Boundary: modify live system", "# Boundary: seek external validation"} {
+				for _, heading := range []string{"# Boundary: modify live backend", "# Boundary: seek external validation"} {
 					if !strings.Contains(string(raw), heading) {
-						t.Errorf("compiled AI context omitted %q", heading)
+						t.Errorf("compiled eval context omitted %q", heading)
 					}
 				}
 			}
@@ -259,10 +259,10 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		}
 	}
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "engineer" {
+    role "platform" {
         composed-skill "coding-shape-cli"
     }
-    role "design" {
+    role "frontend" {
         composed-skill "design-system"
     }
 }
@@ -271,7 +271,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	}
 	request := filepath.Join(root, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
-    role "engineer"
+    role "platform"
     delivery "native-skills"
     source "aos-public" root="." required=#true
 }
@@ -284,7 +284,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		t.Fatal(err)
 	}
 	manifest := readManifest(t, result.Bundle.Dir)
-	if len(manifest.Personalities) != len(p.Roles["engineer"].Personalities) {
+	if len(manifest.Personalities) != len(p.Roles["platform"].Personalities) {
 		t.Fatalf("inferred provider selected the wrong personalities: %+v", manifest.Personalities)
 	}
 	instructions, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "content", "instructions.md"))
@@ -295,7 +295,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		t.Fatalf("composition omitted the embedded personality invariant:\n%s", instructions)
 	}
 	for _, rel := range []string{
-		"content/skills/roster%3Acore/personality-curious/SKILL.md",
+		"content/skills/roster%3Acore/personality-tenacious/SKILL.md",
 		"content/skills/aos-public/coding-go/SKILL.md",
 		"content/skills/aos-public/coding-shape-cli/SKILL.md",
 	} {
@@ -332,7 +332,7 @@ func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, personalityName := range p.Roles["engineer"].Personalities {
+	for _, personalityName := range p.Roles["platform"].Personalities {
 		heading := "# " + strings.ToUpper(personalityName[:1]) + personalityName[1:]
 		if !strings.Contains(string(body), heading) {
 			t.Fatalf("compiled prose missing %q:\n%s", heading, body)
@@ -357,7 +357,7 @@ func TestDesignerPageExperienceBoundaryMatchesNativeAndCompiledDelivery(t *testi
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := p.Roles["design"].Briefing
+	want := p.Roles["frontend"].Briefing
 	for _, delivery := range []string{
 		schema.DeliveryNativeSkills,
 		schema.DeliveryCompiled,
@@ -365,7 +365,7 @@ func TestDesignerPageExperienceBoundaryMatchesNativeAndCompiledDelivery(t *testi
 		t.Run(delivery, func(t *testing.T) {
 			result, err := RunRoots(
 				&schema.Request{
-					Role:     "design",
+					Role:     "frontend",
 					Delivery: delivery,
 				},
 				[]RootSource{{ID: "fixture", Root: provider}},
@@ -384,7 +384,7 @@ func TestDesignerPageExperienceBoundaryMatchesNativeAndCompiledDelivery(t *testi
 					"content",
 					"skills",
 					"roster%3Acore",
-					"role-design",
+					"role-frontend",
 					"SKILL.md",
 				)
 			}
@@ -437,7 +437,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 	dir := t.TempDir()
 	request := filepath.Join(dir, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
-    role "ops"
+    role "sysadmin"
     identity name="Echo" pronouns="it"
     delivery "native-skills"
 }`), 0o644); err != nil {
@@ -469,7 +469,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 
 	baseline := filepath.Join(dir, "baseline.kdl")
 	if err := os.WriteFile(baseline, []byte(`compose {
-    role "ops"
+    role "sysadmin"
     delivery "native-skills"
 }`), 0o644); err != nil {
 		t.Fatal(err)
@@ -513,7 +513,7 @@ func TestModelTiersGetDistinctBundlesWithIdenticalContext(t *testing.T) {
 	}
 	out := t.TempDir()
 	frontierRequest := &schema.Request{
-		Role:      "engineer",
+		Role:      "platform",
 		Delivery:  schema.DeliveryNativeSkills,
 		ModelTier: schema.ModelTierFrontier,
 	}

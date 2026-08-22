@@ -11,7 +11,7 @@ Roster:
 
 * canonical role skills, role-bound methods, and shared doctrine boundaries plus role-driven personality meld resolution with host-only
   [native adaptation](docs/native-adaptation.md) for inferred roles and boundaries
-* Content Creator-owned audience research, proof, community continuity,
+* Developer Advocate-owned audience research, proof, community continuity,
   decision support, and communication, with external action separately authorized
 * one selected roster package, with `roster:core` as the zero-config default
 * external person packages that fully replace the default roster
@@ -43,13 +43,14 @@ installs the resulting system across hosts.
 
 ## Core Roster
 
-The opinionated `roster:core` default has Engineer, Director, QA, DevOps
-(`ops`), Designer (`design`), Executive Strategist (`exec`), Content
-Creator (`creator`), and AI Engineer (`ai`). They operate the real
-open-source, platform, community, personal, and gaming portfolio without
-inventing a company or active commercial venture. Content Creator unifies the
-old content, community, outreach, and sales work. Potential contracting and
-SaaS work stays evidence-qualified.
+The opinionated `roster:core` default has seven seats: Developer Platform
+Engineer (`platform`), Systems Administrator (`sysadmin`), Agent Evaluation
+Engineer (`eval`), Frontend Design Engineer (`frontend`), Game Developer
+(`gamedev`), Technical Program Manager (`tpm`), and Developer Advocate
+(`devrel`). They operate the real open-source, platform, community, personal,
+and gaming portfolio without inventing a company or active commercial venture.
+Each seat melds one signature trait with one bond shared with a sibling seat.
+Potential contracting and SaaS work stays evidence-qualified.
 
 Another deployment can select a complete package using the same validated
 layout. The selection is exclusive: an external package contributes its own
@@ -65,8 +66,8 @@ bundles, transactional repo and container-home projection, decision
 inspection, refresh-then-exec, the absorbed AOS cascade, host convergence, and
 package-manager distribution. Trusted roots use `.agents/roles.kdl` for skill-provider repositories, composed skills, and strict [repository policy](docs/repository-plan.md).
 Cascade compiles one availability and residency plan. Verified bundles retain repository provenance for launch consumers. Imported graphs do not recurse. The
-default `roster:core` provider supplies the personality invariant, all 16
-canonical definitions, and AI Engineer's cross-role evaluation methods, so its
+default `roster:core` provider supplies the personality invariant, all ten
+canonical definitions, and the eval seat's cross-role evaluation methods, so its
 host roster convergence needs no external personality source. A configured external person package replaces that provider
 as one unit. Each Core role carries one name and pronoun pair across every
 harness selector. The repository also ships a local personality palette

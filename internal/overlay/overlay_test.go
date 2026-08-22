@@ -14,17 +14,17 @@ func TestBuildProjectsOneCanonicalMember(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "engineer", "codex", "acting")
+	doc, err := Build(p, "platform", "codex", "acting")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if doc.Format != Format || doc.SchemaVersion != SchemaVersion ||
-		doc.Person != p.Name || doc.Role != "engineer" ||
+		doc.Person != p.Name || doc.Role != "platform" ||
 		doc.Seat.Harness != "codex" || doc.Seat.Name == "" ||
 		doc.Expression != "acting" || doc.FavoriteColor == "" {
 		t.Fatalf("overlay identity is incomplete: %+v", doc)
 	}
-	if len(doc.Personalities) != len(p.Roles["engineer"].Personalities) {
+	if len(doc.Personalities) != len(p.Roles["platform"].Personalities) {
 		t.Fatalf("overlay personalities = %d", len(doc.Personalities))
 	}
 	for _, personality := range doc.Personalities {
@@ -42,15 +42,15 @@ func TestBuildComposesTheSeatAnnotation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "engineer", "claude", "acting")
+	doc, err := Build(p, "platform", "claude", "acting")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if doc.RoleDisplayName != "Engineer" {
-		t.Errorf("role display name = %q, want Engineer", doc.RoleDisplayName)
+	if doc.RoleDisplayName != "Developer Platform Engineer" {
+		t.Errorf("role display name = %q, want Developer Platform Engineer", doc.RoleDisplayName)
 	}
-	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Engineer")
-	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Engineer)") {
+	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Developer Platform Engineer")
+	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Developer Platform Engineer)") {
 		t.Errorf("annotation = %q, want %q", doc.Annotation, want)
 	}
 }
@@ -62,7 +62,7 @@ func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "qa", "claude", "acting")
+	doc, err := Build(p, "tpm", "claude", "acting")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
 	if !strings.Contains(wide, label) {
 		t.Errorf("card %q omits seat label %q", wide, label)
 	}
-	if strings.Contains(wide, "(QA)") {
+	if strings.Contains(wide, "(Technical Program Manager)") {
 		t.Errorf("card %q repeats the role label", wide)
 	}
 }
@@ -86,8 +86,8 @@ func TestBuildRejectsUnknownSelectionFacts(t *testing.T) {
 	}
 	for name, selection := range map[string][3]string{
 		"role":       {"missing", "codex", "acting"},
-		"seat":       {"engineer", "missing", "acting"},
-		"expression": {"engineer", "codex", "invented"},
+		"seat":       {"platform", "missing", "acting"},
+		"expression": {"platform", "codex", "invented"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := Build(p, selection[0], selection[1], selection[2]); err == nil {
@@ -102,7 +102,7 @@ func TestRenderTextIsWidthResponsiveAndPlain(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "creator", "codex", "waiting-for-human")
+	doc, err := Build(p, "devrel", "codex", "waiting-for-human")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestMarshalProducesVersionedJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "ops", "claude", "blocked")
+	doc, err := Build(p, "sysadmin", "claude", "blocked")
 	if err != nil {
 		t.Fatal(err)
 	}

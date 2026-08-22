@@ -49,7 +49,7 @@ func TestMarshalProducesDeterministicYAML(t *testing.T) {
 			Policy:   PolicyInput{Path: PolicyPath, SHA256: fixtureDigest},
 		}},
 		Roles: map[string][]Selection{
-			"engineer": {{
+			"platform": {{
 				Identity: "example/context",
 				Path:     context,
 				Source:   "example/aosk",
