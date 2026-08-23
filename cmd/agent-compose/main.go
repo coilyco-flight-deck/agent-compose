@@ -793,11 +793,17 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
-	return execRealWithRole(role, nativeHarnessCommand(harness, args[2:], nativeIdentity{
-		SeatName:     result.SeatName,
-		Settings:     result.HarnessSettings,
-		Introduction: result.Introduction,
-	}))
+	return execReal(
+		nativeHarnessCommand(harness, args[2:], nativeIdentity{
+			SeatName:     result.SeatName,
+			Settings:     result.HarnessSettings,
+			Introduction: result.Introduction,
+		}),
+		append(
+			roleAttributionEnv(role),
+			sessionBundleEnv(result.BundleDir, harness)...,
+		)...,
+	)
 }
 
 func runStatusline(_ context.Context, cmd *cli.Command) error {
@@ -1087,6 +1093,18 @@ func roleAttributionEnv(role string) []string {
 		return nil
 	}
 	return []string{launch.AttributionRoleEnv + "=" + role}
+}
+
+// sessionBundleEnv binds this session to its own composition rather than to
+// whatever projection sits nearest the cwd. See docs/whoami.md.
+func sessionBundleEnv(bundleDir, layout string) []string {
+	if strings.TrimSpace(bundleDir) == "" || strings.TrimSpace(layout) == "" {
+		return nil
+	}
+	return []string{
+		launch.SessionBundleEnv + "=" + bundleDir,
+		launch.SessionLayoutEnv + "=" + layout,
+	}
 }
 
 // execRealWithRole execs the target with the role attributed, if there is one.

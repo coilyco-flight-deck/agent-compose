@@ -4,14 +4,34 @@ What an agent reports about itself, and the short-id scheme behind it.
 
 ## What this session calls itself
 
-`acompose whoami` prints the composed name for the projection at `--target`:
+`acompose whoami` prints the composed name for the calling session:
 
 ```text
 Angie [she] uz86
 ```
 
 Nothing else on stdout, so a shell hook can use it without parsing. Silence
-means no projection applies.
+means no composition applies.
+
+### How the session is resolved
+
+A native launch exports `AGENT_COMPOSE_SESSION_BUNDLE` and
+`AGENT_COMPOSE_SESSION_LAYOUT` into the harness process, naming the bundle it
+composed and the seat selector it projected. `whoami` and the status line read
+that pair first, and both fall back to walking up from the working directory for
+the nearest projection.
+
+The binding exists because a path walk is a filesystem proxy for session
+identity, and the proxy breaks two ordinary ways:
+
+* A native session shadow is a per-session temporary tree with no projection
+  above it, so the walk finds nothing and the answer is empty.
+* The host projection is global rather than per session, so two concurrent roles
+  on one host both resolve to whichever converged last.
+
+An explicit `--target` is an inspection request, so it keeps the walk and reports
+what sits at that path. Both variables travel together: a half-set pair is not a
+binding and the walk still runs.
 
 ### Why it exists
 

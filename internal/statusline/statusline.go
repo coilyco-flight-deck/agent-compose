@@ -21,13 +21,10 @@ type Options struct {
 	TrueColor bool
 }
 
-// Render returns an empty string when no projection applies to the target.
+// Render returns an empty string when no composition applies. It resolves the
+// same way whoami does, so the row and the hook never name one session twice.
 func Render(opts Options) (string, error) {
-	target := strings.TrimSpace(opts.Target)
-	if target == "" {
-		target = "."
-	}
-	projection, _ := project.FindProjection(target)
+	projection := resolveProjection(opts.Target)
 	if projection.Bundle == "" {
 		return "", nil
 	}

@@ -16,6 +16,18 @@ import (
 // shortIDFixture writes the same minimal projection the other tests use, so
 // these assertions differ only by the session id in scope.
 func shortIDFixture(t *testing.T) string {
+	target, _ := shortIDFixtureDirs(t)
+	return target
+}
+
+// shortIDBundleFixture is the same fixture addressed by its bundle, for a test
+// that binds a session instead of walking to a projection.
+func shortIDBundleFixture(t *testing.T) string {
+	_, bundleDir := shortIDFixtureDirs(t)
+	return bundleDir
+}
+
+func shortIDFixtureDirs(t *testing.T) (string, string) {
 	t.Helper()
 	target := t.TempDir()
 	bundleDir := t.TempDir()
@@ -41,7 +53,7 @@ func shortIDFixture(t *testing.T) string {
 			{Source: "aos", Outcome: resolver.OutcomeSelected, Skills: 4, ApproximateTokens: 900},
 		},
 	})
-	return target
+	return target, bundleDir
 }
 
 // The session row names the agent a human would speak to.

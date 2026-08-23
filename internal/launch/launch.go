@@ -18,6 +18,13 @@ const EnvSentinel = "AGENT_COMPOSE_LAUNCH"
 // Per-session: the host projection is global. See coilysiren/inbox#362.
 const AttributionRoleEnv = "AGENT_GIT_ATTRIBUTION_ROLE"
 
+// SessionBundleEnv and SessionLayoutEnv bind a session to the bundle it was
+// launched with, which a path walk cannot do. See docs/whoami.md.
+const (
+	SessionBundleEnv = "AGENT_COMPOSE_SESSION_BUNDLE"
+	SessionLayoutEnv = "AGENT_COMPOSE_SESSION_LAYOUT"
+)
+
 type Options struct {
 	RequestPath  string
 	Layout       string
