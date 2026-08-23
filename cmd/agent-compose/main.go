@@ -540,17 +540,22 @@ func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
 	}
 	var text strings.Builder
 	for _, entry := range entries {
-		fmt.Fprintf(
-			&text,
-			"%s // %s // %s // boundary: %s // color: %s\n",
-			entry.Slug,
-			entry.Skill,
-			entry.Purpose,
-			strings.Join(entry.Personalities, ", "),
-			entry.FavoriteColor,
-		)
+		text.WriteString(catalogRoleLine(entry))
 	}
 	return writeCatalog(entries, cmd.Bool("json"), text.String())
+}
+
+// The label tracks the `personalities` field rather than the meld heading, so
+// this line and `catalog personalities` name the same thing.
+func catalogRoleLine(entry person.RoleCatalogEntry) string {
+	return fmt.Sprintf(
+		"%s // %s // %s // personalities: %s // color: %s\n",
+		entry.Slug,
+		entry.Skill,
+		entry.Purpose,
+		strings.Join(entry.Personalities, ", "),
+		entry.FavoriteColor,
+	)
 }
 
 func runCatalogSeats(_ context.Context, cmd *cli.Command) error {

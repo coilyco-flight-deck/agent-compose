@@ -644,3 +644,21 @@ func TestActivateNativeRuntimeHomePreservesCanonicalCodexState(t *testing.T) {
 		t.Fatalf("HOME = %q, want isolated runtime home %q", got, home)
 	}
 }
+
+func TestCatalogRoleLineLabelsThePersonalityMeld(t *testing.T) {
+	line := catalogRoleLine(person.RoleCatalogEntry{
+		Slug:          "platform",
+		Skill:         "role-platform",
+		Purpose:       "Build and land the foundational software.",
+		Personalities: []string{"tenacious", "grounded"},
+		FavoriteColor: "#9c8b31",
+	})
+	want := "platform // role-platform // Build and land the foundational software. " +
+		"// personalities: tenacious, grounded // color: #9c8b31\n"
+	if line != want {
+		t.Fatalf("catalog role line =\n%q\nwant\n%q", line, want)
+	}
+	if strings.Contains(line, "boundary") {
+		t.Errorf("catalog role line still labels the meld as a boundary: %q", line)
+	}
+}
