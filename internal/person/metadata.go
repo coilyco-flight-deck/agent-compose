@@ -3,6 +3,7 @@ package person
 import (
 	"fmt"
 	"io/fs"
+	"strconv"
 	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
@@ -115,15 +116,73 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 		}
 		out.WriteString("\n")
 	}
-	out.WriteString("## Active doctrine\n\nBefore acting, load:\n\n")
-	fmt.Fprintf(&out, "* `%s`\n", roleSkill)
-	for _, skill := range boundarySkills {
+	named := append([]string{roleSkill}, boundarySkills...)
+	for _, name := range role.Personalities {
+		named = append(named, p.Personalities[name].Skill)
+	}
+	out.WriteString("## Active doctrine\n\n")
+	sizes, total := p.skillBodySizes(roleName, named)
+	// The summaries above read as the whole of it, so the card states what they
+	// compress. See docs/identity.md and the measurement in issue #303.
+	if total > 0 {
+		fmt.Fprintf(
+			&out,
+			"Everything above summarizes %s bytes of doctrine across these %d skills, and a"+
+				" summary is not the operative text. Before acting, load each one:\n\n",
+			thousands(total), len(sizes),
+		)
+	} else {
+		out.WriteString("Before acting, load:\n\n")
+	}
+	for _, skill := range named {
+		if size := sizes[skill]; size > 0 {
+			fmt.Fprintf(&out, "* `%s` - %s bytes\n", skill, thousands(size))
+			continue
+		}
 		fmt.Fprintf(&out, "* `%s`\n", skill)
 	}
-	for _, name := range role.Personalities {
-		fmt.Fprintf(&out, "* `%s`\n", p.Personalities[name].Skill)
-	}
 	return out.String(), nil
+}
+
+// skillBodySizes reports each named skill's own bytes. An external person
+// package may ship no readable source, so a missing size is omitted.
+func (p *Person) skillBodySizes(roleName string, named []string) (map[string]int, int) {
+	sizes := make(map[string]int, len(named))
+	total := 0
+	// The role skill is not under definitions/skills, so it comes from the raw
+	// bytes ingest kept.
+	roleSkill := p.RoleSkillID(roleName)
+	if raw := p.roleSkills[roleName]; len(raw) > 0 {
+		sizes[roleSkill] = len(raw)
+		total += len(raw)
+	}
+	if p.source == nil {
+		return sizes, total
+	}
+	for _, skill := range named {
+		if _, done := sizes[skill]; done {
+			continue
+		}
+		raw, err := fs.ReadFile(p.source, "definitions/skills/"+skill+"/SKILL.md")
+		if err != nil {
+			continue
+		}
+		sizes[skill] = len(raw)
+		total += len(raw)
+	}
+	return sizes, total
+}
+
+func thousands(value int) string {
+	digits := strconv.Itoa(value)
+	var out strings.Builder
+	for index, digit := range digits {
+		if index > 0 && (len(digits)-index)%3 == 0 {
+			out.WriteByte(',')
+		}
+		out.WriteRune(digit)
+	}
+	return out.String()
 }
 
 func displaySlug(value string) string {

@@ -326,3 +326,39 @@ func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 		t.Errorf("expanded transcript (%d) is not longer than terse (%d)", len(expanded), len(terse))
 	}
 }
+
+// The load list read as optional because it was the only section with no
+// content, so it now carries what each summary leaves out. See #303.
+func TestIdentityCardNamesWhatTheLoadListOmits(t *testing.T) {
+	t.Parallel()
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := p.Roles["platform"]
+	got, err := p.RenderRoleIdentityCard("platform", "#90a66a", role.Boundaries)
+	if err != nil {
+		t.Fatal(err)
+	}
+	doctrine := got[strings.Index(got, "## Active doctrine"):]
+	if !strings.Contains(doctrine, "summary is not the operative text") {
+		t.Errorf("doctrine section does not say the summaries are not the doctrine:\n%s", doctrine)
+	}
+	named := append([]string{p.RoleSkillID("platform")}, p.boundarySkillIDs(role.Boundaries)...)
+	for _, name := range role.Personalities {
+		named = append(named, p.Personalities[name].Skill)
+	}
+	sizes, total := p.skillBodySizes("platform", named)
+	if len(sizes) != len(named) {
+		t.Fatalf("sized %d of %d named skills: %v", len(sizes), len(named), sizes)
+	}
+	if !strings.Contains(doctrine, thousands(total)+" bytes of doctrine") {
+		t.Errorf("doctrine section omits the total %d:\n%s", total, doctrine)
+	}
+	for _, skill := range named {
+		want := "`" + skill + "` - " + thousands(sizes[skill]) + " bytes"
+		if !strings.Contains(doctrine, want) {
+			t.Errorf("doctrine section missing %q:\n%s", want, doctrine)
+		}
+	}
+}
