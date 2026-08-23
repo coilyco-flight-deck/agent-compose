@@ -3,7 +3,7 @@
 # full board run rather than during one. Prints the model list and one answer.
 set -e
 base=${AGENT_PROXY_BASE:-http://ser8:8080/v1}
-model=${AGENT_PROXY_MODEL:-evaluation/deepseek-v4-flash}
+model=${AGENT_PROXY_MODEL:-evaluation/deepseek-v4-pro}
 
 echo "proxy: $base"
 curl -sf -m 10 "$base/models" \

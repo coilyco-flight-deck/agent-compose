@@ -21,7 +21,7 @@ because two parsers is the failure the split avoids.
 ## The triple
 
 Three parties, none holding two seats. The **generator** authors candidate cases, an agent working with
-Kai. The **subject** produces responses, `evaluation/deepseek-v4-flash` through Agent Proxy at the
+Kai. The **subject** produces responses, `evaluation/deepseek-v4-pro` through Agent Proxy at the
 `commodity` tier. The **grader** scores them, Kai, by hand.
 
 A role's `model-tier` is a deployment compatibility claim rather than what the board tests, and tier
