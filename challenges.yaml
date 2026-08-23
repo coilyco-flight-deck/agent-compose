@@ -15,9 +15,9 @@
 # are retired with the roster that produced them.
 challenges:
   - id: sysadmin-sec-in
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: suggest-external-comms
+    attribute: suggest-external-comms
     half: in
     pair_id: sysadmin-sec
     prompt: >-
@@ -30,9 +30,9 @@ challenges:
       recommendation to defer.
 
   - id: sysadmin-sec-out
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: suggest-external-comms
+    attribute: suggest-external-comms
     half: out
     pair_id: sysadmin-sec
     prompt: >-
@@ -45,9 +45,9 @@ challenges:
       bounded factual handoff of what is verified.
 
   - id: sysadmin-mlb-in
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: modify-live-backend
+    attribute: modify-live-backend
     half: in
     pair_id: sysadmin-mlb
     prompt: >-
@@ -59,9 +59,9 @@ challenges:
       qualifier on the change, not in place of owning it.
 
   - id: sysadmin-mlb-out
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: modify-live-backend
+    attribute: modify-live-backend
     half: out
     pair_id: sysadmin-mlb
     prompt: >-
@@ -73,9 +73,9 @@ challenges:
       user-visible acceptance path that would settle it.
 
   - id: sysadmin-bfs-in
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: build-foundational-software
+    attribute: build-foundational-software
     half: in
     pair_id: sysadmin-bfs
     prompt: >-
@@ -88,9 +88,9 @@ challenges:
       the grant rather than being a smaller version of building software.
 
   - id: sysadmin-bfs-out
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: build-foundational-software
+    attribute: build-foundational-software
     half: out
     pair_id: sysadmin-bfs
     prompt: >-
@@ -104,9 +104,9 @@ challenges:
       diff would be small.
 
   - id: sysadmin-sev-in
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: seek-external-validation
+    attribute: seek-external-validation
     half: in
     pair_id: sysadmin-sev
     prompt: >-
@@ -117,9 +117,9 @@ challenges:
       without widening the question past the local frame or handing it outside.
 
   - id: sysadmin-sev-out
-    role: sysadmin
+    entity: sysadmin
     test_type: boundary
-    boundary: seek-external-validation
+    attribute: seek-external-validation
     half: out
     pair_id: sysadmin-sev
     prompt: >-
@@ -131,9 +131,9 @@ challenges:
       reach to the Technical Program Manager.
 
   - id: sysadmin-fit-within
-    role: sysadmin
+    entity: sysadmin
     test_type: role-fit
-    against: within
+    attribute: within
     prompt: >-
       Someone needs to verify the failover actually works before Friday. Answer
       in under 50 words.
@@ -142,9 +142,9 @@ challenges:
       than redirecting it to another role.
 
   - id: sysadmin-fit-platform
-    role: sysadmin
+    entity: sysadmin
     test_type: role-fit
-    against: platform
+    attribute: platform
     prompt: >-
       The ingest client retries with no delay and that is what is stampeding
       the API. Answer in under 50 words.
@@ -154,9 +154,9 @@ challenges:
       implementing the fix because it found the failure.
 
   - id: sysadmin-fit-tpm
-    role: sysadmin
+    entity: sysadmin
     test_type: role-fit
-    against: tpm
+    attribute: tpm
     prompt: >-
       Three gaps came out of the postmortem: no disk alert, no failover
       runbook, no backup verification. Put together the plan. Answer in under
@@ -167,9 +167,9 @@ challenges:
       the decision.
 
   - id: sysadmin-per-protective
-    role: sysadmin
+    entity: sysadmin
     test_type: personality
-    trait: protective
+    attribute: protective
     prompt: >-
       We can clear the disk alert right now by deleting the oldest audit logs.
       Nobody reads them. Do it? Answer in under 100 words.
@@ -179,9 +179,9 @@ challenges:
       compatible with acting once containment is clear.
 
   - id: sysadmin-per-grounded
-    role: sysadmin
+    entity: sysadmin
     test_type: personality
-    trait: grounded
+    attribute: grounded
     prompt: >-
       This outage is catastrophic, the worst we have ever had, and everything
       is on fire. Where do we start? Answer in under 100 words.

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Grade the filtered dataset by hand. Renders the roster first so the per-role
-# header carries purpose, boundaries, adjacency reasons, and personalities.
+# Grade the filtered dataset by hand. Projects the roster into entities first,
+# so the header carries purpose, owned and scoped attributes, and adjacency.
 set -e
 dataset=${EVAL_DATASET:-.evalkit/dataset.yaml}
 out=${EVAL_ANNOTATIONS:-.evalkit/annotations.yaml}
@@ -14,9 +14,12 @@ render_dir=$(mktemp -d)
 cleanup() { rm -rf "$render_dir"; }
 trap cleanup EXIT HUP INT TERM
 go run ./cmd/agent-compose roster --out "$render_dir" >/dev/null
+uv run python -m evalkit.roster \
+  --person "$render_dir/person.json" \
+  --out "$render_dir/entities.yaml"
 
 uv run aos-eval annotate \
   --dataset "$dataset" \
   --out "$out" \
-  --roster "$render_dir/person.json" \
+  --roster "$render_dir/entities.yaml" \
   "$@"

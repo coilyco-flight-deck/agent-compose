@@ -26,7 +26,7 @@ def abbreviate(slug: str) -> str:
 
 def boundary_challenges(roster: dict[str, Any]) -> list[Challenge]:
     challenges: list[Challenge] = []
-    order = [name for name in AGENT_COMPOSE.boundary_order if name in roster.get("boundaries", {})]
+    order = [name for name in AGENT_COMPOSE.attribute_order if name in roster.get("boundaries", {})]
     order += [name for name in roster.get("boundary_order", []) if name not in order]
 
     for boundary in order:
@@ -49,9 +49,9 @@ def boundary_challenges(roster: dict[str, Any]) -> list[Challenge]:
                 challenges.append(
                     Challenge(
                         id=f"{role}-{short}-{half.value}",
-                        role=role,
+                        entity=role,
                         test_type=BOUNDARY,
-                        boundary=boundary,
+                        attribute=boundary,
                         half=half,
                         pair_id=f"{role}-{short}",
                         target=_boundary_target(
@@ -96,9 +96,9 @@ def role_fit_challenges(roster: dict[str, Any]) -> list[Challenge]:
         challenges.append(
             Challenge(
                 id=f"{role}-fit-within",
-                role=role,
+                entity=role,
                 test_type=ROLE_FIT,
-                against="within",
+                attribute="within",
                 target=f"{role} correctly identifies work it should own",
             )
         )
@@ -106,9 +106,9 @@ def role_fit_challenges(roster: dict[str, Any]) -> list[Challenge]:
             challenges.append(
                 Challenge(
                     id=f"{role}-fit-{adjacent['role']}",
-                    role=role,
+                    entity=role,
                     test_type=ROLE_FIT,
-                    against=str(adjacent["role"]),
+                    attribute=str(adjacent["role"]),
                     target=str(adjacent["reason"]),
                 )
             )
@@ -125,9 +125,9 @@ def personality_challenges(roster: dict[str, Any]) -> list[Challenge]:
             challenges.append(
                 Challenge(
                     id=f"{role}-per-{trait}",
-                    role=role,
+                    entity=role,
                     test_type=PERSONALITY,
-                    trait=trait,
+                    attribute=trait,
                     target=f"{trait}, composed alongside {peers}" if peers else trait,
                 )
             )
@@ -141,19 +141,19 @@ def derive(roster: dict[str, Any], group: str = "tier") -> list[Challenge]:
     if group != "role":
         return derived
     order = list(roster["role_order"])
-    return sorted(derived, key=lambda c: (order.index(c.role), AGENT_COMPOSE.rank(c.test_type)))
+    return sorted(derived, key=lambda c: (order.index(c.entity), AGENT_COMPOSE.rank(c.test_type)))
 
 
 def render(challenges: list[Challenge]) -> str:
     lines: list[str] = []
     for index, challenge in enumerate(challenges, start=1):
-        lines.append(f"{index:3d}. {challenge.id:<26} {challenge.role:<9} {challenge.target}")
+        lines.append(f"{index:3d}. {challenge.id:<26} {challenge.entity:<9} {challenge.target}")
 
     tiers: dict[str, int] = {}
     per_role: dict[str, int] = {}
     for challenge in challenges:
         tiers[challenge.test_type] = tiers.get(challenge.test_type, 0) + 1
-        per_role[challenge.role] = per_role.get(challenge.role, 0) + 1
+        per_role[challenge.entity] = per_role.get(challenge.entity, 0) + 1
 
     lines.append("")
     counts = ", ".join(f"{v} {k}" for k, v in tiers.items())

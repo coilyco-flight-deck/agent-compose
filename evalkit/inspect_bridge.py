@@ -15,13 +15,11 @@ from inspect_ai.dataset import Sample as InspectSample
 # Inspect's Sample carries only input, target, id, and metadata, so every
 # domain field rides in metadata.
 METADATA_FIELDS = (
-    "role",
+    "entity",
     "test_type",
-    "boundary",
+    "attribute",
     "half",
     "pair_id",
-    "against",
-    "trait",
 )
 
 

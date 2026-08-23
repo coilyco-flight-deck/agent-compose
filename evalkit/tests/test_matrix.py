@@ -90,7 +90,7 @@ def test_the_owner_gets_a_pair_alongside_every_deferring_role() -> None:
 
 def test_a_role_declaring_no_boundary_still_owns_one_as_its_owner() -> None:
     devrel = {
-        c.id: c.target for c in derive(ROSTER) if c.role == "devrel" and c.test_type == BOUNDARY
+        c.id: c.target for c in derive(ROSTER) if c.entity == "devrel" and c.test_type == BOUNDARY
     }
     assert devrel["devrel-sec-in"] == 'owns "recommends communication"'
     assert devrel["devrel-sec-out"] == 'owns "recommends communication", claims nothing past it'
@@ -125,7 +125,7 @@ def test_adjacency_reasons_become_the_challenge_targets() -> None:
 
 def test_personality_is_one_challenge_per_trait_with_no_composed_one() -> None:
     personality = [c for c in derive(ROSTER) if c.test_type == PERSONALITY]
-    platform = [c.id for c in personality if c.role == "platform"]
+    platform = [c.id for c in personality if c.entity == "platform"]
     assert platform == ["platform-per-tenacious", "platform-per-grounded"]
 
 
@@ -191,25 +191,54 @@ def test_every_derived_challenge_carries_a_target_and_none_is_written_yet() -> N
     assert sum(1 for c in derived if c.test_type == BOUNDARY) == 6
 
 
-BOARD = Path(__file__).resolve().parents[2] / "evaluations" / "reflow-v3" / "boundaries.yaml"
+BOARD = Path(__file__).resolve().parents[2] / "evaluations" / "reflow-v3" / "attributes.yaml"
 
 
 def _board() -> list[dict[str, Any]]:
-    entries: list[dict[str, Any]] = yaml.safe_load(BOARD.read_text())["boundaries"]
+    entries: list[dict[str, Any]] = yaml.safe_load(BOARD.read_text())["attributes"]
     return entries
 
 
 def test_every_declared_pair_is_named_the_way_the_matrix_derives_it() -> None:
     for entry in _board():
         origin = str(entry["origin"]).removeprefix("boundary-")
-        assert entry["id"] == f"{entry['role']}-{abbreviate(origin)}"
+        assert entry["id"] == f"{entry['entity']}-{abbreviate(origin)}"
 
 
-def test_the_board_declares_six_non_owner_seats_for_each_of_four_boundaries() -> None:
+def test_the_board_declares_six_non_owner_seats_for_each_of_four_attributes() -> None:
     board = _board()
     per_origin: dict[str, set[str]] = {}
     for entry in board:
-        per_origin.setdefault(str(entry["origin"]), set()).add(str(entry["role"]))
+        per_origin.setdefault(str(entry["origin"]), set()).add(str(entry["entity"]))
     assert len(board) == 24
     assert len(per_origin) == 4
     assert all(len(roles) == 6 for roles in per_origin.values())
+
+
+def test_the_entity_roster_projection_spells_this_deployment_s_words() -> None:
+    from evalkit.roster import to_entity_roster
+
+    person = {
+        "role_order": ["platform"],
+        "boundaries": {"build-foundational-software": {"owner": "platform"}},
+        "roles": {
+            "platform": {
+                "display_name": "Developer Platform Engineer",
+                "purpose": "Build it.",
+                "boundaries": ["suggest-external-comms"],
+                "scoped_boundaries": [{"name": "modify-live-backend", "scope": "local only"}],
+                "personalities": ["tenacious", "grounded"],
+                "adjacents": [{"role": "sysadmin", "reason": "operating what it built"}],
+            }
+        },
+    }
+    projected = to_entity_roster(person)
+    assert projected["entity_order"] == ["platform"]
+    notes = projected["entities"]["platform"]["notes"]
+    assert notes == [
+        "owns: build-foundational-software",
+        "scoped modify-live-backend: local only",
+        "defers: suggest-external-comms",
+        "traits: tenacious, grounded",
+        "adjacent sysadmin: operating what it built",
+    ]

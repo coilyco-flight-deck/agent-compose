@@ -11,11 +11,11 @@ from evalkit import filter as dataset_builder
 def role_fit(against: str) -> Challenge:
     return Challenge(
         id=f"sysadmin-fit-{against}",
-        role="sysadmin",
+        entity="sysadmin",
         test_type="role-fit",
         prompt="prompt",
         target="hands it back",
-        against=against,
+        attribute=against,
     )
 
 
@@ -47,21 +47,21 @@ def test_every_authored_sample_survives() -> None:
         role_fit("platform"),
         Challenge(
             id="sysadmin-sec-out",
-            role="sysadmin",
+            entity="sysadmin",
             test_type="boundary",
             prompt="prompt",
             target="defers wording",
-            boundary="suggest-external-comms",
+            attribute="suggest-external-comms",
             half=Half.OUT,
             pair_id="sysadmin-sec",
         ),
         Challenge(
             id="sysadmin-per-grounded",
-            role="sysadmin",
+            entity="sysadmin",
             test_type="personality",
             prompt="prompt",
             target="stays plain",
-            trait="grounded",
+            attribute="grounded",
         ),
     ]
     runs = [r for sample in samples for r in responses(sample)]
@@ -82,7 +82,7 @@ def test_a_boundary_challenge_still_needs_its_pair_identity(tmp_path: Path) -> N
     path.write_text(
         "challenges:\n"
         "  - id: sysadmin-sec-out\n"
-        "    role: sysadmin\n"
+        "    entity: sysadmin\n"
         "    test_type: boundary\n"
         "    prompt: p\n"
         "    target: t\n"
@@ -91,17 +91,17 @@ def test_a_boundary_challenge_still_needs_its_pair_identity(tmp_path: Path) -> N
         dataset_builder.load_challenges(path)
 
 
-def test_a_role_fit_sample_still_needs_an_against(tmp_path: Path) -> None:
+def test_a_role_fit_challenge_still_needs_its_attribute(tmp_path: Path) -> None:
     path = tmp_path / "challenges.yaml"
     path.write_text(
         "challenges:\n"
         "  - id: sysadmin-fit-within\n"
-        "    role: sysadmin\n"
+        "    entity: sysadmin\n"
         "    test_type: role-fit\n"
         "    prompt: p\n"
         "    target: t\n"
     )
-    with pytest.raises(ValueError, match="needs against"):
+    with pytest.raises(ValueError, match="role-fit challenge needs attribute"):
         dataset_builder.load_challenges(path)
 
 
@@ -110,11 +110,11 @@ def test_a_well_formed_board_loads(tmp_path: Path) -> None:
     path.write_text(
         "challenges:\n"
         "  - id: sysadmin-mlb-in\n"
-        "    role: sysadmin\n"
+        "    entity: sysadmin\n"
         "    test_type: boundary\n"
         "    prompt: p\n"
         "    target: t\n"
-        "    boundary: modify-live-backend\n"
+        "    attribute: modify-live-backend\n"
         "    half: in\n"
         "    pair_id: sysadmin-mlb\n"
     )

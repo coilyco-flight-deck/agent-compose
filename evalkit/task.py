@@ -36,7 +36,7 @@ def board(
     written = load_challenges(Path(challenges))
     composed = load_system_prompts(Path(prompts))
 
-    missing = sorted({c.role for c in written} - composed.keys())
+    missing = sorted({c.entity for c in written} - composed.keys())
     if missing:
         raise ValueError(f"no composed system prompt for: {', '.join(missing)}")
 
@@ -46,7 +46,7 @@ def board(
     for challenge in written:
         inspect_sample = to_inspect(challenge)
         inspect_sample.metadata = dict(inspect_sample.metadata or {})
-        inspect_sample.metadata["system_prompt"] = composed[challenge.role]
+        inspect_sample.metadata["system_prompt"] = composed[challenge.entity]
         entries.append(inspect_sample)
 
     return Task(
