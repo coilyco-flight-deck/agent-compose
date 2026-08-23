@@ -173,6 +173,9 @@ func skillDescription(raw []byte) (string, error) {
 type RoleTranscriptOptions struct {
 	Color     bool
 	TrueColor bool
+	// Expanded adds the identity texture defined in docs/identity.md: emblem,
+	// motif, form, sound mark, and expressions. Off by default.
+	Expanded bool
 }
 
 // RenderRoleMetadata returns complete selected identity facts for each bundle.
@@ -310,7 +313,18 @@ func (p *Person) RenderRoleTranscript(
 		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
 	}
 
+	if !opts.Expanded {
+		writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
+		return out.String(), nil
+	}
+
 	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)
+	width := 0
+	for _, name := range role.Personalities {
+		if len(name) > width {
+			width = len(name)
+		}
+	}
 	for index, name := range role.Personalities {
 		binding, exists := p.Personalities[name]
 		if !exists {
@@ -319,25 +333,11 @@ func (p *Person) RenderRoleTranscript(
 		if index > 0 {
 			out.WriteByte('\n')
 		}
-		var personalityBlock strings.Builder
-		fmt.Fprintf(&personalityBlock, "personality: %s\n", name)
-		fmt.Fprintf(&personalityBlock, "skill: %s\n", binding.Skill)
-		fmt.Fprintf(&personalityBlock, "color: %s\n", binding.Color)
-		fmt.Fprintf(&personalityBlock, "motif: %s\n", binding.Motif)
-		fmt.Fprintf(&personalityBlock, "emblem: %s // emoji: %s // glyph: %s\n",
-			binding.Emblem.Name, binding.Emblem.Emoji, binding.Emblem.Glyph)
-		fmt.Fprintf(&personalityBlock, "form: silhouette %s // geometry %s // motion %s\n",
-			binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
-		fmt.Fprintf(&personalityBlock, "sound mark: timbre %s // contour %s // pulse %s\n",
-			binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
-		if binding.Inspiration.ID != "" {
-			credit, exists := p.Inspirations[binding.Inspiration.ID]
-			if !exists {
-				return "", fmt.Errorf("render role transcript: inspiration %q is not defined", binding.Inspiration.ID)
-			}
-			writeTranscriptInspiration(&personalityBlock, "inspiration", binding.Inspiration, credit)
+		block, err := p.personalityTexture(name, binding, width)
+		if err != nil {
+			return "", err
 		}
-		writeTranscriptSection(&out, binding.Color, personalityBlock.String(), opts)
+		writeTranscriptSection(&out, binding.Color, block, opts)
 	}
 
 	expressions := fmt.Sprintf(
@@ -348,6 +348,32 @@ func (p *Person) RenderRoleTranscript(
 	writeTranscriptSection(&out, meldedColor, expressions, opts)
 	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
+	return out.String(), nil
+}
+
+// personalityTexture repeats the key on the left of every line, so one
+// personality greps out of the block.
+func (p *Person) personalityTexture(name string, binding Personality, width int) (string, error) {
+	var out strings.Builder
+	key := fmt.Sprintf("personality: %-*s", width, name)
+	fmt.Fprintf(&out, "%s // %s %s %s // %s // %s\n",
+		key, binding.Emblem.Emoji, binding.Emblem.Name, binding.Emblem.Glyph,
+		binding.Motif, binding.Color)
+	// Silhouette stays: it equals emblem.name on five of the ten personalities
+	// and diverges on the other five, so it is not a denormalized copy.
+	fmt.Fprintf(&out, "%s // form: %s, %s, %s\n",
+		key, binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
+	fmt.Fprintf(&out, "%s // sound: %s, %s, %s\n",
+		key, binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
+	fmt.Fprintf(&out, "%s // skill: %s\n", key, binding.Skill)
+	if binding.Inspiration.ID != "" {
+		credit, exists := p.Inspirations[binding.Inspiration.ID]
+		if !exists {
+			return "", fmt.Errorf(
+				"render role transcript: inspiration %q is not defined", binding.Inspiration.ID)
+		}
+		writeTranscriptInspiration(&out, key+" // inspiration", binding.Inspiration, credit)
+	}
 	return out.String(), nil
 }
 

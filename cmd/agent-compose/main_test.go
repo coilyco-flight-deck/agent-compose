@@ -239,7 +239,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		" // pronouns: " + p.Roles["platform"].Identity.Pronouns
 
 	var output strings.Builder
-	if err := printSummary(&output, result, person.RoleTranscriptOptions{}); err != nil {
+	if err := printSummary(&output, result, person.RoleTranscriptOptions{Expanded: true}); err != nil {
 		t.Fatal(err)
 	}
 	got := output.String()
@@ -450,7 +450,7 @@ func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
 	if err := printNativeLaunchSummary(
 		&output,
 		result,
-		person.RoleTranscriptOptions{},
+		person.RoleTranscriptOptions{Expanded: true},
 		true,
 	); err != nil {
 		t.Fatal(err)

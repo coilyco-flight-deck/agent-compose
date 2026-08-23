@@ -104,7 +104,7 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "explain",
-						Usage: "print the full decision tree after the summary",
+						Usage: "add the identity texture and the full decision tree to the summary",
 					},
 					&cli.BoolFlag{
 						Name:  "reapply",
@@ -675,6 +675,7 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 	summaryOpts := person.RoleTranscriptOptions{
 		Color:     colorEnabled(),
 		TrueColor: trueColorTerminal(),
+		Expanded:  cmd.Bool("explain"),
 	}
 	if err := printSummary(os.Stdout, result, summaryOpts); err != nil {
 		return err

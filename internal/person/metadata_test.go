@@ -126,7 +126,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := p.RenderRoleTranscript("platform", "#90a66a", RoleTranscriptOptions{})
+	got, err := p.RenderRoleTranscript("platform", "#90a66a", RoleTranscriptOptions{Expanded: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,13 +165,13 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	for _, name := range role.Personalities {
 		binding := p.Personalities[name]
 		for _, want := range []string{
-			"personality: " + name,
-			"skill: " + binding.Skill,
-			"color: " + binding.Color,
-			"motif: " + binding.Motif,
-			"emblem: " + binding.Emblem.Name,
-			"form: silhouette " + binding.Form.Silhouette,
-			"sound mark: timbre " + binding.SoundMark.Timbre,
+			binding.Emblem.Emoji + " " + binding.Emblem.Name + " " + binding.Emblem.Glyph +
+				" // " + binding.Motif + " // " + binding.Color,
+			"// form: " + binding.Form.Silhouette + ", " + binding.Form.Geometry +
+				", " + binding.Form.Motion,
+			"// sound: " + binding.SoundMark.Timbre + ", " + binding.SoundMark.Contour +
+				", " + binding.SoundMark.Pulse,
+			"// skill: " + binding.Skill,
 		} {
 			if !strings.Contains(got, want) {
 				t.Errorf("transcript missing personality field %q:\n%s", want, got)
@@ -208,7 +208,7 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 	role := p.Roles["platform"]
 	favoriteColor := role.FavoriteColor
 	trueColor, err := p.RenderRoleTranscript("platform", favoriteColor, RoleTranscriptOptions{
-		Color: true, TrueColor: true,
+		Color: true, TrueColor: true, Expanded: true,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -227,7 +227,7 @@ func TestRenderRoleTranscriptUsesCanonicalColors(t *testing.T) {
 		}
 	}
 	fallback, err := p.RenderRoleTranscript("platform", favoriteColor, RoleTranscriptOptions{
-		Color: true,
+		Color: true, Expanded: true,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -282,5 +282,47 @@ func fixtureInspiration(name, impactMode, title string) Inspiration {
 			Summary:   "long appearance summary stays out",
 			Citations: []string{"appearance-citation-stays-out"},
 		},
+	}
+}
+
+// The default is what a consumer reads on every launch, so the identity texture
+// rides --explain and the meld is still named by the role block. See #323.
+func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
+	t.Parallel()
+	p, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	terse, err := p.RenderRoleTranscript("platform", "#90a66a", RoleTranscriptOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := p.Roles["platform"]
+	for _, unwanted := range []string{
+		"personality metadata",
+		"renderer expressions:",
+		p.Personalities[role.Personalities[0]].Motif,
+		p.Personalities[role.Personalities[0]].Emblem.Name,
+		p.Personalities[role.Personalities[0]].SoundMark.Timbre,
+	} {
+		if strings.Contains(terse, unwanted) {
+			t.Errorf("terse transcript still carries %q:\n%s", unwanted, terse)
+		}
+	}
+	for _, want := range []string{
+		"role metadata",
+		"role: platform",
+		"personalities: " + strings.Join(role.Personalities, " // "),
+	} {
+		if !strings.Contains(terse, want) {
+			t.Errorf("terse transcript missing %q:\n%s", want, terse)
+		}
+	}
+	expanded, err := p.RenderRoleTranscript("platform", "#90a66a", RoleTranscriptOptions{Expanded: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(expanded) <= len(terse) {
+		t.Errorf("expanded transcript (%d) is not longer than terse (%d)", len(expanded), len(terse))
 	}
 }
