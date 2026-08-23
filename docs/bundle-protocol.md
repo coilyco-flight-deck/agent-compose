@@ -11,14 +11,14 @@ through `manifest.json` and otherwise treat the tree as opaque.
 
 The v0.1 tree contains:
 
-* `manifest.json` - what was composed and the delivery entry points.
-* `trace.json` - the plain-language decision trace, provider outcomes, and
-  provider context-budget contributions.
+* `manifest.json` - what was composed, the delivery entry points, and
+  `delivery.body_bytes`, the recorded size of what that mode hands a consumer.
+* `trace.json` - the decision trace, provider outcomes, and provider
+  context-budget contributions.
 * `content/instructions.md` - selected instructions and compact role metadata.
 * `content/skills/<source-id>/<skill>/...` - canonical selected skill trees.
 * `delivery/compiled.md` - present only when the adapter compiles selected
-  skill bodies into one context document. The canonical skill trees stay
-  beside it for inspection and diffing.
+  skill bodies into one document. Canonical skill trees stay beside it.
 
 Every path uses slash-separated relative form. Bundle trees contain regular
 files and directories only. Symlinks and paths that escape the root are

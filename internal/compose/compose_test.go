@@ -636,3 +636,31 @@ func mustExist(t *testing.T, root, rel string) {
 		t.Fatalf("expected %s in bundle: %v", rel, err)
 	}
 }
+
+// The composed body is what a consumer pays for on every turn, so its size is
+// recorded rather than left to be measured downstream. See #275.
+func TestTheManifestRecordsTheComposedBodySize(t *testing.T) {
+	for _, tc := range []struct{ request, file string }{
+		{"compiled.kdl", "delivery/compiled.md"},
+		{"native.kdl", "content/instructions.md"},
+	} {
+		result, err := Run(fixture(t, tc.request), t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest := readManifest(t, result.Bundle.Dir)
+		body, err := os.ReadFile(filepath.Join(result.Bundle.Dir, tc.file))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if manifest.Delivery.BodyBytes != len(body) {
+			t.Errorf(
+				"%s: manifest body_bytes = %d, %s is %d bytes",
+				tc.request, manifest.Delivery.BodyBytes, tc.file, len(body),
+			)
+		}
+		if manifest.Delivery.BodyBytes == 0 {
+			t.Errorf("%s: composed body size is zero", tc.request)
+		}
+	}
+}

@@ -33,9 +33,9 @@ func Bundle(dir string, opts Options) (string, error) {
 		return "", err
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "bundle %s // %s/%s // %s%s\n",
+	fmt.Fprintf(&b, "bundle %s // %s/%s // %s // %d body bytes%s\n",
 		filepath.Base(dir), manifest.Role, strings.Join(manifest.Personalities, "+"),
-		manifest.Delivery.Mode, favoriteSuffix(manifest, opts))
+		manifest.Delivery.Mode, manifest.Delivery.BodyBytes, favoriteSuffix(manifest, opts))
 
 	sections := []struct {
 		title string

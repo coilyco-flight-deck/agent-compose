@@ -21,6 +21,9 @@ type Delivery struct {
 	Instructions    string `json:"instructions"`
 	SkillsRoot      string `json:"skills_root,omitempty"`
 	CompiledContext string `json:"compiled_context,omitempty"`
+	// BodyBytes is what a consumer pays for on every turn. Sources are bounded
+	// by their own hooks; this is the composed output. See docs/bundle-protocol.md.
+	BodyBytes int `json:"body_bytes"`
 }
 
 // RoleIdentity keeps renderer metadata in the immutable bundle so consumers
@@ -176,7 +179,11 @@ func write(res *resolver.Resolution, root string) error {
 		}
 	}
 
-	delivery := Delivery{Mode: res.Request.Delivery, Instructions: "content/instructions.md"}
+	delivery := Delivery{
+		Mode:         res.Request.Delivery,
+		Instructions: "content/instructions.md",
+		BodyBytes:    len(instructions),
+	}
 	switch res.Request.Delivery {
 	case schema.DeliveryNativeSkills:
 		delivery.SkillsRoot = "content/skills"
@@ -197,6 +204,7 @@ func write(res *resolver.Resolution, root string) error {
 			return err
 		}
 		delivery.CompiledContext = "delivery/compiled.md"
+		delivery.BodyBytes = len(compiled)
 	}
 
 	trace, err := json.MarshalIndent(Trace{
