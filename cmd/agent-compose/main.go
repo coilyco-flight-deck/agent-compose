@@ -104,7 +104,7 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "explain",
-						Usage: "add the identity texture and the full decision tree to the summary",
+						Usage: "add the role briefing, the credits, the expressions, and the decision tree",
 					},
 					&cli.BoolFlag{
 						Name:  "reapply",

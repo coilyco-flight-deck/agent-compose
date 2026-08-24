@@ -450,7 +450,7 @@ func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
 	if err := printNativeLaunchSummary(
 		&output,
 		result,
-		person.RoleTranscriptOptions{Expanded: true},
+		person.RoleTranscriptOptions{},
 		true,
 	); err != nil {
 		t.Fatal(err)

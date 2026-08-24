@@ -232,8 +232,8 @@ func skillDescription(raw []byte) (string, error) {
 type RoleTranscriptOptions struct {
 	Color     bool
 	TrueColor bool
-	// Expanded adds the identity texture defined in docs/identity.md: emblem,
-	// motif, form, sound mark, and expressions. Off by default.
+	// Expanded adds what the role and personality skills already carry: the
+	// briefing, the credits, the expressions. Texture is not gated. See #323.
 	Expanded bool
 }
 
@@ -355,14 +355,17 @@ func (p *Person) RenderRoleTranscript(
 	}
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
 	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
-	if role.Inspiration.ID != "" {
-		roleCredit, exists := p.Inspirations[role.Inspiration.ID]
-		if !exists {
-			return "", fmt.Errorf("render role transcript: inspiration %q is not defined", role.Inspiration.ID)
+	// The briefing and the credits restate the role skill the agent loads anyway.
+	if opts.Expanded {
+		if role.Inspiration.ID != "" {
+			roleCredit, exists := p.Inspirations[role.Inspiration.ID]
+			if !exists {
+				return "", fmt.Errorf("render role transcript: inspiration %q is not defined", role.Inspiration.ID)
+			}
+			writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
 		}
-		writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
+		writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	}
-	writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	roleBlock.WriteString("seats:\n")
 	for _, seat := range role.Seats {
 		if role.Identity != nil {
@@ -370,11 +373,6 @@ func (p *Person) RenderRoleTranscript(
 			continue
 		}
 		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
-	}
-
-	if !opts.Expanded {
-		writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
-		return out.String(), nil
 	}
 
 	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)
@@ -392,19 +390,21 @@ func (p *Person) RenderRoleTranscript(
 		if index > 0 {
 			out.WriteByte('\n')
 		}
-		block, err := p.personalityTexture(name, binding, width)
+		block, err := p.personalityTexture(name, binding, width, opts.Expanded)
 		if err != nil {
 			return "", err
 		}
 		writeTranscriptSection(&out, binding.Color, block, opts)
 	}
 
-	expressions := fmt.Sprintf(
-		"renderer expressions: %s\n",
-		strings.Join(ExpressionVocabulary(), " // "),
-	)
-	out.WriteByte('\n')
-	writeTranscriptSection(&out, meldedColor, expressions, opts)
+	if opts.Expanded {
+		expressions := fmt.Sprintf(
+			"renderer expressions: %s\n",
+			strings.Join(ExpressionVocabulary(), " // "),
+		)
+		out.WriteByte('\n')
+		writeTranscriptSection(&out, meldedColor, expressions, opts)
+	}
 	out.WriteByte('\n')
 	writeTranscriptSection(&out, meldedColor, roleBlock.String(), opts)
 	return out.String(), nil
@@ -412,7 +412,12 @@ func (p *Person) RenderRoleTranscript(
 
 // personalityTexture repeats the key on the left of every line, so one
 // personality greps out of the block.
-func (p *Person) personalityTexture(name string, binding Personality, width int) (string, error) {
+func (p *Person) personalityTexture(
+	name string,
+	binding Personality,
+	width int,
+	expanded bool,
+) (string, error) {
 	var out strings.Builder
 	key := fmt.Sprintf("personality: %-*s", width, name)
 	fmt.Fprintf(&out, "%s // %s %s %s // %s // %s\n",
@@ -425,7 +430,7 @@ func (p *Person) personalityTexture(name string, binding Personality, width int)
 	fmt.Fprintf(&out, "%s // sound: %s, %s, %s\n",
 		key, binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
 	fmt.Fprintf(&out, "%s // skill: %s\n", key, binding.Skill)
-	if binding.Inspiration.ID != "" {
+	if expanded && binding.Inspiration.ID != "" {
 		credit, exists := p.Inspirations[binding.Inspiration.ID]
 		if !exists {
 			return "", fmt.Errorf(

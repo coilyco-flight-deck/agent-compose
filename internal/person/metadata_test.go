@@ -285,8 +285,8 @@ func fixtureInspiration(name, impactMode, title string) Inspiration {
 	}
 }
 
-// The default is what a consumer reads on every launch, so the identity texture
-// rides --explain and the meld is still named by the role block. See #323.
+// Texture is the part only the summary shows, and the briefing restates a skill
+// the agent loads anyway, so the long-form material rides --explain. See #323.
 func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 	t.Parallel()
 	p, err := Load()
@@ -298,21 +298,26 @@ func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 		t.Fatal(err)
 	}
 	role := p.Roles["platform"]
+	briefingOpener := strings.SplitN(strings.TrimSpace(role.Briefing), "\n", 2)[0]
 	for _, unwanted := range []string{
-		"personality metadata",
+		"briefing:",
+		briefingOpener,
 		"renderer expressions:",
-		p.Personalities[role.Personalities[0]].Motif,
-		p.Personalities[role.Personalities[0]].Emblem.Name,
-		p.Personalities[role.Personalities[0]].SoundMark.Timbre,
 	} {
 		if strings.Contains(terse, unwanted) {
 			t.Errorf("terse transcript still carries %q:\n%s", unwanted, terse)
 		}
 	}
+	first := p.Personalities[role.Personalities[0]]
 	for _, want := range []string{
 		"role metadata",
 		"role: platform",
 		"personalities: " + strings.Join(role.Personalities, " // "),
+		"personality metadata",
+		first.Emblem.Name,
+		first.Motif,
+		first.SoundMark.Timbre,
+		first.Skill,
 	} {
 		if !strings.Contains(terse, want) {
 			t.Errorf("terse transcript missing %q:\n%s", want, terse)
@@ -324,6 +329,9 @@ func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 	}
 	if len(expanded) <= len(terse) {
 		t.Errorf("expanded transcript (%d) is not longer than terse (%d)", len(expanded), len(terse))
+	}
+	if !strings.Contains(expanded, briefingOpener) {
+		t.Errorf("expanded transcript dropped the briefing:\n%s", expanded)
 	}
 }
 

@@ -55,7 +55,8 @@ agent-compose launch <role> <harness> # launch one harness with an assigned role
 
 `--reapply` rewrites the host compose layout even when it is already current,
 and `--verbose` prints every `source => destination` mapping it places.
-`--explain` adds the identity texture and the full decision tree to the summary.
+`--explain` adds the role briefing, the credits, the expression vocabulary,
+and the full decision tree to the summary.
 
 When you want to see what a bundle actually decided rather than trust it,
 `describe` renders its stored decision tree, `diff` reports the semantic change

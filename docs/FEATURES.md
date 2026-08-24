@@ -46,7 +46,8 @@ Inventory of what ships today.
   delivery, traces, and selected identities.
 * [Catalogues and export](skill-catalogues.md) provide inspection,
   reproducible archives, and logical content diff.
-* `compose` renders complete role metadata. `--explain` adds decisions.
+* `compose` renders the role metadata and the identity texture. `--explain`
+  adds the briefing, the credits, the expressions, and the decisions.
 * [Evaluation](evaluation.md) derives the board from the roster, runs it with
   `evalkit`, and grades it by hand with the shared `aos-eval`. No mechanical
   scorer anywhere in the loop.
