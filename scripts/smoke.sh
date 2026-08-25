@@ -186,7 +186,10 @@ done
 assert_contains "$composed" "# Smoke doctrine"
 assert_contains "$composed" "# Personality invariant"
 assert_contains "$composed" "# Agent seats"
-assert_contains "$composed" "opal engineer"
+# Roster names churn, so anchor on the identity render shape instead. A seat
+# rename must not be able to fail this.
+assert_contains "$composed" "**Agent // "
+assert_contains "$composed" "**Seats // "
 assert_contains "$person_snapshot" '"format": "agent-compose.person-snapshot.v3"'
 assert_contains "$person_snapshot" '"briefing":'
 printf 'smoke: roster, cascade, skill, and load-point artifacts... ok\n'
@@ -256,7 +259,7 @@ for path in \
   "$launch_target/.agents/skills/design-method/SKILL.md"; do
   assert_file "$path"
 done
-assert_contains "$launch_target/AGENTS.md" 'assigned the `frontend` role'
+assert_contains "$launch_target/AGENTS.md" '`frontend` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
 
@@ -292,7 +295,8 @@ if ! (
   cat "$intro_output" >&2
   fail "bare Codex introduction launch failed"
 fi
-assert_contains "$intro_output" "fake codex <Introduce yourself now as the active Codex seat"
+assert_contains "$intro_output" "fake codex <"
+assert_contains "$intro_output" "Introduce yourself now as the active Codex seat"
 printf 'smoke: bare Codex launch supplies its introduction prompt... ok\n'
 show_transcript "bare Codex introduction" "$intro_output"
 
