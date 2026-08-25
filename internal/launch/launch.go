@@ -4,6 +4,8 @@ package launch
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
@@ -13,6 +15,49 @@ import (
 // EnvSentinel marks a process launched by agent-compose. A nested launch
 // sees it and skips refresh instead of recursing.
 const EnvSentinel = "AGENT_COMPOSE_LAUNCH"
+
+// EnvDepth counts the agent-compose launches a process sits inside, where the
+// sentinel only says that it is inside one. Absent means none.
+const EnvDepth = "AGENT_COMPOSE_LAUNCH_DEPTH"
+
+// MaxNestedDepth bounds deliberate agent-to-agent launches. One hop lets a
+// session start a second seat while a runaway loop still terminates.
+const MaxNestedDepth = 1
+
+// DepthEnv stamps the depth a launched process runs at.
+func DepthEnv(depth int) string {
+	return EnvDepth + "=" + strconv.Itoa(depth)
+}
+
+// NestedDepth resolves the depth a launched child runs at, refusing an
+// accidental nested launch and anything past MaxNestedDepth.
+func NestedDepth(sentinel, depth string, nested bool) (int, error) {
+	current := 0
+	if trimmed := strings.TrimSpace(depth); trimmed != "" {
+		parsed, err := strconv.Atoi(trimmed)
+		if err != nil || parsed < 0 {
+			return 0, fmt.Errorf("%s must be a non-negative count, got %q", EnvDepth, depth)
+		}
+		current = parsed
+	}
+	if strings.TrimSpace(sentinel) == "" {
+		return 0, nil
+	}
+	if !nested {
+		return 0, fmt.Errorf(
+			"native role launch cannot start inside another agent-compose launch; pass --nested to start a second seat deliberately",
+		)
+	}
+	next := current + 1
+	if next > MaxNestedDepth {
+		return 0, fmt.Errorf(
+			"nested launch depth %d exceeds the %d-hop bound; a launched seat cannot launch a further one",
+			next,
+			MaxNestedDepth,
+		)
+	}
+	return next, nil
+}
 
 // AttributionRoleEnv carries the composed role to the git attribution shim.
 // Per-session: the host projection is global. See coilysiren/inbox#362.

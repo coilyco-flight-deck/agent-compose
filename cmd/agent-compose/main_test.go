@@ -208,6 +208,14 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "--layout", "codex", "request.kdl", "--", "codex"},
 			[]string{"acompose", "compose", "--layout", "codex", "request.kdl", "--", "codex"},
 		},
+		"acompose nested role and harness inject launch": {
+			[]string{"acompose", "--nested", "eval", "claude", "-p", "measure it"},
+			[]string{"acompose", "launch", "--nested", "eval", "claude", "-p", "measure it"},
+		},
+		"acompose nested without a harness remains compose": {
+			[]string{"acompose", "--nested", "request.kdl"},
+			[]string{"acompose", "compose", "--nested", "request.kdl"},
+		},
 		"acompose exposes statusline directly": {
 			[]string{"acompose", "statusline", "--target", "/workspace"},
 			[]string{"acompose", "statusline", "--target", "/workspace"},

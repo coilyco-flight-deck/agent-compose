@@ -36,6 +36,8 @@ Inventory of what ships today.
 * [Launch](native-role-launch.md) adds color, an Enter gate, and a Codex intro.
 * A Claude launch passes [identity flags](claude-launch-identity.md), not files.
 * Refresh uses validated fallback unless `external-only` forbids it.
+* `launch --nested` starts a [second seat from inside a session](native-role-launch.md),
+  one hop deep and never over the caller's own load points.
 
 ## Inspection
 

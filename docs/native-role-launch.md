@@ -81,6 +81,31 @@ visible according to the harness's normal discovery rules.
 Bare `acompose` still converges the host. `acompose -- <command>` retains the
 inferred-role native path for compatibility.
 
+## Agent-to-agent launch
+
+A launched session cannot start a second seat by accident. `launch` reads the
+same `AGENT_COMPOSE_LAUNCH` sentinel the wrapper path uses, and refuses while
+naming `--nested` as the deliberate spelling:
+
+```sh
+acompose --nested eval claude -p 'measure the launch path and report'
+```
+
+Harness arguments still pass through verbatim, so a task prompt needs no
+agent-compose flag of its own. A positional Codex prompt also suppresses the
+bare-session introduction prompt, so a task and an introduction never collide.
+
+Two bounds keep the opt-in from becoming a chain:
+
+* `AGENT_COMPOSE_LAUNCH_DEPTH` counts the launches a process sits inside, and a
+  nested launch is refused past one hop. A launched seat may start a worker.
+  That worker may not start a third.
+* A nested launch refuses to project over the load points its own session runs
+  on. Projection protects foreign files, and the parent session's files are not
+  foreign, so the parent would otherwise go on lazily loading the child's skills
+  as its own. Launch from another directory, or stage
+  `AGENT_COMPOSE_RUNTIME_HOME` for the child.
+
 ## See also
 
 * [Integration](integration.md) - host and isolated delivery tiers.

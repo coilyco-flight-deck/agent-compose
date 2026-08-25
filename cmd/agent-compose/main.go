@@ -40,6 +40,18 @@ var version = "dev"
 // the seat first so a session list does not open on identical text (#233).
 const nativeCodexIntroductionPrompt = "Introduce yourself now as the active Codex seat, drawing on your loaded identity card and personality meld. Keep it warm and concise, then ask what the human would like to work on."
 
+// nestedLaunchFlag opts one launch into starting inside another one.
+const nestedLaunchFlag = "--nested"
+
+// splitNativeLaunchFlags peels agent-compose's own launch flags off the head.
+// `launch` skips flag parsing, so this is the only place one is read.
+func splitNativeLaunchFlags(args []string) (bool, []string) {
+	if len(args) > 0 && args[0] == nestedLaunchFlag {
+		return true, args[1:]
+	}
+	return false, args
+}
+
 // dispatchArgs makes the acompose install name behave as the compose verb,
 // so the daily command is dash-free and stutter-free.
 func dispatchArgs(args []string) []string {
@@ -53,8 +65,8 @@ func dispatchArgs(args []string) []string {
 	if len(args) >= 2 && args[1] == "statusline" {
 		return args
 	}
-	if len(args) >= 3 && !strings.HasPrefix(args[1], "-") &&
-		nativeHarness(args[2]) {
+	if _, rest := splitNativeLaunchFlags(args[1:]); len(rest) >= 2 &&
+		!strings.HasPrefix(rest[0], "-") && nativeHarness(rest[1]) {
 		return append([]string{args[0], "launch"}, args[1:]...)
 	}
 	return append([]string{args[0], "compose"}, args[1:]...)
@@ -163,7 +175,8 @@ func main() {
 			{
 				Name:            "launch",
 				Usage:           "launch one native harness with a caller-assigned role bundle",
-				ArgsUsage:       "<role> <harness> [harness arguments...]",
+				ArgsUsage:       "[--nested] <role> <harness> [harness arguments...]",
+				Description:     "--nested starts a second seat from inside a launched session, one hop deep. See docs/native-role-launch.md.",
 				SkipFlagParsing: true,
 				Action:          runNativeLaunch,
 			},
@@ -691,9 +704,9 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 }
 
 func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
-	args := cmd.Args().Slice()
+	nested, args := splitNativeLaunchFlags(cmd.Args().Slice())
 	if len(args) < 2 {
-		return fmt.Errorf("launch needs <role> <harness> [harness arguments...]")
+		return fmt.Errorf("launch needs [--nested] <role> <harness> [harness arguments...]")
 	}
 	role := strings.TrimSpace(args[0])
 	harness := strings.TrimSpace(args[1])
@@ -703,8 +716,13 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			harness,
 		)
 	}
-	if os.Getenv(launch.EnvSentinel) != "" {
-		return fmt.Errorf("native role launch cannot start inside another agent-compose launch")
+	childDepth, err := launch.NestedDepth(
+		os.Getenv(launch.EnvSentinel),
+		os.Getenv(launch.EnvDepth),
+		nested,
+	)
+	if err != nil {
+		return err
 	}
 	paths := cascade.DefaultPaths()
 	verbose := os.Getenv(nativelaunch.EnvVerbose) != ""
@@ -744,6 +762,15 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			return fmt.Errorf("load host configuration for the operating base: %w", err)
 		}
 		if operatingBase, err = cascade.OperatingBase(cfg, harness); err != nil {
+			return err
+		}
+	}
+	if nested {
+		target := cwd
+		if runtimeHome != "" {
+			target = runtimeHome
+		}
+		if err := refuseOwnProjectionReplacement(target); err != nil {
 			return err
 		}
 	}
@@ -812,7 +839,10 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			Introduction: result.Introduction,
 		}),
 		append(
-			roleAttributionEnv(role),
+			append(
+				roleAttributionEnv(role),
+				launch.DepthEnv(childDepth),
+			),
 			sessionBundleEnv(result.BundleDir, harness)...,
 		)...,
 	)
@@ -1096,6 +1126,24 @@ func runVerify(_ context.Context, cmd *cli.Command) error {
 func printVerification(w io.Writer, verification *bundle.Verification) {
 	fmt.Fprintf(w, "bundle verified: %d skills // %d files\n",
 		len(verification.Identities), verification.Files)
+}
+
+// refuseOwnProjectionReplacement stops a nested launch from replacing the load
+// points its own session runs on. See docs/native-role-launch.md.
+func refuseOwnProjectionReplacement(target string) error {
+	existing := project.ReadProjection(target)
+	if existing.Bundle == "" {
+		return nil
+	}
+	if session := strings.TrimSpace(os.Getenv(launch.SessionBundleEnv)); session != "" &&
+		session != existing.Bundle {
+		return nil
+	}
+	return fmt.Errorf(
+		"a nested launch in %s would replace the load points this session runs on; launch from another directory or stage %s",
+		target,
+		nativelaunch.EnvRuntimeHome,
+	)
 }
 
 // roleAttributionEnv attributes the composed role. Empty yields nothing,
