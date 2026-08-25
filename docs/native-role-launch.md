@@ -31,9 +31,18 @@ complete ordered personality meld, ordinary admitted skills, and composed skills
 bound to that role. Startup instructions require the harness to read the role
 and boundary skills before acting. Another role requires another launch.
 
-Before the harness starts, the launcher prints routine composition status at
-normal speed, then renders the canonical role transcript as the final
-substantive block. When both input and output belong to an interactive terminal,
+Before the harness starts, the launcher renders the canonical role transcript
+and nothing else. Routine composition status stays off screen: the host
+convergence lines, the assignment line, the bundle and request intro, the
+source, decision, path, and trace counts, and the selector provenance notes
+that the decision trace already carries. A bare terminal therefore shows the
+identity card rather than a page of bookkeeping around it. Errors, skipped
+roster sources, and a failed refresh still reach stderr.
+
+`AGENT_COMPOSE_VERBOSE=1` puts all of that back and turns on verbose host
+convergence with it. `agent-compose compose` keeps the full audit either way.
+
+When both input and output belong to an interactive terminal,
 `Press Enter to continue` keeps that identity visible until acknowledgement.
 Enter starts the harness. Ctrl-C cancels before launch.
 

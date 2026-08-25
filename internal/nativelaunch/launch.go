@@ -25,6 +25,9 @@ const (
 	EnvModelTier = "AGENT_COMPOSE_MODEL_TIER"
 	// EnvRuntimeHome selects a session-scoped home for the harness process.
 	EnvRuntimeHome = "AGENT_COMPOSE_RUNTIME_HOME"
+	// EnvVerbose restores the routine composition status a launch otherwise
+	// keeps off screen. See docs/native-role-launch.md.
+	EnvVerbose = "AGENT_COMPOSE_VERBOSE"
 )
 
 // Options supplies the host-owned selection and filesystem anchors for one

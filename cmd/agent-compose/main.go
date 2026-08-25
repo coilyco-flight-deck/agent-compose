@@ -707,10 +707,17 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("native role launch cannot start inside another agent-compose launch")
 	}
 	paths := cascade.DefaultPaths()
+	verbose := os.Getenv(nativelaunch.EnvVerbose) != ""
+	// Convergence status is routine bookkeeping. Its failures still reach
+	// stderr, so dropping the running commentary loses no signal.
+	convergeStatus := io.Discard
+	if verbose {
+		convergeStatus = os.Stdout
+	}
 	if code := converge.Run(
 		paths,
-		converge.Options{},
-		os.Stdout,
+		converge.Options{Verbose: verbose},
+		convergeStatus,
 		os.Stderr,
 	); code != 0 {
 		return cli.Exit("", code)
@@ -755,7 +762,11 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
+	// Selector provenance is routine on a launch and already carried by the
+	// decision trace. `agent-compose compose` remains the verb that says it.
+	if verbose {
+		printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
+	}
 	interactive := nativeLaunchInteractive(os.Stdin, os.Stdout)
 	summaryOpts := person.RoleTranscriptOptions{
 		Color:     colorEnabled(),
@@ -765,14 +776,14 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if result.BundleReused {
 		state = "reused"
 	}
-	if interactive {
+	if verbose && interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
 	if err := printNativeLaunchSummary(
 		os.Stdout,
 		result.Composition,
 		summaryOpts,
-		interactive,
+		summaryLayout{RoleLast: interactive, Audit: verbose},
 	); err != nil {
 		return err
 	}
@@ -791,7 +802,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			return err
 		}
 	}
-	if !interactive {
+	if verbose && !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
 	return execReal(
@@ -1444,6 +1455,16 @@ func validateProjectPersonPolicy(bundleDir string, opts compose.Options) error {
 	return fmt.Errorf("external-only person policy requires an external person bundle")
 }
 
+// summaryLayout selects what a composition summary prints and where.
+type summaryLayout struct {
+	// RoleLast leaves the identity transcript as the last block on screen,
+	// which a launch wants and a plain compose does not.
+	RoleLast bool
+	// Audit adds the bundle intro and the routine source, decision, and path
+	// counts around the transcript.
+	Audit bool
+}
+
 // printSummary renders the complete selected-role identity transcript followed
 // by bounded composition audit counts.
 func printSummary(
@@ -1451,32 +1472,16 @@ func printSummary(
 	r *compose.Result,
 	opts person.RoleTranscriptOptions,
 ) error {
-	return printNativeLaunchSummary(w, r, opts, false)
+	return printNativeLaunchSummary(w, r, opts, summaryLayout{Audit: true})
 }
 
 func printNativeLaunchSummary(
 	w io.Writer,
 	r *compose.Result,
 	opts person.RoleTranscriptOptions,
-	roleLast bool,
+	layout summaryLayout,
 ) error {
-	state := "new"
-	if r.Bundle.Reused {
-		state = "reused"
-	}
-	counts := map[string]int{}
-	for _, d := range r.Resolution.Decisions {
-		counts[d.Outcome]++
-	}
 	req := r.Resolution.Request
-	intro := fmt.Sprintf(
-		"bundle %s (%s)\nrequest: model tier %s // delivery %s\n",
-		r.Bundle.Key, state, req.ModelTier, req.Delivery,
-	)
-	if opts.Color {
-		intro = color.ANSI(r.Resolution.FavoriteColor, intro, opts.TrueColor)
-	}
-	fmt.Fprintln(w, intro)
 	metadata, err := r.Resolution.Person.RenderRoleTranscript(
 		req.Role,
 		r.Resolution.FavoriteColor,
@@ -1485,6 +1490,26 @@ func printNativeLaunchSummary(
 	if err != nil {
 		return err
 	}
+	if !layout.Audit {
+		fmt.Fprint(w, metadata)
+		return nil
+	}
+	state := "new"
+	if r.Bundle.Reused {
+		state = "reused"
+	}
+	counts := map[string]int{}
+	for _, d := range r.Resolution.Decisions {
+		counts[d.Outcome]++
+	}
+	intro := fmt.Sprintf(
+		"bundle %s (%s)\nrequest: model tier %s // delivery %s\n",
+		r.Bundle.Key, state, req.ModelTier, req.Delivery,
+	)
+	if opts.Color {
+		intro = color.ANSI(r.Resolution.FavoriteColor, intro, opts.TrueColor)
+	}
+	fmt.Fprintln(w, intro)
 	var audit strings.Builder
 	fmt.Fprintf(&audit, "sources: %s\n", strings.Join(r.Resolution.SourceIDs, ", "))
 	fmt.Fprintf(&audit, "decisions: %d selected // %d excluded // %d shadowed // %d delivered\n",
@@ -1492,7 +1517,7 @@ func printNativeLaunchSummary(
 		counts[resolver.OutcomeShadowed], counts[resolver.OutcomeDelivered])
 	fmt.Fprintf(&audit, "path: %s\n", r.Bundle.Dir)
 	fmt.Fprintf(&audit, "trace: %s\n", filepath.Join(r.Bundle.Dir, "trace.json"))
-	if roleLast {
+	if layout.RoleLast {
 		fmt.Fprint(w, audit.String())
 		fmt.Fprintln(w)
 		fmt.Fprint(w, metadata)

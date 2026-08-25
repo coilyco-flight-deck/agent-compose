@@ -42,6 +42,11 @@ assert_contains() {
   grep -F "$2" "$1" >/dev/null || fail "$1 does not contain: $2"
 }
 
+assert_missing() {
+  grep -F "$2" "$1" >/dev/null && fail "$1 unexpectedly contains: $2"
+  return 0
+}
+
 snapshot_file() {
   cp "$1" "$snapshot_dir/$2"
 }
@@ -231,11 +236,19 @@ if ! (
   fail "assigned native role launch failed"
 fi
 
-assert_contains "$role_output" "agent-compose: assigned frontend to codex"
 assert_contains "$role_output" "role metadata"
 assert_contains "$role_output" "role: frontend"
 assert_contains "$role_output" "personality: imaginative"
 assert_contains "$role_output" "fake codex <--version>"
+for routine in \
+  "agent-compose: assigned frontend to codex" \
+  "cascade outputs=" \
+  "skills  managed=" \
+  "sources:" \
+  "decisions:" \
+  "trace:"; do
+  assert_missing "$role_output" "$routine"
+done
 for path in \
   "$launch_target/AGENTS.md" \
   "$launch_target/.agents/skills/role-frontend/SKILL.md" \
@@ -246,6 +259,27 @@ done
 assert_contains "$launch_target/AGENTS.md" 'assigned the `frontend` role'
 printf 'smoke: assigned native role and composed skill projection... ok\n'
 show_transcript "native role launch" "$role_output"
+
+verbose_output="$smoke_root/role-launch-verbose.txt"
+if ! (
+  cd "$launch_target"
+  unset AGENT_COMPOSE_LAUNCH
+  env HOME="$native_root/home" USERPROFILE="$native_root/home" \
+    PROJECTS_ROOT="$native_root/projects" PATH="$smoke_root/bin:$PATH" \
+    AGENT_COMPOSE_VERBOSE=1 \
+    "$binary_exec" frontend codex --version
+) >"$verbose_output" 2>&1; then
+  cat "$verbose_output" >&2
+  fail "verbose native role launch failed"
+fi
+
+assert_contains "$verbose_output" "agent-compose: assigned frontend to codex"
+assert_contains "$verbose_output" "cascade outputs="
+assert_contains "$verbose_output" "sources:"
+assert_contains "$verbose_output" "trace:"
+assert_contains "$verbose_output" "role: frontend"
+printf 'smoke: AGENT_COMPOSE_VERBOSE restores the routine status... ok\n'
+show_transcript "verbose native role launch" "$verbose_output"
 
 intro_output="$smoke_root/role-introduction.txt"
 if ! (

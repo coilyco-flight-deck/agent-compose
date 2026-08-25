@@ -451,7 +451,7 @@ func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
 		&output,
 		result,
 		person.RoleTranscriptOptions{},
-		true,
+		summaryLayout{RoleLast: true, Audit: true},
 	); err != nil {
 		t.Fatal(err)
 	}
@@ -464,6 +464,38 @@ func TestNativeLaunchSummaryPutsRoleTranscriptLast(t *testing.T) {
 	}
 	if strings.Contains(got[role:], "sources:") {
 		t.Fatalf("routine audit followed the role metadata:\n%s", got)
+	}
+}
+
+func TestNativeLaunchSummaryWithoutAuditPrintsOnlyTheTranscript(t *testing.T) {
+	t.Parallel()
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := summaryFixture(t, p)
+	var output strings.Builder
+	if err := printNativeLaunchSummary(
+		&output,
+		result,
+		person.RoleTranscriptOptions{},
+		summaryLayout{RoleLast: true},
+	); err != nil {
+		t.Fatal(err)
+	}
+	got := output.String()
+	for _, unwanted := range []string{"bundle ", "request:", "sources:", "decisions:", "path:", "trace:"} {
+		if strings.Contains(got, unwanted) {
+			t.Fatalf("quiet launch summary kept %q:\n%s", unwanted, got)
+		}
+	}
+	for _, want := range []string{"personality metadata", "role metadata", "role: platform"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("quiet launch summary dropped %q:\n%s", want, got)
+		}
+	}
+	if !strings.HasPrefix(got, "personality metadata") {
+		t.Fatalf("quiet launch summary did not lead with the transcript:\n%s", got)
 	}
 }
 
