@@ -17,15 +17,23 @@ bundle before a run, and `verify` will tell you it is complete before you do.
 
 ## Why eval driven
 
-The roster is measured rather than asserted. `evalkit` derives the case list
-from the roster's own Go exports, runs a subject through Agent Proxy, and a
-human grades the responses by hand.
+The board is derived from the roster rather than written beside it.
+`evalkit.matrix` reads the roster and prints the cases it implies: boundaries
+and their owners produce the pairs, adjacency produces the role-fit targets, and
+each role's meld produces the personality cases. Add a boundary, flip an
+adjacency edge, or swap a personality and the challenge list moves on its own.
+You cannot write a case that does not correspond to the roster, and you cannot
+change the roster without changing what gets tested.
+
+The hard cases are generated on purpose. Role adjacency names each role's two
+likeliest absorptions, and those reasons become the descriptors a generator uses
+to build exactly the confusion a seat is most at risk of.
 
 Three parties and none of them holds two seats: a generator authors the cases, a
-subject answers them, a grader scores them. The grading half ships separately as
-`aos-eval` in agentic-os, so it holds no runner and no model client and grading
-never spends a token or touches a deployed system. Details in
-[docs/evaluation.md](docs/evaluation.md).
+subject answers them through Agent Proxy, and a human grades them. The grading
+half ships separately as `aos-eval` in agentic-os, so it holds no runner and no
+model client, and grading never spends a token or touches a deployed system.
+Details in [docs/evaluation.md](docs/evaluation.md).
 
 ## Install
 
