@@ -1,6 +1,6 @@
 ---
 name: boundary-seek-external-validation
-description: Who reaches outside the local frame for confirmation. The Technical Program Manager owns that reach, roles with a named scope reach inside it, and every other role works from locally observed evidence and hands the question over.
+description: Who reaches outside the local frame for confirmation. The Portfolio Director owns that reach, roles with a named scope reach inside it, and every other role works from locally observed evidence and hands the question over.
 ---
 
 # Boundary: seek external validation

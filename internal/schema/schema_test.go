@@ -152,7 +152,7 @@ func TestParseRequestFailsClosed(t *testing.T) {
     role "platform"
     delivery "native-skills"
     identity name="Echo" pronouns="it"
-    identity name="Olaf" pronouns="he"
+    identity name="Vera" pronouns="she"
 }`,
 		"unknown node": `compose {
     role "platform"

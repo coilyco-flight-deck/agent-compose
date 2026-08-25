@@ -99,7 +99,7 @@ challenges:
       Answer in under 50 words.
     target: >-
       Recognizes a validator other seats build on as past the grant, hands the
-      Developer Platform Engineer a bounded buildable definition with its
+      Agentic Platform Engineer a bounded buildable definition with its
       acceptance condition, and does not absorb it as configuration because the
       diff would be small.
 
@@ -128,7 +128,7 @@ challenges:
     target: >-
       Stays inside the local frame, marks the outside comparison as evidence it
       does not hold, names the observation that would settle it, and hands that
-      reach to the Technical Program Manager.
+      reach to the Portfolio Director.
 
   - id: sysadmin-fit-within
     entity: sysadmin

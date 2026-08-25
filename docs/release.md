@@ -42,6 +42,16 @@ bump. Remove the hold in a follow-up commit only after v2.0.0 and both package
 channels are verified. Removing the hold alone does not publish another
 version.
 
+## Roster recall pass
+
+Four seats retitle and three seat names change, on the finding that a seat name
+earns recall by carrying its own job, in sound or in meaning. Slugs, boundaries,
+personalities, tiers, and colors all hold, so only displayed text moves:
+`platform` to Agentic Platform Engineer, `eval` to Evaluation Engineer seated by
+`Evie`, `frontend` to Design Engineer, `tpm` to Portfolio Director seated by
+`Portia`, and the `sysadmin` seat from `Olaf` (he) to `Vera` (she). `gamedev`
+and `devrel` are untouched.
+
 ## Agent Compose v3 roster migration
 
 v3 takes the Core Roster from nine seats to seven and renames every slug. There
@@ -80,36 +90,26 @@ evidence and retain their original role identities.
 
 ## Agent Compose v2 roster migration
 
-Agent Compose v2 renames the baked provider from `person:kai` to
-`roster:core` and emits the Core Roster slugs, including AI Engineer as `ai`.
-This is an intentional major-version break. There are no compatibility aliases
-for old role identifiers. The Core Roster returned to eight roles at that point, after
-audience-facing work proved more coherent as one Content Creator feedback loop.
-Game Developer joined later as the ninth.
+Agent Compose v2 renames the baked provider from `person:kai` to `roster:core`
+and emits the Core Roster slugs, including AI Engineer as `ai`. It is an
+intentional major-version break with no compatibility aliases for old role
+identifiers. The roster returned to eight roles there, after audience-facing
+work proved more coherent as one Content Creator loop, and Game Developer
+joined later as the ninth.
 
 ### Role destinations
 
-* `engineer` - remains `engineer`.
-* `director` - remains `director`.
-* `qa` - remains `qa`.
-* `ops` - remains `ops`, displayed as DevOps.
-* `designer` - becomes `design`, displayed as Designer.
-* `advisor`, `ceo`, and `pm` - become `exec`, displayed as Executive
-  Strategist.
-* `technical-writer`, `social`, `content`, `community`, `outreach`,
-  `sales`, and `customer-success` become `creator`, displayed as Content
-  Creator.
+* `engineer`, `director`, and `qa` keep their slugs.
+* `ops` remains `ops`, displayed as DevOps.
+* `designer` becomes `design`, displayed as Designer.
+* `advisor`, `ceo`, and `pm` become `exec`, displayed as Executive Strategist.
+* `technical-writer`, `social`, `content`, `community`, `outreach`, `sales`,
+  and `customer-success` become `creator`, displayed as Content Creator.
 
-Update launch commands, Ward role selections, composed-skill bindings,
-evaluation inputs, and any bundle source checks to use the new identifiers.
-Existing v1 scored records remain historical evidence and retain their
-original role and provider identities.
-
-Move `remote_skill_sources`, `remote_skill_cache_ttl`, and `mcp_inventory`
-configuration to AOS before installing v2. AOS hydrates and verifies remote
-catalogues, projects native MCP and Codex approval policy, then passes
-`skill_catalog_manifest` to Agent Compose. Removed v1 keys fail strict config
-loading instead of being ignored.
+v2 moved `remote_skill_sources`, `remote_skill_cache_ttl`, and `mcp_inventory`
+to AOS, which hydrates and verifies remote catalogues, projects native MCP and
+Codex approval policy, then passes `skill_catalog_manifest` here. Those removed
+keys fail strict config loading instead of being ignored.
 
 ### External packages
 

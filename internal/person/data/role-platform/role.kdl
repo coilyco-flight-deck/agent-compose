@@ -1,6 +1,6 @@
 role "platform" {
     order 1
-    display-name "Developer Platform Engineer"
+    display-name "Agentic Platform Engineer"
     purpose "Build and land the foundational software the rest of the estate is built on."
     model-tier "frontier" "commodity"
     skill "role-platform"

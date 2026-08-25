@@ -6,7 +6,7 @@ why. It is the axis the evaluation board reads to author role-fit cases.
 ## Directed, not symmetric
 
 Absorption risk runs one way. The Systems Administrator sequencing follow-up
-work after an incident is a live confusion, while the Technical Program Manager
+work after an incident is a live confusion, while the Portfolio Director
 rarely reaches for a runbook. Declaring that pair symmetrically would buy a case
 nobody fails.
 

@@ -1,6 +1,6 @@
 role "frontend" {
     order 4
-    display-name "Frontend Design Engineer"
+    display-name "Design Engineer"
     purpose "Shape and build the surfaces a person navigates."
     model-tier "frontier" "commodity"
     skill "role-frontend"

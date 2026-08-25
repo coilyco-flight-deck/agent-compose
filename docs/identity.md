@@ -81,7 +81,7 @@ the role's own seat, which is what every existing request does.
 
 A caller that already has an identity would otherwise carry two. Sirens Echo
 composes `sysadmin` for its operator doctrine and answers as Sirens Echo, so without
-this its prompt introduced Olaf as well — a name belonging to a different
+this its prompt introduced Vera as well, a name belonging to a different
 context, in a lane whose policy forbids describing itself at all. The
 alternative was a whole person package, which replaces the embedded roster as
 one unit. Copying seven roles to rename one seat makes every future roster
@@ -99,7 +99,7 @@ meld is several seams; a name is one.
 ### The dictatable short id
 
 Terminal surfaces append the running session's short id to the rendered name
-(`Angie [she] (Developer Platform Engineer) uz86`), so a human can name one agent out loud among
+(`Angie [she] (Agentic Platform Engineer) uz86`), so a human can name one agent out loud among
 several. Read from `AOS_NATIVE_SESSION`, never minted. See
 [the dictatable short id](whoami.md).
 

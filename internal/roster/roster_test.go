@@ -181,9 +181,9 @@ func TestRenderDefaultSupportsTPMToEvalSwitch(t *testing.T) {
 		}
 	}
 
-	evalSection := renderedCard(t, table, "Agent Evaluation Engineer")
+	evalSection := renderedCard(t, table, "Evaluation Engineer")
 	ordered := []string{
-		"# Agent Evaluation Engineer",
+		"# Evaluation Engineer",
 		"**Role skill // `role-eval`**",
 		"## Personality meld",
 		"* `role-eval`",

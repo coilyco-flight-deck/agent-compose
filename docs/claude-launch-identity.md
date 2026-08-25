@@ -11,7 +11,7 @@ converged before the session starts.
   name wins, then the role-owned agent identity, then the role.
 
   ```text
-  Angie [she] (Developer Platform Engineer)
+  Angie [she] (Agentic Platform Engineer)
   ```
 
   The annotation is the seat name, the seat's subject pronoun in brackets, and

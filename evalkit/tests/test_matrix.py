@@ -18,7 +18,7 @@ ROSTER: dict[str, Any] = {
     },
     "roles": {
         "platform": {
-            "display_name": "Developer Platform Engineer",
+            "display_name": "Agentic Platform Engineer",
             "purpose": "Build and land work across the portfolio.",
             "boundaries": ["suggest-external-comms"],
             "personalities": ["tenacious", "grounded"],
@@ -60,7 +60,7 @@ SCOPED: dict[str, Any] = {
             "adjacents": [],
         },
         "platform": {
-            "display_name": "Developer Platform Engineer",
+            "display_name": "Agentic Platform Engineer",
             "purpose": "Build and land work.",
             "boundaries": ["modify-live-backend"],
             "personalities": ["tenacious"],
@@ -223,7 +223,7 @@ def test_the_entity_roster_projection_spells_this_deployment_s_words() -> None:
         "boundaries": {"build-foundational-software": {"owner": "platform"}},
         "roles": {
             "platform": {
-                "display_name": "Developer Platform Engineer",
+                "display_name": "Agentic Platform Engineer",
                 "purpose": "Build it.",
                 "boundaries": ["suggest-external-comms"],
                 "scoped_boundaries": [{"name": "modify-live-backend", "scope": "local only"}],

@@ -117,7 +117,7 @@ func TestRenderSubagentsSkipsRowsWithoutAProjection(t *testing.T) {
 
 func TestRenderSubagentsFallsBackToTargetWhenRowHasNoDirectory(t *testing.T) {
 	projected := t.TempDir()
-	writeProjectedRole(t, projected, "codex", "sysadmin", "Olaf", "he")
+	writeProjectedRole(t, projected, "codex", "sysadmin", "Vera", "she")
 
 	request, err := json.Marshal(SubagentRequest{Tasks: []SubagentTask{{ID: "task-1"}}})
 	if err != nil {
@@ -135,7 +135,7 @@ func TestRenderSubagentsFallsBackToTargetWhenRowHasNoDirectory(t *testing.T) {
 	if len(rows) != 1 {
 		t.Fatalf("rows = %d, want 1", len(rows))
 	}
-	if want := "🧭 ⛏️ Olaf [he] // sysadmin@codex"; rows[0].Content != want {
+	if want := "🧭 ⛏️ Vera [she] // sysadmin@codex"; rows[0].Content != want {
 		t.Errorf("content = %q, want %q", rows[0].Content, want)
 	}
 }

@@ -1,6 +1,6 @@
 ---
 name: boundary-build-foundational-software
-description: Who builds and lands foundational software. The Developer Platform Engineer owns the build, roles with a named scope build inside it, and everyone else specifies what the software must do and hands the build over.
+description: Who builds and lands foundational software. The Agentic Platform Engineer owns the build, roles with a named scope build inside it, and everyone else specifies what the software must do and hands the build over.
 ---
 
 # Boundary: build foundational software

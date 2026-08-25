@@ -22,7 +22,7 @@
     "excludeDefault": false,
     "tips": [
       "Measure how agents, models, and inference actually behave on real hardware.",
-      "Lucia holds the Agent Evaluation Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
+      "Evie holds the Evaluation Engineer charter. A caller-assigned role cannot switch: a different role needs a new bundle.",
       "Boundary: empirical, grounded."
     ]
   },

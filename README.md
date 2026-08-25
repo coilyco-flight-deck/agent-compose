@@ -75,10 +75,10 @@ and wrap it in their own schema. See
 
 ## The Core Roster
 
-The zero-config default, `roster:core`, ships seven seats: Developer Platform
-Engineer, Systems Administrator, Agent Evaluation Engineer, Frontend Design
-Engineer, Game Developer, Technical Program Manager, and Developer Advocate.
-Each melds one signature trait with one bond it shares with a sibling seat.
+The zero-config default, `roster:core`, ships seven seats: Agentic Platform
+Engineer, Systems Administrator, Evaluation Engineer, Design Engineer, Game
+Developer, Portfolio Director, and Developer Advocate. Each melds one signature
+trait with one bond it shares with a sibling seat.
 
 Selection is exclusive. An external person package contributes its own roles,
 seats, personality definitions, and evaluation context, and it replaces

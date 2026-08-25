@@ -97,10 +97,10 @@ func TestWhoamiAnswersFromTheSessionBundleWithNoProjectionInReach(t *testing.T) 
 // Two roles on one host resolved to whichever projection converged last.
 func TestWhoamiKeepsConcurrentSessionsApart(t *testing.T) {
 	platform := seatBundleFixture(t, "platform", "Angie", "she")
-	tpm := seatBundleFixture(t, "tpm", "Saiya", "they")
+	tpm := seatBundleFixture(t, "tpm", "Portia", "they")
 	for _, tc := range []struct{ bundleDir, want string }{
 		{platform, "Angie [she]"},
-		{tpm, "Saiya [they]"},
+		{tpm, "Portia [they]"},
 	} {
 		t.Setenv(agentid.SessionEnv, "")
 		t.Setenv(launch.SessionBundleEnv, tc.bundleDir)
@@ -118,7 +118,7 @@ func TestWhoamiKeepsConcurrentSessionsApart(t *testing.T) {
 // --target is an inspection request, so it still reports what sits at that path.
 func TestWhoamiTargetStillInspectsAProjection(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "tpm", "Saiya", "they"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "tpm", "Portia", "they"))
 	t.Setenv(launch.SessionLayoutEnv, "claude")
 	got, err := Whoami(Options{Target: shortIDFixture(t)})
 	if err != nil {
@@ -132,7 +132,7 @@ func TestWhoamiTargetStillInspectsAProjection(t *testing.T) {
 // A half-set binding is not a binding, so the walk still runs.
 func TestWhoamiIgnoresAnIncompleteBinding(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "tpm", "Saiya", "they"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "tpm", "Portia", "they"))
 	t.Setenv(launch.SessionLayoutEnv, "")
 	got, err := Whoami(Options{Target: t.TempDir()})
 	if err != nil {

@@ -42,7 +42,7 @@ source.
 session, so a window title, a status row, and a launch flag never drift apart:
 
 ```text
-Angie [she] (Developer Platform Engineer)
+Angie [she] (Agentic Platform Engineer)
 ```
 
 Agent Compose owns the shape. A renderer that has the document shows the field

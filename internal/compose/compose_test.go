@@ -457,7 +457,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 		t.Fatalf("identity card kept the role's own seat:\n%s", instructions)
 	}
 	// The shipped seat name must be gone rather than merely joined.
-	if strings.Contains(string(instructions), "Olaf") {
+	if strings.Contains(string(instructions), "Vera") {
 		t.Fatal("identity card carries both the override and the role's seat")
 	}
 	// Seats back the statusline, overlay, and manifest, so they move together.

@@ -9,7 +9,7 @@ role "sysadmin" {
     adjacent "platform" reason="implementing the fix instead of handing it back with observed evidence"
     adjacent "tpm" reason="sequencing follow-up work after an incident instead of surfacing it as findings"
     personality "protective" "grounded"
-    identity name="Olaf" pronouns="he"
+    identity name="Vera" pronouns="she"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "holmesgpt"
