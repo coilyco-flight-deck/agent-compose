@@ -197,10 +197,7 @@ func introduction(composed *compose.Result, harness, role string) string {
 		return ""
 	}
 	displayName := p.RoleDisplayName(role)
-	traits := strings.Join(selected.Personalities, ", ")
-	if last := strings.LastIndex(traits, ", "); last >= 0 {
-		traits = traits[:last] + ", and " + traits[last+2:]
-	}
+	traits := joinTraits(selected.Personalities)
 	subject := displayName
 	if traits != "" {
 		subject = traits + " " + displayName
@@ -219,6 +216,22 @@ func introduction(composed *compose.Result, harness, role string) string {
 		return "You are the " + subject + "."
 	}
 	return name + ", you are the " + subject + "."
+}
+
+// joinTraits reads a meld as English. A two-trait meld takes a bare "and",
+// where the serial comma every longer list wants would be a comma splice.
+func joinTraits(traits []string) string {
+	switch len(traits) {
+	case 0:
+		return ""
+	case 1:
+		return traits[0]
+	case 2:
+		return traits[0] + " and " + traits[1]
+	default:
+		last := len(traits) - 1
+		return strings.Join(traits[:last], ", ") + ", and " + traits[last]
+	}
 }
 
 // seatName resolves the launch annotation: the selected seat's own name wins,
