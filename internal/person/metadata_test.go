@@ -19,39 +19,31 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 					{Harness: "alpha", Name: "bright builder", Pronouns: "she"},
 					{Harness: "beta", Name: "steady builder", Pronouns: "he"},
 				},
-				Inspiration: InspirationRef{ID: "builder-credit", Fit: "long role fit stays out"},
 			},
 		},
 		Personalities: map[string]Personality{
 			"bright": {
-				Skill:       "personality-bright",
-				Color:       "#d98e48",
-				Motif:       "sunbeam",
-				Geometry:    "open-rays",
-				Emblem:      Emblem{Names: []string{"lantern", "beacon"}, Emoji: "🏮"},
-				Body:        Body{Archetype: "small upright body", Attachment: "the flame sits in its chest"},
-				SoundMark:   SoundMark{Timbre: "bell", Contour: "rising", Pulse: "triplet"},
-				Inspiration: InspirationRef{ID: "bright-credit", Fit: "long personality fit stays out"},
+				Skill:     "personality-bright",
+				Color:     "#d98e48",
+				Motif:     "sunbeam",
+				Geometry:  "open-rays",
+				Emblem:    Emblem{Names: []string{"lantern", "beacon"}, Emoji: "🏮"},
+				Body:      Body{Archetype: "small upright body", Attachment: "the flame sits in its chest"},
+				SoundMark: SoundMark{Timbre: "bell", Contour: "rising", Pulse: "triplet"},
 			},
 			"steady": {
-				Skill:       "personality-steady",
-				Color:       "#5fa87a",
-				Motif:       "stone",
-				Geometry:    "stacked-rounds",
-				Emblem:      Emblem{Names: []string{"anchor", "cairn"}, Emoji: "⚓"},
-				Body:        Body{Archetype: "low and rounded, stacked stone", Attachment: "a cairn at its foot"},
-				SoundMark:   SoundMark{Timbre: "wood-block", Contour: "returning", Pulse: "steady-pair"},
-				Inspiration: InspirationRef{ID: "steady-credit", Fit: "another long fit stays out"},
+				Skill:     "personality-steady",
+				Color:     "#5fa87a",
+				Motif:     "stone",
+				Geometry:  "stacked-rounds",
+				Emblem:    Emblem{Names: []string{"anchor", "cairn"}, Emoji: "⚓"},
+				Body:      Body{Archetype: "low and rounded, stacked stone", Attachment: "a cairn at its foot"},
+				SoundMark: SoundMark{Timbre: "wood-block", Contour: "returning", Pulse: "steady-pair"},
 			},
 			"inactive": {
 				Skill: "personality-inactive",
 				Color: "#7d9fd3",
 			},
-		},
-		Inspirations: map[string]Inspiration{
-			"builder-credit": fixtureInspiration("Builder Credit", "builder-impact", "Builder Talk"),
-			"bright-credit":  fixtureInspiration("Bright Credit", "bright-impact", "Bright Talk"),
-			"steady-credit":  fixtureInspiration("Steady Credit", "steady-impact", "Steady Talk"),
 		},
 	}
 
@@ -72,14 +64,6 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		"* Melded favorite color: `#90a66a`",
 		"`alpha`: `bright builder` (pronouns: `she`)",
 		"`beta`: `steady builder` (pronouns: `he`)",
-		"Role `builder`: `Builder Credit` (`builder-credit`)",
-		"* Fit: long role fit stays out",
-		"Personality `bright`: `Bright Credit` (`bright-credit`)",
-		"* Fit: long personality fit stays out",
-		"* Achievement: long achievement stays out",
-		"* Impact mode: `bright-impact`",
-		"* Impact fit: long impact fit stays out",
-		"* Profile citation: `profile-citation-stays-out`",
 		"* Renderer expressions: `available`, `listening`, `thinking`",
 	} {
 		if !strings.Contains(got, want) {
@@ -88,12 +72,8 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 	}
 	for _, excluded := range []string{
 		"personality-inactive",
-		"Bright Talk",
-		"fixture-talk",
-		"Fixture Conference",
-		"keynote",
-		"long appearance summary stays out",
-		"appearance-citation-stays-out",
+		"inspiration",
+		"Credit",
 	} {
 		if strings.Contains(got, excluded) {
 			t.Errorf("metadata contains excluded field %q:\n%s", excluded, got)
@@ -107,7 +87,6 @@ func TestRenderRoleMetadataRejectsIncompleteRelationships(t *testing.T) {
 		Roles: map[string]Role{
 			"builder": {
 				Personalities: []string{"missing"},
-				Inspiration:   InspirationRef{ID: "missing"},
 			},
 		},
 	}
@@ -183,16 +162,10 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	}
 	for _, excluded := range []string{
 		"additional linked metadata",
-		"inspiration:",
-		"inspiration fit:",
-		"inspiration achievement:",
-		"inspiration profile citation:",
-		"inspiration appearance:",
-		"inspiration appearance event:",
-		"inspiration appearance citations:",
+		"inspiration",
 	} {
 		if strings.Contains(got, excluded) {
-			t.Errorf("transcript retained excluded appearance key %q:\n%s", excluded, got)
+			t.Errorf("transcript retained excluded key %q:\n%s", excluded, got)
 		}
 	}
 	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {
@@ -266,25 +239,6 @@ func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
 				t.Errorf("role %q metadata missing seat %q:\n%s", roleName, want, metadata)
 			}
 		}
-	}
-}
-
-func fixtureInspiration(name, impactMode, title string) Inspiration {
-	return Inspiration{
-		Name:            name,
-		Achievement:     "long achievement stays out",
-		ImpactMode:      impactMode,
-		ImpactFit:       "long impact fit stays out",
-		ProfileCitation: "profile-citation-stays-out",
-		Appearance: Appearance{
-			ID:        "fixture-talk",
-			Title:     title,
-			Event:     "Fixture Conference",
-			Year:      "2026",
-			Format:    "keynote",
-			Summary:   "long appearance summary stays out",
-			Citations: []string{"appearance-citation-stays-out"},
-		},
 	}
 }
 

@@ -125,7 +125,7 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "explain",
-						Usage: "add the role briefing, the credits, the expressions, and the decision tree",
+						Usage: "add the role briefing, the expressions, and the decision tree",
 					},
 					&cli.BoolFlag{
 						Name:  "reapply",

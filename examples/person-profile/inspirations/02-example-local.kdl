@@ -1,8 +1,0 @@
-inspiration "example-local" name="Example local" profile-citation="example" impact-mode="example" {
-    achievement "Demonstrates local personality ownership."
-    impact-fit "Keeps the public fixture generic."
-    appearance "example-local-appearance" title="Example" event="Example" year="2026" format="fixture" {
-        summary "Public generic fixture."
-        citation "example"
-    }
-}

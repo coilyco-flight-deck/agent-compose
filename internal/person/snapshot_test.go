@@ -58,10 +58,6 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 	if !reflect.DeepEqual(snapshot.Expressions, ExpressionVocabulary()) {
 		t.Fatal("snapshot expression vocabulary drifted from the person contract")
 	}
-	if !reflect.DeepEqual(snapshot.InspirationOrder, p.InspirationOrder) ||
-		!reflect.DeepEqual(snapshot.Inspirations, p.Inspirations) {
-		t.Fatal("snapshot inspiration catalog drifted from the loaded person")
-	}
 }
 
 func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
@@ -75,8 +71,6 @@ func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
 		"boundarySkills":       true,
 		"Personalities":        true,
 		"PersonalityOrder":     true,
-		"Inspirations":         true,
-		"InspirationOrder":     true,
 		"Raw":                  true,
 		"Libraries":            true,
 		"PersonalityLibraries": true,

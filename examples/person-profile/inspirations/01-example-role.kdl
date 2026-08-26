@@ -1,8 +1,0 @@
-inspiration "example-role" name="Example role" profile-citation="example" impact-mode="example" {
-    achievement "Demonstrates external profile authoring."
-    impact-fit "Keeps the public fixture generic."
-    appearance "example-role-appearance" title="Example" event="Example" year="2026" format="fixture" {
-        summary "Public generic fixture."
-        citation "example"
-    }
-}

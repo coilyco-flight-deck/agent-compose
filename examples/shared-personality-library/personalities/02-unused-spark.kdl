@@ -6,5 +6,4 @@ personality "unused-spark" skill="personality-unused-spark" color="#d3b63b" moti
     }
     sound-mark { timbre "glass-tap"; contour "brief-rise"; pulse "single" }
     alias "dormant"
-    inspiration "example-shared" { fit "The unused personality proves admitted catalogue entries remain available without acquiring a role affinity." }
 }

@@ -5,7 +5,4 @@ personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" 
         attachment "the flame sits inside its chest, casting rays out through the glass"
     }
     sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-    inspiration "fixture-builder" {
-        fit "The fixture demonstrates an open and illuminating working style."
-    }
 }

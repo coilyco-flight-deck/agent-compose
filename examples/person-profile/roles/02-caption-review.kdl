@@ -3,6 +3,5 @@ role "caption-review" {
     model-tier "frontier" "commodity"
     skill "role-caption-review"
     personality "local-guide"
-    inspiration "example-role" { fit "The same role inspiration keeps the example compact while proving a valid single-personality meld." }
     seat "chatbot-sonnet-low" name="example content guide" pronouns="they" channel="chatbot" tier="commodity"
 }

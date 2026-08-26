@@ -15,18 +15,16 @@ const (
 // Snapshot is the complete public person boundary emitted during convergence.
 // Model selection, authority, and runtime routing stay outside this contract.
 type Snapshot struct {
-	Format           string                  `json:"format"`
-	SchemaVersion    int                     `json:"schema_version"`
-	Source           string                  `json:"source"`
-	Person           string                  `json:"person"`
-	RoleOrder        []string                `json:"role_order"`
-	Roles            map[string]SnapshotRole `json:"roles"`
-	BoundaryOrder    []string                `json:"boundary_order,omitempty"`
-	Boundaries       map[string]Boundary     `json:"boundaries,omitempty"`
-	Personalities    map[string]Personality  `json:"personalities"`
-	Expressions      []string                `json:"expressions"`
-	InspirationOrder []string                `json:"inspiration_order"`
-	Inspirations     map[string]Inspiration  `json:"inspirations"`
+	Format        string                  `json:"format"`
+	SchemaVersion int                     `json:"schema_version"`
+	Source        string                  `json:"source"`
+	Person        string                  `json:"person"`
+	RoleOrder     []string                `json:"role_order"`
+	Roles         map[string]SnapshotRole `json:"roles"`
+	BoundaryOrder []string                `json:"boundary_order,omitempty"`
+	Boundaries    map[string]Boundary     `json:"boundaries,omitempty"`
+	Personalities map[string]Personality  `json:"personalities"`
+	Expressions   []string                `json:"expressions"`
 }
 
 // SnapshotRole embeds the canonical role so future role fields enter the
@@ -64,18 +62,16 @@ func BuildSnapshot(p *Person) (*Snapshot, error) {
 		)
 	}
 	return &Snapshot{
-		Format:           SnapshotFormat,
-		SchemaVersion:    SnapshotSchemaVersion,
-		Source:           p.ProviderID(),
-		Person:           p.Name,
-		RoleOrder:        append([]string(nil), p.RoleOrder...),
-		Roles:            roles,
-		BoundaryOrder:    append([]string(nil), p.BoundaryOrder...),
-		Boundaries:       p.Boundaries,
-		Personalities:    p.Personalities,
-		Expressions:      ExpressionVocabulary(),
-		InspirationOrder: append([]string(nil), p.InspirationOrder...),
-		Inspirations:     p.Inspirations,
+		Format:        SnapshotFormat,
+		SchemaVersion: SnapshotSchemaVersion,
+		Source:        p.ProviderID(),
+		Person:        p.Name,
+		RoleOrder:     append([]string(nil), p.RoleOrder...),
+		Roles:         roles,
+		BoundaryOrder: append([]string(nil), p.BoundaryOrder...),
+		Boundaries:    p.Boundaries,
+		Personalities: p.Personalities,
+		Expressions:   ExpressionVocabulary(),
 	}, nil
 }
 

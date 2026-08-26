@@ -6,5 +6,4 @@ personality "local-guide" skill="personality-local-guide" color="#7d9fd3" motif=
     }
     sound-mark { timbre "soft-click"; contour "level-return"; pulse "steady-pair" }
     alias "captioning"
-    inspiration "example-local" { fit "The local personality proves package-local definitions can join an admitted library." }
 }

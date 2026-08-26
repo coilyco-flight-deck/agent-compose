@@ -62,9 +62,6 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 				t.Errorf("role %q %s seat is incomplete: %+v", roleName, harness, seat)
 			}
 		}
-		if role.Inspiration.ID != "" {
-			t.Errorf("role %q retains Core inspiration %q", roleName, role.Inspiration.ID)
-		}
 		for _, name := range role.Personalities {
 			binding, ok := p.Personalities[name]
 			if !ok {
@@ -73,13 +70,7 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			if want := "personality-" + name; binding.Skill != want {
 				t.Errorf("personality %q skill = %q, want %q", name, binding.Skill, want)
 			}
-			if binding.Inspiration.ID != "" {
-				t.Errorf("personality %q retains Core inspiration %q", name, binding.Inspiration.ID)
-			}
 		}
-	}
-	if len(p.Inspirations) != 0 || len(p.InspirationOrder) != 0 {
-		t.Fatalf("Core retains inspirations: order=%v catalog=%v", p.InspirationOrder, p.Inspirations)
 	}
 }
 
@@ -724,9 +715,6 @@ func TestAssemblePersonSourceSet(t *testing.T) {
 		"personalities/01-bright.kdl": {
 			Data: []byte(`personality "bright"`),
 		},
-		"inspirations/01-fixture-builder.kdl": {
-			Data: []byte(`inspiration "fixture-builder"`),
-		},
 	}
 	raw, err := assemblePersonSource(source, "fixture person source")
 	if err != nil {
@@ -736,8 +724,6 @@ func TestAssemblePersonSourceSet(t *testing.T) {
     role "builder"
 
     personality "bright"
-
-    inspiration "fixture-builder"
 }
 `
 	if string(raw) != want {
@@ -797,9 +783,6 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             Finish validation and hand back a complete result.
             """
         personality "bright" "steady"
-        inspiration "fixture-builder" {
-            fit "The fixture is a useful builder archetype."
-        }
     }
     personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" geometry="open-rays" {
         emblem { name "lantern" "beacon"; emoji "🏮" }
@@ -808,9 +791,6 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             attachment "the flame sits inside its chest, casting rays out through the glass"
         }
         sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-        inspiration "fixture-builder" {
-            fit "The fixture demonstrates brightness."
-        }
     }
     personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
         emblem { name "anchor" "cairn"; emoji "⚓" }
@@ -819,17 +799,6 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             attachment "one small cairn standing at its foot, the same stone as its body"
         }
         sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
-        inspiration "fixture-builder" {
-            fit "The fixture demonstrates steadiness."
-        }
-    }
-    inspiration "fixture-builder" name="Fixture Builder" profile-citation="fixture-builder-profile" impact-mode="fixture-building" {
-        achievement "The fixture builder made the parser test concrete."
-        impact-fit "The fixture builder creates impact by keeping the successful parse path complete."
-        appearance "fixture-talk" title="Building Fixtures" event="Fixture Conference" year="2026" format="keynote" {
-            summary "The fixture builder explains how a complete person source stays internally consistent."
-            citation "fixture-builder-talk"
-        }
     }
 }`
 	p, err := parse([]byte(body))
@@ -853,59 +822,8 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 	}
 }
 
-func TestParseRejectsBrokenInspirationRelationships(t *testing.T) {
-	valid := inspirationFixture()
-	cases := map[string]struct {
-		body string
-		want string
-	}{
-		"unknown role inspiration": {
-			body: strings.Replace(valid, `inspiration "fixture-builder" {`, `inspiration "missing-builder" {`, 1),
-			want: `role "builder": inspiration "missing-builder" has no catalog entry`,
-		},
-		"appearance missing citation": {
-			body: strings.Replace(valid, `
-            citation "fixture-builder-talk"`, "", 1),
-			want: `appearance "fixture-talk" needs at least one citation`,
-		},
-		"unreferenced inspiration": {
-			body: strings.TrimSuffix(valid, "\n}") + `
-    inspiration "unused" name="Unused" profile-citation="unused-profile" impact-mode="unused" {
-        achievement "Unused achievement."
-        impact-fit "Unused impact."
-        appearance "unused-talk" title="Unused" event="Fixture Conference" year="2026" format="keynote" {
-            summary "Unused summary."
-            citation "unused-talk"
-        }
-    }
-}`,
-			want: `inspiration "unused" is not used by a role or personality`,
-		},
-		"duplicate credited person": {
-			body: strings.TrimSuffix(valid, "\n}") + `
-    inspiration "duplicate" name="Fixture Builder" profile-citation="duplicate-profile" impact-mode="duplicate" {
-        achievement "Duplicate achievement."
-        impact-fit "Duplicate impact."
-        appearance "duplicate-talk" title="Duplicate" event="Fixture Conference" year="2026" format="keynote" {
-            summary "Duplicate summary."
-            citation "duplicate-talk"
-        }
-    }
-}`,
-			want: `inspirations "fixture-builder" and "duplicate" name the same person`,
-		},
-	}
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			if _, err := parse([]byte(tc.body)); err == nil || !strings.Contains(err.Error(), tc.want) {
-				t.Fatalf("parse error = %v, want substring %q", err, tc.want)
-			}
-		})
-	}
-}
-
 func TestParseRejectsIncompleteOrAmbiguousIdentity(t *testing.T) {
-	valid := inspirationFixture()
+	valid := completePersonFixture()
 	cases := map[string]struct {
 		body string
 		want string
@@ -962,15 +880,12 @@ func TestParseRejectsIncompleteOrAmbiguousIdentity(t *testing.T) {
 	}
 }
 
-func inspirationFixture() string {
+func completePersonFixture() string {
 	return `person "fixture" {
     role "builder" {
         purpose "Build."
         briefing "Build independently.\n\nVerify the important paths.\n\nFinish the complete handoff."
         personality "bright" "steady"
-        inspiration "fixture-builder" {
-            fit "The fixture is a useful builder archetype."
-        }
     }
     personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" geometry="open-rays" {
         emblem { name "lantern" "beacon"; emoji "🏮" }
@@ -979,9 +894,6 @@ func inspirationFixture() string {
             attachment "the flame sits inside its chest, casting rays out through the glass"
         }
         sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-        inspiration "fixture-builder" {
-            fit "The fixture demonstrates brightness."
-        }
     }
     personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
         emblem { name "anchor" "cairn"; emoji "⚓" }
@@ -990,17 +902,6 @@ func inspirationFixture() string {
             attachment "one small cairn standing at its foot, the same stone as its body"
         }
         sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
-        inspiration "fixture-builder" {
-            fit "The fixture demonstrates steadiness."
-        }
-    }
-    inspiration "fixture-builder" name="Fixture Builder" profile-citation="fixture-builder-profile" impact-mode="fixture-building" {
-        achievement "The fixture builder made the parser test concrete."
-        impact-fit "The fixture builder creates impact by keeping the successful parse path complete."
-        appearance "fixture-talk" title="Building Fixtures" event="Fixture Conference" year="2026" format="keynote" {
-            summary "The fixture builder explains how a complete person source stays internally consistent."
-            citation "fixture-builder-talk"
-        }
     }
 }`
 }
@@ -1067,7 +968,7 @@ func TestParseRejectsInvalidRoleBriefing(t *testing.T) {
 }
 
 func TestParseRejectsRemovedRoleModelClass(t *testing.T) {
-	valid := inspirationFixture()
+	valid := completePersonFixture()
 	body := strings.Replace(valid, `personality "bright" "steady"`,
 		"personality \"bright\" \"steady\"\n        model-class \"frontier\"", 1)
 	if _, err := parse([]byte(body)); err == nil ||
@@ -1077,7 +978,7 @@ func TestParseRejectsRemovedRoleModelClass(t *testing.T) {
 }
 
 func TestParseRejectsInvalidRoleModelTiers(t *testing.T) {
-	valid := inspirationFixture()
+	valid := completePersonFixture()
 	cases := map[string]struct {
 		body string
 		want string
@@ -1172,7 +1073,7 @@ func TestParseSeatValidation(t *testing.T) {
 
 func TestParseRoleIdentityAppliesAcrossSeatsAndRejectsMixedDeclarations(t *testing.T) {
 	legacy := strings.Replace(
-		inspirationFixture(),
+		completePersonFixture(),
 		`        personality "bright" "steady"`,
 		`        agent "claude" name="legacy guide"
         personality "bright" "steady"`,
@@ -1187,7 +1088,7 @@ func TestParseRoleIdentityAppliesAcrossSeatsAndRejectsMixedDeclarations(t *testi
 	}
 
 	valid := strings.Replace(
-		inspirationFixture(),
+		completePersonFixture(),
 		`        personality "bright" "steady"`,
 		`        identity name="fixture guide" pronouns="she"
         agent "claude"
@@ -1217,7 +1118,7 @@ func TestParseRoleIdentityAppliesAcrossSeatsAndRejectsMixedDeclarations(t *testi
 }
 
 func TestParseCopyContractValidation(t *testing.T) {
-	valid := inspirationFixture()
+	valid := completePersonFixture()
 	insert := func(contract string) string {
 		return strings.Replace(
 			valid,

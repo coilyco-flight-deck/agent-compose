@@ -27,12 +27,12 @@ type Personality struct {
 }
 
 type Document struct {
-	Format          string      `json:"format"`
-	SchemaVersion   int         `json:"schema_version"`
-	Person          string      `json:"person"`
-	Role            string      `json:"role"`
-	RoleDisplayName string      `json:"role_display_name"`
-	Purpose         string      `json:"purpose"`
+	Format          string `json:"format"`
+	SchemaVersion   int    `json:"schema_version"`
+	Person          string `json:"person"`
+	Role            string `json:"role"`
+	RoleDisplayName string `json:"role_display_name"`
+	Purpose         string `json:"purpose"`
 	// Stance is the role's posture, not a personality's. See docs/identity.md.
 	Stance string      `json:"stance,omitempty"`
 	Seat   person.Seat `json:"seat"`

@@ -13,7 +13,6 @@ person.kdl
 roles/NN-role.kdl
 roles/<role>/SKILL.md
 personalities/NN-local.kdl
-[inspirations/NN-inspiration.kdl]
 definitions/INVARIANT.md
 definitions/skills/<skill>/SKILL.md
 evaluations/<role>.yaml
@@ -28,14 +27,11 @@ personalities act as an implicit package-local library.
 ```text
 library.kdl
 personalities/NN-personality.kdl
-[inspirations/NN-inspiration.kdl]
 definitions/skills/<skill>/SKILL.md
 ```
 
 `library.kdl` has one stable logical library name. Libraries contain only
 personality-owned content. They do not own roles or a profile invariant.
-The inspirations directory is optional compatibility data. If present, its
-records and personality references are validated as one complete graph.
 
 ### Admission and ordering
 

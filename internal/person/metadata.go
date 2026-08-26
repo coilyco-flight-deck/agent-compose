@@ -249,11 +249,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 
 	var out strings.Builder
 	out.WriteString("## Active role metadata\n\n")
-	out.WriteString("Agent-compose selected these public-safe facts for the agent.")
-	if hasSelectedInspiration(role, p.Personalities) {
-		out.WriteString(" Credits acknowledge influences and do not assign another identity.")
-	}
-	out.WriteString("\n\n")
+	out.WriteString("Agent-compose selected these public-safe facts for the agent.\n\n")
 	fmt.Fprintf(&out, "* Provider: `%s`\n", p.ProviderID())
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
@@ -267,12 +263,6 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	}
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "* Role methods: `%s`\n", strings.Join(role.Methods, "`, `"))
-	}
-	if role.Inspiration.ID != "" {
-		out.WriteString("* Role inspiration:\n")
-		if err := writeCredit(&out, "Role `"+roleName+"`", role.Inspiration, p.Inspirations); err != nil {
-			return "", err
-		}
 	}
 	out.WriteString("* Component personalities:\n")
 	for _, name := range role.Personalities {
@@ -294,11 +284,6 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 			binding.SoundMark.Contour,
 			binding.SoundMark.Pulse,
 		)
-		if binding.Inspiration.ID != "" {
-			if err := writeCredit(&out, "Personality `"+name+"`", binding.Inspiration, p.Inspirations); err != nil {
-				return "", err
-			}
-		}
 	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n", meldedColor)
 
@@ -351,15 +336,8 @@ func (p *Person) RenderRoleTranscript(
 	}
 	fmt.Fprintf(&roleBlock, "personalities: %s\n", strings.Join(role.Personalities, " // "))
 	fmt.Fprintf(&roleBlock, "melded color: %s\n", meldedColor)
-	// The briefing and the credits restate the role skill the agent loads anyway.
+	// The briefing restates the role skill the agent loads anyway.
 	if opts.Expanded {
-		if role.Inspiration.ID != "" {
-			roleCredit, exists := p.Inspirations[role.Inspiration.ID]
-			if !exists {
-				return "", fmt.Errorf("render role transcript: inspiration %q is not defined", role.Inspiration.ID)
-			}
-			writeTranscriptInspiration(&roleBlock, "role inspiration", role.Inspiration, roleCredit)
-		}
 		writeTranscriptParagraphs(&roleBlock, "briefing", role.Briefing)
 	}
 	roleBlock.WriteString("seats:\n")
@@ -425,27 +403,7 @@ func (p *Person) personalityTexture(
 	fmt.Fprintf(&out, "%s // sound: %s, %s, %s\n",
 		key, binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
 	fmt.Fprintf(&out, "%s // skill: %s\n", key, binding.Skill)
-	if expanded && binding.Inspiration.ID != "" {
-		credit, exists := p.Inspirations[binding.Inspiration.ID]
-		if !exists {
-			return "", fmt.Errorf(
-				"render role transcript: inspiration %q is not defined", binding.Inspiration.ID)
-		}
-		writeTranscriptInspiration(&out, key+" // inspiration", binding.Inspiration, credit)
-	}
 	return out.String(), nil
-}
-
-func hasSelectedInspiration(role Role, personalities map[string]Personality) bool {
-	if role.Inspiration.ID != "" {
-		return true
-	}
-	for _, name := range role.Personalities {
-		if personalities[name].Inspiration.ID != "" {
-			return true
-		}
-	}
-	return false
 }
 
 func seatRoutingSuffix(seat Seat) string {
@@ -474,20 +432,6 @@ func writeTranscriptSection(
 	out.WriteString(text)
 }
 
-func writeTranscriptInspiration(
-	out *strings.Builder,
-	label string,
-	ref InspirationRef,
-	inspiration Inspiration,
-) {
-	fmt.Fprintf(out, "%s: %s (%s)\n", label, inspiration.Name, ref.ID)
-	fmt.Fprintf(out, "%s fit: %s\n", label, ref.Fit)
-	fmt.Fprintf(out, "%s achievement: %s\n", label, inspiration.Achievement)
-	fmt.Fprintf(out, "%s impact mode: %s\n", label, inspiration.ImpactMode)
-	fmt.Fprintf(out, "%s impact fit: %s\n", label, inspiration.ImpactFit)
-	fmt.Fprintf(out, "%s profile citation: %s\n", label, inspiration.ProfileCitation)
-}
-
 func writeTranscriptParagraphs(out *strings.Builder, label, value string) {
 	fmt.Fprintf(out, "%s:\n", label)
 	wrote := false
@@ -506,25 +450,6 @@ func writeTranscriptParagraphs(out *strings.Builder, label, value string) {
 	if !wrote {
 		out.WriteString("(none)\n")
 	}
-}
-
-func writeCredit(
-	out *strings.Builder,
-	subject string,
-	ref InspirationRef,
-	catalog map[string]Inspiration,
-) error {
-	inspiration, ok := catalog[ref.ID]
-	if !ok {
-		return fmt.Errorf("render role metadata: inspiration %q is not defined", ref.ID)
-	}
-	fmt.Fprintf(out, "  * %s: `%s` (`%s`)\n", subject, inspiration.Name, ref.ID)
-	fmt.Fprintf(out, "    * Fit: %s\n", ref.Fit)
-	fmt.Fprintf(out, "    * Achievement: %s\n", inspiration.Achievement)
-	fmt.Fprintf(out, "    * Impact mode: `%s`\n", inspiration.ImpactMode)
-	fmt.Fprintf(out, "    * Impact fit: %s\n", inspiration.ImpactFit)
-	fmt.Fprintf(out, "    * Profile citation: `%s`\n", inspiration.ProfileCitation)
-	return nil
 }
 
 // boundarySkillIDs names the skills for one already-composed boundary set.

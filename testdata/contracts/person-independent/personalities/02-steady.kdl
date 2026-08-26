@@ -5,7 +5,4 @@ personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" ge
         attachment "one small cairn standing at its foot, the same stone as its body"
     }
     sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
-    inspiration "fixture-builder" {
-        fit "The fixture demonstrates a stable and dependable working style."
-    }
 }

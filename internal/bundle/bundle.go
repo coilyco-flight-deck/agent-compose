@@ -381,7 +381,6 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		Personalities       []string
 		PersonalityMetadata []IdentityPersonality
 		Seats               []person.Seat
-		Inspiration         person.InspirationRef
 		SupportedModelTiers []string
 		FavoriteColor       string
 	}{
@@ -390,7 +389,6 @@ func manifestContent(res *resolver.Resolution) ([]ContentDigest, error) {
 		Personalities:       role.Personalities,
 		PersonalityMetadata: selectedIdentityPersonalities(res),
 		Seats:               role.Seats,
-		Inspiration:         role.Inspiration,
 		SupportedModelTiers: role.SupportedModelTiers,
 		FavoriteColor:       res.FavoriteColor,
 	}

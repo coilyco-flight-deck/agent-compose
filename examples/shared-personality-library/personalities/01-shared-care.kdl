@@ -6,5 +6,4 @@ personality "shared-care" skill="personality-shared-care" color="#b682ed" motif=
     }
     sound-mark { timbre "warm-chime"; contour "gentle-rise"; pulse "supporting-pair" }
     alias "supportive"
-    inspiration "example-shared" { fit "The shared personality proves an admitted library can contribute a meld member." }
 }

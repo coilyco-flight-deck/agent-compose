@@ -27,7 +27,7 @@ package layout land together so the code never precedes its public boundary.
   harness adapters, diagnostics, and Kai's public-safe default person package,
   including role methods determined by that package's cross-role policy.
 * Each selected person package owns its operating purpose, personality
-  catalog bindings, compatibility, credited inspirations, and selection policy.
+  catalog bindings, compatibility, and selection policy.
 * `agent-compose` owns the personality invariant and canonical personality
   definitions alongside the person configuration that binds them.
 * `agentic-os` owns reusable knowledge sources, general skills, capability
@@ -116,7 +116,7 @@ The fleet runs two lanes, and both authorize the same core actions:
 <!-- END managed by agentic-os/scripts/apply-git-workflow.py -->
 
 Keep one issue per independently verifiable vertical slice. Kai-specific,
-public-safe role, personality, and inspiration policy is first-class product
+public-safe role and personality policy is first-class product
 content. Do not generalize it prematurely, copy ordinary AOS skills into this
 repo, or allow personality to alter truthfulness, authority, safety, rollback,
 or completion.

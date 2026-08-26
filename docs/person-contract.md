@@ -86,10 +86,9 @@ schema version `3`. The artifact exports:
 * every role's purpose, role-skill id, logical source, digest and body
   projection, role-method ids, supported model tiers, ordered meld, color,
   role-stable identity, and seats
-* every personality's skill binding, color, emblem, motif, form language,
-  and sound mark
+* every personality's skill binding, color, emblem, motif, geometry, body,
+  and sound mark, and every role's stance
 * the fixed renderer expression vocabulary
-* optional external-package inspiration compatibility data
 
 Roles and personalities are keyed by their stable slugs. `role_order` is the
 canonical presentation order. Consumers should use the explicit order rather
@@ -106,9 +105,8 @@ projection restores the prior owned artifact. A second convergence leaves
 identical bytes unchanged. The `compose` terminal transcript and compact
 identity card render the selected-role slice from this same model. Core
 surfaces include the canonical role identity once, harness routing selectors,
-personality primitives, and the expression vocabulary. Optional inspiration
-data from an external package remains in the snapshot and renders only when
-that package supplies it. The generated file remains outside repositories.
+personality primitives, and the expression vocabulary. The generated file
+remains outside repositories.
 Consumers can read it but do not edit it or treat it as a second policy source.
 
 ### Authority boundary

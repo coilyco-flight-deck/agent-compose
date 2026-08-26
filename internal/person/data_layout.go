@@ -20,7 +20,6 @@ var entityKinds = map[string]string{
 	"role":        "roles",
 	"personality": "personalities",
 	"boundary":    "boundaries",
-	"inspiration": "inspirations",
 }
 
 // dataLayout projects the flat entity tree onto the section layout the loader

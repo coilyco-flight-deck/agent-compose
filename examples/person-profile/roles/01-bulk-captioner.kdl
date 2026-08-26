@@ -7,6 +7,5 @@ role "bulk-captioner" {
         forbid "upload" prefer="add"
         forbid "asset" prefer="video"
     }
-    inspiration "example-role" { fit "The example role proves profile-owned purpose and bounded authority without importing customer material." }
     seat "chatbot-sonnet-low" name="example content guide" pronouns="they" channel="chatbot" tier="commodity"
 }
