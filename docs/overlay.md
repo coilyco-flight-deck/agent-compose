@@ -49,6 +49,13 @@ Preserve them through any rewording of the fields themselves.
 * **A bond tints, it never adds a second object.** Two named objects make a
   renderer drop one, and it drops the signature. A bond contributes through
   `motif` and `color`.
+* **The creature is painted from `color`, and the prose never names it.** The
+  personality's authored accent is the creature's own colour, so a colour word
+  in `archetype` or `attachment` restates a hex that can move without it. What
+  the prose may name is a material's intrinsic colour, which `motif` already
+  carries: brass is brass whatever the accent does, and moss is green without
+  being told. The two are distinguishable by the test of whether changing the
+  hex would make the sentence false.
 * **A meld whose two geometries match cannot be told apart.** `playful` and
   `imaginative` were both `radial` and are melded, so the bond converted the
   signature rather than dressing it. Every arrangement is now distinct across
