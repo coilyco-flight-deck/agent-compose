@@ -3,6 +3,10 @@
 The shared layer prints an entity's charter and knows nothing about how this
 deployment composes one, so owns, defers, scoped, and traits are spelled here
 rather than there. See docs/evaluation.md.
+
+The projection is JSON because `aos-eval annotate` reads --roster with
+json.loads. It is a temp-dir handoff rather than a committed artifact, so the
+repo rule preferring YAML for anything a human reads does not reach it.
 """
 
 from __future__ import annotations
@@ -11,8 +15,6 @@ import argparse
 import json
 from pathlib import Path
 from typing import Any
-
-import yaml
 
 
 def to_entity_roster(person: dict[str, Any]) -> dict[str, Any]:
@@ -49,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     projected = to_entity_roster(json.loads(args.person.read_text()))
-    args.out.write_text(yaml.safe_dump(projected, sort_keys=False, width=100, allow_unicode=True))
+    args.out.write_text(json.dumps(projected, indent=2, ensure_ascii=False) + "\n")
     return 0
 
 

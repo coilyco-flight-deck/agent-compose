@@ -16,10 +16,10 @@ trap cleanup EXIT HUP INT TERM
 go run ./cmd/agent-compose roster --out "$render_dir" >/dev/null
 uv run python -m evalkit.roster \
   --person "$render_dir/person.json" \
-  --out "$render_dir/entities.yaml"
+  --out "$render_dir/entities.json"
 
 uv run aos-eval annotate \
   --dataset "$dataset" \
   --out "$out" \
-  --roster "$render_dir/entities.yaml" \
+  --roster "$render_dir/entities.json" \
   "$@"
