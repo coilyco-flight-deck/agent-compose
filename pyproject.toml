@@ -54,7 +54,9 @@ band = "large"
 excludes = ["testdata/contracts/**", "internal/person/data/**", ".evalkit/**"]
 
 [tool.agentic-os.code-comments]
-excludes = [".pre-commit-config.yaml"]
+# Committed eval evidence quotes subject output verbatim, so a response
+# containing a markdown heading reads as a stray YAML comment to a line scan.
+excludes = [".pre-commit-config.yaml", "evaluations/**"]
 
 [tool.agentic-os.repo-pointer-skills]
 org = "coilyco-flight-deck"
