@@ -1,6 +1,6 @@
 personality "imaginative" skill="personality-imaginative" color="#b682ed" motif="stained-glass" geometry="radial-facets" {
     order 11
-    emblem { name "crystal-ball" "kaleidoscope" "bloom"; emoji "🔮" }
+    emblem { name "crystal-ball" "kaleidoscope" "prism"; emoji "🔮" }
     body {
         archetype "a body of faceted glass panels in violet and lilac, thin lead cames running between them, light passing through it rather than stopping at its surface"
         attachment "a kaleidoscope barrel set where its eye would be, throwing a shifting fan of colour across whatever it faces"

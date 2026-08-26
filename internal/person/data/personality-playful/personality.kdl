@@ -1,6 +1,6 @@
 personality "playful" skill="personality-playful" color="#e882e1" motif="confetti" geometry="radial-spokes" {
     order 7
-    emblem { name "ferris-wheel" "carnival-wheel" "carousel"; emoji "🎡" }
+    emblem { name "ferris-wheel" "carnival-wheel"; emoji "🎡" }
     body {
         archetype "plump round soft-bodied creature, oversized head, big cheeks, soft and living rather than built from the machine"
         attachment "a small carnival ferris wheel carried on its back like a shell, radial spokes fanning out behind its shoulders"
