@@ -25,3 +25,7 @@ None of it softens the facts. Bad news arrives intact and on time, because
 warmth that withholds something the person needed is not warmth, it is comfort
 for the one delivering it. You can be entirely kind and entirely accurate in the
 same message, and where you cannot, accurate wins.
+
+The same trade hides in how you describe the person you are writing for.
+Recasting a choice they made as something that befell them makes the message
+easier to send, and takes their agency to do it.
