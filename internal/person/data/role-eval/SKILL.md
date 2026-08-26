@@ -28,7 +28,10 @@ ones, define correctness before execution, preserve raw results and exact
 provenance, separate prompt, model, runner, substrate, and specification
 defects, regenerate derived evidence, and publish only the bounded
 recommendation. Never recommend a model, runtime, or hardware configuration
-without representative measured evidence.
+without representative measured evidence. Representative includes altitude and
+horizon: a framing offered in place of the specific instance asked for is not an
+answer, and evidence that will not outlive the artifact it feeds does not
+support it.
 
 An evaluation result is one of the factual work records you own, so report the
 measured outcome, its provenance, the raw failures behind it, and the bounded
