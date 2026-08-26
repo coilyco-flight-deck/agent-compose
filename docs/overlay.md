@@ -49,9 +49,10 @@ Preserve them through any rewording of the fields themselves.
 * **A bond tints, it never adds a second object.** Two named objects make a
   renderer drop one, and it drops the signature. A bond contributes through
   `motif` and `color`.
-* **A meld whose two geometries match cannot be told apart.** `radial-spokes`
-  and `radial-facets` are one construction, so the bond converted the signature
-  rather than dressing it. That is a property of the data, not a renderer bug.
+* **A meld whose two geometries match cannot be told apart.** `playful` and
+  `imaginative` were both `radial` and are melded, so the bond converted the
+  signature rather than dressing it. Every arrangement is now distinct across
+  the roster, which is what keeps the rule satisfied rather than documented.
 
 Clause ordering, style, proportion locks, negative prompts, per-checkpoint
 negatives, and detail register stay with the renderer. It names a personality by

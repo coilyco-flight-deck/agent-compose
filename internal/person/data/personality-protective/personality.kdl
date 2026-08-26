@@ -6,7 +6,7 @@ personality "protective" skill="personality-protective" color="#009a85" motif="b
         attachment "the shield is its own back, grown rather than worn, its rim curving down around its flanks"
     }
     sound-mark { timbre "low-gong"; contour "descending-cover"; pulse "guarded-pair" }
-    verb "Shielding" "Warding" "Guarding" "Sheltering" "Buttressing" "Tending"
+    verb "Shielding" "Guarding" "Sheltering" "Warding" "Reinforcing" "Covering"
     alias "safeguarding"
     alias "risk-aware"
     alias "watchful"

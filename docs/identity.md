@@ -10,23 +10,23 @@ the same semantics without agent-compose owning their presentation.
 ### Emblem
 
 ```kdl
-emblem { name "pick" "grapnel" "hook"; emoji "⛏️" }
+emblem { name "knot" "hitch" "lifeline"; emoji "🪢" }
 ```
 
 Names run widest-reading first: the emoji's literal name, then what this roster
-reads the mark as. `⛏️` is a pick and the personality it marks hauls on a
-grapnel, so either word alone lies. A renderer with room for one takes the
-first. Every name is a lookup key, so all are unique across the roster.
+reads the mark as. `🎨` is an artist palette and the personality it marks is
+playful, so either word alone is half the story. A renderer with room for one
+takes the first. Every name is a lookup key, unique across the roster.
 
 ### Motif
 
-`motif` is one lowercase semantic token such as `moss`, read as material or
+`motif` is one lowercase semantic token such as `wet-paint`, read as material or
 texture rather than a CSS class or asset path. A motif is what the thing is made
 of and an emblem is a thing you point at, so every motif is a material.
 
 ### Geometry
 
-`geometry` is one lowercase semantic token such as `radial-spokes`, the stable
+`geometry` is one lowercase semantic token such as `radial-facets`, the stable
 shape language a renderer generates an avatar, sprite, or overlay figure from.
 It is the agent's own representation, not a separate pet. `aterm` reads both
 halves: mask, then ink.
@@ -40,7 +40,7 @@ own validator so tokens stay tokens. `stance` is its posture and lives on the
 ```kdl
 body {
     archetype "sturdy compact body, simple rounded forms, thick tapering limbs"
-    attachment "a heavy iron grapnel hook slung at its hip, one rope out of frame"
+    attachment "a thick rope knotted around its shoulder, running taut out of frame"
 }
 ```
 Every renderer uses this fixed expression vocabulary: `available`, `listening`,

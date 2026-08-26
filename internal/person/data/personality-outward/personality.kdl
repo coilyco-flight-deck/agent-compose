@@ -6,7 +6,7 @@ personality "outward" skill="personality-outward" color="#b3be49" motif="weather
         attachment "its whole upper body extended and sighting on something past the edge of frame, one lens catching the light at the far end"
     }
     sound-mark { timbre "brass-swell"; contour "widening-rise"; pulse "long-single" }
-    verb "Scouting" "Comparing" "Benchmarking" "Sighting" "Ranging" "Canvassing"
+    verb "Comparing" "Benchmarking" "Scouting" "Sighting" "Contrasting" "Ranging"
     alias "outward-looking"
     alias "comparative"
     alias "externally-grounded"

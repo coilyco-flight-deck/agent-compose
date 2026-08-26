@@ -1,12 +1,12 @@
 personality "imaginative" skill="personality-imaginative" color="#b682ed" motif="stained-glass" geometry="radial-facets" {
     order 11
-    emblem { name "crystal-ball" "kaleidoscope" "prism"; emoji "🔮" }
+    emblem { name "rainbow" "prism" "spectrum"; emoji "🌈" }
     body {
         archetype "a body of faceted glass panels in violet and lilac, thin lead cames running between them, light passing through it rather than stopping at its surface"
-        attachment "a kaleidoscope barrel set where its eye would be, throwing a shifting fan of colour across whatever it faces"
+        attachment "a prism set where its eye would be, throwing one white beam out as a fanned band of colour across whatever it faces"
     }
     sound-mark { timbre "celesta"; contour "expanding-arc"; pulse "shimmering-three" }
-    verb "Refracting" "Kaleidoscoping" "Conjuring" "Dreaming" "Envisaging" "Blooming"
+    verb "Refracting" "Transposing" "Reframing" "Recombining" "Riffing" "Diverging"
     alias "creative"
     alias "inventive"
     alias "visionary"

@@ -1,12 +1,12 @@
-personality "playful" skill="personality-playful" color="#e882e1" motif="confetti" geometry="radial-spokes" {
+personality "playful" skill="personality-playful" color="#e882e1" motif="wet-paint" geometry="scattered-dabs" {
     order 7
-    emblem { name "ferris-wheel" "carnival-wheel"; emoji "🎡" }
+    emblem { name "artist-palette" "palette" "swatch"; emoji "🎨" }
     body {
-        archetype "plump round soft-bodied creature, oversized head, big cheeks, soft and living rather than built from the machine"
-        attachment "a small carnival ferris wheel carried on its back like a shell, radial spokes fanning out behind its shoulders"
+        archetype "plump round soft-bodied creature, oversized head, big cheeks, soft and living rather than built from the thing it carries"
+        attachment "a broad wooden artist's palette held against its chest, one thumb through the hole, wet dabs of unmixed colour scattered across it"
     }
     sound-mark { timbre "toy-piano"; contour "zigzag-rise"; pulse "syncopated-three" }
-    verb "Whirling" "Skylarking" "Cavorting" "Fiddling" "Confettiing" "Gamboling"
+    verb "Inverting" "Provoking" "Daubing" "Larking" "Spoofing" "Upending"
     alias "whimsical"
     alias "lighthearted"
     alias "fun"

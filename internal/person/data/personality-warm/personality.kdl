@@ -6,7 +6,7 @@ personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" geometr
         attachment "an open hearth set into its belly with a live fire burning in it, banked and steady"
     }
     sound-mark { timbre "felt-mallet"; contour "rising-embrace"; pulse "gentle-three" }
-    verb "Welcoming" "Warming" "Comforting" "Cheering" "Softening" "Nestling"
+    verb "Welcoming" "Warming" "Attending" "Noticing" "Comforting" "Accompanying"
     alias "kind"
     alias "welcoming"
     alias "friendly"

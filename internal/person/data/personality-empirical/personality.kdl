@@ -1,4 +1,4 @@
-personality "empirical" skill="personality-empirical" color="#2ed1aa" motif="annealed-steel" geometry="graduated-column" {
+personality "empirical" skill="personality-empirical" color="#2ed1aa" motif="lab-glass" geometry="graduated-column" {
     order 23
     emblem { name "test-tube" "burette" "vessel"; emoji "🧪" }
     body {

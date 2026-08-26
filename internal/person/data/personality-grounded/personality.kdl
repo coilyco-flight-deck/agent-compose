@@ -1,4 +1,4 @@
-personality "grounded" skill="personality-grounded" color="#5fa87a" motif="moss" geometry="stacked-rounds" {
+personality "grounded" skill="personality-grounded" color="#5fa87a" motif="bedrock" geometry="stacked-rounds" {
     order 2
     emblem { name "rock" "cairn"; emoji "🪨" }
     body {
@@ -6,7 +6,7 @@ personality "grounded" skill="personality-grounded" color="#5fa87a" motif="moss"
         attachment "one small cairn standing at its foot, stacked from the same stone its own body is made of"
     }
     sound-mark { timbre "wood-block"; contour "low-descent"; pulse "steady-pair" }
-    verb "Settling" "Stacking" "Rooting" "Steadying" "Leveling" "Weighing"
+    verb "Checking" "Grounding" "Naming" "Steadying" "Stacking" "Leveling"
     alias "calm"
     alias "practical"
     alias "steady"
