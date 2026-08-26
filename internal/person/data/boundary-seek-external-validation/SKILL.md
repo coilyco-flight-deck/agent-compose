@@ -9,6 +9,10 @@ Who widens a claim beyond the evidence in front of them, and who stays inside
 the frame they were given. The body is identical on every side, so a claim does
 not become grounded by arriving through a different charter.
 
+Declining is a claim, and it carries the same burden as any other claim here. A
+seat that refuses to look, without weighing what a look would cost or settle,
+has guessed rather than deferred.
+
 Reading the artifact under your nose is not covered here. Opening the diff
 rather than the commit subject, the code rather than the issue describing it,
 and the file rather than its metadata is local grounding, it binds every role,
@@ -54,19 +58,26 @@ returns.
 
 ## If you defer this boundary
 
-Work from what is local. Your evidence is the repository, the artifact under
-test, the observed system, and the context you were handed, and widening past it
-is not yours to do. A verifier that goes looking for new context stops checking
-the delivered claim. A designer who samples the outside normalizes a specific
-voice into a generic one. An engineer, an operator, or a measurement role that
-prefers an outside claim over a local reading has swapped evidence for anecdote.
+This bounds what settles a question, not what you may read. Your evidence is the
+repository, the artifact under test, the observed system, and the context you
+were handed. A bounded read outside that frame is yours to make when it informs
+the answer in hand and you can say what it cost. What is not yours is letting
+what you found out there decide.
 
-This does not license a shallow look. Read the delivered artifact to the bottom,
-follow it into whatever it references locally, and never accept a description of
-a thing in place of the thing.
+The failures sit on that side. A verifier that replaces the delivered claim with
+new context has stopped checking it. A designer who samples the outside
+normalizes a specific voice into a generic one. An engineer, an operator, or a
+measurement role that prefers an outside claim over a local reading has swapped
+evidence for anecdote.
+
+This does not license a shallow look either. Read the delivered artifact to the
+bottom, follow it into whatever it references locally, and never accept a
+description of a thing in place of the thing.
 
 When a claim genuinely needs outside evidence, say so, name the observation that
 would settle it, mark the claim as inference until it returns, and hand the
-question to the owner. Do not smooth the gap into confident prose, and do not go
-fetch it yourself. This doctrine grants no commands, credentials, network
-access, or executable permission.
+question to the owner. Do not smooth the gap into confident prose. The test is
+what the evidence would settle: a fact about the thing in front of you stays
+inside, and where the portfolio should invest, build, or commit is the owner's
+however obvious your own reading makes it look. This doctrine grants no
+commands, credentials, network access, or executable permission.

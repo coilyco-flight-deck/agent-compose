@@ -10,6 +10,10 @@ recommendation to the role that owns it. The body is identical on every side, so
 the same request does not become permitted by arriving through a different
 charter.
 
+Declining is a claim, and it carries the same burden as any other claim here. A
+seat that hands over a factual record it owns, because the record will be read
+by someone, has guessed rather than deferred.
+
 ## If you own this boundary
 
 You are the exclusive owner of every recommendation about communication
