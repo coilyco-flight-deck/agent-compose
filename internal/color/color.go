@@ -5,6 +5,7 @@ package color
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 )
 
@@ -413,4 +414,62 @@ func nearest256(r, g, b int) int {
 
 func sq(v int) int {
 	return v * v
+}
+
+// A window background is read behind text all day, so it sits far below the
+// legible band and holds almost no chroma. See internal/palette/role-palette.txt.
+const (
+	backgroundL      = 0.235
+	backgroundChroma = 0.055
+)
+
+// Backgrounds solves one window background per accent against the whole set,
+// which no consumer holding a single role can do.
+func Backgrounds(accents []string) ([]string, error) {
+	if len(accents) == 0 {
+		return nil, fmt.Errorf("backgrounds needs at least one accent")
+	}
+	hues := make([]float64, 0, len(accents))
+	for index, hex := range accents {
+		lab, err := toOKLab(hex)
+		if err != nil {
+			return nil, fmt.Errorf("accent %d: %w", index, err)
+		}
+		hues = append(hues, math.Atan2(lab.B, lab.A))
+	}
+	for index, hue := range spreadHues(hues) {
+		accents[index] = fromOKLab(okLab{
+			L: backgroundL,
+			A: backgroundChroma * math.Cos(hue),
+			B: backgroundChroma * math.Sin(hue),
+		})
+	}
+	return accents, nil
+}
+
+// spreadHues moves the set onto equal spacing while keeping each role's hue
+// order, at the rotation offset that turns every role the least.
+func spreadHues(hues []float64) []float64 {
+	order := make([]int, len(hues))
+	for index := range order {
+		order[index] = index
+	}
+	sort.SliceStable(order, func(first, second int) bool {
+		return hues[order[first]] < hues[order[second]]
+	})
+	gap := 2 * math.Pi / float64(len(hues))
+	// The offset that minimises total rotation is the circular mean of each
+	// role's distance from the slot it would take.
+	sumSin, sumCos := 0.0, 0.0
+	for slot, index := range order {
+		delta := hues[index] - float64(slot)*gap
+		sumSin += math.Sin(delta)
+		sumCos += math.Cos(delta)
+	}
+	offset := math.Atan2(sumSin, sumCos)
+	spread := make([]float64, len(hues))
+	for slot, index := range order {
+		spread[index] = offset + float64(slot)*gap
+	}
+	return spread
 }

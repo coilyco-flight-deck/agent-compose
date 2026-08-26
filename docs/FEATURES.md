@@ -61,7 +61,9 @@ Inventory of what ships today.
 
 * [Identity renderers](statusline.md) cover the palette, overlays, the
   `acompose statusline` row, `--subagent` rows, and the
-  [short id](whoami.md). [`whoami`](whoami.md) prints it.
+  [short id](whoami.md). [`whoami`](whoami.md) prints it. The
+  [overlay](overlay.md) carries a separation-solved window `background` beside
+  the accent, so a renderer no longer tints its own.
 * [`native-ui`](claude-native-ui-surfaces.md) emits per-role Claude Code themes.
 
 ## Roster artifact and cascade

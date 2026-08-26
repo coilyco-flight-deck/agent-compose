@@ -37,7 +37,8 @@ Personality items contain `slug`, `skill`, the one-sentence skill
 `description`, `aliases`, `color`, `motif`, `emblem`, `form`, `sound_mark`,
 `source_library`, `digest`, and complete role `affinities`. Role items contain
 `slug`, `purpose`, `skill`, role-skill provenance, role `identity`, `seats`, ordered
-`personalities`, and `favorite_color`. Seat items contain `role` plus the full
+`personalities`, `favorite_color`, and the derived `background`. Seat items
+contain `role` plus the full
 stable seat object. Expression items are stable strings.
 
 ### Deterministic export

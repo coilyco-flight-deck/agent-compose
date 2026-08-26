@@ -35,9 +35,12 @@ type Document struct {
 	Seat            person.Seat `json:"seat"`
 	// Annotation is the composed identity string a renderer shows verbatim,
 	// `Angie [she] (Engineer)`.
-	Annotation    string        `json:"annotation"`
-	Expression    string        `json:"expression"`
-	FavoriteColor string        `json:"favorite_color"`
+	Annotation    string `json:"annotation"`
+	Expression    string `json:"expression"`
+	FavoriteColor string `json:"favorite_color"`
+	// Background is solved across the whole roster, so a renderer that tints
+	// its own cannot tell two roles apart. See internal/palette/role-palette.txt.
+	Background    string        `json:"background"`
 	Personalities []Personality `json:"personalities"`
 }
 
@@ -92,6 +95,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		})
 	}
 	doc.FavoriteColor = role.FavoriteColor
+	doc.Background = role.Background
 	return doc, nil
 }
 

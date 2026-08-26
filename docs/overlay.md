@@ -30,11 +30,29 @@ Add `--json` for `agent-compose.overlay.v1`. The document contains:
 * person, role, `role_display_name`, purpose, and selected seat
 * `annotation`, the composed identity string a renderer shows verbatim
 * the caller-supplied expression
-* the role's derived favorite color
+* the role's derived favorite color, and its derived `background`
 * every component personality's color and identity primitives
 
 The JSON is a projection of the selected person model, not a second policy
 source.
+
+## Why the background is derived here
+
+`favorite_color` is an accent, solved in the terminal-legible band. A renderer
+that wants a window background has been tinting that accent into a near-black
+of its own, and seven accents tinted the same way land inside the
+side-by-side JND of each other: the closest pair measured 0.0109 in OKLab
+against a solved 0.0386.
+
+Separation is a property of the set, so a consumer holding one overlay cannot
+compute it. Only the roster sees every role at once. `background` holds each
+role's own hue, moves the set onto equal spacing at one low lightness and
+chroma, and picks the rotation offset that turns every role the least. Roster
+loading asserts a floor on the closest pair, so an eighth role that runs out of
+hue circle fails at load rather than shipping two windows nobody can tell
+apart. The derived set is committed in
+[`internal/palette/role-palette.txt`](../internal/palette/role-palette.txt), so
+a roster edit arrives as a diff.
 
 ## Annotation
 

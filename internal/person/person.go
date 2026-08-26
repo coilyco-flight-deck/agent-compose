@@ -115,6 +115,7 @@ type Role struct {
 	Briefing            string           `json:"briefing"`
 	Personalities       []string         `json:"personalities"`
 	FavoriteColor       string           `json:"favorite_color,omitempty"`
+	Background          string           `json:"background,omitempty"`
 	Identity            *AgentIdentity   `json:"identity,omitempty"`
 	Seats               []Seat           `json:"seats"`
 	Inspiration         InspirationRef   `json:"inspiration,omitempty"`
@@ -634,8 +635,35 @@ func (p *Person) ResolveFavoriteColors() error {
 	return nil
 }
 
+// ResolveBackgrounds derives one window background per role from the resolved
+// accents, solved across the whole roster. See internal/palette/role-palette.txt.
+func (p *Person) ResolveBackgrounds() error {
+	order := p.roleOrder()
+	accents := make([]string, 0, len(order))
+	for _, roleName := range order {
+		accent := p.Roles[roleName].FavoriteColor
+		if accent == "" {
+			return fmt.Errorf("role %q has no favorite color to derive a background from", roleName)
+		}
+		accents = append(accents, accent)
+	}
+	backgrounds, err := color.Backgrounds(accents)
+	if err != nil {
+		return fmt.Errorf("derive role backgrounds: %w", err)
+	}
+	for index, roleName := range order {
+		role := p.Roles[roleName]
+		role.Background = backgrounds[index]
+		p.Roles[roleName] = role
+	}
+	return nil
+}
+
 func resolveAndValidatePerson(p *Person) error {
 	if err := p.ResolveFavoriteColors(); err != nil {
+		return err
+	}
+	if err := p.ResolveBackgrounds(); err != nil {
 		return err
 	}
 	for _, roleName := range p.roleOrder() {
@@ -843,6 +871,10 @@ func validateRoleAdjacents(p *Person) error {
 // two-component blends leave this floor slack. See docs/personality.md.
 const minFavoriteSeparation = 0.08
 
+// The background floor is lower because the whole set sits at one lightness
+// and chroma, so hue is the only axis it has.
+const minBackgroundSeparation = 0.030
+
 // personalitiesPerRole is one signature trait plus one bond shared with a
 // sibling seat. See docs/personality.md.
 const personalitiesPerRole = 2
@@ -891,6 +923,22 @@ func validateCorePersonalityMelds(p *Person) error {
 				"two roles meld nearly the same personalities",
 			separation,
 			minFavoriteSeparation,
+		)
+	}
+	backgrounds := make([]string, 0, len(p.RoleOrder))
+	for _, roleName := range p.RoleOrder {
+		backgrounds = append(backgrounds, p.Roles[roleName].Background)
+	}
+	backgroundSeparation, err := color.MinSeparation(backgrounds)
+	if err != nil {
+		return fmt.Errorf("core role backgrounds: %w", err)
+	}
+	if backgroundSeparation < minBackgroundSeparation {
+		return fmt.Errorf(
+			"core role backgrounds are %.4f apart at their closest, want at least %.4f: "+
+				"the roster has outgrown the hue circle at this lightness",
+			backgroundSeparation,
+			minBackgroundSeparation,
 		)
 	}
 	for name, count := range usage {
