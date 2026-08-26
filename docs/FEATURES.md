@@ -59,6 +59,10 @@ Inventory of what ships today.
 
 ## Identity surfaces
 
+* [Identity primitives](identity.md) give every personality an ordered emblem
+  name list, a `motif`, a `geometry`, a prose `body`, and a `sound-mark`, and
+  give every role a prose `stance`. The body and stance are what a generating
+  renderer needs to draw the creature without hand-authoring it.
 * [Identity renderers](statusline.md) cover the palette, overlays, the
   `acompose statusline` row, `--subagent` rows, and the
   [short id](whoami.md). [`whoami`](whoami.md) prints it. The

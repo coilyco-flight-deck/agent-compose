@@ -1,7 +1,10 @@
-personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rope-fiber" {
+personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rope-fiber" geometry="interlocking-lines" {
     order 21
-    emblem { name "grapnel"; emoji "⛏️"; glyph "⟐" }
-    form { silhouette "grapnel"; geometry "interlocking-lines"; motion "pulling" }
+    emblem { name "pick" "grapnel" "hook"; emoji "⛏️" }
+    body {
+        archetype "sturdy compact body, simple rounded forms, thick tapering limbs"
+        attachment "a heavy iron grapnel hook slung at its hip, one rope running taut out of frame"
+    }
     sound-mark { timbre "floor-tom"; contour "rising-return"; pulse "driving-two" }
     verb "Grappling" "Hauling" "Gripping" "Persisting" "Digging" "Anchoring"
     alias "persistent"

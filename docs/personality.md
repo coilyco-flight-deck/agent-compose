@@ -109,7 +109,7 @@ associations, and spectrum ordering. Startup validation fails visibly if that
 list drifts from the canonical catalog.
 
 The explorer shows the full ten-personality spectrum with emblem, motif,
-form, and sound, role filters with complete melds, component colors and the
+geometry, and sound, role filters with complete melds, component colors and the
 derived role boundary, day and night previews, spectrum and alphabetical
 ordering, one-click copying, and a responsive reduced-motion layout.
 

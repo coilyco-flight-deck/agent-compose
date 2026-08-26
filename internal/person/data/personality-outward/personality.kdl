@@ -1,7 +1,10 @@
-personality "outward" skill="personality-outward" color="#b3be49" motif="weathered-brass" {
+personality "outward" skill="personality-outward" color="#b3be49" motif="weathered-brass" geometry="extending-barrels" {
     order 22
-    emblem { name "spyglass"; emoji "🔭"; glyph "↗" }
-    form { silhouette "spyglass"; geometry "extending-barrels"; motion "scanning" }
+    emblem { name "telescope" "spyglass" "sightline"; emoji "🔭" }
+    body {
+        archetype "tall and narrow, a body of nested brass barrels telescoping out of one another, weathered and unpolished, each section a little narrower than the one below it"
+        attachment "its whole upper body extended and sighting on something past the edge of frame, one lens catching the light at the far end"
+    }
     sound-mark { timbre "brass-swell"; contour "widening-rise"; pulse "long-single" }
     verb "Scouting" "Comparing" "Benchmarking" "Sighting" "Ranging" "Canvassing"
     alias "outward-looking"

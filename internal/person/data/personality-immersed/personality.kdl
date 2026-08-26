@@ -1,7 +1,10 @@
-personality "immersed" skill="personality-immersed" color="#0084fd" motif="deep-water" {
+personality "immersed" skill="personality-immersed" color="#0084fd" motif="deep-water" geometry="nested-shells" {
     order 12
-    emblem { name "diving-bell"; emoji "🤿"; glyph "◉" }
-    form { silhouette "vessel"; geometry "nested-shells"; motion "settling" }
+    emblem { name "diving-mask" "diving-bell" "hull"; emoji "🤿" }
+    body {
+        archetype "squat and heavy, a rounded brass diving-bell hull as its actual body, concentric riveted bands nested one inside the next"
+        attachment "its face looking out from inside the bell through the front port, the hull is the creature rather than a helmet worn over it"
+    }
     sound-mark { timbre "hull-hum"; contour "sustained-descent"; pulse "slow-swell" }
     verb "Inhabiting" "Entering" "Submerging" "Dwelling" "Occupying" "Sounding"
     alias "inside-out"

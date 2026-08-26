@@ -1,7 +1,10 @@
-personality "empirical" skill="personality-empirical" color="#2ed1aa" motif="annealed-steel" {
+personality "empirical" skill="personality-empirical" color="#2ed1aa" motif="annealed-steel" geometry="graduated-column" {
     order 23
-    emblem { name "burette"; emoji "🧪"; glyph "≡" }
-    form { silhouette "burette"; geometry "graduated-column"; motion "titrating" }
+    emblem { name "test-tube" "burette" "vessel"; emoji "🧪" }
+    body {
+        archetype "a rounded glass laboratory vessel as its body, wide bulbous base holding real weight, narrower graduated neck above it, brass collars banding the top and the foot"
+        attachment "a single bright measured droplet at its spout, a teal fill line resting partway up its body"
+    }
     sound-mark { timbre "glass-tap"; contour "level-hold"; pulse "measured-two" }
     verb "Measuring" "Isolating" "Replicating" "Calibrating" "Recording" "Controlling"
     alias "evidence-producing"

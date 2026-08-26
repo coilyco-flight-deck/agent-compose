@@ -2,6 +2,7 @@ role "gamedev" {
     order 5
     display-name "Game Developer"
     purpose "Ship playable games: the code, the assets, and the build that carries both."
+    stance "standing low on four short weighted legs, sinking and settling, shoulders dropped, in gentle downward drift"
     model-tier "frontier" "commodity"
     skill "role-gamedev"
     boundary "build-foundational-software" "seek-external-validation"

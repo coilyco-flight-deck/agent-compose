@@ -27,8 +27,9 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 				Skill:       "personality-bright",
 				Color:       "#d98e48",
 				Motif:       "sunbeam",
-				Emblem:      Emblem{Name: "lantern", Emoji: "🏮", Glyph: "✦"},
-				Form:        Form{Silhouette: "beacon", Geometry: "open-rays", Motion: "glowing"},
+				Geometry:    "open-rays",
+				Emblem:      Emblem{Names: []string{"lantern", "beacon"}, Emoji: "🏮"},
+				Body:        Body{Archetype: "small upright body", Attachment: "the flame sits in its chest"},
 				SoundMark:   SoundMark{Timbre: "bell", Contour: "rising", Pulse: "triplet"},
 				Inspiration: InspirationRef{ID: "bright-credit", Fit: "long personality fit stays out"},
 			},
@@ -36,8 +37,9 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 				Skill:       "personality-steady",
 				Color:       "#5fa87a",
 				Motif:       "stone",
-				Emblem:      Emblem{Name: "anchor", Emoji: "⚓", Glyph: "◆"},
-				Form:        Form{Silhouette: "cairn", Geometry: "stacked-rounds", Motion: "settling"},
+				Geometry:    "stacked-rounds",
+				Emblem:      Emblem{Names: []string{"anchor", "cairn"}, Emoji: "⚓"},
+				Body:        Body{Archetype: "low and rounded, stacked stone", Attachment: "a cairn at its foot"},
 				SoundMark:   SoundMark{Timbre: "wood-block", Contour: "returning", Pulse: "steady-pair"},
 				Inspiration: InspirationRef{ID: "steady-credit", Fit: "another long fit stays out"},
 			},
@@ -63,8 +65,8 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		"* Role: `builder`",
 		"* Purpose: Build the fixture.",
 		"`bright`: skill `personality-bright`, favorite color `#d98e48`",
-		"emblem `lantern` / `🏮` / `✦`, motif `sunbeam`",
-		"form `beacon` / `open-rays` / `glowing`",
+		"emblem `🏮` `lantern / beacon`, motif `sunbeam`",
+		"geometry `open-rays`",
 		"sound mark `bell` / `rising` / `triplet`",
 		"`steady`: skill `personality-steady`, favorite color `#5fa87a`",
 		"* Melded favorite color: `#90a66a`",
@@ -165,10 +167,11 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 	for _, name := range role.Personalities {
 		binding := p.Personalities[name]
 		for _, want := range []string{
-			binding.Emblem.Emoji + " " + binding.Emblem.Name + " " + binding.Emblem.Glyph +
+			binding.Emblem.Emoji + " " + strings.Join(binding.Emblem.Names, " / ") +
 				" // " + binding.Motif + " // " + binding.Color,
-			"// form: " + binding.Form.Silhouette + ", " + binding.Form.Geometry +
-				", " + binding.Form.Motion,
+			"// geometry: " + binding.Geometry,
+			"// body: " + binding.Body.Archetype,
+			"// emblem sits: " + binding.Body.Attachment,
 			"// sound: " + binding.SoundMark.Timbre + ", " + binding.SoundMark.Contour +
 				", " + binding.SoundMark.Pulse,
 			"// skill: " + binding.Skill,
@@ -314,7 +317,7 @@ func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 		"role: platform",
 		"personalities: " + strings.Join(role.Personalities, " // "),
 		"personality metadata",
-		first.Emblem.Name,
+		first.Emblem.Name(),
 		first.Motif,
 		first.SoundMark.Timbre,
 		first.Skill,

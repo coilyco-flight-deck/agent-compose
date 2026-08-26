@@ -27,8 +27,9 @@ func TestBuildProjectsCanonicalPersonSource(t *testing.T) {
 	for _, got := range doc.Personalities {
 		want := p.Personalities[got.Name]
 		if got.Color != want.Color || got.Motif != want.Motif ||
+			got.Geometry != want.Geometry ||
 			!reflect.DeepEqual(got.Emblem, want.Emblem) ||
-			!reflect.DeepEqual(got.Form, want.Form) ||
+			!reflect.DeepEqual(got.Body, want.Body) ||
 			!reflect.DeepEqual(got.SoundMark, want.SoundMark) {
 			t.Fatalf("palette personality %q drifted from the person contract", got.Name)
 		}

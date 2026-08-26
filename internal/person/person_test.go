@@ -801,17 +801,23 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
             fit "The fixture is a useful builder archetype."
         }
     }
-    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
-        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
-        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" geometry="open-rays" {
+        emblem { name "lantern" "beacon"; emoji "🏮" }
+        body {
+            archetype "small upright body, thin limbs, a glass lantern housing for a chest"
+            attachment "the flame sits inside its chest, casting rays out through the glass"
+        }
         sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates brightness."
         }
     }
-    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" {
-        emblem { name "anchor"; emoji "⚓"; glyph "◆" }
-        form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
+        emblem { name "anchor" "cairn"; emoji "⚓" }
+        body {
+            archetype "low and rounded, a body of stacked stones settled into one another"
+            attachment "one small cairn standing at its foot, the same stone as its body"
+        }
         sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates steadiness."
@@ -841,8 +847,8 @@ func TestParsePreservesRolePersonalities(t *testing.T) {
 		t.Fatalf("role briefing = %q, want %q", got, wantBriefing)
 	}
 	if got := p.Personalities["bright"]; got.Motif != "sunbeam" ||
-		got.Emblem.Name != "lantern" || got.Form.Silhouette != "beacon" ||
-		got.SoundMark.Timbre != "bell" {
+		got.Emblem.Name() != "lantern" || got.Geometry != "open-rays" ||
+		got.Body.Archetype == "" || got.SoundMark.Timbre != "bell" {
 		t.Fatalf("personality identity = %+v", got)
 	}
 }
@@ -909,12 +915,30 @@ func TestParseRejectsIncompleteOrAmbiguousIdentity(t *testing.T) {
 			want: `personality "bright" needs a semantic motif property`,
 		},
 		"incomplete emblem": {
-			body: strings.Replace(valid, `; glyph "✦"`, "", 1),
-			want: `personality bright emblem needs glyph`,
+			body: strings.Replace(valid, `; emoji "🏮"`, "", 1),
+			want: `personality bright emblem needs emoji`,
 		},
-		"invalid form token": {
-			body: strings.Replace(valid, `"open-rays"`, `"Open rays"`, 1),
-			want: `personality bright form geometry needs a lowercase semantic token`,
+		"emblem name is not a token": {
+			body: strings.Replace(valid, `name "lantern" "beacon"`, `name "lantern" "Beacon Light"`, 1),
+			want: `personality bright emblem name needs lowercase semantic tokens`,
+		},
+		"repeated emblem name": {
+			body: strings.Replace(valid, `name "lantern" "beacon"`, `name "lantern" "lantern"`, 1),
+			want: `personality bright emblem repeats name "lantern"`,
+		},
+		"invalid geometry token": {
+			body: strings.Replace(valid, `geometry="open-rays"`, `geometry="Open rays"`, 1),
+			want: `personality "bright" needs a semantic geometry property`,
+		},
+		"missing geometry": {
+			body: strings.Replace(valid, ` geometry="open-rays"`, "", 1),
+			want: `personality "bright" needs a semantic geometry property`,
+		},
+		"incomplete body": {
+			body: strings.Replace(valid,
+				`            attachment "the flame sits inside its chest, casting rays out through the glass"
+`, "", 1),
+			want: `personality bright body needs attachment`,
 		},
 		"duplicate emblem": {
 			body: strings.Replace(valid, `name "anchor"`, `name "lantern"`, 1),
@@ -948,17 +972,23 @@ func inspirationFixture() string {
             fit "The fixture is a useful builder archetype."
         }
     }
-    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" {
-        emblem { name "lantern"; emoji "🏮"; glyph "✦" }
-        form { silhouette "beacon"; geometry "open-rays"; motion "glowing" }
+    personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" geometry="open-rays" {
+        emblem { name "lantern" "beacon"; emoji "🏮" }
+        body {
+            archetype "small upright body, thin limbs, a glass lantern housing for a chest"
+            attachment "the flame sits inside its chest, casting rays out through the glass"
+        }
         sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates brightness."
         }
     }
-    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" {
-        emblem { name "anchor"; emoji "⚓"; glyph "◆" }
-        form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+    personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
+        emblem { name "anchor" "cairn"; emoji "⚓" }
+        body {
+            archetype "low and rounded, a body of stacked stones settled into one another"
+            attachment "one small cairn standing at its foot, the same stone as its body"
+        }
         sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
         inspiration "fixture-builder" {
             fit "The fixture demonstrates steadiness."

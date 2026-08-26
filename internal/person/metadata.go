@@ -81,10 +81,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 		fmt.Fprintf(&out, "### %s %s\n\n", binding.Emblem.Emoji, displaySlug(name))
 		fmt.Fprintf(
 			&out,
-			"**%s // %s // %s // %s**\n\n",
+			"**%s // %s // %s**\n\n",
 			binding.Color,
-			binding.Emblem.Name,
-			binding.Emblem.Glyph,
+			strings.Join(binding.Emblem.Names, " / "),
 			binding.Motif,
 		)
 		description, err := p.personalityDescription(binding)
@@ -283,17 +282,14 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 		}
 		fmt.Fprintf(
 			&out,
-			"  * `%s`: skill `%s`, favorite color `%s`, emblem `%s` / `%s` / `%s`, motif `%s`, form `%s` / `%s` / `%s`, sound mark `%s` / `%s` / `%s`\n",
+			"  * `%s`: skill `%s`, favorite color `%s`, emblem `%s` `%s`, motif `%s`, geometry `%s`, sound mark `%s` / `%s` / `%s`\n",
 			name,
 			binding.Skill,
 			binding.Color,
-			binding.Emblem.Name,
 			binding.Emblem.Emoji,
-			binding.Emblem.Glyph,
+			strings.Join(binding.Emblem.Names, " / "),
 			binding.Motif,
-			binding.Form.Silhouette,
-			binding.Form.Geometry,
-			binding.Form.Motion,
+			binding.Geometry,
 			binding.SoundMark.Timbre,
 			binding.SoundMark.Contour,
 			binding.SoundMark.Pulse,
@@ -420,13 +416,12 @@ func (p *Person) personalityTexture(
 ) (string, error) {
 	var out strings.Builder
 	key := fmt.Sprintf("personality: %-*s", width, name)
-	fmt.Fprintf(&out, "%s // %s %s %s // %s // %s\n",
-		key, binding.Emblem.Emoji, binding.Emblem.Name, binding.Emblem.Glyph,
+	fmt.Fprintf(&out, "%s // %s %s // %s // %s\n",
+		key, binding.Emblem.Emoji, strings.Join(binding.Emblem.Names, " / "),
 		binding.Motif, binding.Color)
-	// Silhouette stays: it equals emblem.name on five of the ten personalities
-	// and diverges on the other five, so it is not a denormalized copy.
-	fmt.Fprintf(&out, "%s // form: %s, %s, %s\n",
-		key, binding.Form.Silhouette, binding.Form.Geometry, binding.Form.Motion)
+	fmt.Fprintf(&out, "%s // geometry: %s\n", key, binding.Geometry)
+	fmt.Fprintf(&out, "%s // body: %s\n", key, binding.Body.Archetype)
+	fmt.Fprintf(&out, "%s // emblem sits: %s\n", key, binding.Body.Attachment)
 	fmt.Fprintf(&out, "%s // sound: %s, %s, %s\n",
 		key, binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
 	fmt.Fprintf(&out, "%s // skill: %s\n", key, binding.Skill)

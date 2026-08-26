@@ -1,7 +1,10 @@
-personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-paper" {
+personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-paper" geometry="clean-diagonal" {
     order 20
-    emblem { name "shears"; emoji "✂️"; glyph "✂" }
-    form { silhouette "blade"; geometry "clean-diagonal"; motion "severing" }
+    emblem { name "scissors" "shears" "blade"; emoji "✂️" }
+    body {
+        archetype "angular wedge body, flat planes meeting on one clean diagonal, no soft curves"
+        attachment "a pair of shears carried at its shoulder, blades open, the cutting edge continuous with its own diagonal"
+    }
     sound-mark { timbre "snare-crack"; contour "falling-cut"; pulse "single-accent" }
     verb "Snipping" "Shearing" "Committing" "Closing" "Choosing" "Trimming"
     alias "committed"

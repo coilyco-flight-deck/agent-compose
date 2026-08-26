@@ -74,7 +74,7 @@ func TestRenderDispatchTable(t *testing.T) {
 		"// claude: opal builder (she)",
 		"// codex: terran builder (he)",
 		"###  Bright",
-		"**#c87945 //  //  // **",
+		"**#c87945 //  // **",
 		"* `role-builder`",
 		"* `personality-tenacious`",
 	} {

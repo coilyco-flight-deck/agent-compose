@@ -13,8 +13,9 @@ type PersonalityCatalogEntry struct {
 	Aliases       []string          `json:"aliases"`
 	Color         string            `json:"color"`
 	Motif         string            `json:"motif"`
+	Geometry      string            `json:"geometry"`
 	Emblem        Emblem            `json:"emblem"`
-	Form          Form              `json:"form"`
+	Body          Body              `json:"body"`
 	SoundMark     SoundMark         `json:"sound_mark"`
 	SourceLibrary string            `json:"source_library"`
 	Digest        string            `json:"digest"`
@@ -80,8 +81,9 @@ func (p *Person) PersonalityCatalog(names []string) ([]PersonalityCatalogEntry, 
 			Aliases:       append([]string(nil), binding.Aliases...),
 			Color:         binding.Color,
 			Motif:         binding.Motif,
+			Geometry:      binding.Geometry,
 			Emblem:        binding.Emblem,
-			Form:          binding.Form,
+			Body:          binding.Body,
 			SoundMark:     binding.SoundMark,
 			SourceLibrary: projected.SourceLibrary,
 			Digest:        projected.Digest,

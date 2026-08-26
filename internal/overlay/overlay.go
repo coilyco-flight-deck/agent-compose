@@ -20,8 +20,9 @@ type Personality struct {
 	Name      string           `json:"name"`
 	Color     string           `json:"color"`
 	Motif     string           `json:"motif"`
+	Geometry  string           `json:"geometry"`
 	Emblem    person.Emblem    `json:"emblem"`
-	Form      person.Form      `json:"form"`
+	Body      person.Body      `json:"body"`
 	SoundMark person.SoundMark `json:"sound_mark"`
 }
 
@@ -32,7 +33,9 @@ type Document struct {
 	Role            string      `json:"role"`
 	RoleDisplayName string      `json:"role_display_name"`
 	Purpose         string      `json:"purpose"`
-	Seat            person.Seat `json:"seat"`
+	// Stance is the role's posture, not a personality's. See docs/identity.md.
+	Stance string      `json:"stance,omitempty"`
+	Seat   person.Seat `json:"seat"`
 	// Annotation is the composed identity string a renderer shows verbatim,
 	// `Angie [she] (Engineer)`.
 	Annotation    string `json:"annotation"`
@@ -74,6 +77,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		Role:            roleName,
 		RoleDisplayName: displayName,
 		Purpose:         role.Purpose,
+		Stance:          role.Stance,
 		Seat:            seat,
 		Annotation:      person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
 		Expression:      expression,
@@ -89,8 +93,9 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 			Name:      name,
 			Color:     binding.Color,
 			Motif:     binding.Motif,
+			Geometry:  binding.Geometry,
 			Emblem:    binding.Emblem,
-			Form:      binding.Form,
+			Body:      binding.Body,
 			SoundMark: binding.SoundMark,
 		})
 	}
@@ -120,7 +125,7 @@ func RenderText(doc *Document, width int) (string, error) {
 	marks := make([]string, 0, len(doc.Personalities))
 	names := make([]string, 0, len(doc.Personalities))
 	for _, personality := range doc.Personalities {
-		marks = append(marks, personality.Emblem.Glyph)
+		marks = append(marks, personality.Emblem.Emoji)
 		names = append(names, personality.Name)
 	}
 	role := strings.ReplaceAll(doc.Role, "-", " ")

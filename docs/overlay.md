@@ -31,7 +31,31 @@ Add `--json` for `agent-compose.overlay.v1`. The document contains:
 * `annotation`, the composed identity string a renderer shows verbatim
 * the caller-supplied expression
 * the role's derived favorite color, and its derived `background`
-* every component personality's color and identity primitives
+* every component personality's color and identity primitives, including its
+  `geometry` token and its prose `body`
+* the role's `stance`, its posture, which no personality carries
+
+## Rules a generating renderer respects
+
+Each was paid for by a specific failure while the first creatures were drawn.
+Preserve them through any rewording of the fields themselves.
+
+* **Anatomy leads, the object follows.** `archetype` describes a creature before
+  `attachment` names the object. Reversing it produced a fairground ride on a
+  plinth with no body under it.
+* **Stance derives from the signature, never the bond.** Reading a bond for
+  posture collapsed a hauling creature into a settled quadruped and made two
+  seats indistinguishable. Stance living on the role forbids it.
+* **A bond tints, it never adds a second object.** Two named objects make a
+  renderer drop one, and it drops the signature. A bond contributes through
+  `motif` and `color`.
+* **A meld whose two geometries match cannot be told apart.** `radial-spokes`
+  and `radial-facets` are one construction, so the bond converted the signature
+  rather than dressing it. That is a property of the data, not a renderer bug.
+
+Clause ordering, style, proportion locks, negative prompts, per-checkpoint
+negatives, and detail register stay with the renderer. It names a personality by
+slug and reads these fields back rather than holding creature text of its own.
 
 The JSON is a projection of the selected person model, not a second policy
 source.

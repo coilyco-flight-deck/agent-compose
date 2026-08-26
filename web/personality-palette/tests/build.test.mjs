@@ -15,8 +15,10 @@ test("the built explorer carries its shell and canonical data", async () => {
   assert.ok(Array.isArray(palette.roles) && palette.roles.length > 0);
   assert.ok(palette.personalities.every((personality) => (
     typeof personality.motif === "string"
-    && typeof personality.emblem?.name === "string"
-    && typeof personality.form?.silhouette === "string"
+    && Array.isArray(personality.emblem?.names)
+    && typeof personality.emblem?.emoji === "string"
+    && typeof personality.geometry === "string"
+    && typeof personality.body?.archetype === "string"
     && typeof personality.sound_mark?.timbre === "string"
   )));
   assert.ok(palette.roles.every((role) => /^#[0-9a-f]{6}$/i.test(role.color)));

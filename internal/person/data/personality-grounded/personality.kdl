@@ -1,7 +1,10 @@
-personality "grounded" skill="personality-grounded" color="#5fa87a" motif="moss" {
+personality "grounded" skill="personality-grounded" color="#5fa87a" motif="moss" geometry="stacked-rounds" {
     order 2
-    emblem { name "cairn"; emoji "🪨"; glyph "◆" }
-    form { silhouette "cairn"; geometry "stacked-rounds"; motion "settling" }
+    emblem { name "rock" "cairn" "stone"; emoji "🪨" }
+    body {
+        archetype "low and rounded and dense, a body of smooth river stones stacked and settled into one another, wider at the base than the top, soft green moss across its upper surfaces"
+        attachment "one small cairn standing at its foot, stacked from the same stone its own body is made of"
+    }
     sound-mark { timbre "wood-block"; contour "low-return"; pulse "steady-pair" }
     verb "Settling" "Stacking" "Rooting" "Steadying" "Leveling" "Weighing"
     alias "calm"

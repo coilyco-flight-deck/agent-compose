@@ -1,7 +1,10 @@
-personality "protective" skill="personality-protective" color="#009a85" motif="bark" {
+personality "protective" skill="personality-protective" color="#009a85" motif="bark" geometry="enclosing-arcs" {
     order 9
-    emblem { name "shield"; emoji "🛡️"; glyph "⬟" }
-    form { silhouette "bastion"; geometry "enclosing-arcs"; motion "bracing" }
+    emblem { name "shield" "bastion" "carapace"; emoji "🛡️" }
+    body {
+        archetype "broad and low and heavy, wide planted shoulders, a thick curved shield carapace arcing over its back and enclosing it"
+        attachment "the shield is its own back, grown rather than worn, its rim curving down around its flanks"
+    }
     sound-mark { timbre "low-gong"; contour "descending-cover"; pulse "guarded-pair" }
     verb "Shielding" "Warding" "Guarding" "Sheltering" "Buttressing" "Tending"
     alias "safeguarding"

@@ -113,6 +113,7 @@ type Role struct {
 	ScopedBoundaries    []ScopedBoundary `json:"scoped_boundaries,omitempty"`
 	Adjacents           []Adjacent       `json:"adjacents,omitempty"`
 	Briefing            string           `json:"briefing"`
+	Stance              string           `json:"stance,omitempty"`
 	Personalities       []string         `json:"personalities"`
 	FavoriteColor       string           `json:"favorite_color,omitempty"`
 	Background          string           `json:"background,omitempty"`
@@ -163,19 +164,26 @@ type CopyRule struct {
 	Prefer string `json:"prefer"`
 }
 
-// Emblem gives renderers equivalent plain-text, rich-text, and compact marks.
+// Emblem gives renderers equivalent plain-text and rich-text marks. Names are
+// ordered widest-reading first. See docs/overlay.md.
 type Emblem struct {
-	Name  string `json:"name"`
-	Emoji string `json:"emoji"`
-	Glyph string `json:"glyph"`
+	Names []string `json:"names"`
+	Emoji string   `json:"emoji"`
 }
 
-// Form is a renderer-neutral procedural shape language. Renderers decide how
-// to draw it while retaining the same silhouette, geometry, and motion cues.
-type Form struct {
-	Silhouette string `json:"silhouette"`
-	Geometry   string `json:"geometry"`
-	Motion     string `json:"motion"`
+// Name is the single mark a renderer with no room for the full list shows.
+func (e Emblem) Name() string {
+	if len(e.Names) == 0 {
+		return ""
+	}
+	return e.Names[0]
+}
+
+// Body is the creature the emblem belongs to. Anatomy leads and the object
+// follows, for the reason in docs/overlay.md.
+type Body struct {
+	Archetype  string `json:"archetype"`
+	Attachment string `json:"attachment"`
 }
 
 // SoundMark describes a short identity cue without prescribing audio files or
@@ -202,8 +210,9 @@ type Personality struct {
 	Skill       string         `json:"skill"`
 	Color       string         `json:"color"`
 	Motif       string         `json:"motif"`
+	Geometry    string         `json:"geometry"`
 	Emblem      Emblem         `json:"emblem"`
-	Form        Form           `json:"form"`
+	Body        Body           `json:"body"`
 	SoundMark   SoundMark      `json:"sound_mark"`
 	Inspiration InspirationRef `json:"inspiration,omitempty"`
 	Aliases     []string       `json:"aliases,omitempty"`
@@ -1903,6 +1912,17 @@ func parse(raw []byte) (*Person, error) {
 						return nil, fmt.Errorf("role %q: purpose needs one argument", name)
 					}
 					role.Purpose = pargs[0].String()
+				case "stance":
+					// Posture belongs to the seat, never to a personality.
+					// See docs/overlay.md.
+					if role.Stance != "" {
+						return nil, fmt.Errorf("role %q: duplicate stance", name)
+					}
+					sargs := c.Arguments()
+					if len(sargs) != 1 || strings.TrimSpace(sargs[0].String()) == "" {
+						return nil, fmt.Errorf("role %q: stance needs one argument", name)
+					}
+					role.Stance = strings.TrimSpace(sargs[0].String())
 				case "briefing":
 					if briefingSet {
 						return nil, fmt.Errorf("role %q: duplicate briefing", name)
@@ -2236,33 +2256,35 @@ func parse(raw []byte) (*Person, error) {
 				return nil, fmt.Errorf("personality %q needs a semantic motif property", name)
 			}
 			personality.Motif = motif.String()
+			geometry := n.Prop("geometry")
+			if !geometry.IsValid() || !validSemanticToken(geometry.String()) {
+				return nil, fmt.Errorf("personality %q needs a semantic geometry property", name)
+			}
+			personality.Geometry = geometry.String()
 			for _, c := range n.Children().Nodes {
 				switch c.Name() {
 				case "emblem":
-					if personality.Emblem.Name != "" {
+					if len(personality.Emblem.Names) > 0 {
 						return nil, fmt.Errorf("personality %q: duplicate emblem", name)
 					}
-					parts, err := parseSemanticParts(c, "personality "+name+" emblem", "name", "emoji", "glyph")
+					emblem, err := parseEmblem(c, "personality "+name+" emblem")
 					if err != nil {
 						return nil, err
 					}
-					personality.Emblem = Emblem{
-						Name: parts["name"], Emoji: parts["emoji"], Glyph: parts["glyph"],
+					personality.Emblem = emblem
+				case "body":
+					if personality.Body.Archetype != "" {
+						return nil, fmt.Errorf("personality %q: duplicate body", name)
 					}
-				case "form":
-					if personality.Form.Silhouette != "" {
-						return nil, fmt.Errorf("personality %q: duplicate form", name)
-					}
-					parts, err := parseSemanticParts(
-						c, "personality "+name+" form", "silhouette", "geometry", "motion",
+					parts, err := parseProseParts(
+						c, "personality "+name+" body", "archetype", "attachment",
 					)
 					if err != nil {
 						return nil, err
 					}
-					personality.Form = Form{
-						Silhouette: parts["silhouette"],
-						Geometry:   parts["geometry"],
-						Motion:     parts["motion"],
+					personality.Body = Body{
+						Archetype:  parts["archetype"],
+						Attachment: parts["attachment"],
 					}
 				case "sound-mark":
 					if personality.SoundMark.Timbre != "" {
@@ -2322,11 +2344,11 @@ func parse(raw []byte) (*Person, error) {
 					return nil, fmt.Errorf("personality %q: unknown node %q", name, c.Name())
 				}
 			}
-			if personality.Emblem.Name == "" {
+			if len(personality.Emblem.Names) == 0 {
 				return nil, fmt.Errorf("personality %q needs an emblem", name)
 			}
-			if personality.Form.Silhouette == "" {
-				return nil, fmt.Errorf("personality %q needs a form", name)
+			if personality.Body.Archetype == "" {
+				return nil, fmt.Errorf("personality %q needs a body", name)
 			}
 			if personality.SoundMark.Timbre == "" {
 				return nil, fmt.Errorf("personality %q needs a sound-mark", name)
@@ -2437,10 +2459,86 @@ func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[stri
 		if err != nil {
 			return nil, err
 		}
-		if name != "emoji" && name != "glyph" && !validSemanticToken(value) {
+		if name != "emoji" && !validSemanticToken(value) {
 			return nil, fmt.Errorf("%s %s needs a lowercase semantic token", owner, name)
 		}
 		parts[name] = value
+	}
+	for _, name := range expected {
+		if parts[name] == "" {
+			return nil, fmt.Errorf("%s needs %s", owner, name)
+		}
+	}
+	return parts, nil
+}
+
+// parseEmblem reads the emoji and its ordered name list. Nothing enforces that
+// the first name is the literal one: Unicode names are not a checkable list.
+func parseEmblem(n *kdl.Node, owner string) (Emblem, error) {
+	var emblem Emblem
+	for _, child := range n.Children().Nodes {
+		switch child.Name() {
+		case "name":
+			if len(emblem.Names) > 0 {
+				return Emblem{}, fmt.Errorf("%s: duplicate name", owner)
+			}
+			args := child.Arguments()
+			if len(args) == 0 {
+				return Emblem{}, fmt.Errorf("%s name needs at least one word", owner)
+			}
+			for _, arg := range args {
+				value := strings.TrimSpace(arg.String())
+				if !validSemanticToken(value) {
+					return Emblem{}, fmt.Errorf("%s name needs lowercase semantic tokens", owner)
+				}
+				if slices.Contains(emblem.Names, value) {
+					return Emblem{}, fmt.Errorf("%s repeats name %q", owner, value)
+				}
+				emblem.Names = append(emblem.Names, value)
+			}
+		case "emoji":
+			if emblem.Emoji != "" {
+				return Emblem{}, fmt.Errorf("%s: duplicate emoji", owner)
+			}
+			value, err := oneTextArgument(child, owner+" emoji")
+			if err != nil {
+				return Emblem{}, err
+			}
+			emblem.Emoji = value
+		default:
+			return Emblem{}, fmt.Errorf("%s: unknown node %q", owner, child.Name())
+		}
+	}
+	if len(emblem.Names) == 0 {
+		return Emblem{}, fmt.Errorf("%s needs name", owner)
+	}
+	if emblem.Emoji == "" {
+		return Emblem{}, fmt.Errorf("%s needs emoji", owner)
+	}
+	return emblem, nil
+}
+
+// parseProseParts is parseSemanticParts for sentences. Separate rather than a
+// flag, so no token block can quietly start accepting prose.
+func parseProseParts(n *kdl.Node, owner string, expected ...string) (map[string]string, error) {
+	allowed := make(map[string]bool, len(expected))
+	for _, name := range expected {
+		allowed[name] = true
+	}
+	parts := make(map[string]string, len(expected))
+	for _, child := range n.Children().Nodes {
+		name := child.Name()
+		if !allowed[name] {
+			return nil, fmt.Errorf("%s: unknown node %q", owner, name)
+		}
+		if _, duplicate := parts[name]; duplicate {
+			return nil, fmt.Errorf("%s: duplicate %s", owner, name)
+		}
+		value, err := oneTextArgument(child, owner+" "+name)
+		if err != nil {
+			return nil, err
+		}
+		parts[name] = strings.TrimSpace(value)
 	}
 	for _, name := range expected {
 		if parts[name] == "" {
@@ -2469,19 +2567,24 @@ func validSemanticToken(value string) bool {
 func validateIdentityCatalog(catalog map[string]Personality) error {
 	emblems := map[string]string{}
 	emojis := map[string]string{}
-	glyphs := map[string]string{}
 	motifs := map[string]string{}
 	for name, personality := range catalog {
 		for value, owners := range map[string]map[string]string{
-			personality.Emblem.Name:  emblems,
 			personality.Emblem.Emoji: emojis,
-			personality.Emblem.Glyph: glyphs,
 			personality.Motif:        motifs,
 		} {
 			if owner, duplicate := owners[value]; duplicate {
 				return fmt.Errorf("personalities %q and %q share identity value %q", owner, name, value)
 			}
 			owners[value] = name
+		}
+		// Every name is a lookup key a human may say out loud, so the whole
+		// list is unique across the roster rather than only the first entry.
+		for _, value := range personality.Emblem.Names {
+			if owner, duplicate := emblems[value]; duplicate {
+				return fmt.Errorf("personalities %q and %q share identity value %q", owner, name, value)
+			}
+			emblems[value] = name
 		}
 	}
 	return nil

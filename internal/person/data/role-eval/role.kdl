@@ -2,6 +2,7 @@ role "eval" {
     order 3
     display-name "Evaluation Engineer"
     purpose "Measure how agents, models, and inference actually behave on real hardware."
+    stance "standing on two short legs, tipped a little forward mid-pour, one arm steadying itself, careful and precise"
     model-tier "frontier"
     skill "role-eval"
     boundary "modify-live-backend" "suggest-external-comms" "seek-external-validation"

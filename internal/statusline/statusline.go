@@ -112,9 +112,6 @@ func personalityMarks(manifest *bundle.Manifest, opts Options) string {
 	marks := make([]string, 0, len(manifest.Identity.Personalities))
 	for _, personality := range manifest.Identity.Personalities {
 		mark := personality.Emblem.Emoji
-		if mark == "" {
-			mark = personality.Emblem.Glyph
-		}
 		if mark != "" {
 			marks = append(marks, paint(personality.Color, mark, opts))
 		}

@@ -2,6 +2,7 @@ role "sysadmin" {
     order 2
     display-name "Systems Administrator"
     purpose "Operate the real hosted systems and release surfaces."
+    stance "standing on four short heavy legs, braced low, weight forward, shoulders set as if holding a line"
     model-tier "frontier"
     skill "role-sysadmin"
     boundary "suggest-external-comms" "seek-external-validation"

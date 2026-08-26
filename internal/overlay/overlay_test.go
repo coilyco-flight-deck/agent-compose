@@ -27,9 +27,13 @@ func TestBuildProjectsOneCanonicalMember(t *testing.T) {
 	if len(doc.Personalities) != len(p.Roles["platform"].Personalities) {
 		t.Fatalf("overlay personalities = %d", len(doc.Personalities))
 	}
+	if doc.Stance == "" {
+		t.Fatalf("overlay carries no role stance: %+v", doc)
+	}
 	for _, personality := range doc.Personalities {
-		if personality.Emblem.Name == "" || personality.Motif == "" ||
-			personality.Form.Silhouette == "" || personality.SoundMark.Timbre == "" {
+		if personality.Emblem.Name() == "" || personality.Motif == "" ||
+			personality.Geometry == "" || personality.Body.Archetype == "" ||
+			personality.Body.Attachment == "" || personality.SoundMark.Timbre == "" {
 			t.Fatalf("overlay personality is incomplete: %+v", personality)
 		}
 	}

@@ -4,56 +4,56 @@
 
 The selected person source owns a renderer-neutral identity record for every
 personality. Web, mobile, terminal, audio, and generated-art consumers project
-the same semantics without making agent-compose own their presentation.
+the same semantics without agent-compose owning their presentation.
+[The overlay](overlay.md) carries the rules a renderer respects.
 
 ### Emblem
 
-Each `emblem` supplies three equivalent fallbacks:
-
 ```kdl
-emblem {
-    name "compass"
-    emoji "🧭"
-    glyph "⌖"
-}
+emblem { name "pick" "grapnel" "hook"; emoji "⛏️" }
 ```
 
-`name` is safe in plain text, `emoji` is the rich mark, and `glyph` is the
-compact monochrome mark. The loader rejects incomplete or duplicate emblems.
+Names run widest-reading first: the emoji's literal name, then what this roster
+reads the mark as. `⛏️` is a pick and the personality it marks hauls on a
+grapnel, so either word alone lies. A renderer with room for one takes the
+first. Every name is a lookup key, so all are unique across the roster.
 
 ### Motif
 
-`motif` is one lowercase semantic token such as `map-paper` or `moss`.
-Renderers may interpret it as material, texture, pattern, or environmental
-association. It is not a CSS class or an asset path.
+`motif` is one lowercase semantic token such as `moss`, read as material or
+texture rather than a CSS class or asset path. A motif is what the thing is made
+of and an emblem is a thing you point at, so every motif is a material.
 
-### Procedural form
+### Geometry
 
-Each `form` declares a `silhouette`, `geometry`, and `motion` token. Together
-they are the stable shape language from which a renderer generates an avatar,
-sprite, overlay figure, or other representation. The form is the agent's
-representation, not a separate pet or observability source. Every renderer uses
-this fixed expression vocabulary:
+`geometry` is one lowercase semantic token such as `radial-spokes`, the stable
+shape language a renderer generates an avatar, sprite, or overlay figure from.
+It is the agent's own representation, not a separate pet. `aterm` reads both
+halves: mask, then ink.
 
-* `available`
-* `listening`
-* `thinking`
-* `acting`
-* `waiting-for-human`
-* `blocked`
-* `completed`
-* `failed`
-* `offline`
+### Body and stance
 
-Expressions communicate state supplied by the owning runtime. Agent-compose
+`body` is the creature, in prose rather than tokens, and it parses through its
+own validator so tokens stay tokens. `stance` is its posture and lives on the
+**role** beside `purpose`, never on a personality.
+
+```kdl
+body {
+    archetype "sturdy compact body, simple rounded forms, thick tapering limbs"
+    attachment "a heavy iron grapnel hook slung at its hip, one rope out of frame"
+}
+```
+Every renderer uses this fixed expression vocabulary: `available`, `listening`,
+`thinking`, `acting`, `waiting-for-human`, `blocked`, `completed`, `failed`,
+`offline`. Expressions communicate state supplied by the owning runtime. Agent-compose
 defines the vocabulary but never infers live state.
 
 ### Sound mark
 
-Each `sound-mark` declares `timbre`, `contour`, and `pulse` tokens. These form a
-short semantic identity seed for notifications or conversation entry. A
-renderer may synthesize or map the mark to an asset. Agent-compose ships no
-audio files, playback behavior, volume policy, or event routing.
+Each `sound-mark` declares `timbre`, `contour`, and `pulse` tokens, a short
+semantic identity seed for notifications or conversation entry. A renderer may
+synthesize it or map it to an asset. Agent-compose ships no audio files,
+playback behavior, volume policy, or event routing.
 
 ### Projection
 

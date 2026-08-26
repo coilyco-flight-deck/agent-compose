@@ -5,14 +5,13 @@ type CanonicalPersonality = {
   color: string;
   motif: string;
   emblem: {
-    name: string;
+    names: string[];
     emoji: string;
-    glyph: string;
   };
-  form: {
-    silhouette: string;
-    geometry: string;
-    motion: string;
+  geometry: string;
+  body: {
+    archetype: string;
+    attachment: string;
   };
   soundMark: {
     timbre: string;
@@ -81,6 +80,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function readStringList(
+  record: Record<string, unknown>,
+  key: string,
+  label: string,
+): string[] {
+  const value = record[key];
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`${label} needs ${key}`);
+  }
+  return value.map((entry) => {
+    if (typeof entry !== "string" || !semanticTokenPattern.test(entry)) {
+      throw new Error(`${label} ${key} needs lowercase semantic tokens`);
+    }
+    return entry;
+  });
+}
+
 function readString(
   record: Record<string, unknown>,
   key: string,
@@ -123,7 +139,7 @@ function parsePalette(value: unknown): PaletteDocument {
       || typeof entry.color !== "string"
       || !hexPattern.test(entry.color)
       || !isRecord(entry.emblem)
-      || !isRecord(entry.form)
+      || !isRecord(entry.body)
       || !isRecord(entry.sound_mark)
     ) {
       throw new Error(`palette personality ${index} is invalid`);
@@ -134,14 +150,13 @@ function parsePalette(value: unknown): PaletteDocument {
       color: entry.color.toLowerCase(),
       motif: readString(entry, "motif", label),
       emblem: {
-        name: readString(entry.emblem, "name", `${label} emblem`),
+        names: readStringList(entry.emblem, "names", `${label} emblem`),
         emoji: readString(entry.emblem, "emoji", `${label} emblem`, false),
-        glyph: readString(entry.emblem, "glyph", `${label} emblem`, false),
       },
-      form: {
-        silhouette: readString(entry.form, "silhouette", `${label} form`),
-        geometry: readString(entry.form, "geometry", `${label} form`),
-        motion: readString(entry.form, "motion", `${label} form`),
+      geometry: readString(entry, "geometry", label),
+      body: {
+        archetype: readString(entry.body, "archetype", `${label} body`, false),
+        attachment: readString(entry.body, "attachment", `${label} body`, false),
       },
       soundMark: {
         timbre: readString(entry.sound_mark, "timbre", `${label} sound mark`),
@@ -312,8 +327,8 @@ function renderCards(
           <span class="swatch-no">${String(spectrum).padStart(2, "0")}</span>
           <span
             class="personality-emblem"
-            aria-label="${escapeHTML(personality.emblem.name)}"
-            title="${escapeHTML(personality.emblem.glyph)} // ${escapeHTML(personality.emblem.name)}"
+            aria-label="${escapeHTML(personality.emblem.names[0] ?? personality.name)}"
+            title="${escapeHTML(personality.emblem.names.join(" / "))}"
           >${escapeHTML(personality.emblem.emoji)}</span>
           <div class="contrast-pair" aria-label="Light and dark contrast sample">
             <span>Aa</span><span>Aa</span>
@@ -325,7 +340,8 @@ function renderCards(
           <p class="association">${escapeHTML(details.association)}</p>
           <dl class="identity-primitives">
             <div><dt>motif</dt><dd>${escapeHTML(personality.motif)}</dd></div>
-            <div><dt>form</dt><dd>${escapeHTML(personality.form.silhouette)}</dd></div>
+            <div><dt>emblem</dt><dd>${escapeHTML(personality.emblem.names.join(" / "))}</dd></div>
+            <div><dt>geometry</dt><dd>${escapeHTML(personality.geometry)}</dd></div>
             <div><dt>sound</dt><dd>${escapeHTML(personality.soundMark.timbre)}</dd></div>
           </dl>
           <button

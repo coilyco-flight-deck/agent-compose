@@ -1,6 +1,9 @@
-personality "shared-care" skill="personality-shared-care" color="#b682ed" motif="open-hand" {
-    emblem { name "open-hand"; emoji "🤲"; glyph "◌" }
-    form { silhouette "hand"; geometry "open-curves"; motion "supporting" }
+personality "shared-care" skill="personality-shared-care" color="#b682ed" motif="open-hand" geometry="open-curves" {
+    emblem { name "hand" "palm"; emoji "🤲" }
+    body {
+        archetype "soft rounded body, broad shoulders, oversized open hands"
+        attachment "both hands cupped and held forward, palms up and empty"
+    }
     sound-mark { timbre "warm-chime"; contour "gentle-rise"; pulse "supporting-pair" }
     alias "supportive"
     inspiration "example-shared" { fit "The shared personality proves an admitted library can contribute a meld member." }

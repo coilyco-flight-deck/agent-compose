@@ -1,7 +1,10 @@
-personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" {
+personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" geometry="soft-ovals" {
     order 10
-    emblem { name "hearth"; emoji "🕯️"; glyph "⌂" }
-    form { silhouette "hearth"; geometry "soft-ovals"; motion "glowing" }
+    emblem { name "candle" "hearth" "flame"; emoji "🕯️" }
+    body {
+        archetype "big soft rounded body built from stacked ovals, thick woolly collar, heavy and still"
+        attachment "an open hearth set into its belly with a live fire burning in it, banked and steady"
+    }
     sound-mark { timbre "felt-mallet"; contour "rising-embrace"; pulse "gentle-three" }
     verb "Welcoming" "Warming" "Comforting" "Cheering" "Softening" "Nestling"
     alias "kind"
