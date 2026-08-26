@@ -52,6 +52,15 @@ func splitNativeLaunchFlags(args []string) (bool, []string) {
 	return false, args
 }
 
+// nestedLaunchSkipsConverge reports a launch inheriting a converged host from
+// its parent. agent-compose#348
+func nestedLaunchSkipsConverge(childDepth int) bool { return childDepth > 0 }
+
+// nestedLaunchNotice keeps both sentinel call sites saying one thing.
+func nestedLaunchNotice(step string) string {
+	return "agent-compose: nested launch detected; skipping " + step
+}
+
 // dispatchArgs makes the acompose install name behave as the compose verb,
 // so the daily command is dash-free and stutter-free.
 func dispatchArgs(args []string) []string {
@@ -732,7 +741,11 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if verbose {
 		convergeStatus = os.Stdout
 	}
-	if code := converge.Run(
+	// The recursion the sentinel guards is the converge, not the launch. A
+	// nested seat skips it exactly as refreshThenExec does. agent-compose#348
+	if nestedLaunchSkipsConverge(childDepth) {
+		fmt.Fprintln(os.Stderr, nestedLaunchNotice("converge"))
+	} else if code := converge.Run(
 		paths,
 		converge.Options{Verbose: verbose},
 		convergeStatus,
@@ -1176,7 +1189,7 @@ func execRealWithRole(role string, argv []string) error {
 // the process to the real command, sentinel-guarded against recursion.
 func refreshThenExec(cmd *cli.Command, requestPath string, command []string) error {
 	if os.Getenv(launch.EnvSentinel) != "" {
-		fmt.Fprintln(os.Stderr, "agent-compose: nested launch detected; skipping refresh")
+		fmt.Fprintln(os.Stderr, nestedLaunchNotice("refresh"))
 		return execReal(command)
 	}
 	if requestPath == "" {

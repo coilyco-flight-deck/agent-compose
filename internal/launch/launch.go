@@ -12,8 +12,8 @@ import (
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
 )
 
-// EnvSentinel marks a process launched by agent-compose. A nested launch
-// sees it and skips refresh instead of recursing.
+// EnvSentinel marks a process launched by agent-compose. Both call sites read
+// it to skip work a parent already did, and neither refuses on it alone.
 const EnvSentinel = "AGENT_COMPOSE_LAUNCH"
 
 // EnvDepth counts the agent-compose launches a process sits inside, where the

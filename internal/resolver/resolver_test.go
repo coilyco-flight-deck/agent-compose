@@ -26,8 +26,8 @@ func testPerson() *person.Person {
 			},
 		},
 		Personalities: map[string]person.Personality{
-			"tenacious":  {Skill: "personality-tenacious", Color: "#d98e48"},
-			"grounded": {Skill: "personality-grounded", Color: "#5fa87a"},
+			"tenacious": {Skill: "personality-tenacious", Color: "#d98e48"},
+			"grounded":  {Skill: "personality-grounded", Color: "#5fa87a"},
 		},
 		Raw: []byte("person \"kai\"\n"),
 	}

@@ -95,6 +95,12 @@ Harness arguments still pass through verbatim, so a task prompt needs no
 agent-compose flag of its own. A positional Codex prompt also suppresses the
 bare-session introduction prompt, so a task and an introduction never collide.
 
+**A nested launch does not converge.** Its parent already did, against the
+same state, so `launch` skips it and says so on stderr in the wrapper path's
+shape: `skipping converge` against `skipping refresh`. Both call sites read the
+one sentinel and compose that notice from one place, since saying different
+things is how they came to do different things (#348).
+
 Two bounds keep the opt-in from becoming a chain:
 
 * `AGENT_COMPOSE_LAUNCH_DEPTH` counts the launches a process sits inside, and a

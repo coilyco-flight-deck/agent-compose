@@ -82,3 +82,23 @@ func TestRefuseOwnProjectionReplacementFailsClosedWithoutASessionMarker(t *testi
 		t.Fatal("an unattributable projection was accepted as safe to replace")
 	}
 }
+
+// One sentinel, two call sites. They said different things and did different
+// things, and only the saying was ever checked. agent-compose#348
+func TestBothSentinelCallSitesSkipTheirStep(t *testing.T) {
+	t.Parallel()
+	if nestedLaunchSkipsConverge(0) {
+		t.Fatal("a top-level launch must converge")
+	}
+	if !nestedLaunchSkipsConverge(1) {
+		t.Fatal("a nested launch must skip the converge its parent already ran")
+	}
+	for step, want := range map[string]string{
+		"refresh":  "agent-compose: nested launch detected; skipping refresh",
+		"converge": "agent-compose: nested launch detected; skipping converge",
+	} {
+		if got := nestedLaunchNotice(step); got != want {
+			t.Fatalf("notice(%q) = %q, want %q", step, got, want)
+		}
+	}
+}
