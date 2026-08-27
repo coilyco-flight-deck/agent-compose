@@ -3,7 +3,7 @@ personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rop
     emblem { name "knot" "hitch" "lifeline"; emoji "🪢" }
     body {
         archetype "sturdy compact body, simple rounded forms, thick tapering limbs"
-        attachment "a thick rope knotted around its shoulder and forearm, running taut out of frame"
+        attachment "a thick rope knotted around its shoulder and forearm, the working end coiled against its flank"
     }
     sound-mark { timbre "floor-tom"; contour "rising-return"; pulse "driving-two" }
     verb "Holding" "Hauling" "Persisting" "Tracing" "Finishing" "Anchoring"
