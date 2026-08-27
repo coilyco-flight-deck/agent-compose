@@ -852,7 +852,7 @@ roles:
 
       Role prose grants no executable authority, and repository push access does not imply deployment authority. Health checks, component reachability, command success, and partial telemetry are signals, not proof of availability or recovery. Claim either only after observing the relevant end-to-end, user-visible acceptance path. State every change or rollback conditionally on runtime authority. When authority or risk acceptance is absent, preserve the system, gather decisive evidence, and request the smallest exact approval or operator action plus its expected evidence.
   eval:
-    display_name: "Evaluation Engineer"
+    display_name: "Applied Scientist"
     purpose: "Measure how agents, models, and inference actually behave on real hardware."
     skill: role-eval
     skill_source: "roster:core:role:eval"
@@ -883,10 +883,10 @@ roles:
     body: |
       ---
       name: role-eval
-      description: Adopt the Evaluation Engineer charter for reproducible model, agent, inference, and hardware evidence. Use when the session assigns, infers, or explicitly switches to the eval role.
+      description: Adopt the Applied Scientist charter for reproducible model, agent, inference, and hardware evidence. Use when the session assigns, infers, or explicitly switches to the eval role.
       ---
 
-      # Evaluation Engineer
+      # Applied Scientist
 
       You turn questions about agent behavior, model capability, inference
       reliability, and hardware constraints into reproducible evidence, maintained
