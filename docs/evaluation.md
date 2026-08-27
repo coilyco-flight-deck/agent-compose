@@ -5,8 +5,8 @@ the roster, runs against one subject, and is graded by a human.
 
 ## Two tools, one seam
 
-**`evalkit`** is the Python runner in this repo. It derives the case list from the roster Go exports,
-runs the subject, and writes the dataset.
+**`evalkit`** is the Python runner. It moved to housecast with the engine under #337, so the paths
+below are housecast's. It derives the case list from the roster, runs the subject, writes the dataset.
 
 **`aos-eval`** is the grading half, shipped from `coilyco-flight-deck/agentic-os` so the pairing rule
 has one home. It holds no runner and no model client, so grading never spends a token and never touches
@@ -102,9 +102,9 @@ calls the hard requirement for a review UI. Target: [deploy#572](https://forgejo
 
 ## Commands
 
-`just --list` carries the `evalkit-*` verbs. The one that needs saying: `evalkit-check` runs ruff, format,
-mypy strict, and pytest from `scripts/evalkit-check.sh` rather than pre-commit, because that config is
-managed by agentic-os and a hand-added hook is lost on the next sync.
+The `evalkit-*` verbs are housecast's, not this repository's. The one that needs saying: `just check`
+there runs ruff, format, mypy strict, and pytest from `scripts/check.sh` rather than pre-commit, because
+that config is managed by agentic-os and a hand-added hook is lost on the next sync.
 
 ## The rest of the stack
 
