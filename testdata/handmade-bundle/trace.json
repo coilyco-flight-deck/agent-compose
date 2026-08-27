@@ -1,0 +1,71 @@
+{
+  "format": "agent-compose.trace",
+  "decisions": [
+    {
+      "subject": "source:fixture:handmade",
+      "kind": "source",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "the fixture author admitted this source by writing the tree"
+    },
+    {
+      "subject": "role:courier",
+      "kind": "profile",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "fixture:handmade defines this role: Carry one parcel from one place to one other place, and report what happened to it."
+    },
+    {
+      "subject": "personality:steady",
+      "kind": "profile",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "role \"courier\" activates its full personality set: steady"
+    },
+    {
+      "subject": "instruction:handmade-preamble",
+      "kind": "instruction",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "instructions from admitted sources are always selected"
+    },
+    {
+      "subject": "skill:role-courier",
+      "kind": "skill",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "role \"courier\" composes this skill"
+    },
+    {
+      "subject": "skill:personality-steady",
+      "kind": "skill",
+      "source": "fixture:handmade",
+      "outcome": "selected",
+      "reason": "active personality \"steady\" binds this skill"
+    },
+    {
+      "subject": "content/instructions.md",
+      "kind": "delivery",
+      "outcome": "delivered",
+      "reason": "canonical selected instructions"
+    },
+    {
+      "subject": "content/skills",
+      "kind": "delivery",
+      "outcome": "delivered",
+      "reason": "canonical selected skill trees"
+    }
+  ],
+  "providers": [
+    {
+      "source": "fixture:handmade",
+      "category": "person-package",
+      "scope": "person",
+      "outcome": "selected",
+      "reason": "the fixture author admitted this source by writing the tree",
+      "skills": 2,
+      "context_bytes": 726,
+      "approximate_tokens": 182
+    }
+  ]
+}

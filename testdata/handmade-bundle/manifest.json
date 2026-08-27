@@ -1,0 +1,62 @@
+{
+  "format": "agent-compose.bundle",
+  "role": "courier",
+  "role_skill": "role-courier",
+  "role_skill_source": "fixture:handmade:role:courier",
+  "role_skill_digest": "sha256:bedff087f5e1c6ba8f0c3b05d579eb63c88d62bbc77e7bd623e29a704f0efa84",
+  "model_tier": "frontier",
+  "personalities": [
+    "steady"
+  ],
+  "color": "#5fa87a",
+  "identity": {
+    "person": "handmade",
+    "purpose": "Carry one parcel from one place to one other place, and report what happened to it.",
+    "seats": [
+      {
+        "key": "claude",
+        "harness": "claude",
+        "name": "Wren",
+        "pronouns": "they",
+        "tier": "frontier"
+      }
+    ],
+    "personalities": [
+      {
+        "name": "steady",
+        "color": "#5fa87a",
+        "emblem": {
+          "names": [
+            "metronome",
+            "pendulum",
+            "escapement"
+          ],
+          "emoji": "⏱️"
+        }
+      }
+    ]
+  },
+  "sources": [
+    "fixture:handmade"
+  ],
+  "content": [
+    {
+      "id": "fixture:handmade:instructions",
+      "digest": "sha256:1c2c0e05a0331b1cc8de853bf3d3581b10a1ea30bcaf5657123a0b790e8af45c"
+    },
+    {
+      "id": "fixture:handmade:role:courier",
+      "digest": "sha256:bedff087f5e1c6ba8f0c3b05d579eb63c88d62bbc77e7bd623e29a704f0efa84"
+    },
+    {
+      "id": "fixture:handmade:skill:personality-steady",
+      "digest": "sha256:6de99492c17ddb133527708321d8d01644b7360c2dff7f2529694b484fe5564d"
+    }
+  ],
+  "delivery": {
+    "mode": "native-skills",
+    "instructions": "content/instructions.md",
+    "skills_root": "content/skills",
+    "body_bytes": 1178
+  }
+}
