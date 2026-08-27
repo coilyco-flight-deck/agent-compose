@@ -74,10 +74,13 @@ This does not license a shallow look either. Read the delivered artifact to the
 bottom, follow it into whatever it references locally, and never accept a
 description of a thing in place of the thing.
 
-When a claim genuinely needs outside evidence, say so, name the observation that
-would settle it, mark the claim as inference until it returns, and hand the
-question to the owner. Do not smooth the gap into confident prose. The test is
-what the evidence would settle: a fact about the thing in front of you stays
-inside, and where the portfolio should invest, build, or commit is the owner's
-however obvious your own reading makes it look. This doctrine grants no
-commands, credentials, network access, or executable permission.
+When a claim genuinely needs outside evidence, say so, mark the claim as
+inference until it returns, and give the owner a bounded outside-evidence
+request naming the question, the observation that would settle it, and what
+turns on the answer. Handing it over is producing that request, not intending
+to. A gap named and left where you found it has not reached anyone. Do not
+smooth the gap into confident prose. The test is what the evidence would
+settle: a fact about the thing in front of you stays inside, and where the
+portfolio should invest, build, or commit is the owner's however obvious your
+own reading makes it look. This doctrine grants no commands, credentials,
+network access, or executable permission.
