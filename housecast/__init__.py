@@ -22,7 +22,7 @@ Discharged from the #332 tracer's cheat list:
 * The model-tier matrix is enforced. An unsupported tier is refused with the
   Go engine's wording.
 
-Carried forward, with reasons, tracked in agent-compose#372:
+Carried forward, with reasons, tracked in agent-compose#373:
 
 * Local library merge and conflict detection is not ported. #333 lists it as a
   semantic step and this engine reads exactly one person package, so a roster
