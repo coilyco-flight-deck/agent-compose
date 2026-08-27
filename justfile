@@ -29,6 +29,14 @@ smoke-verbose *ARGS:
 test *ARGS:
     @sh scripts/test.sh "$@"
 
+# Compose one role bundle with the Python engine.
+housecast *ARGS:
+    @uv run python -m housecast "$@"
+
+# Run the housecast differential suite against the Go engine.
+housecast-test *ARGS:
+    @uv run pytest housecast/tests "$@"
+
 # Compile every package.
 build *ARGS:
     @go build ./... "$@"
