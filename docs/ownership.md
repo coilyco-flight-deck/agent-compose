@@ -57,7 +57,7 @@ reviewable local data assets.
   not a profile override.
 * Profile assets - role skills, role-bound methods, structured role metadata,
   role identity, invariant, copy contracts, and optional complete
-  `evaluations/<role>.yaml` matrices.
+  behavior board, which lives with the engine in housecast.
 * Personality-library assets - personality bindings, aliases, identity
   primitives, and definition skills.
 * Consumer configuration - local profile and library roots only. Agent

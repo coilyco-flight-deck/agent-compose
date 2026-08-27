@@ -78,7 +78,7 @@ proving the limit holds. That moves the measured question from *does the rule
 fire* to *does the grant hold its limits*, and "acted, but exceeded the scope"
 is the failure a binary model cannot see.
 
-`evalkit.matrix` derives that pair from `scoped_boundaries`, within-scope as the
+housecast's `evalkit.matrix` derives that pair from `scoped_boundaries`, within-scope as the
 in-half, so `in` means one thing in all three states: acting on own territory.
 
 ## Selection and delivery

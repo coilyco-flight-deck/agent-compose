@@ -6,9 +6,12 @@ ward:
 
 ## Scope
 
-Agent-compose is the context substrate between knowledge providers and native
-or isolated harness consumers. It selects, compiles, and materializes agent
-context for hosts and staged homes. It is public source and embeds Kai's
+Agent-compose delivers and launches agent context for native or isolated
+harness consumers. It materializes bundles, projects them at harness load
+points, and runs the launch path. **It no longer owns composition**: the
+engine, the roster language, and the eval board live in coilyco-flight-deck/housecast, moved out under
+#337. The Go semantic layer here is deleted under #339 and still runs until
+then, which is why `checks/` proves the two engines agree. It is public source and embeds Kai's
 public-safe portfolio roster, personalities, and composition defaults. It also
 accepts one complete external person package that replaces that default for an
 independent deployment. Keep private identity detail, machines, credentials,
@@ -121,7 +124,7 @@ content. Do not generalize it prematurely, copy ordinary AOS skills into this
 repo, or allow personality to alter truthfulness, authority, safety, rollback,
 or completion.
 Generated bundles and rendered references stay uncommitted. Graded
-evaluation evidence is committed under `evaluations/`.
+evaluation evidence is committed in coilyco-flight-deck/housecast, which owns the board runner.
 Update [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant
 capability actually ships.
 

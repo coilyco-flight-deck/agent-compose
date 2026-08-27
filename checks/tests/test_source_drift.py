@@ -18,7 +18,6 @@ import subprocess
 from typing import Any
 
 import pytest
-
 from housecast import roster
 from housecast.roster import Roster
 
@@ -42,8 +41,11 @@ GONE = "the Go person data is gone, so drift cannot occur"
 
 @pytest.mark.skipif(not GO_DATA.is_dir(), reason=GONE)
 def test_every_skill_body_matches_the_go_source(loaded: Roster) -> None:
-    stale = [skill for skill, body in _skills(loaded)
-             if (GO_DATA / skill / "SKILL.md").read_text() != body]
+    stale = [
+        skill
+        for skill, body in _skills(loaded)
+        if (GO_DATA / skill / "SKILL.md").read_text() != body
+    ]
     assert not stale, f"regenerate housecast/data/roster.yaml, these drifted: {stale}"
 
 
@@ -73,8 +75,12 @@ def go_snapshot(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
     if shutil.which("go") is None:
         pytest.skip("no Go toolchain, so the snapshot is unavailable")
     binary = tmp_path_factory.mktemp("go") / "agent-compose"
-    subprocess.run(["go", "build", "-o", str(binary), "./cmd/agent-compose"],
-                   cwd=REPO, check=True, capture_output=True)
+    subprocess.run(
+        ["go", "build", "-o", str(binary), "./cmd/agent-compose"],
+        cwd=REPO,
+        check=True,
+        capture_output=True,
+    )
     out = tmp_path_factory.mktemp("roster") / "roster"
     subprocess.run([str(binary), "roster", "--out", str(out)], check=True, capture_output=True)
     loaded: dict[str, Any] = json.loads((out / "person.json").read_text())
@@ -96,12 +102,21 @@ def test_role_metadata_matches_the_go_snapshot(loaded: Roster, go_snapshot: dict
             ("tiers", role.supported_model_tiers, go_role["supported_model_tiers"]),
             ("defers", role.defers, go_role["boundaries"]),
             ("personalities", role.personalities, go_role["personalities"]),
-            ("identity", [role.identity_name, role.identity_pronouns],
-             [go_role["identity"]["name"], go_role["identity"]["pronouns"]]),
-            ("seats", [[s.key, s.harness, s.tier] for s in role.seats],
-             [[s.get("key"), s["harness"], s.get("tier")] for s in go_role["seats"]]),
-            ("scoped", [[s.name, s.scope] for s in role.scoped],
-             [[s["name"], s["scope"]] for s in go_role.get("scoped_boundaries") or []]),
+            (
+                "identity",
+                [role.identity_name, role.identity_pronouns],
+                [go_role["identity"]["name"], go_role["identity"]["pronouns"]],
+            ),
+            (
+                "seats",
+                [[s.key, s.harness, s.tier] for s in role.seats],
+                [[s.get("key"), s["harness"], s.get("tier")] for s in go_role["seats"]],
+            ),
+            (
+                "scoped",
+                [[s.name, s.scope] for s in role.scoped],
+                [[s["name"], s["scope"]] for s in go_role.get("scoped_boundaries") or []],
+            ),
         ):
             if mine != theirs:
                 stale.append(f"{name}.{field}")
@@ -109,19 +124,32 @@ def test_role_metadata_matches_the_go_snapshot(loaded: Roster, go_snapshot: dict
 
 
 def test_boundary_and_personality_metadata_matches(
-    loaded: Roster, go_snapshot: dict[str, Any],
+    loaded: Roster,
+    go_snapshot: dict[str, Any],
 ) -> None:
     stale = []
     for name, boundary in loaded.boundaries.items():
         go_boundary = go_snapshot["boundaries"][name]
         if [boundary.skill, boundary.owner, boundary.summary] != [
-                go_boundary["skill"], go_boundary["owner"], go_boundary["summary"]]:
+            go_boundary["skill"],
+            go_boundary["owner"],
+            go_boundary["summary"],
+        ]:
             stale.append(f"boundary {name}")
     for name, personality in loaded.personalities.items():
         go_personality = go_snapshot["personalities"][name]
-        if [personality.skill, personality.color, personality.motif,
-                personality.emblem.names, personality.emblem.emoji] != [
-                go_personality["skill"], go_personality["color"], go_personality["motif"],
-                go_personality["emblem"]["names"], go_personality["emblem"]["emoji"]]:
+        if [
+            personality.skill,
+            personality.color,
+            personality.motif,
+            personality.emblem.names,
+            personality.emblem.emoji,
+        ] != [
+            go_personality["skill"],
+            go_personality["color"],
+            go_personality["motif"],
+            go_personality["emblem"]["names"],
+            go_personality["emblem"]["emoji"],
+        ]:
             stale.append(f"personality {name}")
     assert not stale, f"regenerate housecast/data/roster.yaml, these drifted: {stale}"

@@ -2,6 +2,16 @@
 
 Inventory of what ships today.
 
+## Composition moved to housecast
+
+The roster language, the composition engine, and the eval board runner live in
+`coilyco-flight-deck/housecast` as of #337. This repository consumes housecast
+from Forgejo through `[tool.uv.sources]`, pinned by tag, and keeps `checks/`
+to prove the Go engine still composes identical bundles until #339 deletes it.
+
+Where composition lives is a public boundary, which is why it is recorded here
+rather than only in the issue.
+
 ## Composition engine
 
 * `agent-compose compose` turns a KDL request into an immutable bundle.
@@ -51,7 +61,7 @@ Inventory of what ships today.
 * `compose` renders the role metadata and the identity texture. `--explain`
   adds the briefing, the credits, the expressions, and the decisions.
 * [Evaluation](evaluation.md) derives the board from the roster, runs it with
-  `evalkit`, and grades it by hand with the shared `aos-eval`. No mechanical
+  housecast's `evalkit`, and grades it by hand with `aos-eval`. No mechanical
   scorer anywhere in the loop.
 * [V2 migration](release.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.

@@ -15,7 +15,7 @@ roles/<role>/SKILL.md
 personalities/NN-local.kdl
 definitions/INVARIANT.md
 definitions/skills/<skill>/SKILL.md
-evaluations/<role>.yaml
+housecast evaluations/<role>.yaml
 libraries/<local-library>/
 ```
 

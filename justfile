@@ -1,7 +1,7 @@
 # Per-repo task manifest. Run `just` (or `just --list`) to see every verb.
 #
-# Recipes take trailing arguments directly: `just evalkit-export <dir>`, where
-# the retired form was `ward exec evalkit-export -- <dir>`.
+# Recipes take trailing arguments directly: `just test -k parity`, where the
+# retired form was `ward exec test -- -k parity`.
 #
 # One line of comment per recipe on purpose: just reads only the LAST comment
 # line above a recipe, so a wrapped description silently truncates to its tail.
@@ -25,17 +25,9 @@ smoke *ARGS:
 smoke-verbose *ARGS:
     @sh scripts/smoke.sh --verbose "$@"
 
-# Run Go and palette tests, then the pre-commit suite.
+# Run the Go suite, the parity checks, and the pre-commit suite.
 test *ARGS:
     @sh scripts/test.sh "$@"
-
-# Compose one role bundle with the Python engine.
-housecast *ARGS:
-    @uv run python -m housecast "$@"
-
-# Run the housecast differential suite against the Go engine.
-housecast-test *ARGS:
-    @uv run pytest housecast/tests "$@"
 
 # Compile every package.
 build *ARGS:
@@ -81,50 +73,6 @@ palette-serve *ARGS:
 palette-tidy *ARGS:
     @npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund "$@"
 
-# Print the capability by test-type matrix the current roster implies.
-evalkit-matrix *ARGS:
-    @sh scripts/eval-matrix.sh "$@"
-
-# Compose one bundle per role and write its delivery as the eval system prompt.
-evalkit-prompts *ARGS:
-    @sh scripts/eval-prompts.sh "$@"
-
-# Send one live request through Agent Proxy to prove the eval transport works.
-evalkit-smoke *ARGS:
-    @sh scripts/eval-smoke.sh "$@"
-
-# Lint, format-check, type-check, and test the evalkit Python package.
-evalkit-check *ARGS:
-    @sh scripts/evalkit-check.sh "$@"
-
-# Reconcile the evalkit virtualenv with pyproject.toml.
-evalkit-sync *ARGS:
-    @uv sync "$@"
-
-# Run the board through Inspect against Agent Proxy, unscored, five epochs.
-evalkit-run *ARGS:
-    @sh scripts/eval-run.sh "$@"
-
-# Open the Inspect log viewer on the most recent board run.
-evalkit-view *ARGS:
-    @uv run inspect view --log-dir .evalkit/logs "$@"
-
-# Project a committed run into a display payload. One way, and refuses anything unsafe for a public surface.
-evalkit-export *ARGS:
-    @uv run aos-eval export "$@"
-
-# Read an Inspect eval log and build the dataset the annotator grades.
-evalkit-filter *ARGS:
-    @uv run python -m evalkit.filter "$@"
-
-# Cluster annotation critiques into a ranked failure taxonomy.
-evalkit-taxonomy *ARGS:
-    @uv run aos-eval taxonomy "$@"
-
-# Annotate the eval dataset by hand, one keystroke per challenge.
-evalkit-annotate *ARGS:
-    @sh scripts/eval-annotate.sh "$@"
-
 # Cross-compile version-stamped release binaries into dist/.
 release-build *ARGS:
     @sh scripts/release-build.sh "$@"
@@ -144,3 +92,15 @@ release-impact *ARGS:
 # Exercise documentation, result, product, hold, and manual release fixtures.
 release-impact-test *ARGS:
     @sh scripts/release-impact-test.sh "$@"
+
+# Lint, format-check, type-check, and test the checks package.
+check *ARGS:
+    @sh scripts/check.sh "$@"
+
+# Prove the Go engine and housecast still compose identical bundles.
+parity *ARGS:
+    @uv run pytest checks/tests/test_parity.py "$@"
+
+# Reconcile the checks virtualenv with pyproject.toml.
+sync *ARGS:
+    @uv sync "$@"

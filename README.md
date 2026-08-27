@@ -18,7 +18,7 @@ bundle before a run, and `verify` will tell you it is complete before you do.
 ## Why eval driven
 
 The board is derived from the roster rather than written beside it.
-`evalkit.matrix` reads the roster and prints the cases it implies: boundaries
+housecast's `evalkit.matrix` reads the roster and prints the cases it implies: boundaries
 and their owners produce the pairs, adjacency produces the role-fit targets, and
 each role's meld produces the personality cases. Add a boundary, flip an
 adjacency edge, or swap a personality and the challenge list moves on its own.

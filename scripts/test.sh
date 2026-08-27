@@ -13,5 +13,5 @@ sh scripts/release-impact-test.sh
 sh scripts/render-packaging-test.sh
 env HOME="$test_home" sh scripts/palette-web.sh test
 env HOME="$test_home" sh scripts/context-budget.sh
-sh scripts/evalkit-check.sh
+sh scripts/check.sh
 pre-commit run --all-files

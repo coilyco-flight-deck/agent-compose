@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from evalkit import palette
+from checks import palette
 
 REPORTED_LIGHTNESS = {
     "#d1cb26": 0.82,
