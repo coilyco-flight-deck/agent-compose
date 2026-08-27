@@ -1,6 +1,6 @@
 ---
 name: repo-agent-compose
-description: Eval driven agent roles and personas. Triggers - agent-compose, ai-agents, automation, llm, mcp
+description: An eval driven composer for agent roles and personas. Triggers - agent-compose, ai-agents, automation, llm, mcp
 ---
 
 # repo-agent-compose
