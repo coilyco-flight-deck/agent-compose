@@ -1,8 +1,8 @@
 # agent-compose
 
-Eval driven agent roles and personas
+Eval driven composer for roles and personas
 
-![agent-compose and $ acompose, eval driven agent roles and personas](assets/banner/agent-compose-banner.jpg)
+![agent-compose and $ acompose, eval driven composer for roles and personas](assets/banner/agent-compose-banner.jpg)
 
 agent-compose compiles the context an agent harness loads. It selects a role,
 the personality meld that role carries, the skills that role can see, and the
