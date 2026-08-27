@@ -33,7 +33,7 @@ const (
 )
 
 // Personality and boundary prose carry their own bounds. A floor keeps an entry
-// from thinning into a label. See docs/eval-engineer.md.
+// from thinning into a label. See docs/eval-context-budget.md.
 const (
 	minPersonalitySkillBodyWords = 120
 	maxPersonalitySkillBodyWords = 320

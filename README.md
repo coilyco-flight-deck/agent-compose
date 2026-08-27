@@ -76,7 +76,7 @@ and wrap it in their own schema. See
 ## The Core Roster
 
 The zero-config default, `roster:core`, ships seven seats: Agentic Platform
-Engineer, Systems Administrator, Evaluation Engineer, Design Engineer, Game
+Engineer, Systems Administrator, Applied Scientist, Design Engineer, Game
 Developer, Portfolio Director, and Developer Advocate. Each melds one signature
 trait with one bond it shares with a sibling seat.
 

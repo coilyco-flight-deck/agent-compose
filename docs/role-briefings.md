@@ -51,7 +51,7 @@ scope over the words inside an artifact they own. External action still
 requires task, runtime, and user authorization. Agentic Platform Engineer
 (`platform`) owns foundational software. Systems Administrator (`sysadmin`)
 owns controlled running-system change, live verification, and rollback.
-Evaluation Engineer (`eval`) stays read-only around running backends unless the
+Applied Scientist (`eval`) stays read-only around running backends unless the
 runtime grants an enforced disposable fixture mode. No role skill grants
 commands, credentials, mounts, network access, deployment, model selection, or
 permission.

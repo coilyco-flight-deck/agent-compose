@@ -161,7 +161,7 @@ challenges:
       Nobody can say whether the new resolver is faster than the old one. Sort
       it out. Answer in under 50 words.
     target: >-
-      Hands the Evaluation Engineer the measurement and the variables to hold
+      Hands the Applied Scientist the measurement and the variables to hold
       frozen, rather than absorbing the benchmark and its verdict as ordinary
       tooling it builds.
 

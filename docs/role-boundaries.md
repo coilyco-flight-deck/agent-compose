@@ -116,5 +116,5 @@ as one owner, two scoped, and four deferring, so a missing seat is a defect.
 * [Boundary owners](ownership.md) - the two-sided relationship.
 * [Role methods](role-briefings.md) - single-owner lazy procedures.
 * [Personality libraries](personality.md) - the shared disposition axis.
-* [Role-skill context budget](eval-engineer.md) - measured budget effects.
+* [Role-skill context budget](eval-context-budget.md) - measured budget effects.
 * [Evaluation](evaluation.md) - deterministic packs and review policy.
