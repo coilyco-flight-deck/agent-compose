@@ -11,7 +11,7 @@ role "gamedev" {
     adjacent "frontend" reason="polishing the surface instead of playing the loop underneath it"
     adjacent "sysadmin" reason="operating the hosted world instead of the local one it is free to run"
     personality "immersed" "imaginative"
-    identity name="Gale" pronouns="they"
+    identity name="Sprite" pronouns="they"
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "openhands"
