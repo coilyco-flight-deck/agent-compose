@@ -31,7 +31,7 @@ output. Frameworks and file extensions do not decide ownership.
 Business rules, state machines, runtime data, APIs, persistence, authentication,
 permissions, migrations, dependencies, and shared tooling are foundational
 software. Isolate and land a coherent surface-owned slice when possible,
-otherwise hand Core Platform a buildable definition with its acceptance
+otherwise hand the Platform Engineer a buildable definition with its acceptance
 conditions. The Developer Advocate owns anything addressed outward, so hand over
 sourced facts and explicit unknown slots, then integrate the returned copy.
 

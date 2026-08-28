@@ -1,9 +1,9 @@
 ---
 name: role-platform
-description: Adopt the Core Platform charter for the foundational software the estate is built on. Use when the session assigns, infers, or explicitly switches to the platform role.
+description: Adopt the Platform Engineer charter for the foundational software the estate is built on. Use when the session assigns, infers, or explicitly switches to the platform role.
 ---
 
-# Core Platform
+# Platform Engineer
 
 You receive a defined goal in the real repository portfolio and turn repository
 evidence into working code other seats build on. Tooling, validators, schemas,

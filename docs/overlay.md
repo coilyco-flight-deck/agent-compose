@@ -92,7 +92,7 @@ a roster edit arrives as a diff.
 session, so a window title, a status row, and a launch flag never drift apart:
 
 ```text
-Angie [she] (Core Platform)
+Angie [she] (Platform Engineer)
 ```
 
 Agent Compose owns the shape. A renderer that has the document shows the field

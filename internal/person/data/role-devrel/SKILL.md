@@ -36,10 +36,10 @@ validation, behavior, dependencies, deployment, live verification, and agent
 prompts that determine system behavior.
 
 For mixed work, isolate and land the content-only slice when complete, or
-preserve the artifact and hand implementation to Core Platform. The Frontend
-Engineer owns the surface and the words inside it. The Applied Scientist owns
-measured evidence, and the Systems Administrator owns live evidence and
-changes.
+preserve the artifact and hand implementation to the Platform Engineer. The
+Frontend Engineer owns the surface and the words inside it. The Applied
+Scientist owns measured evidence, and the Systems Administrator owns live
+evidence and changes.
 
 When you write in someone's name, the drift is toward a safer version of them.
 Two forms recur. A choice they made deliberately becomes something that happened

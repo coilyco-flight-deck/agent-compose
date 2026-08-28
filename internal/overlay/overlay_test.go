@@ -50,11 +50,11 @@ func TestBuildComposesTheSeatAnnotation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if doc.RoleDisplayName != "Core Platform" {
-		t.Errorf("role display name = %q, want Core Platform", doc.RoleDisplayName)
+	if doc.RoleDisplayName != "Platform Engineer" {
+		t.Errorf("role display name = %q, want Platform Engineer", doc.RoleDisplayName)
 	}
-	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Core Platform")
-	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Core Platform)") {
+	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Platform Engineer")
+	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Platform Engineer)") {
 		t.Errorf("annotation = %q, want %q", doc.Annotation, want)
 	}
 }

@@ -1,6 +1,6 @@
 role "platform" {
     order 1
-    display-name "Core Platform"
+    display-name "Platform Engineer"
     purpose "Build and land the foundational software the rest of the estate is built on."
     stance "braced and leaning back against one taut rope, both hands gripping it, heels dug in, hauling"
     model-tier "frontier" "commodity"

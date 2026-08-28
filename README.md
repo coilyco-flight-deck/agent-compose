@@ -75,7 +75,7 @@ and wrap it in their own schema. See
 
 ## The Core Roster
 
-The zero-config default, `roster:core`, ships seven seats: Core Platform,
+The zero-config default, `roster:core`, ships seven seats: Platform Engineer,
 Systems Administrator, Applied Scientist, Frontend Engineer, Game Developer,
 Portfolio Director, and Developer Advocate. Each melds one signature trait with
 one bond it shares with a sibling seat.
