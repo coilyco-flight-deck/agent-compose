@@ -62,7 +62,7 @@ func (e env) config(t *testing.T, body string) {
     role eval {}
     role devrel {}
     role frontend {}
-    role tpm {}
+    role director {}
     role platform {}
     role sysadmin {}
     role gamedev {}

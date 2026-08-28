@@ -1,4 +1,4 @@
-// A single-seat deployment: eval with no sysadmin, devrel, or tpm to hand
+// A single-seat deployment: eval with no sysadmin, devrel, or director to hand
 // work to. The role owns no boundary, and the two named here are deferrals it
 // can drop. Its scoped grant on build-foundational-software is not.
 compose {

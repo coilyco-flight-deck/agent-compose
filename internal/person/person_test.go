@@ -111,9 +111,9 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		}
 		// Two roles melding the same personalities land on the same anchor, so
 		// the spread step can only separate them by twice the drift cap.
-		role := p.Roles["tpm"]
+		role := p.Roles["director"]
 		role.Personalities = append([]string(nil), p.Roles["devrel"].Personalities...)
-		p.Roles["tpm"] = role
+		p.Roles["director"] = role
 		if err := p.ResolveFavoriteColors(); err != nil {
 			t.Fatal(err)
 		}

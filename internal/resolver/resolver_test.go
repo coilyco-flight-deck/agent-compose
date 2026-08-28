@@ -150,12 +150,12 @@ func TestResolveRejectsUnsupportedRoleModelTier(t *testing.T) {
 		t.Fatal(err)
 	}
 	oss := &schema.Request{
-		Role:      "tpm",
+		Role:      "director",
 		Delivery:  schema.DeliveryNativeSkills,
 		ModelTier: schema.ModelTierOSS,
 	}
 	if _, err := Resolve(oss, p, nil, nil); err == nil ||
-		err.Error() != `role "tpm" does not support model tier "oss"` {
+		err.Error() != `role "director" does not support model tier "oss"` {
 		t.Fatalf("OSS Executive Strategist error = %v", err)
 	}
 
@@ -228,12 +228,12 @@ func TestResolveIgnoresComposedSkillsBoundToUndefinedRoles(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	// "tpm" is staged by the provider but absent from this roster.
+	// "director" is staged by the provider but absent from this roster.
 	src.RoleSkills = map[string][]schema.ContentRef{
 		"platform": {{
 			ID: "coding-shape-cli", Path: "coding-shape-cli", EntryPoint: "COMPOSED.md",
 		}},
-		"tpm": {{
+		"director": {{
 			ID:         "tooling-ceo-platform-strategy",
 			Path:       "tooling-ceo-platform-strategy",
 			EntryPoint: "COMPOSED.md",
@@ -270,7 +270,7 @@ func TestResolveIgnoresComposedSkillsBoundToUndefinedRoles(t *testing.T) {
 
 func TestResolveStillRejectsAnUndefinedRequestedRole(t *testing.T) {
 	src := makeSource(t, "aos", nil)
-	req := &schema.Request{Role: "tpm", Delivery: schema.DeliveryNativeSkills}
+	req := &schema.Request{Role: "director", Delivery: schema.DeliveryNativeSkills}
 	_, err := Resolve(req, testPerson(), []*schema.Source{src}, nil)
 	if err == nil || !strings.Contains(err.Error(), "not defined") {
 		t.Fatalf("expected the requested role to stay fail-closed, got %v", err)

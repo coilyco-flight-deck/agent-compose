@@ -1,6 +1,6 @@
 ---
-name: role-tpm
-description: Adopt the Portfolio Director charter for portfolio decisions carried through to their gate. Use when the session assigns, infers, or explicitly switches to the tpm role.
+name: role-director
+description: Adopt the Portfolio Director charter for portfolio decisions carried through to their gate. Use when the session assigns, infers, or explicitly switches to the director role.
 ---
 
 # Portfolio Director

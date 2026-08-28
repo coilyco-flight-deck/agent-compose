@@ -347,7 +347,7 @@ func TestNativeHarnessCommandPreservesExplicitCodexWork(t *testing.T) {
 	t.Parallel()
 	for name, args := range map[string][]string{
 		"prompt":         {"help me debug this"},
-		"subcommand":     {"tpm", "run the tests"},
+		"subcommand":     {"director", "run the tests"},
 		"unknown option": {"--future-option"},
 	} {
 		t.Run(name, func(t *testing.T) {

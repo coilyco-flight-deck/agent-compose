@@ -171,7 +171,7 @@ func TestRenderDefaultSupportsTPMToEvalSwitch(t *testing.T) {
 	if !strings.Contains(table, wantTargets) {
 		t.Fatalf("default native switch targets drifted:\nwant %s\n\n%s", wantTargets, table)
 	}
-	for _, roleName := range []string{"tpm", "eval"} {
+	for _, roleName := range []string{"director", "eval"} {
 		role := p.Roles[roleName]
 		if strings.Contains(table, role.Briefing) {
 			t.Fatalf("startup roster eagerly embedded role %q briefing:\n%s", roleName, table)

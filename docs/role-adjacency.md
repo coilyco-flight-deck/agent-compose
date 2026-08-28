@@ -38,7 +38,7 @@ role "sysadmin" {
     boundary "suggest-external-comms" "seek-external-validation"
     boundary-scoped "build-foundational-software" scope="executable configuration only your own estate consumes"
     adjacent "platform" reason="implementing the fix instead of handing it back with observed evidence"
-    adjacent "tpm" reason="sequencing follow-up work after an incident instead of surfacing it as findings"
+    adjacent "director" reason="sequencing follow-up work after an incident instead of surfacing it as findings"
     personality "protective" "grounded"
 }
 ```
@@ -61,12 +61,12 @@ blocks, which is not wrong but tests compliance rather than something new.
 
 ```text
 platform -> sysadmin, eval
-sysadmin -> platform, tpm
+sysadmin -> platform, director
 eval     -> platform, gamedev
 frontend -> devrel, gamedev
 gamedev  -> frontend, sysadmin
-tpm      -> devrel, eval
-devrel   -> frontend, tpm
+director      -> devrel, eval
+devrel   -> frontend, director
 ```
 
 In-degree is even at two for every seat. The nine-seat roster had Engineer

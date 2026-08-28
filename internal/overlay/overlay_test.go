@@ -66,7 +66,7 @@ func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "tpm", "claude", "acting")
+	doc, err := Build(p, "director", "claude", "acting")
 	if err != nil {
 		t.Fatal(err)
 	}

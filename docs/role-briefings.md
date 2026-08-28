@@ -11,15 +11,15 @@ Each person profile owns one ordinary role skill. KDL keeps compact identity dat
 A role fragment binds a stable skill id:
 
 ```kdl
-role "tpm" {
+role "director" {
     display-name "Portfolio Director"
     purpose "Decide what the portfolio does next, and carry each decision to its gate."
-    skill "role-tpm"
+    skill "role-director"
     personality "decisive" "outward"
 }
 ```
 
-The body at `roles/tpm/SKILL.md` needs ordinary frontmatter, matching
+The body at `roles/director/SKILL.md` needs ordinary frontmatter, matching
 `role-<slug>` metadata, three paragraphs, and at most 400 words after its
 title. V1.x packages may retain an inline `briefing`. The compatibility adapter
 projects it as an in-memory `role-<slug>` skill. A role cannot declare both
@@ -64,7 +64,7 @@ migrations, and shared tooling are foundational software and return to
 platform. `devrel` may land content-only repository changes, including
 human-facing literals embedded in code. That exception requires unchanged
 control flow, state, schemas, structured contracts, and executable behavior.
-Portfolio Director (`tpm`) owns code review as a gate decision, so a defect
+Portfolio Director (`director`) owns code review as a gate decision, so a defect
 returns to the owning seat with evidence rather than with a patch.
 
 ## Role methods
