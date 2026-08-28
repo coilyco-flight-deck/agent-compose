@@ -9,15 +9,8 @@ import (
 // Versioned so a change to the covered set cannot collide with an older hash.
 const fingerprintVersion = "agent-compose.bundle-fingerprint.v1"
 
-// Fingerprint names the composition a manifest describes, so a session
-// transcript can point at an exact bundle without copying any of it. It is
-// derived from manifest.json alone, so a reader holding the bundle recomputes
-// it rather than trusting a recorded value. See docs/manifest-schema.md.
-//
-// It names a composition and does not attest to one. `verify` checks
-// content digests for shape and never recomputes them against bytes, so a
-// producer writing well-formed but untrue digests mints a well-formed but
-// untrue fingerprint. Joining on it is sound, trusting it is not.
+// Fingerprint names a composition and does not attest to one, since verify
+// never recomputes digests. See docs/manifest-schema.md. agent-compose#350
 func Fingerprint(m Manifest) string {
 	h := sha256.New()
 	fmt.Fprintf(h, "%s\x00", fingerprintVersion)
