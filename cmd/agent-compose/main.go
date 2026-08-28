@@ -178,6 +178,10 @@ func main() {
 						Value: ".",
 						Usage: "file or directory used to find the nearest projection",
 					},
+					&cli.BoolFlag{
+						Name:  "json",
+						Usage: "emit seat, role, and bundle fingerprint for a transcript join",
+					},
 				},
 				Action: runWhoami,
 			},
@@ -889,7 +893,12 @@ func runStatusline(_ context.Context, cmd *cli.Command) error {
 // runWhoami prints the composed name and nothing else, so a shell hook can use
 // it without parsing. Silence means no projection. See docs/whoami.md.
 func runWhoami(_ context.Context, cmd *cli.Command) error {
-	name, err := statusline.Whoami(statusline.Options{Target: cmd.String("target")})
+	opts := statusline.Options{Target: cmd.String("target")}
+	render := statusline.Whoami
+	if cmd.Bool("json") {
+		render = statusline.WhoamiJSON
+	}
+	name, err := render(opts)
 	if err != nil {
 		return err
 	}

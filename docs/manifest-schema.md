@@ -53,6 +53,31 @@ definitions, evaluation assets, copy contract, and compact role identity
 metadata. `diff` compares these stable IDs and digests without reopening the
 authoring roots. Local filesystem paths never appear.
 
+## Bundle fingerprint
+
+`bundle.Fingerprint` names the composition a manifest describes, so a session
+transcript can point at an exact bundle without copying any of it. It covers
+`role`, the three `role_skill*` fields, `model_tier`, `personalities`,
+`boundaries`, `sources`, and every `content[]` id and digest in manifest order,
+under a versioned prefix so a later change to the covered set cannot collide
+with a fingerprint minted under the old rule.
+
+`agent-compose whoami --json` emits it beside the seat label:
+
+```json
+{"format":"agent-compose.whoami.v1","seat":"Angie [she] uz86","role":"platform","bundle":"sha256:..."}
+```
+
+Metadata only. No skill bodies, no host paths, and no projection means no
+record rather than a synthesised one, matching the silence rule in
+[whoami](whoami.md).
+
+**It names a composition and does not attest to one.** `verify` checks
+`content[].digest` for shape and never recomputes it against bytes, so a
+producer writing well-formed but untrue digests mints a well-formed but untrue
+fingerprint. Joining transcripts on it is sound. Trusting it as provenance is
+not, and closing that gap is a change to `verify` rather than to this value.
+
 ## See also
 
 - [kdl-contracts.md](kdl-contracts.md) - the requests this schema records.

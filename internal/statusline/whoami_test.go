@@ -1,6 +1,7 @@
 package statusline
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -159,5 +160,93 @@ func TestTheRowAgreesWithWhoamiUnderASessionBinding(t *testing.T) {
 	}
 	if name == "" || !strings.Contains(row, name) {
 		t.Errorf("row %q does not carry the whoami name %q", row, name)
+	}
+}
+
+// A transcript that names a bundle is only useful if the name is stable and
+// discriminating. agent-compose#350
+func TestWhoamiJSONCarriesTheBundleFingerprint(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "uz86")
+	got, err := WhoamiJSON(Options{Target: shortIDFixture(t)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rec Record
+	if err := json.Unmarshal([]byte(got), &rec); err != nil {
+		t.Fatalf("WhoamiJSON emitted invalid JSON %q: %v", got, err)
+	}
+	if rec.Format != "agent-compose.whoami.v1" {
+		t.Errorf("format = %q", rec.Format)
+	}
+	if rec.Seat != "Angie [she] uz86" {
+		t.Errorf("seat = %q, want Angie [she] uz86", rec.Seat)
+	}
+	if !strings.HasPrefix(rec.Bundle, "sha256:") || len(rec.Bundle) != 71 {
+		t.Errorf("bundle = %q, want a sha256: fingerprint", rec.Bundle)
+	}
+}
+
+// The plain and machine-readable forms must name one session, or the hook and
+// a human reading the row disagree about which seat ran.
+func TestWhoamiJSONAgreesWithThePlainForm(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "uz86")
+	target := shortIDFixture(t)
+	plain, err := Whoami(Options{Target: target})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := WhoamiJSON(Options{Target: target})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rec Record
+	if err := json.Unmarshal([]byte(raw), &rec); err != nil {
+		t.Fatal(err)
+	}
+	if rec.Seat != plain {
+		t.Errorf("seat %q disagrees with whoami %q", rec.Seat, plain)
+	}
+}
+
+// Silence rather than a synthesised identity, matching the plain form. A
+// session with no composition must record no bundle rather than an empty one.
+func TestWhoamiJSONSuppressesWithoutAProjection(t *testing.T) {
+	t.Setenv(agentid.SessionEnv, "uz86")
+	got, err := WhoamiJSON(Options{Target: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "" {
+		t.Errorf("WhoamiJSON = %q, want empty", got)
+	}
+}
+
+// The fingerprint has to discriminate, or a transcript join cannot tell one
+// side of a roster change from the other, which is the whole point.
+func TestFingerprintChangesWithTheComposition(t *testing.T) {
+	base := bundle.Manifest{
+		Role: "eval", RoleSkill: "role-eval", RoleSkillDigest: "sha256:aa",
+		ModelTier: "frontier", Personalities: []string{"empirical"},
+		Content: []bundle.ContentDigest{{ID: "roster:core", Digest: "sha256:bb"}},
+	}
+	first := bundle.Fingerprint(base)
+	if first != bundle.Fingerprint(base) {
+		t.Fatal("fingerprint is not deterministic")
+	}
+	for name, mutate := range map[string]func(*bundle.Manifest){
+		"role":        func(m *bundle.Manifest) { m.Role = "platform" },
+		"role skill":  func(m *bundle.Manifest) { m.RoleSkillDigest = "sha256:cc" },
+		"model tier":  func(m *bundle.Manifest) { m.ModelTier = "commodity" },
+		"personality": func(m *bundle.Manifest) { m.Personalities = []string{"grounded"} },
+		"boundary":    func(m *bundle.Manifest) { m.Boundaries = []string{"modify-live-backend"} },
+		"content":     func(m *bundle.Manifest) { m.Content[0].Digest = "sha256:dd" },
+	} {
+		changed := base
+		changed.Personalities = append([]string(nil), base.Personalities...)
+		changed.Content = append([]bundle.ContentDigest(nil), base.Content...)
+		mutate(&changed)
+		if bundle.Fingerprint(changed) == first {
+			t.Errorf("changing the %s did not change the fingerprint", name)
+		}
 	}
 }

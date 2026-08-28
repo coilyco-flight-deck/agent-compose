@@ -1,6 +1,8 @@
 package statusline
 
 import (
+	"encoding/json"
+
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
 	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
@@ -21,4 +23,36 @@ func Whoami(opts Options) (string, error) {
 		seatDisplayName(manifest, projection.Layout),
 		agentid.FromEnv(),
 	), nil
+}
+
+// Record is Whoami plus the bundle fingerprint, so a transcript joins to an
+// exact composition. Metadata only. See docs/manifest-schema.md.
+type Record struct {
+	Format string `json:"format"`
+	Seat   string `json:"seat"`
+	Role   string `json:"role"`
+	Bundle string `json:"bundle"`
+}
+
+// WhoamiJSON returns "" with no composition, matching Whoami rather than
+// synthesising one.
+func WhoamiJSON(opts Options) (string, error) {
+	projection := resolveProjection(opts.Target)
+	if projection.Bundle == "" {
+		return "", nil
+	}
+	manifest, err := bundle.ReadManifest(projection.Bundle)
+	if err != nil {
+		return "", err
+	}
+	out, err := json.Marshal(Record{
+		Format: "agent-compose.whoami.v1",
+		Seat:   person.WithShortID(seatDisplayName(manifest, projection.Layout), agentid.FromEnv()),
+		Role:   manifest.Role,
+		Bundle: bundle.Fingerprint(*manifest),
+	})
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
