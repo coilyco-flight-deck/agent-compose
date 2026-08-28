@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"sort"
 	"strings"
@@ -105,6 +106,7 @@ type Role struct {
 	Adjacents           []Adjacent       `json:"adjacents,omitempty"`
 	Briefing            string           `json:"briefing"`
 	Stance              string           `json:"stance,omitempty"`
+	Voice               *Voice           `json:"voice,omitempty"`
 	Personalities       []string         `json:"personalities"`
 	FavoriteColor       string           `json:"favorite_color,omitempty"`
 	Background          string           `json:"background,omitempty"`
@@ -184,6 +186,17 @@ type SoundMark struct {
 	Pulse   string `json:"pulse"`
 }
 
+// Voice melds like the creature does: role authors the baseline, personalities
+// modulate. Banks rather than prose because a bank is checkable. See #378.
+type Voice struct {
+	Summary string   `json:"summary,omitempty"`
+	Person  string   `json:"person,omitempty"`
+	Cadence string   `json:"cadence,omitempty"`
+	Prefer  []string `json:"prefer,omitempty"`
+	Avoid   []string `json:"avoid,omitempty"`
+	Tell    string   `json:"tell,omitempty"`
+}
+
 // Boundary binds one shared doctrine body that any number of roles may activate.
 // Its optional owner is described in docs/ownership.md.
 type Boundary struct {
@@ -206,6 +219,7 @@ type Personality struct {
 	SoundMark SoundMark `json:"sound_mark"`
 	Aliases   []string  `json:"aliases,omitempty"`
 	Verbs     []string  `json:"verbs,omitempty"`
+	Voice     *Voice    `json:"voice,omitempty"`
 }
 
 // Selector returns the stable key used by all new commands and artifacts.
@@ -1014,7 +1028,9 @@ func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
 }
 
 func equalPersonality(left, right Personality) bool {
-	return fmt.Sprintf("%#v", left) == fmt.Sprintf("%#v", right)
+	// %#v renders a pointer field as its address, so two structurally identical
+	// copies parsed separately would compare unequal once Voice arrived.
+	return reflect.DeepEqual(left, right)
 }
 
 func definitionOverlay(
@@ -1872,6 +1888,15 @@ func parse(raw []byte) (*Person, error) {
 						return nil, fmt.Errorf("role %q: stance needs one argument", name)
 					}
 					role.Stance = strings.TrimSpace(sargs[0].String())
+				case "voice":
+					if role.Voice != nil {
+						return nil, fmt.Errorf("role %q: duplicate voice", name)
+					}
+					voice, err := parseVoice(c, "role "+name+" voice")
+					if err != nil {
+						return nil, err
+					}
+					role.Voice = &voice
 				case "briefing":
 					if briefingSet {
 						return nil, fmt.Errorf("role %q: duplicate briefing", name)
@@ -2212,6 +2237,15 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					personality.Emblem = emblem
+				case "voice":
+					if personality.Voice != nil {
+						return nil, fmt.Errorf("personality %q: duplicate voice", name)
+					}
+					voice, err := parseVoice(c, "personality "+name+" voice")
+					if err != nil {
+						return nil, err
+					}
+					personality.Voice = &voice
 				case "body":
 					if personality.Body.Archetype != "" {
 						return nil, fmt.Errorf("personality %q: duplicate body", name)
@@ -2358,6 +2392,58 @@ func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[stri
 		}
 	}
 	return parts, nil
+}
+
+// parseVoice reads the block shared by roles and personalities. The banks hold
+// free text, not semantic tokens, because entries like "n=" are the point.
+func parseVoice(n *kdl.Node, owner string) (Voice, error) {
+	var voice Voice
+	single := map[string]*string{
+		"summary": &voice.Summary,
+		"person":  &voice.Person,
+		"cadence": &voice.Cadence,
+		"tell":    &voice.Tell,
+	}
+	banks := map[string]*[]string{"prefer": &voice.Prefer, "avoid": &voice.Avoid}
+	for _, child := range n.Children().Nodes {
+		name := child.Name()
+		if target, ok := single[name]; ok {
+			if *target != "" {
+				return Voice{}, fmt.Errorf("%s: duplicate %s", owner, name)
+			}
+			value, err := oneTextArgument(child, owner+" "+name)
+			if err != nil {
+				return Voice{}, err
+			}
+			*target = value
+			continue
+		}
+		bank, ok := banks[name]
+		if !ok {
+			return Voice{}, fmt.Errorf("%s: unknown voice field %q", owner, name)
+		}
+		if len(*bank) > 0 {
+			return Voice{}, fmt.Errorf("%s: duplicate %s", owner, name)
+		}
+		args := child.Arguments()
+		if len(args) == 0 {
+			return Voice{}, fmt.Errorf("%s %s needs at least one entry", owner, name)
+		}
+		for _, arg := range args {
+			value := strings.TrimSpace(arg.String())
+			if value == "" {
+				return Voice{}, fmt.Errorf("%s %s has an empty entry", owner, name)
+			}
+			if slices.Contains(*bank, value) {
+				return Voice{}, fmt.Errorf("%s %s repeats %q", owner, name, value)
+			}
+			*bank = append(*bank, value)
+		}
+	}
+	if voice.Summary == "" {
+		return Voice{}, fmt.Errorf("%s: voice needs a summary", owner)
+	}
+	return voice, nil
 }
 
 // parseEmblem reads the emoji and its ordered name list. Nothing enforces that

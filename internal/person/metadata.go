@@ -3,6 +3,7 @@ package person
 import (
 	"fmt"
 	"io/fs"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,60 @@ func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
 	// Roles is a map of structs, so the local copy has to be stored back.
 	p.Roles[roleName] = role
 	return nil
+}
+
+// renderVoice melds in role-then-personality order. The banks concatenate
+// rather than override, because a wider bank is the point.
+func (p *Person) renderVoice(roleName string, role Role) string {
+	type source struct {
+		label string
+		voice *Voice
+	}
+	sources := []source{}
+	if role.Voice != nil {
+		sources = append(sources, source{p.RoleDisplayName(roleName), role.Voice})
+	}
+	for _, name := range role.Personalities {
+		if binding, ok := p.Personalities[name]; ok && binding.Voice != nil {
+			sources = append(sources, source{displaySlug(name), binding.Voice})
+		}
+	}
+	if len(sources) == 0 {
+		return ""
+	}
+	var out strings.Builder
+	out.WriteString("## Voice\n\n")
+	prefer, avoid := []string{}, []string{}
+	for _, s := range sources {
+		fmt.Fprintf(&out, "* **%s** - %s\n", s.label, s.voice.Summary)
+		if s.voice.Cadence != "" {
+			fmt.Fprintf(&out, "  * cadence - %s\n", s.voice.Cadence)
+		}
+		if s.voice.Tell != "" {
+			fmt.Fprintf(&out, "  * tell - %s\n", s.voice.Tell)
+		}
+		for _, word := range s.voice.Prefer {
+			if !slices.Contains(prefer, word) {
+				prefer = append(prefer, word)
+			}
+		}
+		for _, word := range s.voice.Avoid {
+			if !slices.Contains(avoid, word) {
+				avoid = append(avoid, word)
+			}
+		}
+	}
+	if role.Voice != nil && role.Voice.Person != "" {
+		fmt.Fprintf(&out, "\n**Person // %s**\n", role.Voice.Person)
+	}
+	if len(prefer) > 0 {
+		fmt.Fprintf(&out, "\n**Reach for** - `%s`\n", strings.Join(prefer, "` `"))
+	}
+	if len(avoid) > 0 {
+		fmt.Fprintf(&out, "\n**Refuse** - `%s`\n", strings.Join(avoid, "` `"))
+	}
+	out.WriteString("\n")
+	return out.String()
 }
 
 // RenderRoleIdentityCard keeps identity texture visible while long-form role
@@ -91,6 +146,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 			return "", fmt.Errorf("render role identity card: personality %q: %w", name, err)
 		}
 		fmt.Fprintf(&out, "%s\n\n", description)
+	}
+	if section := p.renderVoice(roleName, role); section != "" {
+		out.WriteString(section)
 	}
 	if len(boundaries) > 0 {
 		out.WriteString("## Boundaries\n\n")

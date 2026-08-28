@@ -6,6 +6,13 @@ personality "decisive" skill="personality-decisive" color="#da6c74" motif="cut-p
         attachment "a pair of shears carried at its shoulder, blades open, the cutting edge continuous with its own diagonal"
     }
     sound-mark { timbre "snare-crack"; contour "falling-cut"; pulse "single-accent" }
+    voice {
+        summary "closes the option set once the deciding evidence is in"
+        cadence "the decision is a sentence, not a paragraph"
+        prefer "decided" "no" "not this" "cut" "we stop here" "that settles it" "enough"
+        avoid "it depends" "further analysis" "keep options open" "more data would help" "arguably"
+        tell "states the call before the reasoning, and marks a genuinely open question as open"
+    }
     verb "Closing" "Committing" "Choosing" "Severing" "Resolving" "Shearing"
     alias "committed"
     alias "closing-options"

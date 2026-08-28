@@ -6,6 +6,13 @@ personality "tenacious" skill="personality-tenacious" color="#8f8c47" motif="rop
         attachment "a thick rope knotted around its shoulder and forearm, the working end coiled against its flank"
     }
     sound-mark { timbre "floor-tom"; contour "rising-return"; pulse "driving-two" }
+    voice {
+        summary "keeps the unfinished thing named until it is finished"
+        cadence "the remaining work takes the last clause, never a closing pleasantry"
+        prefer "still open" "not yet" "the hard part is" "third attempt" "still wrong" "what is left"
+        avoid "done for now" "good enough" "we can revisit" "mostly working" "should be close"
+        tell "reports the part that is not finished before the part that is"
+    }
     verb "Holding" "Hauling" "Persisting" "Tracing" "Finishing" "Anchoring"
     alias "persistent"
     alias "dogged"

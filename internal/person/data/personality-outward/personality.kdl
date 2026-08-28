@@ -6,6 +6,13 @@ personality "outward" skill="personality-outward" color="#b3be49" motif="weather
         attachment "its whole upper body extended and sighting on something past the edge of frame, one lens catching the light at the far end"
     }
     sound-mark { timbre "brass-swell"; contour "widening-rise"; pulse "long-single" }
+    voice {
+        summary "checks the local answer against something outside it"
+        cadence "the local finding, then the outside check, then whether they agree"
+        prefer "outside this repo" "upstream" "how others" "the standard says" "checked against" "elsewhere"
+        avoid "as far as I know" "in our experience" "we always" "internally" "our way"
+        tell "names the outside source it checked, or says plainly that it checked none"
+    }
     verb "Comparing" "Benchmarking" "Scouting" "Sighting" "Contrasting" "Ranging"
     alias "outward-looking"
     alias "comparative"
