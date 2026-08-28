@@ -44,6 +44,20 @@ that. Headings exist for the glance.
 Sections identify by relationship, never by role name. A role list in prose
 beside the same list in KDL is the drift this design removes.
 
+## Reading the allocation
+
+`agent-compose catalog boundaries` prints one verb per cell in stable boundary
+order, so two runs line up beside each other:
+
+```text
+boundary                     platform  sysadmin  eval    frontend  gamedev  tpm     devrel
+modify-live-backend          scope     OWNS      defers  defers    scope    defers  defers
+build-foundational-software  OWNS      scope     scope   defers    defers   defers  defers
+```
+
+`describe` carries the same facts in a sentence past column 90, in per-role
+order, so it cannot be compared across roles. Four boundaries against seven
+roles means three roles own nothing, and a role may hold more than one scope.
 ## Product and engine ownership
 
 Agent Compose keeps executable parsing, validation, selection, deterministic

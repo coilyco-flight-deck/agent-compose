@@ -135,3 +135,47 @@ func (p *Person) SeatCatalog(roleFilter string) ([]SeatCatalogEntry, error) {
 	}
 	return out, nil
 }
+
+// BoundaryMatrixEntry is one boundary row: its verb per role, in role order.
+// See docs/role-boundaries.md. agent-compose#325
+type BoundaryMatrixEntry struct {
+	Boundary string            `json:"boundary"`
+	Owner    string            `json:"owner"`
+	Verbs    map[string]string `json:"verbs"`
+}
+
+// BoundaryMatrix returns one row per boundary in stable boundary order, with a
+// single verb per role rather than a justification sentence.
+func (p *Person) BoundaryMatrix() ([]string, []BoundaryMatrixEntry) {
+	roles := p.roleOrder()
+	out := make([]BoundaryMatrixEntry, 0, len(p.Boundaries))
+	for _, name := range p.boundaryOrder() {
+		entry := BoundaryMatrixEntry{
+			Boundary: name,
+			Owner:    p.Boundaries[name].Owner,
+			Verbs:    make(map[string]string, len(roles)),
+		}
+		for _, roleName := range roles {
+			entry.Verbs[roleName] = boundaryVerb(p.Roles[roleName], name, entry.Owner == roleName)
+		}
+		out = append(out, entry)
+	}
+	return roles, out
+}
+
+func boundaryVerb(role Role, boundary string, owns bool) string {
+	if owns {
+		return "OWNS"
+	}
+	for _, scoped := range role.ScopedBoundaries {
+		if scoped.Name == boundary {
+			return "scope"
+		}
+	}
+	for _, declared := range role.Boundaries {
+		if declared == boundary {
+			return "defers"
+		}
+	}
+	return "-"
+}

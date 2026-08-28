@@ -232,6 +232,11 @@ func main() {
 						Flags:       append(personCatalogFlags(false), &cli.StringFlag{Name: "role", Usage: "limit to one role"}), Action: runCatalogSeats,
 					},
 					{
+						Name: "boundaries", Usage: "one-token-per-cell boundary assignment across roles",
+						Description: "JSON items: boundary, owner, and a verb per role. Text is a fixed-order matrix narrow enough to sit beside a second copy.",
+						Flags:       personCatalogFlags(false), Action: runCatalogBoundaries,
+					},
+					{
 						Name: "expressions", Usage: "list stable expression vocabulary",
 						Description: "JSON items are the stable expression strings.",
 						Flags:       []cli.Flag{&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"}}, Action: runCatalogExpressions,
@@ -582,6 +587,45 @@ func catalogRoleLine(entry person.RoleCatalogEntry) string {
 		strings.Join(entry.Personalities, ", "),
 		entry.FavoriteColor,
 	)
+}
+
+func runCatalogBoundaries(_ context.Context, cmd *cli.Command) error {
+	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
+	if err != nil {
+		return err
+	}
+	roles, entries := p.BoundaryMatrix()
+	return writeCatalog(entries, cmd.Bool("json"), boundaryMatrixText(roles, entries))
+}
+
+// Columns are the widest cell so two runs line up, which is the whole point:
+// the one-owner one-scope invariant is invisible in prose. agent-compose#325
+func boundaryMatrixText(roles []string, entries []person.BoundaryMatrixEntry) string {
+	nameWidth := len("boundary")
+	for _, entry := range entries {
+		nameWidth = max(nameWidth, len(entry.Boundary))
+	}
+	widths := make([]int, len(roles))
+	for i, role := range roles {
+		widths[i] = len(role)
+		for _, entry := range entries {
+			widths[i] = max(widths[i], len(entry.Verbs[role]))
+		}
+	}
+	var out strings.Builder
+	fmt.Fprintf(&out, "%-*s", nameWidth, "boundary")
+	for i, role := range roles {
+		fmt.Fprintf(&out, "  %-*s", widths[i], role)
+	}
+	out.WriteString("\n")
+	for _, entry := range entries {
+		fmt.Fprintf(&out, "%-*s", nameWidth, entry.Boundary)
+		for i, role := range roles {
+			fmt.Fprintf(&out, "  %-*s", widths[i], entry.Verbs[role])
+		}
+		out.WriteString("\n")
+	}
+	return out.String()
 }
 
 func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
