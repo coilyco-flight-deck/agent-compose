@@ -652,7 +652,7 @@ func TestLoadSourceRepositoryPolicy(t *testing.T) {
 }
 roles {
     role platform { use-repository voice }
-    role eval {}
+    role science {}
 }
 `
 	if err := os.WriteFile(roles, []byte(graph), 0o644); err != nil {
@@ -668,7 +668,7 @@ roles {
 		len(source.RoleRepos["platform"]) != 1 || source.RoleRepos["platform"][0].Repository != "voice" {
 		t.Fatalf("repository policy = %+v", source)
 	}
-	if _, exists := source.RoleRepos["eval"]; !exists {
+	if _, exists := source.RoleRepos["science"]; !exists {
 		t.Fatal("empty canonical role was omitted from repository policy")
 	}
 }

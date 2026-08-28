@@ -209,8 +209,8 @@ func TestDispatchArgs(t *testing.T) {
 			[]string{"acompose", "compose", "--layout", "codex", "request.kdl", "--", "codex"},
 		},
 		"acompose nested role and harness inject launch": {
-			[]string{"acompose", "--nested", "eval", "claude", "-p", "measure it"},
-			[]string{"acompose", "launch", "--nested", "eval", "claude", "-p", "measure it"},
+			[]string{"acompose", "--nested", "science", "claude", "-p", "measure it"},
+			[]string{"acompose", "launch", "--nested", "science", "claude", "-p", "measure it"},
 		},
 		"acompose nested without a harness remains compose": {
 			[]string{"acompose", "--nested", "request.kdl"},

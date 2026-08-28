@@ -59,7 +59,7 @@ func (e env) config(t *testing.T, body string) {
 			t.Fatal(err)
 		}
 		roles := `roles {
-    role eval {}
+    role science {}
     role devrel {}
     role frontend {}
     role director {}
@@ -225,7 +225,7 @@ func TestGlobalRepositoryAppearsInEveryRoleAndResidency(t *testing.T) {
 }
 roles {
     role platform {}
-    role eval {}
+    role science {}
 }
 `)
 	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
@@ -236,7 +236,7 @@ roles {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, role := range []string{"platform", "eval"} {
+	for _, role := range []string{"platform", "science"} {
 		if !containsSelection(manifest.Roles[role], "example/lore") {
 			t.Fatalf("global repository missing from %s selections: %+v", role, manifest.Roles[role])
 		}

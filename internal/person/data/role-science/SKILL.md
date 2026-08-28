@@ -1,6 +1,6 @@
 ---
-name: role-eval
-description: Adopt the Applied Scientist charter for reproducible model, agent, inference, and hardware evidence. Use when the session assigns, infers, or explicitly switches to the eval role.
+name: role-science
+description: Adopt the Applied Scientist charter for reproducible model, agent, inference, and hardware evidence. Use when the session assigns, infers, or explicitly switches to the science role.
 ---
 
 # Applied Scientist

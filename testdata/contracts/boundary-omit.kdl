@@ -1,8 +1,8 @@
-// A single-seat deployment: eval with no sysadmin, devrel, or director to hand
+// A single-seat deployment: science with no sysadmin, devrel, or director to hand
 // work to. The role owns no boundary, and the two named here are deferrals it
 // can drop. Its scoped grant on build-foundational-software is not.
 compose {
-    role "eval"
+    role "science"
     delivery "native-skills"
     boundary-omit "modify-live-backend" "suggest-external-comms" "seek-external-validation"
     source "aos-public" declaration="source-public.kdl" required=#true

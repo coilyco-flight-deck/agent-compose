@@ -171,7 +171,7 @@ func TestRenderDefaultSupportsTPMToEvalSwitch(t *testing.T) {
 	if !strings.Contains(table, wantTargets) {
 		t.Fatalf("default native switch targets drifted:\nwant %s\n\n%s", wantTargets, table)
 	}
-	for _, roleName := range []string{"director", "eval"} {
+	for _, roleName := range []string{"director", "science"} {
 		role := p.Roles[roleName]
 		if strings.Contains(table, role.Briefing) {
 			t.Fatalf("startup roster eagerly embedded role %q briefing:\n%s", roleName, table)
@@ -184,20 +184,20 @@ func TestRenderDefaultSupportsTPMToEvalSwitch(t *testing.T) {
 	evalSection := renderedCard(t, table, "Applied Scientist")
 	ordered := []string{
 		"# Applied Scientist",
-		"**Role skill // `role-eval`**",
+		"**Role skill // `role-science`**",
 		"## Personality meld",
-		"* `role-eval`",
+		"* `role-science`",
 	}
-	for _, personalityName := range p.Roles["eval"].Personalities {
+	for _, personalityName := range p.Roles["science"].Personalities {
 		ordered = append(ordered, "* `"+p.Personalities[personalityName].Skill+"`")
 	}
 	for i := 1; i < len(ordered); i++ {
 		if strings.Index(evalSection, ordered[i-1]) >= strings.Index(evalSection, ordered[i]) {
-			t.Fatalf("eval activation content is out of order: %q must precede %q", ordered[i-1], ordered[i])
+			t.Fatalf("science activation content is out of order: %q must precede %q", ordered[i-1], ordered[i])
 		}
 	}
-	if !strings.Contains(string(files[".agents/skills/role-eval/SKILL.md"]), "You own the done-condition") {
-		t.Fatal("eval role skill omitted the done-condition it absorbed from qa")
+	if !strings.Contains(string(files[".agents/skills/role-science/SKILL.md"]), "You own the done-condition") {
+		t.Fatal("science role skill omitted the done-condition it absorbed from qa")
 	}
 }
 

@@ -134,7 +134,7 @@ func TestEvalRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 		t.Run(delivery, func(t *testing.T) {
 			result, err := RunRoots(
 				&schema.Request{
-					Role:      "eval",
+					Role:      "science",
 					ModelTier: schema.ModelTierFrontier,
 					Delivery:  delivery,
 				},
@@ -155,7 +155,7 @@ func TestEvalRoleMethodsMatchNativeAndCompiledDelivery(t *testing.T) {
 				}
 				for _, heading := range []string{"# Boundary: modify live backend", "# Boundary: seek external validation"} {
 					if !strings.Contains(string(raw), heading) {
-						t.Errorf("compiled eval context omitted %q", heading)
+						t.Errorf("compiled science context omitted %q", heading)
 					}
 				}
 			}

@@ -6,7 +6,7 @@ caller-assigned role bundle:
 ```sh
 acompose frontend codex
 acompose platform claude --model opus
-acompose eval goose run
+acompose science goose run
 acompose devrel opencode
 ```
 
@@ -88,7 +88,7 @@ same `AGENT_COMPOSE_LAUNCH` sentinel the wrapper path uses, and refuses while
 naming `--nested` as the deliberate spelling:
 
 ```sh
-acompose --nested eval claude -p 'measure the launch path and report'
+acompose --nested science claude -p 'measure the launch path and report'
 ```
 
 Harness arguments still pass through verbatim, so a task prompt needs no

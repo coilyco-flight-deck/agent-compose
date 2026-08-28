@@ -49,7 +49,7 @@ confirmation.
 
 #### Conditional evaluation fixture authority
 
-The eval role stays read-only around running backend systems unless the runtime
+The science role stays read-only around running backend systems unless the runtime
 explicitly launches it in an enforced fixture mode. Fixture mode may admit
 bounded, disposable measurement actions only inside the designated fixture. It
 never permits production mutation, deployment, release, merge, secret access, or

@@ -50,9 +50,9 @@ beside the same list in KDL is the drift this design removes.
 order, so two runs line up beside each other:
 
 ```text
-boundary                     platform  sysadmin  eval    frontend  gamedev  director     devrel
-modify-live-backend          scope     OWNS      defers  defers    scope    defers  defers
-build-foundational-software  OWNS      scope     scope   defers    defers   defers  defers
+boundary                     platform  sysadmin  science  frontend  gamedev  director  devrel
+modify-live-backend          scope     OWNS      defers   defers    scope    defers    defers
+build-foundational-software  OWNS      scope     scope    defers    defers   defers    defers
 ```
 
 `describe` carries the same facts in a sentence past column 90, in per-role

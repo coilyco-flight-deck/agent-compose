@@ -16,9 +16,9 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ai := p.Roles["eval"]
+	ai := p.Roles["science"]
 	for _, method := range ai.Methods {
-		if raw, ok := p.RoleMethodDefinition("eval", method); !ok ||
+		if raw, ok := p.RoleMethodDefinition("science", method); !ok ||
 			!strings.Contains(string(raw), "\nname: "+method+"\n") {
 			t.Errorf("AI role method %q is missing or mismatched", method)
 		}
@@ -499,7 +499,7 @@ func TestPersonSourceBindsAIOnlyRoleMethods(t *testing.T) {
 		}
 	}
 	for roleName, role := range p.Roles {
-		if roleName != "eval" && len(role.Methods) != 0 {
+		if roleName != "science" && len(role.Methods) != 0 {
 			t.Errorf("role %q owns methods, which only the AI role may declare", roleName)
 		}
 	}

@@ -51,7 +51,7 @@ scope over the words inside an artifact they own. External action still
 requires task, runtime, and user authorization. Platform Engineer (`platform`)
 owns foundational software. Systems Administrator (`sysadmin`) owns controlled
 running-system change, live verification, and rollback. Applied Scientist
-(`eval`) stays read-only around running backends unless the runtime grants an
+(`science`) stays read-only around running backends unless the runtime grants an
 enforced disposable fixture mode. No role skill grants commands, credentials,
 mounts, network access, deployment, model selection, or permission.
 
@@ -78,18 +78,18 @@ policy and would become misleading if copied into a general knowledge provider.
 Declare method ids in the owning role fragment:
 
 ```kdl
-role "eval" {
-    skill "role-eval"
-    method "eval-fixture-suite"
+role "science" {
+    skill "role-science"
+    method "science-fixture-suite"
 }
 ```
 
 Store each body under that role:
 
 ```text
-roles/eval/SKILL.md
-roles/eval/skills/eval-role-comms/SKILL.md
-roles/eval/skills/eval-role-live-ops/SKILL.md
+roles/science/SKILL.md
+roles/science/skills/science-role-comms/SKILL.md
+roles/science/skills/science-role-live-ops/SKILL.md
 ```
 
 Every method directory contains only `SKILL.md`. The frontmatter name matches

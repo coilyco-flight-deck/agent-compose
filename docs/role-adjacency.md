@@ -60,12 +60,12 @@ blocks, which is not wrong but tests compliance rather than something new.
 ## Core Roster graph
 
 ```text
-platform -> sysadmin, eval
+platform -> sysadmin, science
 sysadmin -> platform, director
-eval     -> platform, gamedev
+science  -> platform, gamedev
 frontend -> devrel, gamedev
 gamedev  -> frontend, sysadmin
-director      -> devrel, eval
+director      -> devrel, science
 devrel   -> frontend, director
 ```
 

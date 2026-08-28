@@ -74,7 +74,7 @@ interactive personality swap.
 
 Each core role melds exactly two personalities: a signature no other seat holds,
 and a bond shared with its siblings. `grounded` bonds platform, sysadmin, and
-eval, the substrate seats. `imaginative` bonds frontend and gamedev, both making
+science, the substrate seats. `imaginative` bonds frontend and gamedev, both making
 something a person enters. `outward` bonds director and devrel, both checking the
 local answer against the world outside. `color.Favorites` weights a component by
 `1/shared` squared, so a signature counts 1.0 and a three-seat bond about 0.11:

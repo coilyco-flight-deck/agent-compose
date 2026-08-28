@@ -17,10 +17,10 @@ func TestSplitNativeLaunchFlags(t *testing.T) {
 		wantRest   []string
 	}{
 		"no flag":          {[]string{"platform", "claude"}, false, []string{"platform", "claude"}},
-		"nested":           {[]string{"--nested", "eval", "claude"}, true, []string{"eval", "claude"}},
+		"nested":           {[]string{"--nested", "science", "claude"}, true, []string{"science", "claude"}},
 		"harness dash":     {[]string{"platform", "claude", "--nested"}, false, []string{"platform", "claude", "--nested"}},
 		"nothing at all":   {nil, false, nil},
-		"harness flag arg": {[]string{"eval", "claude", "-p", "go"}, false, []string{"eval", "claude", "-p", "go"}},
+		"harness flag arg": {[]string{"science", "claude", "-p", "go"}, false, []string{"science", "claude", "-p", "go"}},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {

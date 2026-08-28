@@ -29,7 +29,7 @@ Closest background pair: 0.0386
 
 platform // #9c8b31 // #1f2000 // tenacious, grounded
 sysadmin // #009895 // #00242e // protective, grounded
-eval // #3fd7a9 // #002616 // empirical, grounded
+science // #3fd7a9 // #002616 // empirical, grounded
 frontend // #e583f7 // #28152f // playful, imaginative
 gamedev // #637ffd // #111d38 // immersed, imaginative
 director // #e36966 // #331119 // decisive, outward

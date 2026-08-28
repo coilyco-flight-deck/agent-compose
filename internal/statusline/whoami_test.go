@@ -225,7 +225,7 @@ func TestWhoamiJSONSuppressesWithoutAProjection(t *testing.T) {
 // side of a roster change from the other, which is the whole point.
 func TestFingerprintChangesWithTheComposition(t *testing.T) {
 	base := bundle.Manifest{
-		Role: "eval", RoleSkill: "role-eval", RoleSkillDigest: "sha256:aa",
+		Role: "science", RoleSkill: "role-science", RoleSkillDigest: "sha256:aa",
 		ModelTier: "frontier", Personalities: []string{"empirical"},
 		Content: []bundle.ContentDigest{{ID: "roster:core", Digest: "sha256:bb"}},
 	}

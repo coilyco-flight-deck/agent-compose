@@ -11,7 +11,7 @@ roster "core" {
         purpose "Build and land the foundational software the estate is built on."
         model-tier "frontier" "commodity" "oss"
         skill "role-platform"
-        method "eval-fixture-suite"
+        method "science-fixture-suite"
         personality "tenacious" "grounded"
         identity name="opal platform" pronouns="she"
         agent "claude" tier="frontier"

@@ -1,4 +1,4 @@
-# The eval role and its context budget
+# The science role and its context budget
 
 The Applied Scientist role, and the skill context budget a role works within.
 Measurements below the first section are historical and name the roster of the
@@ -6,7 +6,7 @@ day, so they keep the slugs they were taken against.
 
 ## Applied Scientist
 
-The eval seat owns the evidence loop for model and agent behavior:
+The science seat owns the evidence loop for model and agent behavior:
 
 `instructions -> context -> model -> inference runtime -> hardware -> observed behavior`
 
