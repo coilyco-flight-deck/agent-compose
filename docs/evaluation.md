@@ -14,9 +14,9 @@ a deployed system. Run `aos-eval help` for the exhaustive reference. sirens-echo
 against a live harness rather than a composed prompt, so the pairing rule has one implementation across
 both.
 
-Go owns what a pack is and what a valid record is, and the rule keeping that seam honest is that **Python
-consumes what Go emits and never restates it**: no second pack schema, coverage rule, or record writer,
-because two parsers is the failure the split avoids.
+One home per contract keeps the seam honest, and it now names the eval pack rather than the roster:
+**the pack schema, the coverage rules, and the record writer have exactly one implementation**, because
+two parsers is the failure the split avoids. Composition moved to housecast (#337, #338).
 
 ## The triple
 
