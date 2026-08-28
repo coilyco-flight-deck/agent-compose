@@ -48,25 +48,24 @@ about communication addressed outward, including wording, tone, framing,
 timing, channel, reply strategy, and editorial fitness. Other roles retain
 mechanical records and defer only for recommendations, and two hold a named
 scope over the words inside an artifact they own. External action still
-requires task, runtime, and user authorization. Agentic Platform Engineer
-(`platform`) owns foundational software. Systems Administrator (`sysadmin`)
-owns controlled running-system change, live verification, and rollback.
-Applied Scientist (`eval`) stays read-only around running backends unless the
-runtime grants an enforced disposable fixture mode. No role skill grants
-commands, credentials, mounts, network access, deployment, model selection, or
-permission.
+requires task, runtime, and user authorization. Core Platform (`platform`)
+owns foundational software. Systems Administrator (`sysadmin`) owns controlled
+running-system change, live verification, and rollback. Applied Scientist
+(`eval`) stays read-only around running backends unless the runtime grants an
+enforced disposable fixture mode. No role skill grants commands, credentials,
+mounts, network access, deployment, model selection, or permission.
 
-Design Engineer (`frontend`) owns the surface a person navigates and builds it
-as well as shapes it: responsive presentation, components, tokens,
-static assets, semantic structure, focus treatment, metadata, empty states, and
-the route, rendering, accessibility, and navigation tests that hold them.
-Business rules, state machines, runtime data, APIs, persistence, permissions,
+Frontend Engineer (`frontend`) owns the surface a person navigates and builds
+it as well as shapes it: responsive presentation, components, tokens, static
+assets, semantic structure, focus treatment, metadata, empty states, and the
+route, rendering, accessibility, and navigation tests that hold them. Business
+rules, state machines, runtime data, APIs, persistence, permissions,
 migrations, and shared tooling are foundational software and return to
 platform. `devrel` may land content-only repository changes, including
 human-facing literals embedded in code. That exception requires unchanged
 control flow, state, schemas, structured contracts, and executable behavior.
-Portfolio Director (`tpm`) owns code review as a gate decision, so a
-defect returns to the owning seat with evidence rather than with a patch.
+Portfolio Director (`tpm`) owns code review as a gate decision, so a defect
+returns to the owning seat with evidence rather than with a patch.
 
 ## Role methods
 

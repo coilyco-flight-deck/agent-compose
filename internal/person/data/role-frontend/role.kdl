@@ -1,6 +1,6 @@
 role "frontend" {
     order 4
-    display-name "Design Engineer"
+    display-name "Frontend Engineer"
     purpose "Shape and build the surfaces a person navigates."
     stance "standing on two short legs, leaning in mid-daub, head tilted at its own work, delighted"
     model-tier "frontier" "commodity"

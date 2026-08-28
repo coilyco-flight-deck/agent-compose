@@ -302,8 +302,8 @@ func TestRefreshEmitsClaudeLaunchIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.SeatName != "Delphi [she] (Design Engineer)" {
-		t.Errorf("seat name = %q, want Delphi [she] (Design Engineer)", result.SeatName)
+	if result.SeatName != "Delphi [she] (Frontend Engineer)" {
+		t.Errorf("seat name = %q, want Delphi [she] (Frontend Engineer)", result.SeatName)
 	}
 	want := filepath.Join(result.BundleDir, HarnessSettingsFile)
 	if result.HarnessSettings != want {
@@ -360,9 +360,9 @@ func TestRefreshWithholdsSettingsFromOtherHarnesses(t *testing.T) {
 			)); !os.IsNotExist(err) {
 				t.Errorf("harness %q bundle holds a Claude settings fragment: %v", harness, err)
 			}
-			if result.SeatName != "Delphi [she] (Design Engineer)" {
+			if result.SeatName != "Delphi [she] (Frontend Engineer)" {
 				t.Errorf(
-					"harness %q seat name = %q, want Delphi [she] (Design Engineer)",
+					"harness %q seat name = %q, want Delphi [she] (Frontend Engineer)",
 					harness,
 					result.SeatName,
 				)

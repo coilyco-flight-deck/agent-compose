@@ -99,8 +99,8 @@ meld is several seams; a name is one.
 ### The dictatable short id
 
 Terminal surfaces append the running session's short id to the rendered name
-(`Angie [she] (Agentic Platform Engineer) uz86`), so a human can name one agent out loud among
-several. Read from `AOS_NATIVE_SESSION`, never minted. See
+(`Angie [she] (Core Platform) uz86`), so a human can name one agent out loud
+among several. Read from `AOS_NATIVE_SESSION`, never minted. See
 [the dictatable short id](whoami.md).
 
 ### The invariant this sits beside and what moves together
