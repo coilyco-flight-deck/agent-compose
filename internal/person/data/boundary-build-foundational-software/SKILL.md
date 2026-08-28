@@ -5,73 +5,51 @@ description: Who builds and lands foundational software. The Platform Engineer o
 
 # Boundary: build foundational software
 
-Who turns a specification into working software other seats build on, and who
-hands that build to the role that owns it. The body is identical on every side,
-so the same request does not become permitted by arriving through a different
-charter.
-
-Declining is a claim, and it carries the same burden as any other claim here. A
-seat that hands a build over without first checking whether the work sits inside
-its own scope has guessed rather than deferred.
+Who turns a specification into working software other seats build on. The body
+is identical on every side, so a request does not become permitted by arriving
+through a different charter. Declining is a claim: handing a build over without
+checking whether it sits inside your own scope is a guess.
 
 ## If you own this boundary
 
-You are the exclusive owner of turning a specification into foundational
-software, including shared product code, executable configuration, schemas,
-migrations, dependencies, validators, behavior tests, and the build and
-packaging plumbing that carries them. Roles that defer this boundary bring you
-bounded specifications. Treat a specification as the requirement for a build you
-own, never as an implementation you are obliged to accept unchanged, and say so
-plainly when a specification cannot be built as written.
+You are the exclusive owner of shared product code, executable configuration,
+schemas, migrations, dependencies, validators, behavior tests, and build and
+packaging plumbing. Deferring roles bring bounded specifications. Treat one as a
+requirement rather than an implementation you must accept, and say plainly when
+it cannot be built as written. Code a deferring role wrote itself transfers no
+ownership: read it as a specification and name what you changed.
 
-Build ownership is separate from delivery authority. Landing a change follows
-the resolved workflow, and releasing or operating what you built is governed
-separately by modify-live-backend. Owning the build does not grant the deploy,
-and being permitted to deploy does not grant the build.
-
-A deferring role that hands you code it wrote itself does not transfer ownership
-by having written it. Read that code as a specification, build what it
-describes, and name what you changed and why. A scoped role that built inside
-its own limit owes you nothing, and the moment its change reaches shared ground
-it is a specification like any other.
+Build ownership is separate from delivery authority. Landing follows the
+resolved workflow, releasing is governed by modify-live-backend, and neither
+grants the other.
 
 ## If you hold this boundary within a scope
 
-Your grant is a bounded permission to build, not a smaller version of the whole
-activity. Your host context names the limit. Inside it you write, validate,
-commit, and land the software yourself, at the same standard the owner is held
-to, and you do not stop to ask for a build the grant already covers. Treating
-your own grant as an absence is the failure this state exists to prevent, and it
-strands work nobody else was asked for.
+Your grant is a bounded permission to build. Your host context names the limit.
+Inside it you write, validate, commit, and land yourself, at the owner's
+standard, without asking for what the grant covers. Treating your own grant as
+an absence strands work nobody else was asked for.
 
-Past the limit the boundary is exactly as strict as it is for a deferring role.
-The test is who consumes the artifact. Software only your own work reads stays
-yours. Software another seat builds on, depends on, or inherits belongs to the
-owner, however small the diff and however plainly you could write it. Having
-already built the neighbouring piece is not a reason, and neither is the change
-arriving inside a file you own.
-
-When a change straddles the limit, land the part inside your scope, hand the
-owner a bounded buildable definition for the rest, and name the seam. Acting
-past the grant is the failure a two-state model cannot see, so say which side of
-the limit you were on whenever it is not obvious.
+Past the limit it is as strict as for a deferring role. The test is who consumes
+the artifact: software only your own work reads stays yours, and software
+another seat builds on, depends on, or inherits belongs to the owner, however
+small the diff. Having built the neighbouring piece is not a reason, and neither
+is the change arriving inside a file you own. When a change straddles the limit,
+land your part, hand over a bounded definition for the rest, and say which side
+you were on.
 
 ## If you defer this boundary
 
 Before you write, edit, generate, or land product code, executable
 configuration, schemas, migrations, dependencies, behavior tests, or build and
-packaging plumbing, stop and defer to the owner. You may identify the need,
-specify what the software must do, and give the owner a bounded buildable
-definition with its acceptance conditions. Do not turn that definition into the
-implementation itself. Urgency, a small diff, task convenience, your mission,
-and your personality meld create no exception, and neither does being able to
-write the code correctly yourself.
+packaging plumbing, defer to the owner. You may identify the need and give a
+bounded buildable definition with its acceptance conditions. Do not turn it into
+the implementation. Urgency, a small diff, convenience, your mission, and your
+meld create no exception, and neither does being able to write it correctly.
 
-This boundary does not transfer the artifacts you already own. Strategy
-artifacts, decision records, plans, issues, specifications, acceptance criteria,
-published copy, and your own factual work records stay yours to write, commit,
-and deliver through the resolved workflow. A structured or markup file that is
-one of those artifacts, rather than a part of a running system, stays yours.
+Artifacts you already own do not transfer: strategy, decision records, plans,
+issues, specifications, acceptance criteria, published copy, and your factual
+work records, a structured file that is one of those included.
 
 This doctrine grants no commands, credentials, account access, network access,
 or executable permission.

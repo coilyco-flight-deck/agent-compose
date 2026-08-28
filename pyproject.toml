@@ -6,10 +6,10 @@ requires-python = ">=3.12"
 # housecast is the composition engine, moved out under #337. It is consumed
 # from Forgejo rather than PyPI: the distribution claim is #347 and waits on
 # Kai. This is the same shape the estate already uses for aos-eval.
-dependencies = ["housecast>=0.1.13"]
+dependencies = ["housecast>=0.1.14"]
 
 [tool.uv.sources]
-housecast = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git", tag = "housecast-v0.1.13" }
+housecast = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git", tag = "housecast-v0.1.14" }
 
 [dependency-groups]
 dev = [

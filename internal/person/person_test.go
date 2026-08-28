@@ -171,7 +171,7 @@ func TestLoadRoleSkillsEnforcesAuthoredBodyWordLimit(t *testing.T) {
 				t.Fatalf("role skill at word limit failed: %v", err)
 			}
 			if words > maxRoleSkillBodyWords &&
-				(err == nil || !strings.Contains(err.Error(), "maximum is 400")) {
+				(err == nil || !strings.Contains(err.Error(), "maximum is 1200")) {
 				t.Fatalf("role skill over word limit error = %v", err)
 			}
 		})
@@ -179,7 +179,7 @@ func TestLoadRoleSkillsEnforcesAuthoredBodyWordLimit(t *testing.T) {
 }
 
 // TestBoundaryBodiesDoNotConsumeTheRoleWordBudget is the load-bearing guarantee:
-// shared doctrine must not compete with the charter for the same 400 words.
+// shared doctrine must not compete with the charter for the role's word budget.
 func TestBoundaryBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
 	files := fstest.MapFS{
 		"roles/builder/SKILL.md": {
@@ -220,7 +220,7 @@ func TestBoundaryBodiesDoNotConsumeTheRoleWordBudget(t *testing.T) {
 		},
 	}
 	err := loadBoundarySkills(over, p)
-	if err == nil || !strings.Contains(err.Error(), "maximum is 400") {
+	if err == nil || !strings.Contains(err.Error(), "maximum is 200") {
 		t.Fatalf("boundary over its own word limit error = %v", err)
 	}
 }

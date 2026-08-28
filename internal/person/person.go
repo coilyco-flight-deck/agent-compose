@@ -30,7 +30,7 @@ var embedded embed.FS
 
 const (
 	minRoleSkillBodyWords = 140
-	maxRoleSkillBodyWords = 400
+	maxRoleSkillBodyWords = 1200
 )
 
 // Personality and boundary prose carry their own bounds. A floor keeps an entry
@@ -43,7 +43,7 @@ const (
 
 // maxBoundarySkillBodyWords bounds each side of a boundary separately from the
 // role charter that declares it. See docs/role-boundaries.md.
-const maxBoundarySkillBodyWords = 400
+const maxBoundarySkillBodyWords = 200
 
 // adjacentsPerRole fixes the out-degree of the role adjacency graph, so the
 // roster chooses its sharpest confusions. See docs/role-boundaries.md.
