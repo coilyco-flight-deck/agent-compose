@@ -60,7 +60,7 @@ func (e env) config(t *testing.T, body string) {
 		}
 		roles := `roles {
     role science {}
-    role devrel {}
+    role advocate {}
     role frontend {}
     role director {}
     role platform {}
@@ -785,7 +785,7 @@ roles {
     role platform {
         use-repository lore
     }
-    role devrel {
+    role advocate {
         use-repository lore {
             skill "lore-self-*"
         }
@@ -816,12 +816,12 @@ roles {
 		return repositoryplan.Selection{}
 	}
 
-	devrel := find("devrel")
-	if !slices.Equal(devrel.BindingSkills, []string{"lore-self-*"}) {
-		t.Fatalf("devrel binding selector = %+v", devrel)
+	advocate := find("advocate")
+	if !slices.Equal(advocate.BindingSkills, []string{"lore-self-*"}) {
+		t.Fatalf("advocate binding selector = %+v", advocate)
 	}
-	if !slices.Equal(devrel.Skills, []string{"lore-*"}) {
-		t.Fatalf("devrel must keep the definition selector intact: %+v", devrel)
+	if !slices.Equal(advocate.Skills, []string{"lore-*"}) {
+		t.Fatalf("advocate must keep the definition selector intact: %+v", advocate)
 	}
 	if platform := find("platform"); platform.BindingSkills != nil {
 		t.Fatalf("platform must carry no binding selector: %+v", platform)

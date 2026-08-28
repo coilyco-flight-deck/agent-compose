@@ -7,7 +7,7 @@ caller-assigned role bundle:
 acompose frontend codex
 acompose platform claude --model opus
 acompose science goose run
-acompose devrel opencode
+acompose advocate opencode
 ```
 
 Arguments pass through. Long form: `agent-compose launch <role> <harness>`.

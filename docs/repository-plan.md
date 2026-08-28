@@ -79,7 +79,7 @@ repositories {
 }
 
 roles {
-    role devrel {
+    role advocate {
         use-repository voice-corpus
     }
     role platform { use-repository hardware }

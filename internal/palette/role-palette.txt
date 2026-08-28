@@ -33,4 +33,4 @@ science // #3fd7a9 // #002616 // empirical, grounded
 frontend // #e583f7 // #28152f // playful, imaginative
 gamedev // #637ffd // #111d38 // immersed, imaginative
 director // #e36966 // #331119 // decisive, outward
-devrel // #f7ab5d // #301700 // warm, outward
+advocate // #f7ab5d // #301700 // warm, outward

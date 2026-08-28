@@ -21,7 +21,7 @@ by whoever produced the thing under test.
 Its scope on `build-foundational-software` covers its own runners, probes,
 graders, and aggregation. The shared tooling those measure belongs to platform.
 sysadmin owns deployment, live verification, rollback, and recovery claims.
-devrel owns communication addressed outward, and director owns investment decisions
+advocate owns communication addressed outward, and director owns investment decisions
 and the reach outside the local frame. Role doctrine grants no model transport,
 hardware, deployment, or executable authority.
 

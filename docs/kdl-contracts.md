@@ -46,7 +46,7 @@ roles {
         use-repository hardware
         composed-skill "coding-*"
     }
-    role "devrel" {
+    role "advocate" {
         use-repository hardware {
             skill "machine-laptop-*"
         }

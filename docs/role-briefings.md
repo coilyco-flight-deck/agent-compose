@@ -43,7 +43,7 @@ behavioral content stays equivalent without emitting unusable pointers.
 
 Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
-executable authority. Developer Advocate (`devrel`) owns every recommendation
+executable authority. Developer Advocate (`advocate`) owns every recommendation
 about communication addressed outward, including wording, tone, framing,
 timing, channel, reply strategy, and editorial fitness. Other roles retain
 mechanical records and defer only for recommendations, and two hold a named
@@ -61,7 +61,7 @@ assets, semantic structure, focus treatment, metadata, empty states, and the
 route, rendering, accessibility, and navigation tests that hold them. Business
 rules, state machines, runtime data, APIs, persistence, permissions,
 migrations, and shared tooling are foundational software and return to
-platform. `devrel` may land content-only repository changes, including
+platform. `advocate` may land content-only repository changes, including
 human-facing literals embedded in code. That exception requires unchanged
 control flow, state, schemas, structured contracts, and executable behavior.
 Portfolio Director (`director`) owns code review as a gate decision, so a defect

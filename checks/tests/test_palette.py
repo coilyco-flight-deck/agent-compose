@@ -39,7 +39,7 @@ def test_band_is_read_from_color_go(tmp_path: Path) -> None:
 
 def test_margin_is_distance_to_the_nearer_edge() -> None:
     band = palette.Band(min_l=0.60, max_l=0.80, min_chroma=0.05)
-    near_ceiling = palette.Accent("devrel", "#f7ab5d", lightness=0.7996, chroma=0.130)
+    near_ceiling = palette.Accent("advocate", "#f7ab5d", lightness=0.7996, chroma=0.130)
     near_floor = palette.Accent("sysadmin", "#009895", lightness=0.6143, chroma=0.105)
     assert near_ceiling.margin(band) == pytest.approx(0.0004)
     assert near_floor.margin(band) == pytest.approx(0.0143)

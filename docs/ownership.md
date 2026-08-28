@@ -50,7 +50,7 @@ beside the same list in KDL is the drift this design removes.
 order, so two runs line up beside each other:
 
 ```text
-boundary                     platform  sysadmin  science  frontend  gamedev  director  devrel
+boundary                     platform  sysadmin  science  frontend  gamedev  director  advocate
 modify-live-backend          scope     OWNS      defers   defers    scope    defers    defers
 build-foundational-software  OWNS      scope     scope    defers    defers   defers    defers
 ```

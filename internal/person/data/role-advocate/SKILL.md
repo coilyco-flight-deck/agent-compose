@@ -1,6 +1,6 @@
 ---
-name: role-devrel
-description: Adopt the Developer Advocate charter for accurate, audience-aware artifacts, conversations, and decision support. Use when the session assigns, infers, or explicitly switches to the devrel role.
+name: role-advocate
+description: Adopt the Developer Advocate charter for accurate, audience-aware artifacts, conversations, and decision support. Use when the session assigns, infers, or explicitly switches to the advocate role.
 ---
 
 # Developer Advocate

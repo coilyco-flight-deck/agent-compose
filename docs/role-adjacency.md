@@ -63,10 +63,10 @@ blocks, which is not wrong but tests compliance rather than something new.
 platform -> sysadmin, science
 sysadmin -> platform, director
 science  -> platform, gamedev
-frontend -> devrel, gamedev
+frontend -> advocate, gamedev
 gamedev  -> frontend, sysadmin
-director      -> devrel, science
-devrel   -> frontend, director
+director      -> advocate, science
+advocate   -> frontend, director
 ```
 
 In-degree is even at two for every seat. The nine-seat roster had Engineer
