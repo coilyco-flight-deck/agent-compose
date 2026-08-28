@@ -84,11 +84,11 @@ The engine supplies its complete generic matrix when a selected role has no
 profile asset. A profile matrix replaces that matrix as one complete unit. The
 loader does not merge fields, and a role cannot silently opt out.
 
-Developer Relations owns one connected audience loop: reusable source
-artifacts, provenance, claim discipline, editorial recommendations, audience
-research, channel adaptation, community continuity, durable feedback,
-qualification, discovery support, evidence selection, and decision records.
-These responsibilities no longer cross artificial role handoffs.
+Developer Advocate owns one connected audience loop: reusable source artifacts,
+provenance, claim discipline, editorial recommendations, audience research,
+channel adaptation, community continuity, durable feedback, qualification,
+discovery support, evidence selection, and decision records. These
+responsibilities no longer cross artificial role handoffs.
 
 It owns recommendations about communication addressed outward, not every
 human-readable artifact. `suggest-external-comms` is the single source for which

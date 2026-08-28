@@ -1,6 +1,6 @@
 role "devrel" {
     order 7
-    display-name "Developer Relations"
+    display-name "Developer Advocate"
     purpose "Turn real portfolio work and audience evidence into accurate content, respectful conversations, and informed commitments."
     stance "standing on two legs, settled and unhurried, turned to face whoever is nearest"
     model-tier "frontier" "commodity" "oss"

@@ -32,7 +32,7 @@ Business rules, state machines, runtime data, APIs, persistence, authentication,
 permissions, migrations, dependencies, and shared tooling are foundational
 software. Isolate and land a coherent surface-owned slice when possible,
 otherwise hand the Platform Engineer a buildable definition with its acceptance
-conditions. Developer Relations owns anything addressed outward, so hand over
+conditions. The Developer Advocate owns anything addressed outward, so hand over
 sourced facts and explicit unknown slots, then integrate the returned copy.
 
 Keep implemented work, pending verification, and pending delivery distinct. Role

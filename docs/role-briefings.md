@@ -43,7 +43,7 @@ behavioral content stays equivalent without emitting unusable pointers.
 
 Role skills define identity and the feedback loop a role owns. Capability
 providers define task methods. Ward and guarded runtime policy define
-executable authority. Developer Relations (`devrel`) owns every recommendation
+executable authority. Developer Advocate (`devrel`) owns every recommendation
 about communication addressed outward, including wording, tone, framing,
 timing, channel, reply strategy, and editorial fitness. Other roles retain
 mechanical records and defer only for recommendations, and two hold a named

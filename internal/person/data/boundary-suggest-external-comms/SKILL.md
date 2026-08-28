@@ -1,6 +1,6 @@
 ---
 name: boundary-suggest-external-comms
-description: Who recommends communication addressed outward. Developer Relations owns the recommendation, roles with a named scope write the words inside their own artifact, and every other role keeps its factual records and hands the recommendation over.
+description: Who recommends communication addressed outward. The Developer Advocate owns the recommendation, roles with a named scope write the words inside their own artifact, and every other role keeps its factual records and hands the recommendation over.
 ---
 
 # Boundary: suggest external comms
