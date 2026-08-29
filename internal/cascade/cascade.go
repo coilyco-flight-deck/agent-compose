@@ -16,7 +16,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/personpolicy"
 )
 
 const (

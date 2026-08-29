@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/project"
 )
 
 // SubagentRequest is the tick payload Claude Code writes to stdin. The command

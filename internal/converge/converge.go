@@ -8,13 +8,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/catalogmanifest"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/roster"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillmount"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/cascade"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/catalogmanifest"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/project"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/roster"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/skillmount"
 )
 
 // Options controls host compose-layout reporting and forced application.

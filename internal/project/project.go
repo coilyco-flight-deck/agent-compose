@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 type LoadPoints struct {

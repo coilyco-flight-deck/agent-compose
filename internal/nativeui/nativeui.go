@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/color"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 // Unknown tokens are dropped silently by the harness, so emission uses a

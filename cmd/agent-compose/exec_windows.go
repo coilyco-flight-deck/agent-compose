@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/launch"
 )
 
 // execReal runs the target as a child and mirrors its exit code; Windows has

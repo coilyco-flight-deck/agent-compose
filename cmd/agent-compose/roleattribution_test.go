@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/launch"
 )
 
 func TestRoleAttributionEnvNamesTheRole(t *testing.T) {

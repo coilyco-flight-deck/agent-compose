@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/agentid"
 )
 
 func shortIDRefresh(t *testing.T) *Result {

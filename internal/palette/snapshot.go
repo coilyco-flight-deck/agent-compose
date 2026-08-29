@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/color"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 // SnapshotPath is the committed record of the derived role palette, relative

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/launch"
 )
 
 func TestSplitNativeLaunchFlags(t *testing.T) {

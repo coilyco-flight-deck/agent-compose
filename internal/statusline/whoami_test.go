@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/launch"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/agentid"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/launch"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func TestWhoamiNamesTheSeatAndSession(t *testing.T) {

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/compose"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func composeFixture(t *testing.T, name string) string {

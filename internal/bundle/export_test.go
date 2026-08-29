@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
 )
 
 func TestExportIsReproducibleAndPortable(t *testing.T) {

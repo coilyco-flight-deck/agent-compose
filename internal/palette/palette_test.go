@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func TestBuildProjectsCanonicalPersonSource(t *testing.T) {

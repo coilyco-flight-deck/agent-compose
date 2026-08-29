@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 var hexColor = regexp.MustCompile(`^#[0-9a-f]{6}$`)

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/cascade"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/cascade"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func run(t *testing.T, paths cascade.Paths) (int, string, string) {

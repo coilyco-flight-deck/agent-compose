@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/compose"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/resolver"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 func composeBundle(t *testing.T, name string) string {

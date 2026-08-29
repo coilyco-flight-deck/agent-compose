@@ -21,8 +21,8 @@ import (
 	kdl "github.com/calico32/kdl-go"
 	"golang.org/x/text/unicode/norm"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/color"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/color"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 //go:embed person.kdl data

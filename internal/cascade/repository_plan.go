@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/repositoryplan"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 // RenderRepositoryPlan compiles repository policy from trusted operating roots.

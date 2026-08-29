@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/personpolicy"
 )
 
 func fixture(t *testing.T, name string) string {

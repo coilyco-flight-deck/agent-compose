@@ -11,13 +11,13 @@ import (
 	"sort"
 	"strings"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/compose"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/nativeui"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/agentid"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/compose"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/nativeui"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/project"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/repositoryplan"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 const (

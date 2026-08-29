@@ -6,11 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/agentid"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/bundle"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/project"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/resolver"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/agentid"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/project"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/resolver"
 )
 
 // shortIDFixture writes the same minimal projection the other tests use, so

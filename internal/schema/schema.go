@@ -11,8 +11,8 @@ import (
 
 	kdl "github.com/calico32/kdl-go"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/personpolicy"
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/skillselector"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/personpolicy"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/skillselector"
 )
 
 const (

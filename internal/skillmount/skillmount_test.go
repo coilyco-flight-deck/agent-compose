@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/repositoryplan"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/repositoryplan"
 )
 
 // notExistCause is this host own spelling of a missing-file errno, probed

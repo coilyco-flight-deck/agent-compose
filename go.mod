@@ -1,4 +1,4 @@
-module forgejo.coilysiren.me/coilyco-flight-deck/agent-compose
+module github.com/coilyco-flight-deck/agent-compose/v2
 
 go 1.25.5
 

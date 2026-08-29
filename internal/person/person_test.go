@@ -8,7 +8,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
 func TestLoadEmbeddedRoster(t *testing.T) {

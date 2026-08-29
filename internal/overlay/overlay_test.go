@@ -6,7 +6,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func TestBuildProjectsOneCanonicalMember(t *testing.T) {

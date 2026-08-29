@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/internal/person"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
 func TestRenderSnapshotMatchesTheCommittedRecord(t *testing.T) {
