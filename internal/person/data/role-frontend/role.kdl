@@ -22,4 +22,7 @@ role "frontend" {
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "penpot"
+    act tool="browser_resize" "browser_resize to 320 and snapshot again, before calling any layout done"
+    act tool="browser_take_screenshot" "browser_take_screenshot of the empty state and the error state, not the happy path"
+    act tool="browser_snapshot" "browser_snapshot and read what is announced, because the accessibility tree is not the thing you drew"
 }

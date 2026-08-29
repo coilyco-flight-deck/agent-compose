@@ -20,7 +20,7 @@ role "director" {
 ```
 
 The body at `roles/director/SKILL.md` needs ordinary frontmatter, matching
-`role-<slug>` metadata, three paragraphs, and at most 400 words after its
+`role-<slug>` metadata, three paragraphs, and at most 1200 words after its
 title. V1.x packages may retain an inline `briefing`. The compatibility adapter
 projects it as an in-memory `role-<slug>` skill. A role cannot declare both
 forms, and the adapter never writes a second mutable source tree.

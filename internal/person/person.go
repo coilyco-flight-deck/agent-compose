@@ -49,6 +49,14 @@ const maxBoundarySkillBodyWords = 200
 // roster chooses its sharpest confusions. See docs/role-boundaries.md.
 const adjacentsPerRole = 2
 
+// Three is the authored number rather than a measured optimum, and
+// housecast#6 is where measuring it belongs. See docs/kdl-contracts.md.
+const actsPerAttribute = 3
+
+// The scoped side is required even though its prose section is optional. Why:
+// docs/kdl-contracts.md.
+var boundaryActSides = []string{"own", "scoped", "defer"}
+
 // Both sides of a boundary live in one body under conditional headings, so the
 // reader self-selects. See docs/ownership.md.
 const (
@@ -104,6 +112,7 @@ type Role struct {
 	Boundaries          []string         `json:"boundaries,omitempty"`
 	ScopedBoundaries    []ScopedBoundary `json:"scoped_boundaries,omitempty"`
 	Adjacents           []Adjacent       `json:"adjacents,omitempty"`
+	Acts                []Act            `json:"acts,omitempty"`
 	Briefing            string           `json:"briefing"`
 	Stance              string           `json:"stance,omitempty"`
 	Voice               *Voice           `json:"voice,omitempty"`
@@ -128,6 +137,14 @@ type ScopedBoundary struct {
 type Adjacent struct {
 	Role   string `json:"role"`
 	Reason string `json:"reason"`
+}
+
+// Act is one thing an attribute requires a seat to actually run.
+// Field-by-field: docs/kdl-contracts.md.
+type Act struct {
+	Tool string `json:"tool"`
+	Text string `json:"text"`
+	Side string `json:"side,omitempty"`
 }
 
 // SupportsModelTier keeps packages authored before the tier axis compatible.
@@ -205,6 +222,19 @@ type Boundary struct {
 	Owner   string `json:"owner,omitempty"`
 	Source  string `json:"source,omitempty"`
 	Digest  string `json:"digest,omitempty"`
+	Acts    []Act  `json:"acts,omitempty"`
+}
+
+// ActsForSide returns the acts a seat holding this boundary on one side runs.
+// A deferred boundary is a different action, never the owner's withheld.
+func (b Boundary) ActsForSide(side string) []Act {
+	matched := []Act{}
+	for _, act := range b.Acts {
+		if act.Side == side {
+			matched = append(matched, act)
+		}
+	}
+	return matched
 }
 
 // Personality binds the definition, visual and sensory identity primitives,
@@ -220,6 +250,7 @@ type Personality struct {
 	Aliases   []string  `json:"aliases,omitempty"`
 	Verbs     []string  `json:"verbs,omitempty"`
 	Voice     *Voice    `json:"voice,omitempty"`
+	Acts      []Act     `json:"acts,omitempty"`
 }
 
 // Selector returns the stable key used by all new commands and artifacts.
@@ -412,6 +443,9 @@ func Load() (*Person, error) {
 		return nil, err
 	}
 	if err := validateBoundaryOwners(p); err != nil {
+		return nil, err
+	}
+	if err := validateActCoverage(p); err != nil {
 		return nil, err
 	}
 	if err := validateRoleAdjacents(p); err != nil {
@@ -801,6 +835,46 @@ func validateScopedBoundaryBodies(p *Person) error {
 					roleName, scoped.Name, binding.Skill, boundaryScopedHeading,
 				)
 			}
+		}
+	}
+	return nil
+}
+
+// validateActCoverage follows validateRoleAdjacents: optional until one
+// attribute declares, then required everywhere. docs/kdl-contracts.md.
+func validateActCoverage(p *Person) error {
+	declared := false
+	for _, roleName := range p.roleOrder() {
+		if len(p.Roles[roleName].Acts) > 0 {
+			declared = true
+		}
+	}
+	for _, name := range p.PersonalityOrder {
+		if len(p.Personalities[name].Acts) > 0 {
+			declared = true
+		}
+	}
+	for _, name := range p.BoundaryOrder {
+		if len(p.Boundaries[name].Acts) > 0 {
+			declared = true
+		}
+	}
+	if !declared {
+		return nil
+	}
+	for _, roleName := range p.roleOrder() {
+		if err := validateActs("role "+roleName, p.Roles[roleName].Acts, false); err != nil {
+			return err
+		}
+	}
+	for _, name := range p.PersonalityOrder {
+		if err := validateActs("personality "+name, p.Personalities[name].Acts, false); err != nil {
+			return err
+		}
+	}
+	for _, name := range p.BoundaryOrder {
+		if err := validateActs("boundary "+name, p.Boundaries[name].Acts, true); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -1897,6 +1971,12 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					role.Voice = &voice
+				case "act":
+					act, err := parseAct(c, "role "+name, false)
+					if err != nil {
+						return nil, err
+					}
+					role.Acts = append(role.Acts, act)
 				case "briefing":
 					if briefingSet {
 						return nil, fmt.Errorf("role %q: duplicate briefing", name)
@@ -2178,8 +2258,20 @@ func parse(raw []byte) (*Person, error) {
 			if !boundarySummary.IsValid() || strings.TrimSpace(boundarySummary.String()) == "" {
 				return nil, fmt.Errorf("boundary %q needs a summary property", boundaryName)
 			}
-			if children := n.Children(); children != nil && len(children.Nodes) > 0 {
-				return nil, fmt.Errorf("boundary %q accepts no child nodes", boundaryName)
+			boundaryActs := []Act{}
+			if children := n.Children(); children != nil {
+				for _, c := range children.Nodes {
+					if c.Name() != "act" {
+						return nil, fmt.Errorf(
+							"boundary %q accepts only act child nodes, got %q", boundaryName, c.Name(),
+						)
+					}
+					act, err := parseAct(c, "boundary "+boundaryName, true)
+					if err != nil {
+						return nil, err
+					}
+					boundaryActs = append(boundaryActs, act)
+				}
 			}
 			ownerProp := n.Prop("owner")
 			if !ownerProp.IsValid() {
@@ -2193,6 +2285,7 @@ func parse(raw []byte) (*Person, error) {
 				Skill:   boundarySkill.String(),
 				Summary: strings.TrimSpace(boundarySummary.String()),
 				Owner:   owner,
+				Acts:    boundaryActs,
 			}
 			p.BoundaryOrder = append(p.BoundaryOrder, boundaryName)
 		case "personality":
@@ -2246,6 +2339,12 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					personality.Voice = &voice
+				case "act":
+					act, err := parseAct(c, "personality "+name, false)
+					if err != nil {
+						return nil, err
+					}
+					personality.Acts = append(personality.Acts, act)
 				case "body":
 					if personality.Body.Archetype != "" {
 						return nil, fmt.Errorf("personality %q: duplicate body", name)
@@ -2392,6 +2491,86 @@ func parseSemanticParts(n *kdl.Node, owner string, expected ...string) (map[stri
 		}
 	}
 	return parts, nil
+}
+
+// parseAct reads one `act tool="X" "X does the thing"` node. The tool has to
+// appear in the sentence, for the reason in docs/kdl-contracts.md.
+func parseAct(n *kdl.Node, owner string, sided bool) (Act, error) {
+	args := n.Arguments()
+	want := 1
+	if sided {
+		want = 2
+	}
+	if len(args) != want {
+		return Act{}, fmt.Errorf("%s: act needs %d text argument(s), got %d", owner, want, len(args))
+	}
+	var act Act
+	if sided {
+		act.Side = strings.TrimSpace(args[0].String())
+		if !slices.Contains(boundaryActSides, act.Side) {
+			return Act{}, fmt.Errorf(
+				"%s: act side %q must be one of %s", owner, act.Side, strings.Join(boundaryActSides, ", "),
+			)
+		}
+	}
+	act.Text = strings.TrimSpace(args[len(args)-1].String())
+	if act.Text == "" {
+		return Act{}, fmt.Errorf("%s: act has no text", owner)
+	}
+	tool := n.Prop("tool")
+	if !tool.IsValid() || strings.TrimSpace(tool.String()) == "" {
+		return Act{}, fmt.Errorf("%s: act %q needs a tool property", owner, act.Text)
+	}
+	act.Tool = strings.TrimSpace(tool.String())
+	if !strings.Contains(act.Text, act.Tool) {
+		return Act{}, fmt.Errorf(
+			"%s: act names tool %q and its text does not use it: %q", owner, act.Tool, act.Text,
+		)
+	}
+	if children := n.Children(); children != nil && len(children.Nodes) > 0 {
+		return Act{}, fmt.Errorf("%s: act accepts no child nodes", owner)
+	}
+	return act, nil
+}
+
+// validateActs bounds an attribute's act list. Repeats are rejected on the
+// sentence rather than the tool: one tool, three moments, is the point.
+func validateActs(owner string, acts []Act, sided bool) error {
+	if !sided {
+		if len(acts) != actsPerAttribute {
+			return fmt.Errorf("%s names %d acts, needs exactly %d", owner, len(acts), actsPerAttribute)
+		}
+		return validateActTexts(owner, acts)
+	}
+	for _, side := range boundaryActSides {
+		matched := []Act{}
+		for _, act := range acts {
+			if act.Side == side {
+				matched = append(matched, act)
+			}
+		}
+		if len(matched) != actsPerAttribute {
+			return fmt.Errorf(
+				"%s %s side names %d acts, needs exactly %d",
+				owner, side, len(matched), actsPerAttribute,
+			)
+		}
+		if err := validateActTexts(owner+" "+side+" side", matched); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateActTexts(owner string, acts []Act) error {
+	seen := map[string]bool{}
+	for _, act := range acts {
+		if seen[act.Text] {
+			return fmt.Errorf("%s repeats act %q", owner, act.Text)
+		}
+		seen[act.Text] = true
+	}
+	return nil
 }
 
 // parseVoice reads the block shared by roles and personalities. The banks hold

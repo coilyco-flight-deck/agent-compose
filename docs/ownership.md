@@ -34,7 +34,7 @@ Your clone is sealed against live mutation...
 
 The owner section comes first, so the deferral reads as the consequence of the
 allocation rather than as a bare prohibition. Both sections are required, each
-is bounded separately at 400 words, and the whole file goes to both sides so
+is bounded separately at 200 words, and the whole file goes to both sides so
 each role can read what the other was told.
 
 Nothing parses these headings. The roster already records who owns and who

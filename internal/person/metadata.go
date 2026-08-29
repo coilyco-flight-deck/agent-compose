@@ -86,6 +86,41 @@ func (p *Person) renderVoice(roleName string, role Role) string {
 	return out.String()
 }
 
+// renderActs melds in role-then-personality order, as renderVoice does.
+// Boundary acts render beside the side the seat holds, not here.
+func (p *Person) renderActs(roleName string, role Role) string {
+	type source struct {
+		label string
+		acts  []Act
+	}
+	sources := []source{}
+	if len(role.Acts) > 0 {
+		sources = append(sources, source{p.RoleDisplayName(roleName), role.Acts})
+	}
+	for _, name := range role.Personalities {
+		if binding, ok := p.Personalities[name]; ok && len(binding.Acts) > 0 {
+			sources = append(sources, source{displaySlug(name), binding.Acts})
+		}
+	}
+	if len(sources) == 0 {
+		return ""
+	}
+	var out strings.Builder
+	out.WriteString("## Run\n\n")
+	out.WriteString(
+		"These are the minimum, not the illustration. An attribute you cannot name an act" +
+			" for is one that did not fire.\n\n",
+	)
+	for _, s := range sources {
+		fmt.Fprintf(&out, "* **%s**\n", s.label)
+		for _, act := range s.acts {
+			fmt.Fprintf(&out, "  * %s\n", act.Text)
+		}
+	}
+	out.WriteString("\n")
+	return out.String()
+}
+
 // RenderRoleIdentityCard keeps identity texture visible while long-form role
 // and personality doctrine remains lazy-loaded from ordinary skills.
 func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries []string) (string, error) {
@@ -150,6 +185,9 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 	if section := p.renderVoice(roleName, role); section != "" {
 		out.WriteString(section)
 	}
+	if section := p.renderActs(roleName, role); section != "" {
+		out.WriteString(section)
+	}
 	if len(boundaries) > 0 {
 		out.WriteString("## Boundaries\n\n")
 		for _, name := range boundaries {
@@ -158,18 +196,24 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 				return "", fmt.Errorf("render role identity card: boundary %q is not defined", name)
 			}
 			side := "you defer this"
+			sideKey := "defer"
 			if binding.Owner == roleName {
 				side = "you own this"
+				sideKey = "own"
 			}
 			scopeText := ""
 			for _, scoped := range role.ScopedBoundaries {
 				if scoped.Name == name {
 					side = "you hold this within a scope"
+					sideKey = "scoped"
 					scopeText = ". Your scope: " + scoped.Scope
 					break
 				}
 			}
 			fmt.Fprintf(&out, "* `%s` - %s. %s%s\n", binding.Skill, side, binding.Summary, scopeText)
+			for _, act := range binding.ActsForSide(sideKey) {
+				fmt.Fprintf(&out, "  * %s\n", act.Text)
+			}
 		}
 		out.WriteString("\n")
 	}

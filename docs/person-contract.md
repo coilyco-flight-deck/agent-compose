@@ -42,6 +42,9 @@ empty, extra, or mismatched definition fails source validation. Roster output
 therefore carries every selected definition without a capability provider. The
 [identity primitives](identity.md) define renderer semantics.
 
+Every role, personality, and boundary side also names three
+[acts](kdl-contracts.md) a seat can actually run.
+
 ### Favorite colors
 
 Every selected personality declares one hex `color` in its person source, which

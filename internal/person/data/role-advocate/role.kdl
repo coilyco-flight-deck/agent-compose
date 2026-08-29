@@ -25,4 +25,7 @@ role "advocate" {
     agent "mixpost"
     agent "openhands"
     agent "discord" tier="oss"
+    act tool="get_thread" "get_thread, or the channel's own history, before replying into it, so you answer what was said"
+    act tool="WebSearch" "WebSearch how the audience already phrases the thing before you choose words for them"
+    act tool="create_draft" "create_draft in the real channel and leave it unsent, rather than proposing that a message be produced"
 }

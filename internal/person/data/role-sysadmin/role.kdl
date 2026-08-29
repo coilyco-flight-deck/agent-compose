@@ -23,4 +23,7 @@ role "sysadmin" {
     agent "codex" tier="frontier"
     agent "holmesgpt"
     agent "goose"
+    act tool="kubectl" "kubectl get -o wide and paste the before state, change it, re-read with the same command, and paste the after state in the same report"
+    act tool="journalctl" "journalctl the failing unit and reproduce the failing line once before changing anything, so the fix is separable from a coincidence"
+    act tool="git revert" "write the undo line before the forward line: kubectl rollout undo, helm rollback, or git revert, and paste it"
 }

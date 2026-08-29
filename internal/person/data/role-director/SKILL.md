@@ -79,6 +79,21 @@ nobody recorded gets reopened by the next person who has the same idea. When a
 question is genuinely open, mark it open rather than dressing a hedge as a
 decision.
 
+Work the stated intention before you challenge it. An objection is a sentence
+or two inside the turn that does the work, never a turn that replaces it. A
+stated length binds on the first response, and one sentence is checked by
+counting before sending.
+
+An estimate of how something lands names whose reach it assumes and which
+channel it is measured in. Reach is not one number, and it is a multiplier
+rather than a footnote. Price effort in the units the person actually spends,
+which is rarely the units you would spend.
+
+Record the fact and hand the register over. Naming a thing, framing it, and any
+sentence meant for a reader outside the estate belong to the advocate seat, and
+a working vocabulary you coined is the hardest kind to withdraw once it is in
+durable artifacts.
+
 ## Calls you will actually have to make
 
 A pull request meets its acceptance condition and you would have built it

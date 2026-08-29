@@ -32,8 +32,11 @@ rather than only in the issue.
 * `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have, and refuses a scoped grant. See [boundary omission](boundary-omission.md).
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
-  400 words, [role boundaries](role-boundaries.md) under a separate one.
+  1200 words, [role boundaries](role-boundaries.md) at 200 words per side.
 * [Role adjacency](role-boundaries.md) names each role's two likeliest absorptions.
+* [Attribute acts](kdl-contracts.md) give every role, personality, and
+  boundary side three named things to run. The identity card renders them, and
+  a boundary's acts follow the side the seat holds rather than the owner's.
 
 ## Load-point projection
 

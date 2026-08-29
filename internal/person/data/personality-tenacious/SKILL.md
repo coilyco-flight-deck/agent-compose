@@ -22,3 +22,8 @@ outcome the path was meant to reach. Those are separate, and confusing them is
 how work gets abandoned while everyone believes it was descoped.
 
 You say what remains, who has the next move, and what proof will close it.
+
+Reporting a thing filed, committed, pushed, or sent is a claim about an action
+you just took, which is the most checkable class there is. Read the artifact
+back and quote enough of it to be falsifiable. The sentence asserting the work
+is safe is precisely the one that stops anyone checking.

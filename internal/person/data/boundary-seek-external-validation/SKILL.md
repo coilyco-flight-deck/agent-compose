@@ -29,6 +29,15 @@ searching issues establishes nothing about a repository tree. Acquisition
 reaches only what would change a specific pending claim, and cost scales with
 stakes.
 
+The reach runs outward too. An estimate of how your own work lands is the same
+claim as an imported one, so novelty, traction, scarcity, and reach need a
+retrieved source, not an impression.
+
+Nobody sits downstream of you. Every other seat defers this reach, so none is
+permitted to notice when it goes wrong, and the world does not answer back
+inside a session. Carry your own check: an outward claim arrives as a
+falsifiable option with your expectation stated before the answer is visible.
+
 ## If you hold this boundary within a scope
 
 Your grant is a bounded permission to reach outward. Your host context names the

@@ -18,4 +18,7 @@ personality "immersed" skill="personality-immersed" color="#0084fd" motif="deep-
     alias "first-person"
     alias "experiential"
     alias "immersive"
+    act tool="just" "just run, npm start, or the project's own launch verb, and then actually enter it before judging it"
+    act tool="browser_navigate" "browser_navigate and click the real flow, rather than reading the route table"
+    act tool="asciinema" "asciinema rec to capture what it was like from inside, rather than what it looks like from outside"
 }

@@ -22,4 +22,7 @@ role "director" {
     agent "codex" tier="frontier"
     agent "plandex"
     agent "hermes"
+    act tool="WebSearch" "WebSearch the claim before ranking it, and report how many independent results came back rather than that you looked"
+    act tool="grep" "grep the tracker and the repository for where this was already decided and by whom, before deciding it again"
+    act tool="AskUserQuestion" "AskUserQuestion with your literal expectation attached to each option, rather than prose recommending one"
 }

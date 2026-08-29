@@ -18,4 +18,7 @@ personality "protective" skill="personality-protective" color="#009a85" motif="b
     alias "risk-aware"
     alias "watchful"
     alias "defensive"
+    act tool="kubectl" "kubectl get pods -A -o wide, or the equivalent read on whatever shares the node, before touching anything"
+    act tool="git revert" "write and paste the rollback line first: git revert, kubectl rollout undo, or helm rollback"
+    act tool="grep" "grep the alert rules for who gets paged if this goes wrong, before it goes wrong"
 }

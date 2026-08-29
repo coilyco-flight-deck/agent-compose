@@ -93,6 +93,28 @@ ones produce trace decisions. During rolling upgrades, identical legacy
 invariant and personality copies shadow behind the person source. Different
 copies conflict.
 
+## Acts
+
+Every role, personality, and boundary side names three runnable things, because
+an attribute phrased as attitude does not fire. The finding is #388.
+
+```kdl
+act tool="WebSearch" "WebSearch the claim before ranking it, and report the result count"
+act "defer" tool="create_issue" "create_issue naming the outside question"   // boundaries
+```
+
+`tool` is carried apart from the sentence so a coverage or portability check
+reads it without parsing English, and it has to appear in the text so the two
+cannot drift and leave the check passing against text nobody can run. A boundary
+act takes a leading side argument, and each side owes its own three: a deferred
+boundary is a different action rather than the owner's withheld. Acts are
+optional until one attribute declares them, then all do, and they spend no
+doctrine word budget.
+
+The shipped roster names no estate-specific tool. An absent one reads as an
+instruction already satisfied (agentic-os#1381), so a harness lacking a named
+tool substitutes its own and says which. Estate acts go in a private overlay.
+
 ## See also
 
 - [manifest-schema.md](manifest-schema.md) - the schema these requests compose into.

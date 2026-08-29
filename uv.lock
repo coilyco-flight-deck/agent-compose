@@ -23,7 +23,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "housecast", git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?tag=housecast-v0.1.14" }]
+requires-dist = [{ name = "housecast", git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?tag=housecast-v0.3.0" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -108,8 +108,8 @@ wheels = [
 
 [[package]]
 name = "housecast"
-version = "0.1.14"
-source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?tag=housecast-v0.1.14#110c2c2c0b5e743670263b7d605fca644492ff97" }
+version = "0.3.0"
+source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?tag=housecast-v0.3.0#6f6adeae9ada73ef9e02102afd079ff7529fbbd4" }
 dependencies = [
     { name = "pyyaml" },
 ]

@@ -62,14 +62,14 @@ to 180, director 318 to 195, qa 298 to 196, ops 394 to 264, design 395 to 364,
 exec 288 to 226, ai 369 to 330, and creator unchanged at 402 because it owns
 the communication boundary rather than deferring to it.
 
-The boundary bodies are additive rather than deducted. Each is bounded by its own
-400-word ceiling and never enters `Role.Briefing`, so the freed budget is
+The boundary bodies are additive rather than deducted. Each side is bounded by
+its own 200-word ceiling and never enters `Role.Briefing`, so the freed budget is
 available to role-specific charter prose.
 
 ### Boundary rescope
 
 Measured after the rename, the slug changes, and the owner sections. Each side
-of a boundary is bounded separately at 400 words:
+of a boundary is bounded separately at 200 words:
 
 * `modify-live-system` - own 112, defer 234
 * `suggest-human-comms` - own 111, defer 141
@@ -87,9 +87,13 @@ whoever loads it. Floors bind the roster this repo ships, since they are an
 editorial standard rather than a consumer protection, and an external package
 with deliberately terse prose is not wrong.
 
-* role body - 140 to 400 words. Shipped range 178 to 362.
-* personality body - 120 to 320 words. Shipped range 150 to 270.
-* boundary side - 80 to 400 words. Shipped range 105 to 228.
+* role body - 140 to 1200 words. Shipped range 743 to 950.
+* personality body - 120 to 320 words. Shipped range 142 to 271.
+* boundary side - 80 to 200 words. Shipped range 81 to 200.
+
+The ceilings moved at 73d31c0, roles up and boundary sides halved. These
+numbers were remeasured against the shipped tree rather than carried forward,
+and `seek-external-validation` sits on its own ceiling at 200.
 
 Evaluation matrices carry no bounds. They are fixtures rather than doctrine, and
 their length follows the case they describe.

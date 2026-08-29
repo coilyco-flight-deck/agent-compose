@@ -23,4 +23,7 @@ role "platform" {
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "openhands"
+    act tool="git log" "git log -20 on an upstream and its release history before you add it as a dependency, and record last release and maintainer count in the commit body"
+    act tool="grep" "grep -rl the old symbol across every consumer checkout, because YAML, shell scripts, docs, and generated config hold call sites no type checker sees"
+    act tool="go build" "go build and run the test verb of every repo that consumes the change, rather than trusting the changed repo's own suite"
 }

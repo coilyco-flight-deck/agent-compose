@@ -22,4 +22,7 @@ role "science" {
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "openhands"
+    act tool="date" "date -u and write the expected number down before the command runs, so the prediction is timestamped ahead of its own result"
+    act tool="wc" "wc -l or grep -c the thing you are about to call many, several, or a lot"
+    act tool="diff" "run it twice with the same seed and diff the two outputs before reporting a delta, so a move is separable from noise"
 }

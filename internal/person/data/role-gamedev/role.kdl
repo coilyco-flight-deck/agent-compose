@@ -23,4 +23,7 @@ role "gamedev" {
     agent "claude" tier="frontier"
     agent "codex" tier="frontier"
     agent "openhands"
+    act tool="just" "just run, or the project's own launch verb, then take three runs inside the world before judging the loop"
+    act tool="diff" "diff the world or save state before and after a session, because what players did is not what the design intended"
+    act tool="ffmpeg" "ffmpeg -ss to cut the ten seconds you are describing, rather than describing them"
 }
