@@ -53,7 +53,9 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		for _, catalog := range local {
 			catalogs = append(catalogs, skillmount.Catalog{Path: catalog.Path})
 		}
-		fmt.Fprintf(stdout, "catalog local=%d\n", len(local))
+		if opts.Verbose {
+			fmt.Fprintf(stdout, "catalog local=%d\n", len(local))
+		}
 	}
 
 	p, err := person.Load()
@@ -89,7 +91,9 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
+	if opts.Verbose {
+		fmt.Fprintf(stdout, "roster  %s (%d files)\n", outDir, len(result.Files))
+	}
 	catalogs = append(catalogs, skillmount.Catalog{
 		Path: filepath.Join(outDir, ".agents", "skills"),
 	})
@@ -111,7 +115,7 @@ func Run(paths cascade.Paths, opts Options, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	if skills.LoadPoints > 0 {
+	if opts.Verbose && skills.LoadPoints > 0 {
 		fmt.Fprintf(stdout, "skills  managed=%d load-points=%d verified=%d linked=%d removed=%d preserved=%d\n",
 			skills.Managed, skills.LoadPoints, skills.Verified, skills.Linked, skills.Removed, skills.Skipped)
 	}

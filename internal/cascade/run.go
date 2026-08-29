@@ -194,7 +194,9 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
 		}
-		fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
+		if opts.Verbose {
+			fmt.Fprintf(stdout, "wrote   %s (%d source(s))%s\n", target, len(entry.sources), tail)
+		}
 		changed++
 	}
 	if opts.Reapply || readOr(manifestPath, "\x00") != repositoryPlan {
@@ -202,7 +204,9 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
 		}
-		fmt.Fprintf(stdout, "wrote   %s (repository plan)\n", manifestPath)
+		if opts.Verbose {
+			fmt.Fprintf(stdout, "wrote   %s (repository plan)\n", manifestPath)
+		}
 		changed++
 	}
 	for _, harness := range sortedKeys2(loadPoints) {
@@ -212,12 +216,16 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 			return 1
 		}
 		if line != "" {
-			fmt.Fprintf(stdout, "%s  [%s]\n", line, harness)
+			if opts.Verbose {
+				fmt.Fprintf(stdout, "%s  [%s]\n", line, harness)
+			}
 			changed++
 		}
 	}
-	fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d repository-plan=1 changed=%d\n",
-		len(byTarget), len(loadPoints), changed)
+	if opts.Verbose {
+		fmt.Fprintf(stdout, "cascade outputs=%d load-points=%d repository-plan=1 changed=%d\n",
+			len(byTarget), len(loadPoints), changed)
+	}
 	return 0
 }
 

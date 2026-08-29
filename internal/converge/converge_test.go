@@ -42,7 +42,7 @@ func run(t *testing.T, paths cascade.Paths) (int, string, string) {
 		}
 	}
 	var out, errOut bytes.Buffer
-	code := Run(paths, Options{}, &out, &errOut)
+	code := Run(paths, Options{Verbose: true}, &out, &errOut)
 	return code, out.String(), errOut.String()
 }
 

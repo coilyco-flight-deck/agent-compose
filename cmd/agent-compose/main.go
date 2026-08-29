@@ -133,7 +133,7 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "verbose",
-						Usage: "print every host compose source => destination mapping",
+						Usage: "report the work a successful run did, which is otherwise silent",
 					},
 					&cli.StringFlag{
 						Name:  "layout",
@@ -322,6 +322,10 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "check",
 						Usage: "verify composed outputs are in sync; exit 1 on drift",
+					},
+					&cli.BoolFlag{
+						Name:  "verbose",
+						Usage: "report the work a successful run did, which is otherwise silent",
 					},
 				},
 				Action: runCascade,
@@ -1344,7 +1348,10 @@ func runCascade(_ context.Context, cmd *cli.Command) error {
 	if cmd.Bool("check") {
 		code = cascade.Check(paths, os.Stdout, os.Stderr)
 	} else {
-		code = cascade.Run(paths, cascade.RunOptions{DryRun: cmd.Bool("dry-run")}, os.Stdout, os.Stderr)
+		code = cascade.Run(paths, cascade.RunOptions{
+			DryRun:  cmd.Bool("dry-run"),
+			Verbose: cmd.Bool("verbose"),
+		}, os.Stdout, os.Stderr)
 	}
 	if code != 0 {
 		return cli.Exit("", code)

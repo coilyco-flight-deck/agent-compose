@@ -85,7 +85,7 @@ func (e env) config(t *testing.T, body string) {
 
 func (e env) run(t *testing.T, dryRun bool) (int, string, string) {
 	t.Helper()
-	return e.runOptions(t, RunOptions{DryRun: dryRun})
+	return e.runOptions(t, RunOptions{DryRun: dryRun, Verbose: true})
 }
 
 func (e env) runOptions(t *testing.T, opts RunOptions) (int, string, string) {
@@ -419,7 +419,7 @@ func TestReapplyRewritesCurrentLayout(t *testing.T) {
 	if code, _, errOut := e.run(t, false); code != 0 {
 		t.Fatalf("initial run failed: %s", errOut)
 	}
-	code, out, errOut := e.runOptions(t, RunOptions{Reapply: true})
+	code, out, errOut := e.runOptions(t, RunOptions{Reapply: true, Verbose: true})
 	if code != 0 {
 		t.Fatalf("reapply failed: %s %s", out, errOut)
 	}
@@ -867,5 +867,20 @@ func TestLoadConfigRejectsMalformedOperatingContext(t *testing.T) {
 				t.Fatal("malformed operating_context passed config loading")
 			}
 		})
+	}
+}
+
+// A successful run says nothing. The report is the operator asking for it, and
+// this is the property most likely to be undone by accident.
+func TestASuccessfulRunIsSilent(t *testing.T) {
+	e := newEnv(t)
+	src := e.write(t, "src/AGENTS.COMPOSE.md", "# Doc\n")
+	e.config(t, "sources:\n  - "+src+"\n")
+	code, out, errOut := e.runOptions(t, RunOptions{})
+	if code != 0 {
+		t.Fatalf("run failed: %s", errOut)
+	}
+	if out != "" {
+		t.Fatalf("a successful run printed %q, want silence", out)
 	}
 }
