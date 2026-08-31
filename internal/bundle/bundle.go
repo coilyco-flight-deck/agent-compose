@@ -255,6 +255,30 @@ func write(res *resolver.Resolution, root string) error {
 	return writeFile(filepath.Join(root, "manifest.json"), append(manifest, '\n'))
 }
 
+// An assigned bundle cannot reach another role's card, and re-renders its own.
+// See docs/bundle-protocol.md, including the copy-contract edge.
+func stripRosterCards(base string, p *person.Person) string {
+	if p == nil || base == "" {
+		return base
+	}
+	cards := make(map[string]bool, len(p.RoleOrder))
+	for _, roleName := range p.RoleOrder {
+		cards["# "+p.RoleDisplayName(roleName)] = true
+	}
+	lines := strings.Split(base, "\n")
+	kept := make([]string, 0, len(lines))
+	for i := 0; i < len(lines); {
+		if !cards[strings.TrimRight(lines[i], " \t")] {
+			kept = append(kept, lines[i])
+			i++
+			continue
+		}
+		for i++; i < len(lines) && !strings.HasPrefix(lines[i], "# "); i++ {
+		}
+	}
+	return strings.Join(kept, "\n")
+}
+
 func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 	card, err := res.Person.RenderRoleIdentityCard(res.Request.Role, res.FavoriteColor, res.Boundaries)
 	if err != nil {
@@ -263,7 +287,7 @@ func joinInstructions(res *resolver.Resolution) ([]byte, error) {
 	// The operating base leads, matching the host global load point, so a role
 	// bundle carries its own doctrine instead of inheriting the host's.
 	var out []byte
-	if base := strings.TrimSpace(res.OperatingBase); base != "" {
+	if base := strings.TrimSpace(stripRosterCards(res.OperatingBase, res.Person)); base != "" {
 		out = append(out, []byte(base+"\n\n")...)
 	}
 	out = append(out, []byte(fmt.Sprintf(

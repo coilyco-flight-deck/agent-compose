@@ -1,0 +1,64 @@
+package bundle
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
+)
+
+// The base's copies are dead weight on every turn. See docs/bundle-protocol.md.
+func TestStripRosterCardsDropsEveryCardAndKeepsDoctrine(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p.RoleOrder) < 2 {
+		t.Fatalf("roster carries %d roles, want at least 2", len(p.RoleOrder))
+	}
+
+	var base strings.Builder
+	base.WriteString("# Agent instructions\n\nkeep me\n\n")
+	for _, roleName := range p.RoleOrder {
+		card, err := p.RenderRoleIdentityCard(roleName, p.Roles[roleName].FavoriteColor, p.RoleActiveBoundaries(roleName))
+		if err != nil {
+			t.Fatal(err)
+		}
+		base.WriteString(card)
+		base.WriteString("\n")
+	}
+	base.WriteString("# Agent seats\n\nkeep me too\n")
+
+	stripped := stripRosterCards(base.String(), p)
+
+	for _, roleName := range p.RoleOrder {
+		heading := "# " + p.RoleDisplayName(roleName)
+		if strings.Contains(stripped, heading) {
+			t.Errorf("stripped base still carries %q", heading)
+		}
+	}
+	for _, want := range []string{"# Agent instructions", "keep me", "# Agent seats", "keep me too"} {
+		if !strings.Contains(stripped, want) {
+			t.Errorf("stripped base dropped doctrine %q", want)
+		}
+	}
+	if before, after := len(base.String()), len(stripped); after >= before {
+		t.Errorf("strip recovered nothing: %d -> %d bytes", before, after)
+	} else {
+		t.Logf("strip recovered %d of %d bytes", before-after, before)
+	}
+}
+
+func TestStripRosterCardsLeavesACardlessBaseAlone(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	base := "# Agent instructions\n\nno cards here\n"
+	if got := stripRosterCards(base, p); got != base {
+		t.Errorf("cardless base changed:\n%q", got)
+	}
+	if got := stripRosterCards(base, nil); got != base {
+		t.Errorf("nil person changed base:\n%q", got)
+	}
+}
