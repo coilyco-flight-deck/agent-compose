@@ -5,8 +5,8 @@ The agent-compose mark, and the banner built around it.
 ## The agent-compose mark
 
 A spool of thread wound with twill cloth, its flanges crossing the ring. Three
-colours carry it: ink `#14111b`, mint `#4bcdd1`, lilac `#baa6d9`, the house
-palette this project shares with its sibling marks.
+colours carry it, and they are the whole palette: ink `#14111b`, mint `#4bcdd1`,
+lilac `#baa6d9`.
 
 The files live in [assets/mark/README.md](../assets/mark/README.md).
 
@@ -49,7 +49,7 @@ ones that silently change it when broken.
 
 Two forms are still outstanding. The website canvas is a redraw at 500 with an
 ink filter rather than a resize, and the lockup form, which sets the mark beside
-the house wordmark, has not been drawn.
+a wordmark, has not been drawn.
 
 ## The agent-compose banner
 
