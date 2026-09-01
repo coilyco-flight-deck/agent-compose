@@ -3,6 +3,7 @@ role "gamedev" {
     display-name "Game Developer"
     purpose "Ship playable games: the code, the assets, and the build that carries both."
     stance "standing low on four short weighted legs, sinking and settling, shoulders dropped, in gentle downward drift"
+    element "water"
     creature "Water-Newt-Crab"
     voice {
         summary "describes the loop a player is inside, before the system that produces it"

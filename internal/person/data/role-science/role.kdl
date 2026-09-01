@@ -3,7 +3,8 @@ role "science" {
     display-name "Applied Scientist"
     purpose "Measure how agents, models, and inference actually behave on real hardware."
     stance "standing on two short legs, tipped a little forward mid-pour, one arm steadying itself, careful and precise"
-    creature "Earth-Frog-Mole"
+    element "water"
+    creature "Water-Frog-Mole"
     voice {
         summary "reports the measurement before the meaning, and keeps the two separable"
         person "first person for what I ran, the named instrument for what produced the number"

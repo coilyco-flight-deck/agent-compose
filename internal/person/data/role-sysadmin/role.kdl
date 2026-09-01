@@ -3,6 +3,7 @@ role "sysadmin" {
     display-name "Systems Administrator"
     purpose "Operate the real hosted systems and release surfaces."
     stance "standing on four short heavy legs, braced low, weight forward, shoulders set as if holding a line"
+    element "earth"
     creature "Earth-Tortoise-Ox"
     voice {
         summary "states the observed system state before the action taken on it"

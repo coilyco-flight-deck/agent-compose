@@ -106,28 +106,31 @@ type AgentIdentity struct {
 }
 
 type Role struct {
-	DisplayName         string           `json:"display_name"`
-	Purpose             string           `json:"purpose"`
-	Skill               string           `json:"skill"`
-	SkillSource         string           `json:"skill_source"`
-	SkillDigest         string           `json:"skill_digest"`
-	Methods             []string         `json:"methods,omitempty"`
-	Boundaries          []string         `json:"boundaries,omitempty"`
-	ScopedBoundaries    []ScopedBoundary `json:"scoped_boundaries,omitempty"`
-	Adjacents           []Adjacent       `json:"adjacents,omitempty"`
-	Acts                []Act            `json:"acts,omitempty"`
-	Briefing            string           `json:"briefing"`
-	Stance              string           `json:"stance,omitempty"`
-	Voice               *Voice           `json:"voice,omitempty"`
-	Outro               *Outro           `json:"outro,omitempty"`
-	Creature            string           `json:"creature,omitempty"`
-	Personalities       []string         `json:"personalities"`
-	FavoriteColor       string           `json:"favorite_color,omitempty"`
-	Background          string           `json:"background,omitempty"`
-	Identity            *AgentIdentity   `json:"identity,omitempty"`
-	Seats               []Seat           `json:"seats"`
-	SupportedModelTiers []string         `json:"supported_model_tiers,omitempty"`
-	CopyContract        *CopyContract    `json:"copy_contract,omitempty"`
+	DisplayName      string           `json:"display_name"`
+	Purpose          string           `json:"purpose"`
+	Skill            string           `json:"skill"`
+	SkillSource      string           `json:"skill_source"`
+	SkillDigest      string           `json:"skill_digest"`
+	Methods          []string         `json:"methods,omitempty"`
+	Boundaries       []string         `json:"boundaries,omitempty"`
+	ScopedBoundaries []ScopedBoundary `json:"scoped_boundaries,omitempty"`
+	Adjacents        []Adjacent       `json:"adjacents,omitempty"`
+	Acts             []Act            `json:"acts,omitempty"`
+	Briefing         string           `json:"briefing"`
+	Stance           string           `json:"stance,omitempty"`
+	Voice            *Voice           `json:"voice,omitempty"`
+	Outro            *Outro           `json:"outro,omitempty"`
+	Creature         string           `json:"creature,omitempty"`
+	// Element selects the animal lineage a seat is drawn from, ATLA-style.
+	// Kai's assignment, mirrored by the renderer. See docs/identity.md.
+	Element             string         `json:"element,omitempty"`
+	Personalities       []string       `json:"personalities"`
+	FavoriteColor       string         `json:"favorite_color,omitempty"`
+	Background          string         `json:"background,omitempty"`
+	Identity            *AgentIdentity `json:"identity,omitempty"`
+	Seats               []Seat         `json:"seats"`
+	SupportedModelTiers []string       `json:"supported_model_tiers,omitempty"`
+	CopyContract        *CopyContract  `json:"copy_contract,omitempty"`
 }
 
 // ScopedBoundary is a bounded grant, not an absence: the scope text is the
@@ -1983,6 +1986,18 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					role.Voice = &voice
+				case "element":
+					if role.Element != "" {
+						return nil, fmt.Errorf("role %q: duplicate element", name)
+					}
+					value, err := oneTextArgument(c, "role "+name+" element")
+					if err != nil {
+						return nil, err
+					}
+					if !schema.IsElement(value) {
+						return nil, fmt.Errorf("role %q: unknown element %q", name, value)
+					}
+					role.Element = value
 				case "creature":
 					if role.Creature != "" {
 						return nil, fmt.Errorf("role %q: duplicate creature", name)

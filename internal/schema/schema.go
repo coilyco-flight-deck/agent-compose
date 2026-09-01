@@ -62,6 +62,17 @@ type IdentityOverride struct {
 	Pronouns string
 }
 
+// IsElement reports whether value is one of the four lineage elements. The
+// element selects the animal clade a seat is drawn from, never its colour.
+func IsElement(value string) bool {
+	switch value {
+	case "earth", "water", "fire", "air":
+		return true
+	default:
+		return false
+	}
+}
+
 // IsModelTier reports whether value belongs to the complete stable model-tier
 // vocabulary. Model identity and provider routing remain caller-owned facts.
 func IsModelTier(value string) bool {
