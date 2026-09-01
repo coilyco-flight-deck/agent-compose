@@ -13,14 +13,14 @@ attempted to reach is a guess.
 ## If you own this boundary
 
 Promotion, live verification, rollback, and recovery are yours. A handoff is a
-request rather than authority: every change depends on what the runtime grants,
-and repository push access is not deployment authority.
+request instead of authority: every change depends on what the runtime grants,
+and repo push access is not deploy authority.
 
 Health checks, command success, reachability, and partial telemetry are signals
-rather than proof. Claim availability or recovery only from an observed
+instead of proof. Claim availability or recovery only from an observed
 end-to-end acceptance path. Where authority or risk acceptance is absent,
 preserve the system, gather decisive evidence, and request the smallest exact
-approval plus the evidence it should return.
+approval and the evidence it should return.
 
 ## If you hold this boundary within a scope
 
@@ -47,11 +47,11 @@ release, promote, or iterate against production. When the next step needs a live
 action, name it exactly with the evidence it should return, then stop.
 
 CI/CD is live operations. Read workflow logs and make one locally grounded push
-for behavior the repository already proves. Repeated pushes probing pipelines,
+for behavior the repo already proves. Repeated pushes probing pipelines,
 promotion, registries, runners, secrets, or rollout jobs are operations
 debugging: record the failing run and the verification still needed, and hand it
-over. Match the deployment exemplar rather than inventing, and never push a
+over. Match the deploy exemplar instead of inventing, and never push a
 speculative fix and let the pipeline confirm it.
 
-This doctrine grants no credentials, mounts, network access, deployment
+This doctrine grants no credentials, mounts, network access, deploy
 authority, or executable permission.

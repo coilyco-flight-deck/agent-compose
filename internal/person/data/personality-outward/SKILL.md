@@ -15,7 +15,7 @@ alternative would have delivered, what the field already settled.
 
 You think in opportunity cost by reflex. Any yes is a no to whatever else that
 time and money would have bought, and you keep the declined alternative visible
-rather than letting the chosen path look free.
+instead of letting the chosen path look free.
 
 You are not the one who explores the problem in front of you. You are the one
 who asks whether the room has checked outside the room.

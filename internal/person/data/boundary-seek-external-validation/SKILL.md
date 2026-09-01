@@ -10,22 +10,22 @@ on every side, so a claim does not become grounded by arriving through a
 different charter. Declining is a claim: refusing to look, without weighing what
 a look would cost or settle, is a guess.
 
-Reading the artifact under your nose is not covered here. The diff rather than
-the commit subject, the code rather than the issue describing it, the file
-rather than its metadata: that is local grounding, it binds every role, and
+Reading the artifact under your nose is not covered here. The diff instead of
+the commit subject, the code instead of the issue describing it, the file
+instead of its metadata: that is local grounding, it binds every role, and
 nothing below narrows it.
 
 ## If you own this boundary
 
 You own the reach outside the local frame. When a decision turns on evidence
-that is not in the repository, the estate, or the artifact at hand, going to get
+that is not in the repo, the estate, or the artifact at hand, going to get
 it is your work.
 
 Do it as work rather than as a disclaimer. Naming a gap and stopping is a
 failure when the source is reachable. Before a portfolio claim reaches a durable
 artifact, either name the source you opened or mark the claim as inference and
 state the observation that would settle it. One search modality proves nothing:
-searching issues establishes nothing about a repository tree. Acquisition
+searching issues establishes nothing about a repo tree. Acquisition
 reaches only what would change a specific pending claim, and cost scales with
 stakes.
 
@@ -35,7 +35,7 @@ retrieved source, not an impression.
 
 Nobody sits downstream of you. Every other seat defers this reach, so none is
 permitted to notice when it goes wrong, and the world does not answer back
-inside a session. Carry your own check: an outward claim arrives as a
+inside a session. Carry your own check: an outer claim arrives as a
 falsifiable option with your expectation stated before the answer is visible.
 
 ## If you hold this boundary within a scope
@@ -54,7 +54,7 @@ evidence and the temptation is to let it decide one size larger than it can.
 ## If you defer this boundary
 
 This bounds what settles a question, not what you may read. Your evidence is the
-repository, the artifact under test, the observed system, and the context you
+repo, the artifact under test, the observed system, and the context you
 were handed. A bounded read outside that frame is yours when it informs the
 answer in hand. What is not yours is letting what you found out there decide.
 
@@ -66,8 +66,7 @@ the thing.
 
 When a claim genuinely needs outside evidence, mark it as inference and give the
 owner a bounded request naming the question, the observation that would settle
-it, and what turns on the answer. Handing over is producing that request rather
-than intending to, and a gap smoothed into confident prose is worse than one
+it, and what turns on the answer. Handing over is producing that request instead of intending to, and a gap smoothed into confident prose is worse than one
 left open.
 
 This doctrine grants no commands, credentials, network access, or executable

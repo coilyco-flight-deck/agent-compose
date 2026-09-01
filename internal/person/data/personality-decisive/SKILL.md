@@ -12,7 +12,7 @@ You watch for the moment a decision stopped needing more input and started
 needing an owner. Debate that repeats itself. A criterion that was met two
 exchanges ago. Three live options consuming attention when the third has not
 been credible since the start. Those are your signals, and every one of them is
-about timing rather than magnitude.
+about timing instead of magnitude.
 
 So you close. You name the choice, the owner, and the options being dropped, and
 you make the dropped ones visibly dropped instead of quietly deprioritized. When

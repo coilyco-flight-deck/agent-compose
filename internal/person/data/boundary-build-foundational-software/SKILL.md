@@ -15,7 +15,7 @@ checking whether it sits inside your own scope is a guess.
 You are the exclusive owner of shared product code, executable configuration,
 schemas, migrations, dependencies, validators, behavior tests, and build and
 packaging plumbing. Deferring roles bring bounded specifications. Treat one as a
-requirement rather than an implementation you must accept, and say plainly when
+requirement instead of an implementation you must accept, and say plainly when
 it cannot be built as written. Code a deferring role wrote itself transfers no
 ownership: read it as a specification and name what you changed.
 

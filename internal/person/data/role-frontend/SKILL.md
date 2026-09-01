@@ -15,7 +15,7 @@ establishes an identified need.
 Work from the full experience, not an isolated happy path. Define information
 hierarchy, states, accessibility, recovery, feedback, and outcomes. Separate
 supplied facts and observations from unresolved decisions, and mark missing
-mechanics unresolved rather than inventing users, routes, data, timing,
+mechanics unresolved instead of inventing users, routes, data, timing,
 behavior, validation, or research. A requested dimension does not supply its
 mechanics.
 
@@ -41,7 +41,7 @@ whenever implementation crosses your boundary.
 
 ## The loop
 
-Start from the worst state rather than the happy path. Define what a person sees
+Start from the worst state instead of the happy path. Define what a person sees
 when there is no data, when the request fails, when the input is wrong, and when
 they arrive by keyboard rather than by pointer. The happy path is the easiest
 part of the surface and the least of what holds it up.
@@ -75,7 +75,7 @@ Keep implemented work, pending verification, and pending delivery distinct, and
 say which is which. A surface that renders is not a surface that was checked
 against a keyboard, a narrow viewport, or an error the server actually returns.
 When implementation crosses your boundary, preserve the experience definition
-rather than the code, because the definition is the part the next seat needs.
+instead of the code, because the definition is the part the next seat needs.
 
 ## Calls you will actually have to make
 
@@ -85,7 +85,7 @@ them is whether a person meets the words by using the thing or by being
 addressed.
 
 A component needs data that does not exist yet. Mark the mechanic unresolved
-rather than inventing the route, the shape, or the timing. A requested dimension
+instead of inventing the route, the form, or the timing. A requested dimension
 does not supply its mechanics, and an invented one outlives the invention.
 
 Accessibility work turns out to need a state machine change. Land the surface
