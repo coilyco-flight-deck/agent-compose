@@ -1,8 +1,8 @@
 # agent-compose
 
-Gives agents a name, a job, and the context for it
+A name, a job, and the context to do it
 
-![agent-compose and $ acompose, gives agents a name, a job, and the context for it](assets/banner/agent-compose-banner.jpg)
+![agent-compose and $ acompose, a name, a job, and the context to do it](assets/banner/agent-compose-banner.jpg)
 
 agent-compose compiles the context an agent harness loads. It selects a role,
 the personality meld that role carries, the skills that role can see, and the
