@@ -1,39 +1,49 @@
 # agent-compose
 
-Eval driven composer for roles and personas
+Gives agents a name, a job, and the context for it
 
-![agent-compose and $ acompose, eval driven composer for roles and personas](assets/banner/agent-compose-banner.jpg)
+![agent-compose and $ acompose, gives agents a name, a job, and the context for it](assets/banner/agent-compose-banner.jpg)
 
 agent-compose compiles the context an agent harness loads. It selects a role,
 the personality meld that role carries, the skills that role can see, and the
 tool inventory it gets, then materializes one immutable bundle of plain files.
 Claude Code, Codex, Goose, and OpenCode all take the same bundle.
 
-**A role is context, never permission.** The bundle carries no credential, no
-mount, and no command, and a role slug shared with a launch consumer transfers
-no authority into agent-compose. Execution permissions, runtime facts, and
-lifecycle stay with whatever launches the agent. You can read and diff the whole
-bundle before a run, and `verify` will tell you it is complete before you do.
+The bundle is context and nothing executable. Permissions, runtime facts, and
+lifecycle stay with whatever launches the agent, so a role slug travels without
+authority attached to it. You can read and diff every file before a run, and
+`verify` reports the bundle complete before you do.
 
-## Why eval driven
+## The roster
 
-The board is derived from the roster rather than written beside it.
-housecast's `evalkit.matrix` reads the roster and prints the cases it implies: boundaries
-and their owners produce the pairs, adjacency produces the role-fit targets, and
-each role's meld produces the personality cases. Add a boundary, flip an
-adjacency edge, or swap a personality and the challenge list moves on its own.
-You cannot write a case that does not correspond to the roster, and you cannot
-change the roster without changing what gets tested.
+`roster:core` is the zero-config default, and it ships seven seats. Each one has
+a name, a charter, and a meld of two personality traits that shape how it writes
+and what it reaches for first.
 
-The hard cases are generated on purpose. Role adjacency names each role's two
-likeliest absorptions, and those reasons become the descriptors a generator uses
-to build exactly the confusion a seat is most at risk of.
+- 🪢🪨 **Angie** (she) - Platform Engineer - builds and lands the foundational software the rest of the estate is built on. Tenacious and grounded.
+- 🛡️🪨 **Vera** (she) - Systems Administrator - operates the real hosted systems and release surfaces. Protective and grounded.
+- 🧪🪨 **Evie** (she) - Applied Scientist - measures how agents, models, and inference actually behave on real hardware. Empirical and grounded.
+- 🎨🌈 **Delphi** (she) - Frontend Engineer - shapes and builds the surfaces a person navigates. Playful and imaginative.
+- 🤿🌈 **Sprite** (they) - Game Developer - ships playable games, the code and the assets and the build that carries both. Immersed and imaginative.
+- ✂️🔭 **Portia** (they) - Portfolio Director - decides what the portfolio does next, and carries each decision to its gate. Decisive and outward.
+- 🕯️🔭 **Gem** (they) - Developer Advocate - turns real work and audience evidence into accurate content and informed commitments. Warm and outward.
 
-Three parties and none of them holds two seats: a generator authors the cases, a
-subject answers them through Agent Proxy, and a human grades them. The grading
-half ships separately as `aos-eval` in agentic-os, so it holds no runner and no
-model client, and grading never spends a token or touches a deployed system.
-Details in [docs/evaluation.md](docs/evaluation.md).
+Every seat melds one signature trait with one bond it shares with a sibling, so
+the seven signature traits are distinct and the bonds group them: the three
+builders share 🪨 grounded, the two makers share 🌈 imaginative, and the two
+outward-facing seats share 🔭 outward.
+
+Each personality carries a colour, an emblem, a motif, and a body written in
+prose, which is where the creature art comes from and what a voice melds along
+with the role's own. See [docs/identity.md](docs/identity.md) and
+[docs/personality.md](docs/personality.md). `just palette-serve` renders the
+whole catalogue locally.
+
+Selection is exclusive. An external person package contributes its own roles,
+seats, personality definitions, and evaluation context, and it replaces
+`roster:core` wholesale rather than merging with it. An `external-only` policy
+makes that boundary fail closed across the machine. See
+[docs/person-packages.md](docs/person-packages.md).
 
 ## Install
 
@@ -73,18 +83,36 @@ Composition adapters can project a verified bundle into an empty staged home
 and wrap it in their own schema. See
 [docs/staged-home.md](docs/staged-home.md).
 
-## The Core Roster
+## The board comes from the roster
 
-The zero-config default, `roster:core`, ships seven seats: Platform Engineer,
-Systems Administrator, Applied Scientist, Frontend Engineer, Game Developer,
-Portfolio Director, and Developer Advocate. Each melds one signature trait with
-one bond it shares with a sibling seat.
+The evaluation board is derived from the roster rather than written beside it.
+housecast's `evalkit.matrix` reads the roster and prints the cases it implies:
+boundaries and their owners produce the pairs, adjacency produces the role-fit
+targets, and each role's meld produces the personality cases. Add a boundary,
+flip an adjacency edge, or swap a personality, and the challenge list moves with
+it. Every case corresponds to something in the roster, and every roster change
+moves what gets tested.
 
-Selection is exclusive. An external person package contributes its own roles,
-seats, personality definitions, and evaluation context, and it replaces
-`roster:core` wholesale rather than merging with it. An `external-only` policy
-makes that boundary fail closed across the machine. See
-[docs/person-packages.md](docs/person-packages.md).
+The hard cases are generated on purpose. Role adjacency names each role's two
+likeliest absorptions, and those reasons become the descriptors a generator uses
+to build exactly the confusion a seat is most at risk of.
+
+Three parties and none of them holds two seats: a generator authors the cases, a
+subject answers them through Agent Proxy, and a human grades them. The grading
+half ships separately as `aos-eval` in agentic-os, so it holds no runner and no
+model client, and grading never spends a token or touches a deployed system.
+Details in [docs/evaluation.md](docs/evaluation.md).
+
+### What the board needs, and what runs without it
+
+Two pieces of the eval half come from outside this repository. housecast is
+pinned from Forgejo by tag, and the subject answers through Agent Proxy, an
+internal transport, so running the board yourself means supplying a model
+transport in its place.
+
+The composer stands on its own. The bundle, the roster, the cascade, `describe`,
+`diff`, and `verify` all work with the eval stack absent, which is the half you
+get from `brew install` alone.
 
 ## Development
 
@@ -108,7 +136,9 @@ MIT. See [LICENSE](LICENSE).
 - [docs/architecture.md](docs/architecture.md) - the composition boundary.
 - [docs/ownership.md](docs/ownership.md) - who owns which boundary, and why.
 - [docs/role-selection.md](docs/role-selection.md) - role-scoped providers and assigned bundles.
+- [docs/identity.md](docs/identity.md) - names, emblems, bodies, and how a voice melds.
 - [docs/personality.md](docs/personality.md) - the personality catalog and palette.
+- [docs/evaluation.md](docs/evaluation.md) - the generator, subject, and grader split.
 - [docs/release.md](docs/release.md) - the automatic Forgejo release pipeline.
 - [justfile](justfile) - development recipes.
 - [.ward/ward.yaml](.ward/ward.yaml) - catalog metadata only.
