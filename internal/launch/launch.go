@@ -29,9 +29,9 @@ func DepthEnv(depth int) string {
 	return EnvDepth + "=" + strconv.Itoa(depth)
 }
 
-// NestedDepth resolves the depth a launched child runs at, refusing an
-// accidental nested launch and anything past MaxNestedDepth.
-func NestedDepth(sentinel, depth string, nested bool) (int, error) {
+// NestedDepth resolves the depth a launched child runs at, refusing anything
+// past MaxNestedDepth. The bound is the guard rather than an opt-in. #403
+func NestedDepth(sentinel, depth string) (int, error) {
 	current := 0
 	if trimmed := strings.TrimSpace(depth); trimmed != "" {
 		parsed, err := strconv.Atoi(trimmed)
@@ -42,11 +42,6 @@ func NestedDepth(sentinel, depth string, nested bool) (int, error) {
 	}
 	if strings.TrimSpace(sentinel) == "" {
 		return 0, nil
-	}
-	if !nested {
-		return 0, fmt.Errorf(
-			"native role launch cannot start inside another agent-compose launch; pass --nested to start a second seat deliberately",
-		)
 	}
 	next := current + 1
 	if next > MaxNestedDepth {

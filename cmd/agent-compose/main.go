@@ -40,16 +40,17 @@ var version = "dev"
 // the seat first so a session list does not open on identical text (#233).
 const nativeCodexIntroductionPrompt = "Introduce yourself now as the active Codex seat, drawing on your loaded identity card and personality meld. Keep it warm and concise, then ask what the human would like to work on."
 
-// nestedLaunchFlag opts one launch into starting inside another one.
+// nestedLaunchFlag is accepted and ignored. A nested launch no longer needs
+// announcing, and dropping the flag outright would break callers. #403
 const nestedLaunchFlag = "--nested"
 
 // splitNativeLaunchFlags peels agent-compose's own launch flags off the head.
 // `launch` skips flag parsing, so this is the only place one is read.
-func splitNativeLaunchFlags(args []string) (bool, []string) {
+func splitNativeLaunchFlags(args []string) []string {
 	if len(args) > 0 && args[0] == nestedLaunchFlag {
-		return true, args[1:]
+		return args[1:]
 	}
-	return false, args
+	return args
 }
 
 // nestedLaunchSkipsConverge reports a launch inheriting a converged host from
@@ -74,7 +75,7 @@ func dispatchArgs(args []string) []string {
 	if len(args) >= 2 && args[1] == "statusline" {
 		return args
 	}
-	if _, rest := splitNativeLaunchFlags(args[1:]); len(rest) >= 2 &&
+	if rest := splitNativeLaunchFlags(args[1:]); len(rest) >= 2 &&
 		!strings.HasPrefix(rest[0], "-") && nativeHarness(rest[1]) {
 		return append([]string{args[0], "launch"}, args[1:]...)
 	}
@@ -188,8 +189,8 @@ func main() {
 			{
 				Name:            "launch",
 				Usage:           "launch one native harness with a caller-assigned role bundle",
-				ArgsUsage:       "[--nested] <role> <harness> [harness arguments...]",
-				Description:     "--nested starts a second seat from inside a launched session, one hop deep. See docs/native-role-launch.md.",
+				ArgsUsage:       "<role> <harness> [harness arguments...]",
+				Description:     "A launch from inside a launched session starts a second seat, one hop deep. See docs/native-role-launch.md.",
 				SkipFlagParsing: true,
 				Action:          runNativeLaunch,
 			},
@@ -765,9 +766,9 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 }
 
 func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
-	nested, args := splitNativeLaunchFlags(cmd.Args().Slice())
+	args := splitNativeLaunchFlags(cmd.Args().Slice())
 	if len(args) < 2 {
-		return fmt.Errorf("launch needs [--nested] <role> <harness> [harness arguments...]")
+		return fmt.Errorf("launch needs <role> <harness> [harness arguments...]")
 	}
 	role := strings.TrimSpace(args[0])
 	harness := strings.TrimSpace(args[1])
@@ -780,7 +781,6 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	childDepth, err := launch.NestedDepth(
 		os.Getenv(launch.EnvSentinel),
 		os.Getenv(launch.EnvDepth),
-		nested,
 	)
 	if err != nil {
 		return err
@@ -830,7 +830,9 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			return err
 		}
 	}
-	if nested {
+	// Keyed to the depth rather than to a flag, so it covers every nested
+	// launch instead of the announced ones. #403
+	if childDepth > 0 {
 		target := cwd
 		if runtimeHome != "" {
 			target = runtimeHome

@@ -2,42 +2,27 @@ package launch
 
 import (
 	"strconv"
-	"strings"
 	"testing"
 )
 
 func TestNestedDepthAllowsATopLevelLaunch(t *testing.T) {
 	t.Parallel()
-	for name, nested := range map[string]bool{"plain": false, "opted in": true} {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			depth, err := NestedDepth("", "", nested)
-			if err != nil {
-				t.Fatalf("top-level launch refused: %v", err)
-			}
-			if depth != 0 {
-				t.Fatalf("child depth = %d, want 0", depth)
-			}
-		})
-	}
-}
-
-func TestNestedDepthRefusesAnAccidentalNestedLaunch(t *testing.T) {
-	t.Parallel()
-	_, err := NestedDepth("1", "0", false)
-	if err == nil {
-		t.Fatal("a launch inside another launch was permitted without the opt-in")
-	}
-	if !strings.Contains(err.Error(), "--nested") {
-		t.Fatalf("refusal does not name the opt-in: %v", err)
-	}
-}
-
-func TestNestedDepthPermitsOneDeliberateHop(t *testing.T) {
-	t.Parallel()
-	depth, err := NestedDepth("1", "0", true)
+	depth, err := NestedDepth("", "")
 	if err != nil {
-		t.Fatalf("deliberate nested launch refused: %v", err)
+		t.Fatalf("top-level launch refused: %v", err)
+	}
+	if depth != 0 {
+		t.Fatalf("child depth = %d, want 0", depth)
+	}
+}
+
+// The opt-in is gone, so a launch inside another one is permitted on its own
+// and the bound below is what stops a runaway. agent-compose#403
+func TestNestedDepthPermitsOneHopWithoutBeingAsked(t *testing.T) {
+	t.Parallel()
+	depth, err := NestedDepth("1", "0")
+	if err != nil {
+		t.Fatalf("nested launch refused: %v", err)
 	}
 	if depth != 1 {
 		t.Fatalf("child depth = %d, want 1", depth)
@@ -46,7 +31,8 @@ func TestNestedDepthPermitsOneDeliberateHop(t *testing.T) {
 
 func TestNestedDepthStopsAtTheBound(t *testing.T) {
 	t.Parallel()
-	if _, err := NestedDepth("1", strconv.Itoa(MaxNestedDepth), true); err == nil {
+	_, err := NestedDepth("1", strconv.Itoa(MaxNestedDepth))
+	if err == nil {
 		t.Fatalf("a launch at depth %d was permitted to launch again", MaxNestedDepth)
 	}
 }
@@ -56,7 +42,7 @@ func TestNestedDepthFailsClosedOnAMalformedCount(t *testing.T) {
 	for _, value := range []string{"deep", "-1"} {
 		t.Run(value, func(t *testing.T) {
 			t.Parallel()
-			if _, err := NestedDepth("1", value, true); err == nil {
+			if _, err := NestedDepth("1", value); err == nil {
 				t.Fatalf("depth %q was accepted", value)
 			}
 		})

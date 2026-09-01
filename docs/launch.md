@@ -40,11 +40,10 @@ Launch sets `AGENT_COMPOSE_LAUNCH` in the child environment before exec. A
 nested launch sees the sentinel, skips refresh, and execs straight through,
 so a shadowed binary that wraps a harness can never recurse into itself.
 
-The assigned-role verb reads the same sentinel and refuses rather than execing
-through, because starting a second seat is a deliberate act rather than a
-wrapper re-entering itself. `agent-compose launch --nested` is that deliberate
-act, bounded by `AGENT_COMPOSE_LAUNCH_DEPTH` to one hop. See
-[native-role-launch.md](native-role-launch.md).
+The assigned-role verb reads the same sentinel and starts a second seat rather
+than execing through, because starting a seat is a deliberate act rather than a
+wrapper re-entering itself. It is bounded by `AGENT_COMPOSE_LAUNCH_DEPTH` to one
+hop. See [native-role-launch.md](native-role-launch.md).
 
 ## Failure behavior
 

@@ -83,17 +83,17 @@ inferred-role native path for compatibility.
 
 ## Agent-to-agent launch
 
-A launched session cannot start a second seat by accident. `launch` reads the
-same `AGENT_COMPOSE_LAUNCH` sentinel the wrapper path uses, and refuses while
-naming `--nested` as the deliberate spelling:
+A launched session starts a second seat with the same command a top-level one
+uses. `launch` reads the `AGENT_COMPOSE_LAUNCH` sentinel, stamps the child one
+hop deeper, and refuses past the bound. The `--nested` opt-in that used to gate
+this is accepted and ignored, because the bound catches the runaway (#403).
 
 ```sh
-acompose --nested science claude -p 'measure the launch path and report'
+acompose science claude -p 'measure the launch path and report'
 ```
 
-Harness arguments still pass through verbatim, so a task prompt needs no
-agent-compose flag of its own. A positional Codex prompt also suppresses the
-bare-session introduction prompt, so a task and an introduction never collide.
+Harness arguments pass through verbatim, and a positional Codex prompt suppresses
+the bare-session introduction so a task and an introduction never collide.
 
 **A nested launch does not converge.** Its parent already did, against the
 same state, so `launch` skips it and says so on stderr in the wrapper path's

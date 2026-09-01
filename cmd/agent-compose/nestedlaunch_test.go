@@ -9,27 +9,24 @@ import (
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/launch"
 )
 
+// The flag is accepted and ignored, so what matters is that it never reaches
+// the harness as an argument. agent-compose#403
 func TestSplitNativeLaunchFlags(t *testing.T) {
 	t.Parallel()
 	cases := map[string]struct {
-		in         []string
-		wantNested bool
-		wantRest   []string
+		in       []string
+		wantRest []string
 	}{
-		"no flag":          {[]string{"platform", "claude"}, false, []string{"platform", "claude"}},
-		"nested":           {[]string{"--nested", "science", "claude"}, true, []string{"science", "claude"}},
-		"harness dash":     {[]string{"platform", "claude", "--nested"}, false, []string{"platform", "claude", "--nested"}},
-		"nothing at all":   {nil, false, nil},
-		"harness flag arg": {[]string{"science", "claude", "-p", "go"}, false, []string{"science", "claude", "-p", "go"}},
+		"no flag":          {[]string{"platform", "claude"}, []string{"platform", "claude"}},
+		"nested":           {[]string{"--nested", "science", "claude"}, []string{"science", "claude"}},
+		"harness dash":     {[]string{"platform", "claude", "--nested"}, []string{"platform", "claude", "--nested"}},
+		"nothing at all":   {nil, nil},
+		"harness flag arg": {[]string{"science", "claude", "-p", "go"}, []string{"science", "claude", "-p", "go"}},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			nested, rest := splitNativeLaunchFlags(tc.in)
-			if nested != tc.wantNested {
-				t.Fatalf("nested = %v, want %v", nested, tc.wantNested)
-			}
-			if !reflect.DeepEqual(rest, tc.wantRest) {
+			if rest := splitNativeLaunchFlags(tc.in); !reflect.DeepEqual(rest, tc.wantRest) {
 				t.Fatalf("rest = %#v, want %#v", rest, tc.wantRest)
 			}
 		})
