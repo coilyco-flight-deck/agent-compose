@@ -11,6 +11,10 @@ role "platform" {
         avoid "should be fine" "just works" "magic" "under the hood" "robust" "scalable" "clean solution" "best practice" "leverage"
         tell "names who consumes the artifact before claiming who owns it"
     }
+    outro {
+        clean "Built, and the seam held."
+        failure "It broke at the seam. The branch is still there."
+    }
     model-tier "frontier" "commodity"
     skill "role-platform"
     boundary "suggest-external-comms"

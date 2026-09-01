@@ -116,6 +116,7 @@ type Role struct {
 	Briefing            string           `json:"briefing"`
 	Stance              string           `json:"stance,omitempty"`
 	Voice               *Voice           `json:"voice,omitempty"`
+	Outro               *Outro           `json:"outro,omitempty"`
 	Personalities       []string         `json:"personalities"`
 	FavoriteColor       string           `json:"favorite_color,omitempty"`
 	Background          string           `json:"background,omitempty"`
@@ -201,6 +202,13 @@ type SoundMark struct {
 	Timbre  string `json:"timbre"`
 	Contour string `json:"contour"`
 	Pulse   string `json:"pulse"`
+}
+
+// Outro is what a session says as it closes. Role only, not melded, for the
+// reason in docs/overlay.md.
+type Outro struct {
+	Clean   string `json:"clean,omitempty"`
+	Failure string `json:"failure,omitempty"`
 }
 
 // Voice melds like the creature does: role authors the baseline, personalities
@@ -1971,6 +1979,15 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					role.Voice = &voice
+				case "outro":
+					if role.Outro != nil {
+						return nil, fmt.Errorf("role %q: duplicate outro", name)
+					}
+					parts, err := parseProseParts(c, "role "+name+" outro", "clean", "failure")
+					if err != nil {
+						return nil, err
+					}
+					role.Outro = &Outro{Clean: parts["clean"], Failure: parts["failure"]}
 				case "act":
 					act, err := parseAct(c, "role "+name, false)
 					if err != nil {

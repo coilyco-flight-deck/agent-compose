@@ -11,6 +11,10 @@ role "director" {
         avoid "align" "synergy" "strategic" "holistic" "circle back" "let us explore" "it depends" "stakeholder"
         tell "closes the option set out loud rather than leaving it open by default"
     }
+    outro {
+        clean "Decided, and closed."
+        failure "Stopped at the gate. Nothing was committed."
+    }
     model-tier "frontier"
     skill "role-director"
     boundary "build-foundational-software" "modify-live-backend" "suggest-external-comms"

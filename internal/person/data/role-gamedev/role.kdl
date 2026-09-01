@@ -11,6 +11,10 @@ role "gamedev" {
         avoid "fun" "engaging" "immersive" "polished" "juicy" "players will love" "obviously"
         tell "reports what happened in a run rather than what the system permits"
     }
+    outro {
+        clean "Run complete. The loop closed."
+        failure "Died on the third run. The world is still there."
+    }
     model-tier "frontier" "commodity"
     skill "role-gamedev"
     boundary "build-foundational-software" "seek-external-validation"

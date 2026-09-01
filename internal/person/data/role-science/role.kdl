@@ -11,6 +11,10 @@ role "science" {
         avoid "significantly" "clearly" "obviously" "it seems" "arguably" "robust" "leverage" "deep dive" "unpack" "it is worth noting"
         tell "names the source before the claim, and marks an inference as inference"
     }
+    outro {
+        clean "Measured. The numbers are in the log."
+        failure "It stopped before the last reading."
+    }
     model-tier "frontier"
     skill "role-science"
     boundary "modify-live-backend" "suggest-external-comms" "seek-external-validation"
