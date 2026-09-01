@@ -47,11 +47,6 @@ re-resolve providers or mutate the immutable input bundle.
 The generic projection remains useful on its own through `agent-compose` and
 the `acompose` host entrypoint. No composition root is required for native use.
 
-Cross-repository orchestration is tracked in
-[inbox#267](https://forgejo.coilysiren.me/coilysiren/inbox/issues/267). This
-producer-side boundary is tracked in
-[agent-compose#103](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/103).
-
 ## just, the task runner
 
 Every development verb is a recipe in the repo-root [justfile](../justfile).

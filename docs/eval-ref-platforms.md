@@ -36,8 +36,8 @@ browser surface.
 
 Annotation stays outside it, which Inspect supports directly: `--no-score` produces a log of
 unscored samples, and its score-editing API exists for "applying manual review adjustments".
-Adopting a review UI remains separate and open in
-<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>.
+Adopting a review surface stays a separate decision, because a UI that writes decisions needs a return
+path into the record (<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>).
 
 ## Reference: Phoenix annotation
 
@@ -63,12 +63,12 @@ an input to experimentation, fine-tuning, or building a human-aligned eval.
 
 ### How it relates to this eval
 
-This is `aos-eval annotate` with a vendor's name on it. Categorical annotation is the pass-or-fail
-and three-way tiers, freeform is the critique on a deduction, and the export-to-dataset path is what
-a future judge calibration would use if human labels ever become a gold set for an automated
-evaluator. Cited for orientation, not adoption. Whether to adopt any review surface remains open in
-<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>, whose gate is explicit
-that case-study value is not an adoption criterion.
+This is `housecast grade annotate` with a vendor's name on it. Categorical annotation is the
+pass-or-fail and three-way tiers, freeform is the critique on a deduction, and the export-to-dataset
+path is what a future judge calibration would use if human labels ever become a gold set for an
+automated evaluator. Cited for orientation, not adoption: case-study value is not an adoption criterion, and the
+open question is whether any review surface earns a write path back into the record
+(<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>).
 
 **Do not cite the Phoenix `evaluation/llm-evals` page for this work.** It covers code-based and
 LLM-as-judge evaluators, and does not cover human annotation, benchmarking evaluators against human

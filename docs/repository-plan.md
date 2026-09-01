@@ -66,21 +66,21 @@ The optional top-level `repositories` node declares stable repository ids and th
 
 ```kdl
 repositories {
-    repository lore path="coilysiren/lore"
-    repository voice-corpus path="coilysiren/voice-corpus"
-    repository profile path="coilysiren/coilysiren"
-    repository hardware path="coilyco-bridge/agentic-os-hardware" {
+    repository handbook path="example-org/handbook"
+    repository style-guide path="example-org/style-guide"
+    repository profile path="example-org/profile"
+    repository hardware path="example-org/hardware-notes" {
         skill "compute-stack"
         skill "machine-*"
     }
 
-    global lore
+    global handbook
     resident-only profile
 }
 
 roles {
     role advocate {
-        use-repository voice-corpus
+        use-repository style-guide
     }
     role platform { use-repository hardware }
 }

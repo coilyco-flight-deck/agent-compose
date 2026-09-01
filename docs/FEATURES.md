@@ -64,7 +64,7 @@ rather than only in the issue.
 * `compose` renders the role metadata and the identity texture. `--explain`
   adds the briefing, the credits, the expressions, and the decisions.
 * [Evaluation](evaluation.md) derives the board from the roster, runs it with
-  housecast's `evalkit`, and grades it by hand with `aos-eval`. No mechanical
+  housecast's `evalkit`, and grades it by hand with `housecast grade`. No mechanical
   scorer anywhere in the loop.
 * [V2 migration](release.md) maps v1 roles without aliases.
 * TTY colors use canonical identity and pass an OKLab legibility gate.

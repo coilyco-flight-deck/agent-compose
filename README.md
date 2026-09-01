@@ -99,8 +99,8 @@ to build exactly the confusion a seat is most at risk of.
 
 Three parties and none of them holds two seats: a generator authors the cases, a
 subject answers them through Agent Proxy, and a human grades them. The grading
-half ships separately as `aos-eval` in agentic-os, so it holds no runner and no
-model client, and grading never spends a token or touches a deployed system.
+half ships separately as `housecast grade`, so it holds no runner and no model
+client, and grading never spends a token or touches a deployed system.
 Details in [docs/evaluation.md](docs/evaluation.md).
 
 ### What the board needs, and what runs without it

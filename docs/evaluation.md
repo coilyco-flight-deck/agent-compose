@@ -8,11 +8,11 @@ the roster, runs against one subject, and is graded by a human.
 **`evalkit`** is the Python runner. It moved to housecast with the engine under #337, so the paths
 below are housecast's. It derives the case list from the roster, runs the subject, writes the dataset.
 
-**`aos-eval`** is the grading half, shipped from `coilyco-flight-deck/agentic-os` so the pairing rule
-has one home. It holds no runner and no model client, so grading never spends a token and never touches
-a deployed system. Run `aos-eval help` for the exhaustive reference. sirens-echo grades through it too,
-against a live harness rather than a composed prompt, so the pairing rule has one implementation across
-both.
+**`housecast.grade`** is the grading half, shipped from `coilyco-flight-deck/housecast` under that
+package's `eval` extra so the pairing rule has one home. It holds no runner and no model client, so
+grading never spends a token and never touches a deployed system. Run `housecast grade help` for the
+exhaustive reference. sirens-echo grades through it too, against a live harness rather than a composed
+prompt, so the pairing rule has one implementation across both.
 
 One home per contract keeps the seam honest, and it now names the eval pack rather than the roster:
 **the pack schema, the coverage rules, and the record writer have exactly one implementation**, because
@@ -20,9 +20,9 @@ two parsers is the failure the split avoids. Composition moved to housecast (#33
 
 ## The triple
 
-Three parties, none holding two seats. The **generator** authors candidate cases, an agent working with
-Kai. The **subject** produces responses, `evaluation/deepseek-v4-pro` through Agent Proxy at the
-`commodity` tier. The **grader** scores them, Kai, by hand.
+Three parties, none holding two seats. The **generator** authors candidate cases, an agent working
+with a human. The **subject** produces responses, a model reached through whatever transport the
+deployment supplies. The **grader** scores them, a second human, by hand.
 
 A role's `model-tier` is a deployment compatibility claim rather than what the board tests, and tier
 does not change selected context, so one subject measures every role's composed text. See [model
@@ -31,11 +31,11 @@ tiers](harness-vendoring.md).
 ## The pipeline
 
 ```text
-generator          ->  challenges.yaml
-inspect eval       ->  .eval log      (five epochs each, unscored)
-evalkit.filter     ->  dataset.yaml   (epoch 1 attached to every challenge)
-aos-eval annotate  ->  annotations.yaml
-aos-eval taxonomy  ->  failure modes, ranked
+generator                 ->  challenges.yaml
+inspect eval              ->  .eval log      (five epochs each, unscored)
+evalkit.filter            ->  dataset.yaml   (epoch 1 attached to every challenge)
+housecast grade annotate  ->  annotations.yaml
+housecast grade taxonomy  ->  failure modes, ranked
 ```
 
 Go turns annotations into the canonical record, so totals and verdicts come from the pack rule rather
@@ -55,8 +55,7 @@ the reflexive deferral the in-out pair exists to catch.
 
 A boundary case comes in halves: one inside where the role must own the work, one outside where it must
 defer. A role passing one and failing the other is a boundary failure rather than fifty percent, so a
-degenerate always-defer policy scores zero instead of perfect conformance, and `aos-eval` reports pair
-results rather than half results.
+degenerate always-defer policy scores zero, and `housecast grade` reports pair results, not halves.
 
 ## There is no mechanical scorer
 
@@ -80,15 +79,15 @@ mechanical filter.
 Challenges are ordered **role-major**, so an annotator loads one charter and holds it across that role's
 challenges. `--roster` prints purpose, boundaries, adjacency reasons, and personalities per group,
 `--role` annotates a subset, and grading saves after every decision. A deduction records a critique and,
-where one exists, a verbatim span from the output, verified before it is accepted. `aos-eval taxonomy`
-is the axial step: it groups deductions by structural axis, then by shared critique terms, and ranks by
-frequency, producing a list of failure modes rather than a score.
+where one exists, a verbatim span from the output, verified before it is accepted. `housecast grade
+taxonomy` is the axial step: it groups deductions by structural axis, then by shared critique terms, and
+ranks by frequency, producing a list of failure modes rather than a score.
 
 ## Export is one way
 
-`aos-eval export` projects a committed run into a display payload and nothing returns, so the surface
-reading it is a rebuildable projection rather than a second home for evidence. Pairs travel as their own
-structure, so a renderer gets `complete` and `passed` rather than a half-graded pair wrong, and
+`housecast grade export` projects a committed run into a display payload and nothing returns, so the
+surface reading it is a rebuildable projection rather than a second home for evidence. Pairs travel as
+their own structure, so a renderer gets `complete` and `passed` rather than a half-graded pair, and
 `critique` and `evidence` stay out unless `--include-private` asks for them. Export **refuses rather
 than scrubs** when a record looks like it carries a secret, because a scrubber that misses a pattern
 ships the secret, and withheld text is not scanned since text that never leaves cannot leak. Recognized:
@@ -96,9 +95,10 @@ AWS key ids, bearer and API tokens, JWTs, private key blocks, SSM parameter path
 tailnet hosts, and email addresses.
 
 `format: agent-compose.eval-export.v1`. Nothing is authored in the projection, so nothing has to come
-back, which removes the round trip
-[agent-compose#213](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213) step 4
-calls the hard requirement for a review UI. Target: [deploy#572](https://forgejo.coilysiren.me/coilyco-bridge/deploy/issues/572).
+back. A review UI that writes decisions would need a return path, and a second writer against the
+record is the failure the one-way projection exists to prevent, so adopting one stays undecided
+([#213](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213), target
+[deploy#572](https://forgejo.coilysiren.me/coilyco-bridge/deploy/issues/572)).
 
 ## Commands
 
@@ -111,7 +111,7 @@ that config is managed by agentic-os and a hand-added hook is lost on the next s
 * [Eval references](eval-references.md) - six external reference points, with notes on [the
   papers](eval-ref-papers.md) and [the platforms](eval-ref-platforms.md). Inspect is adopted for the run
   leg, nothing was adopted for grading, and those pages say why.
-* [aos-eval](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/aos-eval.md)
+* [housecast grading](https://forgejo.coilysiren.me/coilyco-flight-deck/housecast/src/branch/main/docs/grading.md)
   - the shared grading layer, its profile contract, and the probe layer under it.
 * [sirens-echo
   evaluation](https://forgejo.coilysiren.me/coilyco-gaming/sirens-echo/src/branch/main/docs/sirens-echo-eval.md)

@@ -22,16 +22,17 @@ recommendations were independently already in place here.
 ## Platforms
 
 * [Phoenix annotation](eval-ref-platforms.md#reference-phoenix-annotation) - the human annotation surface, so
-  the platform equivalent of `aos-eval annotate`.
+  the platform equivalent of `housecast grade annotate`.
   <https://arize.com/docs/phoenix/tracing/how-to-tracing/feedback-and-annotations/annotating-in-the-ui>
 * [Inspect](eval-ref-platforms.md#reference-inspect) - dataset, task, solver, scorer, so the
   platform equivalent of `evalkit.run` and `evalkit.filter`.
   <https://inspect.aisi.org.uk/>
 
 The two cover different halves rather than competing. Inspect is adopted for
-the run leg. Phoenix stays a reference, since annotation is local. A review UI
-remains the open decision in
-<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>.
+the run leg. Phoenix stays a reference, since annotation is local. Adopting a
+review UI stays undecided: one that writes decisions needs a path back into the
+record, and one writer per record is what the one-way export exists to hold
+(<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>).
 
 ## Blogs
 

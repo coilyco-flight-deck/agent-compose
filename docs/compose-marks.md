@@ -4,8 +4,9 @@ The agent-compose mark, and the banner built around it.
 
 ## The agent-compose mark
 
-A spool of thread wound with twill cloth, its flanges crossing the ring. It is
-a sibling of the coilyco org avatars and shares their ink, mint, and lilac.
+A spool of thread wound with twill cloth, its flanges crossing the ring. Three
+colours carry it: ink `#14111b`, mint `#4bcdd1`, lilac `#baa6d9`, the house
+palette this project shares with its sibling marks.
 
 The files live in [assets/mark/README.md](../assets/mark/README.md).
 
@@ -41,13 +42,14 @@ Three numbers are load-bearing rather than cosmetic.
 
 ### Regenerating
 
-The generator is `scripts/marks/agent_compose_mark.py` in `agentic-os-xxx`, and
-its canon output is pixel-identical to what ships here. Its comments carry the
-constraints that silently change the mark when they are broken.
+The generator is a private script whose canon output is pixel-identical to what
+ships here. It is not published, so the geometry above is the record: it is what
+you would need to redraw the mark, and the three load-bearing numbers are the
+ones that silently change it when broken.
 
 Two forms are still outstanding. The website canvas is a redraw at 500 with an
-ink filter rather than a resize, and the lockup form over the coilyco S has not
-been drawn.
+ink filter rather than a resize, and the lockup form, which sets the mark beside
+the house wordmark, has not been drawn.
 
 ## The agent-compose banner
 
@@ -109,10 +111,9 @@ help.
 
 ### Regenerating
 
-The generator is `scripts/banners/agent_compose_banner.py` in `agentic-os-xxx`,
-alongside the mark generator it draws the spool from. Its working record and
-the directions that failed on the way here are in that repo's
-`kai-comfyui-agentic` skill.
+The generator is a private script, alongside the mark generator it draws the
+spool from. Like the mark, it is not published, so the field, type, and colour
+numbers above are the record rather than a summary of one.
 
 The banner is not set as the repository's social preview. That is a setting
 rather than a file, and it stays an operator action.
