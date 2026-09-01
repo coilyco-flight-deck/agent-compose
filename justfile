@@ -77,6 +77,10 @@ palette-serve *ARGS:
 palette-tidy *ARGS:
     @npm --prefix web/personality-palette install --package-lock-only --ignore-scripts --no-audit --no-fund "$@"
 
+# Compose every shipped bundle from the roster into dist/bundles.
+compose-bundles *ARGS:
+    @uv run python scripts/compose-bundles.py dist/bundles "$@"
+
 # Cross-compile version-stamped release binaries into dist/.
 release-build *ARGS:
     @sh scripts/release-build.sh "$@"

@@ -8,7 +8,9 @@ The binary carries no roster. It resolves one from `AGENT_COMPOSE_ROSTER`, then
 `~/.agent-compose/roster`, then the seed a package manager installed beside it,
 and names every path it tried when none resolves. brew and scoop install that
 seed, so a roster change needs no rebuild and an upgrade never overwrites an
-edited roster in the state directory (#336).
+edited roster in the state directory (#336). The release also ships the composed
+bundle set, addressed `<role>-<tier>-<delivery>`, because housecast composes at
+build time and never runs on a user's machine (#412).
 
 ## Composition moved to housecast
 

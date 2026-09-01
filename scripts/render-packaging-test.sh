@@ -32,7 +32,8 @@ for artifact in \
   agent-compose-linux-amd64 \
   agent-compose-linux-arm64 \
   agent-compose-windows-amd64.exe \
-  agent-compose-roster.tar.gz
+  agent-compose-roster.tar.gz \
+  agent-compose-bundles.tar.gz
 do
   printf '%s\n' "$artifact" >"$fixture_root/dist/$artifact"
 done
@@ -58,7 +59,7 @@ if ! grep -F '"agent-compose-windows-amd64.exe", "acompose", "compose"' "$manife
   echo "render-packaging-test: Scoop alias contract is missing" >&2
   exit 1
 fi
-for expected in 'agent-compose-roster.tar.gz' 'share/"agent-compose"'
+for expected in 'agent-compose-roster.tar.gz' 'agent-compose-bundles.tar.gz' 'share/"agent-compose"'
 do
   if ! grep -F "$expected" "$formula" "$manifest" >/dev/null; then
     echo "render-packaging-test: seed roster is not installed: $expected" >&2

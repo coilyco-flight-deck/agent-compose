@@ -12,6 +12,7 @@ LINUX_AMD64="$(sha dist/agent-compose-linux-amd64)"
 LINUX_ARM64="$(sha dist/agent-compose-linux-arm64)"
 WINDOWS_AMD64="$(sha dist/agent-compose-windows-amd64.exe)"
 ROSTER="$(sha dist/agent-compose-roster.tar.gz)"
+BUNDLES="$(sha dist/agent-compose-bundles.tar.gz)"
 
 cat > dist/agent-compose.rb <<EOF
 class AgentCompose < Formula
@@ -25,6 +26,13 @@ class AgentCompose < Formula
   resource "roster" do
     url "${BASE}/agent-compose-roster.tar.gz"
     sha256 "${ROSTER}"
+  end
+
+  # housecast composes at build time and never runs here, so the composed set
+  # ships rather than the data behind it.
+  resource "bundles" do
+    url "${BASE}/agent-compose-bundles.tar.gz"
+    sha256 "${BUNDLES}"
   end
 
   on_macos do
@@ -50,6 +58,9 @@ class AgentCompose < Formula
     resource("roster").stage do
       (share/"agent-compose").install "roster"
     end
+    resource("bundles").stage do
+      (share/"agent-compose").install "bundles"
+    end
   end
 
   test do
@@ -68,11 +79,13 @@ cat > dist/agent-compose.json <<EOF
         "64bit": {
             "url": [
                 "${BASE}/agent-compose-windows-amd64.exe",
-                "${BASE}/agent-compose-roster.tar.gz"
+                "${BASE}/agent-compose-roster.tar.gz",
+                "${BASE}/agent-compose-bundles.tar.gz"
             ],
             "hash": [
                 "${WINDOWS_AMD64}",
-                "${ROSTER}"
+                "${ROSTER}",
+                "${BUNDLES}"
             ],
             "bin": [
                 ["agent-compose-windows-amd64.exe", "agent-compose"],

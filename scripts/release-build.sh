@@ -18,8 +18,13 @@ done
 # The binary embeds no roster, so the seed ships beside it as its own asset.
 tar -czf dist/agent-compose-roster.tar.gz -C seed roster
 echo "dist/agent-compose-roster.tar.gz"
+# housecast never runs on a user's machine, so the composed set ships too.
+uv run python scripts/compose-bundles.py dist/bundles
+tar -czf dist/agent-compose-bundles.tar.gz -C dist bundles
+echo "dist/agent-compose-bundles.tar.gz"
 (cd dist && sha256sum \
     agent-compose-roster.tar.gz \
+    agent-compose-bundles.tar.gz \
     agent-compose-darwin-arm64 \
     agent-compose-linux-amd64 \
     agent-compose-linux-arm64 \
