@@ -54,38 +54,20 @@ identity:
   pronouns: they
 agents:
   - harness: claude
-    name: Gem
-    pronouns: they
     tier: frontier
     legal_name: Claude
-    key: claude
   - harness: codex
-    name: Gem
-    pronouns: they
     tier: frontier
     legal_name: Codex
-    key: codex
   - harness: anythingllm
-    name: Gem
-    pronouns: they
     legal_name: AnythingLLM
-    key: anythingllm
   - harness: mixpost
-    name: Gem
-    pronouns: they
     legal_name: Mixpost
-    key: mixpost
   - harness: openhands
-    name: Gem
-    pronouns: they
     legal_name: OpenHands
-    key: openhands
   - harness: discord
-    name: Gem
-    pronouns: they
     tier: oss
     legal_name: Discord
-    key: discord
 acts:
   - tool: get_thread
     text: get_thread, or the channel's own history, before replying into it, so you answer what was said

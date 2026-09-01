@@ -35,10 +35,8 @@ func dataLayout(source fs.FS, label string) (fs.FS, bool, error) {
 		return nil, false, fmt.Errorf("%s: read %s: %w", label, dataRoot, err)
 	}
 	projected := fstest.MapFS{}
-	for _, manifestName := range []string{"person.kdl", "person" + yamlFragmentExt} {
-		if manifest, err := fs.ReadFile(source, manifestName); err == nil {
-			projected[manifestName] = &fstest.MapFile{Data: manifest, Mode: 0o644}
-		}
+	if manifest, err := fs.ReadFile(source, "person"+yamlFragmentExt); err == nil {
+		projected["person"+yamlFragmentExt] = &fstest.MapFile{Data: manifest, Mode: 0o644}
 	}
 	for _, entry := range entries {
 		if !entry.IsDir() {
@@ -80,10 +78,6 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 	dir := dataRoot + "/" + kind + "-" + slug
 	extension := yamlFragmentExt
 	raw, err := fs.ReadFile(source, dir+"/"+kind+extension)
-	if err != nil {
-		extension = ".kdl"
-		raw, err = fs.ReadFile(source, dir+"/"+kind+extension)
-	}
 	if err != nil {
 		return fmt.Errorf("%s: read %s %q: %w", label, kind, slug, err)
 	}

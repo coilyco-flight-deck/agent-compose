@@ -166,5 +166,8 @@ func buildYAMLPerson(kind, name string, files []sectionFile, label string) (*Per
 		}
 	}
 	p.Raw = raw.Bytes()
+	if err := validateDecodedPerson(p); err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
 	return p, nil
 }

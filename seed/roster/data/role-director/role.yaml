@@ -52,27 +52,15 @@ identity:
   pronouns: they
 agents:
   - harness: claude
-    name: Portia
-    pronouns: they
     tier: frontier
     legal_name: Claude
-    key: claude
   - harness: codex
-    name: Portia
-    pronouns: they
     tier: frontier
     legal_name: Codex
-    key: codex
   - harness: plandex
-    name: Portia
-    pronouns: they
     legal_name: Plandex
-    key: plandex
   - harness: hermes
-    name: Portia
-    pronouns: they
     legal_name: Hermes
-    key: hermes
 acts:
   - tool: WebSearch
     text: WebSearch the claim before ranking it, and report how many independent results came back rather than that you looked

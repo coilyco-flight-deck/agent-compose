@@ -59,22 +59,13 @@ identity:
   pronouns: she
 agents:
   - harness: claude
-    name: Angie
-    pronouns: she
     tier: frontier
     legal_name: Claude
-    key: claude
   - harness: codex
-    name: Angie
-    pronouns: she
     tier: frontier
     legal_name: Codex
-    key: codex
   - harness: openhands
-    name: Angie
-    pronouns: she
     legal_name: OpenHands
-    key: openhands
 acts:
   - tool: git log
     text: git log -20 on an upstream and its release history before you add it as a dependency, and record last release and maintainer count in the commit body

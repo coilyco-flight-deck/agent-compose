@@ -58,22 +58,13 @@ identity:
   pronouns: she
 agents:
   - harness: claude
-    name: Delphi
-    pronouns: she
     tier: frontier
     legal_name: Claude
-    key: claude
   - harness: codex
-    name: Delphi
-    pronouns: she
     tier: frontier
     legal_name: Codex
-    key: codex
   - harness: penpot
-    name: Delphi
-    pronouns: she
     legal_name: Penpot
-    key: penpot
 acts:
   - tool: browser_resize
     text: browser_resize to 320 and snapshot again, before calling any layout done

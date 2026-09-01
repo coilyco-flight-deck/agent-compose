@@ -171,20 +171,25 @@ func actModels(entries []yamlAct) []Act {
 	return acts
 }
 
-func seatModels(entries []yamlAgent) []Seat {
-	seats := make([]Seat, 0, len(entries))
-	for _, entry := range entries {
-		seats = append(seats, Seat{
-			Key:       entry.Key,
-			Harness:   entry.Harness,
-			Name:      entry.Name,
-			Pronouns:  entry.Pronouns,
-			Channel:   entry.Channel,
-			Tier:      entry.Tier,
-			LegalName: entry.LegalName,
+// An agent is keyed by its harness. A seat carries its own key and no harness,
+// which is the distinction the KDL agent and seat nodes drew.
+func seatModels(agents, seats []yamlAgent) []Seat {
+	out := make([]Seat, 0, len(agents)+len(seats))
+	for _, entry := range agents {
+		out = append(out, Seat{
+			Key: entry.Harness, Harness: entry.Harness,
+			Name: entry.Name, Pronouns: entry.Pronouns,
+			Channel: entry.Channel, Tier: entry.Tier, LegalName: entry.LegalName,
 		})
 	}
-	return seats
+	for _, entry := range seats {
+		out = append(out, Seat{
+			Key: entry.Key, Harness: entry.Harness,
+			Name: entry.Name, Pronouns: entry.Pronouns,
+			Channel: entry.Channel, Tier: entry.Tier, LegalName: entry.LegalName,
+		})
+	}
+	return out
 }
 
 func (r *yamlRoleEntity) model() Role {
@@ -217,7 +222,7 @@ func (r *yamlRoleEntity) model() Role {
 		role.Adjacents = append(role.Adjacents,
 			Adjacent{Role: adjacent.Role, Reason: adjacent.Reason})
 	}
-	role.Seats = seatModels(append(append([]yamlAgent{}, r.Agents...), r.Seats...))
+	role.Seats = seatModels(r.Agents, r.Seats)
 	if r.CopyContract != nil {
 		contract := &CopyContract{Scope: r.CopyContract.Scope}
 		for _, forbid := range r.CopyContract.Forbid {
@@ -263,4 +268,36 @@ func (b *yamlBoundaryEntity) model() Boundary {
 		Owner:   b.Owner,
 		Acts:    actModels(b.Acts),
 	}
+}
+
+const yamlFragmentExt = ".yaml"
+
+type yamlManifest struct {
+	Person  string `yaml:"person"`
+	Roster  string `yaml:"roster"`
+	Library string `yaml:"library"`
+}
+
+// yamlManifestName returns the declared node and name for a YAML manifest.
+func yamlManifestName(raw []byte) (string, string, error) {
+	var manifest yamlManifest
+	if err := decodeEntity(raw, &manifest); err != nil {
+		return "", "", err
+	}
+	declared := 0
+	var node, name string
+	for _, candidate := range []struct{ node, value string }{
+		{"person", manifest.Person},
+		{"roster", manifest.Roster},
+		{"library", manifest.Library},
+	} {
+		if candidate.value != "" {
+			declared++
+			node, name = candidate.node, candidate.value
+		}
+	}
+	if declared != 1 {
+		return "", "", fmt.Errorf("manifest needs exactly one of person, roster, or library")
+	}
+	return node, name, nil
 }

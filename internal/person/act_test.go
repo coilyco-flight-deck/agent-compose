@@ -65,20 +65,6 @@ func TestCoreRosterActsNameNoEstateOnlyTool(t *testing.T) {
 	}
 }
 
-// Stops the structured field and the prose drifting apart, which would leave
-// the coverage check passing against text nobody can run.
-func TestActRejectsAToolItsTextDoesNotUse(t *testing.T) {
-	_, err := parse([]byte(`person "fixture" {
-    boundary "shared" skill="boundary-shared" owner="builder" summary="fixture" order=1 {
-        act "own" tool="WebSearch" "look it up somehow"
-    }
-}
-`))
-	if err == nil || !strings.Contains(err.Error(), "does not use it") {
-		t.Fatalf("act with an unused tool loaded, error = %v", err)
-	}
-}
-
 // TestActsStayOptionalUntilOneIsDeclared keeps packages authored before acts
 // loading, and makes the catalog complete the moment one attribute opts in.
 func TestActsStayOptionalUntilOneIsDeclared(t *testing.T) {

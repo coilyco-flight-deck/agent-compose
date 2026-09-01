@@ -55,27 +55,15 @@ identity:
   pronouns: she
 agents:
   - harness: claude
-    name: Vera
-    pronouns: she
     tier: frontier
     legal_name: Claude
-    key: claude
   - harness: codex
-    name: Vera
-    pronouns: she
     tier: frontier
     legal_name: Codex
-    key: codex
   - harness: holmesgpt
-    name: Vera
-    pronouns: she
     legal_name: HolmesGPT
-    key: holmesgpt
   - harness: goose
-    name: Vera
-    pronouns: she
     legal_name: Goose
-    key: goose
 acts:
   - tool: kubectl
     text: kubectl get -o wide and paste the before state, change it, re-read with the same command, and paste the after state in the same report

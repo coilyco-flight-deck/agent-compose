@@ -32,9 +32,9 @@ func coreLibrarySource() (fs.FS, error) {
 	if err != nil {
 		return nil, err
 	}
-	manifest := fmt.Sprintf("library %q\n", CoreLibraryRoot)
+	manifest := fmt.Sprintf("library: %s\n", CoreLibraryRoot)
 	library := fstest.MapFS{
-		"library.kdl": &fstest.MapFile{Data: []byte(manifest), Mode: 0o644},
+		"library" + yamlFragmentExt: &fstest.MapFile{Data: []byte(manifest), Mode: 0o644},
 	}
 	walkErr := fs.WalkDir(projected, ".", func(path string, entry fs.DirEntry, err error) error {
 		if err != nil || entry.IsDir() || !corePersonalityPath(path) {
