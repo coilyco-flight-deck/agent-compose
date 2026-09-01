@@ -17,11 +17,9 @@ agent-compose overlay \
   --expression acting
 ```
 
-Omit `--person-source` to use the embedded `roster:core` default.
-
-The default text width is 40 columns, and `--width 200` collapses the same
-fields onto one line. Output carries no control sequences, so pipes and CI
-receive stable plain text.
+Omit `--person-source` to use the embedded `roster:core` default. The default
+width is 40 columns, and `--width 200` collapses the fields onto one line.
+Output carries no control sequences, so pipes and CI receive stable plain text.
 
 ## JSON
 
@@ -30,6 +28,10 @@ Add `--json` for `agent-compose.overlay.v1`. It contains:
 * person, role, `role_display_name`, purpose, and selected seat
 * `annotation`, the composed identity string a renderer shows verbatim
 * `outro`, the `clean` and `failure` lines a session closes with
+* `identity`, the four-part sentence the seat answers "who are you" with, from
+  [identity.md](identity.md). Its legal name is authored per seat and never
+  derived, so a non-model seat answers with its own product name, an unauthored
+  seat drops that clause, and naming it never asserts a model selection
 * the caller-supplied expression
 * the role's derived favorite color, and its derived `background`
 * every personality's color and identity primitives, with its `geometry` token
@@ -37,8 +39,7 @@ Add `--json` for `agent-compose.overlay.v1`. It contains:
 
 ## Rules a generating renderer respects
 
-Each was paid for by a specific failure while the first creatures were drawn, so
-preserve them through any rewording of the fields.
+Each was paid for by a specific failure while the first creatures were drawn.
 
 * **Anatomy leads, the object follows.** `archetype` describes a creature before
   `attachment` names the object. Reversing it produced a fairground ride.
@@ -56,10 +57,9 @@ preserve them through any rewording of the fields.
   `imaginative` were both `radial` and melded, so the bond converted the
   signature rather than dressing it. Every arrangement is now distinct.
 
-Clause ordering, style, proportion locks, negative prompts, and detail register
-stay with the renderer, which names a personality by slug and reads these fields
-back rather than holding creature text of its own. The JSON is a projection of
-the selected person model, not a second policy source.
+Clause ordering, style, proportion locks, and detail register stay with the
+renderer, which names a personality by slug and reads these fields back. The
+JSON projects the selected person model, not a second policy source.
 
 ## Why the background is derived here
 
@@ -68,13 +68,12 @@ tinting that accent into a near-black of its own lands seven backgrounds inside
 the side-by-side JND of each other: the closest pair measured 0.0109 in OKLab
 against a solved 0.0386.
 
-Separation is a property of the set, so a consumer holding one overlay cannot
-compute it and only the roster sees every role at once. `background` holds each
-role's own hue, moves the set onto equal spacing at one low lightness and
-chroma, and picks the rotation offset that turns every role the least. Roster
-loading asserts a floor on the closest pair, so an eighth role that runs out of
-hue circle fails at load rather than shipping two windows nobody can tell
-apart. The derived set is committed in
+Separation is a property of the set, so only the roster sees every role at once.
+`background` holds each role's hue, spaces the set equally at one low lightness
+and chroma, and picks the rotation turning every role the least. Roster loading
+asserts a floor on the closest pair, so an eighth role that runs out of hue
+circle fails at load rather than shipping two windows nobody can tell apart. The
+derived set is committed in
 [`internal/palette/role-palette.txt`](../internal/palette/role-palette.txt), so
 a roster edit arrives as a diff.
 

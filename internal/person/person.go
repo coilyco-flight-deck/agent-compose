@@ -93,6 +93,9 @@ type Seat struct {
 	Pronouns string `json:"pronouns" yaml:"pronouns"`
 	Channel  string `json:"channel,omitempty" yaml:"channel,omitempty"`
 	Tier     string `json:"tier,omitempty" yaml:"tier,omitempty"`
+	// LegalName is the seat's own product name, authored rather than derived.
+	// Absent stays absent: identity describes and grants nothing (#396).
+	LegalName string `json:"legal_name,omitempty" yaml:"legal_name,omitempty"`
 }
 
 // AgentIdentity is the role-owned name and pronoun pair shared by every seat.
@@ -117,6 +120,7 @@ type Role struct {
 	Stance              string           `json:"stance,omitempty"`
 	Voice               *Voice           `json:"voice,omitempty"`
 	Outro               *Outro           `json:"outro,omitempty"`
+	Creature            string           `json:"creature,omitempty"`
 	Personalities       []string         `json:"personalities"`
 	FavoriteColor       string           `json:"favorite_color,omitempty"`
 	Background          string           `json:"background,omitempty"`
@@ -1979,6 +1983,15 @@ func parse(raw []byte) (*Person, error) {
 						return nil, err
 					}
 					role.Voice = &voice
+				case "creature":
+					if role.Creature != "" {
+						return nil, fmt.Errorf("role %q: duplicate creature", name)
+					}
+					value, err := oneTextArgument(c, "role "+name+" creature")
+					if err != nil {
+						return nil, err
+					}
+					role.Creature = value
 				case "outro":
 					if role.Outro != nil {
 						return nil, fmt.Errorf("role %q: duplicate outro", name)
@@ -2170,6 +2183,9 @@ func parse(raw []byte) (*Person, error) {
 					}
 					if value := c.Prop("channel"); value.IsValid() {
 						seat.Channel = value.String()
+					}
+					if value := c.Prop("legal-name"); value.IsValid() {
+						seat.LegalName = value.String()
 					}
 					if value := c.Prop("tier"); value.IsValid() {
 						seat.Tier = value.String()

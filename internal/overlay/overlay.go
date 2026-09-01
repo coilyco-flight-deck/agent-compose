@@ -39,6 +39,9 @@ type Document struct {
 	// Annotation is the composed identity string a renderer shows verbatim,
 	// `Angie [she] (Engineer)`.
 	Annotation string `json:"annotation"`
+	// Identity is the four-part sentence a seat answers "who are you" with.
+	// Seat-resolved, so it lives here rather than on the card (#396).
+	Identity string `json:"identity,omitempty"`
 	// Outro carries voice at the close, so a hold banner is not invented.
 	Outro         *person.Outro `json:"outro,omitempty"`
 	Expression    string        `json:"expression"`
@@ -83,7 +86,10 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		Seat:            seat,
 		Annotation:      person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
 		Outro:           role.Outro,
-		Expression:      expression,
+		Identity: person.IdentitySentence(
+			seat.Name, displayName, seat.LegalName, role.Creature,
+		),
+		Expression: expression,
 	}
 	colors := make([]string, 0, len(role.Personalities))
 	for _, name := range role.Personalities {

@@ -1,6 +1,9 @@
 package person
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // SeatAnnotation renders `Angie [she] (Engineer)`, the identity string every
 // terminal surface shows. See docs/overlay.md.
@@ -45,4 +48,30 @@ func WithShortID(display, shortID string) string {
 func SubjectPronoun(pronouns string) string {
 	subject, _, _ := strings.Cut(strings.TrimSpace(pronouns), "/")
 	return strings.TrimSpace(subject)
+}
+
+// IdentitySentence states the four parts a seat answers "who are you" with:
+// preferred name, role, legal name on this seat, and creature. See #396.
+func IdentitySentence(name, roleDisplayName, legalName, creature string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "I am %s, an agent-compose persona.", name)
+	if role := strings.TrimSpace(roleDisplayName); role != "" {
+		fmt.Fprintf(&b, " My role is %s.", role)
+	}
+	// An unauthored legal name stays absent rather than guessed, so a seat that
+	// is not a model simply does not answer that part.
+	legal, beast := strings.TrimSpace(legalName), strings.TrimSpace(creature)
+	switch {
+	case legal != "" && beast != "":
+		fmt.Fprintf(&b, " On this seat my legal name is %s, and my creature is the %s.", legal, beast)
+	case legal != "":
+		fmt.Fprintf(&b, " On this seat my legal name is %s.", legal)
+	case beast != "":
+		fmt.Fprintf(&b, " My creature is the %s.", beast)
+	}
+	return b.String()
 }
