@@ -434,15 +434,11 @@ func (p *Person) RoleDisplayName(roleName string) string {
 
 // Load returns the shipped roster:core package.
 func Load() (*Person, error) {
-	source, _, err := dataLayout(embedded, "embedded core roster")
+	p, err := loadSource(embedded, "embedded core roster")
 	if err != nil {
 		return nil, err
 	}
-	p, err := loadSource(source, "embedded core roster")
-	if err != nil {
-		return nil, err
-	}
-	if err := validateRosterProseFloors(source, p); err != nil {
+	if err := validateRosterProseFloors(p.source, p); err != nil {
 		return nil, fmt.Errorf("embedded core roster: %w", err)
 	}
 	if err := resolveAndValidatePerson(p); err != nil {
@@ -1256,6 +1252,10 @@ func validateRosterProseFloors(source fs.FS, p *Person) error {
 }
 
 func loadSource(source fs.FS, label string) (*Person, error) {
+	source, _, err := dataLayout(source, label)
+	if err != nil {
+		return nil, err
+	}
 	raw, err := assemblePersonSource(source, label)
 	if err != nil {
 		return nil, err
