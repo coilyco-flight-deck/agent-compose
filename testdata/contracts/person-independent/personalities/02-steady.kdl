@@ -1,8 +1,0 @@
-personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
-    emblem { name "rock" "cairn"; emoji "⚓" }
-    body {
-        archetype "low and rounded, a body of stacked stones settled into one another"
-        attachment "one small cairn standing at its foot, the same stone as its body"
-    }
-    sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
-}

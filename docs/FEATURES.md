@@ -20,7 +20,9 @@ rather than only in the issue.
   seven as one owner, two scoped, and four deferring.
   [Role briefings](role-briefings.md) own each charter.
 * [External person packages](person-packages.md) and
-  [local personality libraries](personality.md) replace the default.
+  [local personality libraries](personality.md) replace the default. Their
+  manifests and fragments are authored as YAML or KDL, and a package may hold
+  both while it converts (#335).
 * `personality-library "roster:core"` lets an external package bind the
   [embedded core personalities](personality.md) by slug instead of vendoring
   their bodies. Roles, seats, and identity stay package-exclusive.

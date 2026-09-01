@@ -1058,7 +1058,7 @@ func loadLibrary(root string) (*Person, string, fs.FS, error) {
 }
 
 func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
-	raw, err := fs.ReadFile(source, "library.kdl")
+	raw, err := readManifest(source, "library")
 	if err != nil {
 		return nil, "", fmt.Errorf("%s: read manifest: %w", label, err)
 	}
@@ -1101,14 +1101,22 @@ func assembleLibrarySource(source fs.FS, id string) ([]byte, error) {
 			return nil, fmt.Errorf("personality library %q has empty %s", id, directory)
 		}
 		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
+			if entry.IsDir() || !isFragmentFile(entry.Name()) {
 				return nil, fmt.Errorf("personality library %q has unexpected %s entry %q", id, directory, entry.Name())
 			}
 			raw, err := fs.ReadFile(source, directory+"/"+entry.Name())
 			if err != nil {
 				return nil, err
 			}
-			out.WriteString(indentPersonFragment(bytes.TrimSpace(raw)))
+			node := "personality"
+			if directory == "boundaries" {
+				node = "boundary"
+			}
+			fragment, err := fragmentKDL(raw, entry.Name(), node)
+			if err != nil {
+				return nil, fmt.Errorf("personality library %q %s entry %q: %w", id, directory, entry.Name(), err)
+			}
+			out.WriteString(indentPersonFragment(fragment))
 			out.WriteByte('\n')
 		}
 	}
@@ -1557,7 +1565,7 @@ func (p *Person) RoleMethodDefinition(roleName, method string) ([]byte, bool) {
 }
 
 func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
-	manifest, err := fs.ReadFile(source, "person.kdl")
+	manifest, err := readManifest(source, "person")
 	if err != nil {
 		return nil, fmt.Errorf("%s: read person manifest: %w", label, err)
 	}
@@ -1604,7 +1612,7 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 				}
 				continue
 			}
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".kdl") {
+			if entry.IsDir() || !isFragmentFile(entry.Name()) {
 				return nil, fmt.Errorf(
 					"%s: person %s has unexpected entry %q",
 					label,
@@ -1617,7 +1625,10 @@ func assemblePersonSource(source fs.FS, label string) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("%s: read person fragment %q: %w", label, path, err)
 			}
-			fragment = bytes.TrimSpace(fragment)
+			fragment, err = fragmentKDL(fragment, entry.Name(), section.node)
+			if err != nil {
+				return nil, fmt.Errorf("%s: person fragment %q: %w", label, path, err)
+			}
 			fragmentDoc, err := kdl.ParseString(string(fragment))
 			if err != nil {
 				return nil, fmt.Errorf("%s: parse person fragment %q: %w", label, path, err)
@@ -1668,14 +1679,48 @@ func pRoleSkillDirectory(name string) (string, bool) {
 }
 
 func personFragmentSlug(name string) (string, bool) {
-	if len(name) < len("00-a.kdl") ||
+	extension, ok := fragmentExtension(name)
+	if !ok ||
+		len(name) < len("00-a")+len(extension) ||
 		name[0] < '0' || name[0] > '9' ||
 		name[1] < '0' || name[1] > '9' ||
-		name[2] != '-' ||
-		!strings.HasSuffix(name, ".kdl") {
+		name[2] != '-' {
 		return "", false
 	}
-	return strings.TrimSuffix(name[3:], ".kdl"), true
+	return strings.TrimSuffix(name[3:], extension), true
+}
+
+// A package authors each fragment as KDL or YAML, and may hold both while it
+// converts. See docs/person-packages.md.
+func fragmentExtension(name string) (string, bool) {
+	for _, extension := range []string{".kdl", yamlFragmentExt} {
+		if strings.HasSuffix(name, extension) {
+			return extension, true
+		}
+	}
+	return "", false
+}
+
+func isFragmentFile(name string) bool {
+	_, ok := fragmentExtension(name)
+	return ok
+}
+
+// fragmentKDL normalizes one fragment to the KDL the assembler concatenates.
+func fragmentKDL(raw []byte, name, node string) ([]byte, error) {
+	if strings.HasSuffix(name, yamlFragmentExt) {
+		return yamlFragmentKDL(raw, node)
+	}
+	return bytes.TrimSpace(raw), nil
+}
+
+// readManifest accepts either manifest spelling, preferring YAML so a converted
+// package is not shadowed by a stale KDL manifest beside it.
+func readManifest(source fs.FS, stem string) ([]byte, error) {
+	if raw, err := fs.ReadFile(source, stem+yamlFragmentExt); err == nil {
+		return yamlManifestKDL(raw)
+	}
+	return fs.ReadFile(source, stem+".kdl")
 }
 
 func indentPersonFragment(fragment []byte) string {

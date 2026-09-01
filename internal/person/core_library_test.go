@@ -14,12 +14,12 @@ func coreBindingProfile(t *testing.T) string {
 	t.Helper()
 	profile := filepath.Join(t.TempDir(), "profile")
 	copyTestTree(t, filepath.Join("..", "..", "examples", "person-profile"), profile)
-	role := filepath.Join(profile, "roles", "02-caption-review.kdl")
+	role := filepath.Join(profile, "roles", "02-caption-review.yaml")
 	raw, err := os.ReadFile(role)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rebound := strings.Replace(string(raw), `personality "local-guide"`, `personality "grounded"`, 1)
+	rebound := strings.Replace(string(raw), "personality: [local-guide]", "personality: [grounded]", 1)
 	if rebound == string(raw) {
 		t.Fatal("example profile no longer binds local-guide, so the fixture needs updating")
 	}

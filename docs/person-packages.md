@@ -77,7 +77,7 @@ response capture, and scoring.
 An external package uses the same validated layout as the embedded default:
 
 ```text
-person.kdl
+person.yaml
 roles/
 roles/<role>/skills/<method>/SKILL.md
 personalities/
@@ -85,8 +85,12 @@ definitions/INVARIANT.md
 definitions/skills/<skill>/SKILL.md
 ```
 
-`person.kdl` contains only `person "<name>"`. Each policy node lives in one
-ordered KDL fragment:
+`person.yaml` contains only `person: <name>`. Section fragments are
+`<order>-<slug>.yaml`, and the KDL spellings `person.kdl` and
+`<order>-<slug>.kdl` are still read, so a package may hold both while it
+converts. A YAML fragment rejects unknown keys, as the KDL parser rejects
+unknown nodes. Boundary fragments are KDL-only for now (#335). Each policy
+node lives in one ordered fragment:
 
 ```text
 data/role-builder/role.kdl

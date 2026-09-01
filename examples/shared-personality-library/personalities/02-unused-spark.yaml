@@ -1,0 +1,16 @@
+personality: unused-spark
+skill: personality-unused-spark
+color: "#d3b63b"
+motif: quiet-spark
+geometry: four-rays
+emblem:
+  name: [sparkle, spark]
+  emoji: ✨
+body:
+  archetype: small bright body, no mass to speak of, four points radiating from a centre
+  attachment: the spark is the creature itself rather than a thing it carries
+sound_mark:
+  timbre: glass-tap
+  contour: brief-rise
+  pulse: single
+alias: dormant

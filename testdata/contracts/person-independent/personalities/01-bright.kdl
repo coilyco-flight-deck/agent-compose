@@ -1,8 +1,0 @@
-personality "bright" skill="personality-bright" color="#d98e48" motif="sunbeam" geometry="open-rays" {
-    emblem { name "lantern" "beacon"; emoji "🏮" }
-    body {
-        archetype "small upright body, thin limbs, a glass lantern housing for a chest"
-        attachment "the flame sits inside its chest, casting rays out through the glass"
-    }
-    sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
-}

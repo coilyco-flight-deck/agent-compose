@@ -18,10 +18,10 @@ func coreBindingRequest(t *testing.T, libraries ...string) string {
 	}
 	// The staged package depends on the core library alone, so the shared
 	// example library stays out of what this test proves.
-	rebind(t, filepath.Join(profile, "roles", "01-bulk-captioner.kdl"),
-		`personality "local-guide" "shared-care"`, `personality "local-guide"`)
-	rebind(t, filepath.Join(profile, "roles", "02-caption-review.kdl"),
-		`personality "local-guide"`, `personality "empirical"`)
+	rebind(t, filepath.Join(profile, "roles", "01-bulk-captioner.yaml"),
+		"personality: [local-guide, shared-care]", "personality: [local-guide]")
+	rebind(t, filepath.Join(profile, "roles", "02-caption-review.yaml"),
+		"personality: [local-guide]", "personality: [empirical]")
 	body := "compose {\n    person-source \".\"\n"
 	for _, library := range libraries {
 		body += fmt.Sprintf("    personality-library %q\n", library)

@@ -655,7 +655,7 @@ func TestExternalLibraryConflictDiagnostics(t *testing.T) {
 
 	invalid := filepath.Join(t.TempDir(), "invalid")
 	copyTestTree(t, library, invalid)
-	if err := os.WriteFile(filepath.Join(invalid, "library.kdl"), []byte(`library "Bad ID"`+"\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(invalid, "library.yaml"), []byte("library: Bad ID\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := LoadDirectoryWithLibraries(profile, invalid); err == nil ||
@@ -665,7 +665,7 @@ func TestExternalLibraryConflictDiagnostics(t *testing.T) {
 
 	divergent := filepath.Join(t.TempDir(), "divergent")
 	copyTestTree(t, library, divergent)
-	if err := os.WriteFile(filepath.Join(divergent, "library.kdl"), []byte(`library "shared-example-copy"`+"\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(divergent, "library.yaml"), []byte("library: shared-example-copy\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	skillPath := filepath.Join(divergent, "definitions", "skills", "personality-shared-care", "SKILL.md")
