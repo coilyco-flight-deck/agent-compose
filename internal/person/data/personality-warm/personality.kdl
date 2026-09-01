@@ -1,4 +1,4 @@
-personality "warm" skill="personality-warm" color="#ff9c79" motif="wool" geometry="soft-ovals" {
+personality "warm" skill="personality-warm" color="#f09372" motif="wool" geometry="soft-ovals" {
     order 10
     emblem { name "candle" "hearth" "flame"; emoji "🕯️" }
     body {
