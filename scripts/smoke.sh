@@ -154,9 +154,11 @@ fi
 assert_file "$binary"
 printf 'smoke: build real acompose binary... ok\n'
 
+# A successful run says nothing since c5f84bb, so the convergence stages this
+# asserts on are only emitted under --verbose.
 first_output="$smoke_root/first.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
-  PROJECTS_ROOT="$native_root/projects" "$binary_exec" >"$first_output" 2>&1; then
+  PROJECTS_ROOT="$native_root/projects" "$binary_exec" --verbose >"$first_output" 2>&1; then
   cat "$first_output" >&2
   fail "first acompose convergence failed"
 fi
@@ -203,7 +205,7 @@ snapshot_file "$repository_plan" repository-plan
 snapshot_file "$skill_state" skill-state
 second_output="$smoke_root/second.txt"
 if ! env HOME="$native_root/home" USERPROFILE="$native_root/home" \
-  PROJECTS_ROOT="$native_root/projects" "$binary_exec" >"$second_output" 2>&1; then
+  PROJECTS_ROOT="$native_root/projects" "$binary_exec" --verbose >"$second_output" 2>&1; then
   cat "$second_output" >&2
   fail "second acompose convergence failed"
 fi
