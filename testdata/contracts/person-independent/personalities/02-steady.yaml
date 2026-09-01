@@ -4,7 +4,7 @@ color: "#5fa87a"
 motif: stone
 geometry: stacked-rounds
 emblem:
-  name: [rock, cairn]
+  names: [rock, cairn]
   emoji: ⚓
 body:
   archetype: low and rounded, a body of stacked stones settled into one another

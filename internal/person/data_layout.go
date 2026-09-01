@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing/fstest"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Entity data lives in one flat data/<kind>-<slug>/ directory per first-class
@@ -33,8 +35,10 @@ func dataLayout(source fs.FS, label string) (fs.FS, bool, error) {
 		return nil, false, fmt.Errorf("%s: read %s: %w", label, dataRoot, err)
 	}
 	projected := fstest.MapFS{}
-	if manifest, err := fs.ReadFile(source, "person.kdl"); err == nil {
-		projected["person.kdl"] = &fstest.MapFile{Data: manifest, Mode: 0o644}
+	for _, manifestName := range []string{"person.kdl", "person" + yamlFragmentExt} {
+		if manifest, err := fs.ReadFile(source, manifestName); err == nil {
+			projected[manifestName] = &fstest.MapFile{Data: manifest, Mode: 0o644}
+		}
 	}
 	for _, entry := range entries {
 		if !entry.IsDir() {
@@ -74,15 +78,20 @@ func splitEntityDirectory(name string) (string, string, bool) {
 
 func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label string) error {
 	dir := dataRoot + "/" + kind + "-" + slug
-	raw, err := fs.ReadFile(source, dir+"/"+kind+".kdl")
+	extension := yamlFragmentExt
+	raw, err := fs.ReadFile(source, dir+"/"+kind+extension)
+	if err != nil {
+		extension = ".kdl"
+		raw, err = fs.ReadFile(source, dir+"/"+kind+extension)
+	}
 	if err != nil {
 		return fmt.Errorf("%s: read %s %q: %w", label, kind, slug, err)
 	}
-	order, fragment, err := takeEntityOrder(string(raw))
+	order, fragment, err := entityOrderOf(string(raw), extension)
 	if err != nil {
 		return fmt.Errorf("%s: %s %q: %w", label, kind, slug, err)
 	}
-	name := fmt.Sprintf("%02d-%s.kdl", order, slug)
+	name := fmt.Sprintf("%02d-%s%s", order, slug, extension)
 	projected[entityKinds[kind]+"/"+name] = &fstest.MapFile{Data: []byte(fragment), Mode: 0o644}
 	if body, err := fs.ReadFile(source, dir+"/SKILL.md"); err == nil {
 		path := "definitions/skills/" + kind + "-" + slug + "/SKILL.md"
@@ -92,6 +101,24 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 		projected[path] = &fstest.MapFile{Data: body, Mode: 0o644}
 	}
 	return nil
+}
+
+// entityOrderOf reads the order the entity declares. A YAML entity keeps the
+// field, because its decoder already accepts it.
+func entityOrderOf(fragment, extension string) (int, string, error) {
+	if extension != yamlFragmentExt {
+		return takeEntityOrder(fragment)
+	}
+	var declared struct {
+		Order int `yaml:"order"`
+	}
+	if err := yaml.Unmarshal([]byte(fragment), &declared); err != nil {
+		return 0, "", err
+	}
+	if declared.Order < 1 {
+		return 0, "", fmt.Errorf("needs an order")
+	}
+	return declared.Order, fragment, nil
 }
 
 // takeEntityOrder reads the order the entity declares and removes it, so the

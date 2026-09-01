@@ -19,7 +19,7 @@ func coreBindingProfile(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rebound := strings.Replace(string(raw), "personality: [local-guide]", "personality: [grounded]", 1)
+	rebound := strings.Replace(string(raw), "personalities: [local-guide]", "personalities: [grounded]", 1)
 	if rebound == string(raw) {
 		t.Fatal("example profile no longer binds local-guide, so the fixture needs updating")
 	}

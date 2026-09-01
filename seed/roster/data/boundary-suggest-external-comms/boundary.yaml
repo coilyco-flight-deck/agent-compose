@@ -1,0 +1,33 @@
+boundary: suggest-external-comms
+order: 2
+skill: boundary-suggest-external-comms
+owner: advocate
+summary: Developer Advocate recommends communication addressed outward, other roles keep their own factual records
+acts:
+  - side: own
+    tool: create_draft
+    text: create_draft in the real channel and leave it unsent, rather than proposing that a message be produced
+  - side: own
+    tool: get_thread
+    text: get_thread before writing into a thread, so the reply answers what is already there
+  - side: own
+    tool: WebSearch
+    text: WebSearch how the audience already phrases the thing before you choose words for them
+  - side: scoped
+    tool: grep
+    text: grep the surface for every string you are about to change, so the edit stays bounded by the artifact you own
+  - side: scoped
+    tool: git diff
+    text: git diff and confirm the change is words only, with control flow, state, and contracts untouched
+  - side: scoped
+    tool: AskUserQuestion
+    text: AskUserQuestion the owning seat the moment a label starts becoming a sentence addressed outward
+  - side: defer
+    tool: create_issue
+    text: create_issue carrying the factual record and the recipient, with no drafted wording in the body
+  - side: defer
+    tool: get_thread
+    text: get_thread and attach what was already said, so the advocate seat does not re-derive the conversation
+  - side: defer
+    tool: AskUserQuestion
+    text: AskUserQuestion the seat that owns the words, rather than writing them yourself because the prose was nearby

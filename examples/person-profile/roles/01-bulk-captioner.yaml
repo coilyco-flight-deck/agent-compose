@@ -2,7 +2,7 @@ role: bulk-captioner
 purpose: Guide accessible bulk-captioning work with clear language and evidence.
 model_tier: [frontier, commodity]
 skill: role-bulk-captioner
-personality: [local-guide, shared-care]
+personalities: [local-guide, shared-care]
 copy_contract:
   scope: tool-response
   forbid:

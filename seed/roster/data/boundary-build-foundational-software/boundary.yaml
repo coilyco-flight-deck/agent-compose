@@ -1,0 +1,33 @@
+boundary: build-foundational-software
+order: 4
+skill: boundary-build-foundational-software
+owner: platform
+summary: Platform Engineer builds and lands foundational software, other roles specify what it must do and hand the build over
+acts:
+  - side: own
+    tool: just
+    text: just check and pre-commit run --all-files before reporting it done
+  - side: own
+    tool: git commit
+    text: git commit the docs/FEATURES.md entry in the same commit as the capability that earned it
+  - side: own
+    tool: pytest
+    text: pytest or go test the consumer and not only the library, because the contract is what callers get
+  - side: scoped
+    tool: git diff
+    text: git diff and confirm the change stayed inside your named scope, because the seam is where a scoped build becomes a shared one
+  - side: scoped
+    tool: go test
+    text: go test or pytest your own runner, probe, or grader before it produces a number anyone quotes
+  - side: scoped
+    tool: create_issue
+    text: create_issue naming the shared tooling your work wants, rather than building it because you were already in the file
+  - side: defer
+    tool: create_issue
+    text: create_issue stating what the software must do and the exact invocation that would prove it
+  - side: defer
+    tool: pytest
+    text: pytest or go test the failing case and paste its output, so the owning seat starts from a reproduction
+  - side: defer
+    tool: AskUserQuestion
+    text: AskUserQuestion the owning seat with the failing command, rather than fixing it because you were already in the file

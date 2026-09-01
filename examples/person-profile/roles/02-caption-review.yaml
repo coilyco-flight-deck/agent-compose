@@ -2,7 +2,7 @@ role: caption-review
 purpose: Review one supplied caption artifact for clarity and accessibility.
 model_tier: [frontier, commodity]
 skill: role-caption-review
-personality: [local-guide]
+personalities: [local-guide]
 seats:
   - key: chatbot-sonnet-low
     name: example content guide

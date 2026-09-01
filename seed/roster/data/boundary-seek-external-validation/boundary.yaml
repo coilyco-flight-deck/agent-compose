@@ -1,0 +1,33 @@
+boundary: seek-external-validation
+order: 3
+skill: boundary-seek-external-validation
+owner: director
+summary: Portfolio Director reaches outside the local frame, other roles work from locally observed evidence
+acts:
+  - side: own
+    tool: WebSearch
+    text: WebSearch the outside reference and cite the URL before any comparative, novelty, or market claim reaches a durable artifact
+  - side: own
+    tool: WebFetch
+    text: WebFetch the number off the source's own page rather than a report of it, and say plainly when you read only a summary
+  - side: own
+    tool: AskUserQuestion
+    text: AskUserQuestion every outward claim as a falsifiable option with your expectation stated before the answer is visible, because no other seat is permitted to catch this one
+  - side: scoped
+    tool: WebFetch
+    text: WebFetch the specific fact in front of you and read it to the bottom, rather than parking a question your grant already covers
+  - side: scoped
+    tool: WebSearch
+    text: WebSearch and one other modality, naming which you ran, because a single empty query is not a negative result
+  - side: scoped
+    tool: create_issue
+    text: create_issue for the portfolio-sized question your evidence points at, rather than letting a scoped reach decide one size larger than its grant
+  - side: defer
+    tool: grep
+    text: grep the local evidence first, and paste what it actually says
+  - side: defer
+    tool: create_issue
+    text: create_issue naming the outside question, the observation that would settle it, and what turns on the answer
+  - side: defer
+    tool: AskUserQuestion
+    text: AskUserQuestion when the outside fact is one the human already holds, rather than filing an issue to ask it

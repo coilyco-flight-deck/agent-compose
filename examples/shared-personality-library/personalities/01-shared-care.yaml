@@ -4,7 +4,7 @@ color: "#b682ed"
 motif: open-hand
 geometry: open-curves
 emblem:
-  name: [hand, palm]
+  names: [hand, palm]
   emoji: 🤲
 body:
   archetype: soft rounded body, broad shoulders, oversized open hands
@@ -13,4 +13,4 @@ sound_mark:
   timbre: warm-chime
   contour: gentle-rise
   pulse: supporting-pair
-alias: supportive
+aliases: [supportive]

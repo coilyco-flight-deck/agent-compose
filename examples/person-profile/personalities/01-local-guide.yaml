@@ -4,7 +4,7 @@ color: "#7d9fd3"
 motif: caption-card
 geometry: stacked-lines
 emblem:
-  name: [card, placard]
+  names: [card, placard]
   emoji: 💬
 body:
   archetype: flat rectangular body, squared corners, standing on two short legs
@@ -13,4 +13,4 @@ sound_mark:
   timbre: soft-click
   contour: level-return
   pulse: steady-pair
-alias: captioning
+aliases: [captioning]

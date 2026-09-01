@@ -1042,13 +1042,9 @@ func loadLibrarySource(source fs.FS, label string) (*Person, string, error) {
 	if !validLogicalID(id) {
 		return nil, "", fmt.Errorf("%s: library name %q is not a stable logical id", label, id)
 	}
-	assembled, err := assembleLibrarySource(source, id)
+	library, err := decodeLibrarySource(source, id)
 	if err != nil {
 		return nil, "", err
-	}
-	library, err := parse(assembled)
-	if err != nil {
-		return nil, "", fmt.Errorf("parse personality library %q: %w", id, err)
 	}
 	// A library may publish shared doctrine, so its boundary bodies are read and
 	// bounded here rather than only in the consuming package.
@@ -1232,13 +1228,9 @@ func loadSource(source fs.FS, label string) (*Person, error) {
 	if err != nil {
 		return nil, err
 	}
-	raw, err := assemblePersonSource(source, label)
+	p, err := decodePersonSource(source, label)
 	if err != nil {
 		return nil, err
-	}
-	p, err := parse(raw)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", label, err)
 	}
 	if err := loadRoleSkills(source, p); err != nil {
 		return nil, fmt.Errorf("%s: %w", label, err)
@@ -1682,10 +1674,11 @@ func isFragmentFile(name string) bool {
 	return ok
 }
 
-// fragmentKDL normalizes one fragment to the KDL the assembler concatenates.
+// fragmentKDL trims one KDL fragment for the assembler. A YAML package never
+// reaches here: decodePersonSource routes it to the native decoder instead.
 func fragmentKDL(raw []byte, name, node string) ([]byte, error) {
 	if strings.HasSuffix(name, yamlFragmentExt) {
-		return yamlFragmentKDL(raw, node)
+		return nil, fmt.Errorf("%s fragment %q is YAML", node, name)
 	}
 	return bytes.TrimSpace(raw), nil
 }
@@ -1694,9 +1687,83 @@ func fragmentKDL(raw []byte, name, node string) ([]byte, error) {
 // package is not shadowed by a stale KDL manifest beside it.
 func readManifest(source fs.FS, stem string) ([]byte, error) {
 	if raw, err := fs.ReadFile(source, stem+yamlFragmentExt); err == nil {
-		return yamlManifestKDL(raw)
+		node, name, err := yamlManifestName(raw)
+		if err != nil {
+			return nil, err
+		}
+		return []byte(fmt.Sprintf("%s %q", node, name)), nil
 	}
 	return fs.ReadFile(source, stem+".kdl")
+}
+
+// decodeLibrarySource builds a library the same way, from its own two sections.
+func decodeLibrarySource(source fs.FS, id string) (*Person, error) {
+	label := "personality library " + id
+	files, err := readSectionFiles(source, label, librarySections)
+	if err != nil {
+		return nil, err
+	}
+	isYAML, err := yamlSectionFiles(label, files)
+	if err != nil {
+		return nil, err
+	}
+	if !isYAML {
+		assembled, err := assembleLibrarySource(source, id)
+		if err != nil {
+			return nil, err
+		}
+		library, err := parse(assembled)
+		if err != nil {
+			return nil, fmt.Errorf("parse personality library %q: %w", id, err)
+		}
+		return library, nil
+	}
+	return buildYAMLPerson("person", id, files, label)
+}
+
+// decodePersonSource builds the person from whichever format the package uses.
+func decodePersonSource(source fs.FS, label string) (*Person, error) {
+	files, err := readSectionFiles(source, label, personSections)
+	if err != nil {
+		return nil, err
+	}
+	isYAML, err := yamlSectionFiles(label, files)
+	if err != nil {
+		return nil, err
+	}
+	if !isYAML {
+		raw, err := assemblePersonSource(source, label)
+		if err != nil {
+			return nil, err
+		}
+		p, err := parse(raw)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", label, err)
+		}
+		return p, nil
+	}
+	manifest, err := readManifest(source, "person")
+	if err != nil {
+		return nil, fmt.Errorf("%s: read person manifest: %w", label, err)
+	}
+	kind, name, err := manifestParts(manifest)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", label, err)
+	}
+	return buildYAMLPerson(kind, name, files, label)
+}
+
+// manifestParts reads the node and name back out of the normalized manifest.
+func manifestParts(manifest []byte) (string, string, error) {
+	fields := strings.SplitN(strings.TrimSpace(string(manifest)), " ", 2)
+	if len(fields) != 2 {
+		return "", "", fmt.Errorf("manifest needs one name argument")
+	}
+	kind := fields[0]
+	if kind != "person" && kind != "roster" {
+		return "", "", fmt.Errorf("manifest needs exactly one person or roster node")
+	}
+	return kind, strings.Trim(fields[1], `"`), nil
 }
 
 func indentPersonFragment(fragment []byte) string {
