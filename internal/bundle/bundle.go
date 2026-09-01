@@ -29,7 +29,10 @@ type Delivery struct {
 // RoleIdentity keeps renderer metadata in the immutable bundle so consumers
 // never reload a mutable person source after composition.
 type RoleIdentity struct {
-	Person        string                `json:"person"`
+	Person string `json:"person"`
+	// DisplayName lets a consumer label the seat without loading a roster,
+	// which a delivered bundle no longer ships beside. #409.
+	DisplayName   string                `json:"display_name"`
 	Purpose       string                `json:"purpose"`
 	Seats         []person.Seat         `json:"seats"`
 	Personalities []IdentityPersonality `json:"personalities"`
@@ -223,9 +226,10 @@ func write(res *resolver.Resolution, root string) error {
 		return err
 	}
 	identity := RoleIdentity{
-		Person:  res.Person.Name,
-		Purpose: role.Purpose,
-		Seats:   append([]person.Seat(nil), role.Seats...),
+		Person:      res.Person.Name,
+		DisplayName: role.DisplayName,
+		Purpose:     role.Purpose,
+		Seats:       append([]person.Seat(nil), role.Seats...),
 	}
 	for _, name := range res.Personalities {
 		personality := res.Person.Personalities[name]

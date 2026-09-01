@@ -40,7 +40,9 @@ that needs content authentication still hashes or signs the tree itself.
 `sources` records which places content came from, by stable id, so the trace
 and a human reader can refer to them. Locators and absolute paths never appear.
 `personalities` preserves the role's declaration order. `color` is their melded
-favorite, derived from every component color.
+favorite, derived from every component color. `identity.display_name` carries the
+role title, so a consumer labels a seat without loading a roster the delivered
+bundle no longer ships beside.
 [person-contract.md](person-contract.md) owns the legibility and blend rules.
 `model_tier` records the caller's `frontier`, `commodity`, or `oss`
 compatibility lane. It does not identify or route a runtime model and never
