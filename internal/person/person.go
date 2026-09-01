@@ -1,11 +1,10 @@
-// Package person embeds the canonical public-safe roles, agent seats,
-// personality definitions, and invariant.
+// Package person loads the mounted roster: roles, agent seats, personality
+// definitions, and the invariant. The binary embeds none of it.
 package person
 
 import (
 	"bytes"
 	"crypto/sha256"
-	"embed"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -24,9 +23,6 @@ import (
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/color"
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
-
-//go:embed person.kdl data
-var embedded embed.FS
 
 const (
 	minRoleSkillBodyWords = 140
@@ -434,42 +430,22 @@ func (p *Person) RoleDisplayName(roleName string) string {
 
 // Load returns the shipped roster:core package.
 func Load() (*Person, error) {
-	p, err := loadSource(embedded, "embedded core roster")
+	source, label, err := rosterSeed()
 	if err != nil {
 		return nil, err
 	}
-	if err := validateRosterProseFloors(p.source, p); err != nil {
-		return nil, fmt.Errorf("embedded core roster: %w", err)
+	p, err := loadSource(source, label)
+	if err != nil {
+		return nil, err
 	}
 	if err := resolveAndValidatePerson(p); err != nil {
-		return nil, err
-	}
-	if err := validateNoUnusedPersonalities(p); err != nil {
-		return nil, err
-	}
-	if err := validateNoUnusedBoundaries(p); err != nil {
-		return nil, err
-	}
-	if err := validateScopedBoundaryBodies(p); err != nil {
-		return nil, err
-	}
-	if err := validateBoundaryOwners(p); err != nil {
-		return nil, err
-	}
-	if err := validateActCoverage(p); err != nil {
-		return nil, err
-	}
-	if err := validateRoleAdjacents(p); err != nil {
-		return nil, err
-	}
-	if err := validateCorePersonalityMelds(p); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
 // LoadDirectory reads one complete external person package using the default layout.
-// An external package replaces the embedded package rather than extending it.
+// An external package replaces the mounted roster rather than extending it.
 func LoadDirectory(root string) (*Person, error) {
 	return LoadDirectoryWithLibraries(root)
 }
@@ -1737,7 +1713,11 @@ func Source(p *Person) (*schema.Source, error) {
 	source := p.source
 	strictDefinitions := true
 	if source == nil {
-		projected, _, err := dataLayout(embedded, "embedded core roster")
+		seed, label, err := rosterSeed()
+		if err != nil {
+			return nil, err
+		}
+		projected, _, err := dataLayout(seed, label)
 		if err != nil {
 			return nil, err
 		}

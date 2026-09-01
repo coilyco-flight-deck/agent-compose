@@ -74,7 +74,7 @@ response capture, and scoring.
 
 ## Person package authoring
 
-An external package uses the same validated layout as the embedded default:
+An external package uses the same layout as the mounted seed, either shape:
 
 ```text
 person.yaml

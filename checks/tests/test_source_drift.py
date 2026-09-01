@@ -1,6 +1,6 @@
 """Guard the one hazard of running two engines side by side.
 
-housecast/data/roster.yaml restates internal/person/data while both exist, so a
+housecast/data/roster.yaml restates seed/roster/data while both exist, so a
 change to the Go data silently staled the YAML once already: the science seat was
 retitled Applied Scientist and the only symptom was a byte-diff in a parity
 test that named neither file. These tests fail on the drift itself, so the
@@ -21,7 +21,7 @@ import pytest
 from housecast import roster
 from housecast.roster import Roster
 
-GO_DATA = pathlib.Path(__file__).resolve().parents[2] / "internal" / "person" / "data"
+GO_DATA = pathlib.Path(__file__).resolve().parents[2] / "seed" / "roster" / "data"
 
 
 @pytest.fixture(scope="module")

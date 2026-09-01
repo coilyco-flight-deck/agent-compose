@@ -9,22 +9,26 @@ import (
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
 )
 
-// CoreLibraryRoot admits the embedded core personalities wherever a
+// CoreLibraryRoot admits the mounted core personalities wherever a
 // personality-library root is accepted. See docs/personality.md.
 const CoreLibraryRoot = schema.CoreLibraryRoot
 
-const coreLibraryLabel = "embedded core personality library"
+const coreLibraryLabel = "core personality library"
 
 // IsCoreLibrary reports whether an admitted personality-library value names the
-// embedded library rather than a local directory, so callers skip path resolution.
+// mounted core library rather than a local directory, so callers skip resolution.
 func IsCoreLibrary(root string) bool {
 	return strings.TrimSpace(root) == CoreLibraryRoot
 }
 
-// coreLibrarySource projects the embedded personalities onto the library layout.
+// coreLibrarySource projects the mounted personalities onto the library layout.
 // Only shared disposition crosses. Roles, seats, identity, and the invariant do not.
 func coreLibrarySource() (fs.FS, error) {
-	projected, _, err := dataLayout(embedded, coreLibraryLabel)
+	seed, _, err := rosterSeed()
+	if err != nil {
+		return nil, err
+	}
+	projected, _, err := dataLayout(seed, coreLibraryLabel)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +51,7 @@ func coreLibrarySource() (fs.FS, error) {
 		return nil, fmt.Errorf("%s: %w", coreLibraryLabel, walkErr)
 	}
 	if len(library) == 1 {
-		return nil, fmt.Errorf("%s: the embedded roster declares no personalities", coreLibraryLabel)
+		return nil, fmt.Errorf("%s: the mounted roster declares no personalities", coreLibraryLabel)
 	}
 	return library, nil
 }

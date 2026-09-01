@@ -11,6 +11,7 @@ DARWIN_ARM64="$(sha dist/agent-compose-darwin-arm64)"
 LINUX_AMD64="$(sha dist/agent-compose-linux-amd64)"
 LINUX_ARM64="$(sha dist/agent-compose-linux-arm64)"
 WINDOWS_AMD64="$(sha dist/agent-compose-windows-amd64.exe)"
+ROSTER="$(sha dist/agent-compose-roster.tar.gz)"
 
 cat > dist/agent-compose.rb <<EOF
 class AgentCompose < Formula
@@ -18,6 +19,13 @@ class AgentCompose < Formula
   homepage "https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose"
   version "${BARE}"
   license "MIT"
+
+  # The seed roster installs into the prefix. acompose prefers an editable
+  # roster in the state directory, so an upgrade never overwrites one.
+  resource "roster" do
+    url "${BASE}/agent-compose-roster.tar.gz"
+    sha256 "${ROSTER}"
+  end
 
   on_macos do
     on_arm do
@@ -39,6 +47,9 @@ class AgentCompose < Formula
   def install
     bin.install Dir["agent-compose-*"].first => "agent-compose"
     bin.install_symlink "agent-compose" => "acompose"
+    resource("roster").stage do
+      (share/"agent-compose").install "roster"
+    end
   end
 
   test do
@@ -55,8 +66,14 @@ cat > dist/agent-compose.json <<EOF
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "${BASE}/agent-compose-windows-amd64.exe",
-            "hash": "${WINDOWS_AMD64}",
+            "url": [
+                "${BASE}/agent-compose-windows-amd64.exe",
+                "${BASE}/agent-compose-roster.tar.gz"
+            ],
+            "hash": [
+                "${WINDOWS_AMD64}",
+                "${ROSTER}"
+            ],
             "bin": [
                 ["agent-compose-windows-amd64.exe", "agent-compose"],
                 ["agent-compose-windows-amd64.exe", "acompose", "compose"]

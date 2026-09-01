@@ -55,7 +55,7 @@ func TestExternalProfileBindsCorePersonalitiesWithoutVendoring(t *testing.T) {
 	if err != nil {
 		t.Fatalf("core personality body is absent: %v", err)
 	}
-	want, err := fs.ReadFile(embedded, "data/personality-grounded/SKILL.md")
+	want, err := fs.ReadFile(seedForTest(t), "data/personality-grounded/SKILL.md")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +90,7 @@ func TestCoreLibraryCrossesPersonalitiesOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	core, err := fs.ReadFile(embedded, "data/invariant/INVARIANT.md")
+	core, err := fs.ReadFile(seedForTest(t), "data/invariant/INVARIANT.md")
 	if err != nil {
 		t.Fatal(err)
 	}

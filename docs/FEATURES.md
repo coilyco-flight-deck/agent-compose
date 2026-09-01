@@ -2,6 +2,14 @@
 
 Inventory of what ships today.
 
+## The roster is mounted, not embedded
+
+The binary carries no roster. It resolves one from `AGENT_COMPOSE_ROSTER`, then
+`~/.agent-compose/roster`, then the seed a package manager installed beside it,
+and names every path it tried when none resolves. brew and scoop install that
+seed, so a roster change needs no rebuild and an upgrade never overwrites an
+edited roster in the state directory (#336).
+
 ## Composition moved to housecast
 
 The roster language, the composition engine, and the eval board runner live in

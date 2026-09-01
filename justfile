@@ -13,6 +13,10 @@
 
 set positional-arguments
 
+# The binary embeds no roster, so every recipe mounts the repository seed the
+# way an installed package mounts its own. See docs/person-packages.md.
+export AGENT_COMPOSE_ROSTER := justfile_directory() / "seed" / "roster"
+
 # Default target: list every available recipe.
 default:
     @just --list --unsorted

@@ -76,13 +76,13 @@ func TestComposeRequestAdmitsTheEmbeddedCorePersonalityLibrary(t *testing.T) {
 		t.Fatalf("core personality body did not materialize: %v", err)
 	}
 	want, err := os.ReadFile(filepath.Join(
-		"..", "person", "data", "personality-empirical", "SKILL.md",
+		"..", "..", "seed", "roster", "data", "personality-empirical", "SKILL.md",
 	))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(string(body), strings.TrimSpace(skillProse(string(want)))) {
-		t.Fatal("composed core body diverged from the embedded copy")
+		t.Fatal("composed core body diverged from the mounted copy")
 	}
 }
 

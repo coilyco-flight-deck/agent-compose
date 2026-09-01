@@ -15,7 +15,11 @@ for target in darwin/arm64 linux/amd64 linux/arm64 windows/amd64; do
         -o "$out" ./cmd/agent-compose
     echo "$out"
 done
+# The binary embeds no roster, so the seed ships beside it as its own asset.
+tar -czf dist/agent-compose-roster.tar.gz -C seed roster
+echo "dist/agent-compose-roster.tar.gz"
 (cd dist && sha256sum \
+    agent-compose-roster.tar.gz \
     agent-compose-darwin-arm64 \
     agent-compose-linux-amd64 \
     agent-compose-linux-arm64 \
