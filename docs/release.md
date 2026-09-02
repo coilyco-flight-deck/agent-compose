@@ -14,7 +14,7 @@ Automatic publication occurs when the unreleased diff from the latest reachable
 * the Go command or internal engine and embedded Core Roster
 * Go module dependencies
 * release binary construction
-* Homebrew or Scoop rendering
+* Homebrew or Scoop rendering, and the `scripts/ci` steps that publish
 
 Documentation, scored evaluation results, examples, tests, and development
 workflow changes still validate but do not create a product version. The

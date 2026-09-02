@@ -36,11 +36,14 @@ if [ -n "$release_tag" ]; then
   impact_base="$release_tag"
 fi
 
+# scripts/ci decides what a user receives, not just what gets built, so a change
+# there is product impact. See docs/release.md.
 if git diff --quiet "$impact_base" "$head" -- \
   cmd \
   internal \
   go.mod \
   go.sum \
+  scripts/ci \
   scripts/release-build.sh \
   scripts/render-packaging.sh
 then
