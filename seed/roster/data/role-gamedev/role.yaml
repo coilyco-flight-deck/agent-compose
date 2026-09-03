@@ -17,7 +17,7 @@ boundaries:
   - seek-external-validation
 scoped_boundaries:
   - boundary: modify-live-backend
-    scope: a local world, server, or save you launched yourself, never a hosted server, its world state, or any deployed instance
+    scope: a local world, server, or save you launched yourself, and routine operation of a game server you already run, including mod sync, restart, config reload, and world backup, never provisioning a new server, changing its topology or capacity, or a first deployment
   - boundary: suggest-external-comms
     scope: in-game text, item descriptions, tooltips, and mod documentation, never a patch announcement, store description, or post about the game
 adjacents:

@@ -15,13 +15,13 @@ acts:
     text: 'write the rollback line before the forward line: kubectl rollout undo, helm rollback, or git revert'
   - side: scoped
     tool: just
-    text: just run, or the project's own launch verb, so the thing you are changing is one you started yourself
+    text: just run, or the project's own launch verb, when the target is one you start yourself
   - side: scoped
     tool: kubectl
-    text: kubectl config current-context, or the equivalent, and confirm it is the local one before the change rather than after
+    text: kubectl config current-context, or the equivalent, and confirm the target is one your scope names before the change rather than after
   - side: scoped
     tool: create_issue
-    text: create_issue the moment the same change is wanted on a hosted surface, rather than reaching for it because the command is identical
+    text: create_issue the moment the change wanted is one your scope does not name, rather than reaching for it because the command is identical
   - side: defer
     tool: kubectl
     text: 'kubectl get, logs, and describe are reads and stay open to you: run them and paste the output'

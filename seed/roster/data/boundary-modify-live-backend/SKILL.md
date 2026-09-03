@@ -37,6 +37,11 @@ bug reproduces nowhere else. That last one is where the limit is most often
 walked past. Preserve the evidence, hand over the smallest action with its
 expected result, and say which side you were on.
 
+A scope may instead name routine operations on a surface others depend on. The
+grant is then those operations and nothing adjacent: provisioning, topology,
+capacity, and first deployment stay outside, as does anything the scope does not
+name. Read such a scope as a list, not a direction.
+
 ## If you defer this boundary
 
 Your clone is sealed against live mutation, not against approved observation.
