@@ -37,6 +37,39 @@ or by override - output splits into `COMPOSED.<harness>.md` files; identical
 slices share one `COMPOSED.md`, and obsolete banner-carrying outputs are
 removed on convergence.
 
+## Appendix
+
+`appendix` composes configured blocks after every source, so they carry the
+tail of the composed context. Each entry holds exactly one of `text` (inline
+markdown) or `path` (a file), and an entry that carries both or neither fails
+the config load.
+
+```yaml
+appendix:
+  - text: |
+      ## Checkin dashboard
+      Open these before answering a checkin.
+  - path: ~/.config/agent-compose/appendix/deploy.md
+    roles: [platform, sysadmin]
+```
+
+A `path` entry is rewritten the way a source is: frontmatter stripped,
+`## See also` dropped, relative links absolutized against the file's own
+directory. Inline `text` composes verbatim, because nothing about a config
+string is repo-relative.
+
+An entry with no `roles` is global and reaches every composed output. An entry
+naming `roles` composes only for those roles, which by construction leaves it
+out of the role-less harness load point: a session-home launch renders its own
+operating base per role and is the only reader. A repo-scope launch reads the
+host file, so it sees global blocks alone.
+
+Cascade never loads a person, so `roles` is checked for slug shape and nothing
+more. A well-shaped slug naming no role matches nothing and composes nowhere.
+`acompose --verbose` lists every block with its destination, which is where
+that typo becomes visible. A missing `path` warns and skips on convergence,
+exactly as a missing source does, and fails under `--check`.
+
 ## Outputs
 
 Each configured load point (claude and codex by default, others via

@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -37,6 +38,18 @@ type Config struct {
 	SkillLoadPoints      map[string]RawValue `yaml:"skill_load_points"`
 	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
 	OperatingContext     []string            `yaml:"operating_context"`
+	Appendix             []AppendixEntry     `yaml:"appendix"`
+
+	// Kept so a relative appendix path resolves against the config file.
+	SourcePath string `yaml:"-"`
+}
+
+// AppendixEntry is one configured tail block: exactly one of Text or Path,
+// and an empty Roles list makes it global.
+type AppendixEntry struct {
+	Text  string   `yaml:"text"`
+	Path  string   `yaml:"path"`
+	Roles []string `yaml:"roles"`
 }
 
 // scopeList accepts a scalar or a sequence, mirroring v1's normalizer; its
@@ -100,7 +113,96 @@ func LoadConfig(path string) (*Config, error) {
 		}
 		seenRepositories[repository] = true
 	}
+	if err := validateAppendix(cfg.Appendix); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	cfg.SourcePath = path
 	return &cfg, nil
+}
+
+// Shape is all cascade can check, because it never loads a person; see the
+// appendix section of docs/cascade.md for how a dead slug surfaces.
+var roleSlugRe = regexp.MustCompile(`^[a-z][a-z0-9-]*$`)
+
+func validateAppendix(entries []AppendixEntry) error {
+	for index, entry := range entries {
+		position := index + 1
+		hasText := strings.TrimSpace(entry.Text) != ""
+		hasPath := strings.TrimSpace(entry.Path) != ""
+		if hasText == hasPath {
+			return fmt.Errorf("appendix entry %d needs exactly one of text or path", position)
+		}
+		seen := map[string]bool{}
+		for _, role := range entry.Roles {
+			if !roleSlugRe.MatchString(role) {
+				return fmt.Errorf("appendix entry %d role %q must be a lowercase slug", position, role)
+			}
+			if seen[role] {
+				return fmt.Errorf("appendix entry %d repeats role %q", position, role)
+			}
+			seen[role] = true
+		}
+	}
+	return nil
+}
+
+// AppendixBlock is a resolved entry: provenance fence, body, binding roles.
+type AppendixBlock struct {
+	Fence string
+	Body  string
+	Roles []string
+}
+
+// GatherAppendix resolves entries in listed order, returning the error
+// strings GatherSources uses so a missing file warns rather than aborts.
+func GatherAppendix(cfg *Config) ([]AppendixBlock, []string) {
+	var blocks []AppendixBlock
+	var errors []string
+	for index, entry := range cfg.Appendix {
+		position := index + 1
+		roles := append([]string(nil), entry.Roles...)
+		if text := strings.Trim(entry.Text, "\n"); strings.TrimSpace(text) != "" {
+			blocks = append(blocks, AppendixBlock{
+				Fence: appendixFence(fmt.Sprintf("agent-compose.yaml entry %d", position), roles),
+				Body:  text,
+				Roles: roles,
+			})
+			continue
+		}
+		resolved := ResolveConfiguredPath(expand(entry.Path), cfg.SourcePath, homeDir())
+		info, err := os.Stat(resolved)
+		if err != nil || info.IsDir() {
+			errors = append(errors, fmt.Sprintf("appendix path not found: %s", resolved))
+			continue
+		}
+		_, body, err := parseSource(resolved)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("read appendix %s: %v", resolved, err))
+			continue
+		}
+		body = absolutizeLinks(stripNavigationSections(strings.Trim(body, "\n")), filepath.Dir(resolved))
+		blocks = append(blocks, AppendixBlock{
+			Fence: appendixFence(resolved, roles),
+			Body:  body,
+			Roles: roles,
+		})
+	}
+	return blocks, errors
+}
+
+func appendixFence(origin string, roles []string) string {
+	if len(roles) == 0 {
+		return fmt.Sprintf("<!-- appendix: %s -->", origin)
+	}
+	return fmt.Sprintf("<!-- appendix: %s (roles: %s) -->", origin, strings.Join(roles, ", "))
+}
+
+func homeDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return home
 }
 
 // path.Clean, not filepath.Clean: these are logical owner/repository
@@ -170,9 +272,9 @@ func ResolveLoadPoints(cfg *Config) map[string]string {
 	return resolvePoints(DefaultLoadPoints(), cfg.LoadPoints)
 }
 
-// OperatingBase renders the host operating base for one harness: the same
-// source selection cascade writes to that harness's global load point.
-func OperatingBase(cfg *Config, harness string) (string, error) {
+// OperatingBase renders the base for one harness and role: the load point's
+// own sources, plus each appendix block bound to that role.
+func OperatingBase(cfg *Config, harness, role string) (string, error) {
 	gathered, _ := GatherSources(cfg)
 	filtering := cfg.Scopes != nil
 	var machineScopes []string
@@ -189,7 +291,11 @@ func OperatingBase(cfg *Config, harness string) (string, error) {
 			overrides[src] = override
 		}
 	}
-	return Compose(selected, overrides)
+	appendix, errs := GatherAppendix(cfg)
+	if len(errs) > 0 {
+		return "", fmt.Errorf("operating base: %s", strings.Join(errs, "; "))
+	}
+	return Compose(selected, overrides, appendix, role)
 }
 
 // DefaultSkillLoadPoints mirrors DefaultLoadPoints for skills. Claude reads only

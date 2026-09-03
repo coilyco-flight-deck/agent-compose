@@ -146,8 +146,13 @@ func absolutizeLinks(body, baseDir string) string {
 }
 
 // Compose concatenates source bodies under the banner, each fenced by its
-// source path, with overrides merged and repo-local conventions rewritten.
-func Compose(sources []string, overrides map[string]string) (string, error) {
+// source path, then the appendix blocks bound to role. See docs/cascade.md.
+func Compose(
+	sources []string,
+	overrides map[string]string,
+	appendix []AppendixBlock,
+	role string,
+) (string, error) {
 	parts := []string{Banner}
 	for _, src := range sources {
 		_, body, err := parseSource(src)
@@ -171,13 +176,37 @@ func Compose(sources []string, overrides map[string]string) (string, error) {
 		body = absolutizeLinks(body, filepath.Dir(src))
 		parts = append(parts, fence+"\n"+body)
 	}
+	for _, block := range appendix {
+		if !appendixBinds(block, role) {
+			continue
+		}
+		parts = append(parts, block.Fence+"\n"+block.Body)
+	}
 	return strings.Join(parts, "\n\n") + "\n", nil
+}
+
+// appendixBinds reports whether a block composes for role; an empty role
+// drops every scoped block, which is what the host load point wants.
+func appendixBinds(block AppendixBlock, role string) bool {
+	if len(block.Roles) == 0 {
+		return true
+	}
+	if role == "" {
+		return false
+	}
+	for _, candidate := range block.Roles {
+		if candidate == role {
+			return true
+		}
+	}
+	return false
 }
 
 type plan struct {
 	slices    map[string][]string
 	overrides map[string]map[string]string
 	outputs   map[string]string
+	appendix  []AppendixBlock
 	errors    []string
 }
 

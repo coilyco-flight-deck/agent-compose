@@ -106,6 +106,7 @@ rather than only in the issue.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
   traces `source => destination`, and `-- <command>` refreshes then execs.
   Ward smoke proves idempotence.
+* [`appendix`](cascade.md) composes inline or file tail blocks, optionally scoped to named roles.
 * [Local skill catalogues](skill-catalogues.md) consume AOS roots.
 * [Release](release.md) publishes unreleased product deltas, including
   roll-forward recovery, under a hold.

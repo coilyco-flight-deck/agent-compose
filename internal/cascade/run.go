@@ -52,6 +52,8 @@ type planned struct {
 
 func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[string]planned, plan, map[string]string, string, int) {
 	gathered, errs := GatherSources(cfg)
+	appendix, appendixErrs := GatherAppendix(cfg)
+	errs = append(errs, appendixErrs...)
 	if strict && len(errs) > 0 {
 		for _, err := range errs {
 			fmt.Fprintf(stderr, "agent-compose: %s\n", err)
@@ -80,6 +82,7 @@ func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[str
 
 	loadPoints := ResolveLoadPoints(cfg)
 	p := planOutputs(sources, loadPoints, paths.Composed)
+	p.appendix = appendix
 	if len(p.errors) > 0 {
 		for _, err := range p.errors {
 			fmt.Fprintf(stderr, "agent-compose: %s\n", err)
@@ -136,7 +139,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	if opts.DryRun {
 		for _, target := range sortedKeys(byTarget) {
 			entry := byTarget[target]
-			body, err := Compose(entry.sources, entry.overrides)
+			body, err := Compose(entry.sources, entry.overrides, p.appendix, "")
 			if err != nil {
 				fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 				return 1
@@ -182,7 +185,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
-		body, err := Compose(entry.sources, entry.overrides)
+		body, err := Compose(entry.sources, entry.overrides, p.appendix, "")
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
@@ -248,6 +251,15 @@ func printLayout(
 			}
 		}
 	}
+	// Listed by destination, not target: a role slug that names nothing is
+	// otherwise invisible until a seat launches without its block.
+	for _, block := range p.appendix {
+		destination := "every composed output"
+		if len(block.Roles) > 0 {
+			destination = "role bundles: " + strings.Join(block.Roles, ", ")
+		}
+		fmt.Fprintf(w, "layout  %s => %s\n", block.Fence, destination)
+	}
 	fmt.Fprintf(w, "layout  %s => %s\n", configPath, manifestPath)
 	for _, harness := range sortedKeys2(loadPoints) {
 		fmt.Fprintf(w, "layout  %s => %s\n", p.outputs[harness], loadPoints[harness])
@@ -266,7 +278,7 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return 1
 	}
-	byTarget, _, _, _, code := buildPlan(cfg, paths, stderr, true)
+	byTarget, p, _, _, code := buildPlan(cfg, paths, stderr, true)
 	if code != 0 {
 		return code
 	}
@@ -281,7 +293,7 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
-		expected, err := Compose(entry.sources, entry.overrides)
+		expected, err := Compose(entry.sources, entry.overrides, p.appendix, "")
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1

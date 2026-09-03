@@ -826,7 +826,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		if err != nil {
 			return fmt.Errorf("load host configuration for the operating base: %w", err)
 		}
-		if operatingBase, err = cascade.OperatingBase(cfg, harness); err != nil {
+		if operatingBase, err = cascade.OperatingBase(cfg, harness, role); err != nil {
 			return err
 		}
 	}
