@@ -55,12 +55,10 @@ class AgentCompose < Formula
   def install
     bin.install Dir["agent-compose-*"].first => "agent-compose"
     bin.install_symlink "agent-compose" => "acompose"
-    resource("roster").stage do
-      (share/"agent-compose").install "roster"
-    end
-    resource("bundles").stage do
-      (share/"agent-compose").install "bundles"
-    end
+    # Homebrew chdirs into a lone top-level directory before yielding a stage
+    # block, so a block cannot name the directory it sits inside: agentic-os#6835.
+    resource("roster").stage(share/"agent-compose"/"roster")
+    resource("bundles").stage(share/"agent-compose"/"bundles")
   end
 
   test do

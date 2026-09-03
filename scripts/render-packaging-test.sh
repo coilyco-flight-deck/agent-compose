@@ -31,12 +31,18 @@ for artifact in \
   agent-compose-darwin-arm64 \
   agent-compose-linux-amd64 \
   agent-compose-linux-arm64 \
-  agent-compose-windows-amd64.exe \
-  agent-compose-roster.tar.gz \
-  agent-compose-bundles.tar.gz
+  agent-compose-windows-amd64.exe
 do
   printf '%s\n' "$artifact" >"$fixture_root/dist/$artifact"
 done
+
+# Real archives, tarred the way release-build.sh tars them, because the install
+# contract depends on their top-level shape rather than on their contents.
+mkdir -p "$fixture_root/seed/roster/data" "$fixture_root/seed/bundles/one"
+printf 'fixture\n' >"$fixture_root/seed/roster/data/role.yaml"
+printf 'fixture\n' >"$fixture_root/seed/bundles/one/content.md"
+tar -czf "$fixture_root/dist/agent-compose-roster.tar.gz" -C "$fixture_root/seed" roster
+tar -czf "$fixture_root/dist/agent-compose-bundles.tar.gz" -C "$fixture_root/seed" bundles
 
 (
   cd "$fixture_root"
@@ -63,6 +69,25 @@ for expected in 'agent-compose-roster.tar.gz' 'agent-compose-bundles.tar.gz' 'sh
 do
   if ! grep -F "$expected" "$formula" "$manifest" >/dev/null; then
     echo "render-packaging-test: seed roster is not installed: $expected" >&2
+    exit 1
+  fi
+done
+
+# A stage block naming its own lone top-level directory raises ENOENT, which
+# shipped in v2.90.0 through v2.95.0 unread above: agentic-os#6835.
+for resource_name in roster bundles
+do
+  archive="$fixture_root/dist/agent-compose-$resource_name.tar.gz"
+  roots=$(tar tzf "$archive" | awk -F/ 'NF { print $1 }' | sort -u)
+  if [ "$(printf '%s\n' "$roots" | wc -l)" -ne 1 ]; then
+    continue
+  fi
+  if grep -F "install \"$roots\"" "$formula" >/dev/null; then
+    echo "render-packaging-test: $resource_name stage block names \"$roots\", the directory Homebrew has already chdir'd into" >&2
+    exit 1
+  fi
+  if ! grep -F "resource(\"$resource_name\").stage(share/\"agent-compose\"/\"$resource_name\")" "$formula" >/dev/null; then
+    echo "render-packaging-test: $resource_name must stage to an explicit target, not a block" >&2
     exit 1
   fi
 done
