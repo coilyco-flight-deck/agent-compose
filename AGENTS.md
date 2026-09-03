@@ -88,7 +88,8 @@ to either contract need compatibility tests against both paths before release.
 
 ## Release
 
-Canonical development, releases, and issues live on Forgejo. Every push to
+Canonical development and releases live on Forgejo. Issues live in the Teable
+tracker, cited as `teable:<owner>/<repo>#<n>`. Every push to
 `main` queues the single-stage release workflow, validates the commit, bumps the
 minor version, and publishes version-stamped cross-platform binaries plus
 Homebrew and Scoop metadata. Manual dispatch may select patch or major instead.
