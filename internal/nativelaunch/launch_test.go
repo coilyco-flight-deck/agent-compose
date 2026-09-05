@@ -849,6 +849,53 @@ func TestRefreshKeepsTheAppendixBehindTheLastRosterCard(t *testing.T) {
 	}
 }
 
+// A well-shaped slug naming no role composed nowhere and said nothing, which is
+// the silent pass rather than a refusal. #6945.
+func TestRefreshWarnsOnAnAppendixRoleTheRosterDoesNotDefine(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := p.Roles["archivist"]; ok {
+		t.Fatal("the stand-in slug this test relies on is a real role")
+	}
+
+	projects := filepath.Join(t.TempDir(), "projects")
+	provider := filepath.Join(projects, "coilyco-flight-deck", "agentic-os")
+	writeProvider(t, provider, true)
+	manifest := filepath.Join(t.TempDir(), "repository-plan.yaml")
+	writeManifest(t, manifest, projects, provider)
+
+	result, err := Refresh(Options{
+		Role:          "frontend",
+		Harness:       "claude",
+		CWD:           projects,
+		TargetDir:     t.TempDir(),
+		RuntimeHome:   t.TempDir(),
+		OperatingBase: "# Agent instructions\n\nPronouns stay she/her.",
+		AppendixRoles: []string{"archivist", "frontend"},
+		PlanPath:      manifest,
+		OutDir:        filepath.Join(t.TempDir(), "bundles"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	warnings := result.Composition.Resolution.Warnings
+	var named bool
+	for _, w := range warnings {
+		if strings.Contains(w, `"archivist"`) {
+			named = true
+		}
+		if strings.Contains(w, `"frontend"`) {
+			t.Errorf("warned about a role the roster defines: %q", w)
+		}
+	}
+	if !named {
+		t.Fatalf("no warning named the undefined slug: %v", warnings)
+	}
+}
+
 // Without a session home the host load point still supplies the base, so
 // repeating it in the bundle would double the doctrine.
 func TestRefreshOmitsTheOperatingBaseWithoutARuntimeHome(t *testing.T) {

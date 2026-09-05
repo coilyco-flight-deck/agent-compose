@@ -1,6 +1,8 @@
 # Forgejo-canonical release pipeline. Every main push validates. Product-impact
 # changes publish automatically unless a tracked major-release hold is active.
 # Runs queue without cancellation so closely spaced pushes validate in order.
+# The mirror check runs last and a red run may still have shipped, because the
+# package bumps do not read the mirror. See docs/release.md.
 
 name: release
 
@@ -123,4 +125,7 @@ jobs:
           SHA: ${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           API_BASE: https://api.telegram.org
+          NOTE: >-
+            a red release may still have shipped: the package bumps run before
+            the mirror check, so check the tap before concluding nothing landed
         run: python3 scripts/ci/alert-telegram.py

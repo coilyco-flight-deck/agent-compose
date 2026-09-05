@@ -6,7 +6,8 @@ Extracted verbatim from the inline `python3 -c 'exec(...)'` body that lived in
 is unchanged: same fields, same endpoint, same proxy handling, same exit codes.
 
 The workflow supplies REPO, WORKFLOW, JOB, REF, SHA, and RUN_URL, plus the
-BOT_TOKEN and CHAT_ID secrets. FORGEJO_EGRESS_PROXY and API_BASE are optional.
+BOT_TOKEN and CHAT_ID secrets. FORGEJO_EGRESS_PROXY, API_BASE, and NOTE are
+optional, NOTE being a trailing line the caller adds to say what red means.
 
 Migrating this to the in-cluster Ward mapper, so no repository carries a bot
 token, is tracked separately in coilyco-flight-deck/agentic-os#975.
@@ -22,17 +23,20 @@ import urllib.request
 
 
 def build_message() -> str:
-    return "\n".join(
-        [
-            "CI failed on main",
-            f"repo: {os.environ['REPO']}",
-            f"workflow: {os.environ['WORKFLOW']}",
-            f"job: {os.environ['JOB']}",
-            f"ref: {os.environ['REF']}",
-            f"sha: {os.environ['SHA']}",
-            f"run: {os.environ['RUN_URL']}",
-        ]
-    )
+    lines = [
+        "CI failed on main",
+        f"repo: {os.environ['REPO']}",
+        f"workflow: {os.environ['WORKFLOW']}",
+        f"job: {os.environ['JOB']}",
+        f"ref: {os.environ['REF']}",
+        f"sha: {os.environ['SHA']}",
+        f"run: {os.environ['RUN_URL']}",
+    ]
+    # A red release can still have shipped, so the caller says what red means.
+    note = os.environ.get("NOTE", "").strip()
+    if note:
+        lines.append(note)
+    return "\n".join(lines)
 
 
 def main() -> int:

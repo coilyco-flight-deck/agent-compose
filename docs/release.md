@@ -25,9 +25,9 @@ An automatic release bumps the minor version, cross-compiles macOS, Linux, and
 Windows binaries, creates the Forgejo release, uploads checksums and package
 files, and updates Homebrew and Scoop when their write tokens are present.
 Those two bumps run **before** the GitHub mirror check, whose poll ceiling stays
-well under the job's `timeout-minutes`. Neither channel reads the mirror, and a
-step killed mid-loop reports nothing and takes every later step down with it
-(`teable:coilyco-flight-deck/agent-compose#6994`).
+under the job's `timeout-minutes`, because a step killed mid-loop takes every
+later step with it. So a red release may still have shipped, and the alert says
+so: check the tap before concluding nothing landed (`agent-compose#6994`).
 
 ### Major release hold
 

@@ -47,10 +47,13 @@ type Options struct {
 	// OperatingAppendix travels apart from the base because the base is rewritten
 	// before rendering; see cascade.ComposeParts. agent-compose#6987.
 	OperatingAppendix string
-	PlanPath          string
-	OutDir            string
-	PersonSelection   compose.Options
-	SkipProjection    bool
+	// AppendixRoles is every role slug the host appendix scopes a block to, which
+	// the resolved roster is the first thing able to check. agent-compose#6945.
+	AppendixRoles   []string
+	PlanPath        string
+	OutDir          string
+	PersonSelection compose.Options
+	SkipProjection  bool
 }
 
 // Result records the immutable bundle and projected load points selected for
@@ -123,6 +126,10 @@ func Refresh(opts Options) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("compose native role %q: %w", opts.Role, err)
 	}
+	composed.Resolution.Warnings = append(
+		composed.Resolution.Warnings,
+		undefinedAppendixRoles(opts.AppendixRoles, composed.Resolution.Person)...,
+	)
 	// A staged session home owns its whole load-point surface, so the role lands
 	// at the harness global paths rather than beside the checkouts.
 	target, scope := opts.TargetDir, project.ScopeRepo
@@ -187,6 +194,25 @@ func emitHarnessSettings(composed *compose.Result, harness, role string) (string
 		return "", fmt.Errorf("write native UI settings for role %q: %w", role, err)
 	}
 	return path, nil
+}
+
+// undefinedAppendixRoles names each configured appendix role the roster does not
+// define. Such a block composes nowhere and says nothing. agent-compose#6945.
+func undefinedAppendixRoles(configured []string, p *person.Person) []string {
+	if p == nil || len(configured) == 0 {
+		return nil
+	}
+	var warnings []string
+	for _, role := range configured {
+		if _, ok := p.Roles[role]; ok {
+			continue
+		}
+		warnings = append(warnings, fmt.Sprintf(
+			"appendix names role %q, which this roster does not define, so that block composes for no one",
+			role,
+		))
+	}
+	return warnings
 }
 
 // introduction renders the identity-led opener, falling back to the role

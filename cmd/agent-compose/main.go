@@ -821,6 +821,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	// Only a session home replaces the host load point. A repo-scope launch
 	// still reads the host file, where repeating the base would double it.
 	operatingBase, operatingAppendix := "", ""
+	var appendixRoles []string
 	if runtimeHome != "" {
 		cfg, err := cascade.LoadConfig(paths.Config)
 		if err != nil {
@@ -828,6 +829,9 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		}
 		operatingBase, operatingAppendix, err = cascade.OperatingBaseParts(cfg, harness, role)
 		if err != nil {
+			return err
+		}
+		if appendixRoles, err = cascade.AppendixRoles(cfg); err != nil {
 			return err
 		}
 	}
@@ -851,6 +855,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		RuntimeHome:       runtimeHome,
 		OperatingBase:     operatingBase,
 		OperatingAppendix: operatingAppendix,
+		AppendixRoles:     appendixRoles,
 		PlanPath:          filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
 		OutDir:            filepath.Join(stateDir, "bundles"),
 		PersonSelection:   personSelection,

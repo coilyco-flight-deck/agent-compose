@@ -285,6 +285,28 @@ func OperatingBase(cfg *Config, harness, role string) (string, error) {
 	return body + "\n" + tail, nil
 }
 
+// AppendixRoles returns every distinct role slug the appendix scopes a block to,
+// sorted. Cascade never loads a person, so a caller that has one checks these.
+func AppendixRoles(cfg *Config) ([]string, error) {
+	appendix, errs := GatherAppendix(cfg)
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("appendix roles: %s", strings.Join(errs, "; "))
+	}
+	seen := map[string]bool{}
+	var roles []string
+	for _, block := range appendix {
+		for _, role := range block.Roles {
+			if seen[role] {
+				continue
+			}
+			seen[role] = true
+			roles = append(roles, role)
+		}
+	}
+	sort.Strings(roles)
+	return roles, nil
+}
+
 // OperatingBaseParts splits that render into sources and appendix, for a caller
 // that rewrites the sources before rendering them. See ComposeParts.
 func OperatingBaseParts(cfg *Config, harness, role string) (string, string, error) {

@@ -70,9 +70,10 @@ operating base per role and is the only reader. A repo-scope launch reads the
 host file, so it sees global blocks alone.
 
 Cascade never loads a person, so `roles` is checked for slug shape and nothing
-more. A well-shaped slug naming no role matches nothing and composes nowhere.
-`acompose --verbose` lists every block with its destination, which is where
-that typo becomes visible. A missing `path` warns and skips on convergence,
+more. A native launch does resolve one, and warns there for any configured slug
+the roster does not define, because a block that composes for no one otherwise
+passes silently. `acompose --verbose` also lists every block with its
+destination. A missing `path` warns and skips on convergence,
 exactly as a missing source does, and fails under `--check`.
 
 ## Outputs
