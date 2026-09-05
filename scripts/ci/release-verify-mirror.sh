@@ -16,15 +16,17 @@ set -eu
 : "${TAG:?TAG is required}"
 MIRROR="${MIRROR_REPO:-coilyco-flight-deck/agent-compose}"
 API="${GITHUB_API:-https://api.github.com}"
-# The sync is asynchronous, so a miss on the first read means nothing.
-ATTEMPTS="${MIRROR_ATTEMPTS:-60}"
+# The sync is asynchronous, so a first-read miss means nothing. The ceiling
+# stays well under the job timeout. See docs/release.md.
+ATTEMPTS="${MIRROR_ATTEMPTS:-20}"
 DELAY="${MIRROR_DELAY:-10}"
+CURL_TIMEOUT="${MIRROR_CURL_TIMEOUT:-10}"
 
 url="$API/repos/$MIRROR/git/ref/tags/$TAG"
 attempt=1
 
 while [ "$attempt" -le "$ATTEMPTS" ]; do
-  code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$url" || echo 000)
+  code=$(curl -s -o /dev/null -w '%{http_code}' -m "$CURL_TIMEOUT" "$url" || echo 000)
   if [ "$code" = "200" ]; then
     echo "release-verify-mirror: $MIRROR carries $TAG after ${attempt} attempt(s)."
     exit 0
@@ -36,7 +38,8 @@ while [ "$attempt" -le "$ATTEMPTS" ]; do
   sleep "$DELAY"
 done
 
-echo "::error::release-verify-mirror: $MIRROR does not carry $TAG after $((ATTEMPTS * DELAY))s." >&2
+echo "::error::release-verify-mirror: $MIRROR does not carry $TAG after $((ATTEMPTS * (DELAY + CURL_TIMEOUT)))s at worst." >&2
 echo "GitHub is the module origin, so this release is unresolvable to Go consumers." >&2
-echo "The tag exists on Forgejo. Check the push mirror, then re-run this job." >&2
+echo "The tag exists on Forgejo and the packages are already published. Check the" >&2
+echo "push mirror, then re-run this job." >&2
 exit 1

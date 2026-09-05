@@ -5,9 +5,8 @@ How agent-compose releases, and what the v2 migration changed.
 ## Release
 
 Agent Compose releases are Forgejo-canonical. Every push to `main` enters a
-no-cancel queue and validates the exact commit. The owning
-`scripts/release-impact.sh` classifier then decides whether publication runs.
-
+no-cancel queue and validates the exact commit, and the owning
+`scripts/release-impact.sh` classifier decides whether publication runs.
 Automatic publication occurs when the unreleased diff from the latest reachable
 `v*` release tag changes shipped product inputs:
 
@@ -16,18 +15,19 @@ Automatic publication occurs when the unreleased diff from the latest reachable
 * release binary construction
 * Homebrew or Scoop rendering, and the `scripts/ci` steps that publish
 
-Documentation, scored evaluation results, examples, tests, and development
-workflow changes still validate but do not create a product version. The
-event base is the fallback before the first release tag. This roll-forward
-window keeps a failed product release eligible when a later main push contains
-only recovery evidence. The classifier fails closed to publication when its
-base revision is unavailable. Its fixture suite covers documentation, results,
-product code, roll-forward recovery, initial pushes, the major hold, and manual
-dispatch.
+Documentation, results, examples, tests, and development workflow changes still
+validate but do not create a product version. The event base is the fallback
+before the first release tag, and this roll-forward window keeps a failed
+release eligible when a later main push carries only recovery evidence. The
+classifier fails closed to publication when its base revision is unavailable.
 
 An automatic release bumps the minor version, cross-compiles macOS, Linux, and
 Windows binaries, creates the Forgejo release, uploads checksums and package
 files, and updates Homebrew and Scoop when their write tokens are present.
+Those two bumps run **before** the GitHub mirror check, whose poll ceiling stays
+well under the job's `timeout-minutes`. Neither channel reads the mirror, and a
+step killed mid-loop reports nothing and takes every later step down with it
+(`teable:coilyco-flight-deck/agent-compose#6994`).
 
 ### Major release hold
 
