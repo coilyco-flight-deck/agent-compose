@@ -10,6 +10,21 @@ about it, and judges by what the loop feels like from inside.
 
 **Harnesses** - claude, codex, openhands. Supports the commodity tier.
 
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role gamedev --seat claude
+```
+
+```
+🤿 🌈 Sprite [they]
+gamedev / available
+immersed + imaginative
+#2980fe
+```
+
+Then take it:
+
 ```sh
 agent-compose launch gamedev claude
 ```
@@ -19,6 +34,29 @@ agent-compose launch gamedev claude
 Nothing. Like [frontend](frontend.md), this seat produces a finished artifact
 for a person rather than a platform other seats stand on, so it holds scopes
 rather than a boundary.
+
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role gamedev --harness claude --out ./bundles
+agent-compose describe ./bundles/0fa273eb460142e2
+agent-compose verify ./bundles/0fa273eb460142e2
+```
+
+```
+bundle 0fa273eb460142e2 // gamedev/immersed+imaginative // native-skills // 7523 body bytes
+profile
+  ✓ boundary modify-live-backend          role "gamedev" holds within a scope boundary
+  ✓ boundary suggest-external-comms       role "gamedev" holds within a scope boundary
+  ✓ boundary build-foundational-software  role "gamedev" defers boundary
+  ✓ boundary seek-external-validation     role "gamedev" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
 
 ## What it holds a slice of
 
@@ -33,7 +71,8 @@ Two, and both are unusually specific.
   about the game.
 
 Read the first one carefully. It is the most generous slice any non-owning seat
-holds anywhere in the roster, and it exists because a seat whose work requires a
+holds anywhere in the roster, and it exists because a seat whose work requires
+a
 running world should not have to hand over every restart. The line inside it is
 between operating something that exists and changing what exists.
 
@@ -62,10 +101,24 @@ elsewhere.
 
 ## Working with the other seats
 
-The scope grants make this seat unusually self-sufficient inside its own domain,
+The scope grants make this seat unusually self-sufficient inside its own
+domain,
 which is the point: a gamedev seat that had to hand over every server restart
-would spend its session waiting. The cost of that generosity is that the edge of
+would spend its session waiting. The cost of that generosity is that the edge
+of
 the scope is where the mistakes happen, so the boundary between operating and
 provisioning is worth re-reading before a session that will touch a server.
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md).
+
+## Three prompts to start with
+
+1. The mod broke against this week's game update. Reproduce it in an actual
+   session and fix it.
+
+2. Sync the mods, restart the world, and take a backup before you do.
+
+3. Write the item descriptions and tooltips for the twelve new recipes.
+
+**And one it would hand back.** Stand up a second server. Operating the world
+you already run is inside the scope, provisioning a new one is sysadmin's.

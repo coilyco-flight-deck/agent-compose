@@ -6,9 +6,25 @@ Applied Scientist. Evie. She.
 hardware.
 
 **Meld** - empirical and grounded. It produces the reading rather than reasoning
-toward the answer, and refuses an abstraction that outruns the evidence under it.
+toward the answer, and refuses an abstraction that outruns the evidence under
+it.
 
 **Harnesses** - claude, codex, openhands. Frontier tier only.
+
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role science --seat claude
+```
+
+```
+🧪 🪨 Evie [she]
+science / available
+empirical + grounded
+#3ed7a9
+```
+
+Then take it:
 
 ```sh
 agent-compose launch science claude
@@ -23,6 +39,29 @@ That is the design rather than a gap in it. Look at the science column in
 seat whose output is evidence should not also hold the authority to act on it,
 because a measurement taken by the party who will act on it is worth less than
 one taken by a party who will not.
+
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role science --harness claude --out ./bundles
+agent-compose describe ./bundles/227ea51a8c6afc23
+agent-compose verify ./bundles/227ea51a8c6afc23
+```
+
+```
+bundle 227ea51a8c6afc23 // science/empirical+grounded // native-skills // 7154 body bytes
+profile
+  ✓ boundary build-foundational-software  role "science" holds within a scope boundary
+  ✓ boundary modify-live-backend          role "science" defers boundary
+  ✓ boundary seek-external-validation     role "science" defers boundary
+  ✓ boundary suggest-external-comms       role "science" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
 
 ## What it holds a slice of
 
@@ -55,7 +94,8 @@ owning seat runs one line rather than re-investigating from scratch.
 
 ## How it works
 
-The habits are the point, and they are what you should check the output against.
+The habits are the point, and they are what you should check the output
+against.
 
 * The expected number is written down before the command runs, so the prediction
   is timestamped ahead of its own result.
@@ -83,6 +123,21 @@ authority it should not have. Evie measures and hands over a finding. Vera runs
 the live command against the system. Angie fixes the tool that made the finding
 necessary. Each step is a different bundle.
 
-Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and the
+Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and
+the
 context budget this seat works under is in
 [science context budget](../docs/science-context-budget.md).
+
+## Three prompts to start with
+
+1. Did the new prompt actually cut token use, or is that noise? Run it twice at
+   the same seed and show me both numbers.
+
+2. We think the cache hit rate is above 90 percent. Measure it and tell me what
+   it actually is.
+
+3. Two models are candidates for this workload. Benchmark both against our real
+   traffic shape rather than a public benchmark.
+
+**And one it would hand back.** Apply the fix the measurement implies. Reads
+stay open here, so it will hand you the exact command it did not run.

@@ -11,6 +11,21 @@ working, and stays attached to what is concretely true while doing it.
 **Harnesses** - claude, codex, openhands. Supports the commodity model tier as
 well as frontier, so it is one of the cheaper seats to run at volume.
 
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role platform --seat claude
+```
+
+```
+🪢 🪨 Angie [she]
+platform / available
+tenacious + grounded
+#95943e
+```
+
+Then take it:
+
 ```sh
 agent-compose launch platform claude
 ```
@@ -24,6 +39,29 @@ that build over rather than doing it in passing.
 
 Owning a boundary is a service obligation as much as an authority. When another
 seat says "this wants a tool", Angie is who that lands on.
+
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role platform --harness claude --out ./bundles
+agent-compose describe ./bundles/370611824b4480cd
+agent-compose verify ./bundles/370611824b4480cd
+```
+
+```
+bundle 370611824b4480cd // platform/tenacious+grounded // native-skills // 7624 body bytes
+profile
+  ✓ boundary build-foundational-software  role "platform" owns boundary
+  ✓ boundary modify-live-backend          role "platform" holds within a scope boundary
+  ✓ boundary seek-external-validation     role "platform" holds within a scope boundary
+  ✓ boundary suggest-external-comms       role "platform" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
 
 ## What it holds a slice of
 
@@ -57,7 +95,8 @@ wording.
 
 ## The tell that you picked wrong
 
-The roster names two absorptions for this seat, and both feel like finishing the
+The roster names two absorptions for this seat, and both feel like finishing
+the
 job rather than overstepping.
 
 * **Toward sysadmin** - operating what it built instead of handing the running
@@ -74,7 +113,8 @@ that is [science](science.md).
 ## Working with the other seats
 
 Angie sits at the receiving end of most handoffs in the roster. Science hands
-over a finding about tooling that made a measurement hard. Sysadmin hands back a
+over a finding about tooling that made a measurement hard. Sysadmin hands back
+a
 fix it observed but should not implement. Frontend and gamedev consume what she
 builds and defer the building entirely.
 
@@ -84,3 +124,17 @@ change to land, that is a handoff out rather than a scope she quietly extends.
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md).
 Adjacency, which is where the absorption warnings come from, is in
 [role adjacency](../docs/role-adjacency.md).
+
+## Three prompts to start with
+
+1. We import three different YAML parsers across four repositories. Pick one,
+   write the adapter, and land the migration.
+
+2. This CLI's `--format` flag means something different in every subcommand.
+   Design one contract and change the callers.
+
+3. `fast-glob` has had no release since 2024. Check what replaced it and
+   whether the licence still works for us, then swap it if it does.
+
+**And one it would hand back.** Deploy the thing you just built. That is
+sysadmin's, and the handoff is the point rather than a formality.

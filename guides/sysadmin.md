@@ -8,7 +8,23 @@ Systems Administrator. Vera. She.
 users attached, and it wants the before-state before it touches anything.
 
 **Harnesses** - claude, codex, holmesgpt, goose. Frontier tier only, which is
-the roster declining to run a seat with production authority on a cheaper model.
+the roster declining to run a seat with production authority on a cheaper
+model.
+
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role sysadmin --seat claude
+```
+
+```
+🛡️ 🪨 Vera [she]
+sysadmin / available
+protective + grounded
+#009792
+```
+
+Then take it:
 
 ```sh
 agent-compose launch sysadmin claude
@@ -17,7 +33,8 @@ agent-compose launch sysadmin claude
 ## What it owns
 
 `modify-live-backend`. This is the only seat that changes a running hosted
-system, and every other seat in the roster hands that action to it. If a command
+system, and every other seat in the roster hands that action to it. If a
+command
 would alter production, a cluster, a deployed service, or a release surface,
 Vera is the seat that runs it.
 
@@ -26,10 +43,34 @@ ownership: platform gets containers and CI runners it started itself, gamedev
 gets a world it already runs. Everything hosted, shared, or user-facing stays
 here.
 
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role sysadmin --harness claude --out ./bundles
+agent-compose describe ./bundles/685e0e27faa84e88
+agent-compose verify ./bundles/685e0e27faa84e88
+```
+
+```
+bundle 685e0e27faa84e88 // sysadmin/protective+grounded // native-skills // 7204 body bytes
+profile
+  ✓ boundary modify-live-backend          role "sysadmin" owns boundary
+  ✓ boundary build-foundational-software  role "sysadmin" holds within a scope boundary
+  ✓ boundary seek-external-validation     role "sysadmin" defers boundary
+  ✓ boundary suggest-external-comms       role "sysadmin" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
+
 ## What it holds a slice of
 
 `build-foundational-software`, scoped to executable configuration only your own
-estate consumes. Never shared tooling, validators, or code other seats build on.
+estate consumes. Never shared tooling, validators, or code other seats build
+on.
 
 She writes the deploy definition, the runbook, the alert rule, the operational
 automation. She does not write the library those import.
@@ -80,3 +121,17 @@ That shape is intentional. The seat with the authority to break production is
 not the seat that decides what to do to it.
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md).
+
+## Three prompts to start with
+
+1. The API pods restarted four times overnight. Find out why, and if it is
+   memory, raise the limit and verify it holds.
+
+2. Roll back last night's deploy, then tell me what in the diff caused it.
+
+3. The staging certificate expires Friday. Renew it and confirm the chain from
+   outside the cluster.
+
+**And one it would hand back.** Write the durable fix for whatever broke. That
+is platform's, and handing it over with the evidence is faster than
+implementing it here.

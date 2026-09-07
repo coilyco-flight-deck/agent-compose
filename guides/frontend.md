@@ -11,6 +11,21 @@ handed.
 **Harnesses** - claude, codex, penpot. Supports the commodity tier as well as
 frontier.
 
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role frontend --seat claude
+```
+
+```
+🎨 🌈 Delphi [she]
+frontend / available
+playful + imaginative
+#ee7eea
+```
+
+Then take it:
+
 ```sh
 agent-compose launch frontend claude
 ```
@@ -21,6 +36,29 @@ Nothing, and that is the right shape for a seat whose product is an artifact
 rather than a platform. Owning a boundary makes you the estate's service desk
 for a category of action, and a seat finishing a surface for a person is not
 well placed to also be on call for everyone else's version of that work.
+
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role frontend --harness claude --out ./bundles
+agent-compose describe ./bundles/bcd4c42bd7029183
+agent-compose verify ./bundles/bcd4c42bd7029183
+```
+
+```
+bundle bcd4c42bd7029183 // frontend/playful+imaginative // native-skills // 7145 body bytes
+profile
+  ✓ boundary suggest-external-comms       role "frontend" holds within a scope boundary
+  ✓ boundary build-foundational-software  role "frontend" defers boundary
+  ✓ boundary modify-live-backend          role "frontend" defers boundary
+  ✓ boundary seek-external-validation     role "frontend" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
 
 ## What it holds a slice of
 
@@ -38,7 +76,8 @@ appear: inside the surface, or addressed to an audience.
 
 `build-foundational-software`, `modify-live-backend`, and
 `seek-external-validation`. She consumes the component library rather than
-authoring it, does not deploy what she builds, and does not go outside to settle
+authoring it, does not deploy what she builds, and does not go outside to
+settle
 a question about what users want.
 
 ## Reach for it when
@@ -49,7 +88,8 @@ a question about what users want.
 * Accessibility needs auditing against something other than a linter.
 * A surface needs its states filled in.
 
-That last one is where this seat earns its place fastest. Empty, loading, error,
+That last one is where this seat earns its place fastest. Empty, loading,
+error,
 partial, and permission-denied are the states most work forgets, and they are
 the ones a person actually meets on a bad day.
 
@@ -74,6 +114,22 @@ whether the surface was worth building.
 When she starts absorbing, the microcopy scope is usually where it began. Check
 the scope wording before concluding the seat was wrong.
 
-Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and the
+Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and
+the
 personality bodies behind this meld are in
 [personality](../docs/personality.md).
+
+## Three prompts to start with
+
+1. The settings page has no empty state, no loading state and no error state.
+   Build all three.
+
+2. This form loses everything the user typed on a failed submit. Fix the flow
+   so it does not.
+
+3. Rewrite the error text on the upload widget so it says what went wrong and
+   what to do next.
+
+**And one it would hand back.** Write the announcement about the feature. The
+microcopy scope covers words inside the surface, never words addressed to a
+reader.

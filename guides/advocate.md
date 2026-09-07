@@ -9,9 +9,25 @@ content, respectful conversations, and informed commitments.
 starts from what the audience actually said.
 
 **Harnesses** - claude, codex, anythingllm, mixpost, openhands, discord. The
-widest support in the roster, and the only seat declaring the oss model tier, on
+widest support in the roster, and the only seat declaring the oss model tier,
+on
 the discord seat, because a community bot answering routine questions does not
 need a frontier model.
+
+Print the seat before you read about it:
+
+```sh
+agent-compose overlay --role advocate --seat claude
+```
+
+```
+🕯️ 🔭 Gem [they]
+advocate / available
+warm + outward
+#eea560
+```
+
+Then take it:
 
 ```sh
 agent-compose launch advocate claude
@@ -26,6 +42,29 @@ estate. Other seats keep the factual record and hand the wording over.
 
 Frontend and gamedev hold slices for words that live inside a surface they own.
 Everything addressed to a reader is here.
+
+The tool will tell you this itself, which is worth preferring over the
+paragraph above:
+
+```sh
+agent-compose bundle materialize --role advocate --harness claude --out ./bundles
+agent-compose describe ./bundles/4b5f4342f04aa6d1
+agent-compose verify ./bundles/4b5f4342f04aa6d1
+```
+
+```
+bundle 4b5f4342f04aa6d1 // advocate/warm+outward // native-skills // 7321 body bytes
+profile
+  ✓ boundary suggest-external-comms       role "advocate" owns boundary
+  ✓ boundary seek-external-validation     role "advocate" holds within a scope boundary
+  ✓ boundary build-foundational-software  role "advocate" defers boundary
+  ✓ boundary modify-live-backend          role "advocate" defers boundary
+
+bundle verified: 9 skills // 13 files
+```
+
+The role has to be declared in your `.agents/roles.kdl` first, or materialize
+reports the roles that are.
 
 ## What it holds a slice of
 
@@ -78,5 +117,20 @@ Science hands over what it measured, sysadmin hands over what happened during
 the incident, platform hands over what shipped, and Gem turns each into the
 version a reader outside can act on.
 
-Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and the
+Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and
+the
 identity behind each seat name is in [identity](../docs/identity.md).
+
+## Three prompts to start with
+
+1. We shipped the guides shelf. Write the release note, and check every claim
+   in it against what the tool actually does.
+
+2. Someone opened a thread saying the install is broken. Read it and draft the
+   reply.
+
+3. A conference wants a talk on this in March. Tell me whether we can honestly
+   deliver it before I answer.
+
+**And one it would hand back.** Commit us to the March talk. Checking whether
+it is deliverable is inside the scope, saying yes is director's.
