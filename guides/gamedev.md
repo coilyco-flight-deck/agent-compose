@@ -72,9 +72,8 @@ Two, and both are unusually specific.
 
 Read the first one carefully. It is the most generous slice any non-owning seat
 holds anywhere in the roster, and it exists because a seat whose work requires
-a
-running world should not have to hand over every restart. The line inside it is
-between operating something that exists and changing what exists.
+a running world should not have to hand over every restart. The line inside it
+is between operating something that exists and changing what exists.
 
 ## What it defers
 
@@ -99,15 +98,13 @@ elsewhere.
 * **Toward frontend** - polishing the surface instead of playing the loop
   underneath it. A menu that looks better has not made the game better.
 
-## Working with the other seats
+## The chain it sits in
 
-The scope grants make this seat unusually self-sufficient inside its own
-domain,
-which is the point: a gamedev seat that had to hand over every server restart
-would spend its session waiting. The cost of that generosity is that the edge
-of
-the scope is where the mistakes happen, so the boundary between operating and
-provisioning is worth re-reading before a session that will touch a server.
+The two scope grants make this seat unusually self-sufficient, which is the
+point: a gamedev seat handing over every server restart would spend its session
+waiting. Everything past their edge goes elsewhere, the hosted world to
+[sysadmin](sysadmin.md) and the engine underneath to
+[platform](platform.md).
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md).
 

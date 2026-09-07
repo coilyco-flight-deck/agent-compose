@@ -65,9 +65,9 @@ reports the roles that are.
 ## What it defers
 
 Everything else, and it is the longest deferral list in the roster. No
-building,
-no live changes, no outward communication. Portia decides and hands the doing
-over, which is what keeps a decisive seat from becoming an unaccountable one.
+building, no live changes, no outward communication. Portia decides and hands
+the doing over, which is what keeps a decisive seat from becoming an
+unaccountable one.
 
 ## Reach for it when
 
@@ -98,17 +98,13 @@ underperforming its own purpose.
   holding a number it did not take, and it is the more expensive of the two,
   because the decision looks well-founded from outside.
 
-## Working with the other seats
+## The chain it sits in
 
 The chain runs director to advocate and not the reverse. Portia reaches out,
 gathers what is true outside, decides, names the gate. [advocate](advocate.md)
 then carries the decided thing to the audience and brings back what the
-audience
-said, which becomes evidence for the next decision rather than a decision in
-itself.
-
-Run it backwards and you get a commitment that was made by having announced it,
-which is exactly what the two adjacency warnings exist to catch.
+audience said, which becomes evidence for the next decision rather than a
+decision in itself.
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md).
 

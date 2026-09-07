@@ -10,9 +10,8 @@ starts from what the audience actually said.
 
 **Harnesses** - claude, codex, anythingllm, mixpost, openhands, discord. The
 widest support in the roster, and the only seat declaring the oss model tier,
-on
-the discord seat, because a community bot answering routine questions does not
-need a frontier model.
+on the discord seat, because a community bot answering routine questions does
+not need a frontier model.
 
 Print the seat before you read about it:
 
@@ -110,7 +109,7 @@ whether every claim in it would survive the reader trying it.
   where it should go. Saying yes to a talk, a partnership, or a deadline is a
   [director](director.md) decision that Gem informs.
 
-## Working with the other seats
+## The chain it sits in
 
 Gem is downstream of every other seat's factual record and upstream of nothing.
 Science hands over what it measured, sysadmin hands over what happened during
@@ -118,8 +117,7 @@ the incident, platform hands over what shipped, and Gem turns each into the
 version a reader outside can act on.
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and
-the
-identity behind each seat name is in [identity](../docs/identity.md).
+the identity behind each seat name is in [identity](../docs/identity.md).
 
 ## Three prompts to start with
 

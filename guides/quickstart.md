@@ -211,3 +211,7 @@ what it hands over, and the adjacent seat the roster says it drifts toward.
 
 The eighth seat, `underwriter`, ships in `roster:core` and appears in the
 boundary table above. It has no guide here yet.
+
+Those seven answer "what is this seat for". For a worked morning running two of
+them side by side, with the knowledge each one reads, see
+[two roles, one morning](two-roles-one-morning.md).
