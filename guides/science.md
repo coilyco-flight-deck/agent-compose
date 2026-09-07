@@ -45,12 +45,12 @@ paragraph above:
 
 ```sh
 agent-compose bundle materialize --role science --harness claude --out ./bundles
-agent-compose describe ./bundles/227ea51a8c6afc23
-agent-compose verify ./bundles/227ea51a8c6afc23
+agent-compose describe ./bundles/2f34a234d7775894
+agent-compose verify ./bundles/2f34a234d7775894
 ```
 
 ```
-bundle 227ea51a8c6afc23 // science/empirical+grounded // native-skills // 7154 body bytes
+bundle 2f34a234d7775894 // science/empirical+grounded // native-skills // 7174 body bytes
 profile
   ✓ boundary build-foundational-software  role "science" holds within a scope boundary
   ✓ boundary modify-live-backend          role "science" defers boundary
