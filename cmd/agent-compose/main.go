@@ -302,7 +302,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external roster-package root (defaults to embedded roster:core)",
+						Usage: "external roster-package root (defaults to the mounted roster)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -343,7 +343,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external roster-package root (defaults to embedded roster:core)",
+						Usage: "external roster-package root (defaults to the mounted roster)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -381,7 +381,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external roster-package root (defaults to embedded roster:core)",
+						Usage: "external roster-package root (defaults to the mounted roster)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -409,7 +409,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:  "person-source",
-						Usage: "external roster-package root (defaults to embedded roster:core)",
+						Usage: "external roster-package root (defaults to the mounted roster)",
 					},
 					&cli.StringSliceFlag{
 						Name:  "personality-library",
@@ -451,7 +451,7 @@ func main() {
 
 func personCatalogFlags(includeQuery bool) []cli.Flag {
 	flags := []cli.Flag{
-		&cli.StringFlag{Name: "person-source", Usage: "external roster-package root (defaults to embedded roster:core)"},
+		&cli.StringFlag{Name: "person-source", Usage: "external roster-package root (defaults to the mounted roster)"},
 		&cli.StringSliceFlag{Name: "personality-library", Usage: "additional local personality-library root (repeatable)"},
 		&cli.BoolFlag{Name: "json", Usage: "emit agent-compose.catalog.v1 JSON"},
 	}

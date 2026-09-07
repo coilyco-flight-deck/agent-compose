@@ -19,10 +19,10 @@ compose {
 }
 ```
 
-`person-source` names a request-relative package and fully replaces the
-embedded one, `person-policy "external-only"` requires it and prohibits
-fallback, and omitting both selects `roster:core` unless the host guard
-supplies it. The role activates its personality set, ordinary skills, and
+`person-source` names a request-relative package and fully replaces the mounted
+one, `person-policy "external-only"` requires it and prohibits fallback, and
+omitting both selects the mounted `roster:core` unless the host guard supplies
+it. The binary carries no roster and resolves one from disk ([FEATURES.md](FEATURES.md)). The role activates its personality set, ordinary skills, and
 composed-skill allowlist. `delivery` is `native-skills` or `compiled`.
 `model-tier` is `frontier`, `commodity`, or `oss`, defaults to `frontier`, must
 be supported by the role, and never changes selected context: every supported
