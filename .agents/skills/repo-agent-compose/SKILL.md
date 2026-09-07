@@ -1,14 +1,14 @@
 ---
 name: repo-agent-compose
-description: An eval driven composer for agent roles and personas. Triggers - agent-compose, ai-agents, automation, llm, mcp
+description: A name, a job, and the context to do it. Triggers - agent-compose, ai-agents, automation, llm, mcp
 ---
 
 # repo-agent-compose
 
-Pointer to `~/projects/coilyco-flight-deck/agent-compose/`.
+Repository `coilyco-flight-deck/agent-compose`. Checkout at `~/projects/coilyco-flight-deck/agent-compose/` when resident.
 
 - [`README.md`](../../../README.md) - what it is, quickstart, layout.
-- [`AGENTS.md`](../../../AGENTS.md) - agent-facing operating context for the repo.
+- [`AGENTS.md`](../../../AGENTS.md) - agent-facing context for the repo.
 - [`docs/FEATURES.md`](../../../docs/FEATURES.md) - what ships today.
 
-Read those before answering substantive questions about agent-compose.
+Read those before answering large questions about agent-compose.

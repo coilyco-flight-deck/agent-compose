@@ -1,13 +1,5 @@
-# Catalog metadata for the cross-repo knowledge graph.
-#
-# Dev verbs used to live here as a `commands:` block. They are recipes in the
-# repo-root justfile now, per coilysiren/inbox#366. This file survives only
-# because check_catalog_block pins this exact path and catalog-trifecta wants
-# README, AGENTS, and FEATURES to link it, both upstream in agentic-os. See
-# agentic-os#1081.
-#
-# `ward` stays in dependsOn: this repo still names it as a catalog dependency
-# even though it no longer runs a verb through it.
+# Catalog metadata only. Dev verbs moved to the repo-root justfile, and this
+# file survives because check_catalog_block pins this path. agentic-os#1081.
 catalog:
   description: "agent-compose - personality-engine context composition and delivery."
   dependsOn:

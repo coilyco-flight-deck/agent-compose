@@ -1,8 +1,5 @@
-# Forgejo-canonical release pipeline. Every main push validates. Product-impact
-# changes publish automatically unless a tracked major-release hold is active.
-# Runs queue without cancellation so closely spaced pushes validate in order.
-# The mirror check runs last and a red run may still have shipped, because the
-# package bumps do not read the mirror. See docs/release.md.
+# Forgejo-canonical release pipeline. A red run may still have shipped, because
+# the mirror check runs last and the package bumps do not read it. docs/release.md.
 
 name: release
 

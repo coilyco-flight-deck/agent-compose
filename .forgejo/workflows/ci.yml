@@ -1,19 +1,5 @@
-# Pull-request validation. This repository had none: release.yml validates on
-# the main push, in the same job that tags and publishes, so a bad merge was
-# only discoverable after it landed and took the release pipeline with it.
-#
-# Runs the same `just test` the release job runs, so a pull request gets
-# exactly the check that is going to gate it after merge rather than a lighter
-# approximation that can disagree.
-#
-# pull_request only, because release.yml already validates every main push and
-# duplicating it here would run the whole suite twice per merge.
-#
-# This cancels superseded runs and release.yml deliberately does not: a
-# superseded pull request has nothing left to prove, a release does.
-#
-# The cache is here because `just test` ends with `pre-commit run
-# --all-files`, so hook environments dominate a cold run.
+# Pull-request validation, so a bad merge is discoverable before it lands
+# rather than after it takes the release pipeline with it. See docs/release.md.
 
 name: ci
 

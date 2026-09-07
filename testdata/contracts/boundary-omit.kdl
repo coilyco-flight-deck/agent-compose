@@ -1,6 +1,5 @@
-// A single-seat deployment: science with no sysadmin, advocate, or director to hand
-// work to. The role owns no boundary, and the two named here are deferrals it
-// can drop. Its scoped grant on build-foundational-software is not.
+// Single-seat deployment with nobody to hand work to. The two boundaries named
+// are deferrals the role can drop; its scoped build grant is not.
 compose {
     role "science"
     delivery "native-skills"
