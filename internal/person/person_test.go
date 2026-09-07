@@ -526,6 +526,15 @@ func TestLookupCueUsesDeclaredAliasesAndPreservesAmbiguity(t *testing.T) {
 			t.Errorf("lookup %q = %v, want %v", test.cue, got, test.want)
 		}
 	}
+	// Negative control: the positive cases above also pass against a lookup
+	// that ignores its argument, which is how the silent empty result shipped.
+	missed, err := p.LookupCue("zzznotapersonality")
+	if err != nil {
+		t.Fatalf("unmatched cue must resolve to nothing, not error: %v", err)
+	}
+	if len(missed) != 0 {
+		t.Errorf("unmatched cue resolved to %v, want no names", missed)
+	}
 	if _, err := NormalizeCue("bad\x00cue"); err == nil {
 		t.Fatal("control characters must be rejected")
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/urfave/cli/v3"
 
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/bundle"
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/cascade"
@@ -700,5 +703,35 @@ func TestCatalogRoleLineLabelsThePersonalityMeld(t *testing.T) {
 	}
 	if strings.Contains(line, "boundary") {
 		t.Errorf("catalog role line still labels the meld as a boundary: %q", line)
+	}
+}
+
+func TestCatalogVerbsRejectAPositionalTheyDoNotRead(t *testing.T) {
+	// Calls the real actions, so a verb that stops consulting
+	// rejectCatalogArgs fails here rather than only the helper regressing.
+	for name, action := range map[string]func(context.Context, *cli.Command) error{
+		"personalities": runCatalogPersonalities,
+		"roles":         runCatalogRoles,
+		"seats":         runCatalogSeats,
+		"boundaries":    runCatalogBoundaries,
+		"expressions":   runCatalogExpressions,
+	} {
+		t.Run(name, func(t *testing.T) {
+			cmd := &cli.Command{Name: name, Action: action}
+			err := cmd.Run(context.Background(), []string{name, "zzz"})
+			if err == nil {
+				t.Fatal("a stray positional must fail rather than be discarded")
+			}
+			if !strings.Contains(err.Error(), "zzz") {
+				t.Errorf("error must name the discarded argument, got %q", err)
+			}
+		})
+	}
+	clean := &cli.Command{
+		Name:   "roles",
+		Action: func(_ context.Context, c *cli.Command) error { return rejectCatalogArgs(c) },
+	}
+	if err := clean.Run(context.Background(), []string{"roles"}); err != nil {
+		t.Fatalf("no positional must stay allowed: %v", err)
 	}
 }

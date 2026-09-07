@@ -531,7 +531,23 @@ func writeCatalog(value any, asJSON bool, text string) error {
 	return err
 }
 
+// Every catalog selector is a flag, so a bare word is a typed intent the
+// command would otherwise discard while reporting success.
+func rejectCatalogArgs(cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return nil
+	}
+	return fmt.Errorf(
+		"%s takes no positional arguments, got %q; selectors are flags, see --help",
+		cmd.Name,
+		cmd.Args().First(),
+	)
+}
+
 func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
+	if err := rejectCatalogArgs(cmd); err != nil {
+		return err
+	}
 	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -542,8 +558,12 @@ func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
 		if err != nil {
 			return err
 		}
-		if names == nil {
-			names = []string{}
+		if len(names) == 0 {
+			return fmt.Errorf(
+				"no personality matches cue %q; `catalog personalities` with no "+
+					"--query lists every slug and its aliases",
+				query,
+			)
 		}
 	}
 	entries, err := p.PersonalityCatalog(names)
@@ -566,6 +586,9 @@ func runCatalogPersonalities(_ context.Context, cmd *cli.Command) error {
 }
 
 func runCatalogRoles(_ context.Context, cmd *cli.Command) error {
+	if err := rejectCatalogArgs(cmd); err != nil {
+		return err
+	}
 	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -595,6 +618,9 @@ func catalogRoleLine(entry person.RoleCatalogEntry) string {
 }
 
 func runCatalogBoundaries(_ context.Context, cmd *cli.Command) error {
+	if err := rejectCatalogArgs(cmd); err != nil {
+		return err
+	}
 	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -634,6 +660,9 @@ func boundaryMatrixText(roles []string, entries []person.BoundaryMatrixEntry) st
 }
 
 func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
+	if err := rejectCatalogArgs(cmd); err != nil {
+		return err
+	}
 	p, _, err := loadSelectedPersonWithLibraries(cmd.String("person-source"), cmd.StringSlice("personality-library"))
 	if err != nil {
 		return err
@@ -667,6 +696,9 @@ func catalogAffinityRoles(affinities []person.PersonalityMeld) string {
 }
 
 func runCatalogExpressions(_ context.Context, cmd *cli.Command) error {
+	if err := rejectCatalogArgs(cmd); err != nil {
+		return err
+	}
 	expressions := person.ExpressionVocabulary()
 	return writeCatalog(expressions, cmd.Bool("json"), strings.Join(expressions, "\n")+"\n")
 }

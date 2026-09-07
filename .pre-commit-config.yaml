@@ -67,7 +67,9 @@ repos:
       - id: role-palette-snapshot
         name: role palette snapshot is current
         description: "Regenerate internal/palette/role-palette.txt. Role colours are derived from the whole roster at once, so one roster edit moves several of them."
-        entry: go run ./cmd/agent-compose palette-snapshot
+        # The roster is mounted rather than embedded, so the binary needs a
+        # path to it and does not inherit the justfile's export.
+        entry: env AGENT_COMPOSE_ROSTER=seed/roster go run ./cmd/agent-compose palette-snapshot
         language: system
         pass_filenames: false
-        files: ^(internal/person/data/.*|internal/color/color\.go|internal/palette/snapshot\.go|internal/palette/role-palette\.txt)$
+        files: ^(seed/roster/data/.*|internal/color/color\.go|internal/palette/snapshot\.go|internal/palette/role-palette\.txt)$
