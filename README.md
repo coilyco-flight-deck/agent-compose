@@ -71,6 +71,10 @@ acompose -- <command>                 # refresh context, then exec the command
 agent-compose launch <role> <harness> # launch one harness with an assigned role
 ```
 
+New here? [guides/quickstart.md](guides/quickstart.md) goes from an empty
+terminal to a composed role, and the role guides beside it cover when to reach
+for each seat.
+
 `--reapply` rewrites the host compose layout even when it is already current,
 and `--verbose` prints every `source => destination` mapping it places.
 `--explain` adds the role briefing, the credits, the expression vocabulary,
@@ -131,6 +135,7 @@ MIT. See [LICENSE](LICENSE).
 
 ## See also
 
+- [guides/quickstart.md](guides/quickstart.md) - install, configure, converge.
 - [AGENTS.md](AGENTS.md) - agent-facing operating rules.
 - [docs/FEATURES.md](docs/FEATURES.md) - inventory of what ships today.
 - [docs/architecture.md](docs/architecture.md) - the composition boundary.
