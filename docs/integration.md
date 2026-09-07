@@ -60,8 +60,7 @@ composition adapter can use an empty private target under the
 ## Migration state
 
 The cascade is native as of v0.2.0. Fleet cutover belongs to AOS and
-infrastructure and is tracked in
-[agentic-os#618](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/618).
+infrastructure rather than to this repository.
 Hosts must reconcile hand-edited snapshots into sources before cutover.
 
 ## See also

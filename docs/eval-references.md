@@ -31,8 +31,7 @@ recommendations were independently already in place here.
 The two cover different halves rather than competing. Inspect is adopted for
 the run leg. Phoenix stays a reference, since annotation is local. Adopting a
 review UI stays undecided: one that writes decisions needs a path back into the
-record, and one writer per record is what the one-way export exists to hold
-(<https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213>).
+record, and one writer per record is what the one-way export exists to hold.
 
 ## Blogs
 

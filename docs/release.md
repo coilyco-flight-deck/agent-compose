@@ -80,8 +80,8 @@ reaches all seven seats as one owner, two scoped, and four deferring.
 
 Melds drop from three traits to two, one signature plus one bond shared with a
 sibling seat, and the trait vocabulary falls from 19 to 10. The nine retired
-bodies are preserved verbatim at
-[#316](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/316).
+bodies are preserved verbatim in git at `12c7198^`, under
+`internal/person/data/personality-{bold,candid,curious,diplomatic,editorial,meticulous,nurturing,reflective,skeptical}`.
 
 Update launch commands, Ward role selections, composed-skill bindings,
 `AGENT_GIT_ATTRIBUTION_ROLE`, per-role Claude themes, and evaluation inputs to

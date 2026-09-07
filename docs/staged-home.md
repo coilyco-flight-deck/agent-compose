@@ -52,12 +52,9 @@ the `acompose` host entrypoint. No composition root is required for native use.
 Every development verb is a recipe in the repo-root [justfile](../justfile).
 `just` alone lists them.
 
-Retiring per-repo `ward exec` is
-[coilysiren/inbox#366](https://forgejo.coilysiren.me/coilyco-bridge/inbox/issues/366),
-under the principle in
-[#365](https://forgejo.coilysiren.me/coilyco-bridge/inbox/issues/365): ward is
-out-of-band flight control, so a repo should mention it in passing rather than
-route its whole build through it. The pattern is
+Per-repo `ward exec` is retired, under the principle that ward is out-of-band
+flight control, so a repo should mention it in passing rather than route its
+whole build through it. The pattern is
 [agentic-os#1048](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/pulls/1048).
 
 ### What changed
@@ -77,8 +74,7 @@ just test
 It carries the `catalog:` block and nothing else. `check_catalog_block` pins
 that exact path, and `catalog-trifecta` requires README, AGENTS, and FEATURES
 to each link it. Both are authored upstream in agentic-os, so this repo cannot
-remove the file. Tracked at
-[agentic-os#1081](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/issues/1081).
+remove the file.
 
 ### One line of comment per recipe
 

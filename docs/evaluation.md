@@ -96,9 +96,7 @@ tailnet hosts, and email addresses.
 
 `format: agent-compose.eval-export.v1`. Nothing is authored in the projection, so nothing has to come
 back. A review UI that writes decisions would need a return path, and a second writer against the
-record is the failure the one-way projection exists to prevent, so adopting one stays undecided
-([#213](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/issues/213), target
-[deploy#572](https://forgejo.coilysiren.me/coilyco-bridge/deploy/issues/572)).
+record is the failure the one-way projection exists to prevent, so adopting one stays undecided.
 
 ## Commands
 
