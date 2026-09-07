@@ -27,11 +27,14 @@ and what it reaches for first.
 - 🤿🌈 **Sprite** (they) - Game Developer - ships playable games, the code and the assets and the build that carries both. Immersed and imaginative.
 - ✂️🔭 **Portia** (they) - Portfolio Director - decides what the portfolio does next, and carries each decision to its gate. Decisive and outward.
 - 🕯️🔭 **Gem** (they) - Developer Advocate - turns real work and audience evidence into accurate content and informed commitments. Warm and outward.
+- 🪞🪢 **Cassandra** (they) - AI Underwriter - underwrites a company's claim that its high-risk AI system meets the Act, and stands behind the file that proves it. Suspicious and tenacious.
 
 Every seat melds one signature trait with one bond it shares with a sibling, so
-the seven signature traits are distinct and the bonds group them: the three
+the eight signature traits are distinct and the bonds group them: the three
 builders share 🪨 grounded, the two makers share 🌈 imaginative, and the two
-outward-facing seats share 🔭 outward.
+outward-facing seats share 🔭 outward. The underwriter bonds instead to 🪢
+tenacious, the platform seat's own signature, so eight signatures and three
+shared bonds is the eleven the catalogue lists.
 
 Each personality carries a colour, an emblem, a motif, and a body written in
 prose, which is where the creature art comes from and what a voice melds along
@@ -57,11 +60,19 @@ scoop bucket add coilyco-flight-deck https://forgejo.coilysiren.me/coilyco-fligh
 scoop install coilyco-flight-deck/agent-compose
 ```
 
-Both also install `acompose`, the compose verb directly. Tagged
+Both also install `acompose`, the compose verb directly, and both install the
+roster beside the binary. A raw binary from
 [Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
-attach darwin-arm64, linux-amd64, linux-arm64, and windows-amd64 binaries. From
-source, `just install` builds into `GOBIN`. `agent-compose version` reports the
-build you are running.
+needs two assets rather than one, because the binary carries no roster:
+
+```sh
+curl -fL .../download/agent-compose-roster.tar.gz | tar xz -C ~/.agent-compose
+```
+
+Skip that and the first `catalog roles` reports `no roster is mounted`, naming
+every path it tried. Releases attach darwin-arm64, linux-amd64, linux-arm64 and
+windows-amd64. From source, `just install` builds into `GOBIN` and exports the
+roster path for you. `agent-compose version` reports the build you are running.
 
 ## Use it
 
