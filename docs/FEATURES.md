@@ -104,12 +104,12 @@ rather than only in the issue.
   `repository-plan.yaml` with sealed provenance.
 * `bundle materialize` returns a verified role/harness bundle with provenance.
 * Bare `acompose` converges hosts. `--reapply` forces the layout, `--verbose`
-  traces `source => destination`, and `-- <command>` refreshes then execs.
-  Ward smoke proves idempotence.
+  traces `source => destination`, `-- <command>` refreshes then execs, and Ward
+  smoke proves idempotence.
 * [`appendix`](cascade.md) composes inline or file tail blocks, optionally scoped to named roles.
 * [Local skill catalogues](skill-catalogues.md) consume AOS roots.
-* [Release](release.md) publishes unreleased product deltas, including
-  roll-forward recovery, under a hold.
+* [Release](release.md) publishes unreleased deltas under a hold, with roll-forward recovery.
+* A bundle carries a [voice profile](manifest-schema.md) merging a skill's rules with the seat's avoid banks, so a Refuse reaches a checker.
 
 ## See also
 

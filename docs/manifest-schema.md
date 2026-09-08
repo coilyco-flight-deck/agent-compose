@@ -55,6 +55,39 @@ definitions, evaluation assets, copy contract, and compact role identity
 metadata. `diff` compares these stable IDs and digests without reopening the
 authoring roots. Local filesystem paths never appear.
 
+## The voice profile
+
+`delivery.voice_profile` names `content/voice-profile.json`, a linter profile
+for the `writing-voice-guide-linter` engine holding the rules this seat lints
+its own prose against. It merges two kinds of rule.
+
+* **Carried** - a selected skill shipping a root `profile.json` contributes its
+  hand-written rules verbatim. Discovery reads the document rather than matching
+  a skill name, so a source ships a house style without agent-compose knowing
+  what that source called it.
+* **Generated** - one rule per term on the seat's melded `voice.avoid` bank,
+  role first then personalities, deduped so the role bank keeps a shared term.
+
+A carried rule wins a collision on id and sorts first, because a hand-written
+pattern says something a generated one cannot.
+
+A generated pattern anchors `\b` on whichever ends of the term are word
+characters and matches internal whitespace as `\s+`. Both halves earn their
+place: unanchored, `just` matches inside `adjust` and `easy` inside `greasy`,
+which is the over-flag that teaches a seat to skip the linter, and without the
+whitespace class a phrase that wraps a line stops matching.
+
+A generated hint names the bank and stops. What the linter says to a writer
+about their own prose belongs to the seat that owns the words.
+
+A seat with no avoid bank and no carried profile writes no file and the field
+is absent. The engine refuses an empty rule list rather than reading it as zero
+rules, so writing one would fail to load at the point of use.
+
+Before this the only consumer of `avoid` was the identity card's `**Refuse**`
+line, so a seat was told to refuse a word no checker had heard of. Measured at
+housecast `evaluations/voice-catchphrase-2026-09-08`.
+
 ## Bundle fingerprint
 
 `bundle.Fingerprint` names the composition a manifest describes, so a session

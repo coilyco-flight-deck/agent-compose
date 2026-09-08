@@ -32,21 +32,36 @@ func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
 	return nil
 }
 
-// renderVoice melds in role-then-personality order. The banks concatenate
-// rather than override, because a wider bank is the point.
+// VoiceBank is one contributor to a melded voice, kept with its label so a
+// consumer can say which side of the meld a term came from.
+type VoiceBank struct {
+	Label string
+	Voice *Voice
+}
+
+// VoiceBanks melds in role-then-personality order. The banks concatenate rather
+// than override, because a wider bank is the point.
+func (p *Person) VoiceBanks(roleName string, role Role) []VoiceBank {
+	banks := []VoiceBank{}
+	if role.Voice != nil {
+		banks = append(banks, VoiceBank{p.RoleDisplayName(roleName), role.Voice})
+	}
+	for _, name := range role.Personalities {
+		if binding, ok := p.Personalities[name]; ok && binding.Voice != nil {
+			banks = append(banks, VoiceBank{displaySlug(name), binding.Voice})
+		}
+	}
+	return banks
+}
+
 func (p *Person) renderVoice(roleName string, role Role) string {
 	type source struct {
 		label string
 		voice *Voice
 	}
 	sources := []source{}
-	if role.Voice != nil {
-		sources = append(sources, source{p.RoleDisplayName(roleName), role.Voice})
-	}
-	for _, name := range role.Personalities {
-		if binding, ok := p.Personalities[name]; ok && binding.Voice != nil {
-			sources = append(sources, source{displaySlug(name), binding.Voice})
-		}
+	for _, bank := range p.VoiceBanks(roleName, role) {
+		sources = append(sources, source{bank.Label, bank.Voice})
 	}
 	if len(sources) == 0 {
 		return ""

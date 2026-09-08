@@ -14,6 +14,7 @@ import (
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/resolver"
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/schema"
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/voiceprofile"
 )
 
 type Delivery struct {
@@ -21,6 +22,9 @@ type Delivery struct {
 	Instructions    string `json:"instructions"`
 	SkillsRoot      string `json:"skills_root,omitempty"`
 	CompiledContext string `json:"compiled_context,omitempty"`
+	// VoiceProfile is the linter profile this seat lints itself against, absent
+	// when the seat has no avoid bank and carries no hand-written profile.
+	VoiceProfile string `json:"voice_profile,omitempty"`
 	// BodyBytes is what a consumer pays for on every turn. Sources are bounded
 	// by their own hooks; this is the composed output. See docs/bundle-protocol.md.
 	BodyBytes int `json:"body_bytes"`
@@ -187,6 +191,16 @@ func write(res *resolver.Resolution, root string) error {
 		Instructions: "content/instructions.md",
 		BodyBytes:    len(instructions),
 	}
+	profile, err := voiceProfile(res)
+	if err != nil {
+		return err
+	}
+	if profile != nil {
+		if err := writeFile(filepath.Join(root, "content", "voice-profile.json"), profile); err != nil {
+			return err
+		}
+		delivery.VoiceProfile = "content/voice-profile.json"
+	}
 	switch res.Request.Delivery {
 	case schema.DeliveryNativeSkills:
 		delivery.SkillsRoot = "content/skills"
@@ -257,6 +271,30 @@ func write(res *resolver.Resolution, root string) error {
 		return err
 	}
 	return writeFile(filepath.Join(root, "manifest.json"), append(manifest, '\n'))
+}
+
+// voiceProfile returns nil when the seat carries neither a shipped profile nor
+// an avoid bank. Merge and discovery rules: docs/manifest-schema.md.
+func voiceProfile(res *resolver.Resolution) ([]byte, error) {
+	carried := []voiceprofile.Rule{}
+	for _, skill := range res.Skills {
+		raw, err := fs.ReadFile(skill.Files, path.Join(skill.Path, "profile.json"))
+		if err != nil || !voiceprofile.Looks(raw) {
+			continue
+		}
+		rules, err := voiceprofile.Carried(skill.ID, raw)
+		if err != nil {
+			return nil, err
+		}
+		carried = append(carried, rules...)
+	}
+	roleName := res.Request.Role
+	generated := voiceprofile.Generated(res.Person.VoiceBanks(roleName, res.Person.Roles[roleName]))
+	out, err := voiceprofile.Build(res.Person.ProviderID()+":"+roleName, carried, generated)
+	if voiceprofile.Empty(err) {
+		return nil, nil
+	}
+	return out, err
 }
 
 // An assigned bundle cannot reach another role's card, and re-renders its own.
