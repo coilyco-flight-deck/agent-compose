@@ -36,15 +36,22 @@ def main() -> int:
     out.mkdir(parents=True)
 
     composed = 0
+    skipped: list[str] = []
     for role_name in loaded.role_order:
         role = loaded.roles[role_name]
+        # An archived seat has no bundle to ship: both engines refuse to compose
+        # one, so building it is an error rather than an empty artifact.
+        if role.archived:
+            skipped.append(role_name)
+            continue
         for tier in role.supported_model_tiers:
             for delivery in DELIVERY_MODES:
                 name = bundle_name(role_name, tier, delivery)
                 compose.compose(loaded, role_name, tier, out / name, delivery=delivery)
                 composed += 1
 
-    print(f"composed {composed} bundles into {out}")
+    note = f", skipping archived {', '.join(skipped)}" if skipped else ""
+    print(f"composed {composed} bundles into {out}{note}")
     return 0
 
 
