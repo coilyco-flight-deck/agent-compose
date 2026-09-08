@@ -80,8 +80,8 @@ a roster edit arrives as a diff.
 ## Outro
 
 `outro` is what a session says as it closes, `clean` and `failure`, so the tone
-differs between finishing and falling over: *Measured. The numbers are in the
-log.* against *It stopped before the last reading.*
+differs between finishing and falling over: **Measured. The numbers are in the
+log.** against **It stopped before the last reading.**
 
 Authored per **role**, not melded. Voice melds because it is read once as
 doctrine, while an outro is read in half a second by somebody already leaving,

@@ -45,8 +45,8 @@ package layout land together so the code never precedes its public boundary.
 * `infrastructure` owns installation, binary shadowing rollout, host paths, and
   fleet convergence.
 * Product repos are not an agent-compose concept. A repo may host capability
-  files that a source locator references, and it owns any bespoke,
-  foundational, or exceptional local skills.
+  files that a source locator references, and it owns whatever local skills
+  only that repo needs.
 
 ## Commands
 

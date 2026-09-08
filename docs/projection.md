@@ -12,7 +12,7 @@ agent-compose project <bundle-dir> --layout <name> --scope repo|home --target <d
 ## v0.1 layout registry
 
 Every layout declares load points per delivery mode. Native-skills bundles
-place the instructions file plus each selected skill tree; compiled bundles
+place the instructions file plus each selected skill tree. Compiled bundles
 place the single compiled context document at the instructions load point.
 
 * `claude` - instructions to `CLAUDE.md`, skills to `.claude/skills/<skill-id>/`.
@@ -21,7 +21,7 @@ place the single compiled context document at the instructions load point.
 * `opencode` - instructions to `AGENTS.md`, skills to `.agents/skills/<skill-id>/`.
 
 A layout that lacks load points for a bundle's delivery mode fails with a
-diagnostic. Layout names and load-point paths live only in this layer; they
+diagnostic. Layout names and load-point paths live only in this layer, and they
 never appear in the resolver, the request, the manifest, or the bundle tree.
 
 ## Home scope
@@ -34,10 +34,13 @@ so its bundle leads with the operating base instead of inheriting one:
 claude `.claude/CLAUDE.md` + `.claude/skills`, codex `.codex/AGENTS.md`,
 goose `.config/goose/.goosehints`, opencode `.config/opencode/AGENTS.md`,
 with `.agents/skills` as the portable global skills directory for all but
-claude. Verified 2026-07: goose documents the global hints path and the
-`~/.agents/skills` recommendation; opencode lists its global rules and skill
-locations; claude and codex global paths are corroborated by their official
-docs and this fleet's live v1 load-point symlinks.
+claude. Verified 2026-07:
+
+* goose documents the global hints path and the `~/.agents/skills`
+  recommendation.
+* opencode lists its global rules and skill locations.
+* claude and codex global paths are corroborated by their official docs and
+  this fleet's live v1 load-point symlinks.
 
 ## Upstream conventions (verified 2026-07)
 
@@ -51,8 +54,8 @@ one instruction document.
 Claude Code is the exception on both portable conventions. Its documented
 skill locations are `.claude/skills/` and `~/.claude/skills/` only -
 third-party claims of an `.agents/skills/` alias are not corroborated by the
-official docs or changelog - and it does not natively read AGENTS.md either;
-the documented workaround is a symlink or an `@AGENTS.md` import from
+official docs or changelog - and it does not natively read AGENTS.md either.
+The documented workaround is a symlink or an `@AGENTS.md` import from
 CLAUDE.md. The claude layout therefore keeps `CLAUDE.md` and
 `.claude/skills/`.
 

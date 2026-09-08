@@ -22,9 +22,9 @@ that harness context does not also load.
 
 ## Selection and rewrites
 
-A machine may declare `scopes`; a source declares its own in YAML
+A machine may declare `scopes`, and a source declares its own in YAML
 frontmatter and composes only when the two intersect. Omitting the machine
-key disables filtering entirely; under active filtering an untagged source
+key disables filtering entirely. Under active filtering an untagged source
 never leaks in. Frontmatter `harnesses` restricts a source to named
 harnesses. Composed bodies are rewritten for their new home: frontmatter
 stripped, `## See also` navigation dropped, and relative markdown links
@@ -33,7 +33,7 @@ absolutized against the source's own directory.
 A sibling `AGENTS.<harness>.md` beside a source patches it for one harness:
 sections replace by verbatim heading, new headings append, and an ambiguous
 heading fails the compose loudly. When harness slices diverge - by selection
-or by override - output splits into `COMPOSED.<harness>.md` files; identical
+or by override - output splits into `COMPOSED.<harness>.md` files. Identical
 slices share one `COMPOSED.md`, and obsolete banner-carrying outputs are
 removed on convergence.
 
@@ -86,7 +86,7 @@ output. It compiles operating context, global policy, role policy, provider
 uses, and resident-only pins from trusted KDL with sealed input provenance.
 See [Repository plan](repository-plan.md).
 
-`--dry-run` previews only real changes; `--check` verifies every output
+`--dry-run` previews only real changes. `--check` verifies every output
 against a fresh compose and fails with a diff on drift. Writes happen only
 on change, so a converged host recomposes silently.
 `agent-compose config validate <path>` checks staged host configuration and a

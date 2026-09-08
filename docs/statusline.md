@@ -10,7 +10,7 @@ The ordinary row carries the composition facts worth keeping visible:
 🧭 🪨 📐 ⛏️  opal platform [she] uz86 // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed
 ```
 
-* Emblems and the named seat with its subject pronoun come from the bundle;
+* Emblems and the named seat with its subject pronoun come from the bundle.
   `uz86` is the session [short id](whoami.md). `--name` adds the role label.
 * `role@harness` names the actual projection choice instead of inferring role
   from the current task.

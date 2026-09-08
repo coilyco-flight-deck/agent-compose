@@ -80,7 +80,7 @@ references, and the one whose recommendations this repository had already implem
 
 ### Source
 
-Hong et al. *From Rubrics to Reliable Scores: Evidence-Grounded Text Evaluation with LLM Judges*,
+Hong et al. **From Rubrics to Reliable Scores: Evidence-Grounded Text Evaluation with LLM Judges**,
 January 2026. The framework is named RULERS, for Rubric Unification, Locking, and Evidence-anchored
 Robust Scoring.
 
@@ -110,7 +110,7 @@ reference worth leading with:
 * Calibrating the scale to human grading boundaries is why personality moved off a 1-to-5 scale to
   fit, undecided, or does not fit.
 
-The convergence is independent rather than derived. That is worth stating plainly wherever this is
+The convergence is independent rather than derived. State that wherever this is
 cited, since a reader will otherwise assume the design followed the paper.
 
 ## See also

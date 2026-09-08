@@ -8,7 +8,7 @@ agent-compose compose <request.kdl> --layout <name> --target <dir> -- <command> 
 agent-compose compose -- <command> [args...]
 ```
 
-The first form refreshes a bundle and its projection before exec; the bare
+The first form refreshes a bundle and its projection before exec. The bare
 form converges the host (roster plus cascade) before exec. Refresh is
 compose plus project. Both halves are already idempotent - the
 bundle cache reuses identical inputs and projection replaces only its own
@@ -52,7 +52,7 @@ compose or project fails and the target holds a validated last-known-good
 projection - every file the sidecar records still present - launch warns
 loudly on stderr and proceeds with it. Without a usable previous projection
 the launch aborts. A refresh failure touches only the bundle cache and
-projection-owned files; credentials and mutable harness configuration are
+projection-owned files. Credentials and mutable harness configuration are
 never in its write path.
 
 An effective `external-only` person policy disables this fallback. The prior

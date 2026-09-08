@@ -93,7 +93,7 @@ consumes these decisions, not the earlier proposal.
 * No schema-version fields and no digest ceremony. Immutability and atomic
   refresh remain, and a bundle is not a trust artifact.
 * The decision trace stays, as a plain ordered list with readable reasons.
-* Byte-identical duplicate content deduplicates; non-identical collisions for
+* Byte-identical duplicate content deduplicates. Non-identical collisions for
   one delivery slot still fail in v0.1 instead of adding an override grammar.
 * Agent identity is named seats: `agent` nodes under each role. Names are opaque
   to the engine, and launchers keep permissions, models, and effort.

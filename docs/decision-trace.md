@@ -33,16 +33,16 @@ budget does not depend on the consumer layout. Selector-backed provider budgets
 count only the admitted slice. Invalid input fails composition with diagnostics
 from the in-progress trace, and no bundle is produced. Reasons are plain
 sentences, safe to show in a terminal and safe to keep in a public bundle. A
-private overlay is referenced by its source id; its content never appears in a
+private overlay is referenced by its source id. Its content never appears in a
 reason. Runtime noise - durations, cache hits, terminal styling - stays out of
 the trace. `agent-compose describe` renders provider outcomes, context budgets,
 and the stored decisions in scannable sections, `describe --why <item>` follows
 one item to its outcome, and `diff` compares two bundles by decision subject
 plus manifest logical content ID and digest. Artifact-level changes remain
 visible beside logical changes. These commands do not reopen authoring roots.
-`trace.json` itself is the decision machine-readable surface; there is no
+`trace.json` itself is the decision machine-readable surface. There is no
 second explanation format. Human output and TTY styling are views over the
-trace and never enter model instructions; redirected output is plain and
+trace and never enter model instructions. Redirected output is plain and
 deterministic.
 
 ## Issue-suite run journal
@@ -60,7 +60,7 @@ the repository voice forbids prose tables.
   * attempts: 1
   * evidence: canonical role skills, compact startup cards, QA fixture
     doctrine, Engineer and Ops boundary, `ward exec test`, and
-    `ward exec smoke` pass; commit `cd99a44` landed; #121, #116, and #128
+    `ward exec smoke` pass. Commit `cd99a44` landed. #121, #116, and #128
     closed
 * ceo-portfolio-operating-model
   * status: completed
@@ -86,8 +86,8 @@ the repository voice forbids prose tables.
 * cross-repo-fixture-enforcement
   * status: blocked
   * attempts: 1
-  * evidence: Ward #1617 landed at `2d58c641`; AOS fixture enforcement landed
-    at `8e5c7a75`; live proof awaits infrastructure #685 and AOS #781
+  * evidence: Ward #1617 landed at `2d58c641`. AOS fixture enforcement landed
+    at `8e5c7a75`. Live proof awaits infrastructure #685 and AOS #781
 * zero-open-audit
   * status: pending
   * attempts: 0
