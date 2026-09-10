@@ -1,10 +1,10 @@
 # agent-compose
 
-A name, a job, and the context to do it
+Compose agent personas and context
 
 ![agent-compose and $ acompose, a name, a job, and the context to do it](assets/banner/agent-compose-banner.jpg)
 
-agent-compose compiles the context an agent harness loads. It selects a role,
+agent-compose composes the persona and context an agent harness loads. It selects a role,
 the personality meld that role carries, the skills that role can see, and the
 tool inventory it gets, then materializes one immutable bundle of plain files.
 Claude Code, Codex, Goose, and OpenCode all take the same bundle.
