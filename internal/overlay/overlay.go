@@ -47,6 +47,10 @@ type Document struct {
 	// needed the lineage was parsing that sentence (agent-compose#7362).
 	Element  string `json:"element,omitempty"`
 	Creature string `json:"creature,omitempty"`
+
+	// A renderer that draws a role with no roster entry gets the carried
+	// object from here, so it is projected rather than left to a roster.
+	Carried *person.Carried `json:"carried,omitempty"`
 	// Outro carries voice at the close, so a hold banner is not invented.
 	Outro         *person.Outro `json:"outro,omitempty"`
 	Expression    string        `json:"expression"`
@@ -96,6 +100,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		),
 		Element:    role.Element,
 		Creature:   role.Creature,
+		Carried:    role.Carried,
 		Expression: expression,
 	}
 	colors := make([]string, 0, len(role.Personalities))

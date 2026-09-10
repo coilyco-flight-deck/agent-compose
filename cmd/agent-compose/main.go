@@ -370,6 +370,18 @@ func main() {
 				Action: runPaletteSnapshot,
 			},
 			{
+				Name:   "roster-check",
+				Hidden: true,
+				Usage:  "report roster declarations that are incomplete but not invalid",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "strict",
+						Usage: "exit 1 on a warning instead of only reporting it",
+					},
+				},
+				Action: runRosterCheck,
+			},
+			{
 				Name:   "palette-data",
 				Hidden: true,
 				Usage:  "render canonical personality and role colors for the local palette explorer",
@@ -1692,5 +1704,22 @@ func printNativeLaunchSummary(
 	fmt.Fprint(w, metadata)
 	fmt.Fprintln(w)
 	fmt.Fprint(w, audit.String())
+	return nil
+}
+
+// runRosterCheck reports what a strict loader cannot, so the default exit is
+// zero and a caller opts into gating. agent-compose#7212.
+func runRosterCheck(_ context.Context, cmd *cli.Command) error {
+	p, err := person.Load()
+	if err != nil {
+		return err
+	}
+	warnings := p.CarriedWarnings()
+	for _, w := range warnings {
+		fmt.Fprintln(os.Stderr, "warning: "+w)
+	}
+	if len(warnings) > 0 && cmd.Bool("strict") {
+		return fmt.Errorf("%d roster warning(s)", len(warnings))
+	}
 	return nil
 }

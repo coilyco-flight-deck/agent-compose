@@ -122,7 +122,9 @@ type Role struct {
 	Element string `json:"element,omitempty"`
 	// Guardrail names this role's guardrail element, or is empty. Four roles
 	// carry one by Kai's scope decision, so absence is a decision.
-	Guardrail           string         `json:"guardrail,omitempty"`
+	Guardrail string `json:"guardrail,omitempty"`
+	// Carried says what the seat holds; absence is ordinary. agent-compose#7212.
+	Carried             *Carried       `json:"carried,omitempty"`
 	Personalities       []string       `json:"personalities"`
 	FavoriteColor       string         `json:"favorite_color,omitempty"`
 	Background          string         `json:"background,omitempty"`
@@ -203,6 +205,22 @@ func (e Emblem) Name() string {
 type Body struct {
 	Archetype  string `json:"archetype"`
 	Attachment string `json:"attachment"`
+}
+
+// Material names one made thing a seat carries and what it is made of.
+// Structured rather than prose, so a region can be built from it: agent-compose#7212.
+type Material struct {
+	Noun     string `json:"noun"`
+	Material string `json:"material"`
+}
+
+// Carried is the object a seat holds. Clause stays prose, Only suppresses the
+// first personality's attachment rather than joining it: agent-compose#7212.
+type Carried struct {
+	Clause    string     `json:"clause"`
+	Stance    string     `json:"stance,omitempty"`
+	Only      bool       `json:"only,omitempty"`
+	Materials []Material `json:"materials,omitempty"`
 }
 
 // SoundMark describes a short identity cue without prescribing audio files or
@@ -1977,4 +1995,37 @@ func validateIdentityCatalog(catalog map[string]Personality) error {
 		}
 	}
 	return nil
+}
+
+// CarriedWarnings reports declarations a roster may make and probably did not
+// mean. Warns rather than refuses, and why the noun: agent-compose#7212.
+func (p *Person) CarriedWarnings() []string {
+	var out []string
+	for _, roleName := range p.roleOrder() {
+		carried := p.Roles[roleName].Carried
+		if carried == nil {
+			continue
+		}
+		if strings.TrimSpace(carried.Clause) == "" {
+			out = append(out, fmt.Sprintf("role %q: carried has no clause", roleName))
+			continue
+		}
+		if len(carried.Materials) == 0 {
+			out = append(out, fmt.Sprintf(
+				"role %q: carries something with no material declared, so nothing protects it from a recolour", roleName))
+			continue
+		}
+		clause := strings.ToLower(carried.Clause)
+		for _, m := range carried.Materials {
+			if strings.TrimSpace(m.Noun) == "" || strings.TrimSpace(m.Material) == "" {
+				out = append(out, fmt.Sprintf("role %q: material pair is incomplete: %+v", roleName, m))
+				continue
+			}
+			if !strings.Contains(clause, strings.ToLower(m.Noun)) {
+				out = append(out, fmt.Sprintf(
+					"role %q: material noun %q does not appear in its own carried clause", roleName, m.Noun))
+			}
+		}
+	}
+	return out
 }

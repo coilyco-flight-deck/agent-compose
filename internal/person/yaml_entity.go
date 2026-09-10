@@ -74,6 +74,7 @@ type yamlRoleEntity struct {
 	Stance           string               `yaml:"stance,omitempty"`
 	Element          string               `yaml:"element,omitempty"`
 	Creature         string               `yaml:"creature,omitempty"`
+	Carried          *yamlCarried         `yaml:"carried,omitempty"`
 	Skill            string               `yaml:"skill,omitempty"`
 	Methods          []string             `yaml:"methods,omitempty"`
 	ModelTier        []string             `yaml:"model_tier,omitempty"`
@@ -90,6 +91,18 @@ type yamlRoleEntity struct {
 	Acts             []yamlAct            `yaml:"acts,omitempty"`
 	CopyContract     *yamlCopyContract    `yaml:"copy_contract,omitempty"`
 	Archived         bool                 `yaml:"archived,omitempty"`
+}
+
+type yamlCarried struct {
+	Clause    string         `yaml:"clause"`
+	Stance    string         `yaml:"stance,omitempty"`
+	Only      bool           `yaml:"only,omitempty"`
+	Materials []yamlMaterial `yaml:"materials,omitempty"`
+}
+
+type yamlMaterial struct {
+	Noun     string `yaml:"noun"`
+	Material string `yaml:"material"`
 }
 
 type yamlEmblemEntity struct {
@@ -217,6 +230,7 @@ func (r *yamlRoleEntity) model() Role {
 		Stance:              r.Stance,
 		Element:             r.Element,
 		Creature:            r.Creature,
+		Carried:             r.Carried.model(),
 		Guardrail:           r.Guardrail,
 		Skill:               r.Skill,
 		Archived:            r.Archived,
@@ -327,4 +341,15 @@ func yamlManifestName(raw []byte) (string, string, error) {
 		return "", "", fmt.Errorf("manifest needs exactly one of person, roster, or library")
 	}
 	return node, name, nil
+}
+
+func (c *yamlCarried) model() *Carried {
+	if c == nil {
+		return nil
+	}
+	out := &Carried{Clause: c.Clause, Stance: c.Stance, Only: c.Only}
+	for _, m := range c.Materials {
+		out.Materials = append(out.Materials, Material{Noun: m.Noun, Material: m.Material})
+	}
+	return out
 }
