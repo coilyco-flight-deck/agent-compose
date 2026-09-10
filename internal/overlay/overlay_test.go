@@ -2,6 +2,7 @@ package overlay
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -148,4 +149,69 @@ func TestMarshalProducesVersionedJSON(t *testing.T) {
 	if decoded.Format != Format || decoded.Expression != "blocked" {
 		t.Fatalf("unexpected overlay JSON: %+v", decoded)
 	}
+}
+
+// Pins agent-compose#7362: these reached consumers only inside the Identity
+// sentence, so aosx record.py parsed prose. The sentence still carries them.
+func TestBuildProjectsElementAndCreatureAsFields(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, role := range []string{"platform", "sysadmin", "science"} {
+		doc, err := Build(p, role, "claude", "acting")
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := p.Roles[role]
+		if doc.Element != want.Element || doc.Element == "" {
+			t.Fatalf("role %q element field = %q, role carries %q", role, doc.Element, want.Element)
+		}
+		if doc.Creature != want.Creature || doc.Creature == "" {
+			t.Fatalf("role %q creature field = %q, role carries %q", role, doc.Creature, want.Creature)
+		}
+		// The regression this replaces: lineage read back out of prose.
+		if !strings.Contains(doc.Identity, want.Creature) {
+			t.Fatalf("role %q identity dropped the creature: %q", role, doc.Identity)
+		}
+	}
+}
+
+// The fields must survive the JSON `overlay --json` emits, which is the
+// surface the consumer actually reads.
+func TestMarshalCarriesElementAndCreature(t *testing.T) {
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Build(p, "sysadmin", "claude", "acting")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{"element", "creature"} {
+		value, present := decoded[key]
+		if !present {
+			t.Fatalf("overlay JSON has no %q key: %v", key, keysOf(decoded))
+		}
+		if text, _ := value.(string); text == "" {
+			t.Fatalf("overlay JSON %q is empty", key)
+		}
+	}
+}
+
+func keysOf(m map[string]any) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }

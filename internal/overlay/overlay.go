@@ -42,6 +42,11 @@ type Document struct {
 	// Identity is the four-part sentence a seat answers "who are you" with.
 	// Seat-resolved, so it lives here rather than on the card (#396).
 	Identity string `json:"identity,omitempty"`
+
+	// Projected as fields, not only rendered into Identity: a consumer that
+	// needed the lineage was parsing that sentence (agent-compose#7362).
+	Element  string `json:"element,omitempty"`
+	Creature string `json:"creature,omitempty"`
 	// Outro carries voice at the close, so a hold banner is not invented.
 	Outro         *person.Outro `json:"outro,omitempty"`
 	Expression    string        `json:"expression"`
@@ -89,6 +94,8 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		Identity: person.IdentitySentence(
 			seat.Name, displayName, seat.LegalName, role.Creature,
 		),
+		Element:    role.Element,
+		Creature:   role.Creature,
 		Expression: expression,
 	}
 	colors := make([]string, 0, len(role.Personalities))
