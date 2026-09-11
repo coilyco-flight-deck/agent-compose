@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"regexp"
-	"strconv"
 	"strings"
 	"testing/fstest"
 
@@ -15,8 +13,6 @@ import (
 // Entity data lives in one flat data/<kind>-<slug>/ directory per first-class
 // entity. See docs/person-packages.md.
 const dataRoot = "data"
-
-var entityOrder = regexp.MustCompile(`(?m)^\s*order[ =](\d+)\s*$|(?m)\s+order=(\d+)`)
 
 // maxEntityOrder is what the two-digit projected prefix can carry. Declaring
 // past it is refused here. See docs/person-packages.md.
@@ -100,7 +96,7 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 	if err != nil {
 		return 0, fmt.Errorf("%s: read %s %q: %w", label, kind, slug, err)
 	}
-	order, fragment, err := entityOrderOf(string(raw), extension)
+	order, fragment, err := entityOrderOf(string(raw))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %s %q: %w", label, kind, slug, err)
 	}
@@ -116,12 +112,9 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 	return order, nil
 }
 
-// entityOrderOf reads the order the entity declares. A YAML entity keeps the
-// field, because its decoder already accepts it.
-func entityOrderOf(fragment, extension string) (int, string, error) {
-	if extension != yamlFragmentExt {
-		return takeEntityOrder(fragment)
-	}
+// entityOrderOf reads the order the entity declares, and leaves it in place
+// because the fragment decoder already accepts the field.
+func entityOrderOf(fragment string) (int, string, error) {
 	var declared struct {
 		Order int `yaml:"order"`
 	}
@@ -135,27 +128,4 @@ func entityOrderOf(fragment, extension string) (int, string, error) {
 		return 0, "", fmt.Errorf("order %d is above the maximum of %d", declared.Order, maxEntityOrder)
 	}
 	return declared.Order, fragment, nil
-}
-
-// takeEntityOrder reads the order the entity declares and removes it, so the
-// parser never sees a field that exists only to sequence the roster.
-func takeEntityOrder(fragment string) (int, string, error) {
-	match := entityOrder.FindStringSubmatch(fragment)
-	if match == nil {
-		return 0, "", fmt.Errorf("needs an order")
-	}
-	digits := match[1]
-	if digits == "" {
-		digits = match[2]
-	}
-	order, err := strconv.Atoi(digits)
-	if err != nil || order < 1 {
-		return 0, "", fmt.Errorf("order %q is not a positive integer", digits)
-	}
-	if order > maxEntityOrder {
-		return 0, "", fmt.Errorf("order %d is above the maximum of %d", order, maxEntityOrder)
-	}
-	stripped := entityOrder.ReplaceAllString(fragment, "")
-	stripped = strings.ReplaceAll(stripped, "{\n\n", "{\n")
-	return order, strings.TrimSpace(stripped) + "\n", nil
 }
