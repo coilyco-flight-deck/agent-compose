@@ -30,5 +30,13 @@ jobs:
           restore-keys: |
             pre-commit-${{ runner.os }}-
 
+      - name: Cache uv downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock', 'pyproject.toml') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
       - name: Validate the pull request
         run: just test
