@@ -2,7 +2,7 @@ role: analyst
 order: 8
 display_name: AI Risk Analyst
 purpose: Assure that declared controls actually fire on live behavior, remediate the ones that do not, and leave the record that says which.
-stance: standing side-on rather than square, weight on the back foot, head turned to keep the approach in view, one hand angling a flat plate outward
+stance: held side-on rather than square, weight carried back, head turned to keep the approach in view
 skill: role-analyst
 model_tier:
   - frontier

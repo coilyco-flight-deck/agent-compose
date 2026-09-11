@@ -2,7 +2,7 @@ role: sysadmin
 order: 2
 display_name: Systems Administrator
 purpose: Operate the real hosted systems and release surfaces.
-stance: standing on four short heavy legs, braced low, weight forward, shoulders set as if holding a line
+stance: planted low and square, weight carried forward, set as if holding steady against something pushing back
 skill: role-sysadmin
 model_tier:
   - frontier

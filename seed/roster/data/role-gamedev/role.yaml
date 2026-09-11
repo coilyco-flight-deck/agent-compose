@@ -2,7 +2,7 @@ role: gamedev
 order: 5
 display_name: Game Developer
 purpose: 'Ship playable games: the code, the assets, and the build that carries both.'
-stance: standing low on four short weighted legs, sinking and settling, shoulders dropped, in gentle downward drift
+stance: carried low and level, weight settling rather than planted, head tipped a little downward, in gentle downward drift
 skill: role-gamedev
 model_tier:
   - frontier
