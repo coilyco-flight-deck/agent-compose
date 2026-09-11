@@ -124,6 +124,7 @@ type yamlPersonalityEntity struct {
 	Order       int                  `yaml:"order,omitempty"`
 	Skill       string               `yaml:"skill,omitempty"`
 	Species     string               `yaml:"species,omitempty"`
+	ColorWord   string               `yaml:"color_word,omitempty"`
 	Color       string               `yaml:"color,omitempty"`
 	Motif       string               `yaml:"motif,omitempty"`
 	Geometry    string               `yaml:"geometry,omitempty"`
@@ -266,15 +267,16 @@ func (r *yamlRoleEntity) model() Role {
 
 func (p *yamlPersonalityEntity) model() Personality {
 	personality := Personality{
-		Skill:    p.Skill,
-		Species:  p.Species,
-		Color:    p.Color,
-		Motif:    p.Motif,
-		Geometry: p.Geometry,
-		Voice:    p.Voice.model(),
-		Verbs:    p.Verbs,
-		Aliases:  p.Aliases,
-		Acts:     actModels(p.Acts),
+		Skill:     p.Skill,
+		Species:   p.Species,
+		ColorWord: p.ColorWord,
+		Color:     p.Color,
+		Motif:     p.Motif,
+		Geometry:  p.Geometry,
+		Voice:     p.Voice.model(),
+		Verbs:     p.Verbs,
+		Aliases:   p.Aliases,
+		Acts:      actModels(p.Acts),
 	}
 	if p.Emblem != nil {
 		personality.Emblem = Emblem{Names: p.Emblem.Names, Emoji: p.Emblem.Emoji}

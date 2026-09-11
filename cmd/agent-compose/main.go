@@ -1725,6 +1725,9 @@ func runRosterCheck(_ context.Context, cmd *cli.Command) error {
 		}
 		fmt.Fprintf(os.Stderr, "warning: roster %s is %s\n", where, why)
 	}
+	for _, f := range p.ColorFindings() {
+		fmt.Fprintf(os.Stderr, "warning: personality %q: %s\n", f.Personality, f.Message)
+	}
 	blocking := 0
 	for _, f := range p.CarriedFindings() {
 		label := "warning"

@@ -2,6 +2,7 @@ personality: suspicious
 order: 24
 skill: personality-suspicious
 species: Snake
+color_word: periwinkle
 color: '#7f8fd6'
 motif: cold-mirror
 geometry: facing-planes

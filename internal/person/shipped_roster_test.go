@@ -21,6 +21,7 @@ func TestShippedRosterMeetsWholeRosterGates(t *testing.T) {
 		{"role adjacents", validateRoleAdjacents},
 		{"personality melds", validateCorePersonalityMelds},
 		{"personality species", validateEveryPersonalityCarriesASpecies},
+		{"personality colour words", validateEveryPersonalityColorWordAgrees},
 	} {
 		if err := gate.fn(p); err != nil {
 			t.Errorf("%s: %v", gate.name, err)

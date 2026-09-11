@@ -19,6 +19,7 @@ const (
 type Personality struct {
 	Name      string           `json:"name"`
 	Species   string           `json:"species"`
+	ColorWord string           `json:"color_word"`
 	Color     string           `json:"color"`
 	Motif     string           `json:"motif"`
 	Geometry  string           `json:"geometry"`
@@ -112,6 +113,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		doc.Personalities = append(doc.Personalities, Personality{
 			Name:      name,
 			Species:   binding.Species,
+			ColorWord: binding.ColorWord,
 			Color:     binding.Color,
 			Motif:     binding.Motif,
 			Geometry:  binding.Geometry,

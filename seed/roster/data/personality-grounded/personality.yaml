@@ -2,6 +2,7 @@ personality: grounded
 order: 2
 skill: personality-grounded
 species: Ruminant
+color_word: lichen-green
 color: '#5fa87a'
 motif: bedrock
 geometry: stacked-rounds

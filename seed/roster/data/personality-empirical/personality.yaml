@@ -2,6 +2,7 @@ personality: empirical
 order: 23
 skill: personality-empirical
 species: Amphibian
+color_word: jade-green
 color: '#2ed1aa'
 motif: lab-glass
 geometry: graduated-column

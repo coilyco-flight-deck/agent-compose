@@ -293,7 +293,10 @@ func (b Boundary) ActsForSide(side string) []Act {
 type Personality struct {
 	Skill string `json:"skill"`
 	// One per personality, so a shared personality reads as a shared animal.
-	Species   string    `json:"species"`
+	Species string `json:"species"`
+	// The renderer cannot read a hex, so this is the part of the colour that
+	// actually reaches a prompt. See docs/identity.md.
+	ColorWord string    `json:"color_word"`
 	Color     string    `json:"color"`
 	Motif     string    `json:"motif"`
 	Geometry  string    `json:"geometry"`
@@ -987,6 +990,27 @@ func validateEveryPersonalityCarriesASpecies(p *Person) error {
 	for _, name := range p.PersonalityOrder {
 		if strings.TrimSpace(p.Personalities[name].Species) == "" {
 			return fmt.Errorf("personality %q carries no species", name)
+		}
+	}
+	return nil
+}
+
+// Shipped roster only, same reason as the species gate. Checkable is required
+// here so an unverifiable word cannot hide drift in the roster we ship.
+func validateEveryPersonalityColorWordAgrees(p *Person) error {
+	for _, name := range p.PersonalityOrder {
+		binding := p.Personalities[name]
+		word := strings.TrimSpace(binding.ColorWord)
+		if word == "" {
+			return fmt.Errorf("personality %q carries no colour word", name)
+		}
+		agrees, checkable := color.WordAgrees(binding.Color, word)
+		if !checkable {
+			return fmt.Errorf("personality %q colour word %q uses no recognised colour term", name, word)
+		}
+		if !agrees {
+			return fmt.Errorf("personality %q colour word %q does not name the hue of %s",
+				name, word, binding.Color)
 		}
 	}
 	return nil
@@ -2028,6 +2052,35 @@ func validateIdentityCatalog(catalog map[string]Personality) error {
 		}
 	}
 	return nil
+}
+
+// ColorFinding is one personality whose colour word and hex disagree. Never
+// blocking: the hex is the authority and the word is a protection.
+type ColorFinding struct {
+	Personality string
+	Message     string
+}
+
+// ColorFindings reports colour words that name a hue their hex does not carry.
+// A word built from no recognised term is silent, which docs/identity.md states.
+func (p *Person) ColorFindings() []ColorFinding {
+	var out []ColorFinding
+	for _, name := range p.PersonalityOrder {
+		binding := p.Personalities[name]
+		word := strings.TrimSpace(binding.ColorWord)
+		if word == "" {
+			continue
+		}
+		agrees, checkable := color.WordAgrees(binding.Color, word)
+		if checkable && !agrees {
+			out = append(out, ColorFinding{
+				Personality: name,
+				Message: fmt.Sprintf("colour word %q does not name the hue of %s",
+					word, binding.Color),
+			})
+		}
+	}
+	return out
 }
 
 // CarriedFinding is one problem with a carried declaration. Blocking separates

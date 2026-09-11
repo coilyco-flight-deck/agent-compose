@@ -33,8 +33,8 @@ both halves: mask, then ink.
 ### Body and stance
 
 `body` is the creature in prose rather than tokens, parsed by its own validator
-so tokens stay tokens. `stance` is its posture and lives on the **role**, never
-on a personality. The animal comes from the meld, one `species` each.
+so tokens stay tokens. `stance` is its posture, on the **role** not a personality.
+The animal and its colour come from the meld: one `species`, one `color_word`.
 
 ```kdl
 body {

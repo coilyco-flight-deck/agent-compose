@@ -84,10 +84,10 @@ rather than only in the issue.
 
 ## Identity surfaces
 
-* [Identity primitives](identity.md) give every personality a
-  `species`, an emblem name list, a `motif`, a `geometry`, a prose
-  `body`, and a `sound-mark`. A seat's creature is derived from its meld rather
-  than authored, so two seats sharing a personality share an animal.
+* [Identity primitives](identity.md) give every personality a `species`, a
+  `color_word`, an emblem name list, a `motif`, a `geometry`, a prose `body`,
+  and a `sound-mark`. A seat's creature is derived from its meld rather than
+  authored, so two seats sharing a personality share an animal.
 * [Identity renderers](statusline.md) cover the palette, overlays, the
   `acompose statusline` row, `--subagent` rows, and the
   [short id](whoami.md). [`whoami`](whoami.md) prints it. The
