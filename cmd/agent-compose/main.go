@@ -1721,12 +1721,17 @@ func runRosterCheck(_ context.Context, cmd *cli.Command) error {
 		}
 		fmt.Fprintf(os.Stderr, "warning: roster %s resolves to %s, %s\n", root, target, why)
 	}
-	warnings := p.CarriedWarnings()
-	for _, w := range warnings {
-		fmt.Fprintln(os.Stderr, "warning: "+w)
+	blocking := 0
+	for _, f := range p.CarriedFindings() {
+		label := "warning"
+		if f.Blocking {
+			label = "error"
+			blocking++
+		}
+		fmt.Fprintf(os.Stderr, "%s: role %q: %s\n", label, f.Role, f.Message)
 	}
-	if len(warnings) > 0 && cmd.Bool("strict") {
-		return fmt.Errorf("%d roster warning(s)", len(warnings))
+	if blocking > 0 && cmd.Bool("strict") {
+		return fmt.Errorf("%d malformed carried declaration(s)", blocking)
 	}
 	return nil
 }

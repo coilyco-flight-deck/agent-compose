@@ -1998,35 +1998,56 @@ func validateIdentityCatalog(catalog map[string]Personality) error {
 	return nil
 }
 
-// CarriedWarnings reports declarations a roster may make and probably did not
-// mean. Warns rather than refuses, and why the noun: agent-compose#7212.
-func (p *Person) CarriedWarnings() []string {
-	var out []string
+// CarriedFinding is one problem with a carried declaration. Blocking separates
+// malformed data from a deliberate absence (agent-compose#7212).
+type CarriedFinding struct {
+	Role     string
+	Message  string
+	Blocking bool
+}
+
+// CarriedFindings reports carried declarations that are incomplete or
+// self-inconsistent. Severity is split, and why: agent-compose#7212.
+func (p *Person) CarriedFindings() []CarriedFinding {
+	var out []CarriedFinding
+	add := func(role, message string, blocking bool) {
+		out = append(out, CarriedFinding{Role: role, Message: message, Blocking: blocking})
+	}
 	for _, roleName := range p.roleOrder() {
 		carried := p.Roles[roleName].Carried
 		if carried == nil {
 			continue
 		}
 		if strings.TrimSpace(carried.Clause) == "" {
-			out = append(out, fmt.Sprintf("role %q: carried has no clause", roleName))
+			add(roleName, "carried has no clause", true)
 			continue
 		}
 		if len(carried.Materials) == 0 {
-			out = append(out, fmt.Sprintf(
-				"role %q: carries something with no material declared, so nothing protects it from a recolour", roleName))
+			// Not blocking: a human may decide an object needs no material,
+			// and gating that would make the check unrunnable on a real roster.
+			add(roleName, "carries something with no material declared, so nothing protects it from a recolour", false)
 			continue
 		}
 		clause := strings.ToLower(carried.Clause)
 		for _, m := range carried.Materials {
 			if strings.TrimSpace(m.Noun) == "" || strings.TrimSpace(m.Material) == "" {
-				out = append(out, fmt.Sprintf("role %q: material pair is incomplete: %+v", roleName, m))
+				add(roleName, fmt.Sprintf("material pair is incomplete: %+v", m), true)
 				continue
 			}
 			if !containsWord(clause, strings.ToLower(m.Noun)) {
-				out = append(out, fmt.Sprintf(
-					"role %q: material noun %q does not appear in its own carried clause", roleName, m.Noun))
+				add(roleName, fmt.Sprintf("material noun %q does not appear in its own carried clause", m.Noun), true)
 			}
 		}
+	}
+	return out
+}
+
+// CarriedWarnings is CarriedFindings rendered as lines, every severity.
+func (p *Person) CarriedWarnings() []string {
+	findings := p.CarriedFindings()
+	out := make([]string, 0, len(findings))
+	for _, f := range findings {
+		out = append(out, fmt.Sprintf("role %q: %s", f.Role, f.Message))
 	}
 	return out
 }

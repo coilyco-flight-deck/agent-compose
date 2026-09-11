@@ -99,3 +99,37 @@ func TestCarriedAbsenceIsNotAWarning(t *testing.T) {
 		t.Fatalf("a role with no carried object warns: %v", got)
 	}
 }
+
+// A human may decide a carried object needs no material, so an absent list
+// informs without gating. Kai made exactly that call on the gamedev die.
+func TestCarriedAbsentMaterialsInformsButDoesNotBlock(t *testing.T) {
+	findings := withCarried(&Carried{Clause: "a large twenty-sided die held up in one forelimb"}).CarriedFindings()
+	if len(findings) != 1 {
+		t.Fatalf("want one finding, got %v", findings)
+	}
+	if findings[0].Blocking {
+		t.Fatalf("a deliberate absence must not block: %+v", findings[0])
+	}
+}
+
+// The control: malformed data must still block, or splitting severity would
+// have turned the whole check into advice.
+func TestCarriedMalformedDeclarationsBlock(t *testing.T) {
+	cases := map[string]*Carried{
+		"no clause": {Clause: " "},
+		"half a pair": {
+			Clause:    "a stack of cargo containers",
+			Materials: []Material{{Noun: "cargo containers"}},
+		},
+		"noun absent from clause": {
+			Clause:    "a stack of cargo containers roped down",
+			Materials: []Material{{Noun: "helm wheel", Material: "iron"}},
+		},
+	}
+	for name, carried := range cases {
+		findings := withCarried(carried).CarriedFindings()
+		if len(findings) == 0 || !findings[0].Blocking {
+			t.Errorf("%s should block, got %+v", name, findings)
+		}
+	}
+}
