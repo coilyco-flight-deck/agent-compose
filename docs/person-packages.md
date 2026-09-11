@@ -86,24 +86,23 @@ definitions/skills/<skill>/SKILL.md
 ```
 
 `person.yaml` contains only `person: <name>`. Section fragments are
-`<order>-<slug>.yaml`, and the KDL spellings `person.kdl` and
-`<order>-<slug>.kdl` are still read, so a package may hold both while it
-converts. A YAML fragment rejects unknown keys, as the KDL parser rejects
-unknown nodes. Boundary fragments are KDL-only for now (#335). Each policy
-node lives in one ordered fragment:
+`<order>-<slug>.yaml`, and a fragment rejects unknown keys. Every kind is
+YAML, boundaries included. KDL is the compose request format and is not read
+inside a person package. Each policy node lives in one ordered fragment:
 
 ```text
-data/role-builder/role.kdl
+data/role-builder/role.yaml
 data/role-builder/SKILL.md
 [data/role-builder/evals.yaml]
-data/personality-tenacious/personality.kdl
+data/personality-tenacious/personality.yaml
 data/personality-tenacious/SKILL.md
-[data/boundary-shared-thing/boundary.kdl]
+[data/boundary-shared-thing/boundary.yaml]
+[data/guardrail-house-tone/guardrail.yaml]
 [data/invariant/INVARIANT.md]
 ```
 
 Every first-class entity owns one flat directory named `<kind>-<slug>`, where
-kind is `role`, `personality`, `boundary`, or `guardrail`. Its KDL fragment is
+kind is `role`, `personality`, `boundary`, or `guardrail`. Its fragment is
 named for the kind, its body is `SKILL.md`, and a role may add `evals.yaml`.
 The directory slug must match the node slug. Each entity declares an `order`
 from 1 to 99, which sequences the roster in place of the filename prefixes it
