@@ -13,8 +13,9 @@ personalities:
   - protective
   - grounded
 boundaries:
-  - suggest-external-comms
+  - hold-emotional-weight
   - seek-external-validation
+  - suggest-external-comms
 scoped_boundaries:
   - boundary: build-foundational-software
     scope: executable configuration only your own estate consumes, never shared tooling, validators, or code other seats build on

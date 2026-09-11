@@ -13,6 +13,7 @@ personalities:
   - tenacious
   - grounded
 boundaries:
+  - hold-emotional-weight
   - suggest-external-comms
 scoped_boundaries:
   - boundary: modify-live-backend

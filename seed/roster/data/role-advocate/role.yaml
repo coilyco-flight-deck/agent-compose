@@ -16,6 +16,7 @@ personalities:
   - outward
 boundaries:
   - build-foundational-software
+  - hold-emotional-weight
   - modify-live-backend
 scoped_boundaries:
   - boundary: seek-external-validation

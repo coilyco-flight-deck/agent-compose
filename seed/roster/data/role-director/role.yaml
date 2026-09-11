@@ -14,6 +14,7 @@ personalities:
   - outward
 boundaries:
   - build-foundational-software
+  - hold-emotional-weight
   - modify-live-backend
   - suggest-external-comms
 adjacents:

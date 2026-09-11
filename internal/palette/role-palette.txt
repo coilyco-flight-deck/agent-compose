@@ -24,14 +24,15 @@ backgrounds nobody can tell apart. Each role's hue is held and moved onto
 equal spacing at a fixed low lightness and chroma, at the rotation offset
 that turns every role the least. agentic-os#1245, #358.
 
-Closest accent pair: 0.1459
-Closest background pair: 0.0354
+Closest accent pair: 0.1098
+Closest background pair: 0.0307
 
-platform // #95943e // #1f2000 // tenacious, grounded
-sysadmin // #009792 // #002529 // protective, grounded
-science // #3ed7a9 // #012513 // empirical, grounded
-frontend // #ee7eea // #2e1328 // playful, imaginative
-gamedev // #2980fe // #032036 // immersed, imaginative
-director // #de6962 // #341212 // decisive, outward
-advocate // #eea560 // #2f1800 // warm, outward
-analyst // #9190c4 // #1e1936 // suspicious, tenacious
+platform // #7b8c53 // #142305 // tenacious, grounded
+sysadmin // #00a397 // #00242d // protective, grounded
+science // #40d7a8 // #00261b // empirical, grounded
+frontend // #ee7eeb // #2d1329 // playful, imaginative
+gamedev // #2780ff // #081f37 // immersed, imaginative
+director // #df6963 // #331117 // decisive, outward
+advocate // #eaaa5a // #321503 // warm, outward
+analyst // #918ec2 // #1f1836 // suspicious, tenacious
+psych // #aea227 // #271d00 // warm, protective
