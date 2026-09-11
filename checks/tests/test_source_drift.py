@@ -195,3 +195,24 @@ def test_boundary_and_personality_metadata_matches(
         ]:
             stale.append(f"personality {name}")
     assert not stale, f"regenerate housecast/data/roster.yaml, these drifted: {stale}"
+
+
+def test_every_order_sequence_matches_the_go_snapshot(
+    loaded: Roster,
+    go_snapshot: dict[str, Any],
+) -> None:
+    """Both engines check an order against its definitions as a set, never as a sequence:
+    housecast/validate.py asks whether `guardrail_order` and the guardrails map name
+    different sets, and the drift check above compares guardrail names the same way. The
+    sequence is load-bearing anyway. It comes from the `order:` integer each entity
+    declares, evalkit walks `boundary_order` to lay out the evaluation matrix, and the
+    identity card renders a seat's boundaries in it. So a permuted copy grades and
+    briefs in an order the Go source never declared, and every existing check stays green.
+    `role_order` is already covered by the role metadata test above."""
+    stale = []
+    for field in ("boundary_order", "guardrail_order"):
+        mine = list(getattr(loaded, field))
+        theirs = list(go_snapshot.get(field) or [])
+        if mine != theirs:
+            stale.append(f"{field}: {mine} != {theirs}")
+    assert not stale, f"regenerate housecast/data/roster.yaml, these drifted: {stale}"
