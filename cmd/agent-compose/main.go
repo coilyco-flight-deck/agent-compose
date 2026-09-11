@@ -376,7 +376,7 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "strict",
-						Usage: "exit 1 on a warning instead of only reporting it",
+						Usage: "exit 1 on a malformed declaration, never on a warning",
 					},
 				},
 				Action: runRosterCheck,
