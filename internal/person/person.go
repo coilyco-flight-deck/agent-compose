@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing/fstest"
 	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/text/unicode/norm"
 
@@ -2021,11 +2022,48 @@ func (p *Person) CarriedWarnings() []string {
 				out = append(out, fmt.Sprintf("role %q: material pair is incomplete: %+v", roleName, m))
 				continue
 			}
-			if !strings.Contains(clause, strings.ToLower(m.Noun)) {
+			if !containsWord(clause, strings.ToLower(m.Noun)) {
 				out = append(out, fmt.Sprintf(
 					"role %q: material noun %q does not appear in its own carried clause", roleName, m.Noun))
 			}
 		}
 	}
 	return out
+}
+
+// containsWord is Contains with both ends on a word boundary. A bare substring
+// matches "rope" inside "roped down", which is a verb rather than a material.
+func containsWord(haystack, needle string) bool {
+	if needle == "" {
+		return false
+	}
+	for offset := 0; ; {
+		index := strings.Index(haystack[offset:], needle)
+		if index < 0 {
+			return false
+		}
+		start := offset + index
+		end := start + len(needle)
+		if !wordRuneAt(haystack, start-1, true) && !wordRuneAt(haystack, end, false) {
+			return true
+		}
+		offset = start + 1
+	}
+}
+
+// wordRuneAt reports whether the rune adjacent to an index is alphanumeric.
+// before selects the rune ending at index+1 rather than starting at index.
+func wordRuneAt(s string, index int, before bool) bool {
+	if before {
+		if index < 0 {
+			return false
+		}
+		r, _ := utf8.DecodeLastRuneInString(s[:index+1])
+		return unicode.IsLetter(r) || unicode.IsDigit(r)
+	}
+	if index >= len(s) {
+		return false
+	}
+	r, _ := utf8.DecodeRuneInString(s[index:])
+	return unicode.IsLetter(r) || unicode.IsDigit(r)
 }
