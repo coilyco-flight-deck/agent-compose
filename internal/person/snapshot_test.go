@@ -60,36 +60,59 @@ func TestSnapshotRoundTripsCompletePersonModel(t *testing.T) {
 	}
 }
 
+// withheld marks a person field the v3 snapshot deliberately does not carry.
+const withheld = ""
+
+// snapshotExport maps each person field to the Snapshot field that carries it,
+// or to withheld. See docs/person-packages.md.
+var snapshotExport = map[string]string{
+	"ProviderKind":         "Source",
+	"Name":                 "Person",
+	"Roles":                "Roles",
+	"RoleOrder":            "RoleOrder",
+	"Boundaries":           "Boundaries",
+	"BoundaryOrder":        "BoundaryOrder",
+	"Personalities":        "Personalities",
+	"Guardrails":           "Guardrails",
+	"GuardrailOrder":       "GuardrailOrder",
+	"PersonalityOrder":     withheld,
+	"boundarySkills":       withheld,
+	"guardrailSkills":      withheld,
+	"Raw":                  withheld,
+	"Libraries":            withheld,
+	"PersonalityLibraries": withheld,
+	"roleSkills":           withheld,
+	"roleMethods":          withheld,
+	"source":               withheld,
+}
+
 func TestSnapshotHasAnExplicitPersonFieldPolicy(t *testing.T) {
-	covered := map[string]bool{
-		"ProviderKind":         true,
-		"Name":                 true,
-		"Roles":                true,
-		"RoleOrder":            true,
-		"Boundaries":           true,
-		"BoundaryOrder":        true,
-		"boundarySkills":       true,
-		"Personalities":        true,
-		"PersonalityOrder":     true,
-		"Guardrails":           true,
-		"GuardrailOrder":       true,
-		"guardrailSkills":      true,
-		"Raw":                  true,
-		"Libraries":            true,
-		"PersonalityLibraries": true,
-		"roleSkills":           true,
-		"roleMethods":          true,
-		"source":               true,
-	}
 	model := reflect.TypeOf(Person{})
 	for index := range model.NumField() {
 		field := model.Field(index)
-		if !covered[field.Name] {
+		if _, ok := snapshotExport[field.Name]; !ok {
 			t.Fatalf("person field %q needs an explicit snapshot export decision", field.Name)
 		}
 	}
-	if len(covered) != model.NumField() {
-		t.Fatalf("snapshot field policy names %d fields, person model has %d", len(covered), model.NumField())
+	if len(snapshotExport) != model.NumField() {
+		t.Fatalf("snapshot field policy names %d fields, person model has %d", len(snapshotExport), model.NumField())
+	}
+}
+
+// The policy above recorded only that someone had looked at each field, so both
+// a dropped export and a quietly added one stayed green. This checks both ways.
+func TestSnapshotExportPolicyMatchesTheSnapshotType(t *testing.T) {
+	snapshot := reflect.TypeOf(Snapshot{})
+	for name, target := range snapshotExport {
+		if target == withheld {
+			if _, exported := snapshot.FieldByName(name); exported {
+				t.Fatalf("person field %q is withheld but Snapshot carries it; update the policy", name)
+			}
+			continue
+		}
+		if _, ok := snapshot.FieldByName(target); !ok {
+			t.Fatalf("person field %q claims Snapshot field %q, which does not exist", name, target)
+		}
 	}
 }
 
