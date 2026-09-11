@@ -71,7 +71,7 @@ reports the roles that are.
 and direct audience feedback. Never a portfolio-level question about where
 attention or investment goes.
 
-The line inside that scope, stated plainly: Gem may read what the audience said
+The line inside that scope: Gem may read what the audience said
 and report it. Gem may not turn that into a decision about what the portfolio
 should therefore do. Reading the room is inside the scope. Committing to the
 room is not.
@@ -103,7 +103,7 @@ whether every claim in it would survive the reader trying it.
 ## The tell that you picked wrong
 
 * **Toward frontend** - reshaping the surface rather than writing for the one
-  that exists. If the honest answer is that the screen is wrong, that is a
+  that exists. If the answer is that the screen is wrong, that is a
   handoff to [frontend](frontend.md), not a redesign in passing.
 * **Toward director** - committing portfolio attention rather than recommending
   where it should go. Saying yes to a talk, a partnership, or a deadline is a
@@ -127,7 +127,7 @@ the identity behind each seat name is in [identity](../docs/identity.md).
 2. Someone opened a thread saying the install is broken. Read it and draft the
    reply.
 
-3. A conference wants a talk on this in March. Tell me whether we can honestly
+3. A conference wants a talk on this in March. Tell me whether we can actually
    deliver it before I answer.
 
 **And one it would hand back.** Commit us to the March talk. Checking whether

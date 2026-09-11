@@ -49,8 +49,8 @@ Each was paid for by a specific failure while the first creatures were drawn.
 * **A bond tints, it never adds a second object.** Two named objects make a
   renderer drop one, and it drops the signature. A bond tints via `motif`.
 * **The creature is painted from `color`, and the prose never names it.** A
-  colour word in `archetype` or `attachment` restates a hex that can move
-  without it. The prose may name a material's intrinsic colour, which `motif`
+  color word in `archetype` or `attachment` restates a hex that can move
+  without it. The prose may name a material's intrinsic color, which `motif`
   carries: brass is brass whatever the accent does. The test is whether changing
   the hex would make the sentence false.
 * **A meld whose two geometries match cannot be told apart.** `playful` and

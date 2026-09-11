@@ -4,10 +4,10 @@ Compose agent personas and context
 
 ![agent-compose and $ acompose, a name, a job, and the context to do it](assets/banner/agent-compose-banner.jpg)
 
-agent-compose composes the persona and context an agent harness loads. It selects a role,
-the personality meld that role carries, the skills that role can see, and the
-tool inventory it gets, then materializes one immutable bundle of plain files.
-Claude Code, Codex, Goose, and OpenCode all take the same bundle.
+agent-compose composes the persona and context an agent harness loads. It
+selects a role, the personality meld that role carries, the skills that role can
+see, and the tool inventory it gets, then materializes one immutable bundle of
+plain files. Claude Code, Codex, Goose, and OpenCode all take the same bundle.
 
 The bundle is context and nothing executable. Permissions, runtime facts, and
 lifecycle stay with whatever launches the agent, so a role slug travels without
@@ -34,9 +34,9 @@ the eight signature traits are distinct and the bonds group them: the three
 builders share 🪨 grounded, the two makers share 🌈 imaginative, and the two
 outward-facing seats share 🔭 outward. The analyst bonds instead to 🪢
 tenacious, the platform seat's own signature, so eight signatures and three
-shared bonds is the eleven the catalogue lists.
+shared bonds make the eleven the catalogue lists.
 
-Each personality carries a colour, an emblem, a motif, and a body written in
+Each personality carries a color, an emblem, a motif, and a body written in
 prose, which is where the creature art comes from and what a voice melds along
 with the role's own. See [docs/identity.md](docs/identity.md) and
 [docs/personality.md](docs/personality.md). `just palette-serve` renders the

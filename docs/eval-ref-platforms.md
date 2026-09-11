@@ -3,7 +3,7 @@
 ## Reference: Inspect
 
 The platform version of the execution half of this system, and the closest structural match to how
-the pipeline is organised. <https://inspect.aisi.org.uk/>
+the pipeline is organized. <https://inspect.aisi.org.uk/>
 
 ### Source
 

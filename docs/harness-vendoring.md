@@ -97,7 +97,7 @@ read a role's declared tier and does not expand into lanes. Model tier does not
 change selected context, so one subject measures the composed text for every
 role, including the four declared frontier-only.
 
-What this costs, stated rather than assumed: the board produces no evidence
+What this costs: the board produces no evidence
 about how a role behaves on a frontier or OSS model. A tier-comparison arm is a
 separate question from the release gate, and answering it would mean running
 the same board against another subject.

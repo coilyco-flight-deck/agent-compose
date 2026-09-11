@@ -5,7 +5,7 @@ The agent-compose mark, and the banner built around it.
 ## The agent-compose mark
 
 A spool of thread wound with twill cloth, its flanges crossing the ring. Three
-colours carry it, and they are the whole palette: ink `#14111b`, mint `#4bcdd1`,
+colors carry it, and they are the whole palette: ink `#14111b`, mint `#4bcdd1`,
 lilac `#baa6d9`.
 
 The files live in [assets/mark/README.md](../assets/mark/README.md).
@@ -92,7 +92,7 @@ and reads as a slab dropped onto the page. A banner is judged where it lands.
 
 Four numbers there are load-bearing rather than cosmetic.
 
-- The lattice is an integer contour of the folded draft, `zigzag(i) + zigzag(j) == fold`. A threshold on a normalised depth widens into a blob at every diamond vertex, because the fold's gradient goes flat there.
+- The lattice is an integer contour of the folded draft, `zigzag(i) + zigzag(j) == fold`. A threshold on a normalized depth widens into a blob at every diamond vertex, because the fold's gradient goes flat there.
 - The contour is 2 cells thick. A 1-cell contour on a 45 degree stair touches only at the corners, so it reads as a dotted line, and the seam between picks finishes it off.
 - Each thread darkens along ink to its own shadow to its hue, mint through `#103a3f` and lilac through `#38275c`, with the shadow at 0.35 of the ramp. Interpolating straight from the shadow leaves the ground at a mid violet and the whole field glows.
 - Picks draw as merged floats rather than as separate cells. A 2/2 twill's visible unit is a float two cells long, and boxing each cell breaks it into a pixel grid.
@@ -112,7 +112,7 @@ help.
 ### Regenerating
 
 The generator is a private script, alongside the mark generator it draws the
-spool from. Like the mark, it is not published, so the field, type, and colour
+spool from. Like the mark, it is not published, so the field, type, and color
 numbers above are the record rather than a summary of one.
 
 The banner is not set as the repository's social preview. That is a setting

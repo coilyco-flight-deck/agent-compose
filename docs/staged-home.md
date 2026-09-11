@@ -82,7 +82,7 @@ remove the file.
 description silently truncates to its tail. agentic-os#1048 found this the
 hard way. Keep descriptions on one line.
 
-### What was lost, stated rather than hidden
+### What was lost
 
 **The clean-tree gate.** `ward exec` refused a repo verb while the working tree
 was dirty, so an audit row could be reconstructed from git history. `just` has

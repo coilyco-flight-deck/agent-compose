@@ -47,7 +47,7 @@ The catalog id, `skill` property, and frontmatter name must agree, so boundary
 
 A role owns a boundary, defers it, or **holds it within a scope**. The third is a
 bounded grant rather than an absence, so it needs a declaration of its own: the
-limit text is the whole content, and a role that simply omits a boundary says
+limit text is the whole content, and a role that omits a boundary says
 nothing at all.
 
 ```kdl

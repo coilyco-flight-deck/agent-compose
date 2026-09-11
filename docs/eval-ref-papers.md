@@ -55,7 +55,7 @@ recently 18 July 2026.
   annotation conflict and keeps the bar consistent.
 * **Custom annotation interfaces beat off-the-shelf platforms**, by roughly an order of
   magnitude in iteration speed, because a bespoke tool can show the right context, bind
-  keyboard shortcuts, and visualise the domain.
+  keyboard shortcuts, and visualize the domain.
 * **Binary pass or fail beats numeric scales**, which introduce subjective ambiguity.
 * Small curated datasets with deterministic checks in CI, and asynchronous sampling of live
   traffic in production.
