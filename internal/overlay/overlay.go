@@ -18,6 +18,7 @@ const (
 
 type Personality struct {
 	Name      string           `json:"name"`
+	Species   string           `json:"species"`
 	Color     string           `json:"color"`
 	Motif     string           `json:"motif"`
 	Geometry  string           `json:"geometry"`
@@ -43,9 +44,8 @@ type Document struct {
 	// Seat-resolved, so it lives here rather than on the card (#396).
 	Identity string `json:"identity,omitempty"`
 
-	// Projected as fields, not only rendered into Identity: a consumer that
-	// needed the lineage was parsing that sentence (agent-compose#7362).
-	Element  string `json:"element,omitempty"`
+	// A field rather than only prose, because a consumer parsed Identity for
+	// it (#7362). Derived from the meld, with no element segment (#7485).
 	Creature string `json:"creature,omitempty"`
 
 	// A renderer that draws a role with no roster entry gets the carried
@@ -96,10 +96,9 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		Annotation:      person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
 		Outro:           role.Outro,
 		Identity: person.IdentitySentence(
-			seat.Name, displayName, seat.LegalName, role.Creature,
+			seat.Name, displayName, seat.LegalName, p.RoleCreature(roleName),
 		),
-		Element:    role.Element,
-		Creature:   role.Creature,
+		Creature:   p.RoleCreature(roleName),
 		Carried:    role.Carried,
 		Expression: expression,
 	}
@@ -112,6 +111,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		colors = append(colors, binding.Color)
 		doc.Personalities = append(doc.Personalities, Personality{
 			Name:      name,
+			Species:   binding.Species,
 			Color:     binding.Color,
 			Motif:     binding.Motif,
 			Geometry:  binding.Geometry,

@@ -3,8 +3,6 @@ order: 5
 display_name: Game Developer
 purpose: 'Ship playable games: the code, the assets, and the build that carries both.'
 stance: standing low on four short weighted legs, sinking and settling, shoulders dropped, in gentle downward drift
-element: water
-creature: Water-Newt-Crab
 skill: role-gamedev
 model_tier:
   - frontier

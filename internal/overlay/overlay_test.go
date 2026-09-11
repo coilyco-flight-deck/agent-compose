@@ -151,9 +151,9 @@ func TestMarshalProducesVersionedJSON(t *testing.T) {
 	}
 }
 
-// Pins agent-compose#7362: these reached consumers only inside the Identity
-// sentence, so aosx record.py parsed prose. The sentence still carries them.
-func TestBuildProjectsElementAndCreatureAsFields(t *testing.T) {
+// Pins #7362 and #7485: the lineage was only prose, and is now a field derived
+// from the meld rather than read off the role.
+func TestBuildDerivesTheCreaturePairFromTheMeld(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -163,23 +163,30 @@ func TestBuildProjectsElementAndCreatureAsFields(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := p.Roles[role]
-		if doc.Element != want.Element || doc.Element == "" {
-			t.Fatalf("role %q element field = %q, role carries %q", role, doc.Element, want.Element)
+		names := p.Roles[role].Personalities
+		if len(names) != 2 {
+			t.Fatalf("role %q carries %d personalities, want 2", role, len(names))
 		}
-		if doc.Creature != want.Creature || doc.Creature == "" {
-			t.Fatalf("role %q creature field = %q, role carries %q", role, doc.Creature, want.Creature)
+		want := p.Personalities[names[0]].Species + "-" + p.Personalities[names[1]].Species
+		if doc.Creature != want {
+			t.Fatalf("role %q creature = %q, meld derives %q", role, doc.Creature, want)
 		}
 		// The regression this replaces: lineage read back out of prose.
-		if !strings.Contains(doc.Identity, want.Creature) {
+		if !strings.Contains(doc.Identity, want) {
 			t.Fatalf("role %q identity dropped the creature: %q", role, doc.Identity)
+		}
+		for index, name := range names {
+			if got := doc.Personalities[index].Species; got != p.Personalities[name].Species {
+				t.Fatalf("role %q personality %q species = %q, record carries %q",
+					role, name, got, p.Personalities[name].Species)
+			}
 		}
 	}
 }
 
-// The fields must survive the JSON `overlay --json` emits, which is the
-// surface the consumer actually reads.
-func TestMarshalCarriesElementAndCreature(t *testing.T) {
+// The surface the consumer reads. Element's absence is asserted, not assumed:
+// a stale key would keep aosx parsing it.
+func TestMarshalCarriesTheDerivedCreatureAndNoElement(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -196,13 +203,24 @@ func TestMarshalCarriesElementAndCreature(t *testing.T) {
 	if err := json.Unmarshal(raw, &decoded); err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{"element", "creature"} {
-		value, present := decoded[key]
-		if !present {
-			t.Fatalf("overlay JSON has no %q key: %v", key, keysOf(decoded))
-		}
-		if text, _ := value.(string); text == "" {
-			t.Fatalf("overlay JSON %q is empty", key)
+	creature, present := decoded["creature"]
+	if !present {
+		t.Fatalf("overlay JSON has no \"creature\" key: %v", keysOf(decoded))
+	}
+	if text, _ := creature.(string); !strings.Contains(text, "-") {
+		t.Fatalf("overlay JSON creature %q is not a pair", text)
+	}
+	if _, present := decoded["element"]; present {
+		t.Fatalf("overlay JSON still carries an element key: %v", keysOf(decoded))
+	}
+	melds, _ := decoded["personalities"].([]any)
+	if len(melds) == 0 {
+		t.Fatalf("overlay JSON carries no personalities: %v", keysOf(decoded))
+	}
+	for index, entry := range melds {
+		fields, _ := entry.(map[string]any)
+		if text, _ := fields["species"].(string); text == "" {
+			t.Fatalf("personality %d carries no species: %v", index, fields)
 		}
 	}
 }

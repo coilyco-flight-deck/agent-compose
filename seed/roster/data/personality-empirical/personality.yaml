@@ -1,6 +1,7 @@
 personality: empirical
 order: 23
 skill: personality-empirical
+species: Amphibian
 color: '#2ed1aa'
 motif: lab-glass
 geometry: graduated-column
@@ -11,7 +12,7 @@ emblem:
     - vessel
   emoji: "\U0001F9EA"
 body:
-  archetype: a rounded glass laboratory vessel as its body, wide bulbous base holding real weight, narrower graduated neck above it, brass collars banding the top and the foot
+  archetype: a rounded laboratory-vessel body, wide bulbous base holding real weight, narrower graduated neck above it, banded collars at the top and the foot
   attachment: a single bright measured droplet at its spout, a fill line resting partway up its body
 sound_mark:
   timbre: glass-tap

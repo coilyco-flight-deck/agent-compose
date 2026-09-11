@@ -3,8 +3,6 @@ order: 3
 display_name: Applied Scientist
 purpose: Measure how agents, models, and inference actually behave on real hardware.
 stance: standing on two short legs, tipped a little forward mid-pour, one arm steadying itself, careful and precise
-element: water
-creature: Water-Frog-Mole
 skill: role-science
 model_tier:
   - frontier

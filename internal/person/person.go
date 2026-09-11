@@ -117,10 +117,6 @@ type Role struct {
 	Stance           string           `json:"stance,omitempty"`
 	Voice            *Voice           `json:"voice,omitempty"`
 	Outro            *Outro           `json:"outro,omitempty"`
-	Creature         string           `json:"creature,omitempty"`
-	// Element selects the animal lineage a seat is drawn from, ATLA-style.
-	// Kai's assignment, mirrored by the renderer. See docs/identity.md.
-	Element string `json:"element,omitempty"`
 	// Guardrail names this role's guardrail element, or is empty. Four roles
 	// carry one by Kai's scope decision, so absence is a decision.
 	Guardrail string `json:"guardrail,omitempty"`
@@ -295,7 +291,9 @@ func (b Boundary) ActsForSide(side string) []Act {
 // Personality binds the definition, visual and sensory identity primitives,
 // and favorite color for one canonical personality.
 type Personality struct {
-	Skill     string    `json:"skill"`
+	Skill string `json:"skill"`
+	// One per personality, so a shared personality reads as a shared animal.
+	Species   string    `json:"species"`
 	Color     string    `json:"color"`
 	Motif     string    `json:"motif"`
 	Geometry  string    `json:"geometry"`
@@ -473,6 +471,29 @@ func (p *Person) RoleDisplayName(roleName string) string {
 		return role.DisplayName
 	}
 	return displaySlug(roleName)
+}
+
+// RoleCreature is the seat's animal pair, signature species then bond species.
+// An unresolvable personality contributes nothing. See docs/identity.md.
+func (p *Person) RoleCreature(roleName string) string {
+	role, ok := p.Roles[roleName]
+	if !ok {
+		return ""
+	}
+	parts := make([]string, 0, 2)
+	for _, name := range role.Personalities {
+		binding, exists := p.Personalities[name]
+		if !exists {
+			continue
+		}
+		if species := strings.TrimSpace(binding.Species); species != "" {
+			parts = append(parts, species)
+		}
+		if len(parts) == 2 {
+			break
+		}
+	}
+	return strings.Join(parts, "-")
 }
 
 // Load returns the shipped roster:core package.
@@ -959,6 +980,17 @@ const minBackgroundSeparation = 0.030
 // personalitiesPerRole is one signature trait plus one bond shared with a
 // sibling seat. See docs/personality.md.
 const personalitiesPerRole = 2
+
+// Shipped roster only: a mounted library legitimately carries none, and a
+// missing species shortens a seat's pair silently rather than failing.
+func validateEveryPersonalityCarriesASpecies(p *Person) error {
+	for _, name := range p.PersonalityOrder {
+		if strings.TrimSpace(p.Personalities[name].Species) == "" {
+			return fmt.Errorf("personality %q carries no species", name)
+		}
+	}
+	return nil
+}
 
 func validateCorePersonalityMelds(p *Person) error {
 	usage := map[string]int{}

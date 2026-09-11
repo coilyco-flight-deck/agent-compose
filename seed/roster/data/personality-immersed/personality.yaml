@@ -1,6 +1,7 @@
 personality: immersed
 order: 12
 skill: personality-immersed
+species: Cetacean
 color: '#0084fd'
 motif: deep-water
 geometry: nested-shells

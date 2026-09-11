@@ -42,8 +42,6 @@ func TestValidateDecodedRoleRules(t *testing.T) {
 	}{
 		{"briefing and skill", "cannot define both briefing and skill",
 			func(r *Role) { r.Briefing = "prose" }},
-		{"unknown element", "unknown element",
-			func(r *Role) { r.Element = "plasma" }},
 		{"no personality", "needs at least one personality",
 			func(r *Role) { r.Personalities = nil }},
 		{"repeated personality", "repeats personality",

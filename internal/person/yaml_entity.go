@@ -72,8 +72,6 @@ type yamlRoleEntity struct {
 	Purpose          string               `yaml:"purpose,omitempty"`
 	Briefing         string               `yaml:"briefing,omitempty"`
 	Stance           string               `yaml:"stance,omitempty"`
-	Element          string               `yaml:"element,omitempty"`
-	Creature         string               `yaml:"creature,omitempty"`
 	Carried          *yamlCarried         `yaml:"carried,omitempty"`
 	Skill            string               `yaml:"skill,omitempty"`
 	Methods          []string             `yaml:"methods,omitempty"`
@@ -125,6 +123,7 @@ type yamlPersonalityEntity struct {
 	Personality string               `yaml:"personality"`
 	Order       int                  `yaml:"order,omitempty"`
 	Skill       string               `yaml:"skill,omitempty"`
+	Species     string               `yaml:"species,omitempty"`
 	Color       string               `yaml:"color,omitempty"`
 	Motif       string               `yaml:"motif,omitempty"`
 	Geometry    string               `yaml:"geometry,omitempty"`
@@ -228,8 +227,6 @@ func (r *yamlRoleEntity) model() Role {
 		Purpose:             r.Purpose,
 		Briefing:            r.Briefing,
 		Stance:              r.Stance,
-		Element:             r.Element,
-		Creature:            r.Creature,
 		Carried:             r.Carried.model(),
 		Guardrail:           r.Guardrail,
 		Skill:               r.Skill,
@@ -270,6 +267,7 @@ func (r *yamlRoleEntity) model() Role {
 func (p *yamlPersonalityEntity) model() Personality {
 	personality := Personality{
 		Skill:    p.Skill,
+		Species:  p.Species,
 		Color:    p.Color,
 		Motif:    p.Motif,
 		Geometry: p.Geometry,

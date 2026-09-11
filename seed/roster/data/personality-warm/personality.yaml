@@ -1,6 +1,7 @@
 personality: warm
 order: 10
 skill: personality-warm
+species: Red panda
 color: '#f09372'
 motif: wool
 geometry: soft-ovals
@@ -11,7 +12,7 @@ emblem:
     - flame
   emoji: "\U0001F56F️"
 body:
-  archetype: big soft rounded body built from stacked ovals, thick woolly collar, heavy and still
+  archetype: big soft rounded body built from stacked ovals, thick raised collar, heavy and still
   attachment: an open hearth set into its belly with a live fire burning in it, banked and steady
 sound_mark:
   timbre: felt-mallet

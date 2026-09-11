@@ -36,9 +36,6 @@ func validateDecodedRole(name string, role *Role) error {
 	if role.Briefing != "" && role.Skill != "" {
 		return fmt.Errorf("role %q cannot define both briefing and skill", name)
 	}
-	if role.Element != "" && !schema.IsElement(role.Element) {
-		return fmt.Errorf("role %q: unknown element %q", name, role.Element)
-	}
 	if len(role.Personalities) == 0 {
 		return fmt.Errorf("role %q needs at least one personality", name)
 	}

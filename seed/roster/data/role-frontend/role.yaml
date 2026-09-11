@@ -3,8 +3,6 @@ order: 4
 display_name: Frontend Engineer
 purpose: Shape and build the surfaces a person navigates.
 stance: standing on two short legs, leaning in mid-daub, head tilted at its own work, delighted
-element: fire
-creature: Fire-Fox-Hare
 skill: role-frontend
 model_tier:
   - frontier

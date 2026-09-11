@@ -1,6 +1,7 @@
 personality: grounded
 order: 2
 skill: personality-grounded
+species: Ruminant
 color: '#5fa87a'
 motif: bedrock
 geometry: stacked-rounds

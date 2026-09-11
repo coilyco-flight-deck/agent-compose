@@ -1,6 +1,7 @@
 personality: outward
 order: 22
 skill: personality-outward
+species: Migratory bird
 color: '#b3be49'
 motif: weathered-brass
 geometry: extending-barrels
@@ -11,7 +12,7 @@ emblem:
     - scope
   emoji: "\U0001F52D"
 body:
-  archetype: tall and narrow, a body of nested brass barrels telescoping out of one another, weathered and unpolished, each section a little narrower than the one below it
+  archetype: tall and narrow, a body of nested barrels telescoping out of one another, each section a little narrower than the one below it
   attachment: its whole upper body extended and sighting on something past the edge of frame, one lens catching the light at the far end
 sound_mark:
   timbre: brass-swell
