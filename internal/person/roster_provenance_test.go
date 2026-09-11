@@ -50,3 +50,29 @@ func TestVolatileKindSeparatesAnOwnerFromALifetime(t *testing.T) {
 		t.Errorf("durable checkout kind = %q, want empty", got)
 	}
 }
+
+// The false negative the frontend seat found: volatility is a property of
+// where the roster lands, not of whether a symlink was crossed reaching it.
+func TestProvenanceReportsAVolatileRootReachedWithoutASymlink(t *testing.T) {
+	dir := t.TempDir()
+	resolved, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// t.TempDir may hand back an already-canonical path, which is exactly the
+	// shape that used to return no finding at all.
+	if kind := volatileKind(resolved); kind == "" {
+		t.Fatalf("a temp dir is not volatile: %s", resolved)
+	}
+	t.Setenv(RosterEnv, resolved)
+	root, target, kind := RosterProvenanceKind()
+	if kind == "" {
+		t.Fatalf("no finding for a roster in %s", resolved)
+	}
+	if root != resolved {
+		t.Fatalf("root = %q, want %q", root, resolved)
+	}
+	if target != "" {
+		t.Fatalf("target = %q, want empty when no symlink was crossed", target)
+	}
+}

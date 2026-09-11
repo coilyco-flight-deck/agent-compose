@@ -87,11 +87,17 @@ func rosterProvenanceKind() (root string, target string, kind string) {
 		if err != nil || !info.IsDir() {
 			continue
 		}
+		// Volatility is where the roster lands, not whether a symlink was
+		// crossed: a roster sitting directly in a temp dir was invisible.
 		resolved, err := filepath.EvalSymlinks(candidate)
-		if err != nil || resolved == candidate {
-			return candidate, "", ""
+		if err != nil {
+			resolved = candidate
 		}
-		return candidate, resolved, volatileKind(resolved)
+		target := resolved
+		if resolved == candidate {
+			target = ""
+		}
+		return candidate, target, volatileKind(resolved)
 	}
 	return "", "", ""
 }

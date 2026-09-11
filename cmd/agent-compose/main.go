@@ -1715,11 +1715,15 @@ func runRosterCheck(_ context.Context, cmd *cli.Command) error {
 		return err
 	}
 	if root, target, kind := person.RosterProvenanceKind(); kind != "" {
-		why := "a " + kind + " directory, so it may not outlive this compose"
+		why := "in a " + kind + " directory, so it may not outlive this compose"
 		if kind == person.SessionShadow {
-			why = "another session's tree, so that session may edit it under you"
+			why = "in another session's tree, so that session may edit it under you"
 		}
-		fmt.Fprintf(os.Stderr, "warning: roster %s resolves to %s, %s\n", root, target, why)
+		where := root
+		if target != "" {
+			where = fmt.Sprintf("%s resolves to %s", root, target)
+		}
+		fmt.Fprintf(os.Stderr, "warning: roster %s is %s\n", where, why)
 	}
 	blocking := 0
 	for _, f := range p.CarriedFindings() {
