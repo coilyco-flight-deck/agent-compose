@@ -1714,6 +1714,13 @@ func runRosterCheck(_ context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+	if root, target, kind := person.RosterProvenanceKind(); kind != "" {
+		why := "a " + kind + " directory, so it may not outlive this compose"
+		if kind == person.SessionShadow {
+			why = "another session's tree, so that session may edit it under you"
+		}
+		fmt.Fprintf(os.Stderr, "warning: roster %s resolves to %s, %s\n", root, target, why)
+	}
 	warnings := p.CarriedWarnings()
 	for _, w := range warnings {
 		fmt.Fprintln(os.Stderr, "warning: "+w)
