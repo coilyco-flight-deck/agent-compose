@@ -103,17 +103,18 @@ data/personality-tenacious/SKILL.md
 ```
 
 Every first-class entity owns one flat directory named `<kind>-<slug>`, where
-kind is `role`, `personality`, or `boundary`. Its KDL fragment
-is named for the kind, its body is `SKILL.md`, and a role may add `evals.yaml`.
+kind is `role`, `personality`, `boundary`, or `guardrail`. Its KDL fragment is
+named for the kind, its body is `SKILL.md`, and a role may add `evals.yaml`.
 The directory slug must match the node slug. Each entity declares an `order`,
 which sequences the roster in place of the filename prefixes the layout used to
 carry. Order is data on the entity, so moving a directory never reorders
-anything. The loader strips it before parsing, so it never reaches the node
-model. The invariant lives at `data/invariant/INVARIANT.md`. Every bound
-personality needs its own directory, every boundary must be referenced by at
-least one role, and a boundary's [owner](ownership.md) names a defined
-role that must not declare it. Symlinks are invalid anywhere in the package.
-The role, personality, identity, color, and model-tier validation applies
-unchanged. A missing, malformed, or internally inconsistent package fails before
-bundle materialization or host projection. Person packages never transport
-credentials or launcher authority.
+anything, and it is unique within its kind, since a duplicate would let the
+sequence fall silently to the slug. Two kinds may share an order. The loader
+strips it before parsing, so it never reaches the node model. The invariant
+lives at `data/invariant/INVARIANT.md`. Every bound personality needs its own
+directory, every boundary must be referenced by at least one role, and a
+boundary's [owner](ownership.md) names a defined role that must not declare it.
+Symlinks are invalid anywhere in the package. The role, personality, identity,
+color, and model-tier validation applies unchanged. A missing, malformed, or
+internally inconsistent package fails before bundle materialization or host
+projection. Person packages never transport credentials or launcher authority.
