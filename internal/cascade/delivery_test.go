@@ -161,3 +161,88 @@ func TestImportDeliveryShrinksTheComposedFile(t *testing.T) {
 			len(imported), len(inline))
 	}
 }
+
+// Reachability, which the guards above do not prove. Two skip-on-error layers
+// sat between the config and importSource. agent-compose#7530.
+
+func importConfig(t *testing.T, sources ...string) *Config {
+	t.Helper()
+	return &Config{SourceDelivery: DeliveryImport, Sources: sources}
+}
+
+// Every case keeps one good source, because a lone bad one is refused by the
+// unrelated empty-COMPOSED check and would pass for the wrong reason.
+func TestValidateImportSourcesRefusesABrokenSourceBesideAGoodOne(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+	empty := writeSource(t, dir, "empty.md", "")
+	subdir := filepath.Join(dir, "adir")
+	if err := os.Mkdir(subdir, 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+
+	for name, bad := range map[string]string{
+		"missing":   filepath.Join(dir, "absent", "AGENTS.md"),
+		"directory": subdir,
+		"empty":     empty,
+		"relative":  "AGENTS.md",
+	} {
+		t.Run(name, func(t *testing.T) {
+			err := ValidateImportSources(importConfig(t, good, bad))
+			if err == nil {
+				t.Fatalf("%s source accepted; convergence would ship without it", name)
+			}
+		})
+	}
+}
+
+func TestValidateImportSourcesAcceptsGoodSources(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+
+	if err := ValidateImportSources(importConfig(t, good, good)); err != nil {
+		t.Fatalf("good sources refused: %v", err)
+	}
+}
+
+// The control. Inline composes a body, so a missing source loses that doctrine
+// and warns, which is the pre-existing contract this guard must not change.
+func TestValidateImportSourcesIgnoresInlineDelivery(t *testing.T) {
+	absent := filepath.Join(t.TempDir(), "absent", "AGENTS.md")
+
+	for _, delivery := range []string{"", DeliveryInline} {
+		if err := ValidateImportSources(&Config{SourceDelivery: delivery, Sources: []string{absent}}); err != nil {
+			t.Errorf("delivery %q: inline behaviour changed: %v", delivery, err)
+		}
+	}
+}
+
+// The regression that matters: the real call path, where two skip-on-error
+// layers meant the old guards were never reached at all.
+func TestOperatingBasePartsRefusesABrokenImportSource(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+	absent := filepath.Join(dir, "absent", "AGENTS.md")
+
+	_, _, err := OperatingBaseParts(importConfig(t, good, absent), "claude", "")
+
+	if err == nil {
+		t.Fatalf("composing with a missing import source succeeded")
+	}
+	if !strings.Contains(err.Error(), absent) {
+		t.Errorf("error does not name the missing source: %v", err)
+	}
+}
+
+func TestOperatingBasePartsStillComposesWhenEveryImportSourceResolves(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+
+	body, _, err := OperatingBaseParts(importConfig(t, good), "claude", "")
+	if err != nil {
+		t.Fatalf("compose: %v", err)
+	}
+	if !strings.Contains(body, "@"+good) {
+		t.Errorf("composed output lost the import:\n%s", body)
+	}
+}

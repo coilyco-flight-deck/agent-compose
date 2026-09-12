@@ -311,6 +311,9 @@ func AppendixRoles(cfg *Config) ([]string, error) {
 // OperatingBaseParts splits that render into sources and appendix, for a caller
 // that rewrites the sources before rendering them. See ComposeParts.
 func OperatingBaseParts(cfg *Config, harness, role string) (string, string, error) {
+	if err := ValidateImportSources(cfg); err != nil {
+		return "", "", err
+	}
 	gathered, _ := GatherSources(cfg)
 	filtering := cfg.Scopes != nil
 	var machineScopes []string
@@ -439,6 +442,30 @@ func discoverSources(root string) ([]string, error) {
 	}
 	sort.Strings(found)
 	return found, nil
+}
+
+// ValidateImportSources refuses a source import delivery cannot point at.
+func ValidateImportSources(cfg *Config) error {
+	if cfg.SourceDelivery != DeliveryImport {
+		return nil
+	}
+	for _, raw := range cfg.Sources {
+		src := expand(raw)
+		if !filepath.IsAbs(src) {
+			return fmt.Errorf("import source %s must be absolute", src)
+		}
+		info, err := os.Stat(src)
+		if err != nil {
+			return fmt.Errorf("import source %s: %w", src, err)
+		}
+		if info.IsDir() {
+			return fmt.Errorf("import source %s is a directory", src)
+		}
+		if info.Size() == 0 {
+			return fmt.Errorf("import source %s is empty", src)
+		}
+	}
+	return nil
 }
 
 // GatherSources resolves explicit entries in listed order, then discovered
