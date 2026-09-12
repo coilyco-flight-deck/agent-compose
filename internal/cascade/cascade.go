@@ -444,6 +444,18 @@ func discoverSources(root string) ([]string, error) {
 	return found, nil
 }
 
+// An empty segment or a live template marker means a variable did not resolve,
+// which otherwise reports as a path typo. See docs/cascade.md.
+func unresolvedSegment(raw string) string {
+	switch {
+	case strings.Contains(raw, "{{"), strings.Contains(raw, "${"):
+		return "an unrendered template marker"
+	case strings.Contains(strings.TrimPrefix(raw, "/"), "//"):
+		return "an empty path segment"
+	}
+	return ""
+}
+
 // ValidateSources refuses a named source that cannot carry doctrine. Discovered
 // `roots` entries stay lenient, because nothing declared those. docs/cascade.md.
 func ValidateSources(cfg *Config) error {
@@ -452,6 +464,11 @@ func ValidateSources(cfg *Config) error {
 		src := expand(raw)
 		if importing && !filepath.IsAbs(src) {
 			return fmt.Errorf("import source %s must be absolute", src)
+		}
+		if segment := unresolvedSegment(raw); segment != "" {
+			return fmt.Errorf(
+				"source %s has %s, so a config template resolved empty rather than the path being wrong",
+				raw, segment)
 		}
 		info, err := os.Stat(src)
 		if err != nil {

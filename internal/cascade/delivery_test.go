@@ -265,3 +265,50 @@ func TestOperatingBasePartsStillComposesWhenEveryImportSourceResolves(t *testing
 		t.Errorf("composed output lost the import:\n%s", body)
 	}
 }
+
+// An unresolved variable renders a path that looks like a typo. The work host
+// class hits this when its SSM subdir lookup returns empty. agent-compose#7530.
+func TestValidateSourcesNamesAnUnresolvedTemplateRatherThanThePath(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+
+	for name, bad := range map[string]string{
+		"empty segment":       dir + "//AGENTS.md",
+		"unrendered jinja":    dir + "/{{ work_root }}/AGENTS.md",
+		"unrendered shellvar": dir + "/${WORK_ROOT}/AGENTS.md",
+	} {
+		t.Run(name, func(t *testing.T) {
+			err := ValidateSources(&Config{Sources: []string{good, bad}})
+			if err == nil {
+				t.Fatalf("accepted %s", name)
+			}
+			if !strings.Contains(err.Error(), "resolved empty") {
+				t.Errorf("error blames the path rather than the template: %v", err)
+			}
+		})
+	}
+}
+
+// The control: a real missing path must still report as a missing path, or the
+// friendlier message would swallow the ordinary case.
+func TestAnOrdinaryMissingSourceIsNotReportedAsATemplateProblem(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+	absent := filepath.Join(dir, "absent", "AGENTS.md")
+
+	err := ValidateSources(&Config{Sources: []string{good, absent}})
+
+	if err == nil {
+		t.Fatalf("accepted a missing source")
+	}
+	if strings.Contains(err.Error(), "resolved empty") {
+		t.Errorf("a plain missing path was blamed on a template: %v", err)
+	}
+}
+
+// A leading double slash is a real POSIX path, so it must not trip the check.
+func TestALeadingDoubleSlashIsNotAnUnresolvedTemplate(t *testing.T) {
+	if got := unresolvedSegment("//host/share/AGENTS.md"); got != "" {
+		t.Errorf("leading // treated as unresolved: %q", got)
+	}
+}
