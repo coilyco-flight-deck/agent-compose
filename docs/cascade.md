@@ -31,7 +31,7 @@ stripped, `## See also` navigation dropped, and relative markdown links
 absolutized against the source's own directory.
 
 `source_delivery: import` emits an `@path` pointer rather than a body, so a
-source the cascade also delivers loads once. A broken one is refused, not skipped.
+source the cascade also delivers loads once. A named source must resolve.
 
 A sibling `AGENTS.<harness>.md` beside a source patches it for one harness:
 sections replace by verbatim heading, new headings append, and an ambiguous

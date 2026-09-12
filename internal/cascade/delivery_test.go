@@ -172,7 +172,7 @@ func importConfig(t *testing.T, sources ...string) *Config {
 
 // Every case keeps one good source, because a lone bad one is refused by the
 // unrelated empty-COMPOSED check and would pass for the wrong reason.
-func TestValidateImportSourcesRefusesABrokenSourceBesideAGoodOne(t *testing.T) {
+func TestValidateSourcesRefusesABrokenSourceBesideAGoodOne(t *testing.T) {
 	dir := t.TempDir()
 	good := writeSource(t, dir, "AGENTS.md", sourceBody)
 	empty := writeSource(t, dir, "empty.md", "")
@@ -188,7 +188,7 @@ func TestValidateImportSourcesRefusesABrokenSourceBesideAGoodOne(t *testing.T) {
 		"relative":  "AGENTS.md",
 	} {
 		t.Run(name, func(t *testing.T) {
-			err := ValidateImportSources(importConfig(t, good, bad))
+			err := ValidateSources(importConfig(t, good, bad))
 			if err == nil {
 				t.Fatalf("%s source accepted; convergence would ship without it", name)
 			}
@@ -196,24 +196,43 @@ func TestValidateImportSourcesRefusesABrokenSourceBesideAGoodOne(t *testing.T) {
 	}
 }
 
-func TestValidateImportSourcesAcceptsGoodSources(t *testing.T) {
+func TestValidateSourcesAcceptsGoodSources(t *testing.T) {
 	dir := t.TempDir()
 	good := writeSource(t, dir, "AGENTS.md", sourceBody)
 
-	if err := ValidateImportSources(importConfig(t, good, good)); err != nil {
+	if err := ValidateSources(importConfig(t, good, good)); err != nil {
 		t.Fatalf("good sources refused: %v", err)
 	}
 }
 
-// The control. Inline composes a body, so a missing source loses that doctrine
-// and warns, which is the pre-existing contract this guard must not change.
-func TestValidateImportSourcesIgnoresInlineDelivery(t *testing.T) {
-	absent := filepath.Join(t.TempDir(), "absent", "AGENTS.md")
+// Inline loses the same doctrine as silently, so it refuses too. The rule is
+// about naming a source, not about how the source is delivered.
+func TestValidateSourcesRefusesABrokenSourceUnderInlineToo(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+	absent := filepath.Join(dir, "absent", "AGENTS.md")
 
 	for _, delivery := range []string{"", DeliveryInline} {
-		if err := ValidateImportSources(&Config{SourceDelivery: delivery, Sources: []string{absent}}); err != nil {
-			t.Errorf("delivery %q: inline behaviour changed: %v", delivery, err)
+		cfg := &Config{SourceDelivery: delivery, Sources: []string{good, absent}}
+		if err := ValidateSources(cfg); err == nil {
+			t.Errorf("delivery %q accepted a missing source", delivery)
 		}
+	}
+}
+
+// Only one check is delivery-specific, so the rest cannot drift apart.
+func TestOnlyAbsolutenessIsSpecificToImportDelivery(t *testing.T) {
+	dir := t.TempDir()
+	good := writeSource(t, dir, "AGENTS.md", sourceBody)
+
+	inline := ValidateSources(&Config{SourceDelivery: DeliveryInline, Sources: []string{good, "AGENTS.md"}})
+	imported := ValidateSources(&Config{SourceDelivery: DeliveryImport, Sources: []string{good, "AGENTS.md"}})
+
+	if imported == nil {
+		t.Errorf("import accepted a relative source")
+	}
+	if inline != nil && strings.Contains(inline.Error(), "must be absolute") {
+		t.Errorf("inline applied the import-only absoluteness rule: %v", inline)
 	}
 }
 

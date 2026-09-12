@@ -477,8 +477,11 @@ func runConfigValidate(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() != 1 {
 		return fmt.Errorf("config validate needs exactly one agent-compose.yaml path")
 	}
-	_, err := cascade.LoadConfig(cmd.Args().First())
-	return err
+	cfg, err := cascade.LoadConfig(cmd.Args().First())
+	if err != nil {
+		return err
+	}
+	return cascade.ValidateSources(cfg)
 }
 
 func runBundleExport(_ context.Context, cmd *cli.Command) error {

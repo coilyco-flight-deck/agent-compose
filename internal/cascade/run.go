@@ -51,7 +51,7 @@ type planned struct {
 }
 
 func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[string]planned, plan, map[string]string, string, int) {
-	if err := ValidateImportSources(cfg); err != nil {
+	if err := ValidateSources(cfg); err != nil {
 		fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 		return nil, plan{}, nil, "", 1
 	}
