@@ -83,6 +83,7 @@ func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[str
 	loadPoints := ResolveLoadPoints(cfg)
 	p := planOutputs(sources, loadPoints, paths.Composed)
 	p.appendix = appendix
+	p.delivery = cfg.SourceDelivery
 	if len(p.errors) > 0 {
 		for _, err := range p.errors {
 			fmt.Fprintf(stderr, "agent-compose: %s\n", err)
@@ -139,7 +140,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	if opts.DryRun {
 		for _, target := range sortedKeys(byTarget) {
 			entry := byTarget[target]
-			body, err := Compose(entry.sources, entry.overrides, p.appendix, "")
+			body, err := composeTarget(p, entry.sources, entry.overrides)
 			if err != nil {
 				fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 				return 1
@@ -185,7 +186,7 @@ func Run(paths Paths, opts RunOptions, stdout, stderr io.Writer) int {
 	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
-		body, err := Compose(entry.sources, entry.overrides, p.appendix, "")
+		body, err := composeTarget(p, entry.sources, entry.overrides)
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1
@@ -293,7 +294,7 @@ func Check(paths Paths, stdout, stderr io.Writer) int {
 	}
 	for _, target := range sortedKeys(byTarget) {
 		entry := byTarget[target]
-		expected, err := Compose(entry.sources, entry.overrides, p.appendix, "")
+		expected, err := composeTarget(p, entry.sources, entry.overrides)
 		if err != nil {
 			fmt.Fprintf(stderr, "agent-compose: %v\n", err)
 			return 1

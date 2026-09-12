@@ -163,6 +163,13 @@ func Compose(
 	return body + "\n" + tail, nil
 }
 
+// Inline copies a source body in; import emits an `@path` pointer so a source
+// the repository cascade also delivers loads once. See docs/cascade.md.
+const (
+	DeliveryInline = "inline"
+	DeliveryImport = "import"
+)
+
 // ComposeParts returns the source body and the role's appendix separately,
 // because a bundle rewrites the body. See docs/cascade.md. agent-compose#6987.
 func ComposeParts(
@@ -171,8 +178,35 @@ func ComposeParts(
 	appendix []AppendixBlock,
 	role string,
 ) (string, string, error) {
+	return ComposePartsDelivered(sources, overrides, appendix, role, DeliveryInline)
+}
+
+// ComposePartsDelivered is ComposeParts with the source delivery mode chosen.
+func ComposePartsDelivered(
+	sources []string,
+	overrides map[string]string,
+	appendix []AppendixBlock,
+	role string,
+	delivery string,
+) (string, string, error) {
+	switch delivery {
+	case "", DeliveryInline:
+		delivery = DeliveryInline
+	case DeliveryImport:
+	default:
+		return "", "", fmt.Errorf("unknown source_delivery %q: want %q or %q",
+			delivery, DeliveryInline, DeliveryImport)
+	}
 	parts := []string{Banner}
 	for _, src := range sources {
+		if delivery == DeliveryImport {
+			rendered, err := importSource(src, overrides[src])
+			if err != nil {
+				return "", "", err
+			}
+			parts = append(parts, rendered)
+			continue
+		}
 		_, body, err := parseSource(src)
 		if err != nil {
 			return "", "", err
@@ -208,6 +242,30 @@ func ComposeParts(
 	return composed, strings.Join(blocks, "\n\n") + "\n", nil
 }
 
+// A dead import is dropped silently at session start, so compose is the only
+// place absence is still visible. Rationale: docs/cascade.md.
+func importSource(src, override string) (string, error) {
+	if override != "" {
+		return "", fmt.Errorf(
+			"source %s has override %s: an imported source is never read, so its override cannot apply",
+			src, override)
+	}
+	if !filepath.IsAbs(src) {
+		return "", fmt.Errorf("import source %s must be absolute", src)
+	}
+	info, err := os.Stat(src)
+	if err != nil {
+		return "", fmt.Errorf("import source %s: %w", src, err)
+	}
+	if info.IsDir() {
+		return "", fmt.Errorf("import source %s is a directory", src)
+	}
+	if info.Size() == 0 {
+		return "", fmt.Errorf("import source %s is empty", src)
+	}
+	return fmt.Sprintf("<!-- source: %s (imported) -->\n@%s", src, src), nil
+}
+
 // appendixBinds reports whether a block composes for role; an empty role
 // drops every scoped block, which is what the host load point wants.
 func appendixBinds(block AppendixBlock, role string) bool {
@@ -231,6 +289,20 @@ type plan struct {
 	outputs   map[string]string
 	appendix  []AppendixBlock
 	errors    []string
+	delivery  string
+}
+
+// Convergence, dry-run and drift-check all route through here, so a configured
+// delivery cannot reach one of them and miss another.
+func composeTarget(p plan, sources []string, overrides map[string]string) (string, error) {
+	body, tail, err := ComposePartsDelivered(sources, overrides, p.appendix, "", p.delivery)
+	if err != nil {
+		return "", err
+	}
+	if tail == "" {
+		return body, nil
+	}
+	return body + "\n" + tail, nil
 }
 
 // planOutputs selects each harness slice and decides shared versus divergent

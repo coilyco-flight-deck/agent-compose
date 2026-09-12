@@ -38,6 +38,7 @@ type Config struct {
 	SkillLoadPoints      map[string]RawValue `yaml:"skill_load_points"`
 	SkillCatalogManifest string              `yaml:"skill_catalog_manifest"`
 	OperatingContext     []string            `yaml:"operating_context"`
+	SourceDelivery       string              `yaml:"source_delivery"`
 	Appendix             []AppendixEntry     `yaml:"appendix"`
 
 	// Kept so a relative appendix path resolves against the config file.
@@ -330,7 +331,7 @@ func OperatingBaseParts(cfg *Config, harness, role string) (string, string, erro
 	if len(errs) > 0 {
 		return "", "", fmt.Errorf("operating base: %s", strings.Join(errs, "; "))
 	}
-	return ComposeParts(selected, overrides, appendix, role)
+	return ComposePartsDelivered(selected, overrides, appendix, role, cfg.SourceDelivery)
 }
 
 // DefaultSkillLoadPoints mirrors DefaultLoadPoints for skills. Claude reads only

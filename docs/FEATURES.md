@@ -107,6 +107,7 @@ rather than only in the issue.
   traces `source => destination`, `-- <command>` refreshes then execs, and Ward
   smoke proves idempotence.
 * [`appendix`](cascade.md) composes inline or file tail blocks, optionally scoped to named roles.
+* [`source_delivery`](cascade.md) emits a source as an `@path` import rather than inlining it, so a source the repository cascade also delivers is loaded once; a missing target fails convergence rather than shipping a pointer to nothing.
 * [Local skill catalogues](skill-catalogues.md) consume AOS roots.
 * [Release](release.md) publishes unreleased deltas under a hold, with roll-forward recovery.
 * A bundle carries a [voice profile](manifest-schema.md) merging a skill's rules with the seat's avoid banks, so a Refuse reaches a checker.
