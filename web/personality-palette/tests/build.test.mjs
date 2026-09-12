@@ -19,7 +19,6 @@ test("the built explorer carries its shell and canonical data", async () => {
     && typeof personality.emblem?.emoji === "string"
     && typeof personality.geometry === "string"
     && typeof personality.body?.archetype === "string"
-    && typeof personality.sound_mark?.timbre === "string"
   )));
   assert.ok(palette.roles.every((role) => /^#[0-9a-f]{6}$/i.test(role.color)));
 });

@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: big soft rounded body built from stacked ovals, thick raised collar, heavy and still
   attachment: an open hearth set into its belly with a live fire burning in it, banked and steady
-sound_mark:
-  timbre: felt-mallet
-  contour: rising-embrace
-  pulse: gentle-three
 voice:
   summary: attends to the person before the problem
   cadence: the person's situation leads, the answer follows

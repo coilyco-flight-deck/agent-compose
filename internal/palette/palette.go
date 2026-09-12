@@ -15,13 +15,12 @@ import (
 const schemaVersion = 2
 
 type Personality struct {
-	Name      string           `json:"name"`
-	Color     string           `json:"color"`
-	Motif     string           `json:"motif"`
-	Geometry  string           `json:"geometry"`
-	Emblem    person.Emblem    `json:"emblem"`
-	Body      person.Body      `json:"body"`
-	SoundMark person.SoundMark `json:"sound_mark"`
+	Name     string        `json:"name"`
+	Color    string        `json:"color"`
+	Motif    string        `json:"motif"`
+	Geometry string        `json:"geometry"`
+	Emblem   person.Emblem `json:"emblem"`
+	Body     person.Body   `json:"body"`
 }
 
 type Role struct {
@@ -52,13 +51,12 @@ func Build(p *person.Person) (Document, error) {
 	for _, name := range names {
 		binding := p.Personalities[name]
 		doc.Personalities = append(doc.Personalities, Personality{
-			Name:      name,
-			Color:     binding.Color,
-			Motif:     binding.Motif,
-			Geometry:  binding.Geometry,
-			Emblem:    binding.Emblem,
-			Body:      binding.Body,
-			SoundMark: binding.SoundMark,
+			Name:     name,
+			Color:    binding.Color,
+			Motif:    binding.Motif,
+			Geometry: binding.Geometry,
+			Emblem:   binding.Emblem,
+			Body:     binding.Body,
 		})
 	}
 

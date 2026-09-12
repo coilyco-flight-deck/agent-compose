@@ -21,9 +21,8 @@ func validPersonality() Personality {
 	return Personality{
 		Skill: "personality-bright", Color: "#d98e48",
 		Motif: "sunbeam", Geometry: "open-rays",
-		Emblem:    Emblem{Names: []string{"lantern"}, Emoji: "🏮"},
-		Body:      Body{Archetype: "upright", Attachment: "a lantern"},
-		SoundMark: SoundMark{Timbre: "bell", Contour: "rising", Pulse: "triplet"},
+		Emblem: Emblem{Names: []string{"lantern"}, Emoji: "🏮"},
+		Body:   Body{Archetype: "upright", Attachment: "a lantern"},
 	}
 }
 
@@ -145,7 +144,6 @@ func TestValidateDecodedPersonalityRules(t *testing.T) {
 		{"unsemantic geometry", "semantic geometry", func(p *Personality) { p.Geometry = "Open Rays" }},
 		{"missing emblem", "needs an emblem", func(p *Personality) { p.Emblem = Emblem{} }},
 		{"missing body", "needs a body", func(p *Personality) { p.Body = Body{} }},
-		{"missing sound-mark", "needs a sound-mark", func(p *Personality) { p.SoundMark = SoundMark{} }},
 		{"empty verb", "empty verb", func(p *Personality) { p.Verbs = []string{" "} }},
 		{"repeated verb", "repeats verb", func(p *Personality) { p.Verbs = []string{"Measuring", "Measuring"} }},
 		{"repeated alias", "repeats alias", func(p *Personality) { p.Aliases = []string{"careful", "careful"} }},
@@ -221,8 +219,7 @@ func TestDecodePreservesAuthoredRoleFields(t *testing.T) {
 			"skill: personality-bright\ncolor: \"#d98e48\"\n" +
 			"motif: sunbeam\ngeometry: open-rays\n" +
 			"emblem:\n  names: [lantern]\n  emoji: 🏮\n" +
-			"body:\n  archetype: upright\n  attachment: a lantern\n" +
-			"sound_mark:\n  timbre: bell\n  contour: rising\n  pulse: triplet\n",
+			"body:\n  archetype: upright\n  attachment: a lantern\n",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -249,8 +246,7 @@ func TestDecodeRejectsUnknownKeyAndFilenameMismatch(t *testing.T) {
 			"skill: personality-bright\ncolor: \"#d98e48\"\n" +
 			"motif: sunbeam\ngeometry: open-rays\n" +
 			"emblem:\n  names: [lantern]\n  emoji: 🏮\n" +
-			"body:\n  archetype: upright\n  attachment: a lantern\n" +
-			"sound_mark:\n  timbre: bell\n  contour: rising\n  pulse: triplet\n",
+			"body:\n  archetype: upright\n  attachment: a lantern\n",
 	}
 
 	unknown := map[string]string{}

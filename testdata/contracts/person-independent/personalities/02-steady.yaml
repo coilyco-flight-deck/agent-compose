@@ -9,7 +9,3 @@ emblem:
 body:
   archetype: low and rounded, a body of stacked stones settled into one another
   attachment: one small cairn standing at its foot, the same stone as its body
-sound_mark:
-  timbre: wood-block
-  contour: returning
-  pulse: steady-pair

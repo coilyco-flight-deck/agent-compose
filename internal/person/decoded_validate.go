@@ -203,11 +203,6 @@ func validateDecodedPersonality(name string, personality Personality) error {
 	if personality.Body.Archetype == "" || personality.Body.Attachment == "" {
 		return fmt.Errorf("personality %q needs a body", name)
 	}
-	if personality.SoundMark.Timbre == "" ||
-		personality.SoundMark.Contour == "" ||
-		personality.SoundMark.Pulse == "" {
-		return fmt.Errorf("personality %q needs a sound-mark", name)
-	}
 	seenVerb := map[string]bool{}
 	for _, verb := range personality.Verbs {
 		if strings.TrimSpace(verb) == "" {

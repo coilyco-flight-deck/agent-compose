@@ -220,14 +220,6 @@ type Carried struct {
 	Materials []Material `json:"materials,omitempty"`
 }
 
-// SoundMark describes a short identity cue without prescribing audio files or
-// playback behavior.
-type SoundMark struct {
-	Timbre  string `json:"timbre"`
-	Contour string `json:"contour"`
-	Pulse   string `json:"pulse"`
-}
-
 // Outro is what a session says as it closes. Role only, not melded, for the
 // reason in docs/overlay.md.
 type Outro struct {
@@ -296,17 +288,16 @@ type Personality struct {
 	Species string `json:"species"`
 	// The renderer cannot read a hex, so this is the part of the colour that
 	// actually reaches a prompt. See docs/identity.md.
-	ColorWord string    `json:"color_word"`
-	Color     string    `json:"color"`
-	Motif     string    `json:"motif"`
-	Geometry  string    `json:"geometry"`
-	Emblem    Emblem    `json:"emblem"`
-	Body      Body      `json:"body"`
-	SoundMark SoundMark `json:"sound_mark"`
-	Aliases   []string  `json:"aliases,omitempty"`
-	Verbs     []string  `json:"verbs,omitempty"`
-	Voice     *Voice    `json:"voice,omitempty"`
-	Acts      []Act     `json:"acts,omitempty"`
+	ColorWord string   `json:"color_word"`
+	Color     string   `json:"color"`
+	Motif     string   `json:"motif"`
+	Geometry  string   `json:"geometry"`
+	Emblem    Emblem   `json:"emblem"`
+	Body      Body     `json:"body"`
+	Aliases   []string `json:"aliases,omitempty"`
+	Verbs     []string `json:"verbs,omitempty"`
+	Voice     *Voice   `json:"voice,omitempty"`
+	Acts      []Act    `json:"acts,omitempty"`
 }
 
 // Selector returns the stable key used by all new commands and artifacts.

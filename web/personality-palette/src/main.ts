@@ -13,11 +13,6 @@ type CanonicalPersonality = {
     archetype: string;
     attachment: string;
   };
-  soundMark: {
-    timbre: string;
-    contour: string;
-    pulse: string;
-  };
 };
 
 type CanonicalRole = {
@@ -140,7 +135,6 @@ function parsePalette(value: unknown): PaletteDocument {
       || !hexPattern.test(entry.color)
       || !isRecord(entry.emblem)
       || !isRecord(entry.body)
-      || !isRecord(entry.sound_mark)
     ) {
       throw new Error(`palette personality ${index} is invalid`);
     }
@@ -157,11 +151,6 @@ function parsePalette(value: unknown): PaletteDocument {
       body: {
         archetype: readString(entry.body, "archetype", `${label} body`, false),
         attachment: readString(entry.body, "attachment", `${label} body`, false),
-      },
-      soundMark: {
-        timbre: readString(entry.sound_mark, "timbre", `${label} sound mark`),
-        contour: readString(entry.sound_mark, "contour", `${label} sound mark`),
-        pulse: readString(entry.sound_mark, "pulse", `${label} sound mark`),
       },
     };
   });
@@ -342,7 +331,6 @@ function renderCards(
             <div><dt>motif</dt><dd>${escapeHTML(personality.motif)}</dd></div>
             <div><dt>emblem</dt><dd>${escapeHTML(personality.emblem.names.join(" / "))}</dd></div>
             <div><dt>geometry</dt><dd>${escapeHTML(personality.geometry)}</dd></div>
-            <div><dt>sound</dt><dd>${escapeHTML(personality.soundMark.timbre)}</dd></div>
           </dl>
           <button
             type="button"

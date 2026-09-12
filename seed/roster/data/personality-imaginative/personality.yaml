@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: a body of faceted glass panels, thin lead cames running between them, light passing through it rather than stopping at its surface
   attachment: a prism set where its eye would be, throwing one white beam out as a fanned band of colour across whatever it faces
-sound_mark:
-  timbre: celesta
-  contour: expanding-arc
-  pulse: shimmering-three
 voice:
   summary: adds an option to the set before choosing from it
   cadence: the new option gets stated plainly, then compared

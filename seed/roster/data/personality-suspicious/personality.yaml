@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: lean and long-limbed, standing side-on rather than square, holding a flat polished plate turned outward so whatever approaches meets its own reflection first
   attachment: the plate is held rather than grown, gripped at the rim and angled, so it turns to face wherever the approach comes from
-sound_mark:
-  timbre: struck-glass
-  contour: rising-query
-  pulse: probing-triple
 voice:
   summary: names what an attacker gains before what the system intended
   cadence: the reach leads the sentence, the intended behavior answers it

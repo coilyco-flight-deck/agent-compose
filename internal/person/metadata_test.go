@@ -23,22 +23,20 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		},
 		Personalities: map[string]Personality{
 			"bright": {
-				Skill:     "personality-bright",
-				Color:     "#d98e48",
-				Motif:     "sunbeam",
-				Geometry:  "open-rays",
-				Emblem:    Emblem{Names: []string{"lantern", "beacon"}, Emoji: "🏮"},
-				Body:      Body{Archetype: "small upright body", Attachment: "the flame sits in its chest"},
-				SoundMark: SoundMark{Timbre: "bell", Contour: "rising", Pulse: "triplet"},
+				Skill:    "personality-bright",
+				Color:    "#d98e48",
+				Motif:    "sunbeam",
+				Geometry: "open-rays",
+				Emblem:   Emblem{Names: []string{"lantern", "beacon"}, Emoji: "🏮"},
+				Body:     Body{Archetype: "small upright body", Attachment: "the flame sits in its chest"},
 			},
 			"steady": {
-				Skill:     "personality-steady",
-				Color:     "#5fa87a",
-				Motif:     "stone",
-				Geometry:  "stacked-rounds",
-				Emblem:    Emblem{Names: []string{"anchor", "cairn"}, Emoji: "⚓"},
-				Body:      Body{Archetype: "low and rounded, stacked stone", Attachment: "a cairn at its foot"},
-				SoundMark: SoundMark{Timbre: "wood-block", Contour: "returning", Pulse: "steady-pair"},
+				Skill:    "personality-steady",
+				Color:    "#5fa87a",
+				Motif:    "stone",
+				Geometry: "stacked-rounds",
+				Emblem:   Emblem{Names: []string{"anchor", "cairn"}, Emoji: "⚓"},
+				Body:     Body{Archetype: "low and rounded, stacked stone", Attachment: "a cairn at its foot"},
 			},
 			"inactive": {
 				Skill: "personality-inactive",
@@ -59,7 +57,6 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		"`bright`: skill `personality-bright`, favorite color `#d98e48`",
 		"emblem `🏮` `lantern / beacon`, motif `sunbeam`",
 		"geometry `open-rays`",
-		"sound mark `bell` / `rising` / `triplet`",
 		"`steady`: skill `personality-steady`, favorite color `#5fa87a`",
 		"* Melded favorite color: `#90a66a`",
 		"`alpha`: `bright builder` (pronouns: `she`)",
@@ -151,8 +148,6 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 			"// geometry: " + binding.Geometry,
 			"// body: " + binding.Body.Archetype,
 			"// emblem sits: " + binding.Body.Attachment,
-			"// sound: " + binding.SoundMark.Timbre + ", " + binding.SoundMark.Contour +
-				", " + binding.SoundMark.Pulse,
 			"// skill: " + binding.Skill,
 		} {
 			if !strings.Contains(got, want) {
@@ -273,7 +268,6 @@ func TestRenderRoleTranscriptKeepsTheDefaultTerse(t *testing.T) {
 		"personality metadata",
 		first.Emblem.Name(),
 		first.Motif,
-		first.SoundMark.Timbre,
 		first.Skill,
 	} {
 		if !strings.Contains(terse, want) {

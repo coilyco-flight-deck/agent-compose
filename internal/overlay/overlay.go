@@ -17,15 +17,14 @@ const (
 )
 
 type Personality struct {
-	Name      string           `json:"name"`
-	Species   string           `json:"species"`
-	ColorWord string           `json:"color_word"`
-	Color     string           `json:"color"`
-	Motif     string           `json:"motif"`
-	Geometry  string           `json:"geometry"`
-	Emblem    person.Emblem    `json:"emblem"`
-	Body      person.Body      `json:"body"`
-	SoundMark person.SoundMark `json:"sound_mark"`
+	Name      string        `json:"name"`
+	Species   string        `json:"species"`
+	ColorWord string        `json:"color_word"`
+	Color     string        `json:"color"`
+	Motif     string        `json:"motif"`
+	Geometry  string        `json:"geometry"`
+	Emblem    person.Emblem `json:"emblem"`
+	Body      person.Body   `json:"body"`
 }
 
 type Document struct {
@@ -119,7 +118,6 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 			Geometry:  binding.Geometry,
 			Emblem:    binding.Emblem,
 			Body:      binding.Body,
-			SoundMark: binding.SoundMark,
 		})
 	}
 	doc.FavoriteColor = role.FavoriteColor

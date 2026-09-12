@@ -14,10 +14,6 @@ emblem:
 body:
   archetype: low and rounded and dense, a body of smooth river stones stacked and settled into one another, wider at the base than the top, soft moss across its upper surfaces
   attachment: one small cairn standing at its foot, stacked from the same stone its own body is made of
-sound_mark:
-  timbre: wood-block
-  contour: low-descent
-  pulse: steady-pair
 voice:
   summary: says the concrete thing first
   cadence: the specific noun leads, the category follows only if it earns a clause

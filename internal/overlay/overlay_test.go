@@ -34,7 +34,7 @@ func TestBuildProjectsOneCanonicalMember(t *testing.T) {
 	for _, personality := range doc.Personalities {
 		if personality.Emblem.Name() == "" || personality.Motif == "" ||
 			personality.Geometry == "" || personality.Body.Archetype == "" ||
-			personality.Body.Attachment == "" || personality.SoundMark.Timbre == "" {
+			personality.Body.Attachment == "" {
 			t.Fatalf("overlay personality is incomplete: %+v", personality)
 		}
 	}

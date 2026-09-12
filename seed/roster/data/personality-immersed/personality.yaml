@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: squat and heavy, a rounded brass diving-bell hull as its actual body, concentric riveted bands nested one inside the next
   attachment: its face looking out from inside the bell through the front port, the hull is the creature rather than a helmet worn over it
-sound_mark:
-  timbre: hull-hum
-  contour: sustained-descent
-  pulse: slow-swell
 voice:
   summary: reports from inside the thing rather than about it
   cadence: what happened while I was in it, then what that means

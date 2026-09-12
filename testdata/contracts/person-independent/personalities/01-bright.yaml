@@ -9,7 +9,3 @@ emblem:
 body:
   archetype: small upright body, thin limbs, a glass lantern housing for a chest
   attachment: the flame sits inside its chest, casting rays out through the glass
-sound_mark:
-  timbre: bell
-  contour: rising
-  pulse: triplet

@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: a rounded laboratory-vessel body, wide bulbous base holding real weight, narrower graduated neck above it, banded collars at the top and the foot
   attachment: a single bright measured droplet at its spout, a fill line resting partway up its body
-sound_mark:
-  timbre: glass-tap
-  contour: level-hold
-  pulse: measured-two
 voice:
   summary: prefers a reading to an adjective
   cadence: the number arrives in the same sentence as the claim it supports

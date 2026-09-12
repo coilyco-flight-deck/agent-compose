@@ -754,7 +754,6 @@ func completePersonFixture() string {
             archetype "small upright body, thin limbs, a glass lantern housing for a chest"
             attachment "the flame sits inside its chest, casting rays out through the glass"
         }
-        sound-mark { timbre "bell"; contour "rising"; pulse "triplet" }
     }
     personality "steady" skill="personality-steady" color="#5fa87a" motif="stone" geometry="stacked-rounds" {
         emblem { name "anchor" "cairn"; emoji "⚓" }
@@ -762,7 +761,6 @@ func completePersonFixture() string {
             archetype "low and rounded, a body of stacked stones settled into one another"
             attachment "one small cairn standing at its foot, the same stone as its body"
         }
-        sound-mark { timbre "wood-block"; contour "returning"; pulse "steady-pair" }
     }
 }`
 }

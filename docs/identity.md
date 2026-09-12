@@ -47,13 +47,6 @@ Every renderer uses one fixed expression vocabulary: `available`, `listening`,
 `offline`. The owning runtime supplies the state, and agent-compose defines the
 vocabulary without ever inferring it.
 
-### Sound mark
-
-Each `sound-mark` declares `timbre`, `contour`, and `pulse` tokens, a short
-semantic seed for notifications or conversation entry. A renderer may synthesize
-it or map it to an asset, and agent-compose ships no audio files, playback,
-volume policy, or event routing.
-
 ### Projection
 
 The complete record and expression vocabulary ship in person snapshot schema v2

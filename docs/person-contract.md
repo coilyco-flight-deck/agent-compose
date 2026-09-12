@@ -89,8 +89,8 @@ schema version `3`. The artifact exports:
 * every role's purpose, role-skill id, logical source, digest and body
   projection, role-method ids, supported model tiers, ordered meld, color,
   role-stable identity, and seats
-* every personality's skill binding, color, emblem, motif, geometry, body,
-  and sound mark, and every role's stance
+* every personality's skill binding, color, emblem, motif, geometry and body,
+  and every role's stance
 * the fixed renderer expression vocabulary
 
 Roles and personalities are keyed by their stable slugs. `role_order` is the

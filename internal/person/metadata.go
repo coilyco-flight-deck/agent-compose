@@ -403,7 +403,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 		}
 		fmt.Fprintf(
 			&out,
-			"  * `%s`: skill `%s`, favorite color `%s`, emblem `%s` `%s`, motif `%s`, geometry `%s`, sound mark `%s` / `%s` / `%s`\n",
+			"  * `%s`: skill `%s`, favorite color `%s`, emblem `%s` `%s`, motif `%s`, geometry `%s`\n",
 			name,
 			binding.Skill,
 			binding.Color,
@@ -411,9 +411,6 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 			strings.Join(binding.Emblem.Names, " / "),
 			binding.Motif,
 			binding.Geometry,
-			binding.SoundMark.Timbre,
-			binding.SoundMark.Contour,
-			binding.SoundMark.Pulse,
 		)
 	}
 	fmt.Fprintf(&out, "* Melded favorite color: `%s`\n", meldedColor)
@@ -531,8 +528,6 @@ func (p *Person) personalityTexture(
 	fmt.Fprintf(&out, "%s // geometry: %s\n", key, binding.Geometry)
 	fmt.Fprintf(&out, "%s // body: %s\n", key, binding.Body.Archetype)
 	fmt.Fprintf(&out, "%s // emblem sits: %s\n", key, binding.Body.Attachment)
-	fmt.Fprintf(&out, "%s // sound: %s, %s, %s\n",
-		key, binding.SoundMark.Timbre, binding.SoundMark.Contour, binding.SoundMark.Pulse)
 	fmt.Fprintf(&out, "%s // skill: %s\n", key, binding.Skill)
 	return out.String(), nil
 }

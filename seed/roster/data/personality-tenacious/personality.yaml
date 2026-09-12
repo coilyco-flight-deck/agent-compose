@@ -15,10 +15,6 @@ emblem:
 body:
   archetype: sturdy compact body, simple rounded forms, thick tapering limbs
   attachment: a thick rope wound and knotted across its back, the working end coiled and carried close against it
-sound_mark:
-  timbre: floor-tom
-  contour: rising-return
-  pulse: driving-two
 voice:
   summary: keeps the unfinished thing named until it is finished
   cadence: the remaining work takes the last clause, never a closing pleasantry

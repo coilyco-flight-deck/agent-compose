@@ -113,28 +113,21 @@ type yamlBodyEntity struct {
 	Attachment string `yaml:"attachment,omitempty"`
 }
 
-type yamlSoundMarkEntity struct {
-	Timbre  string `yaml:"timbre,omitempty"`
-	Contour string `yaml:"contour,omitempty"`
-	Pulse   string `yaml:"pulse,omitempty"`
-}
-
 type yamlPersonalityEntity struct {
-	Personality string               `yaml:"personality"`
-	Order       int                  `yaml:"order,omitempty"`
-	Skill       string               `yaml:"skill,omitempty"`
-	Species     string               `yaml:"species,omitempty"`
-	ColorWord   string               `yaml:"color_word,omitempty"`
-	Color       string               `yaml:"color,omitempty"`
-	Motif       string               `yaml:"motif,omitempty"`
-	Geometry    string               `yaml:"geometry,omitempty"`
-	Emblem      *yamlEmblemEntity    `yaml:"emblem,omitempty"`
-	Body        *yamlBodyEntity      `yaml:"body,omitempty"`
-	SoundMark   *yamlSoundMarkEntity `yaml:"sound_mark,omitempty"`
-	Voice       *yamlVoice           `yaml:"voice,omitempty"`
-	Verbs       []string             `yaml:"verbs,omitempty"`
-	Aliases     []string             `yaml:"aliases,omitempty"`
-	Acts        []yamlAct            `yaml:"acts,omitempty"`
+	Personality string            `yaml:"personality"`
+	Order       int               `yaml:"order,omitempty"`
+	Skill       string            `yaml:"skill,omitempty"`
+	Species     string            `yaml:"species,omitempty"`
+	ColorWord   string            `yaml:"color_word,omitempty"`
+	Color       string            `yaml:"color,omitempty"`
+	Motif       string            `yaml:"motif,omitempty"`
+	Geometry    string            `yaml:"geometry,omitempty"`
+	Emblem      *yamlEmblemEntity `yaml:"emblem,omitempty"`
+	Body        *yamlBodyEntity   `yaml:"body,omitempty"`
+	Voice       *yamlVoice        `yaml:"voice,omitempty"`
+	Verbs       []string          `yaml:"verbs,omitempty"`
+	Aliases     []string          `yaml:"aliases,omitempty"`
+	Acts        []yamlAct         `yaml:"acts,omitempty"`
 }
 
 type yamlGuardrailEntity struct {
@@ -283,13 +276,6 @@ func (p *yamlPersonalityEntity) model() Personality {
 	}
 	if p.Body != nil {
 		personality.Body = Body{Archetype: p.Body.Archetype, Attachment: p.Body.Attachment}
-	}
-	if p.SoundMark != nil {
-		personality.SoundMark = SoundMark{
-			Timbre:  p.SoundMark.Timbre,
-			Contour: p.SoundMark.Contour,
-			Pulse:   p.SoundMark.Pulse,
-		}
 	}
 	return personality
 }
