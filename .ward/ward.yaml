@@ -1,7 +1,0 @@
-# Catalog metadata only. Dev verbs moved to the repo-root justfile, and this
-# file survives because check_catalog_block pins this path. agentic-os#1081.
-catalog:
-  description: "agent-compose - personality-engine context composition and delivery."
-  dependsOn:
-    - forgejo.coilysiren.me/coilyco-flight-deck/agentic-os
-    - forgejo.coilysiren.me/coilyco-flight-deck/ward

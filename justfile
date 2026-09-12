@@ -7,9 +7,7 @@
 # line above a recipe, so a wrapped description silently truncates to its tail.
 # That is agentic-os#1048's finding, kept here rather than rediscovered.
 #
-# Retiring `ward exec` per coilysiren/inbox#366. `.ward/ward.yaml` survives
-# carrying catalog metadata only, because check_catalog_block pins that exact
-# path upstream. Tracked at agentic-os#1081.
+# `ward exec` is retired, and so is the `.ward/ward.yaml` that outlived it.
 
 set positional-arguments
 

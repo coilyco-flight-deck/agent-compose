@@ -157,4 +157,3 @@ MIT. See [LICENSE](LICENSE).
 - [docs/evaluation.md](docs/evaluation.md) - the generator, subject, and grader split.
 - [docs/release.md](docs/release.md) - the automatic Forgejo release pipeline.
 - [justfile](justfile) - development recipes.
-- [.ward/ward.yaml](.ward/ward.yaml) - catalog metadata only.

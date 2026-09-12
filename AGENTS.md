@@ -142,5 +142,4 @@ switching tasks, or ending a session. The remote is the only durable artifact.
 * [README.md](README.md) - human-facing product boundary and status.
 * [docs/FEATURES.md](docs/FEATURES.md) - current shipped inventory.
 * [justfile](justfile) - development recipes.
-* [`.ward/ward.yaml`](.ward/ward.yaml) - catalog metadata only.
 * [Catalog trifecta convention](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md) - shared entry-point structure.

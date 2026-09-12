@@ -60,7 +60,7 @@ whole build through it. The pattern is
 ### What changed
 
 All 30 verbs moved with **identical names and identical command lines**. The
-`commands:` block is gone from `.ward/ward.yaml`.
+`commands:` block is gone, and so is the `.ward/ward.yaml` that held it.
 
 Arguments pass straight through, so the `--` separator is retired:
 
@@ -69,12 +69,13 @@ just evalkit-export evaluations/pilot/ops-board-2026-08-12-regraded  # in housec
 just test
 ```
 
-### Why `.ward/ward.yaml` still exists
+### And then `.ward/ward.yaml` went too
 
-It carries the `catalog:` block and nothing else. `check_catalog_block` pins
-that exact path, and `catalog-trifecta` requires README, AGENTS, and FEATURES
-to each link it. Both are authored upstream in agentic-os, so this repo cannot
-remove the file.
+It outlived the verbs by carrying a `catalog:` block, because
+`check_catalog_block` pinned that exact path and `catalog-trifecta` wanted
+README, AGENTS, and FEATURES to link it. Both are retired and the cross-repo
+graph that read the block is gone, so the file is deleted fleet-wide
+(`teable:coilyco-flight-deck/agentic-os#95`).
 
 ### One line of comment per recipe
 

@@ -116,5 +116,4 @@ rather than only in the issue.
 * [../README.md](../README.md) - product boundary and current status.
 * [../AGENTS.md](../AGENTS.md) - repo-specific operating rules.
 * [../justfile](../justfile) - development recipes.
-* [../.ward/ward.yaml](../.ward/ward.yaml) - catalog metadata.
 * [Catalog trifecta](https://forgejo.coilysiren.me/coilyco-flight-deck/agentic-os/src/branch/main/docs/features-release-tooling.md).
