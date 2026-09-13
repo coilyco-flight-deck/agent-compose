@@ -88,6 +88,7 @@ func buildPlan(cfg *Config, paths Paths, stderr io.Writer, strict bool) (map[str
 	p := planOutputs(sources, loadPoints, paths.Composed)
 	p.appendix = appendix
 	p.delivery = cfg.SourceDelivery
+	p.importable = ConfiguredSources(cfg)
 	if len(p.errors) > 0 {
 		for _, err := range p.errors {
 			fmt.Fprintf(stderr, "agent-compose: %s\n", err)

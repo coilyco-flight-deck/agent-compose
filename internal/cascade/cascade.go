@@ -334,7 +334,8 @@ func OperatingBaseParts(cfg *Config, harness, role string) (string, string, erro
 	if len(errs) > 0 {
 		return "", "", fmt.Errorf("operating base: %s", strings.Join(errs, "; "))
 	}
-	return ComposePartsDelivered(selected, overrides, appendix, role, cfg.SourceDelivery)
+	return ComposePartsScoped(
+		selected, overrides, appendix, role, cfg.SourceDelivery, ConfiguredSources(cfg))
 }
 
 // DefaultSkillLoadPoints mirrors DefaultLoadPoints for skills. Claude reads only
@@ -482,6 +483,20 @@ func ValidateSources(cfg *Config) error {
 		}
 	}
 	return nil
+}
+
+// ConfiguredSources keys the named `sources` entries by absolute path. Only
+// these can be delivered twice, so only these answer to `source_delivery`.
+func ConfiguredSources(cfg *Config) map[string]bool {
+	named := make(map[string]bool, len(cfg.Sources))
+	for _, raw := range cfg.Sources {
+		key, err := filepath.Abs(expand(raw))
+		if err != nil {
+			continue
+		}
+		named[key] = true
+	}
+	return named
 }
 
 // GatherSources resolves explicit entries in listed order, then discovered

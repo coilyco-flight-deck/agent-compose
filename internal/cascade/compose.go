@@ -182,12 +182,26 @@ func ComposeParts(
 }
 
 // ComposePartsDelivered is ComposeParts with the source delivery mode chosen.
+// Every source is import-eligible; ComposePartsScoped narrows that.
 func ComposePartsDelivered(
 	sources []string,
 	overrides map[string]string,
 	appendix []AppendixBlock,
 	role string,
 	delivery string,
+) (string, string, error) {
+	return ComposePartsScoped(sources, overrides, appendix, role, delivery, nil)
+}
+
+// ComposePartsScoped limits import delivery to importable, keyed by absolute
+// path; a nil set imports every source. Rationale: docs/cascade.md.
+func ComposePartsScoped(
+	sources []string,
+	overrides map[string]string,
+	appendix []AppendixBlock,
+	role string,
+	delivery string,
+	importable map[string]bool,
 ) (string, string, error) {
 	switch delivery {
 	case "", DeliveryInline:
@@ -199,7 +213,7 @@ func ComposePartsDelivered(
 	}
 	parts := []string{Banner}
 	for _, src := range sources {
-		if delivery == DeliveryImport {
+		if delivery == DeliveryImport && importEligible(src, importable) {
 			rendered, err := importSource(src, overrides[src])
 			if err != nil {
 				return "", "", err
@@ -240,6 +254,19 @@ func ComposePartsDelivered(
 		return composed, "", nil
 	}
 	return composed, strings.Join(blocks, "\n\n") + "\n", nil
+}
+
+// importEligible reports whether delivery applies to this source. A nil set
+// keeps the older whole-config behavior for callers that have no config.
+func importEligible(src string, importable map[string]bool) bool {
+	if importable == nil {
+		return true
+	}
+	key, err := filepath.Abs(src)
+	if err != nil {
+		key = src
+	}
+	return importable[key]
 }
 
 // A dead import is dropped silently at session start, so compose is the only
@@ -284,18 +311,20 @@ func appendixBinds(block AppendixBlock, role string) bool {
 }
 
 type plan struct {
-	slices    map[string][]string
-	overrides map[string]map[string]string
-	outputs   map[string]string
-	appendix  []AppendixBlock
-	errors    []string
-	delivery  string
+	slices     map[string][]string
+	overrides  map[string]map[string]string
+	outputs    map[string]string
+	appendix   []AppendixBlock
+	errors     []string
+	delivery   string
+	importable map[string]bool
 }
 
 // Convergence, dry-run and drift-check all route through here, so a configured
 // delivery cannot reach one of them and miss another.
 func composeTarget(p plan, sources []string, overrides map[string]string) (string, error) {
-	body, tail, err := ComposePartsDelivered(sources, overrides, p.appendix, "", p.delivery)
+	body, tail, err := ComposePartsScoped(
+		sources, overrides, p.appendix, "", p.delivery, p.importable)
 	if err != nil {
 		return "", err
 	}

@@ -312,3 +312,61 @@ func TestALeadingDoubleSlashIsNotAnUnresolvedTemplate(t *testing.T) {
 		t.Errorf("leading // treated as unresolved: %q", got)
 	}
 }
+
+// The roster writes its own `roots` source with a claude override, which an
+// import-delivery host refused. Only a named source can double-deliver.
+func TestImportDeliverySkipsADiscoveredSourceAndKeepsItsOverride(t *testing.T) {
+	dir := t.TempDir()
+	named := writeSource(t, dir, "AGENTS.md", sourceBody)
+	discovered := writeSource(t, dir, "AGENTS.COMPOSE.md", sourceBody)
+	override := writeSource(t, dir, "AGENTS.claude.md", "# Doctrine\n\nReplaced.\n")
+
+	composed, _, err := ComposePartsScoped(
+		[]string{named, discovered},
+		map[string]string{discovered: override},
+		nil, "", DeliveryImport,
+		map[string]bool{named: true},
+	)
+	if err != nil {
+		t.Fatalf("compose: %v", err)
+	}
+
+	if !strings.Contains(composed, "\n@"+named) {
+		t.Errorf("the configured source was not imported:\n%s", composed)
+	}
+	if strings.Contains(composed, "\n@"+discovered) {
+		t.Errorf("a discovered source was imported, so its override cannot apply:\n%s", composed)
+	}
+	if !strings.Contains(composed, "Replaced.") {
+		t.Errorf("the discovered source's override did not apply:\n%s", composed)
+	}
+}
+
+// The guard that started this still has to fire where it belongs.
+func TestImportDeliveryStillRefusesAnOverrideOnAConfiguredSource(t *testing.T) {
+	dir := t.TempDir()
+	src := writeSource(t, dir, "AGENTS.md", sourceBody)
+	override := writeSource(t, dir, "AGENTS.claude.md", "# Doctrine\n\nReplaced.\n")
+
+	_, _, err := ComposePartsScoped(
+		[]string{src}, map[string]string{src: override}, nil, "", DeliveryImport,
+		map[string]bool{src: true},
+	)
+	if err == nil {
+		t.Fatalf("an override on an imported configured source was accepted")
+	}
+}
+
+// ConfiguredSources keys by absolute path, so a relative entry still matches.
+func TestConfiguredSourcesKeysByAbsolutePath(t *testing.T) {
+	dir := t.TempDir()
+	src := writeSource(t, dir, "AGENTS.md", sourceBody)
+
+	named := ConfiguredSources(&Config{Sources: []string{src}, Roots: []string{dir}})
+	if !named[src] {
+		t.Errorf("configured source %s absent from %v", src, named)
+	}
+	if len(named) != 1 {
+		t.Errorf("a `roots` entry leaked into the configured set: %v", named)
+	}
+}
