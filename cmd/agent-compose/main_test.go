@@ -735,3 +735,44 @@ func TestCatalogVerbsRejectAPositionalTheyDoNotRead(t *testing.T) {
 		t.Fatalf("no positional must stay allowed: %v", err)
 	}
 }
+
+func TestApplyTelemetryEnvironmentLabelsTheSeatAndDropsInheritedLogging(t *testing.T) {
+	config := filepath.Join(t.TempDir(), "agent-compose.yaml")
+	body := "sources: []\ntelemetry:\n  otlp_metrics_endpoint: http://collector.example:4318/v1/metrics\n"
+	if err := os.WriteFile(config, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("AOS_NATIVE_SESSION", "yx46")
+	t.Setenv("AGENT_COMPOSE_TELEMETRY", "")
+	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "seat=director,shadow=ru78")
+	t.Setenv("OTEL_LOG_USER_PROMPTS", "1")
+
+	if err := applyTelemetryEnvironment(config, "claude", "platform"); err != nil {
+		t.Fatal(err)
+	}
+	if got := os.Getenv("OTEL_RESOURCE_ATTRIBUTES"); got != "seat=platform,shadow=yx46" {
+		t.Errorf("OTEL_RESOURCE_ATTRIBUTES = %q", got)
+	}
+	if _, ok := os.LookupEnv("OTEL_LOG_USER_PROMPTS"); ok {
+		t.Error("an inherited prompt-logging flag reaches the seat")
+	}
+
+	t.Setenv("AGENT_COMPOSE_TELEMETRY", "off")
+	if err := applyTelemetryEnvironment(config, "claude", "platform"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := os.LookupEnv("CLAUDE_CODE_ENABLE_TELEMETRY"); ok {
+		t.Error("the kill switch left telemetry enabled")
+	}
+}
+
+func TestApplyTelemetryEnvironmentWithoutHostConfig(t *testing.T) {
+	t.Setenv("CLAUDE_CODE_ENABLE_TELEMETRY", "1")
+	missing := filepath.Join(t.TempDir(), "absent.yaml")
+	if err := applyTelemetryEnvironment(missing, "claude", "platform"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := os.LookupEnv("CLAUDE_CODE_ENABLE_TELEMETRY"); ok {
+		t.Error("a host without telemetry config still exports")
+	}
+}
