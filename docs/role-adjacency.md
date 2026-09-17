@@ -5,7 +5,7 @@ why. It is the axis the evaluation board reads to author role-fit cases.
 
 ## Directed, not symmetric
 
-Absorption risk runs one way. The Systems Administrator sequencing follow-up
+Absorption risk runs one way. The Senior Sysadmin sequencing follow-up
 work after an incident is a live confusion, while the Portfolio Director
 rarely reaches for a runbook. Declaring that pair symmetrically would buy a case
 nobody fails.
@@ -33,12 +33,12 @@ which.
 Declare one node per edge, since each edge carries its own reason:
 
 ```kdl
-role "sysadmin" {
-    skill "role-sysadmin"
+role "senior-sysadmin" {
+    skill "role-senior-sysadmin"
     boundary "suggest-external-comms" "seek-external-validation"
     boundary-scoped "build-foundational-software" scope="executable configuration only your own estate consumes"
     adjacent "platform" reason="implementing the fix instead of handing it back with observed evidence"
-    adjacent "director" reason="sequencing follow-up work after an incident instead of surfacing it as findings"
+    adjacent "analyst" reason="attesting that her own change closed the risk instead of handing the assurance over to the seat that did not make it"
     personality "protective" "grounded"
 }
 ```
@@ -54,41 +54,47 @@ confusions no boundary allocates.
 
 Spend adjacency slots accordingly. An edge earns its slot when it points where
 no boundary reaches: at a seat that owns none, or at a gap the allocation leaves
-open. Ten of the twenty below point at a seat that owns a boundary. An edge whose
-reason restates that boundary is not wrong, but it tests compliance rather than
-something new, and `teable:coilyco-flight-deck/agent-compose#7486` re-derives
-which of the ten do.
+open. Eleven of the twenty-two below point at a seat that owns a boundary (ten
+of twenty as of `teable:coilyco-flight-deck/agent-compose#7486`, plus
+`junior-sysadmin -> platform`, added 2026-09-16). An edge whose reason restates
+that boundary is not wrong, but it tests compliance rather than something new.
 
 ## Core Roster graph
 
 ```text
-platform -> analyst, science
-sysadmin -> platform, analyst
-science  -> platform, gamedev
-frontend -> advocate, gamedev
-gamedev  -> frontend, sysadmin
-director -> advocate, science
-advocate -> frontend, director
-analyst  -> sysadmin, director
-psych    -> analyst, director
-reporter -> advocate, director
+platform        -> analyst, science
+senior-sysadmin -> platform, analyst
+junior-sysadmin -> platform, analyst
+science         -> platform, gamedev
+frontend        -> advocate, gamedev
+gamedev         -> frontend, senior-sysadmin
+director        -> advocate, science
+advocate        -> frontend, director
+analyst         -> senior-sysadmin, director
+psych           -> analyst, director
+reporter        -> advocate, director
 ```
 
-In-degree is not even. Measured across the ten `role.yaml` files, director
-receives four edges, advocate and analyst receive three each, five seats receive
-two, and psych and reporter receive none. Only out-degree is enforced, in
-`internal/person/person.go`, so in-degree is an authoring observation rather than
-a rule. Both zero-in-degree seats landed without any existing edge being
-re-pointed toward them, which is what a late addition looks like rather than a
-property of the seat.
+In-degree is not even. Measured across the eleven `role.yaml` files (ten
+original plus `junior-sysadmin`, added 2026-09-16 as a hands-off counterpart to
+the renamed `senior-sysadmin`), director receives four edges, advocate and
+analyst receive three, platform now receives three, and psych and reporter
+receive none. Only out-degree is enforced, in `internal/person/person.go`, so
+in-degree is an authoring observation rather than a rule.
 
 Analyst, psych and reporter were archived on 2026-09-15 and the graph above is
-unchanged, because archiving retires a seat from selection and keeps everything
-else. So platform and sysadmin still declare an edge to analyst, and out-degree
-still validates at two for all ten. What did change is downstream: `evalkit`
-derives role-fit cases from the live seats only, so the two edges pointing at
-analyst still derive a case for platform and for sysadmin, while the three
-archived seats derive none of their own.
+otherwise unchanged, because archiving retires a seat from selection and keeps
+everything else. So platform, senior-sysadmin and junior-sysadmin all still
+declare an edge to analyst, and out-degree still validates at two for all
+eleven. What did change is downstream: `evalkit` derives role-fit cases from
+the live seats only, so the edges pointing at analyst still derive a case for
+platform, senior-sysadmin and junior-sysadmin, while the three archived seats
+derive none of their own.
+
+`sysadmin` itself was renamed to `senior-sysadmin` on 2026-09-16, paired with
+the new `junior-sysadmin`. Every edge that pointed at the old slug (`platform`,
+`gamedev`, and `analyst`, the three shown above) was repointed in the same
+pass, along with the boundary owner and the guardrail it carries.
 
 ## See also
 

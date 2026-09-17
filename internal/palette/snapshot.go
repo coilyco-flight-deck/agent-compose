@@ -22,16 +22,17 @@ func RenderSnapshot(p *person.Person) ([]byte, error) {
 		return nil, fmt.Errorf("render role palette: person is nil")
 	}
 	favorites := make([]string, 0, len(p.RoleOrder))
+	backgrounds := make([]string, 0, len(p.RoleOrder))
 	for _, name := range p.RoleOrder {
+		if p.Roles[name].ColorTwin != "" {
+			continue
+		}
 		favorites = append(favorites, p.Roles[name].FavoriteColor)
+		backgrounds = append(backgrounds, p.Roles[name].Background)
 	}
 	separation, err := color.MinSeparation(favorites)
 	if err != nil {
 		return nil, fmt.Errorf("render role palette: %w", err)
-	}
-	backgrounds := make([]string, 0, len(p.RoleOrder))
-	for _, name := range p.RoleOrder {
-		backgrounds = append(backgrounds, p.Roles[name].Background)
 	}
 	backgroundSeparation, err := color.MinSeparation(backgrounds)
 	if err != nil {
@@ -64,17 +65,33 @@ func RenderSnapshot(p *person.Person) ([]byte, error) {
 	out.WriteString("sRGB where they clamp back together. Measured while adding the tenth seat:\n")
 	out.WriteString("at L 0.235 the closest pair fell to 0.0267 against a 0.0300 floor, raising\n")
 	out.WriteString("chroma to 0.070 recovered only 0.0025, and L 0.260 cleared it outright.\n\n")
+	out.WriteString("Both levers are finite, though, and the eleventh seat (junior-sysadmin)\n")
+	out.WriteString("reached them: pushing lightness to the test suite's own legibility ceiling\n")
+	out.WriteString("(L 0.32) and chroma to 0.065 cleared the floor by only 0.0010. Full details\n")
+	out.WriteString("and the actual numbers at each setting tried: teable:coilyco-flight-deck/agent-compose#7847.\n\n")
+	out.WriteString("A role naming `color_twin` sits out of both derivations entirely and copies\n")
+	out.WriteString("its named role's favorite and background verbatim, so it never enters the\n")
+	out.WriteString("spread-apart solve or the distinctness floor above - the point when two roles\n")
+	out.WriteString("are meant to read as one identity at different tiers, not two neighbors that\n")
+	out.WriteString("happen to be close. junior-sysadmin twins senior-sysadmin this way, which is\n")
+	out.WriteString("why the roster below still solves as ten independent points, not eleven, and\n")
+	out.WriteString("the L/chroma push above never actually had to ship.\n\n")
 	fmt.Fprintf(&out, "Closest accent pair: %.4f\n", separation)
 	fmt.Fprintf(&out, "Closest background pair: %.4f\n\n", backgroundSeparation)
 	for _, name := range p.RoleOrder {
 		role := p.Roles[name]
+		twin := ""
+		if role.ColorTwin != "" {
+			twin = fmt.Sprintf(" // twin of %s", role.ColorTwin)
+		}
 		fmt.Fprintf(
 			&out,
-			"%s // %s // %s // %s\n",
+			"%s // %s // %s // %s%s\n",
 			name,
 			role.FavoriteColor,
 			role.Background,
 			strings.Join(role.Personalities, ", "),
+			twin,
 		)
 	}
 	return out.Bytes(), nil

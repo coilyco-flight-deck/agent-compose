@@ -69,6 +69,14 @@ func validateDecodedRole(name string, role *Role) error {
 			}
 		}
 	}
+	if role.ColorTwin != "" {
+		if !validSemanticToken(role.ColorTwin) {
+			return fmt.Errorf("role %q: color_twin needs one stable role id", name)
+		}
+		if role.ColorTwin == name {
+			return fmt.Errorf("role %q: color_twin cannot name itself", name)
+		}
+	}
 	adjacent := map[string]bool{}
 	for _, entry := range role.Adjacents {
 		if !validSemanticToken(entry.Role) {

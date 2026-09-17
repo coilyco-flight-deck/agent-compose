@@ -437,7 +437,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 	dir := t.TempDir()
 	request := filepath.Join(dir, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
-    role "sysadmin"
+    role "senior-sysadmin"
     identity name="Echo" pronouns="it"
     delivery "native-skills"
 }`), 0o644); err != nil {
@@ -469,7 +469,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 
 	baseline := filepath.Join(dir, "baseline.kdl")
 	if err := os.WriteFile(baseline, []byte(`compose {
-    role "sysadmin"
+    role "senior-sysadmin"
     delivery "native-skills"
 }`), 0o644); err != nil {
 		t.Fatal(err)

@@ -120,6 +120,9 @@ type Role struct {
 	// Guardrail names this role's guardrail element, or is empty. Four roles
 	// carry one by Kai's scope decision, so absence is a decision.
 	Guardrail string `json:"guardrail,omitempty"`
+	// ColorTwin names a role whose favorite_color and background this role
+	// copies verbatim instead of solving its own; must not itself be a twin.
+	ColorTwin string `json:"color_twin,omitempty"`
 	// Carried says what the seat holds; absence is ordinary. agent-compose#7212.
 	Carried             *Carried       `json:"carried,omitempty"`
 	Personalities       []string       `json:"personalities"`
@@ -666,12 +669,18 @@ func mergeLoadedLibraryWithOverlay(p *Person, overlay fstest.MapFS, library *Per
 	return nil
 }
 
-// ResolveFavoriteColors derives every role's favorite together. Load applies
-// it; a hand-built Person must call it before rendering any role color.
+// ResolveFavoriteColors derives every role's favorite together, except a
+// ColorTwin role, which copies its twin's result once the rest are solved.
 func (p *Person) ResolveFavoriteColors() error {
 	order := p.roleOrder()
-	groups := make([][]string, 0, len(order))
+	solved := make([]string, 0, len(order))
 	for _, roleName := range order {
+		if p.Roles[roleName].ColorTwin == "" {
+			solved = append(solved, roleName)
+		}
+	}
+	groups := make([][]string, 0, len(solved))
+	for _, roleName := range solved {
 		components := make([]string, 0, len(p.Roles[roleName].Personalities))
 		for _, name := range p.Roles[roleName].Personalities {
 			binding, ok := p.Personalities[name]
@@ -689,20 +698,39 @@ func (p *Person) ResolveFavoriteColors() error {
 	if err != nil {
 		return fmt.Errorf("derive role favorite colors: %w", err)
 	}
-	for index, roleName := range order {
+	for index, roleName := range solved {
 		role := p.Roles[roleName]
 		role.FavoriteColor = favorites[index]
+		p.Roles[roleName] = role
+	}
+	for _, roleName := range order {
+		twin := p.Roles[roleName].ColorTwin
+		if twin == "" {
+			continue
+		}
+		source, ok := p.Roles[twin]
+		if !ok {
+			return fmt.Errorf("role %q: color_twin %q is not defined", roleName, twin)
+		}
+		role := p.Roles[roleName]
+		role.FavoriteColor = source.FavoriteColor
 		p.Roles[roleName] = role
 	}
 	return nil
 }
 
 // ResolveBackgrounds derives one window background per role from the resolved
-// accents, solved across the whole roster. See internal/palette/role-palette.txt.
+// accents; a ColorTwin role sits out and copies its twin's. role-palette.txt.
 func (p *Person) ResolveBackgrounds() error {
 	order := p.roleOrder()
-	accents := make([]string, 0, len(order))
+	solved := make([]string, 0, len(order))
 	for _, roleName := range order {
+		if p.Roles[roleName].ColorTwin == "" {
+			solved = append(solved, roleName)
+		}
+	}
+	accents := make([]string, 0, len(solved))
+	for _, roleName := range solved {
 		accent := p.Roles[roleName].FavoriteColor
 		if accent == "" {
 			return fmt.Errorf("role %q has no favorite color to derive a background from", roleName)
@@ -713,9 +741,22 @@ func (p *Person) ResolveBackgrounds() error {
 	if err != nil {
 		return fmt.Errorf("derive role backgrounds: %w", err)
 	}
-	for index, roleName := range order {
+	for index, roleName := range solved {
 		role := p.Roles[roleName]
 		role.Background = backgrounds[index]
+		p.Roles[roleName] = role
+	}
+	for _, roleName := range order {
+		twin := p.Roles[roleName].ColorTwin
+		if twin == "" {
+			continue
+		}
+		source, ok := p.Roles[twin]
+		if !ok {
+			return fmt.Errorf("role %q: color_twin %q is not defined", roleName, twin)
+		}
+		role := p.Roles[roleName]
+		role.Background = source.Background
 		p.Roles[roleName] = role
 	}
 	return nil
@@ -1010,6 +1051,8 @@ func validateEveryPersonalityColorWordAgrees(p *Person) error {
 func validateCorePersonalityMelds(p *Person) error {
 	usage := map[string]int{}
 	colors := map[string]string{}
+	favorites := make([]string, 0, len(p.RoleOrder))
+	backgrounds := make([]string, 0, len(p.RoleOrder))
 	for _, roleName := range p.RoleOrder {
 		role := p.Roles[roleName]
 		if len(role.Personalities) != personalitiesPerRole {
@@ -1027,6 +1070,23 @@ func validateCorePersonalityMelds(p *Person) error {
 		if err := color.Legible(favorite); err != nil {
 			return fmt.Errorf("core role %q favorite color: %w", roleName, err)
 		}
+		if role.ColorTwin != "" {
+			twin, ok := p.Roles[role.ColorTwin]
+			if !ok {
+				return fmt.Errorf("core role %q: color_twin %q is not defined", roleName, role.ColorTwin)
+			}
+			if twin.ColorTwin != "" {
+				return fmt.Errorf("core role %q: color_twin %q is itself a twin, no chaining",
+					roleName, role.ColorTwin)
+			}
+			if role.FavoriteColor != twin.FavoriteColor || role.Background != twin.Background {
+				return fmt.Errorf("core role %q does not actually share colors with its twin %q",
+					roleName, role.ColorTwin)
+			}
+			// A twin sits out of the distinctness checks below on purpose: it
+			// is meant to collide with its twin, not to be told apart from it.
+			continue
+		}
 		if existing, ok := colors[favorite]; ok {
 			return fmt.Errorf(
 				"core roles %q and %q share melded favorite color %q",
@@ -1036,10 +1096,8 @@ func validateCorePersonalityMelds(p *Person) error {
 			)
 		}
 		colors[favorite] = roleName
-	}
-	favorites := make([]string, 0, len(p.RoleOrder))
-	for _, roleName := range p.RoleOrder {
-		favorites = append(favorites, p.Roles[roleName].FavoriteColor)
+		favorites = append(favorites, favorite)
+		backgrounds = append(backgrounds, role.Background)
 	}
 	separation, err := color.MinSeparation(favorites)
 	if err != nil {
@@ -1052,10 +1110,6 @@ func validateCorePersonalityMelds(p *Person) error {
 			separation,
 			minFavoriteSeparation,
 		)
-	}
-	backgrounds := make([]string, 0, len(p.RoleOrder))
-	for _, roleName := range p.RoleOrder {
-		backgrounds = append(backgrounds, p.Roles[roleName].Background)
 	}
 	backgroundSeparation, err := color.MinSeparation(backgrounds)
 	if err != nil {

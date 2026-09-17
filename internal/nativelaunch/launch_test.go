@@ -95,7 +95,7 @@ func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPla
 	}
 	inputs := map[string]bool{defaultSource: true}
 	roles := map[string][]repositoryplan.Selection{}
-	for _, role := range []string{"science", "advocate", "frontend", "gamedev", "platform", "sysadmin", "director"} {
+	for _, role := range []string{"science", "advocate", "frontend", "gamedev", "platform", "senior-sysadmin", "director"} {
 		for _, path := range basePaths {
 			roles[role] = append(roles[role], selection(path, "operating-context", defaultSource, "test operating context"))
 		}
@@ -465,7 +465,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		Defaults:     []string{base},
 		Harnesses:    map[string][]string{},
 		RoleProviders: map[string][]testRoleProvider{
-			"sysadmin": {
+			"senior-sysadmin": {
 				{Path: infrastructure, Required: true, Name: "infrastructure", DeclaredBy: "example/aosk"},
 				{Path: deploy, Required: true, Name: "deploy", DeclaredBy: "example/aosk"},
 				{Path: missingOptional, Name: "optional", DeclaredBy: "example/aosk"},
@@ -475,7 +475,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "bundles")
 	results := map[string]*Result{}
 	targets := map[string]string{}
-	for _, role := range []string{"sysadmin", "platform"} {
+	for _, role := range []string{"senior-sysadmin", "platform"} {
 		target := t.TempDir()
 		targets[role] = target
 		result, err := Refresh(Options{
@@ -492,7 +492,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		results[role] = result
 		for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
 			_, err := os.Stat(filepath.Join(target, ".agents", "skills", skill, "SKILL.md"))
-			if role == "sysadmin" && err != nil {
+			if role == "senior-sysadmin" && err != nil {
 				t.Errorf("ops native bundle omitted %s: %v", skill, err)
 			}
 			if role == "platform" && !os.IsNotExist(err) {
@@ -501,14 +501,14 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		}
 	}
 
-	for _, role := range []string{"sysadmin", "platform"} {
+	for _, role := range []string{"senior-sysadmin", "platform"} {
 		staged := t.TempDir()
 		if _, err := project.ProjectScoped(results[role].BundleDir, "claude", staged, project.ScopeHome); err != nil {
 			t.Fatal(err)
 		}
 		for _, skill := range []string{"infrastructure-ops", "deploy-ops"} {
 			_, err := os.Stat(filepath.Join(staged, ".claude", "skills", skill, "SKILL.md"))
-			if role == "sysadmin" && err != nil {
+			if role == "senior-sysadmin" && err != nil {
 				t.Errorf("staged Ops home omitted %s: %v", skill, err)
 			}
 			if role == "platform" && !os.IsNotExist(err) {
@@ -532,7 +532,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		}
 	}
 	for _, source := range []string{"example--infrastructure", "example--deploy"} {
-		selected := providerReport(t, results["sysadmin"], source)
+		selected := providerReport(t, results["senior-sysadmin"], source)
 		if selected.Category != resolver.ProviderCategoryRole ||
 			selected.Scope != "role" ||
 			selected.Outcome != resolver.OutcomeSelected ||
@@ -548,10 +548,10 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		}
 	}
 
-	selectedWhy, err := describe.Why(results["sysadmin"].BundleDir, "skill:infrastructure-ops", describe.Options{})
+	selectedWhy, err := describe.Why(results["senior-sysadmin"].BundleDir, "skill:infrastructure-ops", describe.Options{})
 	if err != nil || !strings.Contains(
 		selectedWhy,
-		"role \"sysadmin\" -> provider \"infrastructure\" declared by example/aosk -> selected catalogue",
+		"role \"senior-sysadmin\" -> provider \"infrastructure\" declared by example/aosk -> selected catalogue",
 	) {
 		t.Fatalf("selected role-provider why = %q, err=%v", selectedWhy, err)
 	}
@@ -563,12 +563,12 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		!strings.Contains(excludedWhy, "context: 0 skills, 0 bytes, approximately 0 tokens") {
 		t.Fatalf("excluded role-provider budget missing from why output: %q", excludedWhy)
 	}
-	optionalWhy, err := describe.Why(results["sysadmin"].BundleDir, "source:example--optional", describe.Options{})
+	optionalWhy, err := describe.Why(results["senior-sysadmin"].BundleDir, "source:example--optional", describe.Options{})
 	if err != nil || !strings.Contains(optionalWhy, "optional role provider") {
 		t.Fatalf("optional missing provider why = %q, err=%v", optionalWhy, err)
 	}
 	pointerWhy, err := describe.Why(
-		results["sysadmin"].BundleDir,
+		results["senior-sysadmin"].BundleDir,
 		"skill:repo-infrastructure",
 		describe.Options{},
 	)
@@ -683,11 +683,11 @@ func TestMissingRequiredRoleProviderFailsExplicitly(t *testing.T) {
 		Defaults:     []string{base},
 		Harnesses:    map[string][]string{},
 		RoleProviders: map[string][]testRoleProvider{
-			"sysadmin": {{Path: missing, Required: true}},
+			"senior-sysadmin": {{Path: missing, Required: true}},
 		},
 	})
 	_, err := Refresh(Options{
-		Role:      "sysadmin",
+		Role:      "senior-sysadmin",
 		Harness:   "codex",
 		CWD:       projects,
 		TargetDir: t.TempDir(),

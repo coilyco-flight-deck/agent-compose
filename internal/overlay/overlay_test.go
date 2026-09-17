@@ -134,7 +134,7 @@ func TestMarshalProducesVersionedJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "sysadmin", "claude", "blocked")
+	doc, err := Build(p, "senior-sysadmin", "claude", "blocked")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +158,7 @@ func TestBuildDerivesTheCreaturePairFromTheMeld(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, role := range []string{"platform", "sysadmin", "science"} {
+	for _, role := range []string{"platform", "senior-sysadmin", "science"} {
 		doc, err := Build(p, role, "claude", "acting")
 		if err != nil {
 			t.Fatal(err)
@@ -191,7 +191,7 @@ func TestMarshalCarriesTheDerivedCreatureAndNoElement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := Build(p, "sysadmin", "claude", "acting")
+	doc, err := Build(p, "senior-sysadmin", "claude", "acting")
 	if err != nil {
 		t.Fatal(err)
 	}

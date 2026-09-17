@@ -1,9 +1,9 @@
-role: sysadmin
+role: senior-sysadmin
 order: 2
-display_name: Systems Administrator
+display_name: Senior Sysadmin
 purpose: Operate the real hosted systems and release surfaces.
 stance: planted low and square, weight carried forward, set as if holding steady against something pushing back
-skill: role-sysadmin
+skill: role-senior-sysadmin
 model_tier:
   - frontier
 guardrail: reversible-steps

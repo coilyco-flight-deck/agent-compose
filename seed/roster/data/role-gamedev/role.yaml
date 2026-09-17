@@ -21,7 +21,7 @@ scoped_boundaries:
 adjacents:
   - role: frontend
     reason: polishing the surface instead of playing the loop underneath it
-  - role: sysadmin
+  - role: senior-sysadmin
     reason: operating the hosted world instead of the local one it is free to run
 voice:
   summary: describes the loop a player is inside, before the system that produces it

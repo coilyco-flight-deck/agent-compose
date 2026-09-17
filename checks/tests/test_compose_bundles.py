@@ -61,9 +61,12 @@ def test_no_archived_role_gets_a_bundle(tmp_path: pathlib.Path, loaded: Roster) 
         capture_output=True,
         text=True,
     )
-    built = {path.name.split("-")[0] for path in out.iterdir()}
+    # Bundle names are "{role}-{tier}-{delivery}", and a role slug can itself
+    # be hyphenated, so match the full prefix rather than split(...)[0].
+    built = {path.name for path in out.iterdir()}
     for name, role in loaded.roles.items():
+        has_bundle = any(bundle.startswith(f"{name}-") for bundle in built)
         if role.archived:
-            assert name not in built, f"archived role {name!r} was given a bundle"
+            assert not has_bundle, f"archived role {name!r} was given a bundle"
         else:
-            assert name in built, f"live role {name!r} has no bundle"
+            assert has_bundle, f"live role {name!r} has no bundle"

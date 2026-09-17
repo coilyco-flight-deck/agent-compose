@@ -124,6 +124,69 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 	})
 }
 
+func TestColorTwinSharesColorsAndValidates(t *testing.T) {
+	t.Run("twin copies its source's colors verbatim", func(t *testing.T) {
+		// The shipped pair, not a synthesized one: the derivation is global,
+		// so an arbitrary substitute can fail for a reason unrelated to twinning.
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if p.Roles["junior-sysadmin"].ColorTwin != "senior-sysadmin" {
+			t.Fatalf("shipped roster no longer twins junior-sysadmin to senior-sysadmin")
+		}
+		if p.Roles["junior-sysadmin"].FavoriteColor != p.Roles["senior-sysadmin"].FavoriteColor {
+			t.Fatalf("twin favorite = %q, source = %q",
+				p.Roles["junior-sysadmin"].FavoriteColor, p.Roles["senior-sysadmin"].FavoriteColor)
+		}
+		if p.Roles["junior-sysadmin"].Background != p.Roles["senior-sysadmin"].Background {
+			t.Fatalf("twin background = %q, source = %q",
+				p.Roles["junior-sysadmin"].Background, p.Roles["senior-sysadmin"].Background)
+		}
+		// A twin colliding with its own source is the point, not a violation.
+		if err := validateCorePersonalityMelds(p); err != nil {
+			t.Fatalf("validate the shipped roster with a legitimate twin: %v", err)
+		}
+	})
+
+	t.Run("twin naming a missing role is rejected", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		role := p.Roles["platform"]
+		role.ColorTwin = "no-such-role"
+		p.Roles["platform"] = role
+		if err := p.ResolveFavoriteColors(); err == nil ||
+			!strings.Contains(err.Error(), "is not defined") {
+			t.Fatalf("missing-twin error = %v", err)
+		}
+	})
+
+	t.Run("chained twins are rejected", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		platform := p.Roles["platform"]
+		platform.ColorTwin = "science"
+		p.Roles["platform"] = platform
+		science := p.Roles["science"]
+		science.ColorTwin = "director"
+		p.Roles["science"] = science
+		if err := p.ResolveFavoriteColors(); err != nil {
+			t.Fatal(err)
+		}
+		if err := p.ResolveBackgrounds(); err != nil {
+			t.Fatal(err)
+		}
+		if err := validateCorePersonalityMelds(p); err == nil ||
+			!strings.Contains(err.Error(), "no chaining") {
+			t.Fatalf("chained-twin error = %v", err)
+		}
+	})
+}
+
 func TestLoadRoleSkillsRejectsMissingAndMalformedDefinitions(t *testing.T) {
 	for name, files := range map[string]fstest.MapFS{
 		"missing": {},
