@@ -10,17 +10,16 @@ requires-python = ">=3.12"
 # housecast-v* tag triggers a PyPI publish, and spending a version number to
 # satisfy a dev-time parity check is the wrong trade. Restore a tag pin at the
 # next real release.
-# Pinned to admin-assist-goose-seat-pin-base, not housecast main: main already
-# carries #137's modify-live-backend boundary text, which has no counterpart
-# in this repo yet, and pinning to it would fail parity on every role that
-# defers that boundary. This commit is #136 (admin-assist) plus only the
-# goose seat added here, on top of main's pre-#137 point. Fast-forward this
-# pin to housecast main once the boundary text lands here too, and retire
-# the pin-base branch (teable:coilyco-flight-deck/agent-compose#7929).
+# Fast-forwarded to housecast main (teable:coilyco-flight-deck/agent-compose#7929):
+# main now carries both #137's modify-live-backend boundary text and #138's
+# admin-assist goose seat, and this repo's seed data has both counterparts
+# too (#503, #505, and this PR), so the two prior workaround pins
+# (admin-assist-goose-seat-pin-base and pin-boundary-modify-live-backend)
+# are both retired.
 dependencies = ["housecast>=0.3.0"]
 
 [tool.uv.sources]
-housecast = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git", rev = "2f4e8bf513c3c78da1ae078f507aad80d26a845e" }
+housecast = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git", rev = "bf834789dc7e48f8f34f558dd3572f3b72e9cbc4" }
 
 [dependency-groups]
 dev = [
