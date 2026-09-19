@@ -58,6 +58,8 @@ agents:
   - harness: codex
     tier: frontier
     legal_name: Codex
+  - harness: goose
+    legal_name: Goose
 acts:
   - tool: create_record
     text: create_record with the repo it touches named, then get_record and read the fields back before saying it landed
