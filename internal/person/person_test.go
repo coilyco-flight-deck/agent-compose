@@ -1,6 +1,7 @@
 package person
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -124,6 +125,38 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 	})
 }
 
+// twinMeldExemptions names a twin allowed to differ from its source's meld, and
+// why. Empty today: a divergence someone must write down is a deliberate one.
+var twinMeldExemptions = map[string]string{}
+
+// twinRoles lists every role declaring color_twin, in roster order.
+func twinRoles(p *Person) []string {
+	var twins []string
+	for _, name := range p.RoleOrder {
+		if p.Roles[name].ColorTwin != "" {
+			twins = append(twins, name)
+		}
+	}
+	return twins
+}
+
+// twinMeldMismatches reports each twin whose meld differs from its source's and
+// has no exemption, so the rule follows color_twin and no list of roles.
+func twinMeldMismatches(p *Person) []string {
+	var mismatched []string
+	for _, name := range twinRoles(p) {
+		if _, exempt := twinMeldExemptions[name]; exempt {
+			continue
+		}
+		role := p.Roles[name]
+		want := strings.Join(p.Roles[role.ColorTwin].Personalities, ",")
+		if got := strings.Join(role.Personalities, ","); got != want {
+			mismatched = append(mismatched, fmt.Sprintf("%s has %s, twin %s has %s", name, got, role.ColorTwin, want))
+		}
+	}
+	return mismatched
+}
+
 func TestColorTwinSharesColorsAndValidates(t *testing.T) {
 	t.Run("twin copies its source's colors verbatim", func(t *testing.T) {
 		// The shipped pair, not a synthesized one: the derivation is global,
@@ -149,26 +182,50 @@ func TestColorTwinSharesColorsAndValidates(t *testing.T) {
 		}
 	})
 
-	t.Run("twin carrying its source's meld stays under the usage cap", func(t *testing.T) {
+	t.Run("every twin carries its source's meld and stays under the usage cap", func(t *testing.T) {
 		p, err := Load()
 		if err != nil {
 			t.Fatal(err)
 		}
-		twin := p.Roles["admin-assist"]
-		if twin.ColorTwin != "director" {
-			t.Fatalf("shipped roster no longer twins admin-assist to director")
+		twins := twinRoles(p)
+		if len(twins) == 0 {
+			t.Fatal("the shipped roster twins no role, so this asserts nothing")
 		}
-		if strings.Join(twin.Personalities, ",") != strings.Join(p.Roles["director"].Personalities, ",") {
-			t.Fatalf("twin meld = %v, source = %v", twin.Personalities, p.Roles["director"].Personalities)
+		if mismatched := twinMeldMismatches(p); len(mismatched) > 0 {
+			t.Fatalf("twins whose meld differs from their source's: %s", strings.Join(mismatched, "; "))
 		}
 		if err := validateCorePersonalityMelds(p); err != nil {
 			t.Fatalf("a twin's meld counted against the usage cap: %v", err)
 		}
 		// Negative control: without the twin link the same role must fail a whole-roster gate.
-		twin.ColorTwin = ""
-		p.Roles["admin-assist"] = twin
-		if err := validateCorePersonalityMelds(p); err == nil {
-			t.Fatalf("a non-twin repeating the director's meld passed every whole-roster gate")
+		for _, name := range twins {
+			role := p.Roles[name]
+			source := role.ColorTwin
+			role.ColorTwin = ""
+			p.Roles[name] = role
+			if err := validateCorePersonalityMelds(p); err == nil {
+				t.Fatalf("%s as a non-twin repeating %s's meld passed every whole-roster gate", name, source)
+			}
+			role.ColorTwin = source
+			p.Roles[name] = role
+		}
+	})
+
+	t.Run("a twin whose meld drifts is reported, and a named exemption is not", func(t *testing.T) {
+		p, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		junior := p.Roles["junior-sysadmin"]
+		junior.Personalities = []string{"suspicious", "empirical"}
+		p.Roles["junior-sysadmin"] = junior
+		if got := twinMeldMismatches(p); len(got) != 1 || !strings.HasPrefix(got[0], "junior-sysadmin") {
+			t.Fatalf("a drifted twin was reported as %v", got)
+		}
+		twinMeldExemptions["junior-sysadmin"] = "test only"
+		defer delete(twinMeldExemptions, "junior-sysadmin")
+		if got := twinMeldMismatches(p); len(got) != 0 {
+			t.Fatalf("an exempted twin was still reported: %v", got)
 		}
 	})
 

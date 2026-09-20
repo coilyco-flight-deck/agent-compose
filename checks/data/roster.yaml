@@ -1780,7 +1780,7 @@ roles:
     scoped:
       - name: build-foundational-software
         scope: "executable configuration only your own estate consumes, never shared tooling, validators, or code other seats build on"
-    personalities: ["suspicious", "empirical"]
+    personalities: ["protective", "grounded"]
     identity:
       name: "Valerie"
       pronouns: "she"
