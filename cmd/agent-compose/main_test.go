@@ -770,13 +770,13 @@ func TestCatalogSnapshotCarriesWhatEvalkitRosterReads(t *testing.T) {
 	if !ok {
 		t.Fatalf("roles missing or not an object: %v", snapshot["roles"])
 	}
-	role, ok := roles["admin-assist"].(map[string]any)
+	role, ok := roles["manager"].(map[string]any)
 	if !ok {
-		t.Fatalf("roles[admin-assist] missing: %v", roles)
+		t.Fatalf("roles[manager] missing: %v", roles)
 	}
 	for _, key := range []string{"display_name", "purpose", "boundaries", "acts", "adjacents", "personalities"} {
 		if _, ok := role[key]; !ok {
-			t.Errorf("roles[admin-assist] is missing %q, which evalkit/roster.py reads", key)
+			t.Errorf("roles[manager] is missing %q, which evalkit/roster.py reads", key)
 		}
 	}
 

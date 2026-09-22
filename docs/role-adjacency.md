@@ -56,7 +56,8 @@ Spend adjacency slots accordingly. An edge earns its slot when it points where
 no boundary reaches: at a seat that owns none, or at a gap the allocation leaves
 open. Fourteen of the twenty-four below point at a seat that owns a boundary
 (eleven of twenty-two as of `junior-sysadmin`, added 2026-09-16, plus
-`admin-assist -> director` and `admin-assist -> advocate`, added 2026-09-19).
+`manager -> director` and `manager -> advocate`, added 2026-09-19 as
+`admin-assist` and renamed 2026-09-22).
 An edge whose reason restates that boundary is not wrong, but it tests
 compliance rather than something new.
 
@@ -74,15 +75,15 @@ advocate        -> frontend, director
 analyst         -> senior-sysadmin, director
 psych           -> analyst, director
 reporter        -> advocate, director
-admin-assist    -> director, advocate
+manager         -> director, advocate
 ```
 
 In-degree is not even. Measured across the twelve `role.yaml` files (ten
 original, plus `junior-sysadmin` added 2026-09-16 as a hands-off counterpart to
-the renamed `senior-sysadmin`, plus `admin-assist` added 2026-09-19 as a
+the renamed `senior-sysadmin`, plus `manager` added 2026-09-19 as a
 hands-off counterpart to `director`), director receives five edges, advocate
 and analyst receive four, platform receives three, and psych, reporter,
-junior-sysadmin and admin-assist receive none. Only out-degree is enforced, in
+junior-sysadmin and manager receive none. Only out-degree is enforced, in
 `internal/person/person.go`, so in-degree is an authoring observation rather
 than a rule.
 
