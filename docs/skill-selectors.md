@@ -59,9 +59,9 @@ it holds is the compiled manifest's answer rather than a list kept in config:
 
 ```kdl
 repositories {
-    org gaming owner="coilyco-gaming" {
+    org gaming owner="acme-games" {
         skill "repo-*"
-        skill "sirens-game-*"
+        skill "game-*"
     }
 }
 roles {

@@ -72,7 +72,7 @@ The document must use `aos.catalogues.v1`:
 ```json
 {
   "format": "aos.catalogues.v1",
-  "forge": "https://forgejo.coilysiren.me",
+  "forge": "https://git.example.com",
   "catalogues": [
     {
       "source": "owner/repo/.agents/skills@main",
@@ -91,17 +91,16 @@ files all fail before roster or load-point writes.
 ### Every source names its forge
 
 A source carrying a scheme names its own forge, as
-`https://github.com/coilysiren/coilysiren/.agents/skills@main` does. A bare
+`https://github.com/acme/handbook/.agents/skills@main` does. A bare
 `owner/repo/path` takes the document's `forge`, which an entry may override with
 its own. Both keys take the URL form config is written in or the bare host a
 record carries. **A bare source with no forge to take is an error** rather than
-one that picks a side: `coilyco-flight-deck/agentic-os` is real on both
-`forgejo.coilysiren.me` and `github.com`, one canonical and one a PR-gated
-mirror whose content may lag, and Forgejo is canonical fleet-wide except the
-GitHub-canonical profile repository.
+one that picks a side: `acme/tools` can exist on both `git.example.com` and
+`github.com`, one canonical and one a mirror whose content may lag, and only
+you know which one you meant.
 
 A record names the host, as
-`forgejo.coilysiren.me/coilyco-gaming/enshrouded/.agents/skills@main`, and a
+`git.example.com/acme-games/server/.agents/skills@main`, and a
 skill in it drops the catalogue path. Source travels with the path rather than
 being checked and dropped, so a warning names the repository to fix.
 

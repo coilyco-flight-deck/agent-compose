@@ -61,13 +61,13 @@ scoop bucket add coilyco-flight-deck https://forgejo.coilysiren.me/coilyco-fligh
 scoop install coilyco-flight-deck/agent-compose
 ```
 
-Both also install `acompose`, the compose verb directly, and both install the
-roster beside the binary. A raw binary from
-[Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
-needs two assets rather than one, because the binary carries no roster:
+Releases publish to this project's public Forgejo server, and the GitHub mirror
+trails it. Both managers also install `acompose` and the roster beside the
+binary. A raw binary from [Forgejo releases](https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases)
+needs the roster as a second asset, because the binary carries none:
 
 ```sh
-curl -fL .../download/agent-compose-roster.tar.gz | tar xz -C ~/.agent-compose
+mkdir -p ~/.agent-compose && curl -fL https://forgejo.coilysiren.me/coilyco-flight-deck/agent-compose/releases/latest/download/agent-compose-roster.tar.gz | tar xz -C ~/.agent-compose
 ```
 
 Skip that and the first `catalog roles` reports `no roster is mounted`, naming

@@ -25,7 +25,9 @@ error messages are the real reference page. Read them rather than guessing.
 ## 1. Install
 
 The package managers install the binary and the roster together, which is the
-path with the fewest steps.
+path with the fewest steps. Releases publish to the project's own public
+Forgejo server, `forgejo.coilysiren.me`, and the GitHub mirror trails it, so
+every command below points there.
 
 ```sh
 brew tap coilyco-flight-deck/tap https://forgejo.coilysiren.me/coilyco-flight-deck/homebrew-tap
