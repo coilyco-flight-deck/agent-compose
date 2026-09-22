@@ -117,9 +117,6 @@ func validateDecodedRole(name string, role *Role) error {
 		if strings.TrimSpace(role.Identity.Name) == "" {
 			return fmt.Errorf("role %q: identity needs a name property", name)
 		}
-		if strings.TrimSpace(role.Identity.Pronouns) == "" {
-			return fmt.Errorf("role %q: identity needs a pronouns property", name)
-		}
 	}
 	if err := resolveDecodedSeats(name, role); err != nil {
 		return err
@@ -149,16 +146,14 @@ func resolveDecodedSeats(name string, role *Role) error {
 			}
 		}
 		if role.Identity != nil {
-			if seat.Name != "" || seat.Pronouns != "" {
+			if seat.Name != "" {
 				return fmt.Errorf("role %q: seat %q cannot redefine role identity", name, seat.Key)
 			}
 			seat.Name = role.Identity.Name
-			seat.Pronouns = role.Identity.Pronouns
 			continue
 		}
-		if strings.TrimSpace(seat.Name) == "" {
-			return fmt.Errorf("role %q: seat %q needs a name property", name, seat.Key)
-		}
+		// An unauthored, unnamed seat is not an error: resolveIdentities fills
+		// it in once the full roster's species are in scope.
 	}
 	return nil
 }

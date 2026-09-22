@@ -46,9 +46,6 @@ voice:
 outro:
   clean: Decided, and closed.
   failure: Stopped at the gate. Nothing was committed.
-identity:
-  name: Portia
-  pronouns: they
 agents:
   - harness: claude
     tier: frontier

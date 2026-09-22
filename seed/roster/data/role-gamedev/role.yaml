@@ -50,9 +50,6 @@ voice:
 outro:
   clean: Run complete. The loop closed.
   failure: Died on the third run. The world is still there.
-identity:
-  name: Sprite
-  pronouns: they
 agents:
   - harness: claude
     tier: frontier

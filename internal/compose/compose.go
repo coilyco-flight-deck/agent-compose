@@ -191,7 +191,7 @@ func materialize(
 	// Applied here because both entry points funnel through materialize, and
 	// everything downstream reads the identity off the person.
 	if req.Identity != nil {
-		if err := p.OverrideRoleIdentity(req.Role, req.Identity.Name, req.Identity.Pronouns); err != nil {
+		if err := p.OverrideRoleIdentity(req.Role, req.Identity.Name); err != nil {
 			return nil, wrapPolicyError(err, externalOnly)
 		}
 	}

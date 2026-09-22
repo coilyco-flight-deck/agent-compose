@@ -61,8 +61,7 @@ type Request struct {
 // IdentityOverride renames the seat a request composes. It says who is
 // speaking, never what the role is. See docs/person-contract.md.
 type IdentityOverride struct {
-	Name     string
-	Pronouns string
+	Name string
 }
 
 // IsModelTier reports whether value belongs to the complete stable model-tier
@@ -328,19 +327,14 @@ func ParseRequest(path string) (*Request, error) {
 			}
 			seen[n.Name()] = true
 			if len(n.Arguments()) != 0 {
-				return nil, fmt.Errorf("request %s: identity takes name and pronouns properties", path)
+				return nil, fmt.Errorf("request %s: identity takes a name property", path)
 			}
 			identityName := n.Prop("name")
-			pronouns := n.Prop("pronouns")
 			if !identityName.IsValid() || strings.TrimSpace(identityName.String()) == "" {
 				return nil, fmt.Errorf("request %s: identity needs a name property", path)
 			}
-			if !pronouns.IsValid() || strings.TrimSpace(pronouns.String()) == "" {
-				return nil, fmt.Errorf("request %s: identity needs a pronouns property", path)
-			}
 			req.Identity = &IdentityOverride{
-				Name:     strings.TrimSpace(identityName.String()),
-				Pronouns: strings.TrimSpace(pronouns.String()),
+				Name: strings.TrimSpace(identityName.String()),
 			}
 		case "boundary-omit":
 			if len(n.Arguments()) == 0 {

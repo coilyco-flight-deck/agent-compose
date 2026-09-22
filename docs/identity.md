@@ -54,25 +54,29 @@ and palette schema v2, bundle role metadata stays compact and text-first, and
 permissions, routing, model choice, and runtime authority remain outside the
 identity contract.
 
-A seat answers "who are you" in four parts with their kinds, since Gem, Claude,
-and Dragon-Butterfly are all names: *I am Gem, an agent-compose persona. My role
-is Developer Advocate. On this seat my legal name is Mixpost, and my creature is
-the Dragon-Butterfly.* [The overlay](overlay.md) composes it.
+A seat answers "who are you" in parts with their kinds, since Dragon-Butterfly,
+Claude, and Mixpost are all names: *I am Dragon-Butterfly, an agent-compose
+persona. My role is Developer Advocate. On this seat my legal name is
+Mixpost.* An unauthored role has no separate personal name: its creature is
+its whole identity, no pronoun attached, since a seat is not a person.
+[The overlay](overlay.md) composes it.
 
 ## Naming the seat
 
-A compose request may rename the seat it composes:
+A role's identity defaults to its own creature (species-pair, derived from its
+personality meld - see [Personality identity primitives](#personality-identity-primitives)
+above). A compose request may override it with a different name:
 
 ```kdl
 compose {
     role "sysadmin"
-    identity name="Echo" pronouns="it"
+    identity name="Echo"
     delivery "native-skills"
 }
 ```
 
-Both properties are required and the node takes no arguments. Omitting it keeps
-the role's own seat, which is what every existing request does.
+The `name` property is required and the node takes no arguments. Omitting the
+node keeps the role's own seat, which is what every existing request does.
 
 ### Why it exists
 
@@ -94,7 +98,7 @@ requiring exactly two on a core role. A meld is several seams, a name is one.
 ### The dictatable short id
 
 Terminal surfaces append the session's short id to the rendered name (`Angie
-[she] (Platform Engineer) uz86`), so a human can name one agent out loud among
+(Platform Engineer) uz86`), so a human can name one agent out loud among
 several. Read from `AOS_NATIVE_SESSION`, never minted. See [whoami](whoami.md).
 
 ### The invariant this sits beside and what moves together

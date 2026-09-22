@@ -7,7 +7,7 @@ What an agent reports about itself, and the short-id scheme behind it.
 `acompose whoami` prints the composed name for the calling session:
 
 ```text
-Angie [she] uz86
+Angie uz86
 ```
 
 Nothing else on stdout, so a shell hook can use it without parsing. Silence
@@ -57,7 +57,7 @@ it is a fallback.
 
 ### What it carries
 
-* The seat name and subject pronoun from the selected bundle.
+* The seat name from the selected bundle.
 * The session [short id](whoami.md) when one is in scope.
 
 It does **not** carry the role. The status-line row already names the role as
@@ -70,7 +70,7 @@ format change for cosmetics.
 Terminal surfaces append the running session's short id to the rendered name:
 
 ```text
-Angie [she] (Engineer) uz86
+Angie (Engineer) uz86
 ```
 
 Four characters, two letters then two digits, over an alphabet that drops the

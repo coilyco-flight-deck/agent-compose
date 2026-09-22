@@ -57,9 +57,6 @@ voice:
 outro:
   clean: Sourced, and the verdict is in the last line.
   failure: A picture of someone nobody is asking anything of.
-identity:
-  name: Nell
-  pronouns: she
 agents:
   - harness: claude
     tier: frontier

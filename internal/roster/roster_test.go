@@ -23,8 +23,8 @@ func loadInputs(t *testing.T) (*person.Person, []*schema.Source) {
 				Briefing:      "You are a builder. Build the fixture from repository evidence.\n\nFinish validation and return a complete result.",
 				Personalities: []string{"bright", "pending"},
 				Seats: []person.Seat{
-					{Harness: "claude", Name: "opal builder", Pronouns: "she"},
-					{Harness: "codex", Name: "terran builder", Pronouns: "he"},
+					{Harness: "claude", Name: "opal builder"},
+					{Harness: "codex", Name: "terran builder"},
 				},
 			},
 			"seatless": {
@@ -71,8 +71,8 @@ func TestRenderDispatchTable(t *testing.T) {
 		"Build the fixture.",
 		"**Role skill // `role-builder`**",
 		"**Favorite color // `" + melded + "`**",
-		"// claude: opal builder (she)",
-		"// codex: terran builder (he)",
+		"// claude: opal builder",
+		"// codex: terran builder",
 		"###  Bright",
 		"**#c87945 //  // **",
 		"* `role-builder`",

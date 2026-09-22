@@ -234,7 +234,7 @@ func main() {
 					},
 					{
 						Name: "seats", Usage: "list profile seats",
-						Description: "JSON items: role plus the complete stable seat key, name, pronouns, channel, and tier.",
+						Description: "JSON items: role plus the complete stable seat key, name, channel, and tier.",
 						Flags:       append(personCatalogFlags(false), &cli.StringFlag{Name: "role", Usage: "limit to one role"}), Action: runCatalogSeats,
 					},
 					{
@@ -752,11 +752,10 @@ func runCatalogSeats(_ context.Context, cmd *cli.Command) error {
 	for _, entry := range seats {
 		fmt.Fprintf(
 			&text,
-			"%s // %s // %s // %s // channel: %s // tier: %s\n",
+			"%s // %s // %s // channel: %s // tier: %s\n",
 			entry.Role,
 			entry.Seat.Selector(),
 			entry.Seat.Name,
-			entry.Seat.Pronouns,
 			entry.Seat.Channel,
 			entry.Seat.Tier,
 		)

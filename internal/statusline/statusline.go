@@ -84,11 +84,11 @@ func render(
 	)
 }
 
-// seatDisplayName renders the seat and its pronouns, stopping short of the role
-// the next field already names. It degrades rather than inventing a seat.
+// seatDisplayName renders the seat's own name, stopping short of the role the
+// next field already names. It degrades rather than inventing a seat.
 func seatDisplayName(manifest *bundle.Manifest, layout string) string {
 	if seat := selectedSeat(manifest.Identity.Seats, layout); seat.Name != "" {
-		return person.SeatLabel(seat.Name, seat.Pronouns)
+		return person.SeatLabel(seat.Name)
 	}
 	return manifest.Role
 }

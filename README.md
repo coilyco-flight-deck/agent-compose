@@ -17,20 +17,20 @@ authority attached to it. You can read and diff every file before a run, and
 ## The roster
 
 `roster:core` is the zero-config default. It describes ten seats and offers seven,
-because three are [archived](docs/role-selection.md). Each one has a name, a
-charter, and a meld of two personality traits that shape how it writes and what
-it reaches for first.
+because three are [archived](docs/role-selection.md). Each one answers to its own
+creature (no pronoun - a seat is not a person), a charter, and a meld of two
+personality traits that shape how it writes and what it reaches for first.
 
-- 🪢🪨 **Angie** (she) - Platform Engineer - builds and lands the foundational software the rest of the estate is built on. Tenacious and grounded.
-- 🛡️🪨 **Vera** (she) - Systems Administrator - operates the real hosted systems and release surfaces. Protective and grounded.
-- 🧪🪨 **Evie** (she) - Applied Scientist - measures how agents, models, and inference actually behave on real hardware. Empirical and grounded.
-- 🎨🌈 **Delphi** (she) - Frontend Engineer - shapes and builds the surfaces a person navigates. Playful and imaginative.
-- 🤿🌈 **Sprite** (they) - Game Developer - ships playable games, the code and the assets and the build that carries both. Immersed and imaginative.
-- ✂️🔭 **Portia** (they) - Portfolio Director - decides what the portfolio does next, and carries each decision to its gate. Decisive and outward.
-- 🕯️🔭 **Gem** (they) - Developer Advocate - turns real work and audience evidence into accurate content and informed commitments. Warm and outward.
-- 🪞🪢 **Cassandra** (they) - AI Risk Analyst - **archived** - assessed whether an AI system was fit to ship, named the exclusions, and stood behind the file that proved it. Suspicious and tenacious.
-- 🕯️🛡️ **Iris** (she) - Behavioral Psychologist - **archived** - stayed with what a person actually brought, and named the thing they were steering around before offering relief. Warm and protective.
-- 🪢🔭 **Nell** (she) - Investigative Reporter - **archived** - worked out who an unmet party was from what they published, and said whether to approach them at all. Tenacious and outward.
+- 🪢🪨 **Beetle-Ruminant** - Platform Engineer - builds and lands the foundational software the rest of the estate is built on. Tenacious and grounded.
+- 🛡️🪨 **Sea turtle-Ruminant** - Systems Administrator - operates the real hosted systems and release surfaces. Protective and grounded.
+- 🧪🪨 **Amphibian-Ruminant** - Applied Scientist - measures how agents, models, and inference actually behave on real hardware. Empirical and grounded.
+- 🎨🌈 **Imp-Dragonfly** - Frontend Engineer - shapes and builds the surfaces a person navigates. Playful and imaginative.
+- 🤿🌈 **Cetacean-Dragonfly** - Game Developer - ships playable games, the code and the assets and the build that carries both. Immersed and imaginative.
+- ✂️🔭 **Griffin-Migratory bird** - Portfolio Director - decides what the portfolio does next, and carries each decision to its gate. Decisive and outward.
+- 🕯️🔭 **Red panda-Migratory bird** - Developer Advocate - turns real work and audience evidence into accurate content and informed commitments. Warm and outward.
+- 🪞🪢 **Snake-Beetle** - AI Risk Analyst - **archived** - assessed whether an AI system was fit to ship, named the exclusions, and stood behind the file that proved it. Suspicious and tenacious.
+- 🕯️🛡️ **Red panda-Sea turtle** - Behavioral Psychologist - **archived** - stayed with what a person actually brought, and named the thing they were steering around before offering relief. Warm and protective.
+- 🪢🔭 **Beetle-Migratory bird** - Investigative Reporter - **archived** - worked out who an unmet party was from what they published, and said whether to approach them at all. Tenacious and outward.
 
 The catalogue lists eleven traits. Five belong to one seat alone (🪞 suspicious,
 ✂️ decisive, 🧪 empirical, 🤿 immersed, 🎨 playful) and six are bonds two or more

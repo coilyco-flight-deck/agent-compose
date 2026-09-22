@@ -48,9 +48,6 @@ voice:
 outro:
   clean: That is everything. Nothing waiting on you.
   failure: It did not finish. Nothing was sent.
-identity:
-  name: Gem
-  pronouns: they
 agents:
   - harness: claude
     tier: frontier

@@ -54,15 +54,15 @@ func TestBuildComposesTheSeatAnnotation(t *testing.T) {
 	if doc.RoleDisplayName != "Platform Engineer" {
 		t.Errorf("role display name = %q, want Platform Engineer", doc.RoleDisplayName)
 	}
-	want := person.SeatAnnotation(doc.Seat.Name, doc.Seat.Pronouns, "Platform Engineer")
-	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "] (Platform Engineer)") {
+	want := person.SeatAnnotation(doc.Seat.Name, "Platform Engineer")
+	if doc.Annotation != want || !strings.HasSuffix(doc.Annotation, "(Platform Engineer)") {
 		t.Errorf("annotation = %q, want %q", doc.Annotation, want)
 	}
 }
 
-// TestRenderTextCarriesPronounsNotTheRoleLabel guards the card's split: it
-// already prints the role on its own, so the seat stops at the pronouns.
-func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
+// TestRenderTextCarriesTheSeatNotTheRoleLabel guards the card's split: it
+// already prints the role on its own, so the seat stops at its own name.
+func TestRenderTextCarriesTheSeatNotTheRoleLabel(t *testing.T) {
 	p, err := person.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ func TestRenderTextCarriesPronounsNotTheRoleLabel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	label := person.SeatLabel(doc.Seat.Name, doc.Seat.Pronouns)
+	label := person.SeatLabel(doc.Seat.Name)
 	if !strings.Contains(wide, label) {
 		t.Errorf("card %q omits seat label %q", wide, label)
 	}

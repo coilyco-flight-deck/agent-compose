@@ -29,13 +29,20 @@ func TestEmbeddedRosterRendersEveryCanonicalSeat(t *testing.T) {
 			!strings.Contains(table, role.Purpose) {
 			t.Errorf("roster omitted role %q", roleName)
 		}
-		identity := fmt.Sprintf(
-			"**Agent // %s (%s)**",
-			role.Identity.Name,
-			role.Identity.Pronouns,
-		)
-		if strings.Count(table, identity) != 1 {
-			t.Errorf("roster identity count for role %q = %d", roleName, strings.Count(table, identity))
+		identity := fmt.Sprintf("**Agent // %s**", role.Identity.Name)
+		// A color twin derives the same creature as the role it twins (see
+		// ColorTwin), so its card repeats the identical line once per twin.
+		want := 1
+		for _, other := range p.RoleOrder {
+			if other != roleName && p.Roles[other].ColorTwin == roleName {
+				want++
+			}
+		}
+		if role.ColorTwin != "" {
+			continue
+		}
+		if got := strings.Count(table, identity); got != want {
+			t.Errorf("roster identity count for role %q = %d, want %d", roleName, got, want)
 		}
 		for _, seat := range role.Seats {
 			want := "// " + seat.Selector()

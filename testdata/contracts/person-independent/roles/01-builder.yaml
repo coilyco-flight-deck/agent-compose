@@ -10,4 +10,3 @@ personalities: [bright, steady]
 agents:
   - harness: codex
     name: workbench builder
-    pronouns: they

@@ -283,18 +283,14 @@ func seatName(composed *compose.Result, harness, role string) string {
 	for _, seat := range selected.Seats {
 		if seat.Selector() == strings.TrimSpace(harness) && seat.Name != "" {
 			return person.WithShortID(
-				person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
+				person.SeatAnnotation(seat.Name, displayName),
 				shortID,
 			)
 		}
 	}
 	if selected.Identity != nil && selected.Identity.Name != "" {
 		return person.WithShortID(
-			person.SeatAnnotation(
-				selected.Identity.Name,
-				selected.Identity.Pronouns,
-				displayName,
-			),
+			person.SeatAnnotation(selected.Identity.Name, displayName),
 			shortID,
 		)
 	}

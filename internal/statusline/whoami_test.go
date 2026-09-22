@@ -18,8 +18,8 @@ func TestWhoamiNamesTheSeatAndSession(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != "Angie [she] uz86" {
-		t.Errorf("Whoami = %q, want Angie [she] uz86", got)
+	if got != "Angie uz86" {
+		t.Errorf("Whoami = %q, want Angie uz86", got)
 	}
 }
 
@@ -60,21 +60,21 @@ func TestWhoamiWithoutASessionStillNamesTheSeat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != "Angie [she]" {
-		t.Errorf("Whoami = %q, want Angie [she]", got)
+	if got != "Angie" {
+		t.Errorf("Whoami = %q, want Angie", got)
 	}
 }
 
 // seatBundleFixture writes one bundle carrying a single named seat, so a test
 // can bind two sessions to two different compositions.
-func seatBundleFixture(t *testing.T, role, name, pronouns string) string {
+func seatBundleFixture(t *testing.T, role, name string) string {
 	t.Helper()
 	dir := t.TempDir()
 	writeJSON(t, filepath.Join(dir, "manifest.json"), bundle.Manifest{
 		Format: "agent-compose.bundle", Role: role, ModelTier: "frontier",
 		Identity: bundle.RoleIdentity{
 			Person: "core",
-			Seats:  []person.Seat{{Key: "claude", Name: name, Pronouns: pronouns}},
+			Seats:  []person.Seat{{Key: "claude", Name: name}},
 		},
 	})
 	return dir
@@ -84,24 +84,24 @@ func seatBundleFixture(t *testing.T, role, name, pronouns string) string {
 // projection above its cwd, so the walk found nothing and whoami said nothing.
 func TestWhoamiAnswersFromTheSessionBundleWithNoProjectionInReach(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "kj58")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "platform", "Angie", "she"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "platform", "Angie"))
 	t.Setenv(launch.SessionLayoutEnv, "claude")
 	got, err := Whoami(Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != "Angie [she] kj58" {
-		t.Errorf("Whoami = %q, want Angie [she] kj58", got)
+	if got != "Angie kj58" {
+		t.Errorf("Whoami = %q, want Angie kj58", got)
 	}
 }
 
 // Two roles on one host resolved to whichever projection converged last.
 func TestWhoamiKeepsConcurrentSessionsApart(t *testing.T) {
-	platform := seatBundleFixture(t, "platform", "Angie", "she")
-	director := seatBundleFixture(t, "director", "Portia", "they")
+	platform := seatBundleFixture(t, "platform", "Angie")
+	director := seatBundleFixture(t, "director", "Portia")
 	for _, tc := range []struct{ bundleDir, want string }{
-		{platform, "Angie [she]"},
-		{director, "Portia [they]"},
+		{platform, "Angie"},
+		{director, "Portia"},
 	} {
 		t.Setenv(agentid.SessionEnv, "")
 		t.Setenv(launch.SessionBundleEnv, tc.bundleDir)
@@ -119,21 +119,21 @@ func TestWhoamiKeepsConcurrentSessionsApart(t *testing.T) {
 // --target is an inspection request, so it still reports what sits at that path.
 func TestWhoamiTargetStillInspectsAProjection(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "director", "Portia", "they"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "director", "Portia"))
 	t.Setenv(launch.SessionLayoutEnv, "claude")
 	got, err := Whoami(Options{Target: shortIDFixture(t)})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != "Angie [she]" {
-		t.Errorf("Whoami = %q, want the targeted projection's seat Angie [she]", got)
+	if got != "Angie" {
+		t.Errorf("Whoami = %q, want the targeted projection's seat Angie", got)
 	}
 }
 
 // A half-set binding is not a binding, so the walk still runs.
 func TestWhoamiIgnoresAnIncompleteBinding(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "director", "Portia", "they"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "director", "Portia"))
 	t.Setenv(launch.SessionLayoutEnv, "")
 	got, err := Whoami(Options{Target: t.TempDir()})
 	if err != nil {
@@ -178,8 +178,8 @@ func TestWhoamiJSONCarriesTheBundleFingerprint(t *testing.T) {
 	if rec.Format != "agent-compose.whoami.v1" {
 		t.Errorf("format = %q", rec.Format)
 	}
-	if rec.Seat != "Angie [she] uz86" {
-		t.Errorf("seat = %q, want Angie [she] uz86", rec.Seat)
+	if rec.Seat != "Angie uz86" {
+		t.Errorf("seat = %q, want Angie uz86", rec.Seat)
 	}
 	if !strings.HasPrefix(rec.Bundle, "sha256:") || len(rec.Bundle) != 71 {
 		t.Errorf("bundle = %q, want a sha256: fingerprint", rec.Bundle)

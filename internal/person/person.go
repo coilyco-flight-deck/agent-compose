@@ -84,22 +84,21 @@ var librarySections = []struct {
 type Seat struct {
 	// Key is the stable profile-owned seat selector. Harness remains populated
 	// for legacy agent entries and v1 result compatibility.
-	Key      string `json:"key,omitempty" yaml:"key,omitempty"`
-	Harness  string `json:"harness" yaml:"harness"`
-	Name     string `json:"name" yaml:"name"`
-	Pronouns string `json:"pronouns" yaml:"pronouns"`
-	Channel  string `json:"channel,omitempty" yaml:"channel,omitempty"`
-	Tier     string `json:"tier,omitempty" yaml:"tier,omitempty"`
+	Key     string `json:"key,omitempty" yaml:"key,omitempty"`
+	Harness string `json:"harness" yaml:"harness"`
+	// Name defaults to the role's own creature when unset. See RoleIdentityName.
+	Name    string `json:"name" yaml:"name"`
+	Channel string `json:"channel,omitempty" yaml:"channel,omitempty"`
+	Tier    string `json:"tier,omitempty" yaml:"tier,omitempty"`
 	// LegalName is the seat's own product name, authored rather than derived.
 	// Absent stays absent: identity describes and grants nothing (#396).
 	LegalName string `json:"legal_name,omitempty" yaml:"legal_name,omitempty"`
 }
 
-// AgentIdentity is the role-owned name and pronoun pair shared by every seat.
-// Legacy external packages may continue to own identity on individual seats.
+// AgentIdentity is the role-owned display name shared by every seat: an
+// authored override, or else the role's own creature. See resolveIdentities.
 type AgentIdentity struct {
-	Name     string `json:"name" yaml:"name"`
-	Pronouns string `json:"pronouns" yaml:"pronouns"`
+	Name string `json:"name" yaml:"name"`
 }
 
 type Role struct {
@@ -493,6 +492,37 @@ func (p *Person) RoleCreature(roleName string) string {
 	return strings.Join(parts, "-")
 }
 
+// RoleIdentityName is what a role answers to, once resolveIdentities has run:
+// an authored override, or its own creature.
+func (p *Person) RoleIdentityName(roleName string) string {
+	if role, ok := p.Roles[roleName]; ok && role.Identity != nil {
+		return role.Identity.Name
+	}
+	return p.RoleCreature(roleName)
+}
+
+// resolveIdentities defaults every unauthored role to its own creature, then
+// fills that name onto every seat that carries none of its own.
+func resolveIdentities(p *Person) error {
+	for _, roleName := range p.roleOrder() {
+		role := p.Roles[roleName]
+		if role.Identity == nil {
+			if creature := strings.TrimSpace(p.RoleCreature(roleName)); creature != "" {
+				role.Identity = &AgentIdentity{Name: creature}
+			}
+		}
+		if role.Identity != nil {
+			for index := range role.Seats {
+				if strings.TrimSpace(role.Seats[index].Name) == "" {
+					role.Seats[index].Name = role.Identity.Name
+				}
+			}
+		}
+		p.Roles[roleName] = role
+	}
+	return nil
+}
+
 // Load returns the shipped roster:core package.
 func Load() (*Person, error) {
 	source, label, err := rosterSeed()
@@ -767,6 +797,9 @@ func resolveAndValidatePerson(p *Person) error {
 		return err
 	}
 	if err := p.ResolveBackgrounds(); err != nil {
+		return err
+	}
+	if err := resolveIdentities(p); err != nil {
 		return err
 	}
 	for _, roleName := range p.roleOrder() {

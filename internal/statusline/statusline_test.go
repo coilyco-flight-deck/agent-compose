@@ -26,7 +26,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 		Identity: bundle.RoleIdentity{
 			Person: "core",
 			Seats: []person.Seat{
-				{Key: "codex", Name: "opal engineer", Pronouns: "she"},
+				{Key: "codex", Name: "opal engineer"},
 			},
 			Personalities: []bundle.IdentityPersonality{
 				{Name: "tenacious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
@@ -51,7 +51,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "  🧭 🪨  opal engineer [she] // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
+	want := "  🧭 🪨  opal engineer // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
 	if got != want {
 		t.Fatalf("statusline = %q, want %q", got, want)
 	}

@@ -16,8 +16,8 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 				Purpose:       "Build the fixture.",
 				Personalities: []string{"bright", "steady"},
 				Seats: []Seat{
-					{Harness: "alpha", Name: "bright builder", Pronouns: "she"},
-					{Harness: "beta", Name: "steady builder", Pronouns: "he"},
+					{Harness: "alpha", Name: "bright builder"},
+					{Harness: "beta", Name: "steady builder"},
 				},
 			},
 		},
@@ -59,8 +59,8 @@ func TestRenderRoleMetadataIncludesCompleteSelectedFacts(t *testing.T) {
 		"geometry `open-rays`",
 		"`steady`: skill `personality-steady`, favorite color `#5fa87a`",
 		"* Melded favorite color: `#90a66a`",
-		"`alpha`: `bright builder` (pronouns: `she`)",
-		"`beta`: `steady builder` (pronouns: `he`)",
+		"`alpha`: `bright builder`",
+		"`beta`: `steady builder`",
 		"* Renderer expressions: `available`, `listening`, `thinking`",
 	} {
 		if !strings.Contains(got, want) {
@@ -122,7 +122,7 @@ func TestRenderRoleTranscriptIncludesCompleteSelectedMetadata(t *testing.T) {
 		"roster: core // provided by: roster:core",
 		"role: platform",
 		"purpose: " + role.Purpose,
-		"agent identity: " + role.Identity.Name + " // pronouns: " + role.Identity.Pronouns,
+		"agent identity: " + role.Identity.Name,
 		"personalities: " + strings.Join(role.Personalities, " // "),
 		"melded color: #90a66a",
 		"briefing:",
@@ -220,11 +220,7 @@ func TestEmbeddedRoleMetadataCarriesEverySeat(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		identity := fmt.Sprintf(
-			"* Agent identity: `%s` (pronouns: `%s`)",
-			role.Identity.Name,
-			role.Identity.Pronouns,
-		)
+		identity := fmt.Sprintf("* Agent identity: `%s`", role.Identity.Name)
 		if strings.Count(metadata, identity) != 1 {
 			t.Errorf("role %q metadata identity count = %d:\n%s", roleName, strings.Count(metadata, identity), metadata)
 		}

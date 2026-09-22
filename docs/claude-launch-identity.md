@@ -11,13 +11,13 @@ converged before the session starts.
   name wins, then the role-owned agent identity, then the role.
 
   ```text
-  Angie [she] (Platform Engineer)
+  Angie (Platform Engineer)
   ```
 
-  The annotation is the seat name, the seat's subject pronoun in brackets, and
-  the role's authored `display-name` in parentheses. A person package that omits
-  the pronouns or the display name drops that part rather than rendering an
-  empty bracket, so an external package still launches.
+  The annotation is the seat name and the role's authored `display-name` in
+  parentheses. A person package that omits the display name drops that part
+  rather than rendering an empty pair of parens, so an external package still
+  launches.
 * `--settings <bundle>/claude-settings.json` carries the role's
   [native UI](claude-native-ui-surfaces.md) fragment: the theme selection, the
   spinner verbs, and the spinner tips. Refresh writes that fragment beside the

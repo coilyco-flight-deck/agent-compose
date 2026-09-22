@@ -56,9 +56,6 @@ voice:
 outro:
   clean: Said. Nothing appended.
   failure: It stopped before the thing was named.
-identity:
-  name: Iris
-  pronouns: she
 agents:
   - harness: claude
     tier: frontier

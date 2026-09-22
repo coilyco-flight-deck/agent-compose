@@ -41,14 +41,12 @@ type yamlAdjacent struct {
 }
 
 type yamlIdentity struct {
-	Name     string `yaml:"name,omitempty"`
-	Pronouns string `yaml:"pronouns,omitempty"`
+	Name string `yaml:"name,omitempty"`
 }
 
 type yamlAgent struct {
 	Harness   string `yaml:"harness,omitempty"`
 	Name      string `yaml:"name,omitempty"`
-	Pronouns  string `yaml:"pronouns,omitempty"`
 	Channel   string `yaml:"channel,omitempty"`
 	Tier      string `yaml:"tier,omitempty"`
 	LegalName string `yaml:"legal_name,omitempty"`
@@ -202,14 +200,14 @@ func seatModels(agents, seats []yamlAgent) []Seat {
 	for _, entry := range agents {
 		out = append(out, Seat{
 			Key: entry.Harness, Harness: entry.Harness,
-			Name: entry.Name, Pronouns: entry.Pronouns,
+			Name:    entry.Name,
 			Channel: entry.Channel, Tier: entry.Tier, LegalName: entry.LegalName,
 		})
 	}
 	for _, entry := range seats {
 		out = append(out, Seat{
 			Key: entry.Key, Harness: entry.Harness,
-			Name: entry.Name, Pronouns: entry.Pronouns,
+			Name:    entry.Name,
 			Channel: entry.Channel, Tier: entry.Tier, LegalName: entry.LegalName,
 		})
 	}
@@ -238,7 +236,7 @@ func (r *yamlRoleEntity) model() Role {
 		role.Outro = &Outro{Clean: r.Outro.Clean, Failure: r.Outro.Failure}
 	}
 	if r.Identity != nil {
-		role.Identity = &AgentIdentity{Name: r.Identity.Name, Pronouns: r.Identity.Pronouns}
+		role.Identity = &AgentIdentity{Name: r.Identity.Name}
 	}
 	for _, scoped := range r.ScopedBoundaries {
 		role.ScopedBoundaries = append(role.ScopedBoundaries,

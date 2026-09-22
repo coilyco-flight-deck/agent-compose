@@ -13,7 +13,7 @@ roster "core" {
         skill "role-platform"
         method "science-fixture-suite"
         personality "tenacious" "grounded"
-        identity name="opal platform" pronouns="she"
+        identity name="opal platform"
         agent "claude" tier="frontier"
         agent "codex" tier="frontier"
     }
@@ -56,15 +56,15 @@ clamps it into the legible band - the perceptual middle, never gray.
 
 ### Agent seats
 
-A Core role declares one `identity` with a name and pronoun pair. Every `agent`
-node is a harness routing selector for that identity. Optional `channel` and
-`tier` properties describe routing, and a tier must be canonical and supported
-by the role. Launch consumers keep permissions, models, and reasoning effort on
+A Core role declares one `identity`: a name, authored or else its own derived
+creature. Every `agent` node is a harness routing selector for that identity.
+`channel` and `tier` properties describe routing, and a tier must be canonical
+and role-supported. Launch consumers keep permissions, models, and effort on
 their side. Nothing here grants authority. Every Core Roster role carries
 harness seats. Seat keys remain stable join points while the role-owned name
-and pronouns remain identical across them. Selecting another seat changes
-routing metadata only. External packages authored before role-level identity
-may keep `name` and `pronouns` on every seat. A role must use one form
+remains identical across them. Selecting another seat changes routing metadata
+only. External packages authored before role-level identity may keep `name`
+on every seat. A role must use one form
 consistently. Mixing role-level identity with per-seat identity fails
 validation. Seats are personality-neutral. A compose request selects a role,
 which activates its role skill, methods, and ordered personality set. See

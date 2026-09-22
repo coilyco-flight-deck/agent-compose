@@ -95,7 +95,7 @@ func TestParseRequestAcceptsLegacyFullDensity(t *testing.T) {
 func TestParseRequestAcceptsASeatIdentityOverride(t *testing.T) {
 	path := writeRequest(t, `compose {
     role "sysadmin"
-    identity name="Echo" pronouns="it"
+    identity name="Echo"
     delivery "native-skills"
 }`)
 	req, err := ParseRequest(path)
@@ -105,7 +105,7 @@ func TestParseRequestAcceptsASeatIdentityOverride(t *testing.T) {
 	if req.Identity == nil {
 		t.Fatal("identity override was dropped")
 	}
-	if req.Identity.Name != "Echo" || req.Identity.Pronouns != "it" {
+	if req.Identity.Name != "Echo" {
 		t.Fatalf("identity = %+v", req.Identity)
 	}
 }
@@ -128,31 +128,26 @@ func TestParseRequestLeavesIdentityUnsetWhenUnnamed(t *testing.T) {
 
 func TestParseRequestFailsClosed(t *testing.T) {
 	cases := map[string]string{
-		"identity without pronouns": `compose {
-    role "platform"
-    delivery "native-skills"
-    identity name="Echo"
-}`,
 		"identity without name": `compose {
     role "platform"
     delivery "native-skills"
-    identity pronouns="it"
+    identity channel="operator"
 }`,
 		"identity with a blank name": `compose {
     role "platform"
     delivery "native-skills"
-    identity name="   " pronouns="it"
+    identity name="   "
 }`,
 		"identity taking an argument": `compose {
     role "platform"
     delivery "native-skills"
-    identity "Echo" pronouns="it"
+    identity "Echo" name="Echo"
 }`,
 		"duplicate identity": `compose {
     role "platform"
     delivery "native-skills"
-    identity name="Echo" pronouns="it"
-    identity name="Vera" pronouns="she"
+    identity name="Echo"
+    identity name="Vera"
 }`,
 		"unknown node": `compose {
     role "platform"

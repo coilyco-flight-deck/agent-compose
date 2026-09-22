@@ -51,9 +51,6 @@ voice:
 outro:
   clean: Done, and it looked good doing it.
   failure: It fell over. The empty state was prettier.
-identity:
-  name: Delphi
-  pronouns: she
 agents:
   - harness: claude
     tier: frontier

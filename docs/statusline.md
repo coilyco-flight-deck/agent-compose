@@ -7,11 +7,11 @@ self-suppresses when no projection applies.
 The ordinary row carries the composition facts worth keeping visible:
 
 ```text
-🧭 🪨 📐 ⛏️  opal platform [she] uz86 // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed
+🧭 🪨 📐 ⛏️  opal platform uz86 // platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed
 ```
 
-* Emblems and the named seat with its subject pronoun come from the bundle.
-  `uz86` is the session [short id](whoami.md). `--name` adds the role label.
+* Emblems and the named seat come from the bundle. `uz86` is the session
+  [short id](whoami.md). `--name` adds the role label.
 * `role@harness` names the actual projection choice instead of inferring role
   from the current task.
 * Model tier records the role compatibility boundary Agent Compose evaluated.
@@ -62,7 +62,7 @@ identity. A row with no projection is omitted rather than decorated with a guess
 and an unreadable manifest warns for that row alone.
 
 ```text
-🧭 📐 ⛏️ Angie [she] // platform@claude
+🧭 📐 ⛏️ Angie // platform@claude
 ```
 
 Rows carry identity as text because Claude Code's eight subagent color slots are

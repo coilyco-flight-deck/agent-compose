@@ -73,9 +73,7 @@ func TestValidateDecodedRoleRules(t *testing.T) {
 		{"method duplicates role skill", "duplicates its role skill",
 			func(r *Role) { r.Methods = []string{"role-reader"} }},
 		{"identity without name", "identity needs a name",
-			func(r *Role) { r.Identity = &AgentIdentity{Pronouns: "they"} }},
-		{"identity without pronouns", "identity needs a pronouns",
-			func(r *Role) { r.Identity = &AgentIdentity{Name: "Reed"} }},
+			func(r *Role) { r.Identity = &AgentIdentity{} }},
 		{"duplicate seat", "duplicate seat",
 			func(r *Role) {
 				r.Seats = []Seat{
@@ -83,11 +81,9 @@ func TestValidateDecodedRoleRules(t *testing.T) {
 					{Key: "codex", Harness: "codex", Name: "two"},
 				}
 			}},
-		{"seat without a name", "needs a name property",
-			func(r *Role) { r.Seats = []Seat{{Key: "codex", Harness: "codex"}} }},
 		{"seat redefines role identity", "cannot redefine role identity",
 			func(r *Role) {
-				r.Identity = &AgentIdentity{Name: "Reed", Pronouns: "they"}
+				r.Identity = &AgentIdentity{Name: "Reed"}
 				r.Seats = []Seat{{Key: "codex", Harness: "codex", Name: "Other"}}
 			}},
 		{"seat tier outside the role set", "outside the role compatibility set",
@@ -213,7 +209,7 @@ func TestDecodePreservesAuthoredRoleFields(t *testing.T) {
 			"purpose: Read the thing.\n" +
 			"skill: role-reader\n" +
 			"personalities: [bright]\n" +
-			"identity:\n  name: Reed\n  pronouns: they\n" +
+			"identity:\n  name: Reed\n" +
 			"agents:\n  - harness: codex\n",
 		"personalities/01-bright.yaml": "personality: bright\n" +
 			"skill: personality-bright\ncolor: \"#d98e48\"\n" +
@@ -228,7 +224,7 @@ func TestDecodePreservesAuthoredRoleFields(t *testing.T) {
 	if got := role.Personalities; len(got) != 1 || got[0] != "bright" {
 		t.Fatalf("role personalities = %q", got)
 	}
-	if role.Identity == nil || role.Identity.Name != "Reed" || role.Identity.Pronouns != "they" {
+	if role.Identity == nil || role.Identity.Name != "Reed" {
 		t.Fatalf("role identity = %+v", role.Identity)
 	}
 	if len(role.Seats) != 1 || role.Seats[0].Harness != "codex" {

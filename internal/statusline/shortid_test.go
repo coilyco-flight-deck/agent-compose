@@ -40,7 +40,7 @@ func shortIDFixtureDirs(t *testing.T) (string, string) {
 		Identity: bundle.RoleIdentity{
 			Person: "core",
 			Seats: []person.Seat{
-				{Key: "claude", Name: "Angie", Pronouns: "she"},
+				{Key: "claude", Name: "Angie"},
 			},
 			Personalities: []bundle.IdentityPersonality{
 				{Name: "tenacious", Color: "#d98e48", Emblem: person.Emblem{Emoji: "🧭"}},
@@ -63,7 +63,7 @@ func TestSessionRowCarriesTheShortID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(got, "Angie [she] uz86") {
+	if !strings.Contains(got, "Angie uz86") {
 		t.Errorf("statusline = %q, want the seat annotated with uz86", got)
 	}
 }
@@ -76,7 +76,7 @@ func TestSessionRowWithoutASessionIsUnchanged(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(got, "Angie [she] //") {
+	if !strings.Contains(got, "Angie //") {
 		t.Errorf("statusline = %q, want the unannotated seat", got)
 	}
 }
@@ -92,7 +92,7 @@ func TestSessionRowDropsAMalformedSessionID(t *testing.T) {
 	if strings.Contains(got, "not-an-id") {
 		t.Errorf("statusline = %q, want the malformed id dropped", got)
 	}
-	if !strings.Contains(got, "Angie [she] //") {
+	if !strings.Contains(got, "Angie //") {
 		t.Errorf("statusline = %q, want the unannotated seat", got)
 	}
 }
@@ -119,7 +119,7 @@ func TestSubagentRowsOmitTheShortID(t *testing.T) {
 	if strings.Contains(out, "uz86") {
 		t.Errorf("subagent rows = %q, want no session id: every row would repeat it", out)
 	}
-	if !strings.Contains(out, "Angie [she]") {
+	if !strings.Contains(out, "Angie") {
 		t.Errorf("subagent rows = %q, want the seat still named", out)
 	}
 }

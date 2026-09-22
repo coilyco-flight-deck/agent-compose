@@ -55,9 +55,6 @@ voice:
 outro:
   clean: Measured. The numbers are in the log.
   failure: It stopped before the last reading.
-identity:
-  name: Evie
-  pronouns: she
 agents:
   - harness: claude
     tier: frontier

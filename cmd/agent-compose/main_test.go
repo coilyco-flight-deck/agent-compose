@@ -81,7 +81,7 @@ func TestExternalPersonProfileExampleExercisesEveryPersonSurface(t *testing.T) {
 		t.Fatal(err)
 	}
 	projected, err := overlay.Build(p, "bulk-captioner", "chatbot-sonnet-low", "available")
-	if err != nil || projected.Seat.Pronouns != "they" {
+	if err != nil || projected.Seat.Name != "example content guide" {
 		t.Fatalf("example overlay failed: doc=%v err=%v", projected, err)
 	}
 	if _, err := palette.Build(p); err != nil {
@@ -247,8 +247,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	result := summaryFixture(t, p)
 	wantPersonalities := strings.Join(p.Roles["platform"].Personalities, " // ")
 	wantColor := result.Resolution.FavoriteColor
-	wantIdentity := "agent identity: " + p.Roles["platform"].Identity.Name +
-		" // pronouns: " + p.Roles["platform"].Identity.Pronouns
+	wantIdentity := "agent identity: " + p.Roles["platform"].Identity.Name
 
 	var output strings.Builder
 	if err := printSummary(&output, result, person.RoleTranscriptOptions{Expanded: true}); err != nil {

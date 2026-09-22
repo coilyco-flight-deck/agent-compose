@@ -95,13 +95,13 @@ reason: whoever reads a closing banner is leaving rather than debugging.
 session, so a window title, a status row, and a launch flag never drift apart:
 
 ```text
-Angie [she] (Platform Engineer)
+Angie (Platform Engineer)
 ```
 
 Agent Compose owns the shape, so a renderer with the document shows the field
-rather than reassembling it from seat name, pronouns, and role. `annotation` and
+rather than reassembling it from seat name and role. `annotation` and
 `outro` are both additive to `agent-compose.overlay.v1`, so a consumer built
-before them keeps parsing unchanged. The plain text card stops at `Angie [she]`,
+before them keeps parsing unchanged. The plain text card stops at `Angie`,
 since it already prints the role on its own line.
 
 ## State boundary

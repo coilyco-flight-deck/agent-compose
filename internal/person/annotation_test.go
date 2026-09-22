@@ -5,23 +5,18 @@ import "testing"
 func TestSeatAnnotation(t *testing.T) {
 	cases := map[string]struct {
 		name        string
-		pronouns    string
 		displayName string
 		want        string
 	}{
-		"complete":            {"Angie", "she", "Engineer", "Angie [she] (Engineer)"},
-		"authored label wins": {"Quail", "they", "QA", "Quail [they] (QA)"},
-		"pronoun pair narrows": {
-			"Darren", "he/him", "Director", "Darren [he] (Director)",
-		},
-		"missing pronouns":     {"Angie", "", "Engineer", "Angie (Engineer)"},
-		"missing display name": {"Angie", "she", "", "Angie [she]"},
-		"missing name":         {"", "she", "Engineer", ""},
-		"padded input":         {" Angie ", " she ", " Engineer ", "Angie [she] (Engineer)"},
+		"complete":             {"Angie", "Engineer", "Angie (Engineer)"},
+		"authored label wins":  {"Quail", "QA", "Quail (QA)"},
+		"missing display name": {"Angie", "", "Angie"},
+		"missing name":         {"", "Engineer", ""},
+		"padded input":         {" Angie ", " Engineer ", "Angie (Engineer)"},
 	}
 	for name, test := range cases {
 		t.Run(name, func(t *testing.T) {
-			got := SeatAnnotation(test.name, test.pronouns, test.displayName)
+			got := SeatAnnotation(test.name, test.displayName)
 			if got != test.want {
 				t.Errorf("SeatAnnotation = %q, want %q", got, test.want)
 			}
@@ -37,13 +32,13 @@ func TestWithShortID(t *testing.T) {
 		shortID string
 		want    string
 	}{
-		"annotated":     {"Angie [she] (Engineer)", "uz86", "Angie [she] (Engineer) uz86"},
-		"label only":    {"Angie [she]", "uz86", "Angie [she] uz86"},
+		"annotated":     {"Angie (Engineer)", "uz86", "Angie (Engineer) uz86"},
+		"label only":    {"Angie", "uz86", "Angie uz86"},
 		"role fallback": {"platform", "uz86", "platform uz86"},
-		"no id":         {"Angie [she]", "", "Angie [she]"},
+		"no id":         {"Angie", "", "Angie"},
 		"no display":    {"", "uz86", ""},
 		"neither":       {"", "", ""},
-		"padded input":  {" Angie [she] ", " uz86 ", "Angie [she] uz86"},
+		"padded input":  {" Angie ", " uz86 ", "Angie uz86"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if got := WithShortID(test.display, test.shortID); got != test.want {
@@ -54,27 +49,14 @@ func TestWithShortID(t *testing.T) {
 }
 
 func TestSeatLabelStopsShortOfTheRole(t *testing.T) {
-	if got := SeatLabel("Angie", "she"); got != "Angie [she]" {
-		t.Errorf("SeatLabel = %q, want Angie [she]", got)
+	if got := SeatLabel("Angie"); got != "Angie" {
+		t.Errorf("SeatLabel = %q, want Angie", got)
 	}
-	if got := SeatLabel("Angie", ""); got != "Angie" {
-		t.Errorf("SeatLabel without pronouns = %q, want Angie", got)
-	}
-	if got := SeatLabel("", "she"); got != "" {
+	if got := SeatLabel(""); got != "" {
 		t.Errorf("SeatLabel without a name = %q, want empty", got)
 	}
-}
-
-func TestSubjectPronoun(t *testing.T) {
-	for input, want := range map[string]string{
-		"she":       "she",
-		"they/them": "they",
-		"he / him":  "he",
-		"":          "",
-	} {
-		if got := SubjectPronoun(input); got != want {
-			t.Errorf("SubjectPronoun(%q) = %q, want %q", input, got, want)
-		}
+	if got := SeatLabel(" Angie "); got != "Angie" {
+		t.Errorf("SeatLabel with padded input = %q, want Angie", got)
 	}
 }
 
@@ -88,13 +70,10 @@ func TestShippedRolesAnnotate(t *testing.T) {
 	for name, role := range p.Roles {
 		displayName := p.RoleDisplayName(name)
 		for _, seat := range role.Seats {
-			annotation := SeatAnnotation(seat.Name, seat.Pronouns, displayName)
+			annotation := SeatAnnotation(seat.Name, displayName)
 			if annotation == "" {
 				t.Errorf("role %q seat %q renders no annotation", name, seat.Selector())
 				continue
-			}
-			if SubjectPronoun(seat.Pronouns) == "" {
-				t.Errorf("role %q seat %q has no pronouns", name, seat.Selector())
 			}
 			if displayName == "" {
 				t.Errorf("role %q has no display name", name)

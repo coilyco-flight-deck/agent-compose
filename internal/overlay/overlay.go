@@ -38,7 +38,7 @@ type Document struct {
 	Stance string      `json:"stance,omitempty"`
 	Seat   person.Seat `json:"seat"`
 	// Annotation is the composed identity string a renderer shows verbatim,
-	// `Angie [she] (Engineer)`.
+	// `Moss-Toad (Engineer)`.
 	Annotation string `json:"annotation"`
 	// Identity is the four-part sentence a seat answers "who are you" with.
 	// Seat-resolved, so it lives here rather than on the card (#396).
@@ -93,7 +93,7 @@ func Build(p *person.Person, roleName, harness, expression string) (*Document, e
 		Purpose:         role.Purpose,
 		Stance:          role.Stance,
 		Seat:            seat,
-		Annotation:      person.SeatAnnotation(seat.Name, seat.Pronouns, displayName),
+		Annotation:      person.SeatAnnotation(seat.Name, displayName),
 		Outro:           role.Outro,
 		Identity: person.IdentitySentence(
 			seat.Name, displayName, seat.LegalName, p.RoleCreature(roleName),
@@ -150,8 +150,8 @@ func RenderText(doc *Document, width int) (string, error) {
 		names = append(names, personality.Name)
 	}
 	role := strings.ReplaceAll(doc.Role, "-", " ")
-	// The card prints the role on its own, so the seat carries pronouns only.
-	seat := person.SeatLabel(doc.Seat.Name, doc.Seat.Pronouns)
+	// The card prints the role on its own, so the seat carries just its name.
+	seat := person.SeatLabel(doc.Seat.Name)
 	wide := fmt.Sprintf(
 		"%s  %s  //  %s / %s  //  %s  //  %s",
 		strings.Join(marks, " "),

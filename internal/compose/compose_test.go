@@ -438,7 +438,7 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 	request := filepath.Join(dir, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
     role "senior-sysadmin"
-    identity name="Echo" pronouns="it"
+    identity name="Echo"
     delivery "native-skills"
 }`), 0o644); err != nil {
 		t.Fatal(err)
@@ -453,17 +453,22 @@ func TestSeatIdentityOverrideReachesTheRenderedBundle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(instructions), "**Agent // Echo (it)**") {
+	if !strings.Contains(string(instructions), "**Agent // Echo**") {
 		t.Fatalf("identity card kept the role's own seat:\n%s", instructions)
 	}
-	// The shipped seat name must be gone rather than merely joined.
-	if strings.Contains(string(instructions), "Vera") {
-		t.Fatal("identity card carries both the override and the role's seat")
+	p, err := person.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The role's own creature must be gone rather than merely joined.
+	creature := p.RoleCreature("senior-sysadmin")
+	if strings.Contains(string(instructions), creature) {
+		t.Fatalf("identity card carries both the override and the role's own creature %q", creature)
 	}
 	// Seats back the statusline, overlay, and manifest, so they move together.
 	for _, seat := range readManifest(t, renamed.Bundle.Dir).Identity.Seats {
-		if seat.Name != "Echo" || seat.Pronouns != "it" {
-			t.Fatalf("manifest seat %q = %s (%s)", seat.Key, seat.Name, seat.Pronouns)
+		if seat.Name != "Echo" {
+			t.Fatalf("manifest seat %q = %s", seat.Key, seat.Name)
 		}
 	}
 

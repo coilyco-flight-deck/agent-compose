@@ -56,9 +56,6 @@ voice:
 outro:
   clean: Underwritten. The exclusions are named.
   failure: I would not stand behind this one, and the reason is written down.
-identity:
-  name: Cassandra
-  pronouns: they
 agents:
   - harness: claude
     tier: frontier

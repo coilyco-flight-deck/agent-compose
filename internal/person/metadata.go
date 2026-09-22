@@ -12,20 +12,18 @@ import (
 
 // OverrideRoleIdentity renames a role's seat and changes nothing else about the
 // role. Seats move with it, and why is docs/identity.md.
-func (p *Person) OverrideRoleIdentity(roleName, name, pronouns string) error {
+func (p *Person) OverrideRoleIdentity(roleName, name string) error {
 	name = strings.TrimSpace(name)
-	pronouns = strings.TrimSpace(pronouns)
-	if name == "" || pronouns == "" {
-		return fmt.Errorf("override role identity: %q needs both a name and pronouns", roleName)
+	if name == "" {
+		return fmt.Errorf("override role identity: %q needs a name", roleName)
 	}
 	role, ok := p.Roles[roleName]
 	if !ok {
 		return fmt.Errorf("override role identity: role %q is not defined", roleName)
 	}
-	role.Identity = &AgentIdentity{Name: name, Pronouns: pronouns}
+	role.Identity = &AgentIdentity{Name: name}
 	for index := range role.Seats {
 		role.Seats[index].Name = name
-		role.Seats[index].Pronouns = pronouns
 	}
 	// Roles is a map of structs, so the local copy has to be stored back.
 	p.Roles[roleName] = role
@@ -162,12 +160,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 	}
 	fmt.Fprintf(&out, "**Favorite color // `%s`**\n", meldedColor)
 	if role.Identity != nil {
-		fmt.Fprintf(
-			&out,
-			"**Agent // %s (%s)**\n",
-			role.Identity.Name,
-			role.Identity.Pronouns,
-		)
+		fmt.Fprintf(&out, "**Agent // %s**\n", role.Identity.Name)
 	}
 	if len(role.Seats) > 0 {
 		out.WriteString("**Seats")
@@ -176,7 +169,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 				fmt.Fprintf(&out, " // %s", seat.Selector())
 				continue
 			}
-			fmt.Fprintf(&out, " // %s: %s (%s)", seat.Selector(), seat.Name, seat.Pronouns)
+			fmt.Fprintf(&out, " // %s: %s", seat.Selector(), seat.Name)
 		}
 		out.WriteString("**\n")
 	}
@@ -385,12 +378,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 	fmt.Fprintf(&out, "* Role: `%s`\n", roleName)
 	fmt.Fprintf(&out, "* Purpose: %s\n", role.Purpose)
 	if role.Identity != nil {
-		fmt.Fprintf(
-			&out,
-			"* Agent identity: `%s` (pronouns: `%s`)\n",
-			role.Identity.Name,
-			role.Identity.Pronouns,
-		)
+		fmt.Fprintf(&out, "* Agent identity: `%s`\n", role.Identity.Name)
 	}
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&out, "* Role methods: `%s`\n", strings.Join(role.Methods, "`, `"))
@@ -424,8 +412,7 @@ func (p *Person) RenderRoleMetadata(roleName, meldedColor string) (string, error
 				fmt.Fprintf(&out, "  * `%s`%s\n", seat.Selector(), seatRoutingSuffix(seat))
 				continue
 			}
-			fmt.Fprintf(&out, "  * `%s`: `%s` (pronouns: `%s`)\n",
-				seat.Selector(), seat.Name, seat.Pronouns)
+			fmt.Fprintf(&out, "  * `%s`: `%s`\n", seat.Selector(), seat.Name)
 		}
 	}
 	fmt.Fprintf(&out, "* Renderer expressions: `%s`\n", strings.Join(ExpressionVocabulary(), "`, `"))
@@ -452,12 +439,7 @@ func (p *Person) RenderRoleTranscript(
 	fmt.Fprintf(&roleBlock, "role: %s\n", roleName)
 	fmt.Fprintf(&roleBlock, "purpose: %s\n", role.Purpose)
 	if role.Identity != nil {
-		fmt.Fprintf(
-			&roleBlock,
-			"agent identity: %s // pronouns: %s\n",
-			role.Identity.Name,
-			role.Identity.Pronouns,
-		)
+		fmt.Fprintf(&roleBlock, "agent identity: %s\n", role.Identity.Name)
 	}
 	if len(role.Methods) > 0 {
 		fmt.Fprintf(&roleBlock, "methods: %s\n", strings.Join(role.Methods, " // "))
@@ -474,7 +456,7 @@ func (p *Person) RenderRoleTranscript(
 			fmt.Fprintf(&roleBlock, "seat %s%s\n", seat.Selector(), seatRoutingSuffix(seat))
 			continue
 		}
-		fmt.Fprintf(&roleBlock, "seat %s: %s // pronouns: %s\n", seat.Selector(), seat.Name, seat.Pronouns)
+		fmt.Fprintf(&roleBlock, "seat %s: %s\n", seat.Selector(), seat.Name)
 	}
 
 	writeTranscriptSection(&out, meldedColor, "personality metadata\n", opts)

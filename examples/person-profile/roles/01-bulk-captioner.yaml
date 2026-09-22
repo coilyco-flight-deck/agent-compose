@@ -13,6 +13,5 @@ copy_contract:
 seats:
   - key: chatbot-sonnet-low
     name: example content guide
-    pronouns: they
     channel: chatbot
     tier: commodity

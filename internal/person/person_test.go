@@ -42,24 +42,28 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		if len(role.Seats) < 2 {
 			t.Errorf("role %q has %d seats, want at least claude and codex", roleName, len(role.Seats))
 		}
-		if role.Identity == nil || role.Identity.Name == "" || role.Identity.Pronouns == "" {
+		if role.Identity == nil || role.Identity.Name == "" {
 			t.Errorf("role %q identity is incomplete: %+v", roleName, role.Identity)
 			continue
 		}
-		if prior, exists := identityNames[role.Identity.Name]; exists {
+		// A color twin shares its whole meld on purpose (see ColorTwin), so it
+		// shares its derived creature too; only a non-twin collision is a bug.
+		if prior, exists := identityNames[role.Identity.Name]; exists && role.ColorTwin == "" {
 			t.Errorf("roles %q and %q share identity name %q", prior, roleName, role.Identity.Name)
 		}
-		identityNames[role.Identity.Name] = roleName
+		if role.ColorTwin == "" {
+			identityNames[role.Identity.Name] = roleName
+		}
 		seats := map[string]Seat{}
 		for _, seat := range role.Seats {
 			seats[seat.Harness] = seat
-			if seat.Name != role.Identity.Name || seat.Pronouns != role.Identity.Pronouns {
+			if seat.Name != role.Identity.Name {
 				t.Errorf("role %q seat %q redefines identity: %+v", roleName, seat.Selector(), seat)
 			}
 		}
 		for _, harness := range []string{"claude", "codex"} {
 			seat, exists := seats[harness]
-			if !exists || seat.Name != role.Identity.Name || seat.Pronouns != role.Identity.Pronouns {
+			if !exists || seat.Name != role.Identity.Name {
 				t.Errorf("role %q %s seat is incomplete: %+v", roleName, harness, seat)
 			}
 		}
@@ -725,7 +729,7 @@ func TestExternalProfileComposesLibrariesSeatsAndCopyContracts(t *testing.T) {
 	if role.Seats[0].Selector() != "chatbot-sonnet-low" ||
 		role.Seats[0].Channel != "chatbot" ||
 		role.Seats[0].Tier != schema.ModelTierCommodity ||
-		role.Seats[0].Pronouns != "they" {
+		role.Seats[0].Name != "example content guide" {
 		t.Fatalf("generalized seat was not preserved: %+v", role.Seats)
 	}
 	if strings.Join(role.SupportedModelTiers, ",") != "frontier,commodity" {

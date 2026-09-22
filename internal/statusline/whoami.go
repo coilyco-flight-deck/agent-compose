@@ -8,7 +8,7 @@ import (
 	"github.com/coilyco-flight-deck/agent-compose/v2/internal/person"
 )
 
-// Whoami returns what this session calls itself: `Angie [she] uz86`, or "" with
+// Whoami returns what this session calls itself: `Angie uz86`, or "" with
 // no composition rather than inventing one. See docs/whoami.md.
 func Whoami(opts Options) (string, error) {
 	projection := resolveProjection(opts.Target)
