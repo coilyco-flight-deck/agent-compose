@@ -22,6 +22,7 @@ func TestShippedRosterMeetsWholeRosterGates(t *testing.T) {
 		{"personality melds", validateCorePersonalityMelds},
 		{"personality species", validateEveryPersonalityCarriesASpecies},
 		{"personality colour words", validateEveryPersonalityColorWordAgrees},
+		{"no person-name or owner leak", validateNoPersonOrOwnerLeak},
 	} {
 		if err := gate.fn(p); err != nil {
 			t.Errorf("%s: %v", gate.name, err)
