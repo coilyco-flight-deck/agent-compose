@@ -99,13 +99,9 @@ release-impact *ARGS:
 release-impact-test *ARGS:
     @sh scripts/release-impact-test.sh "$@"
 
-# Lint, format-check, type-check, and test the checks package.
+# Lint, format-check, type-check, and test evalkit.
 check *ARGS:
     @sh scripts/check.sh "$@"
-
-# Prove the Go engine and housecast still compose identical bundles.
-parity *ARGS:
-    @uv run pytest checks/tests/test_parity.py "$@"
 
 # Re-resolve uv.lock after a pyproject dependency pin moves.
 lock *ARGS:

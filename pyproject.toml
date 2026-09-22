@@ -1,24 +1,11 @@
 [project]
-name = "agent-compose-checks"
+name = "agent-compose-evalkit"
 version = "0.1.0"
-description = "Go/Python composer parity checks, and evalkit, the board this roster derives."
+description = "The Inspect board runner: housecast composes and grades, this fans the board out to model providers."
 requires-python = ">=3.12"
-# housecast now carries only the generic grading engine (housecast.grade) and
-# the unrelated MCP tool-description eval loop. Everything shaped like this
-# roster (Role/Personality/Boundary, the Python composer that mirrors
-# cmd/agent-compose, and evalkit, which derives the eval board from THIS
-# roster) moved into this repo (teable:coilyco-flight-deck/agent-compose#7929
-# follow-up): housecast was never meant to hold the specific records being
-# evaluated, nor even the acompose-shaped concepts (role, personality,
-# boundary) themselves. `evalkit.matrix`'s output already spoke the generic
-# entity/attribute vocabulary `housecast.grade` scores against; only its input
-# shape was agent-compose's. `[eval]` pulls in what housecast.grade.schema and
-# evalkit/task.py's inspect_ai integration both need.
-#
-# Pinned by rev rather than tag while the roster moves ahead of a release: a
-# housecast-v* tag triggers a PyPI publish, and spending a version number to
-# satisfy a dev-time parity check is the wrong trade. Restore a tag pin at the
-# next real release.
+# checks/ (Go/Python parity) and evalkit's roster-derivation modules are
+# retired - teable:coilyco-flight-deck/housecast#8041. `[eval]` pulls in
+# what housecast.grade.schema and evalkit/task.py's inspect_ai need.
 dependencies = ["housecast[eval]>=0.3.0", "pyyaml>=6.0"]
 
 [tool.uv.sources]
@@ -37,7 +24,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["checks", "evalkit"]
+packages = ["evalkit"]
 
 [tool.ruff]
 line-length = 100
@@ -49,25 +36,10 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["checks", "evalkit"]
+files = ["evalkit"]
 
 [tool.pytest.ini_options]
-testpaths = ["checks/tests", "evalkit/tests"]
-
-# The board coverage gate. Reporting rather than blocking on purpose: the
-# grader is a human, so blocking puts every roster edit behind an annotation
-# session. `agent-compose#329` decision 8 expects this to flip later.
-[tool.evalkit.coverage]
-blocking = false
-# Run against a roster that no longer exists, so their cases orphan permanently
-# rather than pending. The two ops boards were graded under the nine-seat
-# roster. board-2026-08-26 is ungraded and superseded by board-2026-09-01,
-# which covers all 105 cases rather than 91 (housecast#18).
-retired_runs = [
-    "evaluations/pilot/ops-board-2026-08-12",
-    "evaluations/pilot/ops-board-2026-08-12-regraded",
-    "evaluations/reflow-v3/board-2026-08-26",
-]
+testpaths = ["evalkit/tests"]
 
 [tool.agentic-os.repo-pointer-skills]
 org = "coilyco-flight-deck"
@@ -94,15 +66,11 @@ size_excludes = ["evaluations/**"]
 # each written prompt (carried from housecast, agent-compose#7929 follow-up);
 # condensing 38 lines of that to a 2-line pointer with nowhere to point it
 # (docs/ is at its 40-doc cap) would destroy it rather than relocate it.
-# checks/data/*.yaml (same origin) carries a field-by-field inline reference,
-# one comment line per data field throughout the file rather than a single
-# top header, which the 2-line cap was never written to parse.
 [tool.agentic-os.code-comments]
 excludes = [
     ".pre-commit-config.yaml",
     "evaluations/**",
     "challenges.yaml",
-    "checks/data/**",
 ]
 
 # Committed eval evidence is a frozen record, carried from housecast. Its doc
