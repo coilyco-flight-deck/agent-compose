@@ -48,6 +48,6 @@ acts:
   - tool: AskUserQuestion
     text: AskUserQuestion carrying a third option you invented, with a preview on each
   - tool: git checkout -b
-    text: git checkout -b a spike branch and build the unasked-for version far enough to run
+    text: "git checkout -b a spike branch, build the unasked-for version far enough to run, and open it as a WIP: pull request so it cannot merge"
   - tool: git diff
     text: git diff the two shapes against each other, so the comparison is visible rather than argued
