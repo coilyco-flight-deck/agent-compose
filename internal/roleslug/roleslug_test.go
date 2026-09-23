@@ -8,6 +8,7 @@ func TestCanonicalMapsARetiredSlugAndPassesAnythingElse(t *testing.T) {
 		"scientist":       "scientist",
 		"senior-sysadmin": "sysadmin-senior",
 		"access-sysadmin": "sysadmin-access",
+		"sysadmin":        "sysadmin-senior",
 		"analyst":         "analyst",
 		"":                "",
 	} {

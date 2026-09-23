@@ -1,0 +1,13 @@
+{
+  "access-sysadmin": "sysadmin-access",
+  "advocate": "dev-advocate",
+  "director": "prod-director",
+  "frontend": "frontend-eng",
+  "gamedev": "game-dev",
+  "junior-sysadmin": "sysadmin-junior",
+  "manager": "prod-manager",
+  "platform": "platform-eng",
+  "science": "scientist",
+  "senior-sysadmin": "sysadmin-senior",
+  "sysadmin": "sysadmin-senior"
+}

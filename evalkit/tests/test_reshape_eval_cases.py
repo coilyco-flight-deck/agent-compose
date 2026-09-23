@@ -9,6 +9,8 @@ from typing import Any
 import yaml
 from housecast.grade.schema import EvalCase
 
+from evalkit.roleslug import canonical_case
+
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "reshape_eval_cases.py"
 CHALLENGES = Path(__file__).resolve().parents[2] / "challenges.yaml"
 
@@ -43,7 +45,7 @@ def test_roster_vocabulary_moves_into_metadata_and_nowhere_else() -> None:
     """entity/test_type/attribute/half/pair_id are gone as fields, present as metadata keys."""
     raw = _raw_challenges()
     cases = {case.id: case for case in _load().reshape(raw)}
-    for entry in raw:
+    for entry in map(canonical_case, raw):
         case = cases[entry["id"]]
         assert case.input == entry["prompt"]
         assert case.target == entry["target"]

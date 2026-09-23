@@ -1,22 +1,25 @@
 // Package roleslug maps a retired role slug to the slug that replaced it, so a
 // launch or a provider roles.kdl still naming the old slug keeps resolving while
 // the fleet migrates. Temporary by design: teable:coilyco-flight-deck/agent-compose#8086.
+// The table is retired.json, which evalkit reads too, so the two cannot drift.
 package roleslug
 
-import "strings"
+import (
+	_ "embed"
+	"encoding/json"
+	"strings"
+)
 
-var retired = map[string]string{
-	"platform":        "platform-eng",
-	"science":         "scientist",
-	"frontend":        "frontend-eng",
-	"gamedev":         "game-dev",
-	"director":        "prod-director",
-	"manager":         "prod-manager",
-	"advocate":        "dev-advocate",
-	"senior-sysadmin": "sysadmin-senior",
-	"junior-sysadmin": "sysadmin-junior",
-	"access-sysadmin": "sysadmin-access",
-}
+//go:embed retired.json
+var retiredJSON []byte
+
+var retired = func() map[string]string {
+	table := map[string]string{}
+	if err := json.Unmarshal(retiredJSON, &table); err != nil {
+		panic("roleslug: retired.json: " + err.Error())
+	}
+	return table
+}()
 
 // Canonical trims role and returns its current slug, or role unchanged when it
 // is not a retired one.

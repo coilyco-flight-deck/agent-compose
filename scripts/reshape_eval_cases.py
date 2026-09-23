@@ -22,6 +22,8 @@ import yaml
 from housecast.grade.io import dump_yaml
 from housecast.grade.schema import EvalCase
 
+from evalkit.roleslug import canonical_case
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SOURCE = ROOT / "challenges.yaml"
 DEFAULT_OUTPUT = ROOT / "eval_cases.yaml"
@@ -33,7 +35,7 @@ METADATA_KEYS = ("entity", "test_type", "attribute", "half", "pair_id")
 
 def reshape(raw_challenges: list[dict[str, Any]]) -> list[EvalCase]:
     cases: list[EvalCase] = []
-    for entry in raw_challenges:
+    for entry in map(canonical_case, raw_challenges):
         metadata = {key: str(entry[key]) for key in METADATA_KEYS if entry.get(key) is not None}
         cases.append(
             EvalCase(

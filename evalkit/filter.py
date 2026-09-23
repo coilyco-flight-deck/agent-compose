@@ -19,6 +19,7 @@ from housecast.grade.schema import Challenge, Response, ToolCall
 from inspect_ai.log import read_eval_log
 
 from evalkit.profile import PROFILE
+from evalkit.roleslug import canonical_case
 
 
 def load_responses(path: Path) -> list[Response]:
@@ -52,7 +53,9 @@ def load_challenges(path: Path) -> list[Challenge]:
     read as graded coverage.
     """
     raw = yaml.safe_load(path.read_text()) or {}
-    written = [Challenge.model_validate(entry) for entry in raw.get("challenges", [])]
+    written = [
+        Challenge.model_validate(canonical_case(entry)) for entry in raw.get("challenges", [])
+    ]
     if problems := validate(written, PROFILE):
         raise ValueError("\n".join(problems))
     return written

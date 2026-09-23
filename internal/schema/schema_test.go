@@ -407,7 +407,7 @@ roles {
     role platform-eng {
         use-repository hardware
     }
-    role sysadmin {
+    role sysadmin-senior {
         use-repository hardware
         use-repository infrastructure
     }
@@ -425,7 +425,7 @@ roles {
 		!slices.Equal(hardware.Skills, []string{"compute-stack", "machine-*"}) {
 		t.Fatalf("hardware provider = %+v", hardware)
 	}
-	if got := source.RoleProviders["sysadmin"]; len(got) != 2 ||
+	if got := source.RoleProviders["sysadmin-senior"]; len(got) != 2 ||
 		got[0].Provider != "hardware" || !got[0].Required ||
 		got[1].Provider != "infrastructure" || !got[1].Required {
 		t.Fatalf("ops provider uses = %+v", got)
