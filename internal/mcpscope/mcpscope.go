@@ -1,0 +1,217 @@
+// Package mcpscope narrows the host MCP inventory to one role's servers for a
+// native launch. See docs/claude-launch-identity.md.
+package mcpscope
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	"github.com/coilyco-flight-deck/agent-compose/v2/internal/roleslug"
+)
+
+// Server is one inventory entry in mcporter's shape. Unknown keys are ignored.
+type Server struct {
+	Command string            `json:"command"`
+	Args    []string          `json:"args"`
+	Env     map[string]string `json:"env"`
+	Cwd     string            `json:"cwd"`
+	URL     string            `json:"url"`
+	BaseURL string            `json:"baseUrl"`
+	Headers map[string]string `json:"headers"`
+	AOS     struct {
+		Roles []string `json:"roles"`
+	} `json:"x-aos"`
+}
+
+// Inventory is the parsed host inventory.
+type Inventory struct {
+	Servers map[string]Server
+}
+
+// Selection is one role's servers and the ones it leaves out.
+type Selection struct {
+	Role     string
+	Selected []string
+	Omitted  []string
+	Scoped   int // selected servers that carry a role tag
+	servers  map[string]Server
+}
+
+// ErrNoInventory marks an absent inventory, which leaves the launch unscoped.
+var ErrNoInventory = errors.New("mcpscope: no MCP inventory")
+
+// Load reads an mcporter inventory and checks every role tag against roles,
+// resolving retired slugs, so a renamed role cannot silently lose its servers.
+func Load(path string, roles []string) (*Inventory, error) {
+	raw, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, ErrNoInventory
+	}
+	if err != nil {
+		return nil, fmt.Errorf("mcpscope: read %s: %w", path, err)
+	}
+	var top struct {
+		Servers map[string]Server `json:"mcpServers"`
+	}
+	if err := json.Unmarshal(raw, &top); err != nil {
+		return nil, fmt.Errorf("mcpscope: parse %s: %w", path, err)
+	}
+	known := map[string]bool{}
+	for _, r := range roles {
+		known[r] = true
+	}
+	for _, name := range sortedNames(top.Servers) {
+		for _, tag := range top.Servers[name].AOS.Roles {
+			if !known[roleslug.Canonical(tag)] {
+				return nil, fmt.Errorf("mcpscope: server %q is tagged for role %q, which is neither a roster role nor a retired alias", name, tag)
+			}
+		}
+	}
+	return &Inventory{Servers: top.Servers}, nil
+}
+
+// Select keeps every untagged server and every server tagged for role.
+func (inv *Inventory) Select(role string) Selection {
+	role = roleslug.Canonical(role)
+	sel := Selection{Role: role, servers: map[string]Server{}}
+	for _, name := range sortedNames(inv.Servers) {
+		s := inv.Servers[name]
+		if len(s.AOS.Roles) == 0 {
+			sel.Selected = append(sel.Selected, name)
+			sel.servers[name] = s
+			continue
+		}
+		if tagged(s, role) {
+			sel.Selected = append(sel.Selected, name)
+			sel.servers[name] = s
+			sel.Scoped++
+			continue
+		}
+		sel.Omitted = append(sel.Omitted, name)
+	}
+	return sel
+}
+
+func tagged(s Server, role string) bool {
+	for _, tag := range s.AOS.Roles {
+		if roleslug.Canonical(tag) == role {
+			return true
+		}
+	}
+	return false
+}
+
+// Summary is the one line a launch prints so the narrowing is never silent.
+func (sel Selection) Summary() string {
+	return fmt.Sprintf("agent-compose: MCP for %s: %d servers (%d role-scoped), %d omitted",
+		sel.Role, len(sel.Selected), sel.Scoped, len(sel.Omitted))
+}
+
+// WriteClaude renders a --mcp-config file under dir, named by its content so seats
+// of one role share it. ${HOME} expands against home, as the host projection does.
+func (sel Selection) WriteClaude(dir, home string) (string, error) {
+	out := map[string]any{}
+	for name, s := range sel.servers {
+		out[name] = claudeServer(s, home)
+	}
+	payload, err := json.MarshalIndent(map[string]any{"mcpServers": out}, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("mcpscope: render: %w", err)
+	}
+	payload = append(payload, '\n')
+	sum := sha256.Sum256(payload)
+	path := filepath.Join(dir, fmt.Sprintf("%s-%s.json", sel.Role, hex.EncodeToString(sum[:])[:12]))
+	if existing, err := os.ReadFile(path); err == nil && string(existing) == string(payload) {
+		return path, nil
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", fmt.Errorf("mcpscope: %w", err)
+	}
+	tmp, err := os.CreateTemp(dir, ".mcp-*.json")
+	if err != nil {
+		return "", fmt.Errorf("mcpscope: %w", err)
+	}
+	if _, err := tmp.Write(payload); err != nil {
+		tmp.Close()
+		os.Remove(tmp.Name())
+		return "", fmt.Errorf("mcpscope: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		os.Remove(tmp.Name())
+		return "", fmt.Errorf("mcpscope: %w", err)
+	}
+	if err := os.Rename(tmp.Name(), path); err != nil {
+		os.Remove(tmp.Name())
+		return "", fmt.Errorf("mcpscope: %w", err)
+	}
+	return path, nil
+}
+
+// CodexOverrides disables each omitted server for one Codex launch, since the
+// Codex registry is a shared host file that cannot hold a per-seat list.
+func (sel Selection) CodexOverrides() []string {
+	var args []string
+	for _, name := range sel.Omitted {
+		args = append(args, "-c", "mcp_servers."+name+".enabled=false")
+	}
+	return args
+}
+
+func claudeServer(s Server, home string) map[string]any {
+	expand := func(v string) string { return strings.ReplaceAll(v, "${HOME}", home) }
+	expandPath := func(v string) string {
+		if strings.Contains(v, "${HOME}") {
+			return filepath.Clean(filepath.FromSlash(expand(v)))
+		}
+		return v
+	}
+	expandMap := func(m map[string]string) map[string]string {
+		out := make(map[string]string, len(m))
+		for k, v := range m {
+			out[k] = expand(v)
+		}
+		return out
+	}
+	endpoint := s.URL
+	if strings.TrimSpace(endpoint) == "" {
+		endpoint = s.BaseURL
+	}
+	if strings.TrimSpace(endpoint) != "" {
+		out := map[string]any{"type": "http", "url": expand(endpoint)}
+		if len(s.Headers) > 0 {
+			out["headers"] = expandMap(s.Headers)
+		}
+		return out
+	}
+	out := map[string]any{"command": expandPath(s.Command)}
+	if len(s.Args) > 0 {
+		args := make([]string, len(s.Args))
+		for i, a := range s.Args {
+			args[i] = expand(a)
+		}
+		out["args"] = args
+	}
+	if len(s.Env) > 0 {
+		out["env"] = expandMap(s.Env)
+	}
+	if strings.TrimSpace(s.Cwd) != "" {
+		out["cwd"] = expandPath(s.Cwd)
+	}
+	return out
+}
+
+func sortedNames(servers map[string]Server) []string {
+	names := make([]string, 0, len(servers))
+	for name := range servers {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}

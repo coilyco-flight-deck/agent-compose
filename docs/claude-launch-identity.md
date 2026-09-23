@@ -85,6 +85,27 @@ telemetry:
   variable. The session then emits nothing even when a parent seat exported,
   and the switch carries on to seats that session launches.
 
+## MCP role scope
+
+A launch narrows the converged inventory `~/.mcporter/mcporter.json` to the
+role's servers. An untagged server goes to every role, and an entry carrying
+`"x-aos": {"roles": [...]}` goes only to the roles it names. Tags resolve through
+the retired role slugs, and a tag naming neither a roster role nor an alias fails
+the launch with that slug.
+
+* Claude gets `--strict-mcp-config --mcp-config <file>`. The file renders each
+  server exactly as the host projection writes `~/.claude.json`, under the state
+  directory at `mcp/<role>-<digest>.json`, so seats of one role share it.
+* Codex gets `-c mcp_servers.<name>.enabled=false` per omitted server, since its
+  registry is a shared host file.
+* No inventory, no composed person, or a caller's own `--mcp-config` or
+  `--strict-mcp-config` leaves the launch unscoped on the full host registry.
+
+The launch prints `agent-compose: MCP for <role>: N servers (K role-scoped), M
+omitted` to stderr. `agent-compose mcp --role <slug>` prints the same selection
+without launching. Dropping the flags is the rollback, and the tags are inert
+without them.
+
 ## See also
 
 * [Native role launch](native-role-launch.md) - selection and the launch flow.

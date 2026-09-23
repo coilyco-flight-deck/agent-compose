@@ -219,6 +219,17 @@ func main() {
 				},
 			},
 			{
+				Name:        "mcp",
+				Usage:       "report the MCP servers a role's native launch selects, without launching",
+				Description: "Untagged servers go to every role; x-aos.roles tags narrow one. See docs/claude-launch-identity.md.",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "role", Required: true, Usage: "role slug, retired aliases resolve"},
+					&cli.StringFlag{Name: "inventory", Usage: "mcporter inventory (defaults to ~/.mcporter/mcporter.json)"},
+					&cli.StringFlag{Name: "person-source", Usage: "external roster-package root (defaults to the mounted roster)"},
+				},
+				Action: runMCP,
+			},
+			{
 				Name:  "catalog",
 				Usage: "inspect the selected local profile catalogue",
 				Commands: []*cli.Command{
@@ -1043,11 +1054,16 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if verbose && !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
+	scope, err := nativeMCPScope(os.Stderr, result.Composition.Resolution.Person, role, harness, stateDir, args[2:])
+	if err != nil {
+		return err
+	}
 	return execReal(
 		nativeHarnessCommand(harness, args[2:], nativeIdentity{
 			SeatName:     result.SeatName,
 			Settings:     result.HarnessSettings,
 			Introduction: result.Introduction,
+			MCP:          scope,
 		}),
 		append(
 			append(
@@ -1155,6 +1171,7 @@ type nativeIdentity struct {
 	SeatName     string
 	Settings     string
 	Introduction string
+	MCP          mcpLaunch
 }
 
 func nativeHarnessCommand(harness string, args []string, identity nativeIdentity) []string {
@@ -1173,10 +1190,16 @@ func nativeHarnessCommand(harness string, args []string, identity nativeIdentity
 // nativeIdentityArgs hands Claude Code its identity as flags, per
 // docs/claude-launch-identity.md. A caller-supplied flag always wins.
 func nativeIdentityArgs(harness string, args []string, identity nativeIdentity) []string {
+	if harness == "codex" {
+		return identity.MCP.CodexArgs
+	}
 	if harness != "claude" {
 		return nil
 	}
 	var flags []string
+	if identity.MCP.ClaudeConfig != "" {
+		flags = append(flags, "--strict-mcp-config", "--mcp-config", identity.MCP.ClaudeConfig)
+	}
 	if identity.SeatName != "" && !nativeArgsCarry(args, "--name") {
 		flags = append(flags, "--name", identity.SeatName)
 	}
