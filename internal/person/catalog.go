@@ -37,6 +37,7 @@ type RoleCatalogEntry struct {
 	FavoriteColor string         `json:"favorite_color"`
 	Background    string         `json:"background"`
 	Archived      bool           `json:"archived,omitempty"`
+	ModelTiers    []string       `json:"model_tiers,omitempty"`
 }
 
 type SeatCatalogEntry struct {
@@ -116,6 +117,7 @@ func (p *Person) RoleCatalog() ([]RoleCatalogEntry, error) {
 			FavoriteColor: snapshot.Roles[name].FavoriteColor,
 			Background:    role.Background,
 			Archived:      role.Archived,
+			ModelTiers:    append([]string(nil), role.SupportedModelTiers...),
 		})
 	}
 	return out, nil

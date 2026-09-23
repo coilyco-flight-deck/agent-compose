@@ -240,7 +240,7 @@ func main() {
 					},
 					{
 						Name: "roles", Usage: "list profile roles",
-						Description: "JSON items: slug, purpose, role skill provenance, seats, ordered personalities, and favorite_color.",
+						Description: "JSON items: slug, purpose, role skill provenance, seats, ordered personalities, favorite_color, and model_tiers.",
 						Flags:       personCatalogFlags(false), Action: runCatalogRoles,
 					},
 					{
