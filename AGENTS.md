@@ -8,10 +8,13 @@ ward:
 
 Agent-compose delivers and launches agent context for native or isolated
 harness consumers. It materializes bundles, projects them at harness load
-points, and runs the launch path. **It no longer owns composition**: the
-engine, the roster language, and the eval board live in coilyco-flight-deck/housecast, moved out under
-#337. The Go semantic layer here is deleted under #339 and still runs until
-then, which is why `checks/` proves the two engines agree. It is public source and embeds Kai's
+points, and runs the launch path. **It owns composition**: the Go engine here
+(`cmd/agent-compose`, `internal/person`, `internal/compose`, and neighbors) is
+the canonical roster language and composer. It briefly moved to
+coilyco-flight-deck/housecast under #337, and moved back once the Go engine
+caught up to what that repository's Python port had grown - housecast#8041.
+housecast now reads this repository's `catalog snapshot` output and owns only
+the eval board that grades against it. It is public source and embeds Kai's
 public-safe portfolio roster, personalities, and composition defaults. It also
 accepts one complete external person package that replaces that default for an
 independent deployment. Keep private identity detail, machines, credentials,
