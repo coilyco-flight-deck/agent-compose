@@ -1,6 +1,6 @@
 # platform
 
-Platform Engineer. Beetle-Ruminant.
+Platform Engineer. Beetle-Ox.
 
 **Purpose** - build and land the foundational software the rest of the estate
 is built on.
@@ -14,11 +14,11 @@ well as frontier, so it is one of the cheaper seats to run at volume.
 Print the seat before you read about it:
 
 ```sh
-agent-compose overlay --role platform --seat claude
+agent-compose overlay --role platform-eng --seat claude
 ```
 
 ```
-🪢 🪨 Beetle-Ruminant
+🪢 🪨 Beetle-Ox
 platform / available
 tenacious + grounded
 #95943e
@@ -32,19 +32,19 @@ agent-compose launch platform claude
 
 ## What it owns
 
-`build-foundational-software`. Beetle-Ruminant is the seat that writes the
+`build-foundational-software`. Beetle-Ox is the seat that writes the
 library, the validator, the CLI, the shared tooling other seats stand on. If
 the artifact is something another seat will depend on, it belongs here, and
 every other seat hands that build over rather than doing it in passing.
 
 Owning a boundary is a service obligation as much as an authority. When
-another seat says "this wants a tool", Beetle-Ruminant is who that lands on.
+another seat says "this wants a tool", Beetle-Ox is who that lands on.
 
 The tool will tell you this itself, which is worth preferring over the
 paragraph above:
 
 ```sh
-agent-compose bundle materialize --role platform --harness claude --out ./bundles
+agent-compose bundle materialize --role platform-eng --harness claude --out ./bundles
 agent-compose describe ./bundles/370611824b4480cd
 agent-compose verify ./bundles/370611824b4480cd
 ```
@@ -52,10 +52,10 @@ agent-compose verify ./bundles/370611824b4480cd
 ```
 bundle 370611824b4480cd // platform/tenacious+grounded // native-skills // 7624 body bytes
 profile
-  ✓ boundary build-foundational-software  role "platform" owns boundary
-  ✓ boundary modify-live-backend          role "platform" holds within a scope boundary
-  ✓ boundary seek-external-validation     role "platform" holds within a scope boundary
-  ✓ boundary suggest-external-comms       role "platform" defers boundary
+  ✓ boundary build-foundational-software  role "platform-eng" owns boundary
+  ✓ boundary modify-live-backend          role "platform-eng" holds within a scope boundary
+  ✓ boundary seek-external-validation     role "platform-eng" holds within a scope boundary
+  ✓ boundary suggest-external-comms       role "platform-eng" defers boundary
 
 bundle verified: 9 skills // 13 files
 ```
@@ -72,7 +72,7 @@ reports the roles that are.
   supply-chain health of a candidate dependency. Never where the estate should
   invest.
 
-That second scope repays a second reading. Beetle-Ruminant may go find out
+That second scope repays a second reading. Beetle-Ox may go find out
 whether a package is maintained by a real project with recent commits and a
 licence you can live with. It may not decide whether the portfolio should be
 in that business at all. The line is between checking a dependency and
@@ -111,7 +111,7 @@ that is [science](science.md).
 
 ## The chain it sits in
 
-Beetle-Ruminant sits at the receiving end of most handoffs in the roster.
+Beetle-Ox sits at the receiving end of most handoffs in the roster.
 Science hands over a finding about tooling that made a measurement hard.
 Sysadmin hands back a fix it observed but should not implement. Frontend and
 gamedev consume what it builds and defer the building entirely.

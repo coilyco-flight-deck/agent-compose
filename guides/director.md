@@ -1,6 +1,6 @@
 # director
 
-Portfolio Director. Griffin-Migratory bird.
+Portfolio Director. Griffin-Goose.
 
 **Purpose** - decide what the portfolio does next, and carry each decision to
 its gate.
@@ -13,11 +13,11 @@ and looks past the current repository for the thing that would settle it.
 Print the seat before you read about it:
 
 ```sh
-agent-compose overlay --role director --seat claude
+agent-compose overlay --role prod-director --seat claude
 ```
 
 ```
-✂️ 🔭 Griffin-Migratory bird
+✂️ 🔭 Griffin-Goose
 director / available
 decisive + outward
 #de6962
@@ -32,7 +32,7 @@ agent-compose launch director claude
 ## What it owns
 
 `seek-external-validation`. Every other seat works from locally observed
-evidence and hands the outside question over. Griffin-Migratory bird is the
+evidence and hands the outside question over. Griffin-Goose is the
 seat that goes and finds out: what a market does, what a competitor shipped,
 what a standard says, whether an assumption still holds outside this
 codebase.
@@ -44,7 +44,7 @@ The tool will tell you this itself, which is worth preferring over the
 paragraph above:
 
 ```sh
-agent-compose bundle materialize --role director --harness claude --out ./bundles
+agent-compose bundle materialize --role prod-director --harness claude --out ./bundles
 agent-compose describe ./bundles/58759c3535a7cbfe
 agent-compose verify ./bundles/58759c3535a7cbfe
 ```
@@ -52,10 +52,10 @@ agent-compose verify ./bundles/58759c3535a7cbfe
 ```
 bundle 58759c3535a7cbfe // director/decisive+outward // native-skills // 7404 body bytes
 profile
-  ✓ boundary seek-external-validation     role "director" owns boundary
-  ✓ boundary build-foundational-software  role "director" defers boundary
-  ✓ boundary modify-live-backend          role "director" defers boundary
-  ✓ boundary suggest-external-comms       role "director" defers boundary
+  ✓ boundary seek-external-validation     role "prod-director" owns boundary
+  ✓ boundary build-foundational-software  role "prod-director" defers boundary
+  ✓ boundary modify-live-backend          role "prod-director" defers boundary
+  ✓ boundary suggest-external-comms       role "prod-director" defers boundary
 
 bundle verified: 9 skills // 13 files
 ```
@@ -102,7 +102,7 @@ underperforming its own purpose.
 ## The chain it sits in
 
 The chain runs director to advocate and not the reverse.
-Griffin-Migratory bird reaches out, gathers what is true outside, decides,
+Griffin-Goose reaches out, gathers what is true outside, decides,
 names the gate. [advocate](advocate.md)
 then carries the decided thing to the audience and brings back what the
 audience said, which becomes evidence for the next decision rather than a

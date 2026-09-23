@@ -1,6 +1,6 @@
 # science
 
-Applied Scientist. Amphibian-Ruminant.
+Applied Scientist. Frog-Ox.
 
 **Purpose** - measure how agents, models, and inference actually behave on real
 hardware.
@@ -14,11 +14,11 @@ evidence under it.
 Print the seat before you read about it:
 
 ```sh
-agent-compose overlay --role science --seat claude
+agent-compose overlay --role scientist --seat claude
 ```
 
 ```
-🧪 🪨 Amphibian-Ruminant
+🧪 🪨 Frog-Ox
 science / available
 empirical + grounded
 #3ed7a9
@@ -44,7 +44,7 @@ The tool will tell you this itself, which is worth preferring over the
 paragraph above:
 
 ```sh
-agent-compose bundle materialize --role science --harness claude --out ./bundles
+agent-compose bundle materialize --role scientist --harness claude --out ./bundles
 agent-compose describe ./bundles/2f34a234d7775894
 agent-compose verify ./bundles/2f34a234d7775894
 ```
@@ -52,10 +52,10 @@ agent-compose verify ./bundles/2f34a234d7775894
 ```
 bundle 2f34a234d7775894 // science/empirical+grounded // native-skills // 7174 body bytes
 profile
-  ✓ boundary build-foundational-software  role "science" holds within a scope boundary
-  ✓ boundary modify-live-backend          role "science" defers boundary
-  ✓ boundary seek-external-validation     role "science" defers boundary
-  ✓ boundary suggest-external-comms       role "science" defers boundary
+  ✓ boundary build-foundational-software  role "scientist" holds within a scope boundary
+  ✓ boundary modify-live-backend          role "scientist" defers boundary
+  ✓ boundary seek-external-validation     role "scientist" defers boundary
+  ✓ boundary suggest-external-comms       role "scientist" defers boundary
 
 bundle verified: 9 skills // 13 files
 ```
@@ -119,9 +119,9 @@ broken instance of the seat rather than a subtle judgement call.
 ## The chain it sits in
 
 The intended chain is three links and nothing in it needs a seat to hold an
-authority it should not have. Amphibian-Ruminant measures and hands over a
-finding. Sea turtle-Ruminant runs the live command against the system.
-Beetle-Ruminant fixes the tool that made the finding necessary. Each step is a
+authority it should not have. Frog-Ox measures and hands over a
+finding. Turtle-Ox runs the live command against the system.
+Beetle-Ox fixes the tool that made the finding necessary. Each step is a
 different bundle.
 
 Boundary mechanics are in [role boundaries](../docs/role-boundaries.md), and

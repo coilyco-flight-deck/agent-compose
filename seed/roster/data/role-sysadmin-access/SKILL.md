@@ -1,6 +1,6 @@
 ---
-name: role-access-sysadmin
-description: Adopt the Access Sysadmin charter for agent permission and harness configuration values across the estate. Use when the session assigns, infers, or explicitly switches to the access-sysadmin role.
+name: role-sysadmin-access
+description: Adopt the Access Sysadmin charter for agent permission and harness configuration values across the estate. Use when the session assigns, infers, or explicitly switches to the sysadmin-access role.
 ---
 
 # Access Sysadmin
