@@ -110,3 +110,59 @@ lock *ARGS:
 # Reconcile the checks virtualenv with pyproject.toml.
 sync *ARGS:
     @uv sync "$@"
+
+# Compose one compiled bundle per role as the eval system prompts.
+evalkit-prompts *ARGS:
+    @sh scripts/eval-prompts.sh "$@"
+
+# One live request through Agent Proxy, before a full board run.
+evalkit-smoke *ARGS:
+    @sh scripts/eval-smoke.sh "$@"
+
+# Run the board through Inspect against Agent Proxy.
+evalkit-run *ARGS:
+    @sh scripts/eval-run.sh "$@"
+
+# Open the Inspect log viewer.
+evalkit-view *ARGS:
+    @uv run inspect view --log-dir .evalkit/logs "$@"
+
+# Project a committed run into a display payload, one way only.
+evalkit-export *ARGS:
+    @uv run housecast grade export "$@"
+
+# Read an Inspect eval log and build the dataset the annotator grades.
+evalkit-filter *ARGS:
+    @uv run python -m evalkit.filter "$@"
+
+# Ask whether response dispersion predicted the grade. `just evalkit-validity RUN/annotations.kai.yaml`.
+evalkit-validity ANNOTATIONS:
+    @uv run python evaluations/split-candidates-2026-09-08/validity.py "{{ANNOTATIONS}}"
+
+# Cluster annotation critiques into a ranked failure taxonomy.
+evalkit-taxonomy *ARGS:
+    @uv run housecast grade taxonomy "$@"
+
+# Annotate the eval dataset by hand, one keystroke per challenge.
+evalkit-annotate *ARGS:
+    @sh scripts/eval-annotate.sh "$@"
+
+# Emit this board's profile as YAML, for a grading surface that takes --profile.
+evalkit-profile *ARGS:
+    @uv run python -m evalkit.profile "$@"
+
+# Project the roster as entities.json, the --roster a grading surface takes.
+evalkit-entities *ARGS:
+    @sh scripts/eval-entities.sh "$@"
+
+# Grade a JSONL of {half, response} on stdin with the autonomy grader.
+evalkit-autonomy *ARGS:
+    @uv run python -m evalkit.autonomy "$@"
+
+# Reshape challenges.yaml into eval_cases.yaml, housecast's EvalCase wire schema.
+evalkit-reshape *ARGS:
+    @uv run python scripts/reshape_eval_cases.py "$@"
+
+# Grade one committed run in a browser, with this roster's entities and profile. `just grade-serve evaluations/pilot/RUN`.
+grade-serve *ARGS:
+    @sh scripts/eval-serve.sh "$@"

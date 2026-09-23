@@ -13,8 +13,8 @@ points, and runs the launch path. **It owns composition**: the Go engine here
 the canonical roster language and composer. It briefly moved to
 coilyco-flight-deck/housecast under #337, and moved back once the Go engine
 caught up to what that repository's Python port had grown - housecast#8041.
-housecast now reads this repository's `catalog snapshot` output and owns only
-the eval board that grades against it. It is public source and embeds Kai's
+housecast is now only the role-agnostic grader this repository's `evalkit` hands
+its board to (housecast#7961). It is public source and embeds Kai's
 public-safe portfolio roster, personalities, and composition defaults. It also
 accepts one complete external person package that replaces that default for an
 independent deployment. Keep private identity detail, machines, credentials,
@@ -127,7 +127,7 @@ content. Do not generalize it prematurely, copy ordinary AOS skills into this
 repo, or allow personality to alter truthfulness, authority, safety, rollback,
 or completion.
 Generated bundles and rendered references stay uncommitted. Graded
-evaluation evidence is committed in coilyco-flight-deck/housecast, which owns the board runner.
+evaluation evidence is committed here under `evaluations/`, and `evalkit` runs the board.
 Update [`docs/FEATURES.md`](docs/FEATURES.md) only when a significant
 capability actually ships.
 

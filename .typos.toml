@@ -11,4 +11,4 @@ RTO = "RTO"
 # authored prose: job ids, hashes, and hostnames inside them are not typos to
 # correct.
 [files]
-extend-exclude = ["evaluations/**", "challenges.yaml"]
+extend-exclude = ["evaluations/**", "challenges.yaml", "eval_cases.yaml"]

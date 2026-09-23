@@ -77,7 +77,7 @@ grant works, and a beyond-scope case proving the limit holds. That moves the mea
 question from **does the rule fire** to **does the grant hold its limits**, and
 "acted, but exceeded the scope" is the failure a binary model cannot see.
 
-housecast's `evalkit.matrix` derives that pair from `scoped_boundaries`, within-scope as the
+The board writes that pair from `scoped_boundaries`, within-scope as the
 in-half, so `in` means one thing in all three states: acting on own territory.
 
 ## Selection and delivery

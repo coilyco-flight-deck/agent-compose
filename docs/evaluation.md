@@ -5,8 +5,8 @@ the roster, runs against one subject, and is graded by a human.
 
 ## Two tools, one seam
 
-**`evalkit`** is the Python runner. It moved to housecast with the engine under #337, so the paths
-below are housecast's. It derives the case list from the roster, runs the subject, writes the dataset.
+**`evalkit`** is the Python runner, in this repository. It runs the subject against `challenges.yaml`
+and writes the dataset. It left housecast under housecast#7961.
 
 **`housecast.grade`** is the grading half, shipped from `coilyco-flight-deck/housecast` under that
 package's `eval` extra so the pairing rule has one home. It holds no runner and no model client, so
@@ -16,7 +16,7 @@ prompt, so the pairing rule has one implementation across both.
 
 One home per contract keeps the seam honest, and it now names the eval pack rather than the roster:
 **the pack schema, the coverage rules, and the record writer have exactly one implementation**, because
-two parsers is the failure the split avoids. Composition moved to housecast (#337, #338).
+two parsers is the failure the split avoids. Composition lives here, and housecast holds only the grader (housecast#8041).
 
 ## The triple
 
@@ -100,8 +100,8 @@ record is the failure the one-way projection exists to prevent, so adopting one 
 
 ## Commands
 
-The `evalkit-*` verbs are housecast's, not this repository's. The one that needs saying: `just check`
-there runs ruff, format, mypy strict, and pytest from `scripts/check.sh` rather than pre-commit, because
+The `evalkit-*` verbs and `grade-serve` live in this justfile, and the other `grade-*` verbs are
+housecast's. The one that needs saying: `just check` runs ruff, format, mypy strict, and pytest from `scripts/check.sh` rather than pre-commit, because
 that config is managed by agentic-os and a hand-added hook is lost on the next sync.
 
 ## The rest of the stack

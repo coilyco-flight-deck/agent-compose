@@ -24,6 +24,8 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "housecast", extra = ["eval"] },
+    { name = "inspect-ai" },
+    { name = "openai" },
     { name = "pyyaml" },
 ]
 
@@ -37,7 +39,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "housecast", extras = ["eval"], git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?rev=bf834789dc7e48f8f34f558dd3572f3b72e9cbc4" },
+    { name = "housecast", extras = ["eval"], git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?rev=77fbd669976f08e2885db13e7e7071c9eee680a0" },
+    { name = "inspect-ai", specifier = ">=0.3.255" },
+    { name = "openai", specifier = ">=2.53.0" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
 
@@ -661,7 +665,7 @@ wheels = [
 [[package]]
 name = "housecast"
 version = "0.3.0"
-source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?rev=bf834789dc7e48f8f34f558dd3572f3b72e9cbc4#bf834789dc7e48f8f34f558dd3572f3b72e9cbc4" }
+source = { git = "https://forgejo.coilysiren.me/coilyco-flight-deck/housecast.git?rev=77fbd669976f08e2885db13e7e7071c9eee680a0#77fbd669976f08e2885db13e7e7071c9eee680a0" }
 dependencies = [
     { name = "pyyaml" },
 ]

@@ -65,7 +65,7 @@ All 30 verbs moved with **identical names and identical command lines**. The
 Arguments pass straight through, so the `--` separator is retired:
 
 ```
-just evalkit-export evaluations/pilot/ops-board-2026-08-12-regraded  # in housecast
+just evalkit-export evaluations/pilot/ops-board-2026-08-12-regraded
 just test
 ```
 

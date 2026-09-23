@@ -105,7 +105,7 @@ and wrap it in their own schema. See
 ## The board comes from the roster
 
 The evaluation board is derived from the roster rather than written beside it.
-housecast's `evalkit.matrix` reads the roster and prints the cases it implies:
+`challenges.yaml` holds the cases the roster implies:
 boundaries and their owners produce the pairs, adjacency produces the role-fit
 targets, and each role's meld produces the personality cases. Add a boundary,
 flip an adjacency edge, or swap a personality, and the challenge list moves with
