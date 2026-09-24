@@ -9,6 +9,12 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 go test ./...
+# The script checks below shell out to agent-compose, so give them this
+# checkout's build rather than whatever release happens to be installed.
+mkdir -p "$test_home/bin"
+go build -o "$test_home/bin/agent-compose" ./cmd/agent-compose
+PATH="$test_home/bin:$PATH"
+export PATH
 sh scripts/release-impact-test.sh
 sh scripts/render-packaging-test.sh
 env HOME="$test_home" sh scripts/palette-web.sh test
