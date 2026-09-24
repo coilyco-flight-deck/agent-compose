@@ -18,7 +18,7 @@ scoped_boundaries:
   - boundary: build-foundational-software
     scope: the repositories carrying this deployment's own evaluation stack entire, prose, tooling, and their operations, plus your own runners, probes, graders, and aggregation anywhere else
 adjacents:
-  - role: platform-eng
+  - role: eng-platform
     reason: building foundational software outside this deployment's evaluation stack instead of measuring what it does
   - role: game-dev
     reason: reporting what a session felt like instead of what it measured

@@ -64,7 +64,7 @@ func (e env) config(t *testing.T, body string) {
     role dev-advocate {}
     role frontend-eng {}
     role prod-director {}
-    role platform-eng {}
+    role eng-platform {}
     role sysadmin {}
     role game-dev {}
 }
@@ -180,7 +180,7 @@ func TestUnifiedRoleProviderGraphRendersStrictEligibility(t *testing.T) {
     }
 }
 roles {
-    role platform-eng {
+    role eng-platform {
         use-repository hardware
     }
 }
@@ -197,7 +197,7 @@ roles {
 	if err != nil {
 		t.Fatal(err)
 	}
-	providers := manifest.Roles["platform-eng"]
+	providers := manifest.Roles["eng-platform"]
 	canonicalHardware, err := canonicalPath(hardware)
 	if err != nil {
 		t.Fatal(err)
@@ -225,7 +225,7 @@ func TestGlobalRepositoryAppearsInEveryRoleAndResidency(t *testing.T) {
     global lore
 }
 roles {
-    role platform-eng {}
+    role eng-platform {}
     role scientist {}
 }
 `)
@@ -237,7 +237,7 @@ roles {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, role := range []string{"platform-eng", "scientist"} {
+	for _, role := range []string{"eng-platform", "scientist"} {
 		if !containsSelection(manifest.Roles[role], "example/lore") {
 			t.Fatalf("global repository missing from %s selections: %+v", role, manifest.Roles[role])
 		}
@@ -263,14 +263,14 @@ func TestUnifiedRoleProviderGraphFailsClosed(t *testing.T) {
 			return writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
     repository hardware path="example/hardware" { skill "machine-*" }
 }
-roles { role platform-eng { use-repository hardware } }
+roles { role eng-platform { use-repository hardware } }
 `)
 		},
 		"provider cycle": func(t *testing.T, e env) string {
 			return writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
     repository self path="example/aosk" { skill "*" }
 }
-roles { role platform-eng { use-repository self } }
+roles { role eng-platform { use-repository self } }
 `)
 		},
 	} {
@@ -292,14 +292,14 @@ func TestImportedProviderGraphDoesNotRecursivelyWidenEligibility(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(hardware, ".agents", "roles.kdl"), []byte(`repositories {
     repository recursive path="example/recursive" { skill "*" }
 }
-roles { role platform-eng { use-repository recursive } }
+roles { role eng-platform { use-repository recursive } }
 `), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	source := writeTrustedRoleGraph(t, e, "example/aosk", `repositories {
     repository hardware path="example/hardware" { skill compute-stack }
 }
-roles { role platform-eng { use-repository hardware } }
+roles { role eng-platform { use-repository hardware } }
 `)
 	e.config(t, "sources:\n  - "+source+"\noperating_context:\n  - example/aosk\n")
 	if code, out, errOut := e.run(t, false); code != 0 {
@@ -309,7 +309,7 @@ roles { role platform-eng { use-repository hardware } }
 	if err != nil {
 		t.Fatal(err)
 	}
-	if providers := manifest.Roles["platform-eng"]; len(providers) != 2 || providers[1].Name != "hardware" {
+	if providers := manifest.Roles["eng-platform"]; len(providers) != 2 || providers[1].Name != "hardware" {
 		t.Fatalf("imported graph widened eligibility: %+v", providers)
 	}
 }
@@ -797,7 +797,7 @@ func TestRoleBindingSelectorReachesTheRepositoryPlan(t *testing.T) {
     }
 }
 roles {
-    role platform-eng {
+    role eng-platform {
         use-repository lore
     }
     role dev-advocate {
@@ -838,7 +838,7 @@ roles {
 	if !slices.Equal(advocate.Skills, []string{"lore-*"}) {
 		t.Fatalf("advocate must keep the definition selector intact: %+v", advocate)
 	}
-	if platform := find("platform-eng"); platform.BindingSkills != nil {
+	if platform := find("eng-platform"); platform.BindingSkills != nil {
 		t.Fatalf("platform must carry no binding selector: %+v", platform)
 	}
 	for _, selection := range manifest.Residency {

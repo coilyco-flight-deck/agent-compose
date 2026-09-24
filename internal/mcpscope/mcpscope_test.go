@@ -9,13 +9,13 @@ import (
 	"testing"
 )
 
-var roster = []string{"platform-eng", "sysadmin-senior", "scientist"}
+var roster = []string{"eng-platform", "sysadmin-senior", "scientist"}
 
 const inventory = `{
   "mcpServers": {
     "shared": {"command": "npx", "args": ["-y", "tool", "--config", "${HOME}/x.json"]},
     "remote": {"baseUrl": "https://example.invalid/mcp"},
-    "pw_platform": {"command": "npx", "args": ["pw"], "x-aos": {"roles": ["platform-eng"]}},
+    "pw_platform": {"command": "npx", "args": ["pw"], "x-aos": {"roles": ["eng-platform"]}},
     "pw_sysadmin": {"command": "npx", "args": ["pw"], "x-aos": {"roles": ["senior-sysadmin"]}}
   }
 }`
@@ -34,7 +34,7 @@ func TestSelectKeepsUntaggedAndOwnRole(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sel := inv.Select("platform-eng")
+	sel := inv.Select("eng-platform")
 	if got := strings.Join(sel.Selected, ","); got != "pw_platform,remote,shared" {
 		t.Errorf("selected = %s", got)
 	}
@@ -80,7 +80,7 @@ func TestWriteClaudeRendersHostShape(t *testing.T) {
 		t.Fatal(err)
 	}
 	dir := t.TempDir()
-	sel := inv.Select("platform-eng")
+	sel := inv.Select("eng-platform")
 	path, err := sel.WriteClaude(dir, "/home/kai")
 	if err != nil {
 		t.Fatal(err)

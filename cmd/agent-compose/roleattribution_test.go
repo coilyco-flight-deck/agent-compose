@@ -27,7 +27,7 @@ func TestAnUnknownRoleAttributesNothing(t *testing.T) {
 
 func TestEveryDeployedRoleRoundTrips(t *testing.T) {
 	for _, role := range []string{
-		"platform-eng", "sysadmin", "scientist", "frontend-eng", "game-dev", "prod-director", "dev-advocate",
+		"eng-platform", "sysadmin", "scientist", "frontend-eng", "game-dev", "prod-director", "dev-advocate",
 	} {
 		env := roleAttributionEnv(role)
 		if len(env) != 1 || env[0] != launch.AttributionRoleEnv+"="+role {

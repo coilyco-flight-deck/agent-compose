@@ -6,7 +6,8 @@
   "gamedev": "game-dev",
   "junior-sysadmin": "sysadmin-junior",
   "manager": "prod-manager",
-  "platform": "platform-eng",
+  "platform": "eng-platform",
+  "platform-eng": "eng-platform",
   "science": "scientist",
   "senior-sysadmin": "sysadmin-senior",
   "sysadmin": "sysadmin-senior"

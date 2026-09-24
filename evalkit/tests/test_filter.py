@@ -44,7 +44,7 @@ def test_epoch_order_does_not_depend_on_log_order() -> None:
 def test_every_authored_sample_survives() -> None:
     samples = [
         role_fit("within"),
-        role_fit("platform-eng"),
+        role_fit("eng-platform"),
         Challenge(
             id="sysadmin-sec-out",
             entity="sysadmin",

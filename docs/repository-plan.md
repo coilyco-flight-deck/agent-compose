@@ -82,7 +82,7 @@ roles {
     role dev-advocate {
         use-repository style-guide
     }
-    role platform-eng { use-repository hardware }
+    role eng-platform { use-repository hardware }
 }
 ```
 

@@ -245,9 +245,9 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := summaryFixture(t, p)
-	wantPersonalities := strings.Join(p.Roles["platform-eng"].Personalities, " // ")
+	wantPersonalities := strings.Join(p.Roles["eng-platform"].Personalities, " // ")
 	wantColor := result.Resolution.FavoriteColor
-	wantIdentity := "agent identity: " + p.Roles["platform-eng"].Identity.Name
+	wantIdentity := "agent identity: " + p.Roles["eng-platform"].Identity.Name
 
 	var output strings.Builder
 	if err := printSummary(&output, result, person.RoleTranscriptOptions{Expanded: true}); err != nil {
@@ -257,7 +257,7 @@ func TestPrintSummaryUsesSlashSeparators(t *testing.T) {
 	for _, want := range []string{
 		"request: model tier frontier // delivery native-skills",
 		"roster: core // provided by: roster:core",
-		"role: platform-eng",
+		"role: eng-platform",
 		"personalities: " + wantPersonalities,
 		"melded color: " + wantColor,
 		"personality: tenacious",
@@ -303,13 +303,13 @@ func TestPrintCompositionWarningsUsesExplicitWarningPrefix(t *testing.T) {
 
 func summaryFixture(t *testing.T, p *person.Person) *compose.Result {
 	t.Helper()
-	personalities := p.Roles["platform-eng"].Personalities
-	favoriteColor := p.Roles["platform-eng"].FavoriteColor
+	personalities := p.Roles["eng-platform"].Personalities
+	favoriteColor := p.Roles["eng-platform"].FavoriteColor
 	return &compose.Result{
 		Bundle: &bundle.Result{Key: "abc123", Dir: "/tmp/bundle", Reused: true},
 		Resolution: &resolver.Resolution{
 			Request: &schema.Request{
-				Role:      "platform-eng",
+				Role:      "eng-platform",
 				ModelTier: schema.ModelTierFrontier,
 				Delivery:  "native-skills",
 			},
@@ -458,7 +458,7 @@ func TestNativeLaunchSummaryWithoutAuditPrintsOnlyTheTranscript(t *testing.T) {
 			t.Fatalf("quiet launch summary kept %q:\n%s", unwanted, got)
 		}
 	}
-	for _, want := range []string{"personality metadata", "role metadata", "role: platform-eng"} {
+	for _, want := range []string{"personality metadata", "role metadata", "role: eng-platform"} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("quiet launch summary dropped %q:\n%s", want, got)
 		}
@@ -648,13 +648,13 @@ func TestActivateNativeRuntimeHomePreservesCanonicalCodexState(t *testing.T) {
 
 func TestCatalogRoleLineLabelsThePersonalityMeld(t *testing.T) {
 	line := catalogRoleLine(person.RoleCatalogEntry{
-		Slug:          "platform-eng",
-		Skill:         "role-platform-eng",
+		Slug:          "eng-platform",
+		Skill:         "role-eng-platform",
 		Purpose:       "Build and land the foundational software.",
 		Personalities: []string{"tenacious", "grounded"},
 		FavoriteColor: "#9c8b31",
 	})
-	want := "platform-eng // role-platform-eng // Build and land the foundational software. " +
+	want := "eng-platform // role-eng-platform // Build and land the foundational software. " +
 		"// personalities: tenacious, grounded // color: #9c8b31\n"
 	if line != want {
 		t.Fatalf("catalog role line =\n%q\nwant\n%q", line, want)
@@ -762,10 +762,10 @@ func TestApplyTelemetryEnvironmentLabelsTheSeatAndDropsInheritedLogging(t *testi
 	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "seat=prod-director,shadow=ru78")
 	t.Setenv("OTEL_LOG_USER_PROMPTS", "1")
 
-	if err := applyTelemetryEnvironment(config, "claude", "platform-eng"); err != nil {
+	if err := applyTelemetryEnvironment(config, "claude", "eng-platform"); err != nil {
 		t.Fatal(err)
 	}
-	if got := os.Getenv("OTEL_RESOURCE_ATTRIBUTES"); got != "seat=platform-eng,shadow=yx46" {
+	if got := os.Getenv("OTEL_RESOURCE_ATTRIBUTES"); got != "seat=eng-platform,shadow=yx46" {
 		t.Errorf("OTEL_RESOURCE_ATTRIBUTES = %q", got)
 	}
 	if _, ok := os.LookupEnv("OTEL_LOG_USER_PROMPTS"); ok {
@@ -773,7 +773,7 @@ func TestApplyTelemetryEnvironmentLabelsTheSeatAndDropsInheritedLogging(t *testi
 	}
 
 	t.Setenv("AGENT_COMPOSE_TELEMETRY", "off")
-	if err := applyTelemetryEnvironment(config, "claude", "platform-eng"); err != nil {
+	if err := applyTelemetryEnvironment(config, "claude", "eng-platform"); err != nil {
 		t.Fatal(err)
 	}
 	if _, ok := os.LookupEnv("CLAUDE_CODE_ENABLE_TELEMETRY"); ok {
@@ -784,7 +784,7 @@ func TestApplyTelemetryEnvironmentLabelsTheSeatAndDropsInheritedLogging(t *testi
 func TestApplyTelemetryEnvironmentWithoutHostConfig(t *testing.T) {
 	t.Setenv("CLAUDE_CODE_ENABLE_TELEMETRY", "1")
 	missing := filepath.Join(t.TempDir(), "absent.yaml")
-	if err := applyTelemetryEnvironment(missing, "claude", "platform-eng"); err != nil {
+	if err := applyTelemetryEnvironment(missing, "claude", "eng-platform"); err != nil {
 		t.Fatal(err)
 	}
 	if _, ok := os.LookupEnv("CLAUDE_CODE_ENABLE_TELEMETRY"); ok {

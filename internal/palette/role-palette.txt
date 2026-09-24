@@ -46,7 +46,7 @@ the L/chroma push above never actually had to ship.
 Closest accent pair: 0.0810
 Closest background pair: 0.0319
 
-platform-eng // #709b62 // #0e2b14 // tenacious, grounded
+eng-platform // #709b62 // #0e2b14 // tenacious, grounded
 sysadmin-senior // #0d9c92 // #002a36 // protective, grounded
 scientist // #14d5b8 // #002c27 // empirical, grounded
 frontend-eng // #ee7eea // #321a31 // playful, imaginative

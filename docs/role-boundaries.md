@@ -26,8 +26,8 @@ boundary "modify-live-backend" skill="boundary-modify-live-backend" owner="sysad
 ```
 
 ```kdl
-role "platform-eng" {
-    skill "role-platform-eng"
+role "eng-platform" {
+    skill "role-eng-platform"
     boundary "suggest-external-comms"
     personality "tenacious" "grounded"
 }

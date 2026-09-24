@@ -133,7 +133,7 @@ func TestOrgRootsFailsClosed(t *testing.T) {
 		t.Fatalf("roots = %+v err = %v", roots, err)
 	}
 	// A role that uses no org gets none.
-	roots, err = OrgRoots("platform-eng", []*schema.Source{orgSource("coilyco-gaming", "*")}, set)
+	roots, err = OrgRoots("eng-platform", []*schema.Source{orgSource("coilyco-gaming", "*")}, set)
 	if err != nil || len(roots) != 0 {
 		t.Fatalf("unrelated role got org roots: %+v %v", roots, err)
 	}

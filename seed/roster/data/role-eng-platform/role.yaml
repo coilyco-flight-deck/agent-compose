@@ -1,9 +1,9 @@
-role: platform-eng
+role: eng-platform
 order: 1
 display_name: Platform Engineer
 purpose: Build and land the foundational software the rest of the estate is built on.
 stance: braced and leaning back against a heavy pull, weight driven low and backward, holding rather than gaining
-skill: role-platform-eng
+skill: role-eng-platform
 model_tier:
   - frontier
   - commodity

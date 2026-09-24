@@ -84,7 +84,7 @@ func seatBundleFixture(t *testing.T, role, name string) string {
 // projection above its cwd, so the walk found nothing and whoami said nothing.
 func TestWhoamiAnswersFromTheSessionBundleWithNoProjectionInReach(t *testing.T) {
 	t.Setenv(agentid.SessionEnv, "kj58")
-	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "platform-eng", "Angie"))
+	t.Setenv(launch.SessionBundleEnv, seatBundleFixture(t, "eng-platform", "Angie"))
 	t.Setenv(launch.SessionLayoutEnv, "claude")
 	got, err := Whoami(Options{})
 	if err != nil {
@@ -97,7 +97,7 @@ func TestWhoamiAnswersFromTheSessionBundleWithNoProjectionInReach(t *testing.T) 
 
 // Two roles on one host resolved to whichever projection converged last.
 func TestWhoamiKeepsConcurrentSessionsApart(t *testing.T) {
-	platform := seatBundleFixture(t, "platform-eng", "Angie")
+	platform := seatBundleFixture(t, "eng-platform", "Angie")
 	director := seatBundleFixture(t, "prod-director", "Portia")
 	for _, tc := range []struct{ bundleDir, want string }{
 		{platform, "Angie"},
@@ -234,7 +234,7 @@ func TestFingerprintChangesWithTheComposition(t *testing.T) {
 		t.Fatal("fingerprint is not deterministic")
 	}
 	for name, mutate := range map[string]func(*bundle.Manifest){
-		"role":        func(m *bundle.Manifest) { m.Role = "platform-eng" },
+		"role":        func(m *bundle.Manifest) { m.Role = "eng-platform" },
 		"role skill":  func(m *bundle.Manifest) { m.RoleSkillDigest = "sha256:cc" },
 		"model tier":  func(m *bundle.Manifest) { m.ModelTier = "commodity" },
 		"personality": func(m *bundle.Manifest) { m.Personalities = []string{"grounded"} },

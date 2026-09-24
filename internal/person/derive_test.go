@@ -111,13 +111,13 @@ func shippedWith(t *testing.T, extra fstest.MapFS) fstest.MapFS {
 	return mergeFS(out, extra)
 }
 
-const derivedEngineer = "role: junior-eng\norder: 90\nderives: platform-eng\n" +
+const derivedEngineer = "role: junior-eng\norder: 90\nderives: eng-platform\n" +
 	"display_name: Junior Engineer\nagents:\n  - harness: opencode\n    legal_name: OpenCode\n"
 
 func TestDerivedRoleLoadsFromTheShippedRoster(t *testing.T) {
 	source := shippedWith(t, roleFile("junior-eng", derivedEngineer))
-	charter := strings.Replace(string(source[dataRoot+"/role-platform-eng/SKILL.md"].Data),
-		"name: role-platform-eng", "name: role-junior-eng", 1)
+	charter := strings.Replace(string(source[dataRoot+"/role-eng-platform/SKILL.md"].Data),
+		"name: role-eng-platform", "name: role-junior-eng", 1)
 	source[dataRoot+"/role-junior-eng/SKILL.md"] = &fstest.MapFile{Data: []byte(charter), Mode: 0o644}
 	p, err := loadSource(source, "fixture")
 	if err != nil {
@@ -126,8 +126,8 @@ func TestDerivedRoleLoadsFromTheShippedRoster(t *testing.T) {
 	if err := resolveAndValidatePerson(p); err != nil {
 		t.Fatalf("validate: %v", err)
 	}
-	child, parent := p.Roles["junior-eng"], p.Roles["platform-eng"]
-	if child.Derives != "platform-eng" || child.ColorTwin != "platform-eng" {
+	child, parent := p.Roles["junior-eng"], p.Roles["eng-platform"]
+	if child.Derives != "eng-platform" || child.ColorTwin != "eng-platform" {
 		t.Errorf("derives and its implied twin must reach the snapshot, got %q %q", child.Derives, child.ColorTwin)
 	}
 	if strings.Join(child.Personalities, ",") != strings.Join(parent.Personalities, ",") {
@@ -141,7 +141,7 @@ func TestDerivedRoleLoadsFromTheShippedRoster(t *testing.T) {
 func TestDerivedRoleCannotOwnABoundary(t *testing.T) {
 	path := dataRoot + "/boundary-build-foundational-software/boundary" + yamlFragmentExt
 	source := shippedWith(t, roleFile("junior-eng", derivedEngineer))
-	raw := strings.Replace(string(source[path].Data), "owner: platform-eng", "owner: junior-eng", 1)
+	raw := strings.Replace(string(source[path].Data), "owner: eng-platform", "owner: junior-eng", 1)
 	source[path] = &fstest.MapFile{Data: []byte(raw), Mode: 0o644}
 	_, err := loadSource(source, "fixture")
 	if err == nil || !strings.Contains(err.Error(), "is a derived role") {

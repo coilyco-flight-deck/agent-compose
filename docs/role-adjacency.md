@@ -37,7 +37,7 @@ role "sysadmin-senior" {
     skill "role-sysadmin-senior"
     boundary "suggest-external-comms" "seek-external-validation"
     boundary-scoped "build-foundational-software" scope="executable configuration only your own estate consumes"
-    adjacent "platform-eng" reason="implementing the fix instead of handing it back with observed evidence"
+    adjacent "eng-platform" reason="implementing the fix instead of handing it back with observed evidence"
     adjacent "analyst" reason="attesting that her own change closed the risk instead of handing the assurance over to the seat that did not make it"
     personality "protective" "grounded"
 }

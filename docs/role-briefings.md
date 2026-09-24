@@ -48,7 +48,7 @@ about communication addressed outward, including wording, tone, framing,
 timing, channel, reply strategy, and editorial fitness. Other roles retain
 mechanical records and defer only for recommendations, and two hold a named
 scope over the words inside an artifact they own. External action still
-requires task, runtime, and user authorization. Platform Engineer (`platform-eng`)
+requires task, runtime, and user authorization. Platform Engineer (`eng-platform`)
 owns foundational software. Systems Administrator (`sysadmin`) owns controlled
 running-system change, live verification, and rollback. Applied Scientist
 (`scientist`) stays read-only around running backends unless the runtime grants an

@@ -9,11 +9,11 @@ import (
 func TestNativeHarnessCommandScopesClaudeMCP(t *testing.T) {
 	t.Parallel()
 	got := nativeHarnessCommand("claude", []string{"--model", "opus"}, nativeIdentity{
-		MCP: mcpLaunch{ClaudeConfig: "/state/mcp/platform-eng-abc.json"},
+		MCP: mcpLaunch{ClaudeConfig: "/state/mcp/eng-platform-abc.json"},
 	})
 	want := []string{
 		"claude",
-		"--strict-mcp-config", "--mcp-config", "/state/mcp/platform-eng-abc.json",
+		"--strict-mcp-config", "--mcp-config", "/state/mcp/eng-platform-abc.json",
 		"--model", "opus",
 	}
 	if !reflect.DeepEqual(got, want) {
@@ -35,7 +35,7 @@ func TestNativeHarnessCommandDisablesOmittedCodexServers(t *testing.T) {
 func TestNativeMCPScopeUnscopedWithoutPerson(t *testing.T) {
 	t.Parallel()
 	for _, harness := range []string{"claude", "codex", "goose"} {
-		got, err := nativeMCPScope(io.Discard, nil, "platform-eng", harness, t.TempDir(), nil)
+		got, err := nativeMCPScope(io.Discard, nil, "eng-platform", harness, t.TempDir(), nil)
 		if err != nil || !reflect.DeepEqual(got, mcpLaunch{}) {
 			t.Fatalf("%s: scope = %#v, %v; want unscoped", harness, got, err)
 		}

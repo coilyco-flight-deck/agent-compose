@@ -95,7 +95,7 @@ func writeEligibilityManifest(t *testing.T, path string, input testRepositoryPla
 	}
 	inputs := map[string]bool{defaultSource: true}
 	roles := map[string][]repositoryplan.Selection{}
-	for _, role := range []string{"scientist", "dev-advocate", "frontend-eng", "game-dev", "platform-eng", "sysadmin-senior", "prod-director"} {
+	for _, role := range []string{"scientist", "dev-advocate", "frontend-eng", "game-dev", "eng-platform", "sysadmin-senior", "prod-director"} {
 		for _, path := range basePaths {
 			roles[role] = append(roles[role], selection(path, "operating-context", defaultSource, "test operating context"))
 		}
@@ -272,10 +272,10 @@ func TestRefreshProjectsAssignedRoleBundleForEveryNativeHarness(t *testing.T) {
 			if _, err := os.Stat(filepath.Join(
 				target,
 				tc.skills,
-				"role-platform-eng",
+				"role-eng-platform",
 				"SKILL.md",
 			)); !os.IsNotExist(err) {
-				t.Errorf("inactive role-platform-eng entered the bundle: %v", err)
+				t.Errorf("inactive role-eng-platform entered the bundle: %v", err)
 			}
 		})
 	}
@@ -475,7 +475,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "bundles")
 	results := map[string]*Result{}
 	targets := map[string]string{}
-	for _, role := range []string{"sysadmin-senior", "platform-eng"} {
+	for _, role := range []string{"sysadmin-senior", "eng-platform"} {
 		target := t.TempDir()
 		targets[role] = target
 		result, err := Refresh(Options{
@@ -495,13 +495,13 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 			if role == "sysadmin-senior" && err != nil {
 				t.Errorf("ops native bundle omitted %s: %v", skill, err)
 			}
-			if role == "platform-eng" && !os.IsNotExist(err) {
+			if role == "eng-platform" && !os.IsNotExist(err) {
 				t.Errorf("engineer native bundle leaked %s: %v", skill, err)
 			}
 		}
 	}
 
-	for _, role := range []string{"sysadmin-senior", "platform-eng"} {
+	for _, role := range []string{"sysadmin-senior", "eng-platform"} {
 		staged := t.TempDir()
 		if _, err := project.ProjectScoped(results[role].BundleDir, "claude", staged, project.ScopeHome); err != nil {
 			t.Fatal(err)
@@ -511,7 +511,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 			if role == "sysadmin-senior" && err != nil {
 				t.Errorf("staged Ops home omitted %s: %v", skill, err)
 			}
-			if role == "platform-eng" && !os.IsNotExist(err) {
+			if role == "eng-platform" && !os.IsNotExist(err) {
 				t.Errorf("staged Engineer home leaked %s: %v", skill, err)
 			}
 		}
@@ -539,7 +539,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 			selected.Skills != 1 || selected.ContextBytes == 0 || selected.ApproximateTokens == 0 {
 			t.Fatalf("selected role provider %s report = %+v", source, selected)
 		}
-		excluded := providerReport(t, results["platform-eng"], source)
+		excluded := providerReport(t, results["eng-platform"], source)
 		if excluded.Category != resolver.ProviderCategoryRole ||
 			excluded.Scope != "role" ||
 			excluded.Outcome != resolver.OutcomeExcluded ||
@@ -555,8 +555,8 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 	) {
 		t.Fatalf("selected role-provider why = %q, err=%v", selectedWhy, err)
 	}
-	excludedWhy, err := describe.Why(results["platform-eng"].BundleDir, "skill:infrastructure-ops", describe.Options{})
-	if err != nil || !strings.Contains(excludedWhy, "not selected role \"platform-eng\"") {
+	excludedWhy, err := describe.Why(results["eng-platform"].BundleDir, "skill:infrastructure-ops", describe.Options{})
+	if err != nil || !strings.Contains(excludedWhy, "not selected role \"eng-platform\"") {
 		t.Fatalf("excluded role-provider why = %q, err=%v", excludedWhy, err)
 	}
 	if !strings.Contains(excludedWhy, "provider: role-provider/role") ||
@@ -578,7 +578,7 @@ func TestRoleProvidersStayScopedAcrossNativeAndStagedHomes(t *testing.T) {
 		!strings.Contains(pointerWhy, "outcome: shadowed") {
 		t.Fatalf("ordinary pointer and role-provider provenance = %q, err=%v", pointerWhy, err)
 	}
-	described, err := describe.Bundle(results["platform-eng"].BundleDir, describe.Options{All: true})
+	described, err := describe.Bundle(results["eng-platform"].BundleDir, describe.Options{All: true})
 	if err != nil ||
 		!strings.Contains(described, "example--infrastructure") ||
 		!strings.Contains(described, "(role-provider/role)") ||

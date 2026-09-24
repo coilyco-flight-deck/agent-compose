@@ -17,9 +17,9 @@ func TestSplitNativeLaunchFlags(t *testing.T) {
 		in       []string
 		wantRest []string
 	}{
-		"no flag":          {[]string{"platform-eng", "claude"}, []string{"platform-eng", "claude"}},
+		"no flag":          {[]string{"eng-platform", "claude"}, []string{"eng-platform", "claude"}},
 		"nested":           {[]string{"--nested", "scientist", "claude"}, []string{"scientist", "claude"}},
-		"harness dash":     {[]string{"platform-eng", "claude", "--nested"}, []string{"platform-eng", "claude", "--nested"}},
+		"harness dash":     {[]string{"eng-platform", "claude", "--nested"}, []string{"eng-platform", "claude", "--nested"}},
 		"nothing at all":   {nil, nil},
 		"harness flag arg": {[]string{"scientist", "claude", "-p", "go"}, []string{"scientist", "claude", "-p", "go"}},
 		"spec out":         {[]string{"--spec-out", "/s.json", "scientist", "claude"}, []string{"scientist", "claude"}},

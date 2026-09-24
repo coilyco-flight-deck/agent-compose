@@ -180,7 +180,7 @@ skill_state="$state_dir/skill-mounts.json"
 for path in "$roster_table" "$roster_override" "$roster_body" "$person_snapshot" "$composed" \
   "$repository_plan" "$skill_state" \
   "$load_points/CLAUDE.md" "$load_points/skills/coding-go/SKILL.md" \
-  "$load_points/skills/role-platform-eng/SKILL.md" \
+  "$load_points/skills/role-eng-platform/SKILL.md" \
   "$load_points/skills/personality-tenacious/SKILL.md"; do
   assert_file "$path"
 done

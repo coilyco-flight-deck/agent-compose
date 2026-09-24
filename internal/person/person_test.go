@@ -92,9 +92,9 @@ func TestValidateCoreBoundariesRejectsUnbalancedRoster(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		role := p.Roles["platform-eng"]
+		role := p.Roles["eng-platform"]
 		role.Personalities = append(role.Personalities, "immersed")
-		p.Roles["platform-eng"] = role
+		p.Roles["eng-platform"] = role
 		if err := validateCorePersonalityMelds(p); err == nil ||
 			!strings.Contains(err.Error(), "want exactly 2") {
 			t.Fatalf("slot-count validation error = %v", err)
@@ -248,9 +248,9 @@ func TestColorTwinSharesColorsAndValidates(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		role := p.Roles["platform-eng"]
+		role := p.Roles["eng-platform"]
 		role.ColorTwin = "no-such-role"
-		p.Roles["platform-eng"] = role
+		p.Roles["eng-platform"] = role
 		if err := p.ResolveFavoriteColors(); err == nil ||
 			!strings.Contains(err.Error(), "is not defined") {
 			t.Fatalf("missing-twin error = %v", err)
@@ -262,9 +262,9 @@ func TestColorTwinSharesColorsAndValidates(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		platform := p.Roles["platform-eng"]
+		platform := p.Roles["eng-platform"]
 		platform.ColorTwin = "scientist"
-		p.Roles["platform-eng"] = platform
+		p.Roles["eng-platform"] = platform
 		science := p.Roles["scientist"]
 		science.ColorTwin = "prod-director"
 		p.Roles["scientist"] = science
@@ -711,7 +711,7 @@ func TestLoadDirectoryKeepsExternalPersonIndependent(t *testing.T) {
 	if _, ok := p.Roles["builder"]; !ok {
 		t.Fatalf("external person omitted builder role: %+v", p.RoleOrder)
 	}
-	if _, inherited := p.Roles["platform-eng"]; inherited {
+	if _, inherited := p.Roles["eng-platform"]; inherited {
 		t.Fatal("external person inherited the embedded engineer role")
 	}
 	src, err := Source(p)
@@ -928,9 +928,9 @@ func TestRosterProseFloorsRejectAThinnedEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 	source := p.source
-	role := p.Roles["platform-eng"]
+	role := p.Roles["eng-platform"]
 	role.Briefing = "Too short."
-	p.Roles["platform-eng"] = role
+	p.Roles["eng-platform"] = role
 	if err := validateRosterProseFloors(source, p); err == nil ||
 		!strings.Contains(err.Error(), "minimum is") {
 		t.Fatalf("thinned role body error = %v", err)

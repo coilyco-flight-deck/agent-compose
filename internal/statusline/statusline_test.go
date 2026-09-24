@@ -21,7 +21,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 		Layout: "codex", Bundle: bundleDir, Files: []string{"AGENTS.md"},
 	})
 	writeJSON(t, filepath.Join(bundleDir, "manifest.json"), bundle.Manifest{
-		Format: "agent-compose.bundle", Role: "platform-eng", ModelTier: "frontier",
+		Format: "agent-compose.bundle", Role: "eng-platform", ModelTier: "frontier",
 		Color: "#959e5f",
 		Identity: bundle.RoleIdentity{
 			Person: "core",
@@ -51,7 +51,7 @@ func TestRenderShowsSelectedIdentityFootprintAndHealth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "  🧭 🪨  opal engineer // platform-eng@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
+	want := "  🧭 🪨  opal engineer // eng-platform@codex // frontier // 99 skills / ~96k catalog // ✓ composed"
 	if got != want {
 		t.Fatalf("statusline = %q, want %q", got, want)
 	}

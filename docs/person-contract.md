@@ -7,10 +7,10 @@ may select one external package with the same contract:
 
 ```kdl
 roster "core" {
-    role "platform-eng" {
+    role "eng-platform" {
         purpose "Build and land the foundational software the estate is built on."
         model-tier "frontier" "commodity" "oss"
-        skill "role-platform-eng"
+        skill "role-eng-platform"
         method "science-fixture-suite"
         personality "tenacious" "grounded"
         identity name="opal platform"

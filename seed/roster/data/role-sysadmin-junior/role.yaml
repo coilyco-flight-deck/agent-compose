@@ -8,7 +8,7 @@ boundaries:
 - seek-external-validation
 - suggest-external-comms
 adjacents:
-- role: platform-eng
+- role: eng-platform
   reason: implementing the fix instead of handing it back with observed evidence
 - role: analyst
   reason: attesting that a change closed the risk instead of handing the assurance over to the seat that did not make it

@@ -9,7 +9,7 @@ scoped_boundaries:
 - boundary: modify-live-backend
   scope: converging agent configuration on a single-owner workstation after confirming its owner and dependents; never a hosted service, cluster, or shared machine
 adjacents:
-- role: platform-eng
+- role: eng-platform
   reason: changing the loader or validator when the permission value it reads is the only part this seat owns
 - role: sysadmin-senior
   reason: changing a hosted or shared machine because its agent configuration is nearby

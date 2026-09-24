@@ -61,7 +61,7 @@ const bindingGraph = `repositories {
 }
 
 roles {
-    role platform-eng {
+    role eng-platform {
         use-repository lore
     }
     role dev-advocate {
@@ -76,7 +76,7 @@ roles {
 func TestBindingSelectorParsedOntoTheUse(t *testing.T) {
 	source := loadBindingSource(t, bindingGraph)
 
-	platform := source.RoleProviders["platform-eng"]
+	platform := source.RoleProviders["eng-platform"]
 	if len(platform) != 1 || platform[0].Skills != nil {
 		t.Fatalf("platform binding must carry no selector, got %+v", platform)
 	}
@@ -108,7 +108,7 @@ func TestBindingSelectorNarrowsAndLeavesOtherRolesAlone(t *testing.T) {
 	// The same definition mounted by a role that declared no binding selector
 	// still receives everything the definition admits.
 	whole := loadBindingSource(t, bindingGraph)
-	if err := SelectOrdinarySkills(whole, definition, whole.RoleProviders["platform-eng"][0].Skills); err != nil {
+	if err := SelectOrdinarySkills(whole, definition, whole.RoleProviders["eng-platform"][0].Skills); err != nil {
 		t.Fatal(err)
 	}
 	if got := selectedIDs(whole); !slices.Equal(got, bindingCatalogue) {

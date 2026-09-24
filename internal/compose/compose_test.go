@@ -38,8 +38,8 @@ func TestComposeAllFixtures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantPersonalities := p.Roles["platform-eng"].Personalities
-	wantColor := p.Roles["platform-eng"].FavoriteColor
+	wantPersonalities := p.Roles["eng-platform"].Personalities
+	wantColor := p.Roles["eng-platform"].FavoriteColor
 	cases := map[string]string{
 		"native.kdl":   "native-skills",
 		"compiled.kdl": "compiled",
@@ -52,7 +52,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			m := readManifest(t, result.Bundle.Dir)
-			if m.Format != "agent-compose.bundle" || m.Role != "platform-eng" ||
+			if m.Format != "agent-compose.bundle" || m.Role != "eng-platform" ||
 				m.ModelTier != schema.ModelTierFrontier ||
 				!slices.Equal(m.Personalities, wantPersonalities) ||
 				m.Delivery.Mode != want {
@@ -74,27 +74,27 @@ func TestComposeAllFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 			instructionText := string(instructions)
-			wantCard, err := p.RenderRoleIdentityCard("platform-eng", wantColor, p.RoleActiveBoundaries("platform-eng"))
+			wantCard, err := p.RenderRoleIdentityCard("eng-platform", wantColor, p.RoleActiveBoundaries("eng-platform"))
 			if err != nil {
 				t.Fatal(err)
 			}
 			for _, selected := range []string{
 				"# Role instructions",
-				"Agent-compose assigned you the `platform-eng` role from the caller's compose request.",
+				"Agent-compose assigned you the `eng-platform` role from the caller's compose request.",
 				"Treat it as authoritative and fixed for this session.",
 				wantCard,
-				"**Role skill // `role-platform-eng`**",
+				"**Role skill // `role-eng-platform`**",
 				"# Fixture foundation",
 			} {
 				if !strings.Contains(instructionText, selected) {
 					t.Fatalf("instructions missing %q:\n%s", selected, instructionText)
 				}
 			}
-			if strings.Contains(instructionText, p.Roles["platform-eng"].Briefing) {
+			if strings.Contains(instructionText, p.Roles["eng-platform"].Briefing) {
 				t.Fatalf("native startup instructions eagerly embedded the role skill body:\n%s", instructionText)
 			}
 			for _, roleName := range p.RoleOrder {
-				if roleName == "platform-eng" {
+				if roleName == "eng-platform" {
 					continue
 				}
 				if strings.Contains(instructionText, p.Roles[roleName].Briefing) {
@@ -102,7 +102,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				}
 			}
 			mustExist(t, result.Bundle.Dir, "trace.json")
-			mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/role-platform-eng/SKILL.md")
+			mustExist(t, result.Bundle.Dir, "content/skills/roster%3Acore/role-eng-platform/SKILL.md")
 			for _, personalityName := range wantPersonalities {
 				skillPath := "content/skills/roster%3Acore/personality-" + personalityName + "/SKILL.md"
 				mustExist(t, result.Bundle.Dir, skillPath)
@@ -116,7 +116,7 @@ func TestComposeAllFixtures(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if !strings.Contains(string(compiled), p.Roles["platform-eng"].Briefing) ||
+				if !strings.Contains(string(compiled), p.Roles["eng-platform"].Briefing) ||
 					!strings.Contains(string(compiled), wantCard) {
 					t.Fatalf("compiled context omitted role card or skill body:\n%s", compiled)
 				}
@@ -259,7 +259,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		}
 	}
 	if err := os.WriteFile(filepath.Join(root, ".agents", "roles.kdl"), []byte(`roles {
-    role "platform-eng" {
+    role "eng-platform" {
         composed-skill "coding-shape-cli"
     }
     role "frontend-eng" {
@@ -271,7 +271,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 	}
 	request := filepath.Join(root, "request.kdl")
 	if err := os.WriteFile(request, []byte(`compose {
-    role "platform-eng"
+    role "eng-platform"
     delivery "native-skills"
     source "aos-public" root="." required=#true
 }
@@ -284,7 +284,7 @@ func TestComposeInferredProviderRoot(t *testing.T) {
 		t.Fatal(err)
 	}
 	manifest := readManifest(t, result.Bundle.Dir)
-	if len(manifest.Personalities) != len(p.Roles["platform-eng"].Personalities) {
+	if len(manifest.Personalities) != len(p.Roles["eng-platform"].Personalities) {
 		t.Fatalf("inferred provider selected the wrong personalities: %+v", manifest.Personalities)
 	}
 	instructions, err := os.ReadFile(filepath.Join(result.Bundle.Dir, "content", "instructions.md"))
@@ -332,7 +332,7 @@ func TestCompiledDeliveryUsesCanonicalProse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, personalityName := range p.Roles["platform-eng"].Personalities {
+	for _, personalityName := range p.Roles["eng-platform"].Personalities {
 		heading := "# " + strings.ToUpper(personalityName[:1]) + personalityName[1:]
 		if !strings.Contains(string(body), heading) {
 			t.Fatalf("compiled prose missing %q:\n%s", heading, body)
@@ -518,7 +518,7 @@ func TestModelTiersGetDistinctBundlesWithIdenticalContext(t *testing.T) {
 	}
 	out := t.TempDir()
 	frontierRequest := &schema.Request{
-		Role:      "platform-eng",
+		Role:      "eng-platform",
 		Delivery:  schema.DeliveryNativeSkills,
 		ModelTier: schema.ModelTierFrontier,
 	}
