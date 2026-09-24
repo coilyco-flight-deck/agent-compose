@@ -47,7 +47,7 @@ files = ["evalkit"]
 testpaths = ["evalkit/tests"]
 
 [tool.agentic-os.repo-pointer-skills]
-org = "coilyco-flight-deck"
+org = "coilyco"
 
 [tool.agentic-os.documentation-layout]
 band = "large"
