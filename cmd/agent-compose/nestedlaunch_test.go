@@ -22,6 +22,9 @@ func TestSplitNativeLaunchFlags(t *testing.T) {
 		"harness dash":     {[]string{"platform-eng", "claude", "--nested"}, []string{"platform-eng", "claude", "--nested"}},
 		"nothing at all":   {nil, nil},
 		"harness flag arg": {[]string{"scientist", "claude", "-p", "go"}, []string{"scientist", "claude", "-p", "go"}},
+		"spec out":         {[]string{"--spec-out", "/s.json", "scientist", "claude"}, []string{"scientist", "claude"}},
+		"spec out inline":  {[]string{"--nested", "--spec-out=/s.json", "scientist", "claude"}, []string{"scientist", "claude"}},
+		"harness spec out": {[]string{"scientist", "claude", "--spec-out", "x"}, []string{"scientist", "claude", "--spec-out", "x"}},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {

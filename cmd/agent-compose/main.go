@@ -45,13 +45,39 @@ var version = "dev"
 // announcing, and dropping the flag outright would break callers. #403
 const nestedLaunchFlag = "--nested"
 
+// specOutFlag stops a launch before exec and writes the launch spec instead,
+// for a launcher that builds the harness command itself. agent-compose#8199
+const specOutFlag = "--spec-out"
+
 // splitNativeLaunchFlags peels agent-compose's own launch flags off the head.
-// `launch` skips flag parsing, so this is the only place one is read.
 func splitNativeLaunchFlags(args []string) []string {
-	if len(args) > 0 && args[0] == nestedLaunchFlag {
-		return args[1:]
+	rest, _, _ := parseNativeLaunchFlags(args)
+	return rest
+}
+
+// parseNativeLaunchFlags reads agent-compose's own flags off the head, in any
+// order. `launch` skips flag parsing, and later arguments belong to the harness.
+func parseNativeLaunchFlags(args []string) (rest []string, specOut string, err error) {
+	for len(args) > 0 {
+		switch {
+		case args[0] == nestedLaunchFlag:
+			args = args[1:]
+		case args[0] == specOutFlag:
+			if len(args) < 2 || strings.TrimSpace(args[1]) == "" {
+				return nil, "", fmt.Errorf("%s needs a path", specOutFlag)
+			}
+			specOut, args = args[1], args[2:]
+		case strings.HasPrefix(args[0], specOutFlag+"="):
+			specOut = strings.TrimPrefix(args[0], specOutFlag+"=")
+			if strings.TrimSpace(specOut) == "" {
+				return nil, "", fmt.Errorf("%s needs a path", specOutFlag)
+			}
+			args = args[1:]
+		default:
+			return args, specOut, nil
+		}
 	}
-	return args
+	return args, specOut, nil
 }
 
 // nestedLaunchSkipsConverge reports a launch inheriting a converged host from
@@ -911,7 +937,10 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 }
 
 func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
-	args := splitNativeLaunchFlags(cmd.Args().Slice())
+	args, specOut, err := parseNativeLaunchFlags(cmd.Args().Slice())
+	if err != nil {
+		return err
+	}
 	if len(args) < 2 {
 		return fmt.Errorf("launch needs <role> <harness> [harness arguments...]")
 	}
@@ -1032,6 +1061,9 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		summaryLayout{RoleLast: interactive, Audit: verbose},
 	); err != nil {
 		return err
+	}
+	if specOut != "" {
+		return writeLaunchSpec(specOut, buildLaunchSpec(role, harness, runtimeHome, childDepth, result))
 	}
 	if err := acknowledgeNativeLaunch(
 		os.Stdin,
@@ -1213,12 +1245,16 @@ func nativeArgsCarry(args []string, flag string) bool {
 	return false
 }
 
+// nativeLaunchSelectorEnv is what a launch clears before exec, so a child seat
+// does not inherit its parent's selection.
+var nativeLaunchSelectorEnv = []string{
+	nativelaunch.EnvModelTier,
+	"AGENT_COMPOSE_MODEL_CLASS",
+	nativelaunch.EnvRuntimeHome,
+}
+
 func clearNativeLaunchEnvironment() error {
-	for _, name := range []string{
-		nativelaunch.EnvModelTier,
-		"AGENT_COMPOSE_MODEL_CLASS",
-		nativelaunch.EnvRuntimeHome,
-	} {
+	for _, name := range nativeLaunchSelectorEnv {
 		if err := os.Unsetenv(name); err != nil {
 			return fmt.Errorf("clear native launch environment %s: %w", name, err)
 		}

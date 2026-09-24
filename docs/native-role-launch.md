@@ -106,6 +106,11 @@ Two bounds keep the opt-in from becoming a chain:
   as its own. Launch from another directory, or stage
   `AGENT_COMPOSE_RUNTIME_HOME` for the child.
 
+**`--spec-out <path>` stops before exec.** It converges, refreshes, and projects,
+then writes `agent-compose.launch-spec.v1` JSON (bundle, seat, the env to set and
+unset) and exits 0, for a launcher that builds the harness command itself. It
+goes before `<role>`, since later arguments belong to the harness (#8199).
+
 ## See also
 
 * [Integration](integration.md) - host and isolated delivery tiers.
