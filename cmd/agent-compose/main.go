@@ -538,7 +538,11 @@ func runSkillsAudit(_ context.Context, cmd *cli.Command) error {
 	if current, err := user.Current(); err == nil && current.HomeDir != "" {
 		realHome = current.HomeDir
 	}
-	report, err := skillaudit.Audit(skillaudit.Roots(cmd.StringSlice("root"), realHome, sessionHome, cwd))
+	roots, err := skillaudit.Roots(cmd.StringSlice("root"), realHome, sessionHome, cwd)
+	if err != nil {
+		return err
+	}
+	report, err := skillaudit.Audit(roots)
 	if err != nil {
 		return err
 	}
