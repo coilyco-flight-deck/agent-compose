@@ -122,6 +122,8 @@ type Role struct {
 	// ColorTwin names a role whose favorite_color and background this role
 	// copies verbatim instead of solving its own; must not itself be a twin.
 	ColorTwin string `json:"color_twin,omitempty"`
+	// Derives names the parent this role was merged from; see derive.go.
+	Derives string `json:"derives,omitempty"`
 	// Carried says what the seat holds; absence is ordinary. agent-compose#7212.
 	Carried             *Carried       `json:"carried,omitempty"`
 	Personalities       []string       `json:"personalities"`

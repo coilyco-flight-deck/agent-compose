@@ -28,6 +28,10 @@ func validateDecodedPerson(p *Person) error {
 		if err := validateDecodedBoundary(name, p.Boundaries[name]); err != nil {
 			return err
 		}
+		// A derived role narrows its parent's charter, so it never owns one.
+		if owner := p.Boundaries[name].Owner; owner != "" && p.Roles[owner].Derives != "" {
+			return fmt.Errorf("boundary %q: owner %q is a derived role", name, owner)
+		}
 	}
 	return nil
 }

@@ -96,6 +96,11 @@ func projectEntity(source fs.FS, projected fstest.MapFS, kind, slug, label strin
 	if err != nil {
 		return 0, fmt.Errorf("%s: read %s %q: %w", label, kind, slug, err)
 	}
+	if kind == "role" {
+		if raw, err = deriveRoleFragment(source, slug, raw); err != nil {
+			return 0, fmt.Errorf("%s: role %q: %w", label, slug, err)
+		}
+	}
 	order, fragment, err := entityOrderOf(string(raw))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %s %q: %w", label, kind, slug, err)

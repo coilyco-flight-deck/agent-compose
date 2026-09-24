@@ -10,9 +10,11 @@ epoch, which is what n=5 was. See docs/evaluation.md.
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
+from housecast.grade.schema import Challenge
 from inspect_ai import Task, task
 from inspect_ai.dataset import MemoryDataset
 from inspect_ai.solver import generate, system_message
@@ -28,13 +30,38 @@ def load_system_prompts(directory: Path) -> dict[str, str]:
     return {p.stem: p.read_text().strip() for p in sorted(directory.glob("*.md"))}
 
 
+def load_derives(directory: Path) -> dict[str, str]:
+    """Child role to parent, as scripts/eval-prompts.sh wrote it beside the prompts."""
+    path = directory / "derives.json"
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def inherit_parent_cases(written: list[Challenge], derives: dict[str, str]) -> list[Challenge]:
+    """A derived role answers its parent's cases too, so it never ships unmeasured.
+
+    The copy is re-keyed per child, pair included, so a pair stays inside one role.
+    """
+    inherited = []
+    for child, parent in sorted(derives.items()):
+        for challenge in written:
+            if challenge.entity != parent:
+                continue
+            pair = f"{challenge.pair_id}@{child}" if challenge.pair_id else None
+            inherited.append(
+                challenge.model_copy(
+                    update={"id": f"{challenge.id}@{child}", "entity": child, "pair_id": pair}
+                )
+            )
+    return written + inherited
+
+
 @task
 def board(
     challenges: str | Path = DEFAULT_CHALLENGES, prompts: str | Path = DEFAULT_PROMPTS
 ) -> Task:
     """One task per run. The composed role bundle is the system message."""
-    written = load_challenges(Path(challenges))
     composed = load_system_prompts(Path(prompts))
+    written = inherit_parent_cases(load_challenges(Path(challenges)), load_derives(Path(prompts)))
 
     missing = sorted({c.entity for c in written} - composed.keys())
     if missing:

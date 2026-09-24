@@ -6,6 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"testing/fstest"
+
+	"gopkg.in/yaml.v3"
 )
 
 // The binary carries no roster and mounts one instead.
@@ -44,12 +47,18 @@ func rosterSearch() []string {
 // rosterSeed resolves the mounted roster, or reports every path it tried.
 func rosterSeed() (fs.FS, string, error) {
 	roots := rosterSearch()
-	for _, root := range roots {
-		info, err := os.Stat(root)
-		if err != nil || !info.IsDir() {
+	for index, root := range roots {
+		if !isDirectory(root) {
 			continue
 		}
-		return os.DirFS(root), seedLabel + " " + root, nil
+		overlay, err := isRosterOverlay(root)
+		if err != nil {
+			return nil, "", err
+		}
+		if !overlay {
+			return os.DirFS(root), seedLabel + " " + root, nil
+		}
+		return layeredSeed(root, roots[index+1:])
 	}
 	if len(roots) == 0 {
 		return nil, "", fmt.Errorf(
@@ -130,4 +139,89 @@ func volatileKind(path string) string {
 		}
 	}
 	return ""
+}
+
+// overlayMarker makes a roster root add entities on top of the next roster in
+// the search order instead of replacing it. See docs/roster-composition.md.
+const overlayMarker = "overlay" + yamlFragmentExt
+
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+func isRosterOverlay(root string) (bool, error) {
+	raw, err := os.ReadFile(filepath.Join(root, overlayMarker))
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	var marker struct {
+		LayersOver string `yaml:"layers_over"`
+	}
+	if err := yaml.Unmarshal(raw, &marker); err != nil || marker.LayersOver != "core" {
+		return false, fmt.Errorf("%s: %s must say layers_over: core", root, overlayMarker)
+	}
+	return true, nil
+}
+
+// layeredSeed stacks the overlay root on the next plain roster it finds.
+func layeredSeed(overlay string, rest []string) (fs.FS, string, error) {
+	for _, base := range rest {
+		if !isDirectory(base) {
+			continue
+		}
+		if stacked, err := isRosterOverlay(base); err != nil || stacked {
+			return nil, "", fmt.Errorf("roster overlay %s sits on overlay %s; overlays do not stack", overlay, base)
+		}
+		layered, err := layerRoster(os.DirFS(overlay), os.DirFS(base))
+		if err != nil {
+			return nil, "", err
+		}
+		return layered, seedLabel + " " + overlay + " over " + base, nil
+	}
+	return nil, "", fmt.Errorf("roster overlay %s has no roster under it; searched %s",
+		overlay, strings.Join(rest, ", "))
+}
+
+// layerRoster replaces whole entity directories, never single files, so an
+// overlay role cannot end up with its base namesake's SKILL.md.
+func layerRoster(top, base fs.FS) (fs.FS, error) {
+	layered := fstest.MapFS{}
+	shadowed := func(path string) bool {
+		if path == overlayMarker {
+			return true
+		}
+		if _, err := fs.Stat(top, path); err == nil && !strings.Contains(path, "/") {
+			return true
+		}
+		parts := strings.SplitN(path, "/", 3)
+		if len(parts) == 3 && parts[0] == dataRoot {
+			_, err := fs.Stat(top, dataRoot+"/"+parts[1])
+			return err == nil
+		}
+		return false
+	}
+	copyTree := func(source fs.FS, skip func(string) bool) error {
+		return fs.WalkDir(source, ".", func(path string, entry fs.DirEntry, err error) error {
+			if err != nil || entry.IsDir() || skip(path) {
+				return err
+			}
+			raw, err := fs.ReadFile(source, path)
+			if err != nil {
+				return err
+			}
+			layered[path] = &fstest.MapFile{Data: raw, Mode: 0o644}
+			return nil
+		})
+	}
+	if err := copyTree(base, shadowed); err != nil {
+		return nil, err
+	}
+	if err := copyTree(top, func(path string) bool { return path == overlayMarker }); err != nil {
+		return nil, err
+	}
+	return layered, nil
 }

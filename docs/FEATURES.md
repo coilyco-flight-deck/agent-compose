@@ -4,13 +4,13 @@ Inventory of what ships today.
 
 ## The roster is mounted, not embedded
 
-The binary carries no roster. It resolves one from `AGENT_COMPOSE_ROSTER`, then
-`~/.agent-compose/roster`, then the seed a package manager installed beside it,
-and names every path it tried when none resolves. brew and scoop install that
-seed, so a roster change needs no rebuild and an upgrade never overwrites an
-edited roster in the state directory (#336). The release also ships the composed
-bundle set, addressed `<role>-<tier>-<delivery>`, because housecast composes at
-build time and never runs on a user's machine (#412).
+The binary carries no roster. It resolves one from `AGENT_COMPOSE_ROSTER`, then `~/.agent-compose/roster`,
+then the seed a package manager installed beside it, and names every path it tried when none resolves. brew
+and scoop install that seed, so a roster change needs no rebuild and an upgrade never overwrites an edited
+roster in the state directory (#336). The release also ships the composed bundle set, addressed
+`<role>-<tier>-<delivery>`, because housecast composes at build time and never runs on a user's machine
+(#412). A root marked as an [overlay](roster-composition.md) adds to the roster under it, and a role can
+`derives:` a parent, declaring only its deltas.
 
 ## Composition moved to housecast
 
@@ -41,7 +41,7 @@ rather than only in the issue.
   compatibility without changing selected context.
 * Materialization promotes admitted `COMPOSED.md` to native `SKILL.md`.
 * Resolver traces provider and content outcomes with budgets.
-* `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have, and refuses a scoped grant. See [boundary omission](boundary-omission.md).
+* `boundary-omit` drops a defer-side boundary whose owning seat the deployment does not have, and refuses a scoped grant. See [boundary omission](roster-composition.md).
 * Atomic materialization verifies staged and reused bundles.
 * Canonical skills use identity cards and compiled fallback. Role bodies cap at
   1200 words, [role boundaries](role-boundaries.md) at 200 words per side.

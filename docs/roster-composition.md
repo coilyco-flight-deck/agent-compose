@@ -1,0 +1,65 @@
+# Roster composition
+
+What a deployment may add to the roster, derive from it, or leave out of it.
+
+## Roster overlays and derived roles
+
+A role can be minted as data outside `seed/roster/data/` and declare only how it differs from its parent (teable:coilyco/agent-compose#8197).
+
+### Roster overlay
+
+A roster root holding `overlay.yaml` with `layers_over: core` adds to the next plain roster in the search order instead of replacing it. A root without the marker still replaces everything under it.
+
+* An overlay entity directory, such as `data/role-<slug>/`, replaces the base directory of that name whole. Files never mix, so an overlay role cannot pick up its base namesake's `SKILL.md`. A top-level overlay file replaces the base's.
+* Overlays do not stack, and an overlay with no roster under it is refused.
+
+A private roster rides on the public seed this way. A host that must not hold it does not mount it, and runs the seed alone.
+
+### Derived roles
+
+`derives: <parent>` in a `role.yaml` merges the parent's fields under the child's. A mapping such as `voice` merges key by key. A scalar or list replaces the parent's whole, so dropping one boundary means restating the list. An explicit `null` removes the parent's key, as in `guardrail: null`. `role`, `order`, `skill`, and `archived` never inherit, `skill` defaults to `role-<slug>`, and `color_twin` is implied as the parent.
+
+The loader refuses a derivation from itself, from an undefined role, or from a role that itself derives. It also refuses a derived role named as a boundary `owner`, because a derived role narrows a charter rather than owning one.
+
+A derived role ships its own `SKILL.md`. The parent's charter is not appended, because it states authority the child lacks: Senior Sysadmin's says it changes running systems, and Junior Sysadmin's exists to say the opposite.
+
+`derives` reaches the snapshot and `catalog roles --json`, and `scripts/eval-prompts.sh` writes it to `derives.json` beside the prompts. The board then runs every parent case against the child too, re-keyed `<id>@<child>`, so a derived role never enters the board unmeasured.
+
+## Boundary omission
+
+When a deployment composes without a boundary, and what stops that meaning too much.
+
+### The case for it
+
+The defer side of a boundary is routing: hand this to the role that owns it. A
+deployment where that role is not a seat has nowhere to route, so the rule
+reads as a stop rather than a handoff, and the agent defers work nobody will
+pick up. A single-agent deployment hits this on every boundary it defers.
+
+A request states the absence directly:
+
+```kdl
+compose {
+    role "scientist"
+    boundary-omit "modify-live-backend" "seek-external-validation"
+}
+```
+
+The omission removes the boundary from the composed set entirely: no body in
+the bundle, no name on the identity card, no entry in the manifest. Naming a
+boundary whose body is absent is worse than either, because the card then
+describes doctrine the agent cannot read.
+
+Three refusals keep the knob from meaning something it should not:
+
+* An unknown boundary name fails rather than no-opping, matching the rest of
+  the request parser.
+* A boundary the role **owns** cannot be omitted. An owner losing its own
+  boundary is a larger claim than a deferrer losing one, and it would leave the
+  boundary with no side that holds it.
+* A boundary the role does not activate fails too, so a stale request surfaces
+  instead of quietly expressing nothing.
+
+The decision trace records each omission as an excluded profile decision. A
+bundle that quietly lacks a boundary is worse than one that never had it,
+because the review surface stops telling the truth.

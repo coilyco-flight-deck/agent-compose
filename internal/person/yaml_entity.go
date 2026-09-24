@@ -76,6 +76,7 @@ type yamlRoleEntity struct {
 	ModelTier        []string             `yaml:"model_tier,omitempty"`
 	Guardrail        string               `yaml:"guardrail,omitempty"`
 	ColorTwin        string               `yaml:"color_twin,omitempty"`
+	Derives          string               `yaml:"derives,omitempty"`
 	Personalities    []string             `yaml:"personalities,omitempty"`
 	Boundaries       []string             `yaml:"boundaries,omitempty"`
 	ScopedBoundaries []yamlScopedBoundary `yaml:"scoped_boundaries,omitempty"`
@@ -223,6 +224,7 @@ func (r *yamlRoleEntity) model() Role {
 		Carried:             r.Carried.model(),
 		Guardrail:           r.Guardrail,
 		ColorTwin:           r.ColorTwin,
+		Derives:             r.Derives,
 		Skill:               r.Skill,
 		Archived:            r.Archived,
 		Methods:             r.Methods,

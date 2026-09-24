@@ -16,10 +16,17 @@ trap cleanup EXIT HUP INT TERM
 
 # An archived role stays in the catalog but compose refuses it, so filter here
 # on the same predicate evalkit.matrix.active_roles uses.
-roles=$(agent-compose catalog roles --json | python3 -c "
+catalog=$(agent-compose catalog roles --json)
+roles=$(printf '%s' "$catalog" | python3 -c "
 import json, sys
 print(' '.join(r['slug'] for r in json.load(sys.stdin)['items'] if not r.get('archived')))
 ")
+# A derived role inherits its parent's cases, and evalkit.task reads this map.
+printf '%s' "$catalog" | python3 -c "
+import json, sys
+items = json.load(sys.stdin)['items']
+print(json.dumps({r['slug']: r['derives'] for r in items if r.get('derives') and not r.get('archived')}))
+" > "$out/derives.json"
 
 for role in $roles; do
   printf 'compose {\n    role "%s"\n    delivery "compiled"\n    model-tier "frontier"\n}\n' \

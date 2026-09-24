@@ -26,7 +26,7 @@ const (
 )
 
 // composedBoundaries is the role's active set minus what this deployment
-// omitted. See docs/boundary-omission.md.
+// omitted. See docs/roster-composition.md.
 func composedBoundaries(p *person.Person, req *schema.Request) ([]string, error) {
 	active := p.RoleActiveBoundaries(req.Role)
 	if len(req.BoundaryOmissions) == 0 {

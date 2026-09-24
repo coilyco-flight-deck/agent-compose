@@ -100,7 +100,7 @@ already drifted apart before the boundary existed.
 ## Omitting a boundary
 
 A deployment with no seat for the owning role composes without that boundary.
-See [boundary omission](boundary-omission.md).
+See [boundary omission](roster-composition.md).
 
 ### Reviewed production locations
 
