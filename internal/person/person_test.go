@@ -39,8 +39,12 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 		if got := briefingParagraphCount(role.Briefing); got < 3 {
 			t.Errorf("role %q briefing has %d paragraphs, want at least three", roleName, got)
 		}
-		if len(role.Seats) < 2 {
-			t.Errorf("role %q has %d seats, want at least two", roleName, len(role.Seats))
+		minSeats := 2
+		if roleName == "eng-junior" {
+			minSeats = 1
+		}
+		if len(role.Seats) < minSeats {
+			t.Errorf("role %q has %d seats, want at least %d", roleName, len(role.Seats), minSeats)
 		}
 		if role.Identity == nil || role.Identity.Name == "" {
 			t.Errorf("role %q identity is incomplete: %+v", roleName, role.Identity)
@@ -62,6 +66,9 @@ func TestLoadEmbeddedRoster(t *testing.T) {
 			}
 		}
 		wantHarnesses := []string{"claude", "codex"}
+		if roleName == "eng-junior" {
+			wantHarnesses = []string{"opencode"}
+		}
 		if roleName == "sysadmin-access" {
 			wantHarnesses = []string{"codex", "goose"}
 			if _, exists := seats["claude"]; exists {

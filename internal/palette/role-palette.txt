@@ -59,3 +59,4 @@ reporter // #99b052 // #252602 // tenacious, outward
 sysadmin-junior // #0d9c92 // #002a36 // protective, grounded // twin of sysadmin-senior
 prod-manager // #da656f // #391721 // decisive, outward // twin of prod-director
 sysadmin-access // #0d9c92 // #002a36 // protective, grounded // twin of sysadmin-senior
+eng-junior // #709b62 // #0e2b14 // tenacious, grounded // twin of eng-platform
