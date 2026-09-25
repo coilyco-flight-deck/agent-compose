@@ -44,7 +44,7 @@ convergence with it. `agent-compose compose` keeps the full audit either way.
 
 When both input and output belong to an interactive terminal,
 `Press Enter to continue` keeps that identity visible until acknowledgement.
-Enter starts the harness. Ctrl-C cancels before launch.
+Enter starts the harness. Ctrl-C cancels before launch. `--no-pause` ahead of the role, or `AGENT_COMPOSE_NO_PAUSE=1`, skips the gate for a launcher that draws its own identity card, as aterm does. The variable is cleared before exec, so a launch from inside the harness still pauses, and an older build ignores it.
 
 Piped, redirected, and headless launches retain the non-interactive flow. They
 never read stdin or wait for acknowledgement. TTY output uses the melded role

@@ -22,7 +22,7 @@ func TestParseNativeLaunchFlagsReadsSpecOut(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			rest, specOut, err := parseNativeLaunchFlags(args)
+			rest, specOut, _, err := parseNativeLaunchFlags(args)
 			if err != nil || specOut != "/tmp/spec.json" || !reflect.DeepEqual(rest, []string{"scientist", "claude"}) {
 				t.Fatalf("rest=%v specOut=%q err=%v", rest, specOut, err)
 			}
@@ -34,7 +34,7 @@ func TestParseNativeLaunchFlagsReadsSpecOut(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			if _, _, err := parseNativeLaunchFlags(args); err == nil {
+			if _, _, _, err := parseNativeLaunchFlags(args); err == nil {
 				t.Fatal("a spec-out with no path parsed")
 			}
 		})
@@ -105,5 +105,16 @@ func TestLaunchSpecWarningsIsNeverNull(t *testing.T) {
 	_ = json.Unmarshal(raw, &decoded)
 	if _, ok := decoded["warnings"].([]any); !ok {
 		t.Fatalf("warnings = %#v, want an empty array", decoded["warnings"])
+	}
+}
+
+func TestParseNativeLaunchFlagsReadsNoPause(t *testing.T) {
+	t.Parallel()
+	rest, _, noPause, err := parseNativeLaunchFlags([]string{"--no-pause", "--nested", "scientist", "claude", "--no-pause"})
+	if err != nil || !noPause || !reflect.DeepEqual(rest, []string{"scientist", "claude", "--no-pause"}) {
+		t.Fatalf("rest=%v noPause=%v err=%v, want the head flag read and the harness's own left alone", rest, noPause, err)
+	}
+	if _, _, noPause, _ := parseNativeLaunchFlags([]string{"scientist", "claude"}); noPause {
+		t.Fatal("no flag must mean the gate still pauses")
 	}
 }

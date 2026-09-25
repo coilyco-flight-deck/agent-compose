@@ -49,35 +49,44 @@ const nestedLaunchFlag = "--nested"
 // for a launcher that builds the harness command itself. agent-compose#8199
 const specOutFlag = "--spec-out"
 
+// noPauseFlag and noPauseEnv skip the Press Enter gate, for a launcher that
+// shows its own identity card. The env twin is harmless to an older build.
+const (
+	noPauseFlag = "--no-pause"
+	noPauseEnv  = "AGENT_COMPOSE_NO_PAUSE"
+)
+
 // splitNativeLaunchFlags peels agent-compose's own launch flags off the head.
 func splitNativeLaunchFlags(args []string) []string {
-	rest, _, _ := parseNativeLaunchFlags(args)
+	rest, _, _, _ := parseNativeLaunchFlags(args)
 	return rest
 }
 
 // parseNativeLaunchFlags reads agent-compose's own flags off the head, in any
 // order. `launch` skips flag parsing, and later arguments belong to the harness.
-func parseNativeLaunchFlags(args []string) (rest []string, specOut string, err error) {
+func parseNativeLaunchFlags(args []string) (rest []string, specOut string, noPause bool, err error) {
 	for len(args) > 0 {
 		switch {
 		case args[0] == nestedLaunchFlag:
 			args = args[1:]
+		case args[0] == noPauseFlag:
+			noPause, args = true, args[1:]
 		case args[0] == specOutFlag:
 			if len(args) < 2 || strings.TrimSpace(args[1]) == "" {
-				return nil, "", fmt.Errorf("%s needs a path", specOutFlag)
+				return nil, "", false, fmt.Errorf("%s needs a path", specOutFlag)
 			}
 			specOut, args = args[1], args[2:]
 		case strings.HasPrefix(args[0], specOutFlag+"="):
 			specOut = strings.TrimPrefix(args[0], specOutFlag+"=")
 			if strings.TrimSpace(specOut) == "" {
-				return nil, "", fmt.Errorf("%s needs a path", specOutFlag)
+				return nil, "", false, fmt.Errorf("%s needs a path", specOutFlag)
 			}
 			args = args[1:]
 		default:
-			return args, specOut, nil
+			return args, specOut, noPause, nil
 		}
 	}
-	return args, specOut, nil
+	return args, specOut, noPause, nil
 }
 
 // nestedLaunchSkipsConverge reports a launch inheriting a converged host from
@@ -937,7 +946,7 @@ func runCompose(_ context.Context, cmd *cli.Command) error {
 }
 
 func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
-	args, specOut, err := parseNativeLaunchFlags(cmd.Args().Slice())
+	args, specOut, noPause, err := parseNativeLaunchFlags(cmd.Args().Slice())
 	if err != nil {
 		return err
 	}
@@ -1065,10 +1074,11 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	if specOut != "" {
 		return writeLaunchSpec(specOut, buildLaunchSpec(role, harness, runtimeHome, childDepth, result))
 	}
+	noPause = noPause || os.Getenv(noPauseEnv) == "1"
 	if err := acknowledgeNativeLaunch(
 		os.Stdin,
 		os.Stdout,
-		interactive,
+		interactive && !noPause,
 	); err != nil {
 		return err
 	}
@@ -1251,6 +1261,8 @@ var nativeLaunchSelectorEnv = []string{
 	nativelaunch.EnvModelTier,
 	"AGENT_COMPOSE_MODEL_CLASS",
 	nativelaunch.EnvRuntimeHome,
+	// Cleared so a launch from inside the harness still pauses.
+	noPauseEnv,
 }
 
 func clearNativeLaunchEnvironment() error {
