@@ -49,8 +49,8 @@ agent-compose verify ./bundles/bcd4c42bd7029183
 ```
 bundle bcd4c42bd7029183 // frontend/playful+imaginative // native-skills // 7145 body bytes
 profile
+  ✓ boundary build-foundational-software  role "frontend-eng" holds within a scope boundary
   ✓ boundary suggest-external-comms       role "frontend-eng" holds within a scope boundary
-  ✓ boundary build-foundational-software  role "frontend-eng" defers boundary
   ✓ boundary modify-live-backend          role "frontend-eng" defers boundary
   ✓ boundary seek-external-validation     role "frontend-eng" defers boundary
 
@@ -62,9 +62,18 @@ reports the roles that are.
 
 ## What it holds a slice of
 
-`suggest-external-comms`, scoped to labels, empty states, error text, and
-microcopy shown inside a surface it owns. Never words addressed outward to a
-reader.
+* `build-foundational-software`, scoped to the code, dependencies, and build
+  configuration of a surface only it works on, such as a website. Never the
+  business rules, persistence, or authentication behind it, and never a
+  component library or tooling another repository imports.
+* `suggest-external-comms`, scoped to labels, empty states, error text, and
+  microcopy shown inside a surface it owns. Never words addressed outward to a
+  reader.
+
+The build slice exists because the frontend seat is usually the only one
+working on a site. Removing a package nothing renders anymore is its change,
+and handing it to platform sends a specialist work only the frontend would
+ever consume.
 
 This is the most useful thing to understand about the seat.
 Imp-Dragonfly writes the empty state that says what to do next, the error
@@ -75,10 +84,10 @@ addressed to an audience.
 
 ## What it defers
 
-`build-foundational-software`, `modify-live-backend`, and `seek-external-
-validation`. It consumes the component library rather than authoring it, does
-not deploy what it builds, and does not go outside to settle a question about
-what users want.
+`modify-live-backend` and `seek-external-validation`. It does not deploy what
+it builds, and does not go outside to settle a question about what users want.
+Handing those over is delegation to the specialist, not a request for
+permission.
 
 ## Reach for it when
 
@@ -106,7 +115,7 @@ the same pair pointed the other way.
 
 ## The chain it sits in
 
-Imp-Dragonfly is a net consumer. Platform builds what it imports, sysadmin
+Imp-Dragonfly builds its own surfaces whole. Platform builds the shared pieces it imports, sysadmin
 deploys what it ships, advocate writes what gets said about it, and director
 decides whether the surface was worth building.
 

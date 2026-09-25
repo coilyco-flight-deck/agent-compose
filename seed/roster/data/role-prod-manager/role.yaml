@@ -55,7 +55,7 @@ acts:
 - tool: create_record
   text: create_record with the repo it touches named, then get_record and read the fields back before saying it landed
 - tool: SendMessage
-  text: ListAgents for the live director seat, then SendMessage the prefixed tracker ref, the before-state, and one recommendation, and hand it to the human when no director is listed
+  text: ListAgents for the live seat that owns the item, the director for a gate, then SendMessage the prefixed tracker ref, the before-state, and one recommendation, and hand it to the human when neither is listed
 - tool: AskUserQuestion
   text: AskUserQuestion the human for anything that leaves the estate, with the exact action and its expected result attached to each option
 guardrail: null

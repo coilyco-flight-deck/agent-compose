@@ -52,6 +52,10 @@ name. Read such a scope as a list, not a direction.
 
 ## If you defer this boundary
 
+The owner is the specialist here. Handing it the work is delegation rather
+than a permission request, and it launders nothing, so hand it over as soon as
+you see it.
+
 Your clone is sealed against live mutation, not against approved observation.
 Read logs, traces, metrics, health, events, resource state, and rollout status,
 and treat what you observe as admissible for diagnosis and verdict. Do not

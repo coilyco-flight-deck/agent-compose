@@ -81,6 +81,10 @@ on.
 
 ## If you defer this boundary
 
+The owner is the specialist here. Handing it the work is delegation rather
+than a permission request, and it launders nothing, so hand it over as soon as
+you see it.
+
 Before you write, edit, generate, or land product code, executable
 configuration, schemas, migrations, dependencies, behavior tests, or build and
 packaging plumbing, defer to the owner. You may identify the need and give a

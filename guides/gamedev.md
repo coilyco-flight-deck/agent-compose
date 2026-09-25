@@ -49,7 +49,7 @@ bundle 0fa273eb460142e2 // gamedev/immersed+imaginative // native-skills // 7523
 profile
   ✓ boundary modify-live-backend          role "game-dev" holds within a scope boundary
   ✓ boundary suggest-external-comms       role "game-dev" holds within a scope boundary
-  ✓ boundary build-foundational-software  role "game-dev" defers boundary
+  ✓ boundary build-foundational-software  role "game-dev" holds within a scope boundary
   ✓ boundary seek-external-validation     role "game-dev" defers boundary
 
 bundle verified: 9 skills // 13 files
@@ -60,8 +60,11 @@ reports the roles that are.
 
 ## What it holds a slice of
 
-Two, and both are unusually specific.
+Three, and all are unusually specific.
 
+* `build-foundational-software`, scoped to the code, dependencies, and build
+  configuration of a game or mod only its own game work consumes. Never an
+  importer, validator, SDK wrapper, or tooling another repository builds on.
 * `modify-live-backend`, scoped to a local world, server, or save it launched
   itself, plus routine operation of a game server it already runs: mod
   sync, restart, config reload, world backup. Never provisioning a new server,
@@ -70,16 +73,16 @@ Two, and both are unusually specific.
   and mod documentation. Never a patch announcement, store description, or post
   about the game.
 
-Read the first one carefully. It is the most generous slice any non-owning seat
+Read the `modify-live-backend` one carefully. It is the most generous slice any non-owning seat
 holds anywhere in the roster, and it exists because a seat whose work requires
 a running world should not have to hand over every restart. The line inside it
 is between operating something that exists and changing what exists.
 
 ## What it defers
 
-`build-foundational-software` and `seek-external-validation`. The engine, the
+`seek-external-validation`, plus any build past its scope. The engine, the
 shared tooling, and the question of whether this game is the right game are all
-elsewhere.
+elsewhere, and handing them over is delegation to the specialist.
 
 ## Reach for it when
 

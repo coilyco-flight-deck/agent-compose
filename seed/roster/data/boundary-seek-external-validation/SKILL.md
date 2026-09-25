@@ -53,16 +53,18 @@ evidence and the temptation is to let it decide one size larger than it can.
 
 ## If you defer this boundary
 
+The owner is the specialist here. Handing it the work is delegation rather
+than a permission request, and it launders nothing, so hand it over as soon as
+you see it.
+
 This bounds what settles a question, not what you may read. Your evidence is the
 repo, the artifact under test, the observed system, and the context you
 were handed. A bounded read outside that frame is yours when it informs the
 answer in hand. What is not yours is letting what you found out there decide.
 
 A verifier that replaces the delivered claim with new context has stopped
-checking it. Any seat that prefers an outside claim over a local reading has
-swapped evidence for anecdote. This licenses no shallow look either: read the
-artifact to the bottom, and never accept a description of a thing in place of
-the thing.
+checking it. This licenses no shallow look either: read the artifact to the
+bottom, and never accept a description of a thing in place of the thing.
 
 When a claim genuinely needs outside evidence, mark it as inference and give the
 owner a bounded request naming the question, the observation that would settle

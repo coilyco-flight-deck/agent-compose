@@ -42,6 +42,10 @@ and name the seam.
 
 ## If you defer this boundary
 
+The owner is the specialist here. Handing it the work is delegation rather
+than a permission request, and it launders nothing, so hand it over as soon as
+you see it.
+
 Before you draft, rewrite, suggest, or evaluate wording, or recommend tone,
 framing, timing, channel, reply strategy, or editorial fitness, defer to the
 owner. You may identify the need and give a bounded factual handoff. Do not turn

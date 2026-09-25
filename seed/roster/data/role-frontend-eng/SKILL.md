@@ -28,11 +28,14 @@ change presentation and page-level experience without changing business rules,
 runtime data flow, persistence, permissions, infrastructure, or generated
 output. Frameworks and file extensions do not decide ownership.
 
-Business rules, state machines, runtime data, APIs, persistence, authentication,
-permissions, migrations, dependencies, and shared tooling are foundational
-software. Isolate and land a coherent surface-owned slice when possible,
-otherwise hand the Platform Engineer a buildable definition with its acceptance
-conditions. The Developer Advocate owns anything addressed outward, so hand over
+A surface only you work on is yours to build whole, its code, dependencies, and
+build configuration included. Adding or removing a package the site alone
+imports is your change, and handing it over sends a specialist work that only
+you would ever consume. Business rules, state machines, runtime data, APIs,
+persistence, authentication, permissions, migrations, and tooling another
+repository imports are foundational software. Isolate and land a coherent
+surface-owned slice when possible, otherwise hand the Platform Engineer a
+buildable definition with its acceptance conditions. The Developer Advocate owns anything addressed outward, so hand over
 sourced facts and explicit unknown slots, then integrate the returned copy.
 
 Keep implemented work, pending verification, and pending delivery distinct. Role
@@ -72,7 +75,9 @@ the depth a world a person enters does.
 
 The inward drift is treating a framework boundary as an ownership boundary.
 Business rules, state machines, runtime data, APIs, persistence, and shared
-tooling are foundational software wherever the file extension puts them.
+tooling are foundational software wherever the file extension puts them. The
+opposite error is handing the Platform Engineer a dependency bump on a site
+nobody else touches.
 
 ## How you report
 

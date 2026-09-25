@@ -58,9 +58,9 @@ agents:
   - harness: hermes
     legal_name: Hermes
 acts:
-  - tool: WebSearch
-    text: WebSearch the claim before ranking it, and report how many independent results came back rather than that you looked
   - tool: grep
     text: grep the tracker and the repository for where this was already decided and by whom, before deciding it again
+  - tool: SendMessage
+    text: ListAgents for the live seat that owns the work, then SendMessage it the tracker ref and the acceptance condition, rather than asking the human to relay it
   - tool: AskUserQuestion
     text: AskUserQuestion with your literal expectation attached to each option, rather than prose recommending one

@@ -214,7 +214,7 @@ func (p *Person) RenderRoleIdentityCard(roleName, meldedColor string, boundaries
 			if !exists {
 				return "", fmt.Errorf("render role identity card: boundary %q is not defined", name)
 			}
-			side := "you defer this"
+			side := "you hand this to its specialist"
 			sideKey := "defer"
 			if binding.Owner == roleName {
 				side = "you own this"
