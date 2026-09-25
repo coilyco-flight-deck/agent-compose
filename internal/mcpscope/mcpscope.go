@@ -215,3 +215,128 @@ func sortedNames(servers map[string]Server) []string {
 	sort.Strings(names)
 	return names
 }
+
+// GooseArgs replaces goose's configured extensions for one session with the
+// role's servers, keeping the builtin and platform extensions named in keep.
+func (sel Selection) GooseArgs(keep []string, home string) ([]string, error) {
+	args := []string{"--no-profile"}
+	if len(keep) > 0 {
+		args = append(args, "--with-builtin", strings.Join(keep, ","))
+	}
+	for _, name := range sel.Selected {
+		s := sel.servers[name]
+		if endpoint := serverEndpoint(s); endpoint != "" {
+			// The flag takes a URL alone, so a header would be dropped silently.
+			if len(s.Headers) > 0 {
+				return nil, fmt.Errorf("mcpscope: goose cannot pass headers for %q", name)
+			}
+			args = append(args, "--with-streamable-http-extension", homeExpander(home)(endpoint))
+			continue
+		}
+		spec, err := gooseStdio(name, s, home)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, "--with-extension", spec)
+	}
+	return args, nil
+}
+
+// gooseStdio renders `name:ENV=v command args` in the grammar goose splits it
+// with: whitespace-separated, quotes group, and no backslash escapes.
+func gooseStdio(name string, s Server, home string) (string, error) {
+	if strings.TrimSpace(s.Cwd) != "" {
+		return "", fmt.Errorf("mcpscope: goose cannot set a working directory for %q", name)
+	}
+	server := claudeServer(s, home)
+	parts := make([]string, 0, len(s.Env)+len(s.Args)+1)
+	env, _ := server["env"].(map[string]string)
+	for _, key := range sortedKeys(env) {
+		parts = append(parts, key+"="+env[key])
+	}
+	parts = append(parts, server["command"].(string))
+	if args, ok := server["args"].([]string); ok {
+		parts = append(parts, args...)
+	}
+	quoted := make([]string, len(parts))
+	for i, part := range parts {
+		q, err := gooseQuote(part)
+		if err != nil {
+			return "", fmt.Errorf("mcpscope: goose cannot express an argument of %q: %w", name, err)
+		}
+		quoted[i] = q
+	}
+	return name + ":" + strings.Join(quoted, " "), nil
+}
+
+func gooseQuote(part string) (string, error) {
+	switch {
+	case part == "":
+		return "", errors.New("an empty argument splits to nothing")
+	case !strings.ContainsAny(part, " \t\n\"'"):
+		return part, nil
+	case !strings.Contains(part, `"`):
+		return `"` + part + `"`, nil
+	case !strings.Contains(part, "'"):
+		return "'" + part + "'", nil
+	}
+	return "", errors.New("it holds both quote characters")
+}
+
+// OpenCodeConfig is an inline config that defines the role's servers and turns
+// off each omitted one, for OPENCODE_CONFIG_CONTENT. OpenCode merges it last.
+func (sel Selection) OpenCodeConfig(home string) (string, error) {
+	mcp := map[string]any{}
+	for _, name := range sel.Selected {
+		s := sel.servers[name]
+		server := claudeServer(s, home)
+		if endpoint := serverEndpoint(s); endpoint != "" {
+			entry := map[string]any{"type": "remote", "url": server["url"], "enabled": true}
+			if headers, ok := server["headers"]; ok {
+				entry["headers"] = headers
+			}
+			mcp[name] = entry
+			continue
+		}
+		if strings.TrimSpace(s.Cwd) != "" {
+			return "", fmt.Errorf("mcpscope: opencode cannot set a working directory for %q", name)
+		}
+		command := []string{server["command"].(string)}
+		if args, ok := server["args"].([]string); ok {
+			command = append(command, args...)
+		}
+		entry := map[string]any{"type": "local", "command": command, "enabled": true}
+		if env, ok := server["env"]; ok {
+			entry["environment"] = env
+		}
+		mcp[name] = entry
+	}
+	for _, name := range sel.Omitted {
+		mcp[name] = map[string]any{"enabled": false}
+	}
+	payload, err := json.Marshal(map[string]any{"mcp": mcp})
+	if err != nil {
+		return "", fmt.Errorf("mcpscope: render: %w", err)
+	}
+	return string(payload), nil
+}
+
+func serverEndpoint(s Server) string {
+	if strings.TrimSpace(s.URL) != "" {
+		return s.URL
+	}
+	return strings.TrimSpace(s.BaseURL)
+}
+
+func homeExpander(home string) func(string) string {
+	return func(v string) string { return strings.ReplaceAll(v, "${HOME}", home) }
+}
+
+func sortedKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}

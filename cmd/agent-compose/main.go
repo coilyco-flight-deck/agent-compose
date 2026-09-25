@@ -1128,6 +1128,7 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	}
 	identity := nativeIdentity{MCP: scope}
 	env := append(roleAttributionEnv(role), launch.DepthEnv(childDepth))
+	env = append(env, scope.Env...)
 	if result != nil {
 		identity.SeatName, identity.Settings = result.SeatName, result.HarnessSettings
 		env = append(env, sessionBundleEnv(result.BundleDir, harness)...)
@@ -1256,6 +1257,9 @@ type nativeIdentity struct {
 }
 
 func nativeHarnessCommand(harness string, args []string, identity nativeIdentity) []string {
+	if harness == "goose" && len(identity.MCP.GooseArgs) > 0 {
+		return gooseCommand(args, identity.MCP.GooseArgs)
+	}
 	command := append([]string{harness}, nativeIdentityArgs(harness, args, identity)...)
 	return append(command, args...)
 }

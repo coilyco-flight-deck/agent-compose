@@ -127,3 +127,72 @@ func contains(xs []string, x string) bool {
 	}
 	return false
 }
+
+func TestGooseArgsRenderInTheGrammarGooseSplits(t *testing.T) {
+	inv, err := Load(write(t, `{"mcpServers": {
+  "remote": {"url": "https://example.invalid/mcp"},
+  "script": {"command": "sh", "args": ["-c", "PATH=${HOME}/bin:$PATH exec tool"], "env": {"B": "2", "A": "1"}},
+  "pw_sysadmin": {"command": "npx", "x-aos": {"roles": ["senior-sysadmin"]}}
+}}`), roster)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := inv.Select("eng-platform").GooseArgs([]string{"developer", "todo"}, "/home/k")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{
+		"--no-profile", "--with-builtin", "developer,todo",
+		"--with-streamable-http-extension", "https://example.invalid/mcp",
+		"--with-extension", `script:A=1 B=2 sh -c "PATH=/home/k/bin:$PATH exec tool"`,
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("args =\n%q\nwant\n%q", got, want)
+	}
+}
+
+// A header or a working directory has no goose flag, and dropping it silently
+// would launch a server without its auth or in the wrong place.
+func TestGooseArgsRefuseWhatGooseCannotCarry(t *testing.T) {
+	for _, body := range []string{
+		`{"mcpServers": {"r": {"url": "https://x/mcp", "headers": {"Authorization": "t"}}}}`,
+		`{"mcpServers": {"c": {"command": "tool", "cwd": "/srv"}}}`,
+		`{"mcpServers": {"q": {"command": "tool", "args": ["it's \"both\""]}}}`,
+	} {
+		inv, err := Load(write(t, body), roster)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := inv.Select("eng-platform").GooseArgs(nil, "/home/k"); err == nil {
+			t.Errorf("%s: want a refusal", body)
+		}
+	}
+}
+
+func TestOpenCodeConfigDefinesSelectedAndDisablesOmitted(t *testing.T) {
+	inv, err := Load(write(t, inventory), roster)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := inv.Select("eng-platform").OpenCodeConfig("/home/k")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got struct {
+		MCP map[string]map[string]any `json:"mcp"`
+	}
+	if err := json.Unmarshal([]byte(raw), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.MCP["remote"]["type"] != "remote" || got.MCP["remote"]["url"] != "https://example.invalid/mcp" {
+		t.Errorf("remote = %v", got.MCP["remote"])
+	}
+	shared := got.MCP["shared"]
+	command, _ := shared["command"].([]any)
+	if shared["type"] != "local" || len(command) != 5 || command[4] != "/home/k/x.json" {
+		t.Errorf("shared = %v, want a local command with ${HOME} expanded", shared)
+	}
+	if off := got.MCP["pw_sysadmin"]; len(off) != 1 || off["enabled"] != false {
+		t.Errorf("omitted = %v, want only enabled=false so any definition elsewhere is turned off", off)
+	}
+}

@@ -98,8 +98,15 @@ the launch with that slug.
   directory at `mcp/<role>-<digest>.json`, so seats of one role share it.
 * Codex gets `-c mcp_servers.<name>.enabled=false` per omitted server, since its
   registry is a shared host file.
-* No inventory, no composed person, or a caller's own `--mcp-config` or
-  `--strict-mcp-config` leaves the launch unscoped on the full host registry.
+* Goose gets `session --no-profile`, its own config's enabled builtin and platform
+  extensions by `--with-builtin`, and each selected server by `--with-extension`
+  or `--with-streamable-http-extension`. A header or working directory it cannot
+  carry refuses, and a resume keeps the set its session recorded.
+* OpenCode gets `OPENCODE_CONFIG_CONTENT`, merged over its other layers, defining
+  each selected server and setting `enabled: false` on each omitted one.
+* No inventory or no roster refuses, per [launch](launch.md). A caller's own
+  scope is used as given: `--mcp-config` or `--strict-mcp-config` for Claude,
+  `--no-profile` for goose, and a set `OPENCODE_CONFIG_CONTENT` for OpenCode.
 
 The launch prints `agent-compose: MCP for <role>: N servers (K role-scoped), M
 omitted` to stderr. `agent-compose mcp --role <slug>` prints the same selection

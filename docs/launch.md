@@ -72,12 +72,13 @@ a drift test holds this list to it:
 * `selector-environment` - warn - clearing the parent's selectors.
 * `runtime-home` - warn - pointing the harness at the session home.
 * `telemetry` - warn - Claude metrics export.
-* `mcp-scope` - refuse - the role MCP config behind `--strict-mcp-config`, or Codex's disabled servers.
+* `mcp-scope` - refuse - the role MCP set, for every harness: Claude's `--strict-mcp-config`, Codex's disabled servers, goose's `--no-profile` set, or OpenCode's inline config.
 
 **The MCP scope fails closed.** No readable roster or no
 `~/.mcporter/mcporter.json` refuses, where both used to launch unscoped, and an
 empty server set is not a fallback either. A caller's own `--mcp-config` is a
-scope and is used as given. Goose and OpenCode have no scope step.
+scope and is used as given. Each harness's form is in
+[the MCP role scope](claude-launch-identity.md#mcp-role-scope).
 
 **A degraded launch stays visible**, since the harness repaints over stderr.
 Each skipped step prints `<step> did not load`. On a terminal, stdout then
