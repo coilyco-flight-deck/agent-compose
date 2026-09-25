@@ -23,7 +23,6 @@ Cascading
 Catapulting
 Cerebrating
 Channeling
-Channelling
 Choreographing
 Churning
 Clauding
@@ -92,6 +91,7 @@ Infusing
 Ionizing
 Jitterbugging
 Julienning
+Kerfuffling
 Kneading
 Leavening
 Levitating
@@ -111,14 +111,16 @@ Nesting
 Newspapering
 Noodling
 Nucleating
+Onioning
 Orbiting
 Orchestrating
 Osmosing
 Perambulating
 Percolating
 Perusing
-Philosophising
+Philosophizing
 Photosynthesizing
+Polishing
 Pollinating
 Pondering
 Pontificating
@@ -166,11 +168,12 @@ Tinkering
 Tomfoolering
 Topsy-turvying
 Transfiguring
+Transmogrifying
 Transmuting
 Twisting
 Undulating
 Unfurling
-Unravelling
+Unraveling
 Vibing
 Waddling
 Wandering

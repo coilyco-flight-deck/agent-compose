@@ -199,7 +199,6 @@ func themeOverrides(roleColor string, melded []string) (map[string]string, error
 	for token, paired := range map[string]string{
 		"claudeShimmer":       "claude",
 		"promptBorderShimmer": "promptBorder",
-		"autoAcceptShimmer":   "autoAccept",
 		"permissionShimmer":   "permission",
 	} {
 		shimmer, err := color.Shimmer(overrides[paired])
