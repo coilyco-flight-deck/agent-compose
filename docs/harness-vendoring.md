@@ -40,10 +40,12 @@ Set `AGENT_COMPOSE_CLAUDE_BINARY` to extract from a specific binary instead.
 ### How drift is noticed
 
 `TestVendoredHarnessDataMatchesTheInstalledBinary` re-extracts and compares
-content on every run, and skips when `claude` is not on `PATH`. It deliberately
-does not assert the version, so a Claude Code upgrade that changes neither list
-stays quiet rather than failing every checkout the moment the harness
-self-updates.
+content when the installed Claude Code is the version the data came from, and
+skips when `claude` is not on `PATH`. **The data follows the dev-base image's
+`CLAUDE_VERSION` pin**, because that is the Claude Code CI runs. A host that
+self-updated past the pin skips with both versions named rather than failing,
+since refreshing from it would fail CI. Moving the pin and running
+`just harness-refresh` land together. agent-compose#8274
 
 The extraction is anchored on the first default verb and on a token name that
 appears once per base theme. If a future bundler layout breaks those anchors the

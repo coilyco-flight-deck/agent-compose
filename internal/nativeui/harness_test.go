@@ -67,6 +67,12 @@ func TestVendoredHarnessDataMatchesTheInstalledBinary(t *testing.T) {
 		return
 	}
 
+	// The vendored data follows the dev-base pin CI runs, so a host that
+	// self-updated past it is reported rather than failed. See docs/harness-vendoring.md.
+	if installed, pinned := harnessVersion(t, path), readVendoredLines(t, vendoredVersionFile); len(pinned) == 1 && installed != pinned[0] {
+		t.Skipf("installed claude is %q and the vendored data is from %q, the dev-base pin; "+
+			"move the pin and run `just harness-refresh` together", installed, pinned[0])
+	}
 	compareVendored(t, vendoredVerbsFile, "default spinner verb", verbs)
 	compareVendored(t, vendoredTokensFile, "theme token", tokens)
 }
