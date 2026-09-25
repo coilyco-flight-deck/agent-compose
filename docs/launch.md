@@ -47,17 +47,45 @@ hop. See [native-role-launch.md](native-role-launch.md).
 
 ## Failure behavior
 
-A refresh failure never blocks a launch that has context to run with. When
+**A generic refresh never blocks a launch that has context to run with.** When
 compose or project fails and the target holds a validated last-known-good
-projection - every file the sidecar records still present - launch warns
-loudly on stderr and proceeds with it. Without a usable previous projection
-the launch aborts. A refresh failure touches only the bundle cache and
-projection-owned files. Credentials and mutable harness configuration are
-never in its write path.
+projection, launch warns on stderr and proceeds with it. Without one it
+aborts. An effective `external-only` person policy disables this fallback,
+because the prior projection may have used the embedded package.
 
-An effective `external-only` person policy disables this fallback. The prior
-projection may have used the embedded package, so launch aborts instead of
-risking a prohibited identity. Direct projection also rejects such bundles.
+**An assigned-role launch classes each startup step as warn or refuse.** A
+step that shapes behavior warns and launches, and a step that bounds reach
+refuses, since a plain Claude or Codex seat loads the whole user-level MCP set
+(teable:coilyco/agent-compose#8260). `startup_policy.go` holds the classes, and
+a drift test holds this list to it:
+
+* `launch-depth` - refuse - the one-hop nested-launch bound.
+* `host-converge` - warn - skill catalogs and the composed base.
+* `state-directory` - refuse - `~/.agent-compose`, where the MCP config lands.
+* `person` - warn - the host person policy. Failure falls back to the embedded person.
+* `operating-base` - warn - a session home's operating base and appendix.
+* `projection-guard` - refuse - a nested launch projecting over its own load points.
+* `role-composition` - warn - identity, personality, voice, skills, doctrine and UI settings, in a staged session home.
+* `role-composition-repo-scope` - refuse - the same without a session home, where the working directory may hold another role's projection.
+* `card` - warn - the identity card.
+* `launch-pause` - warn - the Press Enter gate.
+* `selector-environment` - warn - clearing the parent's selectors.
+* `runtime-home` - warn - pointing the harness at the session home.
+* `telemetry` - warn - Claude metrics export.
+* `mcp-scope` - refuse - the role MCP config behind `--strict-mcp-config`, or Codex's disabled servers.
+
+**The MCP scope fails closed.** No readable roster or no
+`~/.mcporter/mcporter.json` refuses, where both used to launch unscoped, and an
+empty server set is not a fallback either. A caller's own `--mcp-config` is a
+scope and is used as given. Goose and OpenCode have no scope step.
+
+**A degraded launch stays visible**, since the harness repaints over stderr.
+Each skipped step prints `<step> did not load`. On a terminal, stdout then
+carries `ESC ] 7750 ; agent-compose ; degraded=<steps> BEL`, which aterm shows
+as the session's `degraded` field in `aterm agents` and the dashboard. Claude
+gets the list through `--append-system-prompt` unless the caller set one, and
+Codex through `-c developer_instructions=`. `--spec-out` fails instead, having
+no composition to write.
 
 ## Concurrency
 

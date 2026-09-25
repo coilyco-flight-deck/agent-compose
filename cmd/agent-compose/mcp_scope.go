@@ -41,14 +41,21 @@ func loadMCPInventory(p *person.Person, path string) (*mcpscope.Inventory, error
 	return mcpscope.Load(path, roles)
 }
 
-// nativeMCPScope narrows the host MCP inventory to role for one launch. Any gap
-// leaves it unscoped rather than leaving a seat with no servers.
-func nativeMCPScope(w io.Writer, p *person.Person, role, harness, stateDir string, args []string) (mcpLaunch, error) {
-	if p == nil || (harness != "claude" && harness != "codex") {
+// nativeMCPScope narrows the host MCP inventory to role for one launch, and
+// fails closed rather than load the user-level set. See docs/launch.md.
+func nativeMCPScope(w io.Writer, loadPerson func() (*person.Person, error), role, harness, stateDir string, args []string) (mcpLaunch, error) {
+	if harness != "claude" && harness != "codex" {
 		return mcpLaunch{}, nil
 	}
 	if harness == "claude" && (nativeArgsCarry(args, "--mcp-config") || nativeArgsCarry(args, "--strict-mcp-config")) {
 		return mcpLaunch{}, nil
+	}
+	p, err := loadPerson()
+	if err != nil {
+		return mcpLaunch{}, fmt.Errorf("load the roster the MCP scope reads: %w", err)
+	}
+	if p == nil {
+		return mcpLaunch{}, errors.New("no roster to scope MCP servers against")
 	}
 	home, err := mcpInventoryHome()
 	if err != nil {
@@ -56,7 +63,7 @@ func nativeMCPScope(w io.Writer, p *person.Person, role, harness, stateDir strin
 	}
 	inv, err := loadMCPInventory(p, filepath.Join(home, ".mcporter", "mcporter.json"))
 	if errors.Is(err, mcpscope.ErrNoInventory) {
-		return mcpLaunch{}, nil
+		return mcpLaunch{}, fmt.Errorf("%w; pass --mcp-config to launch with a scope of your own", err)
 	}
 	if err != nil {
 		return mcpLaunch{}, err

@@ -961,11 +961,17 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 			harness,
 		)
 	}
-	childDepth, err := launch.NestedDepth(
-		os.Getenv(launch.EnvSentinel),
-		os.Getenv(launch.EnvDepth),
-	)
-	if err != nil {
+	// Every step below runs under the startup policy: a behavior step that
+	// fails is recorded and skipped, a reach step refuses the launch.
+	run := &startupRun{w: os.Stderr}
+	var childDepth int
+	if err := run.do(stepLaunchDepth, func() (err error) {
+		childDepth, err = launch.NestedDepth(
+			os.Getenv(launch.EnvSentinel),
+			os.Getenv(launch.EnvDepth),
+		)
+		return err
+	}); err != nil {
 		return err
 	}
 	paths := cascade.DefaultPaths()
@@ -980,43 +986,52 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 	// nested seat skips it exactly as refreshThenExec does. agent-compose#348
 	if nestedLaunchSkipsConverge(childDepth) {
 		fmt.Fprintln(os.Stderr, nestedLaunchNotice("converge"))
-	} else if code := converge.Run(
-		paths,
-		converge.Options{Verbose: verbose},
-		convergeStatus,
-		os.Stderr,
-	); code != 0 {
-		return cli.Exit("", code)
+	} else {
+		_ = run.do(stepHostConverge, func() error {
+			if code := converge.Run(paths, converge.Options{Verbose: verbose}, convergeStatus, os.Stderr); code != 0 {
+				return fmt.Errorf("host convergence exited %d", code)
+			}
+			return nil
+		})
 	}
-	stateDir, err := home.Dir()
-	if err != nil {
-		return fmt.Errorf("resolve agent-compose state: %w", err)
+	var stateDir string
+	if err := run.do(stepStateDirectory, func() (err error) {
+		stateDir, err = home.Dir()
+		return err
+	}); err != nil {
+		return err
 	}
 	cwd, err := filepath.Abs(".")
 	if err != nil {
 		return fmt.Errorf("resolve native launch directory: %w", err)
 	}
-	personSelection, err := loadHostPersonOptions(paths)
-	if err != nil {
+	var personSelection compose.Options
+	_ = run.do(stepPerson, func() (err error) {
+		personSelection, err = loadHostPersonOptions(paths)
 		return err
-	}
+	})
 	runtimeHome := strings.TrimSpace(os.Getenv(nativelaunch.EnvRuntimeHome))
 	// Only a session home replaces the host load point. A repo-scope launch
 	// still reads the host file, where repeating the base would double it.
 	operatingBase, operatingAppendix := "", ""
 	var appendixRoles []string
 	if runtimeHome != "" {
-		cfg, err := cascade.LoadConfig(paths.Config)
-		if err != nil {
-			return fmt.Errorf("load host configuration for the operating base: %w", err)
-		}
-		operatingBase, operatingAppendix, err = cascade.OperatingBaseParts(cfg, harness, role)
-		if err != nil {
-			return err
-		}
-		if appendixRoles, err = cascade.AppendixRoles(cfg); err != nil {
-			return err
-		}
+		_ = run.do(stepOperatingBase, func() error {
+			cfg, err := cascade.LoadConfig(paths.Config)
+			if err != nil {
+				return fmt.Errorf("load host configuration for the operating base: %w", err)
+			}
+			base, appendix, err := cascade.OperatingBaseParts(cfg, harness, role)
+			if err != nil {
+				return err
+			}
+			roles, err := cascade.AppendixRoles(cfg)
+			if err != nil {
+				return err
+			}
+			operatingBase, operatingAppendix, appendixRoles = base, appendix, roles
+			return nil
+		})
 	}
 	// Keyed to the depth rather than to a flag, so it covers every nested
 	// launch instead of the announced ones. #403
@@ -1025,95 +1040,121 @@ func runNativeLaunch(_ context.Context, cmd *cli.Command) error {
 		if runtimeHome != "" {
 			target = runtimeHome
 		}
-		if err := refuseOwnProjectionReplacement(target); err != nil {
+		if err := run.do(stepProjectionGuard, func() error {
+			return refuseOwnProjectionReplacement(target)
+		}); err != nil {
 			return err
 		}
 	}
-	result, err := nativelaunch.Refresh(nativelaunch.Options{
-		Role:              role,
-		Harness:           harness,
-		ModelTier:         os.Getenv(nativelaunch.EnvModelTier),
-		CWD:               cwd,
-		TargetDir:         cwd,
-		RuntimeHome:       runtimeHome,
-		OperatingBase:     operatingBase,
-		OperatingAppendix: operatingAppendix,
-		AppendixRoles:     appendixRoles,
-		PlanPath:          filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
-		OutDir:            filepath.Join(stateDir, "bundles"),
-		PersonSelection:   personSelection,
-	})
-	if err != nil {
+	var result *nativelaunch.Result
+	// Only a fresh session home is empty without a composition. A working
+	// directory may hold another role's projection. See docs/launch.md.
+	composition := stepRoleComposition
+	if runtimeHome == "" {
+		composition = stepRepoComposition
+	}
+	if err := run.do(composition, func() (err error) {
+		result, err = nativelaunch.Refresh(nativelaunch.Options{
+			Role:              role,
+			Harness:           harness,
+			ModelTier:         os.Getenv(nativelaunch.EnvModelTier),
+			CWD:               cwd,
+			TargetDir:         cwd,
+			RuntimeHome:       runtimeHome,
+			OperatingBase:     operatingBase,
+			OperatingAppendix: operatingAppendix,
+			AppendixRoles:     appendixRoles,
+			PlanPath:          filepath.Join(filepath.Dir(paths.Composed), "repository-plan.yaml"),
+			OutDir:            filepath.Join(stateDir, "bundles"),
+			PersonSelection:   personSelection,
+		})
+		return err
+	}); err != nil {
 		return err
 	}
-	// Selector provenance is routine on a launch and already carried by the
-	// decision trace. `agent-compose compose` remains the verb that says it.
-	if verbose {
-		printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
-	}
-	interactive := nativeLaunchInteractive(os.Stdin, os.Stdout)
-	summaryOpts := person.RoleTranscriptOptions{
-		Color:     colorEnabled(),
-		TrueColor: trueColorTerminal(),
-	}
-	state := "new"
-	if result.BundleReused {
-		state = "reused"
-	}
-	if verbose && interactive {
-		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
-	}
-	if err := printNativeLaunchSummary(
-		os.Stdout,
-		result.Composition,
-		summaryOpts,
-		summaryLayout{RoleLast: interactive, Audit: verbose},
-	); err != nil {
-		return err
-	}
+	// A spec is a composition handed to another launcher, so it has none to hand
+	// over without one. See docs/launch.md.
 	if specOut != "" {
+		if result == nil {
+			return fmt.Errorf("%s did not load, so there is no launch spec to write", stepRoleComposition.Name)
+		}
 		return writeLaunchSpec(specOut, buildLaunchSpec(role, harness, runtimeHome, childDepth, result))
 	}
-	noPause = noPause || os.Getenv(noPauseEnv) == "1"
-	if err := acknowledgeNativeLaunch(
-		os.Stdin,
-		os.Stdout,
-		interactive && !noPause,
-	); err != nil {
-		return err
-	}
-	if err := clearNativeLaunchEnvironment(); err != nil {
-		return err
-	}
-	if runtimeHome != "" {
-		if err := activateNativeRuntimeHome(runtimeHome, harness); err != nil {
-			return err
+	interactive := nativeLaunchInteractive(os.Stdin, os.Stdout)
+	state := "new"
+	if result != nil {
+		// Selector provenance is routine on a launch and already carried by the
+		// decision trace. `agent-compose compose` remains the verb that says it.
+		if verbose {
+			printCompositionWarnings(os.Stderr, result.Composition.Resolution.Warnings)
 		}
+		if result.BundleReused {
+			state = "reused"
+		}
+		if verbose && interactive {
+			printNativeLaunchStatus(os.Stderr, role, harness, result, state)
+		}
+		_ = run.do(stepCard, func() error {
+			return printNativeLaunchSummary(
+				os.Stdout,
+				result.Composition,
+				person.RoleTranscriptOptions{Color: colorEnabled(), TrueColor: trueColorTerminal()},
+				summaryLayout{RoleLast: interactive, Audit: verbose},
+			)
+		})
 	}
-	if err := applyTelemetryEnvironment(paths.Config, harness, role); err != nil {
-		return err
+	noPause = noPause || os.Getenv(noPauseEnv) == "1"
+	_ = run.do(stepLaunchPause, func() error {
+		return acknowledgeNativeLaunch(os.Stdin, os.Stdout, interactive && !noPause)
+	})
+	_ = run.do(stepSelectorEnv, clearNativeLaunchEnvironment)
+	if runtimeHome != "" {
+		_ = run.do(stepRuntimeHome, func() error {
+			return activateNativeRuntimeHome(runtimeHome, harness)
+		})
 	}
-	if verbose && !interactive {
+	_ = run.do(stepTelemetry, func() error {
+		return applyTelemetryEnvironment(paths.Config, harness, role)
+	})
+	if result != nil && verbose && !interactive {
 		printNativeLaunchStatus(os.Stderr, role, harness, result, state)
 	}
-	scope, err := nativeMCPScope(os.Stderr, result.Composition.Resolution.Person, role, harness, stateDir, args[2:])
-	if err != nil {
+	var scope mcpLaunch
+	if err := run.do(stepMCPScope, func() (err error) {
+		scope, err = nativeMCPScope(os.Stderr, scopePerson(result, personSelection), role, harness, stateDir, args[2:])
+		return err
+	}); err != nil {
 		return err
 	}
-	return execReal(
-		nativeHarnessCommand(harness, args[2:], nativeIdentity{
-			SeatName: result.SeatName,
-			Settings: result.HarnessSettings,
-			MCP:      scope,
-		}),
-		append(
-			append(
-				roleAttributionEnv(role),
-				launch.DepthEnv(childDepth),
-			),
-			sessionBundleEnv(result.BundleDir, harness)...,
-		)...,
-	)
+	identity := nativeIdentity{MCP: scope}
+	env := append(roleAttributionEnv(role), launch.DepthEnv(childDepth))
+	if result != nil {
+		identity.SeatName, identity.Settings = result.SeatName, result.HarnessSettings
+		env = append(env, sessionBundleEnv(result.BundleDir, harness)...)
+	}
+	command := nativeHarnessCommand(harness, args[2:], identity)
+	if len(run.degraded) > 0 {
+		command = append(command[:1], append(degradedHarnessArgs(harness, args[2:], run.degraded), command[1:]...)...)
+		if term.IsTerminal(int(os.Stdout.Fd())) {
+			fmt.Fprint(os.Stdout, degradedOSC(run.names()))
+		}
+	}
+	return execReal(command, env...)
+}
+
+// scopePerson is the roster the MCP scope reads. It comes from the composition
+// when there is one, and is loaded on its own when composition did not load.
+func scopePerson(result *nativelaunch.Result, selection compose.Options) func() (*person.Person, error) {
+	return func() (*person.Person, error) {
+		if result != nil && result.Composition != nil && result.Composition.Resolution != nil &&
+			result.Composition.Resolution.Person != nil {
+			return result.Composition.Resolution.Person, nil
+		}
+		if selection.PersonSource != "" {
+			return person.LoadDirectoryWithLibraries(selection.PersonSource, selection.PersonalityLibraries...)
+		}
+		return person.Load()
+	}
 }
 
 func runStatusline(_ context.Context, cmd *cli.Command) error {

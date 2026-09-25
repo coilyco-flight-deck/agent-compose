@@ -117,3 +117,4 @@ goes before `<role>`, since later arguments belong to the harness (#8199).
 * [Role selection](role-selection.md) - inferred and caller-assigned roles.
 * [Projection](projection.md) - harness load points and ownership.
 * [Repository policy](repository-plan.md) - availability and residency.
+* [Launch](launch.md) - which startup steps warn and which refuse.
