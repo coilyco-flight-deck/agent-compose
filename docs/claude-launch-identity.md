@@ -19,8 +19,8 @@ converged before the session starts.
   rather than rendering an empty pair of parens, so an external package still
   launches.
 * `--settings <bundle>/claude-settings.json` carries the role's
-  [native UI](claude-native-ui-surfaces.md) fragment: the theme selection, the
-  spinner verbs, and the spinner tips. Refresh writes that fragment beside the
+  [native UI](claude-native-ui-surfaces.md) fragment: the theme, the spinner
+  voice, and the [cluster CLI deny](claude-native-ui-surfaces.md#cluster-cli-deny). Refresh writes it beside the
   bundle it just composed, and only for the `claude` harness.
 
 ## Why arguments and not files

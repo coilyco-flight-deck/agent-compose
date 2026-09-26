@@ -53,6 +53,34 @@ against the base theme rather than trusting its own output.
 Files over 256KB are skipped with a warning. The whole directory is watched, so
 a rewritten theme file is picked up without a restart.
 
+## Cluster CLI deny
+
+The Claude settings fragment a native launch passes as `--settings` carries
+`permissions.deny` for bare `kubectl` and `helm`, by name and by path, on every
+role except the owner of the `modify-live-backend` boundary. Other seats reach
+the cluster through `aosguard ops kubectl`. Kai's decision:
+`teable:coilyco/agentic-os#8282`.
+
+### Who keeps the CLIs
+
+The owner comes from the roster's boundary table, so moving that boundary moves
+the exception with it and no role list is restated here. A roster that names no
+owner denies every role, because a renamed boundary should fail closed.
+
+### Why it binds
+
+`--settings` loads into `flagSettings`. Claude Code merges deny rules across
+tiers rather than replacing them, and a deny in any tier beats an allow in every
+other, so the host's `Bash(*)` allow cannot reopen them. Observed on Claude Code
+2.1.283, including after a PreToolUse hook prefixed the command.
+
+### What it does not cover
+
+The rules match command text. A `just` verb or a script that shells out to
+kubectl still runs, which is the gap that retired the fleet-wide deny on
+2026-09-14. A caller-supplied `--settings` also replaces the fragment whole, per
+[caller precedence](claude-launch-identity.md#caller-precedence).
+
 ## Safe mode caveat
 
 `--safe-mode` disables custom themes, keybindings, output styles, and plugins

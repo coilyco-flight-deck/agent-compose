@@ -266,3 +266,35 @@ func TestTipsCarryCharterAndKeepHarnessDefaults(t *testing.T) {
 		}
 	}
 }
+
+// Only the live-backend owner keeps bare kubectl and helm. teable:coilyco/agentic-os#8282
+func TestClusterCLIsDeniedToEveryRoleButTheLiveBackendOwner(t *testing.T) {
+	p := selected(t)
+	owner := p.Boundaries[LiveBackendBoundary].Owner
+	if owner == "" {
+		t.Fatalf("roster names no %s owner", LiveBackendBoundary)
+	}
+	bundles, err := Build(p, Options{})
+	if err != nil {
+		t.Fatalf("build: %v", err)
+	}
+	for _, bundle := range bundles {
+		denied := bundle.Settings.Permissions
+		if bundle.Role == owner {
+			if denied != nil {
+				t.Errorf("owner %q is denied %v", owner, denied.Deny)
+			}
+			continue
+		}
+		if denied == nil || strings.Join(denied.Deny, "|") != strings.Join(ClusterCLIDenies, "|") {
+			t.Errorf("role %q denies %v, want %v", bundle.Role, denied, ClusterCLIDenies)
+		}
+	}
+}
+
+func TestClusterCLIsDeniedToAllWhenNoRoleOwnsTheLiveBackend(t *testing.T) {
+	p := &person.Person{Boundaries: map[string]person.Boundary{}}
+	if permissionsFor(p, "sysadmin-senior") == nil {
+		t.Fatal("a roster without the boundary left the cluster CLIs open")
+	}
+}

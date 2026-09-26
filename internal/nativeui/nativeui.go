@@ -63,6 +63,27 @@ type Settings struct {
 	SpinnerTipsEnabled bool              `json:"spinnerTipsEnabled"`
 	SpinnerTips        SpinnerTips       `json:"spinnerTipsOverride"`
 	SubagentStatusLine StatusLineCommand `json:"subagentStatusLine"`
+	Permissions        *Permissions      `json:"permissions,omitempty"`
+}
+
+// Permissions carries harness deny rules. A deny in any settings tier beats an
+// allow in every other, so the host's own allow list cannot reopen these.
+type Permissions struct {
+	Deny []string `json:"deny"`
+}
+
+// LiveBackendBoundary names the boundary whose owner keeps the bare cluster CLIs.
+const LiveBackendBoundary = "modify-live-backend"
+
+// ClusterCLIDenies refuses bare kubectl and helm, by name and by path.
+// See docs/claude-native-ui-surfaces.md.
+var ClusterCLIDenies = []string{
+	"Bash(kubectl)",
+	"Bash(kubectl *)",
+	"Bash(*/kubectl *)",
+	"Bash(helm)",
+	"Bash(helm *)",
+	"Bash(*/helm *)",
 }
 
 // SubagentStatusLineCommand renders the composed identity per agent-panel row.
@@ -160,8 +181,18 @@ func BuildRole(p *person.Person, roleName string, opts Options) (Bundle, error) 
 				Type:    "command",
 				Command: SubagentStatusLineCommand,
 			},
+			Permissions: permissionsFor(p, roleName),
 		},
 	}, nil
+}
+
+// permissionsFor denies the cluster CLIs to every role but the live-backend
+// owner. A roster with no owner denies them to all, rather than to none.
+func permissionsFor(p *person.Person, roleName string) *Permissions {
+	if boundary, ok := p.Boundaries[LiveBackendBoundary]; ok && boundary.Owner == roleName {
+		return nil
+	}
+	return &Permissions{Deny: append([]string(nil), ClusterCLIDenies...)}
 }
 
 // tipsFor states the charter, the lock on it, and the boundary. A tip lands while
