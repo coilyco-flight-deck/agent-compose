@@ -298,3 +298,27 @@ func TestClusterCLIsDeniedToAllWhenNoRoleOwnsTheLiveBackend(t *testing.T) {
 		t.Fatal("a roster without the boundary left the cluster CLIs open")
 	}
 }
+
+// Every role runs bash-guard, and only the live-backend owner keeps a bare verb.
+// teable:coilyco/agent-compose#8288
+func TestBashGuardHookIsWiredAndOnlyTheOwnerKeepsExec(t *testing.T) {
+	p := selected(t)
+	owner := p.Boundaries[LiveBackendBoundary].Owner
+	bundles, err := Build(p, Options{GuardCommand: "/opt/agent compose/bin/agent-compose"})
+	if err != nil {
+		t.Fatalf("build: %v", err)
+	}
+	for _, bundle := range bundles {
+		hooks := bundle.Settings.Hooks
+		if hooks == nil || len(hooks.PreToolUse) != 1 || hooks.PreToolUse[0].Matcher != "Bash" {
+			t.Fatalf("role %q wires no Bash PreToolUse hook: %+v", bundle.Role, hooks)
+		}
+		command := hooks.PreToolUse[0].Hooks[0].Command
+		if !strings.HasPrefix(command, "'/opt/agent compose/bin/agent-compose' hook bash-guard") {
+			t.Errorf("role %q hook %q does not run the quoted guard", bundle.Role, command)
+		}
+		if keeps := strings.Contains(command, "--allow-kubectl exec"); keeps != (bundle.Role == owner) {
+			t.Errorf("role %q hook %q: keeps exec = %v", bundle.Role, command, keeps)
+		}
+	}
+}

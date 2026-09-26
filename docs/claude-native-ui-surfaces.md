@@ -55,30 +55,37 @@ a rewritten theme file is picked up without a restart.
 
 ## Cluster CLI deny
 
-The Claude settings fragment a native launch passes as `--settings` carries
-`permissions.deny` for bare `kubectl` and `helm`, by name and by path, on every
-role except the owner of the `modify-live-backend` boundary. Other seats reach
-the cluster through `aosguard ops kubectl`. Kai's decision:
-`teable:coilyco/agentic-os#8282`.
+The Claude settings fragment a native launch passes as `--settings` refuses bare
+`kubectl` and `helm`, so seats change the cluster through `aosguard ops
+kubectl`. The owner of the `modify-live-backend` boundary keeps bare `kubectl
+exec` alone, until `teable:coilyco-flight-deck/agentic-os#225` puts exec on
+aosguard. Kai's decisions: `teable:coilyco/agentic-os#8282` and
+`teable:coilyco/agent-compose#8288`.
 
-### Who keeps the CLIs
+### Two layers
 
-The owner comes from the roster's boundary table, so moving that boundary moves
-the exception with it and no role list is restated here. A roster that names no
-owner denies every role, because a renamed boundary should fail closed.
+* `permissions.deny` for `kubectl` and `helm`, by name and by path, on every
+  role but the owner. A deny in any tier beats every allow, so the host's
+  `Bash(*)` cannot reopen it, and for the same reason it cannot carve out exec.
+* A `PreToolUse` Bash hook, `agent-compose hook bash-guard`, on every role, with
+  `--allow-kubectl exec` for the owner. It parses the command with
+  `mvdan.cc/sh`, so a flag before the verb, `sudo`, `env`, `xargs`, `bash -c`,
+  `eval`, a heredoc, a pipe into a shell, and `ssh` or `python -c` text are all
+  judged by the verb they would run. A computed command on a line naming a
+  cluster CLI is refused. Exit 2 blocks and shows the reason to the model.
 
-### Why it binds
-
-`--settings` loads into `flagSettings`. Claude Code merges deny rules across
-tiers rather than replacing them, and a deny in any tier beats an allow in every
-other, so the host's `Bash(*)` allow cannot reopen them. Observed on Claude Code
-2.1.283, including after a PreToolUse hook prefixed the command.
+The owner comes from the roster's boundary table, and a roster naming none
+denies every role. The launch resolves `agent-compose` on `PATH` into the hook,
+because a hook that cannot start does not block. Observed on Claude Code
+2.1.283: exec ran, while `kubectl apply`, `helm upgrade`, and the `bash -c` form
+were refused.
 
 ### What it does not cover
 
-The rules match command text. A `just` verb or a script that shells out to
-kubectl still runs, which is the gap that retired the fleet-wide deny on
-2026-09-14. A caller-supplied `--settings` also replaces the fragment whole, per
+A `just` verb or a script file runs its own kubectl unseen. Those call sites move
+to aosguard instead (#8288). Anything that writes a file and runs it later, or
+builds the name at runtime from pieces, gets past a guard on ordinary use. A
+caller-supplied `--settings` replaces the fragment whole, per
 [caller precedence](claude-launch-identity.md#caller-precedence).
 
 ## Safe mode caveat

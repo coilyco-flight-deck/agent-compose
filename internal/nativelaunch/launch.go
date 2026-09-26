@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -180,7 +181,7 @@ func emitHarnessSettings(composed *compose.Result, harness, role string) (string
 	if p == nil {
 		return "", nil
 	}
-	built, err := nativeui.BuildRole(p, strings.TrimSpace(role), nativeui.Options{})
+	built, err := nativeui.BuildRole(p, strings.TrimSpace(role), nativeui.Options{GuardCommand: guardCommand()})
 	if err != nil {
 		return "", fmt.Errorf("emit native UI settings for role %q: %w", role, err)
 	}
@@ -193,6 +194,20 @@ func emitHarnessSettings(composed *compose.Result, harness, role string) (string
 		return "", fmt.Errorf("write native UI settings for role %q: %w", role, err)
 	}
 	return path, nil
+}
+
+// guardCommand resolves agent-compose on PATH, so the hook survives a brew
+// upgrade that removes the running Cellar path, then falls back to this binary.
+func guardCommand() string {
+	if found, err := exec.LookPath("agent-compose"); err == nil {
+		if absolute, err := filepath.Abs(found); err == nil {
+			return absolute
+		}
+	}
+	if self, err := os.Executable(); err == nil {
+		return self
+	}
+	return ""
 }
 
 // undefinedAppendixRoles names each configured appendix role the roster does not
