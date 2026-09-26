@@ -140,6 +140,10 @@ evalkit-filter *ARGS:
 evalkit-validity ANNOTATIONS:
     @uv run python evaluations/split-candidates-2026-09-08/validity.py "{{ANNOTATIONS}}"
 
+# PyLadies Remote room M2 check. `just evalkit-room-m2 selftest`, `run <base url> <out>`, `score <out> [export]`.
+evalkit-room-m2 *ARGS:
+    @uv run python evaluations/pyladies-room-m2-2026-09-27/room_m2.py "$@"
+
 # Cluster annotation critiques into a ranked failure taxonomy.
 evalkit-taxonomy *ARGS:
     @uv run housecast grade taxonomy "$@"
